@@ -1,0 +1,20 @@
+schema: spec-driven
+
+# Project context
+context: |
+  项目名称：GEO（生成式引擎优化）工程与 SOP 平台
+  项目语言：简体中文
+  变更目录命名：必须使用直白的中文（如：'2026-08-28-搭建-GEO-SOP-网站'）
+
+# Per-artifact rules
+rules:
+  naming:
+    - 变更目录名使用中文，格式：YYYY-MM-DD-简短描述
+    - 不要用英文 kebab-case
+  proposal:
+    - 所有内容使用简体中文
+  design:
+    - 所有内容使用简体中文
+  tasks:
+    - 所有内容使用简体中文
+    - 任务编号使用 1.1, 1.2 格式

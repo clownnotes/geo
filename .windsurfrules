@@ -1,0 +1,13 @@
+# Windsurf Rules — GEO 项目规范与跨 IDE 审查协同
+
+## 1. 核心工作流与 OpenSpec 规范
+- 本项目采用 **OpenSpec 规范驱动开发**。
+- 当前任务位于 `openspec/changes/` 下。请始终参考当前活动的变更文件：
+  - `proposal.md`：需求背景与范围
+  - `design.md`：架构设计与接口
+  - `tasks.md`：细分任务清单与勾选状态
+  - `review-log.md`：跨 IDE 评审日志
+
+## 2. 审查协同
+- 检查设计与代码是否符合 GEO 普林斯顿标准及技术底座规范。
+- 在 `review-log.md` 中追加结论：`[待讨论]` / `[需修正]` / `[已达成共识]` / `[通过]`。

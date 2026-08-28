@@ -1,0 +1,16 @@
+---
+description: OpenSpec-driven workflow and multi-IDE review protocol for GEO
+globs: ["openspec/**", "docs/**", "src/**"]
+alwaysApply: true
+---
+
+# Cursor OpenSpec & Multi-IDE Rules
+
+## 1. Core Workflow (OpenSpec)
+- This project follows **Spec-Driven Development (OpenSpec)**.
+- Active changes reside in `openspec/changes/YYYY-MM-DD-描述/`.
+- All requirements, architectural designs, and implementation checklists must be drafted in `proposal.md`, `design.md`, and `tasks.md`.
+
+## 2. Multi-IDE Collaboration Protocol (`review-log.md`)
+- Use `review-log.md` to coordinate between Antigravity, Windsurf, Claude Code, and Cursor.
+- Status tags: `[待讨论]`, `[需修正]`, `[已达成共识]`, `[通过]`.

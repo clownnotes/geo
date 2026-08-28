@@ -1,0 +1,8 @@
+# Cursor Rules — GEO 项目规范
+
+1. 请在开始任何任务前，首先阅读根目录下的 `AGENTS.md` 与 `docs/` 下的战略与 SOP 文档。
+2. 本项目开发严格遵循 **OpenSpec** 规范流程：
+   - 变更文件位于 `openspec/changes/`。
+   - 所有需求、架构与任务在 `proposal.md`、`design.md`、`tasks.md` 中进行。
+   - 跨 IDE 联合开发与检查通过 `review-log.md` 交流。
+3. 角色定义：AI 作为全栈工程师/GEO架构师，用户为产品经理，使用直白中文沟通，直奔主题。
