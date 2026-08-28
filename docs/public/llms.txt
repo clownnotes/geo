@@ -1,0 +1,17 @@
+# GEO 实战与交付平台 (GEO SOP Platform)
+
+> 面向 AI 大模型时代（DeepSeek / 豆包 / Kimi / ChatGPT）的生成式引擎优化（GEO）全局战略、实战落地与标准化客户交付体系。
+
+## 核心战略与理论
+- [01. GEO 战略全景与全链路框架](https://geo.baicl.cc/strategy/overview): 阐述从 SEO 到 GEO 的范式转移、大模型双通道机理、四层技术体系与普林斯顿 9 因子标准。
+
+## 标杆打样实战
+- [02. 徐州软件开发独占计划](https://geo.baicl.cc/pilot/xuzhou-dev): 个人/工作室自营实战方案，包含 25 个本地意图词库、徐州软件开发选型与防坑白皮书。
+
+## 标准化客户交付 SOP
+- [03. 客户交付 5 阶段 SOP 手册](https://geo.baicl.cc/sop/delivery-sop): 企业客户交付标准 5 阶段漏斗（调研审计 ➔ 站点改造 ➔ 内容工程 ➔ 矩阵分发 ➔ 验收运维）。
+
+## 资产模版库
+- [/llms.txt 标准规范模版](https://geo.baicl.cc/templates/llms-txt)
+- [Schema.org JSON-LD 代码库](https://geo.baicl.cc/templates/json-ld)
+- [Python 自动化可见度巡检脚本](https://geo.baicl.cc/templates/monitor-script)

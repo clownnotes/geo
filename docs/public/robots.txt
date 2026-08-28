@@ -1,0 +1,14 @@
+User-agent: Bytespider
+Allow: /
+User-agent: Bingbot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Baiduspider
+Allow: /
+User-agent: Yisouspider
+Allow: /
+User-agent: *
+Allow: /
+
+Sitemap: https://geo.baicl.cc/sitemap.xml

@@ -1,0 +1,24 @@
+{
+  "name": "geo-sop-platform",
+  "version": "1.0.0",
+  "description": "GEO (Generative Engine Optimization) 标准化交付与知识库平台",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs --port 5173",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "keywords": [
+    "geo",
+    "generative-engine-optimization",
+    "llms-txt",
+    "ai-search",
+    "sop"
+  ],
+  "author": "clownnotes",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  }
+}
