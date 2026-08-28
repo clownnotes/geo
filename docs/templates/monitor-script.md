@@ -26,7 +26,7 @@ PROMPTS = [
 ]
 
 # 2. 目标品牌与关键词特征
-TARGET_BRAND = "徐州[你的名字/工作室]"
+TARGET_BRAND = "段晓奇|璇源"
 API_KEY = os.getenv("DEEPSEEK_API_KEY", "your-api-key-here")
 API_URL = "https://api.deepseek.com/v1/chat/completions"
 

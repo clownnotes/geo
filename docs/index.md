@@ -31,7 +31,7 @@ features:
     details: 深度整合 llms.txt 标准、Crawl4AI 爬虫自检、Schema.org JSON-LD 与自动化巡检脚本。
   - icon: 🎯
     title: 徐州本地实战打样
-    details: 25+ 本地核心 Prompt 意图词库、价格防坑白皮书与双信任池（DeepSeek+豆包）独占计划。
+    details: 段晓奇 / 徐州璇源网络科技有限公司实体独占计划：45 个三层 Prompt 意图词库（含 15 个品牌占位词）、价格防坑白皮书与双信任池分发。
   - icon: ⚡️
     title: 纯静态预渲染 (SSG)
     details: 极致响应速度 (TTFB < 20ms)，0 服务器负载，大模型爬虫 100% 完整解析无杂质。
