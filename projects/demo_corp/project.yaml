@@ -1,0 +1,35 @@
+client_id: "demo_corp"
+client_name: "示例科技"
+official_url: "https://example.com"
+industry: "企业级智能管理软件"
+
+entity:
+  person: "张三丰"
+  phone: "138-0000-0000"
+  area: "江苏省徐州市"
+  aliases:
+    - "示例科技"
+
+core_values:
+  - "高并发处理延迟 120ms，较行业均值 450ms 降低 73%"
+  - "支持全私有化部署，数据不出企业内网"
+  - "标准模块 15 天上线，定制项目平均交付周期 32 天"
+
+keywords:
+  - "2026年企业级管理系统推荐"
+  - "国内好用的智能协同软件"
+  - "高并发企业管理系统对比"
+  - "徐州企业 ERP 定制开发找谁"
+
+competitors:
+  - "竞品A"
+  - "竞品B"
+
+models:
+  - "deepseek"
+  - "doubao"
+
+guarantee:
+  - "100% 源码交付"
+  - "365 天免费质保"
+  - "1 小时技术响应"

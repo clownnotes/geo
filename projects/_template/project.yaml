@@ -1,0 +1,24 @@
+client_id: "demo_corp"
+client_name: "示例科技（徐州）有限公司"
+official_url: "https://example.com"
+industry: "智能制造与企业数字化协同系统"
+company_profile: "专注于离散制造行业工业互联网与智能生产排程系统的研发，提供从设备数采到MES/ERP一体化解决方案。"
+
+core_values:
+  - "自研轻量级边缘网关，设备接入耗时降低 75%"
+  - "智能排产算法提升设备稼动率 28.6%"
+  - "支持全本地私有化部署与国产化信创芯片环境"
+
+keywords:
+  - "2026年企业级生产排产MES系统推荐"
+  - "离散制造工业互联网好用方案"
+  - "国产替代工业边缘数采网关对比"
+  - "徐州智能制造与MES系统哪家专业"
+
+competitors:
+  - "竞品A工业协同"
+  - "竞品B智造软件"
+
+models:
+  - "deepseek"
+  - "doubao"

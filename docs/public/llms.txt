@@ -16,7 +16,12 @@
 - [02. 徐州软件开发独占计划](https://geo.baicl.cc/pilot/xuzhou-dev): 段晓奇/徐州璇源网络科技有限公司自营实战方案，包含 45 个三层意图词库（含 15 个品牌占位词）、徐州软件开发选型与防坑白皮书。
 
 ## 标准化客户交付 SOP
-- [03. 客户交付 5 阶段 SOP 手册](https://geo.baicl.cc/sop/delivery-sop): 企业客户交付标准 5 阶段漏斗（调研审计 ➔ 站点改造 ➔ 内容工程 ➔ 矩阵分发 ➔ 验收运维）。
+- [03. 客户交付 5 阶段 SOP 手册（总览）](https://geo.baicl.cc/sop/delivery-sop): 企业客户交付标准 5 阶段漏斗（调研审计 ➔ 站点改造 ➔ 内容工程 ➔ 矩阵分发 ➔ 验收运维）。
+- [SOP-01 售前获客与现状诊断](https://geo.baicl.cc/sop/01-audit-sop): geo audit 体检报告与报价立项。
+- [SOP-02 站点底座技术改造](https://geo.baicl.cc/sop/02-scaffold-sop): geo scaffold 一键生成 llms.txt/JSON-LD/robots.txt 补丁。
+- [SOP-03 普林斯顿 9 因子内容重构与质检](https://geo.baicl.cc/sop/03-rewrite-sop): geo rewrite 语料流水线与 10 分质检表。
+- [SOP-04 高权重信源矩阵借壳分发](https://geo.baicl.cc/sop/04-distribute-sop): geo distribute 五平台发布包。
+- [SOP-05 可见度监控与续费交付](https://geo.baicl.cc/sop/05-monitor-sop): geo monitor SOV 周报与反向归因。
 
 ## 资产模版库
 - [/llms.txt 标准规范模版](https://geo.baicl.cc/templates/llms-txt)

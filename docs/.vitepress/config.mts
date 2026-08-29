@@ -129,6 +129,16 @@ export default defineConfig({
       { text: '🎯 徐州标杆实战', link: '/pilot/xuzhou-dev' },
       { text: '📋 客户交付 SOP', link: '/sop/delivery-sop' },
       {
+        text: '🧱 五阶段细分 SOP',
+        items: [
+          { text: 'SOP-01 售前诊断与立项', link: '/sop/01-audit-sop' },
+          { text: 'SOP-02 底座技术改造交付', link: '/sop/02-scaffold-sop' },
+          { text: 'SOP-03 内容重构与质检', link: '/sop/03-rewrite-sop' },
+          { text: 'SOP-04 矩阵借壳分发', link: '/sop/04-distribute-sop' },
+          { text: 'SOP-05 监控归因与续费', link: '/sop/05-monitor-sop' }
+        ]
+      },
+      {
         text: '🧰 模版与工具中心',
         items: [
           { text: '📄 /llms.txt 标准模版', link: '/templates/llms-txt' },
@@ -161,7 +171,17 @@ export default defineConfig({
         {
           text: '📋 标准化客户交付',
           items: [
-            { text: '03. 客户交付 5 阶段 SOP 手册', link: '/sop/delivery-sop' }
+            { text: '03. 客户交付 5 阶段 SOP 手册（总览）', link: '/sop/delivery-sop' }
+          ]
+        },
+        {
+          text: '🧱 五阶段细分 SOP（配合 tools/geo）',
+          items: [
+            { text: 'SOP-01 售前诊断与立项', link: '/sop/01-audit-sop' },
+            { text: 'SOP-02 底座技术改造交付', link: '/sop/02-scaffold-sop' },
+            { text: 'SOP-03 普林斯顿重构与质检', link: '/sop/03-rewrite-sop' },
+            { text: 'SOP-04 矩阵借壳分发', link: '/sop/04-distribute-sop' },
+            { text: 'SOP-05 监控归因与续费', link: '/sop/05-monitor-sop' }
           ]
         }
       ],

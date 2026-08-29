@@ -1,0 +1,19 @@
+Sitemap: https://example.com/sitemap.xml
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: DeepSeekBot
+Allow: /

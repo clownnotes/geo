@@ -1,0 +1,9 @@
+# GEO 交付工作台与自动化工具链核心依赖
+# 基础依赖
+pyyaml>=6.0
+requests>=2.31.0
+
+# 可选增强依赖（大模型爬取与文档转换）
+# pip install crawl4ai
+# pip install markitdown
+# pip install openai

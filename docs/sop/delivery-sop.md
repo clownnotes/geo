@@ -99,3 +99,19 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 - [ ] **S4.2** GitHub 仓库/微信公众号 文章发布
 - [ ] **S5.1** 运行自动化大模型提及率测试
 - [ ] **S5.2** 交付客户并开启月度维护服务
+
+---
+
+## 五阶段交付程序映射（`tools/geo` 商用套件）
+
+本手册的每个 Stage 已配套一个 CLI 子命令，客户工作区隔离在 `projects/<client_id>/`：
+
+| Stage | CLI 命令 | 细分 SOP | 核心产物 |
+| :--- | :--- | :--- | :--- |
+| S1 调研审计 | `python3 -m tools.geo audit --project <id>` | [SOP-01](/sop/01-audit-sop) | 《企业 AI 可见度诊断报告》 |
+| S2 站点改造 | `python3 -m tools.geo scaffold --project <id>` | [SOP-02](/sop/02-scaffold-sop) | llms.txt / JSON-LD / robots.txt 补丁 |
+| S3 内容工程 | `python3 -m tools.geo rewrite --project <id>` | [SOP-03](/sop/03-rewrite-sop) | 普林斯顿 9 因子语料库 |
+| S4 矩阵分发 | `python3 -m tools.geo distribute --project <id>` | [SOP-04](/sop/04-distribute-sop) | 5 平台发布包 + 执行单 |
+| S5 验收运维 | `python3 -m tools.geo monitor --project <id>` | [SOP-05](/sop/05-monitor-sop) | SOV 周报 + 归因清单 |
+
+一键端到端（新客演示/回归测试）：`python3 -m tools.geo all --project <id>`

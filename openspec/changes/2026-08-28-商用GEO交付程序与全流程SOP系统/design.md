@@ -101,7 +101,10 @@ GEO/
 │       ├── rewrite.py        # 阶段 3: 内容重构
 │       ├── distribute.py     # 阶段 4: 渠道分发
 │       ├── monitor.py        # 阶段 5: 监测报表
-│       └── templates/        # 报表与代码模板
+│       ├── project.py        # 客户工作区加载/校验/初始化
+│       ├── llm.py            # OpenAI 兼容 LLM 客户端（DeepSeek/豆包 Ark）
+│       └── miniyaml.py       # 零依赖 YAML 子集解析器
+│       # 注：报表/代码模板以函数级内联实现（scaffold/audit 等模块内），不单独建 templates/ 目录
 ├── projects/                 # 客户项目隔离工作区
 │   └── _template/            # 客户模板配置
 │       ├── project.yaml      # 客户基本信息与关键词配置
