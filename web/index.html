@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEO 商业交付与 SOP 流水线管理工作台</title>
+  <!-- Tailwind CSS & Lucide Icons & Marked.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); }
+    .markdown-body h1 { font-size: 1.5rem; font-weight: 700; margin-top: 1.2rem; margin-bottom: 0.8rem; color: #1e293b; }
+    .markdown-body h2 { font-size: 1.25rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.6rem; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
+    .markdown-body h3 { font-size: 1.05rem; font-weight: 600; margin-top: 0.8rem; margin-bottom: 0.4rem; color: #475569; }
+    .markdown-body p { margin-bottom: 0.8rem; line-height: 1.6; color: #334155; }
+    .markdown-body ul, .markdown-body ol { margin-left: 1.5rem; margin-bottom: 0.8rem; list-style-type: disc; }
+    .markdown-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+    .markdown-body th, .markdown-body td { border: 1px solid #cbd5e1; padding: 0.6rem 0.8rem; text-align: left; }
+    .markdown-body th { background-color: #f1f5f9; font-weight: 600; color: #1e293b; }
+    .markdown-body blockquote { border-left: 4px solid #4f46e5; padding-left: 1rem; color: #475569; background: #f8fafc; padding-top: 0.4rem; padding-bottom: 0.4rem; margin: 0.8rem 0; border-radius: 0 4px 4px 0; }
+    .markdown-body code { background: #f1f5f9; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem; color: #0284c7; }
+    .markdown-body pre { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.8rem 0; }
+    .markdown-body pre code { background: transparent; color: inherit; padding: 0; }
+    /* Toast 浮动提示 */
+    #toast-box { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- 全局 Toast 提示容器 -->
+  <div id="toast-box" class="fixed top-5 right-5 z-50 transform -translate-y-16 opacity-0 pointer-events-none flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold text-white transition-all duration-300"></div>
+
+  <!-- ================= 1. 登录视图 ================= -->
+  <div id="login-view" class="flex-1 flex items-center justify-center p-6 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
+    <div class="glass-card w-full max-w-md p-8 rounded-2xl shadow-2xl border border-slate-700/50">
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+          <i data-lucide="zap" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">GEO 交付管理端</h1>
+          <p class="text-xs text-slate-500 font-medium tracking-wider">GENERATIVE ENGINE OPTIMIZATION</p>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-xs mb-6 flex items-start gap-2">
+        <i data-lucide="shield-alert" class="w-4 h-4 shrink-0 text-amber-600 mt-0.5"></i>
+        <div><strong>安全隔离</strong>：公网文档与 /llms.txt 开放抓取；管理端商业数据已加密隔离，需认证登录。</div>
+      </div>
+
+      <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">管理账号</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
+            <input id="login-username" type="text" value="admin" required class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="输入管理员账号">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">登录密码</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
+            <input id="login-password" type="password" value="geo2026!" required class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="输入登录密码">
+          </div>
+        </div>
+
+        <div id="login-error" class="hidden text-red-600 text-xs font-medium bg-red-50 p-2.5 rounded-lg"></div>
+
+        <button type="submit" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2">
+          <span>安全登录管理端</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-xs text-slate-400">
+        默认测试凭证：账号 <code class="text-indigo-600">admin</code> 密码 <code class="text-indigo-600">geo2026!</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 2. 项目管理大盘视图 ================= -->
+  <div id="dashboard-view" class="hidden flex-1 flex flex-col">
+    <!-- 顶部导航 -->
+    <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">GEO 商业交付生产工作台</h1>
+          <p class="text-xs text-slate-500">普林斯顿 9 因子标准流水线体系（豆包 & DeepSeek 专属适配）</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 text-xs text-slate-600 bg-slate-100 py-1.5 px-3 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>操作员: <strong id="current-user-name" class="text-slate-800">admin</strong></span>
+        </div>
+        <button onclick="handleLogout()" class="text-xs text-slate-500 hover:text-red-600 font-medium flex items-center gap-1 transition">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span>退出</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-8 space-y-6">
+      <!-- 统计指标 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
+            <i data-lucide="folder-kanban" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">托管商业项目</div>
+            <div id="stat-total-projects" class="text-2xl font-bold text-slate-900 mt-0.5">0</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
+            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">全套交付完成</div>
+            <div id="stat-completed-projects" class="text-2xl font-bold text-slate-900 mt-0.5">0</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+            <i data-lucide="trending-up" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">平均 AI 声量提升</div>
+            <div class="text-2xl font-bold text-emerald-600 mt-0.5">+100.0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 项目管理表头与操作 -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">客户项目档案列表</h2>
+            <p class="text-xs text-slate-500 mt-0.5">点击项目直接进入向导生产流水线，支持一键打包下载全部成果</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="openNewProjectModal()" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>+ 新建客户项目</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-6 py-3.5">客户名称 / ID</th>
+                <th class="px-6 py-3.5">所属行业</th>
+                <th class="px-6 py-3.5">官网域名</th>
+                <th class="px-6 py-3.5 text-center">核心词库</th>
+                <th class="px-6 py-3.5">SOP 交付进度</th>
+                <th class="px-6 py-3.5 text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody id="projects-table-body" class="divide-y divide-slate-200 text-slate-700">
+              <!-- JS 动态注入 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= 3. 5 步向导式生产流水线视图 ================= -->
+  <div id="wizard-view" class="hidden flex-1 flex flex-col bg-slate-100">
+    <!-- 向导顶部导航 -->
+    <header class="bg-white border-b border-slate-200 px-8 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center gap-3">
+        <button onclick="backToDashboard()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition" title="返回项目列表">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </button>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="wizard-client-name" class="text-base font-bold text-slate-900">客户名称</h1>
+            <span id="wizard-client-id" class="text-xs bg-indigo-50 text-indigo-700 font-mono px-2 py-0.5 rounded">client_id</span>
+          </div>
+          <p id="wizard-client-url" class="text-xs text-slate-500">https://example.com</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="runPipelineAll()" id="btn-run-all" class="py-2 px-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          <span>一键跑通 5 步流水线</span>
+        </button>
+        <button onclick="downloadDeliverables()" class="py-2 px-3.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>一键打包导出 (.zip)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 步骤条条栏 -->
+    <div class="bg-white border-b border-slate-200 px-8 py-3">
+      <div class="max-w-5xl mx-auto flex items-center justify-between text-xs font-medium">
+        <!-- 步骤 1 -->
+        <button onclick="switchStep(1)" id="step-tab-1" class="flex items-center gap-2 text-indigo-600 font-bold focus:outline-none">
+          <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">1</span>
+          <span>① 现状诊断体检</span>
+        </button>
+        <div class="flex-1 h-0.5 bg-slate-200 mx-3"></div>
+
+        <!-- 步骤 2 -->
+        <button onclick="switchStep(2)" id="step-tab-2" class="flex items-center gap-2 text-slate-400 focus:outline-none">
+          <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">2</span>
+          <span>② 站点底座改造</span>
+        </button>
+        <div class="flex-1 h-0.5 bg-slate-200 mx-3"></div>
+
+        <!-- 步骤 3 -->
+        <button onclick="switchStep(3)" id="step-tab-3" class="flex items-center gap-2 text-slate-400 focus:outline-none">
+          <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">3</span>
+          <span>③ 普林斯顿重构</span>
+        </button>
+        <div class="flex-1 h-0.5 bg-slate-200 mx-3"></div>
+
+        <!-- 步骤 4 -->
+        <button onclick="switchStep(4)" id="step-tab-4" class="flex items-center gap-2 text-slate-400 focus:outline-none">
+          <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">4</span>
+          <span>④ 矩阵借壳分发</span>
+        </button>
+        <div class="flex-1 h-0.5 bg-slate-200 mx-3"></div>
+
+        <!-- 步骤 5 -->
+        <button onclick="switchStep(5)" id="step-tab-5" class="flex items-center gap-2 text-slate-400 focus:outline-none">
+          <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">5</span>
+          <span>⑤ 声量监测周报</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 向导主工作面板 -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-8 space-y-6">
+
+      <!-- ===== STEP 1 PANEL ===== -->
+      <div id="step-panel-1" class="space-y-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">阶段一：客户现状体检与商业诊断</h2>
+            <p class="text-xs text-slate-500 mt-1">模拟 AI 爬虫抓取官网，检测 SSR 渲染、/llms.txt、JSON-LD 及文本密度，生成签单体检报告。</p>
+          </div>
+          <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+            <i data-lucide="scan" class="w-4 h-4"></i>
+            <span>执行体检诊断</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700">
+            <span>📄 交付物：01_企业AI可见度现状体检与商业诊断报告.md</span>
+            <button onclick="copyOutput('01_企业AI可见度现状体检与商业诊断报告.md')" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制全文</span>
+            </button>
+          </div>
+          <div id="preview-step-1" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
+            <div class="text-center py-12 text-slate-400 text-sm">点击右上角【执行体检诊断】开始生成报告...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STEP 2 PANEL ===== -->
+      <div id="step-panel-2" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">阶段二：站点底座技术改造包生成</h2>
+            <p class="text-xs text-slate-500 mt-1">一键生成合规 /llms.txt、Schema.org (JSON-LD) 实体元数据与 robots.txt 放行补丁。</p>
+          </div>
+          <button onclick="runSingleStep(event, 'scaffold')" id="btn-step-2" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+            <i data-lucide="code" class="w-4 h-4"></i>
+            <span>一键生成底座代码</span>
+          </button>
+        </div>
+
+        <!-- 选项卡 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold">
+            <button onclick="switchScaffoldTab('llms.txt')" id="tab-llms" class="px-6 py-3 border-b-2 border-indigo-600 text-indigo-600 bg-white flex items-center gap-1.5">
+              <span>/llms.txt</span>
+              <span onclick="showTermHelp(event, 'llms')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
+            </button>
+            <button onclick="switchScaffoldTab('schema.jsonld')" id="tab-schema" class="px-6 py-3 text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+              <span>JSON-LD 结构化数据</span>
+              <span onclick="showTermHelp(event, 'schema')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-indigo-100 hover:text-indigo-700 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
+            </button>
+            <button onclick="switchScaffoldTab('robots.txt')" id="tab-robots" class="px-6 py-3 text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+              <span>robots.txt 放行补丁</span>
+              <span onclick="showTermHelp(event, 'robots')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-indigo-100 hover:text-indigo-700 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
+            </button>
+            <button onclick="switchScaffoldTab('02_站点技术底座改造交付包.md')" id="tab-guide" class="px-6 py-3 text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+              <span>交付说明书</span>
+              <span onclick="showTermHelp(event, 'guide')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-indigo-100 hover:text-indigo-700 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
+            </button>
+          </div>
+          <div class="p-4 bg-slate-900 text-slate-100 font-mono text-xs max-h-[500px] overflow-y-auto relative">
+            <button onclick="copyCurrentScaffold()" class="absolute top-4 right-4 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制代码</span>
+            </button>
+            <pre id="preview-scaffold-code">请点击上方按钮生成代码...</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STEP 3 PANEL ===== -->
+      <div id="step-panel-3" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">阶段三：普林斯顿 9 因子高权威内容重构</h2>
+            <p class="text-xs text-slate-500 mt-1">注入三元组结论先行、+41% 采纳率的参数对比表与搜索意图 Q&A 问答对。</p>
+          </div>
+          <button onclick="runSingleStep(event, 'rewrite')" id="btn-step-3" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>执行普林斯顿重构</span>
+          </button>
+        </div>
+
+        <!-- 原始素材在线编辑器 (可折叠) -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="file-edit" class="w-4 h-4 text-indigo-600"></i>
+              <span>客户原始宣传资料 / 卖点草稿（修改后点保存，重构时将优先读取）：</span>
+            </div>
+            <button onclick="saveRawMaterials()" class="py-1 px-3 bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs font-semibold rounded transition flex items-center gap-1">
+              <i data-lucide="save" class="w-3.5 h-3.5"></i>
+              <span>保存原始素材</span>
+            </button>
+          </div>
+          <textarea id="raw-materials-editor" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="可在此粘贴客户的产品手册、PPT内容或卖点说明..."></textarea>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700">
+            <span>📄 交付物：03_普林斯顿9因子高权威语料库.md</span>
+            <button onclick="copyOutput('03_普林斯顿9因子高权威语料库.md')" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制全文</span>
+            </button>
+          </div>
+          <div id="preview-step-3" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
+            <div class="text-center py-12 text-slate-400 text-sm">点击右上角【执行普林斯顿重构】开始生成语料库...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STEP 4 PANEL ===== -->
+      <div id="step-panel-4" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">阶段四：多平台高权重信源矩阵借壳分发</h2>
+            <p class="text-xs text-slate-500 mt-1">自适应适配今日头条（打豆包）、知乎长文（打DeepSeek）、GitHub 开源技术专版。</p>
+          </div>
+          <button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+            <i data-lucide="share-2" class="w-4 h-4"></i>
+            <span>生成矩阵发布包</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- 头条 -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-red-600 font-bold text-sm mb-2">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                <span>今日头条 / 豆包生态 (优先)</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-4">攻占字节跳动 Bytespider 检索信任池，24小时内极速生效召回。</p>
+            </div>
+            <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制头条发布文案</span>
+            </button>
+          </div>
+
+          <!-- 知乎 -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-blue-600 font-bold text-sm mb-2">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span>知乎技术长文 / DeepSeek</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-4">攻占专业技术深度池，包含架构设计与参数对比。</p>
+            </div>
+            <button onclick="copyOutput('dist_zhihu_article.md')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制知乎专栏长文</span>
+            </button>
+          </div>
+
+          <!-- GitHub -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-slate-800 font-bold text-sm mb-2">
+                <i data-lucide="github" class="w-4 h-4"></i>
+                <span>GitHub 开源文档</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-4">最高权重开源爬虫索引，构建权威白皮书。</p>
+            </div>
+            <button onclick="copyOutput('dist_github_README.md')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制 GitHub README</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STEP 5 PANEL ===== -->
+      <div id="step-panel-5" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">阶段五：AI 可见度监控与周报自动生成</h2>
+            <p class="text-xs text-slate-500 mt-1">并发检索主流大模型，计算 SOV 声量占比、首推排名与权威引用外链，生成续费依据。</p>
+          </div>
+          <button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+            <i data-lucide="line-chart" class="w-4 h-4"></i>
+            <span>执行声量监测</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700">
+            <span>📄 交付物：05_企业AI可见度与声量追踪周报.md</span>
+            <button onclick="copyOutput('05_企业AI可见度与声量追踪周报.md')" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制全文</span>
+            </button>
+          </div>
+          <div id="preview-step-5" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
+            <div class="text-center py-12 text-slate-400 text-sm">点击右上角【执行声量监测】生成可视化周报...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部步骤切换栏 -->
+      <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+        <button onclick="prevStep()" id="btn-prev-step" class="py-2.5 px-5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          <span>上一步</span>
+        </button>
+
+        <div class="flex items-center gap-3">
+          <button onclick="nextStep()" id="btn-next-step" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow transition">
+            <span>下一步</span>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= 4. 新建客户项目模态弹窗 ================= -->
+  <div id="new-project-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="folder-plus" class="w-5 h-5 text-indigo-600"></i>
+          <span>新建客户项目</span>
+        </h3>
+        <button onclick="closeNewProjectModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="new-project-form" onsubmit="handleCreateProject(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-sm">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">项目唯一代号 (Client ID)</label>
+          <input id="np-id" type="text" required placeholder="如: xuzhou_tech (英文/下划线)" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">客户企业/产品名称</label>
+          <input id="np-name" type="text" required placeholder="如: 示例科技（徐州）有限公司" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">官网 URL 域名</label>
+          <input id="np-url" type="url" required placeholder="https://example.com" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">所属行业领域</label>
+          <input id="np-industry" type="text" required placeholder="如: 工业排产MES与协同系统" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">核心业务意图词库 (每行一个)</label>
+          <textarea id="np-keywords" rows="3" required placeholder="2026年企业级排产MES推荐&#10;国内好用的工业协同软件&#10;高并发排产系统对比" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">主要竞品列表 (每行一个)</label>
+          <textarea id="np-competitors" rows="2" placeholder="行业竞品A&#10;行业竞品B" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeNewProjectModal()" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition">取消</button>
+          <button type="submit" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs shadow transition">创建并进入流水线</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 4.2 专有名词智能解释弹窗 ================= -->
+  <div id="term-modal" onclick="if(event.target === this) closeTermHelp()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+            💡
+          </div>
+          <div>
+            <h3 id="term-title" class="text-sm font-bold text-slate-900">名词解释</h3>
+            <p id="term-badge" class="text-[11px] text-indigo-600 font-medium">GEO 底座标准技术规范</p>
+          </div>
+        </div>
+        <button onclick="closeTermHelp()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs text-slate-600 max-h-[75vh] overflow-y-auto leading-relaxed">
+        <!-- 通俗比喻 -->
+        <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3.5 flex items-start gap-3">
+          <div class="text-base">🎯</div>
+          <div>
+            <div class="font-bold text-indigo-900 mb-0.5">大白话通俗比喻</div>
+            <div id="term-analogy" class="text-indigo-800">给大模型看的专属网站说明书。</div>
+          </div>
+        </div>
+
+        <!-- 核心作用 -->
+        <div class="space-y-1.5">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="cog" class="w-3.5 h-3.5 text-indigo-600"></i>
+            <span>它是干嘛的？（核心作用）</span>
+          </div>
+          <p id="term-desc" class="text-slate-600 pl-5">详细解释内容...</p>
+        </div>
+
+        <!-- 为什么要用它 -->
+        <div class="space-y-1.5">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>为什么 GEO 优化必不可少？</span>
+          </div>
+          <p id="term-why" class="text-slate-600 pl-5">大模型检索采纳原理...</p>
+        </div>
+
+        <!-- 部署方法 -->
+        <div class="space-y-1.5">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-600"></i>
+            <span>如何安装部署？</span>
+          </div>
+          <p id="term-how" class="text-slate-600 pl-5">极简安装说明...</p>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <button onclick="closeTermHelp()" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs transition">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 5. 前端核心业务逻辑 JS ================= -->
+  <script>
+    let currentAuthToken = localStorage.getItem('geo_token') || '';
+    let currentProjectId = '';
+    let currentProjectData = null;
+    let currentStep = 1;
+    let currentScaffoldTab = 'llms.txt';
+
+    // 优雅的 Toast 提示
+    function showToast(msg, type = 'success') {
+      const box = document.getElementById('toast-box');
+      box.innerText = msg;
+      box.className = `fixed top-5 right-5 z-50 transform translate-y-0 opacity-100 flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold text-white transition-all duration-300 ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
+      setTimeout(() => {
+        box.className = 'fixed top-5 right-5 z-50 transform -translate-y-16 opacity-0 pointer-events-none flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold text-white transition-all duration-300';
+      }, 2500);
+    }
+
+    // 初始化运行
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      checkAuthStatus();
+    });
+
+    // 检查登录态
+    async function checkAuthStatus() {
+      try {
+        const res = await fetch('/api/auth/status', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.authenticated) {
+          showDashboard(data.username);
+        } else {
+          showLogin();
+        }
+      } catch (e) {
+        showLogin();
+      }
+    }
+
+    function showLogin() {
+      document.getElementById('login-view').classList.remove('hidden');
+      document.getElementById('dashboard-view').classList.add('hidden');
+      document.getElementById('wizard-view').classList.add('hidden');
+      lucide.createIcons();
+    }
+
+    function showDashboard(username) {
+      document.getElementById('login-view').classList.add('hidden');
+      document.getElementById('dashboard-view').classList.remove('hidden');
+      document.getElementById('wizard-view').classList.add('hidden');
+      if (username) document.getElementById('current-user-name').innerText = username;
+      loadProjectsList();
+      lucide.createIcons();
+    }
+
+    // 登录处理
+    async function handleLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('login-username').value;
+      const pwd = document.getElementById('login-password').value;
+      const errBox = document.getElementById('login-error');
+      errBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, password: pwd })
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentAuthToken = data.token;
+          localStorage.setItem('geo_token', data.token);
+          showDashboard(data.username);
+          showToast('欢迎登录 GEO 交付工作台！');
+        } else {
+          errBox.innerText = data.message || '登录失败！';
+          errBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        errBox.innerText = '网络连接异常，请检查服务状态。';
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    // 退出处理
+    async function handleLogout() {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+      });
+      localStorage.removeItem('geo_token');
+      currentAuthToken = '';
+      showLogin();
+      showToast('已安全退出登录');
+    }
+
+    // 加载项目列表
+    async function loadProjectsList() {
+      try {
+        const res = await fetch('/api/projects', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const list = data.projects || [];
+          document.getElementById('stat-total-projects').innerText = list.length;
+          document.getElementById('stat-completed-projects').innerText = list.filter(p => p.steps_done === 5).length;
+          
+          const tbody = document.getElementById('projects-table-body');
+          if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">暂无项目，点击右上角【+ 新建客户项目】快速创建</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = list.map(p => `
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="px-6 py-4">
+                <div class="font-bold text-slate-900">${p.client_name}</div>
+                <div class="text-xs text-slate-400 font-mono">${p.client_id}</div>
+              </td>
+              <td class="px-6 py-4 text-xs font-medium text-slate-600">${p.industry || '通用'}</td>
+              <td class="px-6 py-4 text-xs text-slate-500"><a href="${p.official_url}" target="_blank" class="hover:text-indigo-600 underline">${p.official_url}</a></td>
+              <td class="px-6 py-4 text-xs text-center font-semibold text-slate-700">${p.keywords_count} 组</td>
+              <td class="px-6 py-4">
+                <div class="w-full bg-slate-200 rounded-full h-2 max-w-[120px] overflow-hidden">
+                  <div class="bg-indigo-600 h-2 rounded-full" style="width: ${p.progress_pct}%"></div>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-1">${p.steps_done}/5 阶段完成 (${p.progress_pct}%)</div>
+              </td>
+              <td class="px-6 py-4 text-right flex items-center justify-end gap-2">
+                <button onclick="enterWizard('${p.client_id}')" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition">
+                  进入流水线 ➔
+                </button>
+                <button onclick="downloadProjectZip('${p.client_id}')" title="下载交付包ZIP" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="confirmDeleteProject('${p.client_id}')" title="删除项目" class="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </td>
+            </tr>
+          `).join('');
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // 删除项目
+    async function confirmDeleteProject(projectId) {
+      if (!confirm(`确定要删除项目 [${projectId}] 吗？该操作不可撤销。`)) return;
+      try {
+        const res = await fetch(`/api/projects/${projectId}/delete`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`项目 [${projectId}] 已成功删除`);
+          loadProjectsList();
+        } else {
+          showToast(data.message || '删除失败', 'error');
+        }
+      } catch (e) {
+        showToast('删除请求异常', 'error');
+      }
+    }
+
+    function downloadProjectZip(projectId) {
+      window.location.href = `/api/projects/${projectId}/export`;
+    }
+
+    // 新建项目模态框
+    function openNewProjectModal() { document.getElementById('new-project-modal').classList.remove('hidden'); lucide.createIcons(); }
+    function closeNewProjectModal() { document.getElementById('new-project-modal').classList.add('hidden'); }
+
+    async function handleCreateProject(e) {
+      e.preventDefault();
+      const payload = {
+        client_id: document.getElementById('np-id').value.trim(),
+        client_name: document.getElementById('np-name').value.trim(),
+        official_url: document.getElementById('np-url').value.trim(),
+        industry: document.getElementById('np-industry').value.trim(),
+        keywords: document.getElementById('np-keywords').value.trim(),
+        competitors: document.getElementById('np-competitors').value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/projects', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewProjectModal();
+          showToast(`项目 [${payload.client_id}] 创建成功！`);
+          enterWizard(payload.client_id);
+        } else {
+          showToast(data.message || '创建失败！', 'error');
+        }
+      } catch (err) {
+        showToast('创建项目请求异常。', 'error');
+      }
+    }
+
+    // 进入向导流水线
+    async function enterWizard(projectId) {
+      currentProjectId = projectId;
+      document.getElementById('dashboard-view').classList.add('hidden');
+      document.getElementById('wizard-view').classList.remove('hidden');
+
+      try {
+        const res = await fetch(`/api/projects/${projectId}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentProjectData = data.project;
+          document.getElementById('wizard-client-name').innerText = currentProjectData.client_name;
+          document.getElementById('wizard-client-id').innerText = currentProjectData.client_id;
+          document.getElementById('wizard-client-url').innerText = currentProjectData.official_url;
+          switchStep(1);
+          loadStepPreviews();
+          loadRawMaterialsEditor();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      lucide.createIcons();
+    }
+
+    function backToDashboard() {
+      document.getElementById('wizard-view').classList.add('hidden');
+      document.getElementById('dashboard-view').classList.remove('hidden');
+      loadProjectsList();
+    }
+
+    // 加载原始素材编辑器
+    async function loadRawMaterialsEditor() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/raw_materials`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          document.getElementById('raw-materials-editor').value = data.content;
+        }
+      } catch (e) {}
+    }
+
+    // 保存原始素材
+    async function saveRawMaterials() {
+      const content = document.getElementById('raw-materials-editor').value;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/raw_materials`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ content })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('原始素材保存成功！');
+        } else {
+          showToast(data.message || '保存失败', 'error');
+        }
+      } catch (e) {
+        showToast('保存异常', 'error');
+      }
+    }
+
+    // 步骤切换
+    function switchStep(step) {
+      currentStep = step;
+      for (let i = 1; i <= 5; i++) {
+        const tab = document.getElementById(`step-tab-${i}`);
+        const panel = document.getElementById(`step-panel-${i}`);
+        if (i === step) {
+          tab.className = "flex items-center gap-2 text-indigo-600 font-bold focus:outline-none";
+          tab.querySelector('span:first-child').className = "w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs";
+          panel.classList.remove('hidden');
+        } else if (i < step) {
+          tab.className = "flex items-center gap-2 text-emerald-600 font-medium focus:outline-none";
+          tab.querySelector('span:first-child').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs";
+          panel.classList.add('hidden');
+        } else {
+          tab.className = "flex items-center gap-2 text-slate-400 focus:outline-none";
+          tab.querySelector('span:first-child').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs";
+          panel.classList.add('hidden');
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function prevStep() { if (currentStep > 1) switchStep(currentStep - 1); }
+    function nextStep() { if (currentStep < 5) switchStep(currentStep + 1); }
+
+    // 运行单步流水线
+    async function runSingleStep(e, stepName) {
+      const btn = (e && e.currentTarget) ? e.currentTarget : (window.event ? window.event.currentTarget : null);
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>正在自动化生产中...</span>`;
+        lucide.createIcons();
+      }
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/run/${stepName}`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          await loadStepPreviews();
+          showToast(data.message || '步骤执行完成！');
+        } else {
+          showToast('执行出错: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('请求失败: ' + err.message, 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          lucide.createIcons();
+        }
+      }
+    }
+
+    // 一键跑通全部流水线
+    async function runPipelineAll() {
+      const btn = document.getElementById('btn-run-all');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>全套流水线运行中...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/run/pipeline`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          await loadStepPreviews();
+          showToast('🎉 全套 5 步商业交付成果全部生成完毕！');
+        } else {
+          showToast('执行出错: ' + data.message, 'error');
+        }
+      } catch (e) {
+        showToast('请求失败', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i><span>一键跑通 5 步流水线</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // 异步加载产物预览
+    async function loadStepPreviews() {
+      // Step 1
+      loadMarkdownToElem('01_企业AI可见度现状体检与商业诊断报告.md', 'preview-step-1');
+      // Step 2
+      loadScaffoldTab(currentScaffoldTab);
+      // Step 3
+      loadMarkdownToElem('03_普林斯顿9因子高权威语料库.md', 'preview-step-3');
+      // Step 5
+      loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
+    }
+
+    async function loadMarkdownToElem(filename, elemId) {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent(filename)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          document.getElementById(elemId).innerHTML = marked.parse(data.content);
+        }
+      } catch (e) {
+        console.error('加载文档失败:', filename, e);
+      }
+    }
+
+    // 底座选项卡精准映射
+    async function switchScaffoldTab(filename) {
+      currentScaffoldTab = filename;
+      const tabMap = {
+        'llms.txt': 'tab-llms',
+        'schema.jsonld': 'tab-schema',
+        'robots.txt': 'tab-robots',
+        '02_站点技术底座改造交付包.md': 'tab-guide'
+      };
+
+      Object.keys(tabMap).forEach(f => {
+        const tab = document.getElementById(tabMap[f]);
+        if (tab) {
+          if (f === filename) {
+            tab.className = "px-6 py-3 border-b-2 border-indigo-600 text-indigo-600 bg-white font-bold flex items-center gap-1.5";
+          } else {
+            tab.className = "px-6 py-3 text-slate-500 hover:text-slate-800 flex items-center gap-1.5";
+          }
+        }
+      });
+      loadScaffoldTab(filename);
+    }
+
+    async function loadScaffoldTab(filename) {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent(filename)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          document.getElementById('preview-scaffold-code').innerText = data.content;
+        }
+      } catch (e) {
+        console.error('加载底座代码失败:', filename, e);
+      }
+    }
+
+    function copyCurrentScaffold() {
+      const code = document.getElementById('preview-scaffold-code').innerText;
+      if (!code || code.includes('请点击上方按钮')) {
+        showToast('暂无代码，请先点击生成！', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(code);
+      showToast('底座代码已复制到剪贴板！');
+    }
+
+    async function copyOutput(filename) {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent(filename)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          navigator.clipboard.writeText(data.content);
+          showToast(`已复制【${filename}】到剪贴板！`);
+        } else {
+          showToast('暂无内容，请先执行生成！', 'error');
+        }
+      } catch (e) {
+        showToast('复制失败', 'error');
+      }
+    }
+
+    // 打包下载 ZIP
+    function downloadDeliverables() {
+      window.location.href = `/api/projects/${currentProjectId}/export`;
+    }
+
+    // ================= 6. 专有名词智能解释知识库 =================
+    const TERMS_DB = {
+      'llms': {
+        title: '/llms.txt 规范文件',
+        badge: '2026 大模型专属索引标准',
+        analogy: '给 DeepSeek、豆包等大模型看的“官方精简版网站说明书与站内地图”。',
+        desc: '传统搜索引擎通过 sitemap.xml 爬取网页，而 2026 年的主流大模型偏好直接读取网站根目录下的 /llms.txt。它使用精简纯 Markdown 语法，提炼了企业全称、核心产品列表、技术架构、联系方式与主要文档链接。',
+        why: '大模型抓取普通网页时，通常需要处理成千上万行的 HTML 杂乱标签甚至 JS 空壳；而 /llms.txt 能让大模型在 100 毫秒内瞬间读懂整个企业，避免信息被噪音过滤，大幅提高在 AI 生成式回答中的收录与召回优先级。',
+        how: '将生成的 llms.txt 文件直接上传放置在企业官网的根目录下（如：https://yourdomain.com/llms.txt），确保公网浏览器和 AI 爬虫可直接访问即可。'
+      },
+      'schema': {
+        title: 'Schema.org JSON-LD 结构化数据',
+        badge: '国际通用实体语义标注规范',
+        analogy: '盖了公章的“企业电子身份证与权威产品名片”。',
+        desc: '嵌入在网站 HTML 源代码 <head> 标签里的一段 JSON 格式代码。它用国际标准的语义字段明确标明：企业官方全称、品牌别名、创始人、所属行业、官方客服电话、地址坐标及核心服务清单。',
+        why: '解决大模型“张冠李戴”的核心利器。没有 JSON-LD 时，大模型只能靠模糊文本去猜，极易把竞品电话或错误地址混淆；有了 JSON-LD，大模型可 100% 确定该企业实体的真实属性，提高直接推荐的置信度。',
+        how: '复制生成的代码片段，直接粘贴在企业官网首页 index.html 的 <head> 和 </head> 标签之间即可生效。'
+      },
+      'robots': {
+        title: 'robots.txt AI 爬虫放行补丁',
+        badge: '爬虫访问协议合规补丁',
+        analogy: '向各大 AI 爬虫主动出示的“绿色免检通行证”。',
+        desc: '很多网站原有的 robots.txt 配置老旧，或者防火墙把未知的 AI 爬虫当作恶意扫描拦截。此补丁显式声明允许字节跳动 Bytespider（豆包）、微软 Bingbot 等大模型爬虫抓取全站内容。',
+        why: '如果网站在 robots.txt 中无意中屏蔽了爬虫，即使文章写得再好，豆包和 DeepSeek 的爬虫也进不来，GEO 效果彻底归零。',
+        how: '将生成的文本片段追加复制到企业官网根目录的 robots.txt 文件末尾即可。'
+      },
+      'guide': {
+        title: '02 站点技术底座改造交付说明书',
+        badge: '交付工程师 / 客户运维施工指引',
+        analogy: '给客户技术部门的“10分钟保姆级安装说明书”。',
+        desc: '一份向客户技术人员或建站外包公司交付的 Markdown 施工操作指南。详细列出了 3 份底座文件的放置路径、Nginx/Apache 配置建议以及验收测试方法。',
+        why: '商业交付的核心是“降本增效、减少沟通摩擦”。将这套说明书连同代码打包发给客户技术人员，对方 10 分钟即可照章完成部署，极大地体现了交付团队的专业度。',
+        how: '在管理端右上角点击“一键打包导出”，将导出的 ZIP 压缩包或本说明书直接发送给客户技术负责人对接执行。'
+      }
+    };
+
+    function showTermHelp(e, termKey) {
+      if (e) e.stopPropagation();
+      const term = TERMS_DB[termKey];
+      if (!term) return;
+
+      document.getElementById('term-title').innerText = term.title;
+      document.getElementById('term-badge').innerText = term.badge;
+      document.getElementById('term-analogy').innerText = term.analogy;
+      document.getElementById('term-desc').innerText = term.desc;
+      document.getElementById('term-why').innerText = term.why;
+      document.getElementById('term-how').innerText = term.how;
+
+      document.getElementById('term-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeTermHelp() {
+      document.getElementById('term-modal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

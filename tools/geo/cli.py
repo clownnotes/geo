@@ -29,6 +29,7 @@ from .scaffold import run_scaffold
 from .rewrite import run_rewrite
 from .distribute import run_distribute
 from .monitor import run_monitor
+from .server import start_server
 
 def cmd_init_project(project_id: str):
     """从 _template 初始化新客户项目"""
@@ -74,35 +75,45 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", help="交付阶段子命令")
 
+    # web
+    p_web = subparsers.add_parser("web", help="启动可视化 Web 商业交付管理端")
+    p_web.add_argument("--port", "-p", type=int, default=8080, help="Web 服务监听端口 (默认: 8080)")
+
     # init
     p_init = subparsers.add_parser("init", help="初始化新客户项目")
     p_init.add_argument("project_id", help="客户英文唯一ID (如: client_001)")
 
     # audit
     p_audit = subparsers.add_parser("audit", help="阶段1: 客户现状体检与商业诊断")
-    p_audit.add_argument("--project", "-p", default="_template", help="客户项目 ID")
+    p_audit.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_audit.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_audit.add_argument("--url", "-u", help="目标官网 URL（覆盖配置文件）")
 
     # scaffold
     p_scaffold = subparsers.add_parser("scaffold", help="阶段2: 站点底座技术改造包生成")
-    p_scaffold.add_argument("--project", "-p", default="_template", help="客户项目 ID")
+    p_scaffold.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_scaffold.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
     # rewrite
     p_rewrite = subparsers.add_parser("rewrite", help="阶段3: 普林斯顿 9 因子内容重构")
-    p_rewrite.add_argument("--project", "-p", default="_template", help="客户项目 ID")
+    p_rewrite.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_rewrite.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_rewrite.add_argument("--input-dir", "-i", help="原始素材目录")
 
     # distribute
     p_dist = subparsers.add_parser("distribute", help="阶段4: 多平台矩阵分发包导出")
-    p_dist.add_argument("--project", "-p", default="_template", help="客户项目 ID")
+    p_dist.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_dist.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
     # monitor
     p_mon = subparsers.add_parser("monitor", help="阶段5: AI 可见度监控与周报生成")
-    p_mon.add_argument("--project", "-p", default="_template", help="客户项目 ID")
+    p_mon.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_mon.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
-    p_pipe.add_argument("--project", "-p", default="_template", help="客户项目 ID")
+    p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_pipe.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
     args = parser.parse_args()
 
@@ -110,20 +121,26 @@ def main():
         parser.print_help()
         sys.exit(0)
 
-    if args.command == "init":
+    def get_pid(a):
+        return getattr(a, "project_pos", None) or getattr(a, "project", None) or "_template"
+
+    if args.command == "web":
+        start_server(port=args.port)
+    elif args.command == "init":
         cmd_init_project(args.project_id)
     elif args.command == "audit":
-        run_audit(args.project, custom_url=args.url)
+        run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":
-        run_scaffold(args.project)
+        run_scaffold(get_pid(args))
     elif args.command == "rewrite":
-        run_rewrite(args.project, input_dir=args.input_dir)
+        run_rewrite(get_pid(args), input_dir=args.input_dir)
     elif args.command == "distribute":
-        run_distribute(args.project)
+        run_distribute(get_pid(args))
     elif args.command == "monitor":
-        run_monitor(args.project)
+        run_monitor(get_pid(args))
     elif args.command == "pipeline":
-        cmd_run_pipeline(args.project)
+        cmd_run_pipeline(get_pid(args))
 
 if __name__ == "__main__":
     main()
+
