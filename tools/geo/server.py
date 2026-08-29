@@ -39,8 +39,8 @@ from .monitor import run_monitor
 
 
 # 鉴权配置（支持环境变量覆盖）
-ADMIN_USERNAME = os.environ.get("GEO_ADMIN_USER", "admin")
-ADMIN_PASSWORD = os.environ.get("GEO_ADMIN_PASS", "geo2026!")
+ADMIN_USERNAME = os.environ.get("GEO_ADMIN_USER", "13150568888")
+ADMIN_PASSWORD = os.environ.get("GEO_ADMIN_PASS", "donghai0516")
 
 # 活跃 Session 缓存 {token: {"username": str, "expire_at": float}}
 ACTIVE_SESSIONS = {}
