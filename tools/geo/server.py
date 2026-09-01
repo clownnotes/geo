@@ -572,23 +572,6 @@ core_values:
                     self.send_json({"success": False, "message": str(e)}, status=404)
                 return
 
-            # 读取原始素材内容 API: /api/projects/{id}/raw_materials
-            if path.startswith("/api/projects/") and path.endswith("/raw_materials"):
-                project_id = path.split("/")[3]
-                try:
-                    cfg = load_project_config(project_id)
-                    raw_dir = cfg["_raw_materials_dir"]
-                    content = ""
-                    if os.path.exists(raw_dir):
-                        for f in os.listdir(raw_dir):
-                            if f.endswith((".md", ".txt")):
-                                with open(os.path.join(raw_dir, f), "r", encoding="utf-8", errors="ignore") as fp:
-                                    content += fp.read() + "\n\n"
-                    self.send_json({"success": True, "content": content.strip()})
-                except Exception as e:
-                    self.send_json({"success": False, "message": str(e)}, status=500)
-                return
-
             # 读取指定交付物文件内容: /api/projects/{id}/output/{filename}
             if path.startswith("/api/projects/") and "/output/" in path:
                 parts = path.split("/")

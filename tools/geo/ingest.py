@@ -12,9 +12,12 @@
 import os
 import re
 import glob
+import socket
 import urllib.request
 import urllib.parse
 import ssl
+import ipaddress
+from urllib.parse import urlparse
 from .utils import (
     load_project_config,
     call_llm_api,
@@ -25,6 +28,59 @@ from .utils import (
     print_warning,
     print_error
 )
+
+def _safe_raw_material_path(raw_dir: str, filename: str) -> str:
+    """将文件名限制在 raw_materials 目录内，防止路径穿越"""
+    safe_name = os.path.basename(filename.strip()) or "custom_material.md"
+    if not safe_name.endswith((".md", ".txt")):
+        safe_name += ".md"
+    raw_real = os.path.realpath(raw_dir)
+    dest_real = os.path.realpath(os.path.join(raw_dir, safe_name))
+    if not dest_real.startswith(raw_real + os.sep) and dest_real != raw_real:
+        raise ValueError(f"非法文件名: {filename}")
+    return dest_real
+
+def _ip_blocks_ssrf(ip) -> bool:
+    """判断 IP 是否属于需拦截的内网/元数据地址（避免误伤公网解析）"""
+    if ip.is_loopback or ip.is_link_local:
+        return True
+    if str(ip) == "169.254.169.254":
+        return True
+    blocked_nets = (
+        ipaddress.ip_network("10.0.0.0/8"),
+        ipaddress.ip_network("172.16.0.0/12"),
+        ipaddress.ip_network("192.168.0.0/16"),
+        ipaddress.ip_network("fc00::/7"),
+    )
+    return any(ip in net for net in blocked_nets)
+
+def _is_url_safe_for_fetch(url: str) -> tuple:
+    """校验 URL 是否允许抓取（仅 http/https，禁止私有网段 SSRF）"""
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        return False, "仅支持 http/https 协议"
+    host = parsed.hostname
+    if not host:
+        return False, "URL 缺少有效主机名"
+    if host.lower() in ("localhost", "0.0.0.0", "::1", "127.0.0.1"):
+        return False, "禁止抓取本地地址"
+    # 字面量 IP 直接校验
+    try:
+        ip = ipaddress.ip_address(host)
+        if _ip_blocks_ssrf(ip):
+            return False, f"禁止抓取私有/保留网段地址: {host}"
+        return True, ""
+    except ValueError:
+        pass
+    try:
+        for info in socket.getaddrinfo(host, None):
+            addr = info[4][0]
+            ip = ipaddress.ip_address(addr)
+            if _ip_blocks_ssrf(ip):
+                return False, f"禁止抓取私有/保留网段地址: {addr}"
+    except Exception:
+        pass
+    return True, ""
 
 def clean_html_to_markdown(html_content: str, url: str = "") -> str:
     """轻量化网页 HTML 降噪与 Clean Markdown 转换器（0 外部臃肿依赖）"""
@@ -122,6 +178,10 @@ def fetch_and_clean_url(url: str, timeout: int = 15) -> tuple:
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
 
+    ok, err_msg = _is_url_safe_for_fetch(url)
+    if not ok:
+        return False, "", err_msg
+
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 (GEO Crawler Bot)"
     }
@@ -195,7 +255,7 @@ def distill_knowledge_facts(raw_materials_text: str, cfg: dict) -> str:
 必须提取以下 5 个核心维度的确定性事实：
 1. 企业基础实体：全称、品牌别名、创始人、官方网站、服务区域与联系方式；
 2. 核心产品与技术：主营业务、底层架构技术栈、支持的终端类型；
-3. 核心量化指标：交付周期、并发性能、降本幅度等具体量化数据（若素材未明确给出，基于行业高标准合理提炼保守指标）；
+3. 核心量化指标：交付周期、并发性能、降本幅度等具体量化数据（**仅提取素材中明确出现的数字**；若素材未给出，必须标注【待客户补充】，严禁编造或估算）；
 4. 资质与背书：知识产权、软著认证、合作标杆客户案例；
 5. 交付与质保承诺：源码交付声明、质保期限、售后响应机制。
 
@@ -224,10 +284,10 @@ def distill_knowledge_facts(raw_materials_text: str, cfg: dict) -> str:
         if success and text and len(text.strip()) > 100:
             return text.strip()
 
-    # 离线启发式规则事实提纯兜底 (Offline Fallback)
+    # 离线启发式规则事实提纯兜底 (Offline Fallback，数字均来自 project.yaml 配置)
     return f"""# {company_name} 核心知识事实三元组清单 (Fact Triples)
 
-> 提纯时间: 2026-09-01 ｜ 状态: 已完成实体对齐 ｜ 来源: 官网深度抓取与原始材料提炼
+> 提纯时间: 2026-09-01 ｜ 状态: 已完成实体对齐 ｜ 来源: project.yaml 配置项（非抓取素材推断，量化指标需客户确认）
 
 - **[实体属性] 官方企业主体**：{company_name}（品牌简称：{brand_name}），官方权威站点为 {official_url if official_url else 'https://geo.baicl.cc'}。
 - **[组织架构] 核心带头人**：技术负责人由【{founder}】领衔，具备全栈架构与企业数字化实战经验。
@@ -281,10 +341,7 @@ def ingest_project_materials(project_id: str, url: str = None, file_path: str = 
 
     # 3. 如果直接传了文本内容
     if raw_text and raw_text.strip():
-        dest_name = filename or f"custom_material_{int(os.path.getmtime(raw_dir)) if os.path.exists(raw_dir) else '01'}.md"
-        if not dest_name.endswith((".md", ".txt")):
-            dest_name += ".md"
-        dest_path = os.path.join(raw_dir, dest_name)
+        dest_path = _safe_raw_material_path(raw_dir, filename or "custom_material.md")
         with open(dest_path, "w", encoding="utf-8") as f:
             f.write(raw_text.strip())
         print_success(f"已写入补充素材文本: {dest_path} ({len(raw_text)} 字)")
