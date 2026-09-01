@@ -58,6 +58,11 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <button onclick="handlePrintShareReport()" class="py-1.5 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5 text-indigo-600"></i>
+          <span class="hidden sm:inline">美化打印周报 (PDF)</span>
+          <span class="sm:hidden">打印</span>
+        </button>
         <button onclick="handleDownloadShareZip()" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
           <span class="hidden sm:inline">下载交付全包 (.zip)</span>
@@ -214,6 +219,54 @@
         </div>
       </div>
 
+      <!-- Citation 权威信源加权渗透分布 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">🌐 全网 Citation 权威信源加权渗透分布</h2>
+            <p class="text-xs text-slate-500">大模型（DeepSeek / 豆包）生成推荐时引用的核心信源渠道占比。</p>
+          </div>
+        </div>
+        <div class="space-y-3.5 text-xs">
+          <div>
+            <div class="flex justify-between font-semibold mb-1">
+              <span class="text-slate-700">知乎专栏 (zhihu.com · 权威权重 1.0)</span>
+              <span id="share-citation-pct-zhihu" class="text-indigo-600 font-bold">0.0%</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div id="share-citation-bar-zhihu" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between font-semibold mb-1">
+              <span class="text-slate-700">今日头条 (toutiao.com · 权威权重 0.9)</span>
+              <span id="share-citation-pct-toutiao" class="text-indigo-600 font-bold">0.0%</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div id="share-citation-bar-toutiao" class="bg-red-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between font-semibold mb-1">
+              <span class="text-slate-700">微信公众号 (weixin.qq.com · 权威权重 0.85)</span>
+              <span id="share-citation-pct-wechat" class="text-indigo-600 font-bold">0.0%</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div id="share-citation-bar-wechat" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between font-semibold mb-1">
+              <span class="text-slate-700">GitHub 开源技术栈 (github.com · 权威权重 0.95)</span>
+              <span id="share-citation-pct-github" class="text-indigo-600 font-bold">0.0%</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div id="share-citation-bar-github" class="bg-slate-800 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 周报正文 -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -348,6 +401,26 @@
         document.getElementById('portal-metric-top3').innerText = `${d.metrics.top3_pct || 0}%`;
         document.getElementById('portal-metric-auth').innerText = `${d.metrics.authority_score || 95}/100`;
         document.getElementById('portal-metric-prompts').innerText = `${d.metrics.prompt_stats?.total || 45} 组`;
+
+        // 渲染 Citation 权威分布进度条
+        if (d.metrics.citations && d.metrics.citations.length > 0) {
+          const zhihu = d.metrics.citations.find(c => c.domain && c.domain.includes('zhihu')) || { pct: 0 };
+          const toutiao = d.metrics.citations.find(c => c.domain && c.domain.includes('toutiao')) || { pct: 0 };
+          const wechat = d.metrics.citations.find(c => c.domain && c.domain.includes('weixin')) || { pct: 0 };
+          const github = d.metrics.citations.find(c => c.domain && c.domain.includes('github')) || { pct: 0 };
+
+          document.getElementById('share-citation-pct-zhihu').innerText = `${zhihu.pct}%`;
+          document.getElementById('share-citation-bar-zhihu').style.width = `${zhihu.pct}%`;
+
+          document.getElementById('share-citation-pct-toutiao').innerText = `${toutiao.pct}%`;
+          document.getElementById('share-citation-bar-toutiao').style.width = `${toutiao.pct}%`;
+
+          document.getElementById('share-citation-pct-wechat').innerText = `${wechat.pct}%`;
+          document.getElementById('share-citation-bar-wechat').style.width = `${wechat.pct}%`;
+
+          document.getElementById('share-citation-pct-github').innerText = `${github.pct}%`;
+          document.getElementById('share-citation-bar-github').style.width = `${github.pct}%`;
+        }
       }
 
       // 渲染各交付物内容
@@ -410,8 +483,15 @@
     }
 
     function handleDownloadShareZip() {
-      if (!shareData || !shareData.project_id) return;
-      window.open(`/api/share/${shareToken}/download`, '_blank');
+      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
+      const query = pin ? `?pin=${encodeURIComponent(pin)}` : '';
+      window.open(`/api/share/${shareToken}/download${query}`, '_blank');
+    }
+
+    function handlePrintShareReport() {
+      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
+      const query = pin ? `?pin=${encodeURIComponent(pin)}` : '';
+      window.open(`/api/share/${shareToken}/print${query}`, '_blank');
     }
   </script>
 </body>

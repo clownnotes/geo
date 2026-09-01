@@ -612,8 +612,9 @@ core_values:
         if path.startswith("/api/share/") and path.endswith("/download"):
             parts = path.split("/")
             share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
             from .share import verify_share_access
-            ok, status, rec = verify_share_access(share_token)
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
             if not ok:
                 self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
                 return
@@ -638,6 +639,69 @@ core_values:
                 self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
                 self.end_headers()
                 self.wfile.write(zip_bytes)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 8. 专属甲方美化打印周报公开 API: /api/share/{token}/print
+        if path.startswith("/api/share/") and path.endswith("/print"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                cfg = load_project_config(project_id)
+                out_dir = os.path.realpath(cfg["_outputs_dir"])
+                report_file = os.path.join(out_dir, "05_企业AI可见度与声量追踪周报.md")
+                md_content = "# 暂无周报"
+                if os.path.exists(report_file):
+                    with open(report_file, "r", encoding="utf-8", errors="ignore") as fp:
+                        md_content = fp.read()
+
+                client_name = cfg.get("client_name", project_id)
+                html_body = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>《{client_name}》企业 AI 可见度与声量追踪周报</title>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    @media print {{
+      body {{ background: #fff !important; }}
+      .no-print {{ display: none !important; }}
+      .page-break {{ page-break-before: always; }}
+    }}
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen py-8 text-slate-800 antialiased font-sans">
+  <div class="max-w-4xl mx-auto bg-white p-10 sm:p-14 rounded-2xl shadow-xl border border-slate-200 relative">
+    <div class="no-print mb-6 flex justify-between items-center bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-xs">
+      <span class="font-bold text-indigo-900">📄 商用周报交付视图（支持直接打印或存为 PDF）</span>
+      <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">
+        🖨️ 立即打印 / 存为 PDF
+      </button>
+    </div>
+    <div id="content" class="prose max-w-none text-sm leading-relaxed"></div>
+  </div>
+  <script>
+    document.getElementById('content').innerHTML = marked.parse({json.dumps(md_content)});
+  </script>
+</body>
+</html>"""
+                body_bytes = html_body.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body_bytes)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(body_bytes)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return

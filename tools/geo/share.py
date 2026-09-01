@@ -222,18 +222,32 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
 
     # 提取量化指标与历史
     metrics = extract_monitor_metrics(project_id)
-    history = get_project_history(project_id, limit=12)
+    raw_history = get_project_history(project_id, limit=12)
+    
+    # 脱敏内部自增 ID 与内部调试字段
+    clean_history = []
+    for h in raw_history:
+        clean_history.append({
+            "check_date": h.get("check_date"),
+            "timestamp": h.get("timestamp"),
+            "is_offline": bool(h.get("is_offline")),
+            "sov_pct": h.get("sov_pct", 0.0),
+            "top3_pct": h.get("top3_pct", 0.0),
+            "authority_score": h.get("authority_score", 0.0),
+            "hit_count": h.get("hit_count", 0),
+            "intercept_count": h.get("intercept_count", 0),
+            "lost_count": h.get("lost_count", 0)
+        })
 
     return {
         "success": True,
-        "project_id": project_id,
-        "client_name": cfg.get("client_name", project_id),
+        "client_name": cfg.get("client_name", "客户企业"),
         "industry": cfg.get("industry", "未知行业"),
         "website": cfg.get("website", ""),
         "brand_name": cfg.get("brand_name", cfg.get("client_name", "")),
         "deliverables": deliverables,
         "metrics": metrics,
-        "history": history,
+        "history": clean_history,
         "share_meta": {
             "created_at_str": rec.get("created_at_str"),
             "expires_at_str": rec.get("expires_at_str"),
