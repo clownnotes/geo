@@ -116,3 +116,43 @@
      - 已清理 `intent.py` 中未使用的 `save_project_output` 导入。
 
 - **结论**：`[已达成共识]`，所有安全阻塞项与规范脱节项已全部完成修复并实测验证通过，具备归档条件。
+
+---
+
+### 2026-09-01 Cursor [修复项独立复审] [通过]
+
+- **阶段**：Code Apply Review & Fixes（对照上轮 Cursor `[需修正]` 阻塞项逐项核验）
+- **审查范围**：提交 `c950dd0` 修复补丁 + 当前主分支代码。
+
+#### 上轮阻塞项闭环确认
+
+| 原阻塞项 | 核查结果 | 证据 |
+| :--- | :---: | :--- |
+| 🔴 `do_POST` 鉴权缺 `return` | ✅ 已修复 | `server.py` L156–158：`401` 后已 `return`，与 `do_GET` L405–407 一致 |
+| 🟡 SOP-01 未更新 5 维规范 | ✅ 已修复 | `docs/sop/01-audit-sop.md`：门槛升级为「≥ 40 个且覆盖 5 维」，含 `geo intent` 指引 |
+| 🟡 proposal 与实现脱节 | ✅ 已对齐 | `proposal.md` 已移除 `intent/apply` 冗余接口，Capabilities 与 design 一致 |
+| 🟢 `intent.py` 无用导入 | ✅ 已清理 | `save_project_output` 已从 import 列表移除 |
+
+#### 实现完整性复核（tasks.md 12 项）
+
+| 模块 | 状态 |
+| :--- | :---: |
+| `intent.py` 五维引擎 + fallback + YAML 回写 | ✅ |
+| CLI `geo intent` | ✅ |
+| `POST /api/intent/generate`（鉴权保护） | ✅ |
+| Web「✨ AI 智能推演」按钮 + 异步回填 | ✅ |
+| 离线 fallback 40~50 组问句 | ✅（上轮实测 41 组） |
+
+#### 残余项（非阻塞）
+
+**🟢 可选增强**
+
+1. **5 维分类标签 UI**：修订后 `proposal.md` 已不再强制要求分栏展示，`categories` 字典仅用于 API/CLI，当前 textarea 回填方案可接受。
+2. **OpenSpec 目录卫生**：`openspec/changes/2026-09-01-GEO工程体系对标评估与矩阵自动化分发演进/` 为已归档副本残留，归档本变更时建议一并清理。
+
+#### 安全结论
+
+- `do_POST` 私有接口现在在鉴权失败时立即 `return`，不再穿透执行 `intent/generate`、项目 CRUD 或流水线调度。
+- 符合 design「私有接口必须鉴权」与 `AGENTS.md` 工程约束。
+
+- **结论**：`[通过]` — 上轮全部 🔴/🟡 阻塞项已闭环，实现与 Spec 一致，**可执行 `./opsx archive` 归档**。
