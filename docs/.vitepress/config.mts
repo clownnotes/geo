@@ -155,7 +155,8 @@ export default defineConfig({
         {
           text: '🧭 理论体系与战略',
           items: [
-            { text: '01. GEO 战略全景与全链路框架', link: '/strategy/overview' }
+            { text: '01. GEO 战略全景与全链路框架', link: '/strategy/overview' },
+            { text: '02. 工业化流水线 vs 手工代运营对标白皮书', link: '/strategy/industrial-vs-manual' }
           ]
         }
       ],

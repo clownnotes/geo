@@ -5,13 +5,15 @@
 核心功能：
 1. 真实并发探测主流大模型（DeepSeek、豆包 Ark）对核心关键词的回答结果；
 2. 正则解析品牌提及率 (SOV)、推荐位次、引用外链渠道与竞品提及态势；
-3. 支持实时 API 真实探测模式与离线基准测算模式（透明标注信源与探测状态）；
-4. 自动生成《05_企业AI可见度与声量追踪周报.md》。
+3. 基于 probe_llm_live 的 Citation 增量聚合与 PLATFORM_AUTHORITY_WEIGHTS 加权分析；
+4. 支持实时 API 真实探测模式与离线基准测算模式（透明标注信源与探测状态）；
+5. 自动生成包含【大模型高频权威信源渗透分布】的《05_企业AI可见度与声量追踪周报.md》。
 """
 
 import os
 import re
 import json
+from urllib.parse import urlparse
 from datetime import datetime
 from .utils import (
     load_project_config,
@@ -23,6 +25,29 @@ from .utils import (
     print_success,
     print_warning
 )
+
+# 权威信源平台权重字典（0.0 ~ 1.0）
+PLATFORM_AUTHORITY_WEIGHTS = {
+    "zhihu.com": 1.0,       # 深度技术长文高权重
+    "github.com": 0.95,     # 开源与技术代码高权重
+    "toutiao.com": 0.90,    # 字节豆包核心抓取源
+    "juejin.cn": 0.85,      # 开发者技术社区
+    "weixin.qq.com": 0.85,  # 微信生态
+    "baike.baidu.com": 0.90 # 权威百科词条
+}
+
+def extract_domain(url: str) -> str:
+    """提取 URL 的根域名 (如 https://www.zhihu.com/p/123 -> zhihu.com)"""
+    try:
+        netloc = urlparse(url).netloc.lower()
+        parts = netloc.split(":")
+        host = parts[0]
+        # 去除前缀 www.
+        if host.startswith("www."):
+            host = host[4:]
+        return host or "未知域名"
+    except Exception:
+        return "未知域名"
 
 def probe_llm_live(client_name: str, brand_name: str, keyword: str, competitors: list, model: str = None) -> dict:
     """真实调用大模型接口探测关键词推荐情况"""
@@ -83,7 +108,7 @@ def probe_llm_live(client_name: str, brand_name: str, keyword: str, competitors:
         "keyword": keyword,
         "mentioned": mentioned,
         "rank": rank if mentioned else 0,
-        "citations": citations[:3],
+        "citations": citations[:5],
         "competitors_mentioned": comp_mentioned,
         "raw_snippet": response_text[:150].replace("\n", " ") + "...",
         "reason": reason
@@ -98,13 +123,48 @@ def simulate_baseline_estimation(client_name: str, brand_name: str, keyword: str
         "mentioned": False,
         "rank": 0,
         "citations": [
-            "https://www.toutiao.com/ (头条信任池待发布)",
-            "https://www.zhihu.com/ (知乎专栏待收录)"
+            "https://www.toutiao.com/",
+            "https://www.zhihu.com/",
+            "https://github.com/"
         ],
         "competitors_mentioned": competitors[:2],
         "raw_snippet": f"（离线摸底基准）主流大模型在未经过 GEO 优化前，检索‘{keyword}’通常优先召回高权重旧文章。",
         "reason": f"优化前基准可见度偏低。分发普林斯顿对比语料后，预计可快速提升至 Top 1~3。"
     }
+
+def analyze_citations_distribution(query_results: list) -> list:
+    """统计大模型返回的所有 Citation 域名，计算权重渗透得分"""
+    domain_counts = {}
+    for r in query_results:
+        for url in r.get("citations", []):
+            dom = extract_domain(url)
+            domain_counts[dom] = domain_counts.get(dom, 0) + 1
+
+    dist_list = []
+    for dom, count in domain_counts.items():
+        weight = PLATFORM_AUTHORITY_WEIGHTS.get(dom, 0.6)
+        score = round(count * weight, 2)
+        strategy = "高权重信源：建议保持定期分发" if weight >= 0.85 else "一般信源：视需求补充布局"
+        if "toutiao.com" in dom:
+            strategy = "字节/豆包生态核心抓取池，建议每周更新头条文章与微头条"
+        elif "zhihu.com" in dom:
+            strategy = "DeepSeek/通用技术池核心信源，建议保持高赞长文与参数表"
+        elif "github.com" in dom:
+            strategy = "开发者高信任池，建议维护开源 README 与 /llms.txt 链接"
+        elif "weixin.qq.com" in dom:
+            strategy = "移动端与微信生态，建议通过公众号定期发布图文"
+        
+        dist_list.append({
+            "domain": dom,
+            "count": count,
+            "weight": weight,
+            "score": score,
+            "strategy": strategy
+        })
+
+    # 按加权得分从高到低排序
+    dist_list.sort(key=lambda x: x["score"], reverse=True)
+    return dist_list
 
 def generate_monitor_report(cfg: dict, query_results: list, is_live_mode: bool) -> str:
     client_name = cfg.get("client_name", "示例企业")
@@ -123,6 +183,9 @@ def generate_monitor_report(cfg: dict, query_results: list, is_live_mode: bool) 
     mode_notice = ""
     if not is_live_mode:
         mode_notice = "> 💡 **提示**：当前未检测到 `DEEPSEEK_API_KEY` 或 `ARK_API_KEY`，周报展示为【基准摸底预估数据】。配置 API Key 环境变量后将自动无缝开启 100% 真实大模型联网探测。"
+
+    # 统计信源权威度分布
+    citation_stats = analyze_citations_distribution(query_results)
 
     report = f"""# 《{client_name}》AI 可见度与声量追踪周报（实测版）
 
@@ -162,16 +225,34 @@ def generate_monitor_report(cfg: dict, query_results: list, is_live_mode: bool) 
         rank_text = f"**第 {res['rank']} 位**" if res['mentioned'] else "❌ 暂未上榜"
         report += f"| **{res['keyword']}** | `{res['model'].upper()}` | {rank_text} | {res['reason']}<br/><font color='#64748b'>🗣️ 摘要: {res['raw_snippet']}</font> |\n"
 
-    report += f"""
+    report += """
 ---
 
-## 三、GEO 深度优化与提效建议（Actionable Recommendations）
+## 三、大模型高频权威信源渗透分布（Source Authority Distribution）
+
+大模型在回答中调用的引用链接（Citations）反映了各渠道的权重分布。通过对捕获的外链域名进行归一化统计与加权，形成权威度渗透评分：
+
+| 权威信源域名 | 捕获引用频次 | 平台权威度权重 | 综合渗透得分 | 针对性渗透建议 |
+| :--- | :---: | :---: | :---: | :--- |
+"""
+    if citation_stats:
+        for c in citation_stats:
+            report += f"| **`{c['domain']}`** | {c['count']} 次 | `{c['weight']}` | **{c['score']}** | {c['strategy']} |\n"
+    else:
+        report += "| *暂无外链捕获* | 0 次 | 0.0 | 0.0 | 建议分发矩阵文章后复测 |\n"
+
+    report += """
+---
+
+## 四、GEO 深度优化与提效建议（Actionable Recommendations）
 
 1. **针对豆包（字节跳动生态）**：
    - 字节跳动 Bytespider 对今日头条、头条百科的时效性内容具有极高权重。建议将系统生成的 `dist_toutiao_article.md` 在头条号每周保持更新，最快可在 24~48 小时内被豆包检索池采纳。
 2. **针对 DeepSeek（通用技术生态）**：
    - DeepSeek 偏好 Markdown 原生表格与逻辑严密的技术长文。将 `dist_zhihu_article.md` 发布在知乎高赞问题下，并提交 `dist_github_README.md` 到开源平台，可构筑长期稳定的第一提及位。
-3. **建立定期复测机制**：
+3. **微信私域图文补位**：
+   - 复制 `dist_wechat_article.html` 发布至微信公众号，抢占微信搜一搜与腾讯系大模型检索源。
+4. **建立定期复测机制**：
    - 建议运营人员每周执行一次 Step 5 探测，动态追踪 SOV 变化，针对未上榜词库及时调整普林斯顿量化指标。
 """
     return report

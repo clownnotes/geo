@@ -93,6 +93,10 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <button onclick="showBenchmarkModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm">
+          <i data-lucide="scale" class="w-3.5 h-3.5 text-indigo-600"></i>
+          <span>工业化对标透视</span>
+        </button>
         <div class="flex items-center gap-2 text-xs text-slate-600 bg-slate-100 py-1.5 px-3 rounded-full">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           <span>操作员: <strong id="current-user-name" class="text-slate-800">admin</strong></span>
@@ -363,29 +367,35 @@
       <div id="step-panel-4" class="hidden space-y-6">
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <h2 class="text-base font-bold text-slate-900">阶段四：多平台高权重信源矩阵借壳分发</h2>
-            <p class="text-xs text-slate-500 mt-1">自适应适配今日头条（打豆包）、知乎长文（打DeepSeek）、GitHub 开源技术专版。</p>
+            <h2 class="text-base font-bold text-slate-900">阶段四：多平台高权重信源矩阵半自动化分发</h2>
+            <p class="text-xs text-slate-500 mt-1">自适应适配今日头条（打豆包）、知乎长文（打DeepSeek）、微信公众号（内联HTML）与 GitHub 开源技术专版。</p>
           </div>
           <button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
             <i data-lucide="share-2" class="w-4 h-4"></i>
-            <span>生成矩阵发布包</span>
+            <span>生成 4 平台矩阵发布包</span>
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <!-- 头条 -->
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-2 text-red-600 font-bold text-sm mb-2">
                 <i data-lucide="file-text" class="w-4 h-4"></i>
-                <span>今日头条 / 豆包生态 (优先)</span>
+                <span>今日头条 / 豆包生态</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">攻占字节跳动 Bytespider 检索信任池，24小时内极速生效召回。</p>
+              <p class="text-xs text-slate-500 mb-4">攻占字节跳动 Bytespider 检索信任池，附微头条短动态，24h 内快速收录。</p>
             </div>
-            <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span>复制头条发布文案</span>
-            </button>
+            <div class="space-y-2">
+              <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>复制头条发布稿</span>
+              </button>
+              <a href="https://mp.toutiao.com/" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
+                <span>直达头条号后台</span>
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+              </a>
+            </div>
           </div>
 
           <!-- 知乎 -->
@@ -393,14 +403,41 @@
             <div>
               <div class="flex items-center gap-2 text-blue-600 font-bold text-sm mb-2">
                 <i data-lucide="book-open" class="w-4 h-4"></i>
-                <span>知乎技术长文 / DeepSeek</span>
+                <span>知乎专栏 / DeepSeek</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">攻占专业技术深度池，包含架构设计与参数对比。</p>
+              <p class="text-xs text-slate-500 mb-4">攻占专业技术深度池，包含高精度架构设计、对比表格与作者署名。</p>
             </div>
-            <button onclick="copyOutput('dist_zhihu_article.md')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span>复制知乎专栏长文</span>
-            </button>
+            <div class="space-y-2">
+              <button onclick="copyOutput('dist_zhihu_article.md')" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>复制知乎专栏稿</span>
+              </button>
+              <a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
+                <span>直达知乎创作中心</span>
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- 微信公众号 -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-emerald-600 font-bold text-sm mb-2">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+                <span>微信公众号 (富文本)</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-4">生成内联 CSS 样式 HTML，在公众号后台编辑器可直接无损粘贴排版。</p>
+            </div>
+            <div class="space-y-2">
+              <button onclick="copyOutput('dist_wechat_article.html')" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>复制公众号 HTML</span>
+              </button>
+              <a href="https://mp.weixin.qq.com/" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
+                <span>直达公众号平台</span>
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+              </a>
+            </div>
           </div>
 
           <!-- GitHub -->
@@ -408,15 +445,38 @@
             <div>
               <div class="flex items-center gap-2 text-slate-800 font-bold text-sm mb-2">
                 <i data-lucide="github" class="w-4 h-4"></i>
-                <span>GitHub 开源文档</span>
+                <span>GitHub 开源生态</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">最高权重开源爬虫索引，构建权威白皮书。</p>
+              <p class="text-xs text-slate-500 mb-4">最高权重开发者索引，带 Shields 徽标与 /llms.txt 官方链接。</p>
             </div>
-            <button onclick="copyOutput('dist_github_README.md')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span>复制 GitHub README</span>
-            </button>
+            <div class="space-y-2">
+              <button onclick="copyOutput('dist_github_README.md')" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>复制 GitHub README</span>
+              </button>
+              <a href="https://github.com/new" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
+                <span>直达 GitHub New</span>
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+              </a>
+            </div>
           </div>
+        </div>
+
+        <!-- 渠道操作卡与执行打勾表 -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center shrink-0">
+              <i data-lucide="check-square" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-800">📄 交付外发渠道操作卡与 Checklist (dist_channels_checklist.md)</div>
+              <div class="text-xs text-slate-500 mt-0.5">提供包含发布频率建议、合规提醒与外发链接回填表的标准交付文档。</div>
+            </div>
+          </div>
+          <button onclick="copyOutput('dist_channels_checklist.md')" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shrink-0">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>复制操作清单</span>
+          </button>
         </div>
       </div>
 
@@ -574,6 +634,95 @@
 
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end">
         <button onclick="closeTermHelp()" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs transition">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4.3 工业化对标透视与话术参考弹窗 ================= -->
+  <div id="benchmark-modal" onclick="if(event.target === this) closeBenchmarkModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[85vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-indigo-500/20">
+            <i data-lucide="scale" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">GEO 工业化流水线 vs 传统手工代运营对标透视</h3>
+            <p class="text-[11px] text-indigo-600 font-medium">大模型底层算法工程 · 普林斯顿 9 因子标准落地</p>
+          </div>
+        </div>
+        <button onclick="closeBenchmarkModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6 text-xs text-slate-600 overflow-y-auto leading-relaxed">
+        <!-- 核心对标表 -->
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                <th class="py-2.5 px-3">对标评估维度</th>
+                <th class="py-2.5 px-3 text-red-700 bg-red-50/50">传统手工代运营 (作坊模式)</th>
+                <th class="py-2.5 px-3 text-indigo-800 bg-indigo-50/50">本 GEO 工业化流水线 (工程母机)</th>
+                <th class="py-2.5 px-3 text-emerald-700 bg-emerald-50/50">量化增益</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="py-2.5 px-3 font-semibold text-slate-800">1. 底层算法认知</td>
+                <td class="py-2.5 px-3 text-slate-600">沿用老套关键词密度、人工发帖与外链群发</td>
+                <td class="py-2.5 px-3 text-indigo-900 font-medium">深入 RAG 切片、Token 压缩率、实体图谱消歧</td>
+                <td class="py-2.5 px-3 text-emerald-600 font-bold">范式代差</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-semibold text-slate-800">2. 站点底座改造</td>
+                <td class="py-2.5 px-3 text-red-600">0 代码能力，无法改动客户官网代码</td>
+                <td class="py-2.5 px-3 text-indigo-900 font-medium">一键生成 /llms.txt + JSON-LD + robots.txt 补丁</td>
+                <td class="py-2.5 px-3 text-emerald-600 font-bold">实体置信度+100%</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-semibold text-slate-800">3. 资产生产重构</td>
+                <td class="py-2.5 px-3 text-slate-600">人工文案拼凑，主观形容词泛滥，无量化数据</td>
+                <td class="py-2.5 px-3 text-indigo-900 font-medium">普林斯顿 9 因子、原生 Markdown 对比表与 Q&A</td>
+                <td class="py-2.5 px-3 text-emerald-600 font-bold">采纳率 +30%~41%</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-semibold text-slate-800">4. 生产交付周期</td>
+                <td class="py-2.5 px-3 text-slate-600">3~7 天/单，严重受限于人工写稿打字速度</td>
+                <td class="py-2.5 px-3 text-indigo-900 font-medium">&lt; 30 秒一键跑通全套 5 步资产自动化生产</td>
+                <td class="py-2.5 px-3 text-emerald-600 font-bold">提效 95% 以上</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-semibold text-slate-800">5. 边际交付成本</td>
+                <td class="py-2.5 px-3 text-red-600">线性极高（接100个客户需招募50个文案）</td>
+                <td class="py-2.5 px-3 text-indigo-900 font-medium">边际成本趋近于 0（单机并发交付百家企业）</td>
+                <td class="py-2.5 px-3 text-emerald-600 font-bold">成本直降 80%+</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-semibold text-slate-800">6. 矩阵分发执行</td>
+                <td class="py-2.5 px-3 text-slate-600">手工排版耗时，或脚本盲目群发遭风控降权</td>
+                <td class="py-2.5 px-3 text-indigo-900 font-medium">半自动发稿助手：一键复制各平台专属格式+直达后台</td>
+                <td class="py-2.5 px-3 text-emerald-600 font-bold">100% 合规安全</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 面对客户/同行的必杀沟通话术 -->
+        <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-4 space-y-2">
+          <div class="font-bold text-indigo-950 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-4 h-4 text-indigo-600"></i>
+            <span>面对企业客户与同行质疑时的核心解答话术</span>
+          </div>
+          <p class="text-indigo-900 leading-relaxed text-[11px]">
+            “大模型不是人，大模型是计算机程序。它抓取并推荐一个品牌，核心依赖 <strong>RAG 文本切片、Token 信息密度与 Schema 实体消歧</strong>。如果官网连最基本的 /llms.txt 和 JSON-LD 都没做，你在外面手工发再多软文也是空中楼阁。我们做的是 **GEO 底座工程 + 普林斯顿 9 因子标准流水线**，30 秒完成全套标准化资产，分发只是流水线最后一环的操作。”
+          </p>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+        <button onclick="closeBenchmarkModal()" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs transition">关闭透视</button>
       </div>
     </div>
   </div>
@@ -1100,6 +1249,15 @@
 
     function closeTermHelp() {
       document.getElementById('term-modal').classList.add('hidden');
+    }
+
+    function showBenchmarkModal() {
+      document.getElementById('benchmark-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeBenchmarkModal() {
+      document.getElementById('benchmark-modal').classList.add('hidden');
     }
   </script>
 </body>

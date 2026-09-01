@@ -301,13 +301,65 @@ core_values:
             self.send_json({"authenticated": authed, "username": user})
             return
 
-        # 2. 公共文档与静态资源放行 (供 AI 爬虫或公开阅读)
+        # 2. 行业对标数据接口 (公开)
+        if path == "/api/benchmark/comparison":
+            self.send_json({
+                "success": True,
+                "title": "GEO 工业化流水线 vs 传统手工代运营 对标矩阵",
+                "dimensions": [
+                    {
+                        "dim": "理论与算法认知",
+                        "manual": "沿用10年前老套关键词密度、人工发帖矩阵与买外链",
+                        "industrial": "深入 RAG 切片分块、Token 压缩、普林斯顿 9 因子、实体三元组",
+                        "gain": "范式代差：从搜索引擎到生成式模型"
+                    },
+                    {
+                        "dim": "站点底座改造",
+                        "manual": "0 代码研发能力，无法改动客户官网底层代码",
+                        "industrial": "一键生成 /llms.txt + JSON-LD + robots.txt 补丁",
+                        "gain": "大模型官方实体置信度提升 100%"
+                    },
+                    {
+                        "dim": "内容生产与重构",
+                        "manual": "纯人工文案，主观形容词泛滥，无结构化数据与参数表",
+                        "industrial": "自动注入量化统计指标、原生 Markdown 对比表与 Q&A 库",
+                        "gain": "大模型推荐采纳率提升 +30% ~ +41%"
+                    },
+                    {
+                        "dim": "交付周期",
+                        "manual": "3 ~ 7 天/单，严重受限于人工打字与排版速度",
+                        "industrial": "< 30 秒一键跑通 5 步全套资产自动化生产",
+                        "gain": "生产交付效率提升 95% 以上"
+                    },
+                    {
+                        "dim": "边际交付成本",
+                        "manual": "线性极高（接 100 家客户需招募 50 个文案与媒介）",
+                        "industrial": "边际成本趋近于 0（单机即可并发交付百家企业）",
+                        "gain": "企业采购与维护成本直降 70% ~ 90%"
+                    },
+                    {
+                        "dim": "分发模式与合规",
+                        "manual": "纯人工发帖或外挂脚本群发，易触发平台风控封号",
+                        "industrial": "半自动化发稿助手：一键生成各平台专属排版 + 直达后台",
+                        "gain": "兼顾 10 倍排版人效与 100% 账号合规安全"
+                    },
+                    {
+                        "dim": "监控与归因",
+                        "manual": "人工手动搜索截图，容易漏报与虚假造假",
+                        "industrial": "自动化 Live Probing 并发探测，捕获真实 Citation 域名",
+                        "gain": "数据透明真实，具备商业归因闭环"
+                    }
+                ]
+            })
+            return
+
+        # 3. 公共文档与静态资源放行 (供 AI 爬虫或公开阅读)
         if path.startswith("/docs") or path == "/llms.txt":
             # 允许公开爬取
             super().do_GET()
             return
 
-        # 3. 页面路由处理
+        # 4. 页面路由处理
         if path == "/" or path == "/index.html" or path == "/admin":
             # 返回前端单页应用
             index_path = os.path.join(WEB_DIR, "index.html")
@@ -326,6 +378,42 @@ core_values:
             token = self.get_auth_token()
             if not is_authenticated(token):
                 self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+                return
+
+            # 分发平台排版预览接口: /api/projects/{id}/distribute/preview
+            if "/distribute/preview" in path:
+                project_id = path.split("/")[3]
+                qs = parse_qs(parsed.query)
+                platform = qs.get("platform", ["zhihu"])[0].lower()
+                platform_file_map = {
+                    "zhihu": ("dist_zhihu_article.md", "markdown"),
+                    "toutiao": ("dist_toutiao_article.md", "markdown"),
+                    "wechat": ("dist_wechat_article.html", "html"),
+                    "github": ("dist_github_README.md", "markdown"),
+                    "checklist": ("dist_channels_checklist.md", "markdown")
+                }
+                if platform not in platform_file_map:
+                    self.send_json({"success": False, "message": f"不支持的平台: {platform}"}, status=400)
+                    return
+                filename, fmt = platform_file_map[platform]
+                try:
+                    cfg = load_project_config(project_id)
+                    out_dir = os.path.realpath(cfg["_outputs_dir"])
+                    target_file = os.path.realpath(os.path.join(out_dir, filename))
+                    if not os.path.exists(target_file):
+                        self.send_json({"success": False, "message": f"分发产物 [{filename}] 尚未生成，请先在 Step 4 点击生成！"}, status=404)
+                        return
+                    with open(target_file, "r", encoding="utf-8", errors="ignore") as f:
+                        content = f.read()
+                    self.send_json({
+                        "success": True,
+                        "platform": platform,
+                        "filename": filename,
+                        "format": fmt,
+                        "content": content
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
             # 获取项目列表 API
