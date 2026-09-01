@@ -334,19 +334,55 @@
           </button>
         </div>
 
-        <!-- 原始素材在线编辑器 (可折叠) -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <i data-lucide="file-edit" class="w-4 h-4 text-indigo-600"></i>
-              <span>客户原始宣传资料 / 卖点草稿（修改后点保存，重构时将优先读取）：</span>
+        <!-- 📥 原始素材智能抓取与事实清洗中枢 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs shadow-sm">
+                📥
+              </div>
+              <div>
+                <h3 class="text-xs font-bold text-slate-800">原始多模态素材抓取与事实清洗中枢</h3>
+                <p class="text-[11px] text-slate-500">支持官网 Clean HTML 降噪爬取与客户材料提纯，自动浓缩为 10 条高确定性三元组事实清单。</p>
+              </div>
             </div>
-            <button onclick="saveRawMaterials()" class="py-1 px-3 bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs font-semibold rounded transition flex items-center gap-1">
-              <i data-lucide="save" class="w-3.5 h-3.5"></i>
-              <span>保存原始素材</span>
-            </button>
+            <div id="raw-materials-badge" class="text-[11px] text-indigo-700 bg-indigo-50 py-1 px-3 rounded-full font-medium border border-indigo-100">
+              素材库就绪
+            </div>
           </div>
-          <textarea id="raw-materials-editor" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="可在此粘贴客户的产品手册、PPT内容或卖点说明..."></textarea>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 官网抓取 -->
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+              <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <i data-lucide="globe" class="w-3.5 h-3.5 text-indigo-600"></i>
+                <span>方式一：企业官网 URL 一键爬取与降噪</span>
+              </div>
+              <div class="flex gap-2">
+                <input id="ingest-url-input" type="url" placeholder="https://client-domain.com" class="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <button type="button" id="btn-ingest-url" onclick="handleIngestUrl(event)" class="py-1.5 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition shrink-0 flex items-center gap-1 shadow-sm">
+                  <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
+                  <span>抓取并提纯</span>
+                </button>
+              </div>
+              <p class="text-[10px] text-slate-400">自动过滤导航栏/页脚/JS脚本，抽取正文并提炼 10 大事实三元组。</p>
+            </div>
+
+            <!-- 粘贴/上传补充材料 -->
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+              <div class="flex items-center justify-between">
+                <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-600"></i>
+                  <span>方式二：粘贴产品画册/文档补充素材</span>
+                </div>
+                <button type="button" id="btn-ingest-text" onclick="handleSaveAndDistillText(event)" class="py-1 px-3 bg-white hover:bg-indigo-50 text-indigo-600 text-[11px] font-semibold rounded-lg border border-slate-200 transition flex items-center gap-1">
+                  <i data-lucide="save" class="w-3 h-3"></i>
+                  <span>提纯并保存</span>
+                </button>
+              </div>
+              <textarea id="raw-materials-editor" rows="2" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-mono text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="可在此粘贴客户的产品手册、PPT卖点或技术白皮书文本..."></textarea>
+            </div>
+          </div>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -984,39 +1020,103 @@
       loadProjectsList();
     }
 
-    // 加载原始素材编辑器
+    // 加载原始素材与提纯清单状态
     async function loadRawMaterialsEditor() {
+      if (!currentProjectId) return;
+      if (currentProjectData && currentProjectData.official_url) {
+        const input = document.getElementById('ingest-url-input');
+        if (input && !input.value) input.value = currentProjectData.official_url;
+      }
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/raw_materials`, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
-        if (data.success && data.content) {
-          document.getElementById('raw-materials-editor').value = data.content;
+        const badge = document.getElementById('raw-materials-badge');
+        if (data.success && data.files) {
+          const factsFile = data.files.find(f => f.is_facts);
+          badge.innerText = `已就绪 ${data.total_files} 份素材 (${Math.round(data.total_size / 1024 * 10) / 10} KB)` + (factsFile ? ' · 已提纯事实' : '');
+          badge.className = "text-[11px] text-emerald-700 bg-emerald-50 py-1 px-3 rounded-full font-semibold border border-emerald-200";
         }
       } catch (e) {}
     }
 
-    // 保存原始素材
-    async function saveRawMaterials() {
-      const content = document.getElementById('raw-materials-editor').value;
+    // 官网 URL 一键爬取并提纯
+    async function handleIngestUrl(e) {
+      if (e) e.preventDefault();
+      const url = document.getElementById('ingest-url-input').value.trim();
+      const btn = document.getElementById('btn-ingest-url');
+      if (!url) {
+        showToast('请输入企业官网 URL！', 'error');
+        return;
+      }
+
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 抓取降噪中...`;
+
       try {
-        const res = await fetch(`/api/projects/${currentProjectId}/raw_materials`, {
+        const res = await fetch(`/api/projects/${currentProjectId}/ingest/url`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${currentAuthToken}`
           },
-          body: JSON.stringify({ content })
+          body: JSON.stringify({ url })
         });
         const data = await res.json();
         if (data.success) {
-          showToast('原始素材保存成功！');
+          showToast(`✅ 官网抓取并提纯成功！清洗正文: ${data.crawled_words} 字`);
+          loadRawMaterialsEditor();
+        } else {
+          showToast(data.message || '抓取失败', 'error');
+        }
+      } catch (err) {
+        showToast('抓取请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    // 保存补充素材并提纯
+    async function handleSaveAndDistillText(e) {
+      if (e) e.preventDefault();
+      const content = document.getElementById('raw-materials-editor').value.trim();
+      const btn = document.getElementById('btn-ingest-text');
+      if (!content) {
+        showToast('请先输入或粘贴素材内容！', 'error');
+        return;
+      }
+
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 提纯中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/ingest/text`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ content, filename: "product_supplement.md" })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ 补充素材已入库并提纯事实清单！');
+          document.getElementById('raw-materials-editor').value = '';
+          loadRawMaterialsEditor();
         } else {
           showToast(data.message || '保存失败', 'error');
         }
-      } catch (e) {
-        showToast('保存异常', 'error');
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
       }
     }
 

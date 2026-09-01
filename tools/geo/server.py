@@ -244,7 +244,42 @@ core_values:
             self.send_json({"success": True, "client_id": client_id, "message": f"项目 [{client_id}] 创建成功！"})
             return
 
-        # 4. 触发流水线指定步骤 API: /api/projects/{id}/run/{step}
+        # 5. 素材智能抓取与提纯 API: /api/projects/{id}/ingest/url
+        if path.startswith("/api/projects/") and path.endswith("/ingest/url"):
+            parts = path.split("/")
+            project_id = parts[3]
+            body = self.read_json_body()
+            target_url = body.get("url", "").strip()
+            
+            try:
+                from .ingest import ingest_project_materials
+                res = ingest_project_materials(project_id, url=target_url if target_url else None)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": f"官网抓取提纯失败: {str(e)}"}, status=500)
+            return
+
+        # 6. 素材文本补充与提纯 API: /api/projects/{id}/ingest/text
+        if path.startswith("/api/projects/") and path.endswith("/ingest/text"):
+            parts = path.split("/")
+            project_id = parts[3]
+            body = self.read_json_body()
+            content = body.get("content", "").strip()
+            filename = body.get("filename", "custom_material.md").strip()
+            
+            if not content:
+                self.send_json({"success": False, "message": "素材内容不能为空！"}, status=400)
+                return
+
+            try:
+                from .ingest import ingest_project_materials
+                res = ingest_project_materials(project_id, raw_text=content, filename=filename)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": f"素材写入提纯失败: {str(e)}"}, status=500)
+            return
+
+        # 7. 触发流水线指定步骤 API: /api/projects/{id}/run/{step}
         if path.startswith("/api/projects/") and "/run/" in path:
             parts = path.split("/")
             # /api/projects/<id>/run/<step>
@@ -437,6 +472,38 @@ core_values:
                         "filename": filename,
                         "format": fmt,
                         "content": content
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取原始素材列表接口: /api/projects/{id}/raw_materials
+            if path.startswith("/api/projects/") and path.endswith("/raw_materials"):
+                project_id = path.split("/")[3]
+                try:
+                    cfg = load_project_config(project_id)
+                    raw_dir = os.path.join(cfg["_project_dir"], "raw_materials")
+                    files = []
+                    total_size = 0
+                    if os.path.exists(raw_dir):
+                        for fname in sorted(os.listdir(raw_dir)):
+                            if fname.startswith("."):
+                                continue
+                            fpath = os.path.join(raw_dir, fname)
+                            if os.path.isfile(fpath):
+                                sz = os.path.getsize(fpath)
+                                total_size += sz
+                                files.append({
+                                    "name": fname,
+                                    "size": sz,
+                                    "is_facts": fname == "raw_extracted_facts.md"
+                                })
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "files": files,
+                        "total_files": len(files),
+                        "total_size": total_size
                     })
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)

@@ -7,13 +7,21 @@
 
 ## 一、执行步骤
 
-1. 收集客户存量资料放入 `projects/<client_id>/raw_materials/`（支持 `.md/.txt` 直接解析；`.pdf/.docx/.pptx` 需 `pip install markitdown`）；
-2. 执行重构流水线：
+1. **收集与提纯客户原始资料**（存放于 `projects/<client_id>/raw_materials/`）：
    ```bash
-   python3 -m tools.geo rewrite --project <client_id>          # 有 LLM Key 时模型精修
-   python3 -m tools.geo rewrite --project <client_id> --no-llm # 离线规则引擎（演示/审计模式）
+   # 方式 A：官网 URL 一键爬取降噪并自动提纯事实清单
+   python3 -m tools.geo ingest <client_id> --url https://client.com
+   
+   # 方式 B：本地文档/画册导入提纯
+   python3 -m tools.geo ingest <client_id> --file /path/to/product_brochure.pdf
+   
+   # 方式 C：在 Web 管理端 Step 3 面板点击「抓取并提纯」
    ```
-3. 产物：`outputs/rewrite/<资料名>-GEO语料.md` + `INDEX.md`，每篇文件头标注生成方式（`llm:deepseek` 或 `rule-engine`），保证交付可追溯。
+2. **执行普林斯顿 9 因子内容重构流水线**：
+   ```bash
+   python3 -m tools.geo rewrite --project <client_id>          # 有 LLM Key 时大模型深度精修
+   ```
+3. 产物：《03_普林斯顿9因子高权威语料库.md》自动落在 `projects/<client_id>/outputs/`，包含首段三元组、5 维量化参数对比表、Prompt 对齐 Q&A 问答对与服务承诺清单。
 
 ## 二、每篇语料的硬性结构（普林斯顿因子落位）
 
