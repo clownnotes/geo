@@ -127,6 +127,14 @@ def main():
     p_def.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_def.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
+    # patrol
+    p_patrol = subparsers.add_parser("patrol", help="定时自动化巡检与声量异动告警")
+    p_patrol.add_argument("project_pos", nargs="?", default=None, help="指定客户项目 ID (可选)")
+    p_patrol.add_argument("--project", "-p", default=None, help="指定客户项目 ID")
+    p_patrol.add_argument("--all", "-a", action="store_true", help="全量巡检所有活跃客户项目")
+    p_patrol.add_argument("--notify", "-n", action="store_true", default=True, help="是否触发 Webhook 异动告警推送 (默认 True)")
+    p_patrol.add_argument("--no-notify", dest="notify", action="store_false", help="禁止发送 Webhook 告警")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -154,6 +162,12 @@ def main():
     elif args.command == "defense":
         from .defense import run_defense
         run_defense(get_pid(args))
+    elif args.command == "patrol":
+        from .patrol import run_patrol_all, run_patrol_project
+        if args.all or (not getattr(args, "project_pos", None) and not getattr(args, "project", None)):
+            run_patrol_all(notify=args.notify)
+        else:
+            run_patrol_project(get_pid(args), notify=args.notify)
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

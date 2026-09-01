@@ -97,6 +97,10 @@
           <i data-lucide="scale" class="w-3.5 h-3.5 text-indigo-600"></i>
           <span>工业化对标透视</span>
         </button>
+        <button onclick="openNotificationModal()" class="py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+          <i data-lucide="bell" class="w-3.5 h-3.5 text-indigo-600"></i>
+          <span>告警与通知设置</span>
+        </button>
         <div class="flex items-center gap-2 text-xs text-slate-600 bg-slate-100 py-1.5 px-3 rounded-full">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           <span>操作员: <strong id="current-user-name" class="text-slate-800">admin</strong></span>
@@ -151,8 +155,16 @@
             <p class="text-xs text-slate-500 mt-0.5">点击项目直接进入向导生产流水线，支持一键打包下载全部成果</p>
           </div>
           <div class="flex items-center gap-3">
+            <button onclick="handleTriggerPatrolAll(event)" id="btn-patrol-all" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition flex items-center gap-1.5 border border-slate-200">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-600"></i>
+              <span>⚡ 立即全量自动巡检</span>
+            </button>
             <button onclick="openNewProjectModal()" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>+ 新建客户项目</span>
+            </button>
+          </div>
+        </div>
               <span>+ 新建客户项目</span>
             </button>
           </div>
@@ -689,6 +701,29 @@
           </div>
         </div>
 
+        <!-- 📈 多周声量环比时序走势大盘 (SQLite 时序库驱动) -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
+                📈
+              </div>
+              <div>
+                <h3 class="text-xs font-bold text-slate-800">多周巡检历史时序走势与环比分析</h3>
+                <p class="text-[11px] text-slate-500">按周归档声量探测数据，展示 SOV 提及率与 Top 3 推荐率爬坡轨迹。</p>
+              </div>
+            </div>
+            <button onclick="handleTriggerPatrolSingle(event)" id="btn-patrol-single" class="py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-600"></i>
+              <span>执行本周巡检归档</span>
+            </button>
+          </div>
+
+          <div id="history-timeline-container" class="space-y-2 text-xs">
+            <div class="text-center py-6 text-slate-400">正在读取历史巡检时序库...</div>
+          </div>
+        </div>
+
         <!-- 详细交付物卡片 -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700">
@@ -795,7 +830,63 @@
     </div>
   </div>
 
-  <!-- ================= 4.2 专有名词智能解释弹窗 ================= -->
+  <!-- ================= 4.1 告警与通知设置模态弹窗 ================= -->
+  <div id="notification-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="bell-ring" class="w-5 h-5 text-indigo-600"></i>
+          <span>自动化巡检与企微 / 飞书告警设置</span>
+        </h3>
+        <button onclick="closeNotificationModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs text-slate-700 max-h-[80vh] overflow-y-auto">
+        <div class="flex items-center justify-between p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl">
+          <div>
+            <div class="font-bold text-indigo-900">开启实时声量异动监控告警</div>
+            <div class="text-[11px] text-indigo-700 mt-0.5">当检测到 SOV 暴跌或出现新增竞品拦截时向群机器人推送卡片。</div>
+          </div>
+          <input id="notif-enabled" type="checkbox" class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">告警群机器人 Webhook 地址</label>
+          <input id="notif-webhook-url" type="url" placeholder="https://qyapi.weixin.qq.com/... 或 https://open.feishu.cn/..." class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <p class="text-[10px] text-slate-400 mt-1">支持企业微信群机器人、飞书自定义机器人与钉钉机器人 Webhook。</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">SOV 最低安全线 (%)</label>
+            <input id="notif-min-sov" type="number" step="5" min="0" max="100" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="50">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">单周 SOV 突降预警阈值 (%)</label>
+            <input id="notif-drop-limit" type="number" step="5" min="0" max="50" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="10">
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+          <div class="font-bold text-slate-800">💡 Crontab 挂载说明：</div>
+          <p class="text-[11px] text-slate-500 font-mono">0 3 * * 1 cd /path/to/GEO && python3 -m tools.geo patrol --all</p>
+          <p class="text-[10px] text-slate-400">系统将每周一凌晨自动巡检全部活跃客户，并沉淀 SQLite 时序历史。</p>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+          <button type="button" onclick="testNotificationWebhook(event)" id="btn-test-webhook" class="py-2 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition flex items-center gap-1.5">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>发送测试演练卡片</span>
+          </button>
+          <button type="button" onclick="saveNotificationSettings(event)" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow">
+            保存配置
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="term-modal" onclick="if(event.target === this) closeTermHelp()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
     <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
       <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
@@ -1395,6 +1486,7 @@
       loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
       loadMonitorDashboardMetrics();
       loadDefensePreview();
+      loadProjectHistoryChart();
     }
 
     // 加载声量监控大盘结构化指标
@@ -1505,6 +1597,203 @@
     function handlePrintReport(e) {
       if (e) e.preventDefault();
       window.open(`/api/projects/${currentProjectId}/report/print?token=${encodeURIComponent(currentAuthToken)}`, '_blank');
+    }
+
+    // 加载多周巡检历史时序大盘
+    async function loadProjectHistoryChart() {
+      if (!currentProjectId) return;
+      const box = document.getElementById('history-timeline-container');
+      if (!box) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/history`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.history && data.history.length > 0) {
+          box.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              ${data.history.map((h, idx) => `
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 hover:border-indigo-300 transition">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-slate-800">${h.check_date}</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full ${h.is_offline ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} font-semibold">
+                      ${h.is_offline ? '离线基准' : '真实实测'}
+                    </span>
+                  </div>
+                  <div class="flex items-baseline justify-between pt-1">
+                    <span class="text-slate-500 text-[11px]">SOV 达成率:</span>
+                    <span class="text-base font-black text-indigo-600">${h.sov_pct}%</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200">
+                    <span>命中: <strong class="text-emerald-600">${h.hit_count}</strong></span>
+                    <span>拦截: <strong class="text-amber-600">${h.intercept_count}</strong></span>
+                    <span>未上榜: <strong class="text-slate-400">${h.lost_count}</strong></span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          box.innerHTML = `<div class="text-center py-6 text-slate-400">暂无历史归档记录，点击右上角【执行本周巡检归档】生成首条时序数据。</div>`;
+        }
+      } catch (e) {
+        box.innerHTML = `<div class="text-center py-6 text-slate-400">历史数据读取异常</div>`;
+      }
+    }
+
+    // 单项目手动触发巡检归档
+    async function handleTriggerPatrolSingle(e) {
+      if (e) e.preventDefault();
+      const btn = document.getElementById('btn-patrol-single');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 巡检归档中...`;
+      try {
+        const res = await fetch(`/api/patrol/trigger`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ project_id: currentProjectId, notify: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ 巡检归档成功并已存入 history.db！');
+          await loadStepPreviews();
+        } else {
+          showToast('巡检失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    // 全量项目一键巡检
+    async function handleTriggerPatrolAll(e) {
+      if (e) e.preventDefault();
+      const btn = document.getElementById('btn-patrol-all');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 正在全量巡检所有项目...`;
+      try {
+        const res = await fetch(`/api/patrol/trigger`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ project_id: 'all', notify: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || '🎉 全项目自动巡检完成！');
+          loadProjectsList();
+        } else {
+          showToast('巡检失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    // 告警配置弹窗
+    async function openNotificationModal() {
+      document.getElementById('notification-modal').classList.remove('hidden');
+      try {
+        const res = await fetch('/api/settings/notifications', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.settings) {
+          const s = data.settings;
+          document.getElementById('notif-enabled').checked = Boolean(s.enabled);
+          document.getElementById('notif-webhook-url').value = s.webhook_url || '';
+          document.getElementById('notif-min-sov').value = s.min_sov_threshold || 50;
+          document.getElementById('notif-drop-limit').value = s.drop_threshold_pct || 10;
+        }
+      } catch (e) {}
+      lucide.createIcons();
+    }
+
+    function closeNotificationModal() {
+      document.getElementById('notification-modal').classList.add('hidden');
+    }
+
+    async function saveNotificationSettings(e) {
+      if (e) e.preventDefault();
+      const payload = {
+        enabled: document.getElementById('notif-enabled').checked,
+        webhook_url: document.getElementById('notif-webhook-url').value.trim(),
+        min_sov_threshold: parseFloat(document.getElementById('notif-min-sov').value) || 50.0,
+        drop_threshold_pct: parseFloat(document.getElementById('notif-drop-limit').value) || 10.0,
+        notify_on_sov_drop: true,
+        notify_on_intercept: true
+      };
+
+      try {
+        const res = await fetch('/api/settings/notifications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ 告警通知配置保存成功！');
+          closeNotificationModal();
+        } else {
+          showToast('保存失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('保存异常', 'error');
+      }
+    }
+
+    async function testNotificationWebhook(e) {
+      if (e) e.preventDefault();
+      const webhook_url = document.getElementById('notif-webhook-url').value.trim();
+      if (!webhook_url) {
+        showToast('请先输入 Webhook URL 地址！', 'error');
+        return;
+      }
+      const btn = document.getElementById('btn-test-webhook');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 发送中...`;
+
+      try {
+        const res = await fetch('/api/settings/notifications/test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ webhook_url })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('🎉 测试演练卡片已成功推送到群机器人！');
+        } else {
+          showToast('推送失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('发送异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
     }
 
     async function loadMarkdownToElem(filename, elemId) {

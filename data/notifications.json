@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "webhook_url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=demo123",
+  "min_sov_threshold": 45.0
+}

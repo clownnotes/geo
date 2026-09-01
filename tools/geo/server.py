@@ -303,7 +303,57 @@ core_values:
                 self.send_json({"success": False, "message": f"策略生成失败: {str(e)}"}, status=500)
             return
 
-        # 8. 触发流水线指定步骤 API: /api/projects/{id}/run/{step}
+        # 8. 保存通知与告警设置 API: /api/settings/notifications
+        if path == "/api/settings/notifications":
+            body = self.read_json_body()
+            from .patrol import save_notification_settings
+            ok = save_notification_settings(body)
+            self.send_json({"success": ok, "message": "告警配置已保存！" if ok else "保存失败"})
+            return
+
+        # 9. 测试 Webhook 发送 API: /api/settings/notifications/test
+        if path == "/api/settings/notifications/test":
+            body = self.read_json_body()
+            webhook_url = body.get("webhook_url", "").strip()
+            webhook_type = body.get("webhook_type", "auto")
+            if not webhook_url:
+                self.send_json({"success": False, "message": "请先输入 Webhook URL！"}, status=400)
+                return
+            from .patrol import send_webhook_alert
+            fake_metrics = {
+                "sov_pct": 58.5,
+                "top3_pct": 60.0,
+                "prompt_stats": { "hit_count": 26, "intercept_count": 4 }
+            }
+            ok, msg = send_webhook_alert(
+                webhook_url,
+                "示例客户企业（演示测试）",
+                "这是一条来自 GEO 商业交付中枢的机器人连通性演练测试消息。",
+                fake_metrics,
+                webhook_type=webhook_type,
+                is_test=True
+            )
+            self.send_json({"success": ok, "message": msg})
+            return
+
+        # 10. 手动触发自动化巡检 API: /api/patrol/trigger
+        if path == "/api/patrol/trigger":
+            body = self.read_json_body()
+            target_id = body.get("project_id", "all")
+            notify = body.get("notify", True)
+            from .patrol import run_patrol_all, run_patrol_project
+            try:
+                if target_id == "all":
+                    res = run_patrol_all(notify=notify)
+                    self.send_json({"success": True, "results": res, "message": f"全量巡检完成！共巡检 {len(res)} 个项目"})
+                else:
+                    res = run_patrol_project(target_id, notify=notify)
+                    self.send_json({"success": True, "result": res, "message": f"项目 [{target_id}] 巡检完成！"})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 11. 触发流水线指定步骤 API: /api/projects/{id}/run/{step}
         if path.startswith("/api/projects/") and "/run/" in path:
             parts = path.split("/")
             # /api/projects/<id>/run/<step>
@@ -529,6 +579,24 @@ core_values:
                         "total_files": len(files),
                         "total_size": total_size
                     })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取通知与告警设置 API: /api/settings/notifications
+            if path == "/api/settings/notifications":
+                from .patrol import load_notification_settings
+                settings = load_notification_settings()
+                self.send_json({"success": True, "settings": settings})
+                return
+
+            # 获取项目历史巡检时序数据: /api/projects/{id}/history
+            if path.startswith("/api/projects/") and path.endswith("/history"):
+                project_id = path.split("/")[3]
+                try:
+                    from .patrol import get_project_history
+                    records = get_project_history(project_id, limit=12)
+                    self.send_json({"success": True, "project_id": project_id, "history": records})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

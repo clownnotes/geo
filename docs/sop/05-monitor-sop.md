@@ -13,15 +13,22 @@
    export DOUBAO_API_KEY=xxx          # 火山方舟 Key
    export DOUBAO_ARK_MODEL=doubao-seed-1-6-250615   # 推理接入点
    ```
-2. 每周巡检与声量监测（词 × 模型全组合并发提问，联网检索）：
+2. **自动化无人值守巡检与时序归档**：
    ```bash
-   python3 -m tools.geo monitor <client_id>
+   # 单项目巡检归档
+   python3 -m tools.geo patrol <client_id>
+   
+   # 全量客户批量巡检与企微/飞书机器人告警推送
+   python3 -m tools.geo patrol --all --notify
+   
+   # Crontab 挂载定时执行（每周一凌晨 03:00）
+   0 3 * * 1 cd /path/to/GEO && python3 -m tools.geo patrol --all
    ```
 3. 生成竞品反向包抄策略（当竞品在核心词占位时触发）：
    ```bash
    python3 -m tools.geo defense <client_id>
    ```
-4. 产物：《05_企业AI可见度与声量追踪周报.md》+《06_竞品权威信源反向包抄策略.md》；并在 Web 管理端提供可一键打印或导出 PDF 的精美交付报表。
+4. 产物：《05_企业AI可见度与声量追踪周报.md》+《06_竞品权威信源反向包抄策略.md》+ `projects/<id>/history.db`（时序库）；并在 Web 管理端提供可一键打印或导出 PDF 的精美交付报表。
 
 ## 二、周报指标与 Citation 权威图谱口径
 
