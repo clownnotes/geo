@@ -19,11 +19,9 @@
 2. **CLI 子命令扩展 (`tools/geo/cli.py`)**：
    - 增加 `geo intent <project_id>` 子命令，支持一键为项目重新挖掘并更新 50 组意图词库。
 3. **后端 RESTful 接口扩展 (`tools/geo/server.py`)**：
-   - 新增 `POST /api/intent/generate`：接收企业信息，实时返回 5 维提问问句 JSON；
-   - 新增 `POST /api/projects/{id}/intent/apply`：将选定的意图词一键写入 `project.yaml`。
+   - 新增 `POST /api/intent/generate`：接收企业信息，实时返回 5 维提问问句 JSON。
 4. **Web 交付工作台交互升级 (`web/index.html`)**：
-   - 在【+ 新建客户项目】向导弹窗中增加 **「✨ AI 智能推演 50 组用户提问」** 按钮，支持一键秒级生成并自动填入多行文本框；
-   - 在项目向导面板中增加 5 维意图分类标签展示。
+   - 在【+ 新建客户项目】向导弹窗中增加 **「✨ AI 智能推演 50 组用户提问」** 按钮，支持一键秒级生成并自动填入多行文本框。
 5. **SOP 知识库文档更新 (`docs/sop/01-audit-sop.md`)**：
    - 更新 SOP-01 意图词库挖掘标准流程与 5 维分类规范。
 

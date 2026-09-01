@@ -155,6 +155,8 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         token = self.get_auth_token()
         if not is_authenticated(token):
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+            return
+
         # 3. AI 商业意图与用户提问逆向挖掘 API: /api/intent/generate
         if path == "/api/intent/generate":
             body = self.read_json_body()
