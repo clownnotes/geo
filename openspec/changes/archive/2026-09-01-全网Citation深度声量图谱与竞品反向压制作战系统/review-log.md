@@ -123,3 +123,46 @@
 - **实测核验**：
   - `xuzhou_xuanyuan` 实测返回真实离线基准 SOV 0.0%、动态 Citation 解析、Prompt 状态矩阵及包抄策略生成全部通过。
 - **结论**：`[已达成共识 / 通过]`，全部审查项已 100% 修复合规，可执行 `./opsx archive` 归档。
+
+---
+
+### 2026-09-01 Cursor [修复项独立复审] [通过]
+
+- **阶段**：Code Apply Review & Fixes（对照上轮 Cursor `[需修正]` 阻塞项逐项核验）
+- **审查范围**：提交 `d887b00` + 当前主分支；实测 `xuzhou_xuanyuan`。
+
+#### 上轮 🔴 阻塞项闭环确认
+
+| 原阻塞项 | 核查结果 | 实测证据 |
+| :--- | :---: | :--- |
+| `extract_monitor_metrics` 硬编码假 SOV | ✅ 已修复 | API 返回 `sov_pct: 0.0`（与周报一致），`is_offline: true` |
+| Citation 静态假数组 | ✅ 已修复 | 动态解析周报 §三：`zhihu/github/toutiao` 各 33.3%，`authority_score: 95.0` |
+| 问句对决矩阵未落地 | ✅ 已修复 | Web Step 5 新增对决态势卡；`prompt_stats` 已渲染 |
+| defense 未注入探测背景 | ✅ 已修复 | `run_defense` 读取周报前 2000 字注入 `build_defense_prompt` |
+
+#### 实现完整性复核（tasks.md 15 项）
+
+| 模块 | 状态 |
+| :--- | :---: |
+| `defense.py` 竞品包抄引擎 + `06_` 交付物 | ✅ |
+| `extract_monitor_metrics` 真实解析 | ✅ |
+| CLI `geo defense` + 三 REST API | ✅ |
+| Step 5 四指标卡 + Citation 条 + 对决矩阵 + 操作按钮 | ✅ |
+| `report/print` 美化交付页 | ✅ |
+| SOP-05 更新 | ✅ |
+
+#### 残余项（非阻塞）
+
+**🟢 可选增强**
+
+1. **`prompt_stats` 计数口径**：当前按探测行数统计（45 词 × 2 模型 = 90 行 `lost`），`total` 为去重词数 45，数字不完全对齐；建议统一为「词级」或「探测次」并在 UI 标注。
+2. **DeepSeek / 豆包首推率**：暂共用 `top3_pct` 回填，周报未分列时属合理兜底。
+3. **print Token 经 URL 传递**：仍为 `?token=` 方式，内网交付可接受，公网部署建议改 Cookie。
+4. **OpenSpec 目录卫生**：`openspec/changes/` 仍残留已归档变更副本。
+
+#### 安全与兼容性
+
+- 鉴权拦截正常；向下兼容原有 5 步产物 ✅
+- 离线模式下准确展示 0.0% 基准 + 离线徽标，不再误导客户 ✅
+
+- **结论**：`[通过]` — 上轮全部 🔴/🟡 阻塞项已闭环，实现与 Spec 一致，**可执行 `./opsx archive` 归档**。
