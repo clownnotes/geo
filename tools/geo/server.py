@@ -450,12 +450,25 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
-        # 8. 作废分享链接 API: /api/share/{token}/revoke
-        if path.startswith("/api/share/") and path.endswith("/revoke"):
-            token = path.split("/")[3]
-            from .share import revoke_share_link
-            ok = revoke_share_link(token)
-            self.send_json({"success": ok, "message": "分享链接已成功作废！" if ok else "未找到该链接"})
+        # 9. 批量并发生产跑批 API: /api/batch/trigger
+        if path == "/api/batch/trigger":
+            body = self.read_json_body()
+            step = body.get("step", "pipeline")
+            industry = body.get("industry", "").strip() or None
+            target_ids = body.get("target_ids", "all")
+            max_workers = int(body.get("max_workers", 4))
+            from .benchmark import run_batch_pipeline
+            def _run_batch():
+                try:
+                    run_batch_pipeline(target_ids=target_ids, industry=industry, step=step, max_workers=max_workers)
+                except Exception as err:
+                    print(f"后台批量生产异常: {err}")
+            import threading
+            threading.Thread(target=_run_batch, daemon=True).start()
+            self.send_json({
+                "success": True,
+                "message": f"批量并发任务已在后台启动（阶段: {step} ｜ 并发度: {max_workers}）！"
+            })
             return
 
         self.send_json({"error": "Not Found"}, status=404)
@@ -558,7 +571,14 @@ core_values:
             })
             return
 
-        # 3. 公共文档与静态资源放行 (供 AI 爬虫或公开阅读)
+        # 3. 行业大盘宏观基准数据接口: /api/benchmark/industries (公开/管理通用)
+        if path == "/api/benchmark/industries":
+            from .benchmark import calculate_industry_benchmarks
+            b_data = calculate_industry_benchmarks()
+            self.send_json(b_data)
+            return
+
+        # 4. 公共文档与静态资源放行 (供 AI 爬虫或公开阅读)
         if path.startswith("/docs") or path == "/llms.txt":
             # 允许公开爬取
             super().do_GET()
@@ -803,6 +823,17 @@ core_values:
                     from .patrol import get_project_history
                     records = get_project_history(project_id, limit=12)
                     self.send_json({"success": True, "project_id": project_id, "history": records})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取客户在所属行业的对标战绩与差距报告: /api/projects/{id}/benchmark
+            if path.startswith("/api/projects/") and path.endswith("/benchmark"):
+                project_id = path.split("/")[3]
+                try:
+                    from .benchmark import evaluate_project_against_benchmark
+                    report = evaluate_project_against_benchmark(project_id)
+                    self.send_json(report)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

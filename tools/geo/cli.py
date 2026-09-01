@@ -143,6 +143,19 @@ def main():
     p_share.add_argument("--pin", help="设置 4 位访问提取码 (可选)")
     p_share.add_argument("--base-url", default="https://geo.baicl.cc", help="对外访问公网域名前缀")
 
+    # benchmark
+    p_bm = subparsers.add_parser("benchmark", help="查看全行业大盘宏观基准与客户对标")
+    p_bm.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID (可选)")
+    p_bm.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_bm.add_argument("--industry", "-i", default=None, help="指定行业名称")
+
+    # batch
+    p_batch = subparsers.add_parser("batch", help="批量多项目并发执行流水线")
+    p_batch.add_argument("--step", "-s", default="pipeline", choices=["pipeline", "audit", "scaffold", "rewrite", "distribute", "monitor"], help="执行阶段 (默认 pipeline)")
+    p_batch.add_argument("--industry", "-i", default=None, help="按行业过滤目标客户项目")
+    p_batch.add_argument("--concurrency", "-c", type=int, default=4, help="并发线程数 (默认 4)")
+    p_batch.add_argument("--all", "-a", action="store_true", default=True, help="批量处理所有符合条件的项目")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -182,6 +195,32 @@ def main():
         print("\n" + "="*60)
         print(res["share_text"])
         print("="*60 + "\n")
+    elif args.command == "benchmark":
+        from .benchmark import calculate_industry_benchmarks, evaluate_project_against_benchmark
+        pid = getattr(args, "project_pos", None) or getattr(args, "project", None)
+        if pid:
+            rep = evaluate_project_against_benchmark(pid)
+            print("\n" + "="*60)
+            print(f"📊 客户 [{rep['client_name']}] 所属行业: {rep['industry']}")
+            print(f"📈 客户 SOV: {rep['client_sov']}% ｜ 行业均值: {rep['industry_avg_sov']}% ｜ 行业标杆: {rep['industry_top_sov']}%")
+            print(f"🏆 段位评级: {rep['tier']} (超越行业 {rep['beat_rate']}%)")
+            print(f"💡 结论分析: {rep['summary']}")
+            print("="*60 + "\n")
+        else:
+            b_data = calculate_industry_benchmarks()
+            print("\n" + "="*60)
+            print("🌐 全行业 AI 可见度与权威信源宏观基准大盘 (Industry Benchmarks)")
+            print("="*60)
+            for ind, d in b_data.get("industries", {}).items():
+                print(f"\n【{ind}】(托管项目数: {d['project_count']})")
+                print(f"  - 行业平均 SOV: {d['avg_sov']}% ｜ 中位数: {d['median_sov']}% ｜ 头部标杆线: {d['top_10_percent_sov']}%")
+                print(f"  - 平均 Top3 推荐率: {d['avg_top3_rate']}% ｜ 平均权威得分: {d['avg_authority_score']}/100")
+                top_p = "、".join([f"{c['name']} ({c['pct']}%)" for c in d.get('top_citations', [])[:3]])
+                print(f"  - 核心被引用渠道: {top_p}")
+            print("\n" + "="*60 + "\n")
+    elif args.command == "batch":
+        from .benchmark import run_batch_pipeline
+        run_batch_pipeline(industry=args.industry, step=args.step, max_workers=args.concurrency)
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

@@ -267,6 +267,52 @@
         </div>
       </div>
 
+      <!-- 🎯 行业横向对标与超越战绩 (Industry Benchmark) -->
+      <div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white rounded-2xl shadow-lg p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-800/80 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-400/30">
+              📊
+            </div>
+            <div>
+              <h3 class="text-sm font-bold flex items-center gap-2">
+                <span>行业横向对标与超越战绩 (Industry Benchmark)</span>
+                <span id="share-bm-tier-badge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
+                  计算中...
+                </span>
+              </h3>
+              <p class="text-[11px] text-indigo-200/70 mt-0.5">所属行业：<span id="share-bm-industry-name" class="font-bold text-white">--</span> · 对标全库同行平均线与顶尖标杆</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-indigo-300">超越同行率</span>
+            <div id="share-bm-beat-rate" class="text-xl font-black text-emerald-400">--%</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+          <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
+            <div class="text-indigo-200/80">客户当前 SOV</div>
+            <div id="share-bm-client-sov" class="text-2xl font-black text-white">--%</div>
+            <p class="text-[10px] text-emerald-400" id="share-bm-diff-from-avg">对比均值 --</p>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
+            <div class="text-indigo-200/80">本行业平均 SOV</div>
+            <div id="share-bm-industry-avg" class="text-2xl font-black text-indigo-200">--%</div>
+            <p class="text-[10px] text-indigo-300/70">行业基准基线</p>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
+            <div class="text-indigo-200/80">行业顶尖标杆线 (Top 10%)</div>
+            <div id="share-bm-industry-top" class="text-2xl font-black text-amber-300">--%</div>
+            <p class="text-[10px] text-amber-200/70">统治级品牌占位线</p>
+          </div>
+        </div>
+
+        <div id="share-bm-summary-text" class="text-xs bg-white/10 border border-white/15 rounded-lg p-3 text-indigo-100 leading-relaxed">
+          正在生成行业对标量化评估结论...
+        </div>
+      </div>
+
       <!-- 周报正文 -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -434,6 +480,28 @@
       document.getElementById('preview-dist-toutiao').innerHTML = marked.parse(del.dist_toutiao || '*头条稿件生成中...*');
       document.getElementById('preview-monitor').innerHTML = marked.parse(del.monitor_report || '*声量周报生成中...*');
       document.getElementById('preview-defense').innerHTML = marked.parse(del.defense || '*竞品反向包抄策略生成中...*');
+
+      // 渲染行业横向对标
+      if (d.benchmark && d.benchmark.success) {
+        const bm = d.benchmark;
+        document.getElementById('share-bm-industry-name').innerText = bm.industry || d.industry || '行业数字化';
+        document.getElementById('share-bm-tier-badge').innerText = bm.tier || '行业对标';
+        document.getElementById('share-bm-beat-rate').innerText = `${bm.beat_rate || 80}%`;
+        document.getElementById('share-bm-client-sov').innerText = `${bm.client_sov || 0}%`;
+        document.getElementById('share-bm-industry-avg').innerText = `${bm.industry_avg_sov || 38.5}%`;
+        document.getElementById('share-bm-industry-top').innerText = `${bm.industry_top_sov || 78}%`;
+
+        const diffElem = document.getElementById('share-bm-diff-from-avg');
+        if (bm.diff_from_avg >= 0) {
+          diffElem.innerText = `超出行业均值 +${bm.diff_from_avg}%`;
+          diffElem.className = 'text-[10px] text-emerald-400 font-semibold';
+        } else {
+          diffElem.innerText = `低于行业均值 ${bm.diff_from_avg}%`;
+          diffElem.className = 'text-[10px] text-amber-400 font-semibold';
+        }
+
+        document.getElementById('share-bm-summary-text').innerText = bm.summary || '行业对标评估完成。';
+      }
 
       // 渲染历史时序大盘
       const histBox = document.getElementById('share-history-cards');

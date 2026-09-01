@@ -239,6 +239,13 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
             "lost_count": h.get("lost_count", 0)
         })
 
+    # 提取行业横向对标
+    try:
+        from .benchmark import evaluate_project_against_benchmark
+        bench_eval = evaluate_project_against_benchmark(project_id)
+    except Exception:
+        bench_eval = {}
+
     return {
         "success": True,
         "client_name": cfg.get("client_name", "客户企业"),
@@ -248,6 +255,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "deliverables": deliverables,
         "metrics": metrics,
         "history": clean_history,
+        "benchmark": bench_eval,
         "share_meta": {
             "created_at_str": rec.get("created_at_str"),
             "expires_at_str": rec.get("expires_at_str"),

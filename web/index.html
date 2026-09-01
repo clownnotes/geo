@@ -115,7 +115,7 @@
     <!-- 主体内容 -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-8 space-y-6">
       <!-- 统计指标 -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
           <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
             <i data-lucide="folder-kanban" class="w-6 h-6"></i>
@@ -143,6 +143,19 @@
           <div>
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">平均 AI 声量提升</div>
             <div class="text-2xl font-bold text-emerald-600 mt-0.5">+100.0%</div>
+          </div>
+        </div>
+
+        <div onclick="openIndustryBenchmarkModal()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-indigo-300 hover:shadow-md transition">
+          <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
+            <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">🌐 行业大盘基准</div>
+            <div class="text-xs font-bold text-indigo-600 mt-1 flex items-center gap-1">
+              <span>点击查看行业均值</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -173,9 +186,13 @@
             <p class="text-xs text-slate-500 mt-0.5">点击项目直接进入向导生产流水线，支持一键打包下载全部成果</p>
           </div>
           <div class="flex items-center gap-3">
-            <button onclick="handleTriggerPatrolAll(event)" id="btn-patrol-all" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition flex items-center gap-1.5 border border-slate-200">
+            <button onclick="openBatchModal()" class="py-2.5 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg text-xs transition flex items-center gap-1.5 border border-indigo-200 shadow-sm">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-600"></i>
+              <span>🚀 批量并发生产</span>
+            </button>
+            <button onclick="handleTriggerPatrolAll(event)" id="btn-patrol-all" class="py-2.5 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition flex items-center gap-1.5 border border-slate-200">
               <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-600"></i>
-              <span>⚡ 立即全量自动巡检</span>
+              <span>⚡ 全量巡检</span>
             </button>
             <button onclick="openNewProjectModal()" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="plus-circle" class="w-4 h-4"></i>
@@ -672,6 +689,54 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- 🎯 行业横向对标与超越战绩 (Industry Benchmark) -->
+        <div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white rounded-xl shadow-lg p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-800/80 pb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-400/30">
+                📊
+              </div>
+              <div>
+                <h3 class="text-sm font-bold flex items-center gap-2">
+                  <span>行业横向对标与超越战绩 (Industry Benchmark)</span>
+                  <span id="bm-tier-badge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
+                    计算中...
+                  </span>
+                </h3>
+                <p class="text-[11px] text-indigo-200/70 mt-0.5">所属行业：<span id="bm-industry-name" class="font-bold text-white">--</span> · 横向对标全库同行平均线与顶尖标杆</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-indigo-300">超越同行率</span>
+              <div id="bm-beat-rate" class="text-xl font-black text-emerald-400">--%</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="text-indigo-200/80">客户当前 SOV</div>
+              <div id="bm-client-sov" class="text-2xl font-black text-white">--%</div>
+              <p class="text-[10px] text-emerald-400" id="bm-diff-from-avg">对比均值 --</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="text-indigo-200/80">本行业平均 SOV</div>
+              <div id="bm-industry-avg" class="text-2xl font-black text-indigo-200">--%</div>
+              <p class="text-[10px] text-indigo-300/70">行业基准基线</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="text-indigo-200/80">行业顶尖标杆线 (Top 10%)</div>
+              <div id="bm-industry-top" class="text-2xl font-black text-amber-300">--%</div>
+              <p class="text-[10px] text-amber-200/70">统治级品牌占位线</p>
+            </div>
+          </div>
+
+          <div id="bm-summary-text" class="text-xs bg-white/10 border border-white/15 rounded-lg p-3 text-indigo-100 leading-relaxed">
+            正在生成行业对标量化评估结论...
+          </div>
+        </div>
+
         <!-- 问句级实测对决态势矩阵 (Prompt Probe Matrix) -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -992,6 +1057,96 @@
           <div id="project-shares-list" class="space-y-1.5 max-h-36 overflow-y-auto">
             <div class="text-center py-2 text-slate-400 text-[11px]">暂无活跃链接</div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4.3 批量并发生产调度模态弹窗 ================= -->
+  <div id="batch-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="layers" class="w-5 h-5 text-indigo-600"></i>
+          <span>多项目批量并发生产中枢</span>
+        </h3>
+        <button onclick="closeBatchModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs text-slate-700">
+        <div class="p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl space-y-1">
+          <div class="font-bold text-indigo-900 flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-4 h-4 text-indigo-600"></i>
+            <span>大规模工业化并发调度</span>
+          </div>
+          <p class="text-[11px] text-indigo-700 leading-relaxed">
+            支持一键对全库或指定行业客户批量下发 5 步流水线生产，底层采用多线程安全并发加速处理。
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">目标项目范围</label>
+            <select id="batch-target-scope" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+              <option value="all">全量所有托管项目</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">执行交付阶段</label>
+            <select id="batch-step" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+              <option value="pipeline" selected>🔥 端到端一键执行 5 步全量交付流水线</option>
+              <option value="audit">Stage 1: AI 可见度现状体检诊断</option>
+              <option value="scaffold">Stage 2: 技术底座与 llms.txt 改造补丁</option>
+              <option value="rewrite">Stage 3: 普林斯顿 9 因子权威语料库生成</option>
+              <option value="distribute">Stage 4: 四大权威平台矩阵发布包排版</option>
+              <option value="monitor">Stage 5: 多模型实测与声量周报追踪</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">并发线程数 (Concurrency)</label>
+            <select id="batch-concurrency" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+              <option value="4" selected>4 线程并发 (推荐平衡模式)</option>
+              <option value="2">2 线程 (轻量模式)</option>
+              <option value="8">8 线程 (高速并发模式)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3">
+          <button type="button" onclick="handleTriggerBatch(event)" id="btn-run-batch" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5">
+            <i data-lucide="play" class="w-4 h-4"></i>
+            <span>立即并发启动批量生产</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4.4 全行业大盘基准宏观透视模态弹窗 ================= -->
+  <div id="industry-benchmark-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-purple-600"></i>
+          <span>全行业 AI 可见度与权威信源宏观基准大盘 (Industry Benchmarks)</span>
+        </h3>
+        <button onclick="closeIndustryBenchmarkModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs text-slate-700 overflow-y-auto flex-1">
+        <p class="text-slate-500">
+          基于系统托管的全量商业客户项目，按行业维度聚合统计的基准线（平均 SOV、前 10% 标杆线及高频 Citation 信源分布）。
+        </p>
+
+        <div id="industry-benchmarks-list" class="space-y-4">
+          <!-- 动态注入各行业卡片 -->
+          <div class="text-center py-6 text-slate-400">正在计算全库行业大盘数据...</div>
         </div>
       </div>
     </div>
@@ -1616,6 +1771,7 @@
       // Step 5
       loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
       loadMonitorDashboardMetrics();
+      loadProjectBenchmarkEvaluation();
       loadDefensePreview();
       loadProjectHistoryChart();
       loadAlertHistory();
@@ -2102,6 +2258,180 @@
     function openShareLinkDirectly() {
       if (!currentGeneratedShareUrl) return;
       window.open(currentGeneratedShareUrl, '_blank');
+    }
+
+    // ==========================================
+    // 行业大盘 Benchmark 与横向对标
+    // ==========================================
+    async function loadProjectBenchmarkEvaluation() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/benchmark`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          document.getElementById('bm-industry-name').innerText = d.industry;
+          document.getElementById('bm-tier-badge').innerText = d.tier;
+          document.getElementById('bm-beat-rate').innerText = `${d.beat_rate}%`;
+          document.getElementById('bm-client-sov').innerText = `${d.client_sov}%`;
+          document.getElementById('bm-industry-avg').innerText = `${d.industry_avg_sov}%`;
+          document.getElementById('bm-industry-top').innerText = `${d.industry_top_sov}%`;
+
+          const diffElem = document.getElementById('bm-diff-from-avg');
+          if (d.diff_from_avg >= 0) {
+            diffElem.innerText = `超出行业均值 +${d.diff_from_avg}%`;
+            diffElem.className = 'text-[10px] text-emerald-400 font-semibold';
+          } else {
+            diffElem.innerText = `低于行业均值 ${d.diff_from_avg}%`;
+            diffElem.className = 'text-[10px] text-amber-400 font-semibold';
+          }
+
+          document.getElementById('bm-summary-text').innerText = d.summary;
+        }
+      } catch (e) {
+        console.error('加载行业对标失败:', e);
+      }
+    }
+
+    async function openIndustryBenchmarkModal() {
+      document.getElementById('industry-benchmark-modal').classList.remove('hidden');
+      await loadIndustryBenchmarks();
+      lucide.createIcons();
+    }
+
+    function closeIndustryBenchmarkModal() {
+      document.getElementById('industry-benchmark-modal').classList.add('hidden');
+    }
+
+    async function loadIndustryBenchmarks() {
+      const box = document.getElementById('industry-benchmarks-list');
+      try {
+        const res = await fetch('/api/benchmark/industries', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.industries && Object.keys(data.industries).length > 0) {
+          box.innerHTML = Object.entries(data.industries).map(([name, ind]) => `
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-slate-800">${name}</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-semibold">
+                    ${ind.project_count} 家客户企业
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] text-slate-400">头部标杆线 (Top 10%)</span>
+                  <span class="text-sm font-black text-amber-600 ml-1">${ind.top_10_percent_sov}%</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="p-2.5 bg-white border border-slate-200 rounded-lg">
+                  <div class="text-slate-400 text-[10px]">行业平均 SOV</div>
+                  <div class="text-base font-bold text-indigo-600 mt-0.5">${ind.avg_sov}%</div>
+                </div>
+                <div class="p-2.5 bg-white border border-slate-200 rounded-lg">
+                  <div class="text-slate-400 text-[10px]">中位数 SOV</div>
+                  <div class="text-base font-bold text-slate-700 mt-0.5">${ind.median_sov}%</div>
+                </div>
+                <div class="p-2.5 bg-white border border-slate-200 rounded-lg">
+                  <div class="text-slate-400 text-[10px]">平均权威评分</div>
+                  <div class="text-base font-bold text-emerald-600 mt-0.5">${ind.avg_authority_score}/100</div>
+                </div>
+              </div>
+              <div>
+                <div class="text-[10px] font-semibold text-slate-500 mb-1">大模型核心被引用渠道占比：</div>
+                <div class="flex flex-wrap gap-2 text-[10px]">
+                  ${ind.top_citations.map(c => `
+                    <span class="px-2 py-1 bg-white border border-slate-200 rounded text-slate-600">
+                      ${c.name}: <strong class="text-indigo-600">${c.pct}%</strong>
+                    </span>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          box.innerHTML = `<div class="text-center py-6 text-slate-400">暂无行业数据</div>`;
+        }
+      } catch (e) {
+        box.innerHTML = `<div class="text-center py-6 text-slate-400">行业大盘数据加载失败</div>`;
+      }
+    }
+
+    // ==========================================
+    // 批量并发生产调度
+    // ==========================================
+    async function openBatchModal() {
+      document.getElementById('batch-modal').classList.remove('hidden');
+      const scopeSel = document.getElementById('batch-target-scope');
+      try {
+        const res = await fetch('/api/projects', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.projects) {
+          const industries = [...new Set(data.projects.map(p => p.industry || '未分类'))];
+          scopeSel.innerHTML = `
+            <option value="all">全量所有托管项目 (${data.projects.length} 个)</option>
+            ${industries.map(ind => `<option value="industry:${ind}">仅处理【${ind}】行业项目</option>`).join('')}
+          `;
+        }
+      } catch (e) {}
+      lucide.createIcons();
+    }
+
+    function closeBatchModal() {
+      document.getElementById('batch-modal').classList.add('hidden');
+    }
+
+    async function handleTriggerBatch(e) {
+      if (e) e.preventDefault();
+      const scopeVal = document.getElementById('batch-target-scope').value;
+      const step = document.getElementById('batch-step').value;
+      const concurrency = parseInt(document.getElementById('batch-concurrency').value) || 4;
+
+      let industry = null;
+      let target_ids = 'all';
+      if (scopeVal.startsWith('industry:')) {
+        industry = scopeVal.replace('industry:', '');
+        target_ids = 'all';
+      }
+
+      const btn = document.getElementById('btn-run-batch');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 调度中...`;
+
+      try {
+        const res = await fetch('/api/batch/trigger', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({
+            step,
+            industry,
+            target_ids,
+            max_workers: concurrency
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`🎉 ${data.message}`);
+          closeBatchModal();
+        } else {
+          showToast('启动失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
     }
 
     async function loadMarkdownToElem(filename, elemId) {
