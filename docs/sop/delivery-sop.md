@@ -82,6 +82,9 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 2. **内容资产包交付**：白皮书、对比表、Q&A 库归档。
 3. **分发矩阵矩阵链接清单**：全网 10+ 篇高权重落地页链接。
 4. **AI 推荐实测截屏与提及率统计**：DeepSeek 与 豆包 提问实测推荐截图。
+5. **专属甲方只读交付看板交付**：
+   - 运行 `python3 -m tools.geo share <client_id> [--days 30] [--pin 8888]` 或在 Web 端向导顶部点击 **「🔗 客户专属交付链接」**；
+   - 将生成的专属门户 URL 及提取码通过微信直发甲方老板，提供手机端自适应的多周声量与 5 步全景看板。
 
 ---
 
@@ -97,8 +100,9 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 - [ ] **S3.2** 编写 10 组 Prompt 对齐 Q&A 问答库
 - [ ] **S4.1** 头条/知乎/掘金 矩阵渠道分发
 - [ ] **S4.2** GitHub 仓库/微信公众号 文章发布
-- [ ] **S5.1** 运行自动化大模型提及率测试
-- [ ] **S5.2** 交付客户并开启月度维护服务
+- [ ] **S5.1** 运行自动化大模型提及率测试与周报归档
+- [ ] **S5.2** 生成甲方专属免密/加密交付门户链接并直发客户
+- [ ] **S5.3** 开启月度无人值守巡检与异动预警维护
 
 ---
 
@@ -113,5 +117,4 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 | S3 内容工程 | `python3 -m tools.geo rewrite --project <id>` | [SOP-03](/sop/03-rewrite-sop) | 普林斯顿 9 因子语料库 |
 | S4 矩阵分发 | `python3 -m tools.geo distribute --project <id>` | [SOP-04](/sop/04-distribute-sop) | 5 平台发布包 + 执行单 |
 | S5 验收运维 | `python3 -m tools.geo monitor --project <id>` | [SOP-05](/sop/05-monitor-sop) | SOV 周报 + 归因清单 |
-
-一键端到端（新客演示/回归测试）：`python3 -m tools.geo all --project <id>`
+| **客户交付** | `python3 -m tools.geo share --project <id>` | 本手册 | 专属免密只读交付看板与微信话术 |

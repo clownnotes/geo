@@ -3,7 +3,7 @@ GEO Commercial Delivery Toolkit
 商用 GEO 交付工作台与自动化工具套件
 """
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 from .intent import mine_project_intent, generate_intent_for_company
 from .ingest import ingest_project_materials, fetch_and_clean_url, distill_knowledge_facts
@@ -21,5 +21,11 @@ from .patrol import (
     load_notification_settings,
     save_notification_settings,
     send_webhook_alert
+)
+from .share import (
+    create_share_link,
+    list_project_shares,
+    revoke_share_link,
+    get_share_portal_data
 )
 from .server import start_server

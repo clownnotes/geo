@@ -433,6 +433,65 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 7. 生成专属客户只读分享链接 API: /api/projects/{id}/share/create
+        if path.startswith("/api/projects/") and path.endswith("/share/create"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            expire_days = int(body.get("expire_days", 30))
+            pin = body.get("pin", "").strip() or None
+            from .share import create_share_link
+            host = self.headers.get("Host", "geo.baicl.cc")
+            proto = "https" if "baicl.cc" in host else "http"
+            base_url = f"{proto}://{host}"
+            try:
+                res = create_share_link(project_id, expire_days=expire_days, pin=pin, base_url=base_url)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 8. 作废分享链接 API: /api/share/{token}/revoke
+        if path.startswith("/api/share/") and path.endswith("/revoke"):
+            token = path.split("/")[3]
+            from .share import revoke_share_link
+            ok = revoke_share_link(token)
+            self.send_json({"success": ok, "message": "分享链接已成功作废！" if ok else "未找到该链接"})
+            return
+
+        self.send_json({"error": "Not Found"}, status=404)
+
+    def do_DELETE(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        # 鉴权拦截
+        token = self.get_auth_token()
+        if not is_authenticated(token):
+            self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+            return
+
+        # 作废分享链接 API: /api/share/{token}
+        if path.startswith("/api/share/"):
+            share_token = path.split("/")[3]
+            from .share import revoke_share_link
+            ok = revoke_share_link(share_token)
+            self.send_json({"success": ok, "message": "分享链接已成功作废！" if ok else "未找到该链接"})
+            return
+
+        # 删除客户项目 API: /api/projects/{id}
+        if path.startswith("/api/projects/"):
+            project_id = path.split("/")[3]
+            try:
+                target_dir = os.path.join(PROJECTS_DIR, project_id)
+                if os.path.exists(target_dir) and project_id != "_template":
+                    shutil.rmtree(target_dir)
+                    self.send_json({"success": True, "message": f"项目 [{project_id}] 已成功删除！"})
+                else:
+                    self.send_json({"success": False, "message": "项目不存在或不可删除！"}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_GET(self):
@@ -519,11 +578,83 @@ core_values:
                 self.wfile.write(content)
                 return
 
+        # 5. 专属甲方只读交付门户页面路由: /share/{token}
+        if path.startswith("/share/"):
+            share_path = os.path.join(WEB_DIR, "share.html")
+            if os.path.exists(share_path):
+                with open(share_path, "rb") as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(content)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(content)
+                return
+
+        # 6. 专属甲方只读沙箱数据公开 API: /api/share/{token}/data
+        if path.startswith("/api/share/") and path.endswith("/data"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import get_share_portal_data
+            data = get_share_portal_data(share_token, client_pin=pin)
+            body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
+        # 7. 专属甲方一键打包下载公开 API: /api/share/{token}/download
+        if path.startswith("/api/share/") and path.endswith("/download"):
+            parts = path.split("/")
+            share_token = parts[3]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                cfg = load_project_config(project_id)
+                out_dir = os.path.realpath(cfg["_outputs_dir"])
+                import io, zipfile
+                zip_buffer = io.BytesIO()
+                with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+                    for root, _, files in os.walk(out_dir):
+                        for f in files:
+                            full_p = os.path.join(root, f)
+                            rel_p = os.path.relpath(full_p, out_dir)
+                            zf.write(full_p, rel_p)
+                zip_bytes = zip_buffer.getvalue()
+                fname = f"GEO_Deliverables_{project_id}.zip"
+                self.send_response(200)
+                self.send_header("Content-Type", "application/zip")
+                self.send_header("Content-Disposition", f'attachment; filename="{fname}"')
+                self.send_header("Content-Length", str(len(zip_bytes)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(zip_bytes)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
             token = self.get_auth_token()
             if not is_authenticated(token):
                 self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+                return
+
+            # 查询项目分享链接列表: /api/projects/{id}/share/info
+            if path.startswith("/api/projects/") and path.endswith("/share/info"):
+                project_id = path.split("/")[3]
+                from .share import list_project_shares
+                shares = list_project_shares(project_id)
+                self.send_json({"success": True, "project_id": project_id, "shares": shares})
                 return
 
             # 分发平台排版预览接口: /api/projects/{id}/distribute/preview

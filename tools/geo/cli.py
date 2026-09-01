@@ -135,6 +135,14 @@ def main():
     p_patrol.add_argument("--notify", "-n", action="store_true", default=True, help="是否触发 Webhook 异动告警推送 (默认 True)")
     p_patrol.add_argument("--no-notify", dest="notify", action="store_false", help="禁止发送 Webhook 告警")
 
+    # share
+    p_share = subparsers.add_parser("share", help="生成甲方客户专属免密/提取码只读交付门户链接")
+    p_share.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_share.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_share.add_argument("--days", "-d", type=int, default=30, help="分享链接有效天数 (0=永久, 默认 30)")
+    p_share.add_argument("--pin", help="设置 4 位访问提取码 (可选)")
+    p_share.add_argument("--base-url", default="https://geo.baicl.cc", help="对外访问公网域名前缀")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -168,6 +176,12 @@ def main():
             run_patrol_all(notify=args.notify)
         else:
             run_patrol_project(get_pid(args), notify=args.notify)
+    elif args.command == "share":
+        from .share import create_share_link
+        res = create_share_link(get_pid(args), expire_days=args.days, pin=args.pin, base_url=args.base_url)
+        print("\n" + "="*60)
+        print(res["share_text"])
+        print("="*60 + "\n")
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

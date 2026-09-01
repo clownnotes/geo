@@ -224,6 +224,10 @@
       </div>
 
       <div class="flex items-center gap-3">
+        <button onclick="openShareModal()" class="py-2 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+          <span>🔗 客户专属交付链接</span>
+        </button>
         <button onclick="runPipelineAll()" id="btn-run-all" class="py-2 px-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
           <i data-lucide="play" class="w-3.5 h-3.5"></i>
           <span>一键跑通 5 步流水线</span>
@@ -911,6 +915,83 @@
           <button type="button" onclick="saveNotificationSettings(event)" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow">
             保存配置
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4.2 客户专属交付分享链接模态弹窗 ================= -->
+  <div id="share-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="share-2" class="w-5 h-5 text-emerald-600"></i>
+          <span>生成甲方客户专属交付链接</span>
+        </h3>
+        <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs text-slate-700 max-h-[80vh] overflow-y-auto">
+        <div class="p-3.5 bg-emerald-50/60 border border-emerald-100 rounded-xl space-y-1">
+          <div class="font-bold text-emerald-900 flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+            <span>免密只读与安全防泄密保障</span>
+          </div>
+          <p class="text-[11px] text-emerald-700 leading-relaxed">
+            采用密码学高熵不可穷举 Token（$2^{192}$ 空间），全局注入防爬虫协议，物理隔离后台管理权限，仅向甲方展示精美 5 步交付物与声量大盘。
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">链接有效期</label>
+            <select id="share-expire-days" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+              <option value="30" selected>30 天有效 (推荐)</option>
+              <option value="7">7 天有效</option>
+              <option value="90">90 天有效</option>
+              <option value="0">永久有效</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">访问提取码 (可选 PIN)</label>
+            <input id="share-pin-code" type="text" maxlength="6" placeholder="留空则免密直接打开" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="button" onclick="handleGenerateShareLink(event)" id="btn-create-share" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5">
+            <i data-lucide="link" class="w-4 h-4"></i>
+            <span>立即生成专属交付链接</span>
+          </button>
+        </div>
+
+        <!-- 生成结果展示卡片 -->
+        <div id="share-result-card" class="hidden p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-900">🎉 专属交付链接已就绪</span>
+            <span id="share-result-exp" class="text-[10px] text-slate-400">30天有效</span>
+          </div>
+          <div class="p-2.5 bg-white border border-slate-200 rounded-lg text-[11px] font-mono break-all text-slate-700 select-all" id="share-result-url"></div>
+          <div class="flex items-center gap-2">
+            <button onclick="copyShareText()" class="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制微信交付话术</span>
+            </button>
+            <button onclick="openShareLinkDirectly()" class="py-2 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              <span>直接打开</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 历史活跃链接列表 -->
+        <div class="border-t border-slate-200 pt-3 space-y-2">
+          <div class="font-bold text-slate-800 text-[11px]">已生成的活跃分享链接：</div>
+          <div id="project-shares-list" class="space-y-1.5 max-h-36 overflow-y-auto">
+            <div class="text-center py-2 text-slate-400 text-[11px]">暂无活跃链接</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1900,6 +1981,127 @@
         btn.innerHTML = origHTML;
         lucide.createIcons();
       }
+    }
+
+    // ==========================================
+    // 客户专属交付分享链接管理
+    // ==========================================
+    let currentGeneratedShareText = '';
+    let currentGeneratedShareUrl = '';
+
+    async function openShareModal() {
+      if (!currentProjectId) return;
+      document.getElementById('share-modal').classList.remove('hidden');
+      document.getElementById('share-result-card').classList.add('hidden');
+      document.getElementById('share-pin-code').value = '';
+      await loadProjectSharesList();
+      lucide.createIcons();
+    }
+
+    function closeShareModal() {
+      document.getElementById('share-modal').classList.add('hidden');
+    }
+
+    async function handleGenerateShareLink(e) {
+      if (e) e.preventDefault();
+      if (!currentProjectId) return;
+      const expireDays = parseInt(document.getElementById('share-expire-days').value) || 30;
+      const pin = document.getElementById('share-pin-code').value.trim();
+
+      const btn = document.getElementById('btn-create-share');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 生成中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/share/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ expire_days: expireDays, pin })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('🎉 专属交付链接生成成功！');
+          currentGeneratedShareText = data.share_text;
+          currentGeneratedShareUrl = data.share_url;
+
+          document.getElementById('share-result-url').innerText = data.share_url + (data.pin ? ` (提取码: ${data.pin})` : '');
+          document.getElementById('share-result-exp').innerText = data.expires_at_str;
+          document.getElementById('share-result-card').classList.remove('hidden');
+          await loadProjectSharesList();
+        } else {
+          showToast('生成失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    async function loadProjectSharesList() {
+      if (!currentProjectId) return;
+      const listContainer = document.getElementById('project-shares-list');
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/share/info`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.shares && data.shares.length > 0) {
+          listContainer.innerHTML = data.shares.map(s => `
+            <div class="p-2.5 bg-white border border-slate-200 rounded-lg flex items-center justify-between gap-2 text-[11px]">
+              <div class="truncate">
+                <span class="font-mono font-semibold text-slate-800">/share/${s.token.slice(0, 10)}...</span>
+                <span class="text-slate-400 ml-1">(${s.expires_at_str})</span>
+                ${s.has_pin ? '<span class="text-amber-600 font-semibold ml-1">[带提取码]</span>' : '<span class="text-emerald-600 font-semibold ml-1">[免密]</span>'}
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button onclick="handleRevokeShare('${s.token}')" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[10px] font-semibold transition">作废</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          listContainer.innerHTML = `<div class="text-center py-2 text-slate-400 text-[11px]">暂无活跃链接</div>`;
+        }
+      } catch (e) {
+        listContainer.innerHTML = `<div class="text-center py-2 text-slate-400 text-[11px]">读取失败</div>`;
+      }
+    }
+
+    async function handleRevokeShare(token) {
+      if (!confirm('确定要作废此分享链接吗？作废后客户将无法再访问。')) return;
+      try {
+        const res = await fetch(`/api/share/${token}/revoke`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ 分享链接已成功作废！');
+          loadProjectSharesList();
+        } else {
+          showToast('作废失败: ' + data.message, 'error');
+        }
+      } catch (e) {
+        showToast('请求异常', 'error');
+      }
+    }
+
+    function copyShareText() {
+      if (!currentGeneratedShareText) return;
+      navigator.clipboard.writeText(currentGeneratedShareText).then(() => {
+        showToast('📋 微信交付话术与链接已复制到剪贴板！');
+      });
+    }
+
+    function openShareLinkDirectly() {
+      if (!currentGeneratedShareUrl) return;
+      window.open(currentGeneratedShareUrl, '_blank');
     }
 
     async function loadMarkdownToElem(filename, elemId) {
