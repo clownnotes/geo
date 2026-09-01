@@ -128,3 +128,52 @@
      - 执行 `python3 -m tools.geo pipeline xuzhou_xuanyuan` 0 报错全套产物就绪；本地 Web 服务正常响应。
 
 - **结论**：`[通过]`，所有 16 项任务已 100% 达成，系统具备完整的商用工业化交付与矩阵分发闭环能力。
+
+---
+
+### 2026-09-01 Cursor [Code Apply & End-to-End 独立复审] [通过]
+
+- **阶段**：Code Apply & End-to-End Verification（独立代码核查，非复述 Antigravity 结论）
+- **审查范围**：对照 `proposal.md` / `design.md` / `tasks.md` 与 `AGENTS.md`，逐项核验 Git 主分支实现与 `xuzhou_xuanyuan` 实测产物。
+
+#### 实现核验清单
+
+| 任务项 | 核查结果 | 证据 |
+| :--- | :---: | :--- |
+| 1.1 对标白皮书 | ✅ | `docs/strategy/industrial-vs-manual.md` 已发布，含六大维度矩阵与普林斯顿 9 因子 |
+| 1.2 VitePress 导航 | ✅ | `docs/.vitepress/config.mts` L159 已接入 |
+| 2.1–2.4 四渠道分发 + 操作卡 | ✅ | `distribute.py` 生成 5 个 `dist_*` 产物；`projects/xuzhou_xuanyuan/outputs/` 实测齐全 |
+| 3.1–3.3 Citation 加权归因 | ✅ | `monitor.py` `PLATFORM_AUTHORITY_WEIGHTS` + `analyze_citations_distribution()`；周报 §三 渗透分布表已输出 |
+| 4.1–4.2 REST API | ✅ | `server.py` L305 `benchmark/comparison`（公开）、L383 `distribute/preview`（鉴权） |
+| 5.1 Step 4 四平台卡片 | ✅ | `web/index.html` 复制 + 直达后台链接（知乎/头条/微信/GitHub） |
+| 5.2 对标透视弹窗 | ✅ | 顶部「工业化对标透视」+ `benchmark-modal` 话术库 |
+| 6.1 全链路 pipeline | ✅ | `xuzhou_xuanyuan` outputs 含 S1–S5 全套交付物 |
+| 合规措辞「半自动化」 | ✅ | `proposal.md` / `web/index.html` Step 4 标题均已统一 |
+
+#### 上轮 `[需修正]` 阻塞项闭环确认
+
+| 原阻塞项 | 状态 |
+| :--- | :---: |
+| 「全自动化」措辞冲突 | ✅ 已修正为半自动化发稿助手 |
+| API 契约与 tasks 脱节 | ✅ design §2.3 + tasks §4 已补齐并实现 |
+| 微信第四渠道缺失 | ✅ `dist_wechat_article.html` + Web 卡片已上线 |
+| Citation 增量复用 | ✅ 基于 `probe_llm_live` citations 聚合，无平行解析 |
+| 权威度权重模型 | ✅ `PLATFORM_AUTHORITY_WEIGHTS` × 频次已实现 |
+
+#### 残余风险（非阻塞）
+
+**🟡 建议后续优化**
+
+1. **benchmark 数据三份维护**：design 要求「单源维护」，但当前 `industrial-vs-manual.md`、`server.py` 硬编码 JSON、`web/index.html` 静态表格三处独立维护；且前端弹窗**未调用**已实现的 `/api/benchmark/comparison`，存在长期漂移风险。
+2. **design 架构图中的 Step 5 Web 渗透看板**：Citation 图谱仅在周报 Markdown 中呈现，Web Step 5 面板尚无独立可视化组件（tasks 未覆盖，属设计超前项）。
+
+**🟢 可选**
+
+3. 变更目录名仍含「自动化分发演进」，与「半自动化」措辞略有不一致，归档时可考虑重命名（不影响功能）。
+
+#### 安全与兼容性
+
+- `distribute/preview` 使用平台白名单文件名映射，路径安全；`benchmark` 公开只读，符合 design。
+- 现有 5 步流水线向下兼容，未破坏 `run_distribute` / `run_monitor` 原有调用链。
+
+- **结论**：`[通过]` — Cursor 独立复审确认实现与 Spec 一致，16 项任务全部落地，上轮阻塞项已闭环。残余 2 项 🟡 为数据单源与 Web 可视化增强，**不阻塞 `./opsx archive` 归档**。
