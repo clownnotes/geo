@@ -53,11 +53,13 @@ def load_notification_settings() -> dict:
     return default_settings
 
 def save_notification_settings(settings: dict) -> bool:
-    """保存全局通知与告警配置"""
+    """保存全局通知与告警配置 (自动 Merge 现有配置)"""
     os.makedirs(DATA_DIR, exist_ok=True)
     try:
+        current = load_notification_settings()
+        current.update(settings)
         with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
-            json.dump(settings, f, ensure_ascii=False, indent=2)
+            json.dump(current, f, ensure_ascii=False, indent=2)
         return True
     except Exception as e:
         print(f"保存通知配置失败: {e}")
@@ -164,7 +166,7 @@ def get_project_history(project_id: str, limit: int = 12) -> list:
 # 异动告警检测与 Webhook 发送
 # ==========================================
 
-def check_alert_conditions(current_metrics: dict, history_records: list, settings: dict) -> tuple:
+def check_alert_conditions(current_metrics: dict, history_records: list, settings: dict, cfg: dict = None) -> tuple:
     """
     检查当前声量是否触发告警规则
     返回: (should_alert, reasons_summary, details_list)
@@ -172,10 +174,11 @@ def check_alert_conditions(current_metrics: dict, history_records: list, setting
     reasons = []
     curr_sov = current_metrics.get("sov_pct", 0.0)
     curr_intercept = current_metrics.get("prompt_stats", {}).get("intercept_count", 0)
+    is_offline = current_metrics.get("is_offline", False)
     
     # 规则 1: 绝对值跌破健康线
     min_threshold = settings.get("min_sov_threshold", 50.0)
-    if curr_sov < min_threshold and not current_metrics.get("is_offline"):
+    if curr_sov < min_threshold and not is_offline:
         reasons.append(f"当前 SOV ({curr_sov}%) 低于预警安全线 ({min_threshold}%)")
 
     # 规则 2: 环比上周断崖下跌
@@ -191,6 +194,27 @@ def check_alert_conditions(current_metrics: dict, history_records: list, setting
         last_intercept = history_records[-2].get("intercept_count", 0) if len(history_records) >= 2 else 0
         if curr_intercept > last_intercept:
             reasons.append(f"发现新增竞品拦截词（当前 {curr_intercept} 组意图词被竞品占位）")
+
+    # 规则 4: 品牌核心占位词失守识别 (Brand Anchor Loss)
+    if cfg and not is_offline:
+        brand_name = cfg.get("brand_name", "")
+        founder = cfg.get("founder", "")
+        # 查找包含品牌名或创始人的核心占位词
+        anchor_words = [w for w in [brand_name, founder] if w and len(w) >= 2]
+        # 如果项目 outputs 中存在周报，检查占位词是否未获首推
+        out_dir = cfg.get("_outputs_dir", "")
+        rep_file = os.path.join(out_dir, "05_企业AI可见度与声量追踪周报.md") if out_dir else ""
+        if rep_file and os.path.exists(rep_file):
+            try:
+                with open(rep_file, "r", encoding="utf-8", errors="ignore") as fp:
+                    rep_content = fp.read()
+                for aw in anchor_words:
+                    # 匹配格式: | **...{aw}...** | `...` | ❌ 暂未上榜 | ...
+                    if f"| **{aw}**" in rep_content and "❌ 暂未上榜" in rep_content:
+                        reasons.append(f"核心品牌占位词【{aw}】未获第一提及（处于失守风险）")
+                        break
+            except Exception:
+                pass
 
     should_alert = len(reasons) > 0
     summary = "；".join(reasons) if should_alert else "各项指标平稳处于健康区间"
@@ -300,7 +324,7 @@ def run_patrol_project(project_id: str, notify: bool = True) -> dict:
 
     # 4. 检查是否触发告警
     settings = load_notification_settings()
-    should_alert, summary, _ = check_alert_conditions(metrics, history_records, settings)
+    should_alert, summary, _ = check_alert_conditions(metrics, history_records, settings, cfg=cfg)
 
     alert_sent = False
     alert_msg = ""
