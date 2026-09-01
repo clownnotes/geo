@@ -642,6 +642,51 @@
               </div>
             </div>
           </div>
+        <!-- 问句级实测对决态势矩阵 (Prompt Probe Matrix) -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
+                🎯
+              </div>
+              <div>
+                <h3 class="text-xs font-bold text-slate-800">全量商业意图词库 · 问句级大模型对决态势</h3>
+                <p class="text-[11px] text-slate-500">统计全量 40~50 组意图词在 DeepSeek 与豆包生成式回答中的召回与拦截状态。</p>
+              </div>
+            </div>
+            <div id="monitor-mode-badge" class="text-[11px] font-semibold py-1 px-3 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+              数据读取中...
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center text-xs">
+            <div class="p-4 bg-emerald-50/60 border border-emerald-200/80 rounded-xl">
+              <div class="text-emerald-700 font-semibold mb-1 flex items-center justify-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>🟢 命中首推 / 第一梯队</span>
+              </div>
+              <div id="prompt-hit-count" class="text-2xl font-black text-emerald-700 mt-1">0 组</div>
+              <p class="text-[10px] text-emerald-600 mt-1">已被大模型优先提及并推荐</p>
+            </div>
+
+            <div class="p-4 bg-amber-50/60 border border-amber-200/80 rounded-xl">
+              <div class="text-amber-800 font-semibold mb-1 flex items-center justify-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>🟡 竞品拦截 / 待反击</span>
+              </div>
+              <div id="prompt-intercept-count" class="text-2xl font-black text-amber-800 mt-1">0 组</div>
+              <p class="text-[10px] text-amber-700 mt-1">大模型提及竞品，建议启动反向包抄</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="text-slate-600 font-semibold mb-1 flex items-center justify-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span>🔴 暂未上榜 / 优化基准</span>
+              </div>
+              <div id="prompt-lost-count" class="text-2xl font-black text-slate-700 mt-1">0 组</div>
+              <p class="text-[10px] text-slate-500 mt-1">优化前冷启动基准，需分发 9 因子语料</p>
+            </div>
+          </div>
         </div>
 
         <!-- 详细交付物卡片 -->
@@ -1366,18 +1411,43 @@
           document.getElementById('metric-doubao').innerText = `${data.doubao_rank_1_pct}%`;
           document.getElementById('metric-authority').innerText = `${data.authority_score}/100`;
 
-          if (data.citations && data.citations.length >= 4) {
-            document.getElementById('citation-pct-zhihu').innerText = `${data.citations[0].pct}%`;
-            document.getElementById('citation-bar-zhihu').style.width = `${data.citations[0].pct}%`;
+          // 监测模式徽标
+          const modeBadge = document.getElementById('monitor-mode-badge');
+          if (modeBadge) {
+            if (data.is_offline) {
+              modeBadge.innerText = '🟡 离线摸底基准测算';
+              modeBadge.className = 'text-[11px] font-semibold py-1 px-3 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+            } else {
+              modeBadge.innerText = '🟢 真实多模型联网探测';
+              modeBadge.className = 'text-[11px] font-semibold py-1 px-3 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+            }
+          }
 
-            document.getElementById('citation-pct-toutiao').innerText = `${data.citations[1].pct}%`;
-            document.getElementById('citation-bar-toutiao').style.width = `${data.citations[1].pct}%`;
+          // 问句级对决状态
+          if (data.prompt_stats) {
+            document.getElementById('prompt-hit-count').innerText = `${data.prompt_stats.hit_count} 组`;
+            document.getElementById('prompt-intercept-count').innerText = `${data.prompt_stats.intercept_count} 组`;
+            document.getElementById('prompt-lost-count').innerText = `${data.prompt_stats.lost_count} 组`;
+          }
 
-            document.getElementById('citation-pct-wechat').innerText = `${data.citations[2].pct}%`;
-            document.getElementById('citation-bar-wechat').style.width = `${data.citations[2].pct}%`;
+          // Citation 权威信源分布条形图
+          if (data.citations && data.citations.length > 0) {
+            const zhihu = data.citations.find(c => c.domain.includes('zhihu')) || { pct: 0 };
+            const toutiao = data.citations.find(c => c.domain.includes('toutiao')) || { pct: 0 };
+            const wechat = data.citations.find(c => c.domain.includes('weixin')) || { pct: 0 };
+            const github = data.citations.find(c => c.domain.includes('github')) || { pct: 0 };
 
-            document.getElementById('citation-pct-github').innerText = `${data.citations[3].pct}%`;
-            document.getElementById('citation-bar-github').style.width = `${data.citations[3].pct}%`;
+            document.getElementById('citation-pct-zhihu').innerText = `${zhihu.pct}%`;
+            document.getElementById('citation-bar-zhihu').style.width = `${zhihu.pct}%`;
+
+            document.getElementById('citation-pct-toutiao').innerText = `${toutiao.pct}%`;
+            document.getElementById('citation-bar-toutiao').style.width = `${toutiao.pct}%`;
+
+            document.getElementById('citation-pct-wechat').innerText = `${wechat.pct}%`;
+            document.getElementById('citation-bar-wechat').style.width = `${wechat.pct}%`;
+
+            document.getElementById('citation-pct-github').innerText = `${github.pct}%`;
+            document.getElementById('citation-bar-github').style.width = `${github.pct}%`;
           }
         }
       } catch (e) {}

@@ -297,67 +297,126 @@ def run_monitor(project_id: str, models: list = None) -> str:
     return out_path
 
 def extract_monitor_metrics(project_id: str) -> dict:
-    """从项目周报中结构化提取关键量化指标与 Citation 图谱数据"""
+    """从项目周报中结构化提取真实量化指标与 Citation 图谱数据（绝不使用虚假硬编码）"""
+    import re
     cfg = load_project_config(project_id)
-    out_dir = cfg["_outputs_dir"]
-    report_file = os.path.join(out_dir, "05_企业AI可见度与声量追踪周报.md")
-    defense_file = os.path.join(out_dir, "06_竞品权威信源反向包抄策略.md")
+    out_dir = cfg.get("_outputs_dir", "")
+    report_file = os.path.join(out_dir, "05_企业AI可见度与声量追踪周报.md") if out_dir else ""
+    defense_file = os.path.join(out_dir, "06_竞品权威信源反向包抄策略.md") if out_dir else ""
     
     kws = cfg.get("keywords", [])
-    total_prompts = len(kws) if kws else 40
+    total_prompts = len(kws) if kws else 0
 
-    # 默认兜底指标
     metrics = {
         "success": True,
         "project_id": project_id,
-        "has_report": os.path.exists(report_file),
-        "has_defense_doc": os.path.exists(defense_file),
-        "sov_pct": 74.2,
-        "deepseek_rank_1_pct": 78.5,
-        "doubao_rank_1_pct": 70.0,
-        "authority_score": 86.4,
-        "citations": [
-            { "domain": "zhihu.com", "name": "知乎专栏", "weight": 1.0, "count": 32, "pct": 42.0 },
-            { "domain": "toutiao.com", "name": "今日头条", "weight": 0.9, "count": 22, "pct": 28.5 },
-            { "domain": "weixin.qq.com", "name": "微信公众号", "weight": 0.85, "count": 14, "pct": 18.2 },
-            { "domain": "github.com", "name": "GitHub 开源", "weight": 0.95, "count": 9, "pct": 11.3 }
-        ],
+        "has_report": os.path.exists(report_file) if report_file else False,
+        "has_defense_doc": os.path.exists(defense_file) if defense_file else False,
+        "is_offline": True,
+        "sov_pct": 0.0,
+        "top3_pct": 0.0,
+        "deepseek_rank_1_pct": 0.0,
+        "doubao_rank_1_pct": 0.0,
+        "authority_score": 0.0,
+        "citations": [],
         "prompt_stats": {
             "total": total_prompts,
-            "hit_count": int(total_prompts * 0.74),
-            "intercept_count": int(total_prompts * 0.16),
-            "lost_count": max(1, total_prompts - int(total_prompts * 0.74) - int(total_prompts * 0.16))
+            "hit_count": 0,
+            "intercept_count": 0,
+            "lost_count": total_prompts
         }
     }
 
-    if not os.path.exists(report_file):
+    if not report_file or not os.path.exists(report_file):
         return metrics
 
     try:
         with open(report_file, "r", encoding="utf-8", errors="ignore") as f:
             text = f.read()
 
-        # 解析 SOV 综合占比
-        sov_m = re.search(r"综合\s*SOV\s*.*?(\d+(\.\d+)?)%", text)
+        metrics["is_offline"] = "离线" in text or "Offline" in text
+
+        # 1. 解析 SOV 声量份额
+        sov_m = re.search(r"品牌声量份额\s*\(SOV\)\*\*：\*\*(\d+(\.\d+)?)%", text) or \
+                re.search(r"品牌综合提及率\s*\(SOV\).*?\|\s*\*\*(\d+(\.\d+)?)%", text) or \
+                re.search(r"品牌.*?SOV.*?\*\*(\d+(\.\d+)?)%", text)
         if sov_m:
             metrics["sov_pct"] = float(sov_m.group(1))
 
-        # 解析权威度得分
-        auth_m = re.search(r"综合权威度得分\s*[:：]?\s*(\d+(\.\d+)?)", text)
-        if auth_m:
-            metrics["authority_score"] = float(auth_m.group(1))
+        # 2. 解析 Top 3 推荐率
+        top3_m = re.search(r"Top\s*3\s*首选推荐率\*\*：\*\*(\d+(\.\d+)?)%", text) or \
+                 re.search(r"Top\s*1~3.*?\|\s*\*\*(\d+(\.\d+)?)%", text)
+        if top3_m:
+            metrics["top3_pct"] = float(top3_m.group(1))
+            metrics["deepseek_rank_1_pct"] = metrics["top3_pct"]
+            metrics["doubao_rank_1_pct"] = metrics["top3_pct"]
 
-        # 解析首推率
-        ds_m = re.search(r"DeepSeek.*?首推率\s*[:：]?\s*(\d+(\.\d+)?)%", text)
-        if ds_m:
-            metrics["deepseek_rank_1_pct"] = float(ds_m.group(1))
+        # 3. 解析 Citation 信源渗透分布表（Section 三）
+        # 格式示例：| **`zhihu.com`** | 90 次 | `1.0` | **90.0** | ... |
+        citation_matches = re.findall(
+            r"\|\s*\*\*`([^`]+)`\*\*\s*\|\s*(\d+)\s*次\s*\|\s*`([0-9.]+)`\s*\|\s*\*\*([0-9.]+)\*\*",
+            text
+        )
         
-        db_m = re.search(r"豆包.*?首推率\s*[:：]?\s*(\d+(\.\d+)?)%", text)
-        if db_m:
-            metrics["doubao_rank_1_pct"] = float(db_m.group(1))
+        domain_names = {
+            "zhihu.com": "知乎专栏",
+            "github.com": "GitHub 开源",
+            "toutiao.com": "今日头条",
+            "weixin.qq.com": "微信公众号",
+            "baidu.com": "百度百科/百家号",
+            "csdn.net": "CSDN 博客"
+        }
 
-    except Exception:
-        pass
+        total_citation_count = sum(int(m[1]) for m in citation_matches) if citation_matches else 0
+        parsed_citations = []
+        weighted_score_sum = 0.0
+
+        for domain, count_str, weight_str, score_str in citation_matches:
+            cnt = int(count_str)
+            w = float(weight_str)
+            pct = round(cnt / total_citation_count * 100, 1) if total_citation_count > 0 else 0.0
+            weighted_score_sum += cnt * w
+            parsed_citations.append({
+                "domain": domain,
+                "name": domain_names.get(domain, domain),
+                "weight": w,
+                "count": cnt,
+                "pct": pct
+            })
+
+        if parsed_citations:
+            metrics["citations"] = parsed_citations
+            if total_citation_count > 0:
+                metrics["authority_score"] = round(weighted_score_sum / total_citation_count * 100, 1)
+
+        # 4. 解析关键词逐项探测明细表（Section 二）
+        # 统计 hit / intercept / lost
+        kw_rows = re.findall(r"\|\s*\*\*([^*]+)\*\*\s*\|\s*`([^`]+)`\s*\|\s*([^|]+)\|", text)
+        if kw_rows:
+            seen_prompts = set()
+            hits = 0
+            intercepts = 0
+            lost = 0
+            for kw, model, rank_col in kw_rows:
+                seen_prompts.add(kw.strip())
+                rank_col_clean = rank_col.strip()
+                if "🥇" in rank_col_clean or "Top" in rank_col_clean or "第 1" in rank_col_clean:
+                    hits += 1
+                elif "拦截" in rank_col_clean or "竞品" in rank_col_clean:
+                    intercepts += 1
+                else:
+                    lost += 1
+            
+            prompt_total = len(seen_prompts) if seen_prompts else len(kw_rows)
+            metrics["prompt_stats"] = {
+                "total": prompt_total,
+                "hit_count": hits,
+                "intercept_count": intercepts,
+                "lost_count": lost
+            }
+
+    except Exception as err:
+        print(f"解析监控周报指标异常: {err}")
 
     return metrics
 

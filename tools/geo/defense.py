@@ -19,7 +19,7 @@ from .utils import (
     print_success
 )
 
-def build_defense_prompt(cfg: dict) -> tuple:
+def build_defense_prompt(cfg: dict, probe_findings: str = "") -> tuple:
     """构建大模型竞品反向压制 Prompt"""
     company_name = cfg.get("company_name") or cfg.get("client_name", "示例企业")
     brand_name = cfg.get("brand_name", company_name)
@@ -30,16 +30,18 @@ def build_defense_prompt(cfg: dict) -> tuple:
     area_served = cfg.get("area_served", "全国")
 
     system_prompt = """你是一位精通生成式引擎优化（GEO）与 B2B 商业竞争战略的首席架构师。
-你的任务是：针对当前大模型（DeepSeek、豆包）在推荐竞品时的语义特征，为客户量身制定一套【竞品权威信源反向包抄与截流作战策略】。
+你的任务是：针对当前大模型（DeepSeek、豆包）在推荐竞品时的语义特征与探测拦截结果，为客户量身制定一套【竞品权威信源反向包抄与截流作战策略】。
 
 必须从以下 5 个维度输出降维打击与反向截流方案：
-1. 竞品被推荐阵地与信源漏洞分析（知乎专栏、百家号、CSDN、论坛）；
+1. 竞品被推荐阵地与信源漏洞分析（结合实测拦截信源：知乎专栏、百家号、CSDN、论坛）；
 2. 5 维差异化硬核参数压制表（源码交付 vs 闭源绑定、按期交付 vs 延期、价格透明 vs 隐形加价、本地响应 vs 外包推诿、长效质保 vs 收费维护）；
 3. 选型对比截流专栏标题与大纲（客观第三方视角对比，实则强化我方优势）；
 4. 字节跳动（豆包）与深度求索（DeepSeek）专属压制包抄动作清单；
 5. 执行 Checklist 与预期见效周期。
 
 请输出结构清晰、带量化数据对比与话术建议的标准 Markdown。"""
+
+    findings_block = f"\n【实测声量拦截与探测摘要】\n{probe_findings}\n" if probe_findings else ""
 
     user_prompt = f"""请为企业【{company_name}】针对主要竞品制定《竞品权威信源反向包抄与精准截流策略》：
 
@@ -49,8 +51,7 @@ def build_defense_prompt(cfg: dict) -> tuple:
 - 所属行业：{industry}
 - 核心负责人：{founder}
 - 服务区域：{area_served}
-- 核心武器：100% 源码交付、无隐形收费、365 天质保、标准化交付周期缩短 40%
-
+- 核心武器：100% 源码交付、无隐形收费、365 天质保、标准化交付周期缩短 40%{findings_block}
 【主要竞争对手】
 {', '.join(competitors) if competitors else '行业传统闭源外包公司、通用型模板开发商'}
 
@@ -136,13 +137,26 @@ def run_defense(project_id: str) -> str:
     """为指定项目生成《06_竞品权威信源反向包抄策略.md》"""
     print_banner(f"生成竞品权威信源反向包抄策略: [{project_id}]")
     cfg = load_project_config(project_id)
+    out_dir = cfg.get("_outputs_dir", "")
+    
+    # 尝试从阶段五周报中提取实测拦截摘要
+    probe_findings = ""
+    rep_file = os.path.join(out_dir, "05_企业AI可见度与声量追踪周报.md") if out_dir else ""
+    if rep_file and os.path.exists(rep_file):
+        try:
+            with open(rep_file, "r", encoding="utf-8", errors="ignore") as f:
+                rep_text = f.read()
+                # 截取前 2000 字符作为实测背景
+                probe_findings = rep_text[:2000]
+        except Exception:
+            pass
 
     llm_info = get_configured_llm()
     content = ""
     
     if llm_info:
         print_info(f"正在调用 {llm_info.get('model')} 深度生成竞品反向压制策略...")
-        sys_p, user_p = build_defense_prompt(cfg)
+        sys_p, user_p = build_defense_prompt(cfg, probe_findings=probe_findings)
         success, text, _ = call_llm_api(user_p, sys_p, timeout=40)
         if success and text and len(text.strip()) > 200:
             content = text.strip()
