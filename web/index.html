@@ -147,6 +147,24 @@
         </div>
       </div>
 
+      <!-- 自动化巡检与告警状态面板 -->
+      <div id="patrol-status-panel" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <i data-lucide="clock" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">⏰ 自动化巡检与告警状态</h2>
+            <p class="text-xs text-slate-500 mt-0.5">最近全量巡检：<span id="patrol-last-time" class="font-semibold text-slate-700">尚未执行</span></p>
+            <p class="text-xs text-slate-500 mt-0.5">告警推送：<span id="patrol-alert-status" class="font-semibold text-slate-700">加载中...</span></p>
+          </div>
+        </div>
+        <div class="text-[11px] text-slate-400 md:text-right">
+          <div>Crontab: <code class="bg-slate-100 px-1 rounded">0 3 * * 1 geo patrol --all</code></div>
+          <div class="mt-1">异动规则：SOV 跌破安全线 / 单周突降 / 竞品拦截 / 占位词失守</div>
+        </div>
+      </div>
+
       <!-- 项目管理表头与操作 -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -161,10 +179,6 @@
             </button>
             <button onclick="openNewProjectModal()" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="plus-circle" class="w-4 h-4"></i>
-              <span>+ 新建客户项目</span>
-            </button>
-          </div>
-        </div>
               <span>+ 新建客户项目</span>
             </button>
           </div>
@@ -724,6 +738,20 @@
           </div>
         </div>
 
+        <!-- 告警推送记录 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-3">
+          <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs">🔔</div>
+            <div>
+              <h3 class="text-xs font-bold text-slate-800">近期异动告警推送记录</h3>
+              <p class="text-[11px] text-slate-500">展示最近触发的声量异动与 Webhook 推送状态（全局）。</p>
+            </div>
+          </div>
+          <div id="alert-history-container" class="text-xs text-slate-600">
+            <div class="text-center py-4 text-slate-400">正在加载告警记录...</div>
+          </div>
+        </div>
+
         <!-- 详细交付物卡片 -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700">
@@ -865,7 +893,7 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">单周 SOV 突降预警阈值 (%)</label>
-            <input id="notif-drop-limit" type="number" step="5" min="0" max="50" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="10">
+            <input id="notif-drop-limit" type="number" step="5" min="0" max="50" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="15">
           </div>
         </div>
 
@@ -1091,7 +1119,29 @@
       document.getElementById('wizard-view').classList.add('hidden');
       if (username) document.getElementById('current-user-name').innerText = username;
       loadProjectsList();
+      loadPatrolStatus();
       lucide.createIcons();
+    }
+
+    async function loadPatrolStatus() {
+      const lastEl = document.getElementById('patrol-last-time');
+      const alertEl = document.getElementById('patrol-alert-status');
+      if (!lastEl || !alertEl) return;
+      try {
+        const res = await fetch('/api/settings/notifications', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.settings) {
+          const s = data.settings;
+          lastEl.innerText = s.last_patrol_time || '尚未执行';
+          alertEl.innerHTML = s.enabled
+            ? `<span class="text-emerald-600">已开启</span>（安全线 ${s.min_sov_threshold || 50}% / 突降 ${s.drop_threshold_pct || 15}%）`
+            : '<span class="text-slate-500">未开启</span>';
+        }
+      } catch (e) {
+        alertEl.innerText = '读取失败';
+      }
     }
 
     // 登录处理
@@ -1487,6 +1537,7 @@
       loadMonitorDashboardMetrics();
       loadDefensePreview();
       loadProjectHistoryChart();
+      loadAlertHistory();
     }
 
     // 加载声量监控大盘结构化指标
@@ -1610,9 +1661,30 @@
         });
         const data = await res.json();
         if (data.success && data.history && data.history.length > 0) {
-          box.innerHTML = `
+          const history = data.history;
+          const w = 480, svgH = 120, pad = 24;
+          const maxSov = Math.max(100, ...history.map(item => item.sov_pct || 0));
+          const pts = history.map((item, i) => {
+            const x = pad + (history.length === 1 ? (w - pad * 2) / 2 : i * (w - pad * 2) / (history.length - 1));
+            const y = svgH - pad - ((item.sov_pct || 0) / maxSov) * (svgH - pad * 2);
+            return `${x},${y}`;
+          }).join(' ');
+          const lineChart = history.length > 1 ? `
+            <div class="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="text-[10px] font-semibold text-slate-500 mb-2">SOV 多周环比折线趋势</div>
+              <svg viewBox="0 0 ${w} ${svgH}" class="w-full h-28">
+                <polyline fill="none" stroke="#6366f1" stroke-width="2.5" points="${pts}" />
+                ${history.map((item, i) => {
+                  const x = pad + (history.length === 1 ? (w - pad * 2) / 2 : i * (w - pad * 2) / (history.length - 1));
+                  const y = svgH - pad - ((item.sov_pct || 0) / maxSov) * (svgH - pad * 2);
+                  return `<circle cx="${x}" cy="${y}" r="3.5" fill="#4f46e5" /><text x="${x}" y="${svgH - 4}" text-anchor="middle" font-size="9" fill="#64748b">${item.check_date.slice(5)}</text>`;
+                }).join('')}
+              </svg>
+            </div>` : '';
+
+          box.innerHTML = `${lineChart}
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              ${data.history.map((h, idx) => `
+              ${history.map((h) => `
                 <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 hover:border-indigo-300 transition">
                   <div class="flex items-center justify-between">
                     <span class="font-bold text-slate-800">${h.check_date}</span>
@@ -1641,6 +1713,36 @@
       }
     }
 
+    async function loadAlertHistory() {
+      const box = document.getElementById('alert-history-container');
+      if (!box) return;
+      try {
+        const res = await fetch('/api/settings/notifications', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        const logs = (data.success && data.settings && data.settings.alert_history) ? data.settings.alert_history.slice().reverse() : [];
+        if (logs.length === 0) {
+          box.innerHTML = `<div class="text-center py-4 text-slate-400">暂无告警推送记录（异动触发后将自动沉淀于此）。</div>`;
+          return;
+        }
+        box.innerHTML = `<div class="space-y-2">${logs.slice(0, 10).map(log => `
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div class="font-semibold text-slate-800">${log.client_name || log.project_id}</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">${log.summary}</div>
+            </div>
+            <div class="text-[10px] text-right shrink-0">
+              <div class="${log.sent ? 'text-emerald-600' : 'text-amber-600'} font-semibold">${log.sent ? '已推送' : '未推送'}</div>
+              <div class="text-slate-400">${log.timestamp || ''}</div>
+            </div>
+          </div>
+        `).join('')}</div>`;
+      } catch (e) {
+        box.innerHTML = `<div class="text-center py-4 text-slate-400">告警记录读取异常</div>`;
+      }
+    }
+
     // 单项目手动触发巡检归档
     async function handleTriggerPatrolSingle(e) {
       if (e) e.preventDefault();
@@ -1661,6 +1763,7 @@
         if (data.success) {
           showToast('✅ 巡检归档成功并已存入 history.db！');
           await loadStepPreviews();
+          loadAlertHistory();
         } else {
           showToast('巡检失败: ' + data.message, 'error');
         }
@@ -1691,8 +1794,9 @@
         });
         const data = await res.json();
         if (data.success) {
-          showToast(data.message || '🎉 全项目自动巡检完成！');
+          showToast(data.message || (data.async ? '全量巡检已在后台启动' : '🎉 全项目自动巡检完成！'));
           loadProjectsList();
+          loadPatrolStatus();
         } else {
           showToast('巡检失败: ' + data.message, 'error');
         }
@@ -1718,7 +1822,7 @@
           document.getElementById('notif-enabled').checked = Boolean(s.enabled);
           document.getElementById('notif-webhook-url').value = s.webhook_url || '';
           document.getElementById('notif-min-sov').value = s.min_sov_threshold || 50;
-          document.getElementById('notif-drop-limit').value = s.drop_threshold_pct || 10;
+          document.getElementById('notif-drop-limit').value = s.drop_threshold_pct || 15;
         }
       } catch (e) {}
       lucide.createIcons();
@@ -1733,10 +1837,12 @@
       const payload = {
         enabled: document.getElementById('notif-enabled').checked,
         webhook_url: document.getElementById('notif-webhook-url').value.trim(),
+        webhook_type: 'auto',
         min_sov_threshold: parseFloat(document.getElementById('notif-min-sov').value) || 50.0,
-        drop_threshold_pct: parseFloat(document.getElementById('notif-drop-limit').value) || 10.0,
+        drop_threshold_pct: parseFloat(document.getElementById('notif-drop-limit').value) || 15.0,
         notify_on_sov_drop: true,
-        notify_on_intercept: true
+        notify_on_intercept: true,
+        notify_on_placeholder: true
       };
 
       try {

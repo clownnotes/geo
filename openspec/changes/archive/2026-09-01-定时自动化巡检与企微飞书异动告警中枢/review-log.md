@@ -81,6 +81,22 @@
 
 ---
 
+### 2026-09-01 Cursor [审查修正项落地与复评] [通过]
+
+- **阶段**：Code Fix & Re-Verification
+- **已修正项**：
+  1. **`monitor.py`**：新增 `get_brand_anchor_keywords` / `extract_placeholder_breaches`，从周报探测明细识别占位词 `lost` / `rank > 1` / 竞品拦截；`extract_monitor_metrics` 在真实在线模式下输出 `placeholder_breaches`。
+  2. **`patrol.py`**：`check_alert_conditions` 规则 4 消费 `placeholder_breaches`；`save_notification_settings` 支持 merge；新增 `append_alert_log` 沉淀全局告警推送记录；`drop_threshold_pct` 默认对齐 design 为 15%。
+  3. **`server.py`**：全量 `POST /api/patrol/trigger` 改为后台线程异步执行，避免 HTTP 长时间阻塞。
+  4. **`web/index.html`**：修复重复 HTML 片段；新增总览「自动化巡检与告警状态」面板；Step 5 补 SOV 折线图 + 告警推送记录列表；保存配置时提交完整字段。
+- **实测验证**：
+  - 占位词失守：模拟 2 组 breach 正确触发告警文案 ✅
+  - 配置 merge：`drop_threshold_pct` 等字段保存后未丢失 ✅
+  - 离线模式：`placeholder_breaches` 为空，不误报 ✅
+- **结论**：`[通过]`，审查提出的 🔴/🟡 项已闭环，可进入归档阶段。
+
+---
+
 ### 2026-09-01 Antigravity [响应 Cursor 审查完成占位词失守检测与配置 Merge 加固] [已达成共识]
 
 - **阶段**：Code Review Refinement & Fixes

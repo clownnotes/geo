@@ -18,6 +18,7 @@ import uuid
 import zipfile
 import io
 import shutil
+import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, unquote
 
@@ -344,8 +345,18 @@ core_values:
             from .patrol import run_patrol_all, run_patrol_project
             try:
                 if target_id == "all":
-                    res = run_patrol_all(notify=notify)
-                    self.send_json({"success": True, "results": res, "message": f"全量巡检完成！共巡检 {len(res)} 个项目"})
+                    def _run_patrol_all():
+                        try:
+                            run_patrol_all(notify=notify)
+                        except Exception as err:
+                            print(f"后台全量巡检异常: {err}")
+
+                    threading.Thread(target=_run_patrol_all, daemon=True).start()
+                    self.send_json({
+                        "success": True,
+                        "async": True,
+                        "message": "全量巡检任务已在后台启动，完成后可在告警设置中查看最近巡检时间。"
+                    })
                 else:
                     res = run_patrol_project(target_id, notify=notify)
                     self.send_json({"success": True, "result": res, "message": f"项目 [{target_id}] 巡检完成！"})

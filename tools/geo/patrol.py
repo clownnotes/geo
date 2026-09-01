@@ -40,8 +40,10 @@ def load_notification_settings() -> dict:
         "min_sov_threshold": 50.0,
         "notify_on_sov_drop": True,
         "notify_on_intercept": True,
-        "drop_threshold_pct": 10.0,
-        "last_patrol_time": None
+        "notify_on_placeholder": True,
+        "drop_threshold_pct": 15.0,
+        "last_patrol_time": None,
+        "alert_history": []
     }
     if os.path.exists(SETTINGS_FILE):
         try:
@@ -52,18 +54,34 @@ def load_notification_settings() -> dict:
             pass
     return default_settings
 
-def save_notification_settings(settings: dict) -> bool:
-    """保存全局通知与告警配置 (自动 Merge 现有配置)"""
+def save_notification_settings(settings: dict, merge: bool = True) -> bool:
+    """保存全局通知与告警配置（默认与现有配置合并，避免字段丢失）"""
     os.makedirs(DATA_DIR, exist_ok=True)
     try:
-        current = load_notification_settings()
-        current.update(settings)
+        payload = settings
+        if merge:
+            payload = load_notification_settings()
+            payload.update(settings)
         with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
-            json.dump(current, f, ensure_ascii=False, indent=2)
+            json.dump(payload, f, ensure_ascii=False, indent=2)
         return True
     except Exception as e:
         print(f"保存通知配置失败: {e}")
         return False
+
+def append_alert_log(project_id: str, client_name: str, summary: str, sent: bool) -> None:
+    """追加告警推送记录（保留最近 50 条）"""
+    settings = load_notification_settings()
+    history = settings.get("alert_history", [])
+    history.append({
+        "project_id": project_id,
+        "client_name": client_name,
+        "summary": summary,
+        "sent": sent,
+        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    })
+    settings["alert_history"] = history[-50:]
+    save_notification_settings(settings, merge=False)
 
 # ==========================================
 # SQLite 历史声量时序库
@@ -108,7 +126,8 @@ def record_project_history(project_id: str, metrics: dict) -> int:
     p_stats = metrics.get("prompt_stats", {})
     details_str = json.dumps({
         "citations": metrics.get("citations", []),
-        "is_offline": metrics.get("is_offline", False)
+        "is_offline": metrics.get("is_offline", False),
+        "placeholder_breaches": metrics.get("placeholder_breaches", [])
     }, ensure_ascii=False)
 
     with sqlite3.connect(db_path) as conn:
@@ -185,7 +204,7 @@ def check_alert_conditions(current_metrics: dict, history_records: list, setting
     if len(history_records) >= 2 and settings.get("notify_on_sov_drop", True):
         last_rec = history_records[-2]  # 上一次记录
         last_sov = last_rec.get("sov_pct", 0.0)
-        drop_limit = settings.get("drop_threshold_pct", 10.0)
+        drop_limit = settings.get("drop_threshold_pct", 15.0)
         if last_sov - curr_sov >= drop_limit:
             reasons.append(f"SOV 环比突降 {round(last_sov - curr_sov, 1)}%（上周: {last_sov}% ➔ 本周: {curr_sov}%）")
 
@@ -195,26 +214,12 @@ def check_alert_conditions(current_metrics: dict, history_records: list, setting
         if curr_intercept > last_intercept:
             reasons.append(f"发现新增竞品拦截词（当前 {curr_intercept} 组意图词被竞品占位）")
 
-    # 规则 4: 品牌核心占位词失守识别 (Brand Anchor Loss)
-    if cfg and not is_offline:
-        brand_name = cfg.get("brand_name", "")
-        founder = cfg.get("founder", "")
-        # 查找包含品牌名或创始人的核心占位词
-        anchor_words = [w for w in [brand_name, founder] if w and len(w) >= 2]
-        # 如果项目 outputs 中存在周报，检查占位词是否未获首推
-        out_dir = cfg.get("_outputs_dir", "")
-        rep_file = os.path.join(out_dir, "05_企业AI可见度与声量追踪周报.md") if out_dir else ""
-        if rep_file and os.path.exists(rep_file):
-            try:
-                with open(rep_file, "r", encoding="utf-8", errors="ignore") as fp:
-                    rep_content = fp.read()
-                for aw in anchor_words:
-                    # 匹配格式: | **...{aw}...** | `...` | ❌ 暂未上榜 | ...
-                    if f"| **{aw}**" in rep_content and "❌ 暂未上榜" in rep_content:
-                        reasons.append(f"核心品牌占位词【{aw}】未获第一提及（处于失守风险）")
-                        break
-            except Exception:
-                pass
+    # 规则 4: 品牌占位词失守（rank > 1 / 未上榜 / 被竞品拦截）
+    if settings.get("notify_on_placeholder", True) and not is_offline:
+        breaches = current_metrics.get("placeholder_breaches", [])
+        if breaches:
+            sample = "、".join({b.get("keyword", "") for b in breaches[:3]})
+            reasons.append(f"品牌占位词失守（{len(breaches)} 组）：{sample} 等未达 Top 1 独占")
 
     should_alert = len(reasons) > 0
     summary = "；".join(reasons) if should_alert else "各项指标平稳处于健康区间"
@@ -339,10 +344,18 @@ def run_patrol_project(project_id: str, notify: bool = True) -> dict:
         )
         alert_sent = ok
         alert_msg = msg
+        append_alert_log(project_id, client_name, summary, ok)
         if ok:
             print_success(f"✅ 已成功向群机器人推送异动告警卡片")
         else:
             print_warning(f"⚠️ 告警卡片推送失败: {msg}")
+    elif should_alert:
+        append_alert_log(project_id, client_name, summary, False)
+
+    # 更新最近巡检时间
+    settings = load_notification_settings()
+    settings["last_patrol_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    save_notification_settings(settings, merge=False)
 
     return {
         "project_id": project_id,
@@ -371,10 +384,11 @@ def run_patrol_all(notify: bool = True) -> list:
                 except Exception as e:
                     print_warning(f"项目 [{item}] 巡检异常: {e}")
 
-    # 更新最近巡检时间
-    settings = load_notification_settings()
-    settings["last_patrol_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    save_notification_settings(settings)
+    # 更新最近全量巡检时间（单项目巡检已在 run_patrol_project 中更新）
+    if results:
+        settings = load_notification_settings()
+        settings["last_patrol_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        save_notification_settings(settings, merge=False)
 
     print_success(f"🎉 全项目自动化巡检完成！共巡检 {len(results)} 个活跃项目。")
     return results

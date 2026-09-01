@@ -1,5 +1,12 @@
 {
   "enabled": true,
+  "webhook_type": "auto",
   "webhook_url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=demo123",
-  "min_sov_threshold": 45.0
+  "min_sov_threshold": 45.0,
+  "notify_on_sov_drop": true,
+  "notify_on_intercept": true,
+  "notify_on_placeholder": true,
+  "drop_threshold_pct": 15.0,
+  "last_patrol_time": null,
+  "alert_history": []
 }

@@ -296,6 +296,104 @@ def run_monitor(project_id: str, models: list = None) -> str:
     print_success(f"AI 可见度追踪周报生成成功！报告路径: {out_path}")
     return out_path
 
+def get_brand_anchor_keywords(cfg: dict) -> set:
+    """提取品牌占位词集合（实体档案 + 词库第 3 层 + intent 产物）"""
+    anchors = set()
+    for key in ("brand_name", "company_name", "founder", "slogan", "telephone", "client_name"):
+        val = cfg.get(key, "")
+        if val:
+            anchors.add(str(val).strip())
+
+    for item in cfg.get("brand_anchors", []) or []:
+        if item:
+            anchors.add(str(item).strip())
+
+    project_dir = cfg.get("_project_dir", "")
+    yaml_path = os.path.join(project_dir, "project.yaml") if project_dir else ""
+    if yaml_path and os.path.exists(yaml_path):
+        in_layer3 = False
+        try:
+            with open(yaml_path, "r", encoding="utf-8", errors="ignore") as f:
+                for raw_line in f:
+                    line = raw_line.strip()
+                    if not line or line.startswith("#"):
+                        if "第 3 层" in line or "品牌占位词" in line:
+                            in_layer3 = True
+                        continue
+                    if in_layer3 and line.startswith("- "):
+                        anchors.add(line[2:].strip().strip('"\''))
+                    elif in_layer3 and line and not line.startswith("- "):
+                        break
+        except Exception:
+            pass
+
+    intent_file = os.path.join(cfg.get("_outputs_dir", ""), "02_企业AI商业意图词库.json")
+    if os.path.exists(intent_file):
+        try:
+            with open(intent_file, "r", encoding="utf-8") as f:
+                intent_data = json.load(f)
+            for item in intent_data.get("brand_anchors", []) or []:
+                if item:
+                    anchors.add(str(item).strip())
+        except Exception:
+            pass
+
+    return {a for a in anchors if a}
+
+
+def _is_brand_anchor_keyword(keyword: str, anchors: set) -> bool:
+    kw = keyword.strip()
+    if kw in anchors:
+        return True
+    return any(len(a) >= 3 and (a in kw or kw in a) for a in anchors)
+
+
+def _parse_probe_rank_status(rank_col: str) -> tuple:
+    """解析探测明细表位次列，返回 (is_breach, status, rank)"""
+    cell = rank_col.strip()
+    if "拦截" in cell or "竞品" in cell:
+        return True, "intercept", 0
+    if "暂未上榜" in cell or "❌" in cell:
+        return True, "lost", 0
+    rank_m = re.search(r"第\s*(\d+)\s*位", cell)
+    if rank_m:
+        rank = int(rank_m.group(1))
+        if rank > 1:
+            return True, "rank_down", rank
+        return False, "top1", rank
+    if "🥇" in cell or re.search(r"Top\s*1", cell, re.I):
+        return False, "top1", 1
+    return False, "unknown", 0
+
+
+def extract_placeholder_breaches(cfg: dict, kw_rows: list) -> list:
+    """从周报探测明细中识别品牌占位词失守（rank > 1 / 未上榜 / 被竞品拦截）"""
+    anchors = get_brand_anchor_keywords(cfg)
+    if not anchors:
+        return []
+
+    breaches = []
+    seen = set()
+    for kw, model, rank_col in kw_rows:
+        kw_clean = kw.strip()
+        if not _is_brand_anchor_keyword(kw_clean, anchors):
+            continue
+        is_breach, status, rank = _parse_probe_rank_status(rank_col)
+        if not is_breach:
+            continue
+        dedupe_key = (kw_clean, model.strip())
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        breaches.append({
+            "keyword": kw_clean,
+            "model": model.strip(),
+            "status": status,
+            "rank": rank,
+        })
+    return breaches
+
+
 def extract_monitor_metrics(project_id: str) -> dict:
     """从项目周报中结构化提取真实量化指标与 Citation 图谱数据（绝不使用虚假硬编码）"""
     import re
@@ -324,7 +422,8 @@ def extract_monitor_metrics(project_id: str) -> dict:
             "hit_count": 0,
             "intercept_count": 0,
             "lost_count": total_prompts
-        }
+        },
+        "placeholder_breaches": []
     }
 
     if not report_file or not os.path.exists(report_file):
@@ -414,6 +513,8 @@ def extract_monitor_metrics(project_id: str) -> dict:
                 "intercept_count": intercepts,
                 "lost_count": lost
             }
+            if not metrics.get("is_offline"):
+                metrics["placeholder_breaches"] = extract_placeholder_breaches(cfg, kw_rows)
 
     except Exception as err:
         print(f"解析监控周报指标异常: {err}")
