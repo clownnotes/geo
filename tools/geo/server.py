@@ -155,9 +155,33 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         token = self.get_auth_token()
         if not is_authenticated(token):
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+        # 3. AI 商业意图与用户提问逆向挖掘 API: /api/intent/generate
+        if path == "/api/intent/generate":
+            body = self.read_json_body()
+            client_name = body.get("client_name", "").strip()
+            industry = body.get("industry", "").strip()
+            if not client_name or not industry:
+                self.send_json({"success": False, "message": "请先输入企业名称与所属行业后再推演！"}, status=400)
+                return
+            
+            from .intent import generate_intent_for_company
+            info = {
+                "client_name": client_name,
+                "brand_name": body.get("brand_name", client_name),
+                "industry": industry,
+                "slogan": body.get("slogan", "专业、可靠、高效"),
+                "founder": body.get("founder", "资深顾问团队"),
+                "area_served": body.get("area_served", "全国"),
+                "company_profile": body.get("company_profile", "")
+            }
+            try:
+                res = generate_intent_for_company(info)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": f"推演失败: {str(e)}"}, status=500)
             return
 
-        # 3. 创建新项目 API
+        # 4. 创建新项目 API
         if path == "/api/projects":
             body = self.read_json_body()
             client_id = body.get("client_id", "").strip()

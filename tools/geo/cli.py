@@ -110,6 +110,11 @@ def main():
     p_mon.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_mon.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
+    # intent
+    p_intent = subparsers.add_parser("intent", help="AI 逆向挖掘买家 5 维商业提问 Prompt 词库")
+    p_intent.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_intent.add_argument("--project", "-p", default=None, help="客户项目 ID")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -128,6 +133,9 @@ def main():
         start_server(port=args.port)
     elif args.command == "init":
         cmd_init_project(args.project_id)
+    elif args.command == "intent":
+        from .intent import mine_project_intent
+        mine_project_intent(get_pid(args))
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":
