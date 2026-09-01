@@ -99,3 +99,25 @@
 - **实测核验**：
   - 提取码保护下无 PIN 403、带 PIN 200 成功下载 29KB ZIP 包、打印页面渲染与 Citation 条形图联动全部实测通过。
 - **结论**：`[已达成共识 / 通过]`，全部审查项已 100% 修复闭环，可执行 `./opsx archive` 归档。
+
+---
+
+### 2026-09-01 Cursor [修复项独立复评与端到端核验] [通过]
+
+- **阶段**：Re-Review after `2d81ca7 fix(share): 完善提取码模式下载与打印鉴权、落地Citation进度条并深度脱敏`
+- **对照上次 `[需修正]` 项复核**：
+  | 审查项 | 复评结果 |
+  |:---|:---|
+  | PIN 模式 ZIP 下载 403 | ✅ `server.py` download/print 均读取 `X-Share-Pin` / `?pin=`；`share.html` 下载/打印携带 SessionStorage PIN |
+  | 一键打印周报缺失 | ✅ 新增 `/api/share/{token}/print` 与 Header「美化打印周报」按钮 |
+  | Citation 进度条未落地 | ✅ Tab 5 动态渲染知乎/头条/微信/GitHub 加权条形图 |
+  | 沙箱 `project_id` / `history.id` 脱敏 | ✅ 顶层响应已剔除 `project_id`；`history` 仅保留业务指标字段 |
+- **实测验证**：
+  - PIN 链接：无 PIN → `require_pin`；正确 PIN → `verify_share_access` 通过 ✅
+  - 门户 JSON：顶层无 `project_id`，`history` 无 `id`/`details_json` ✅
+  - `metrics.citations` 含 3 条信源数据，可供前端进度条消费 ✅
+- **遗留优化（不阻断归档）**：
+  - 🟢 `metrics.project_id` 仍由 `extract_monitor_metrics` 带入，可后续在沙箱层剔除；
+  - 🟢 ZIP 文件名仍含 `project_id`（`GEO_Deliverables_{id}.zip`），可改为客户名 slug；
+  - 🟢 PIN 4 位码仍无限流/锁定策略，已知链接场景建议后续加固。
+- **结论**：`[通过]`，上次 🔴/🟡 审查项均已闭环，变更可进入 `./opsx archive` 归档阶段。
