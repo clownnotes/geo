@@ -104,7 +104,15 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         auth_header = self.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
             return auth_header[7:].strip()
-        # 2. 尝试从 Cookie 获取
+        # 2. 尝试从 URL query 获取
+        if "?" in self.path:
+            try:
+                qs = parse_qs(self.path.split("?", 1)[1])
+                if "token" in qs and qs["token"]:
+                    return qs["token"][0].strip()
+            except Exception:
+                pass
+        # 3. 尝试从 Cookie 获取
         cookies = self.headers.get("Cookie", "")
         for c in cookies.split(";"):
             if "geo_token=" in c:
@@ -279,7 +287,23 @@ core_values:
                 self.send_json({"success": False, "message": f"素材写入提纯失败: {str(e)}"}, status=500)
             return
 
-        # 7. 触发流水线指定步骤 API: /api/projects/{id}/run/{step}
+        # 7. 生成竞品反向压制策略 API: /api/projects/{id}/defense/generate
+        if path.startswith("/api/projects/") and path.endswith("/defense/generate"):
+            project_id = path.split("/")[3]
+            try:
+                from .defense import run_defense
+                out_path = run_defense(project_id)
+                self.send_json({
+                    "success": True,
+                    "project_id": project_id,
+                    "filename": "06_竞品权威信源反向包抄策略.md",
+                    "message": "✅ 竞品反向包抄与精准截流策略生成成功！"
+                })
+            except Exception as e:
+                self.send_json({"success": False, "message": f"策略生成失败: {str(e)}"}, status=500)
+            return
+
+        # 8. 触发流水线指定步骤 API: /api/projects/{id}/run/{step}
         if path.startswith("/api/projects/") and "/run/" in path:
             parts = path.split("/")
             # /api/projects/<id>/run/<step>
@@ -505,6 +529,141 @@ core_values:
                         "total_files": len(files),
                         "total_size": total_size
                     })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取监控指标结构化图谱数据: /api/projects/{id}/monitor/metrics
+            if path.startswith("/api/projects/") and path.endswith("/monitor/metrics"):
+                project_id = path.split("/")[3]
+                try:
+                    from .monitor import extract_monitor_metrics
+                    metrics = extract_monitor_metrics(project_id)
+                    self.send_json(metrics)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 美化版交付周报打印/导出页面: /api/projects/{id}/report/print
+            if path.startswith("/api/projects/") and path.endswith("/report/print"):
+                project_id = path.split("/")[3]
+                try:
+                    from .monitor import extract_monitor_metrics
+                    metrics = extract_monitor_metrics(project_id)
+                    cfg = load_project_config(project_id)
+                    out_dir = cfg["_outputs_dir"]
+                    
+                    rep_file = os.path.join(out_dir, "05_企业AI可见度与声量追踪周报.md")
+                    def_file = os.path.join(out_dir, "06_竞品权威信源反向包抄策略.md")
+                    
+                    rep_text = ""
+                    if os.path.exists(rep_file):
+                        with open(rep_file, "r", encoding="utf-8", errors="ignore") as f:
+                            rep_text = f.read()
+
+                    def_text = ""
+                    if os.path.exists(def_file):
+                        with open(def_file, "r", encoding="utf-8", errors="ignore") as f:
+                            def_text = f.read()
+
+                    client_name = cfg.get("client_name", project_id)
+                    industry = cfg.get("industry", "行业数字化")
+                    
+                    # 渲染精美商用报告 HTML
+                    html = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>GEO 商业交付周报 - {client_name}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    @media print {{
+      .no-print {{ display: none !important; }}
+      body {{ background: #fff !important; }}
+      .page-break {{ page-break-before: always; }}
+    }}
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased font-sans p-6 md:p-12">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <!-- 顶部操作栏 -->
+    <div class="no-print bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+      <div class="text-xs font-semibold text-slate-700">📄 商用标准化交付报告预览</div>
+      <button onclick="window.print()" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5">
+        <span>🖨️ 打印 / 另存为 PDF</span>
+      </button>
+    </div>
+
+    <!-- 报告正文卡片 -->
+    <div class="bg-white p-10 rounded-2xl shadow-xl border border-slate-200 space-y-8">
+      <!-- 报告封面页眉 -->
+      <div class="border-b border-slate-200 pb-6 flex items-start justify-between">
+        <div>
+          <div class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">GEO 生成式引擎优化 · 商业交付评估周报</div>
+          <h1 class="text-2xl font-black text-slate-900 leading-tight">{client_name}</h1>
+          <p class="text-xs text-slate-500 mt-1">所属领域：{industry} ｜ 评估周期：2026年第35周 ｜ 标准：普林斯顿 9 因子体系</p>
+        </div>
+        <div class="text-right">
+          <span class="inline-block py-1 px-3 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">
+            SOV 达成率: {metrics['sov_pct']}%
+          </span>
+          <div class="text-[11px] text-slate-400 mt-1">权威度得分: {metrics['authority_score']}/100</div>
+        </div>
+      </div>
+
+      <!-- 核心指标摘要 -->
+      <div class="grid grid-cols-4 gap-4 text-center">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div class="text-xs text-slate-500 mb-1">AI 综合推荐率</div>
+          <div class="text-xl font-bold text-indigo-600">{metrics['sov_pct']}%</div>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div class="text-xs text-slate-500 mb-1">DeepSeek 首推率</div>
+          <div class="text-xl font-bold text-blue-600">{metrics['deepseek_rank_1_pct']}%</div>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div class="text-xs text-slate-500 mb-1">豆包 (字节) 首推率</div>
+          <div class="text-xl font-bold text-red-600">{metrics['doubao_rank_1_pct']}%</div>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div class="text-xs text-slate-500 mb-1">权威信源覆盖</div>
+          <div class="text-xl font-bold text-emerald-600">4 大平台</div>
+        </div>
+      </div>
+
+      <!-- 报告 Markdown 渲染区 -->
+      <div id="report-markdown-content" class="prose prose-sm max-w-none text-slate-700 leading-relaxed"></div>
+
+      <!-- 竞品包抄策略区 (若存在) -->
+      <div id="defense-section" class="border-t border-slate-200 pt-6">
+        <div id="defense-markdown-content" class="prose prose-sm max-w-none text-slate-700 leading-relaxed"></div>
+      </div>
+
+      <!-- 底部印章区 -->
+      <div class="border-t border-slate-200 pt-6 flex items-center justify-between text-xs text-slate-400">
+        <div>GEO 生成式引擎优化商业交付中枢 · 技术认证与真实探测留档</div>
+        <div class="text-right font-mono">报告生成编号: GEO-{project_id}-20260901</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const repRaw = {json.dumps(rep_text)};
+    const defRaw = {json.dumps(def_text)};
+    document.getElementById('report-markdown-content').innerHTML = marked.parse(repRaw || '# 暂无周报内容');
+    if (defRaw) {{
+      document.getElementById('defense-markdown-content').innerHTML = marked.parse(defRaw);
+    }} else {{
+      document.getElementById('defense-section').style.display = 'none';
+    }}
+  </script>
+</body>
+</html>"""
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(html.encode("utf-8"))
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

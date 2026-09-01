@@ -520,15 +520,131 @@
       <div id="step-panel-5" class="hidden space-y-6">
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <h2 class="text-base font-bold text-slate-900">阶段五：AI 可见度监控与周报自动生成</h2>
-            <p class="text-xs text-slate-500 mt-1">并发检索主流大模型，计算 SOV 声量占比、首推排名与权威引用外链，生成续费依据。</p>
+            <h2 class="text-base font-bold text-slate-900">阶段五：AI 可见度监控大盘与竞品反向包抄作战</h2>
+            <p class="text-xs text-slate-500 mt-1">并发探测主流大模型，计算 SOV 声量、Citation 权威信源加权得分并一键生成竞品包抄策略。</p>
           </div>
-          <button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
-            <i data-lucide="line-chart" class="w-4 h-4"></i>
-            <span>执行声量监测</span>
-          </button>
+          <div class="flex items-center gap-2.5">
+            <button onclick="handleGenerateDefense(event)" id="btn-step-defense" class="py-2.5 px-4 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600"></i>
+              <span>⚔️ 竞品反向包抄策略</span>
+            </button>
+            <button onclick="handlePrintReport(event)" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200">
+              <i data-lucide="printer" class="w-4 h-4"></i>
+              <span>🖨️ 导出美化周报</span>
+            </button>
+            <button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
+              <i data-lucide="line-chart" class="w-4 h-4"></i>
+              <span>执行实时声量监测</span>
+            </button>
+          </div>
         </div>
 
+        <!-- 4 维量化核心指标卡 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <i data-lucide="pie-chart" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500 font-medium">综合 SOV 声量达成率</div>
+              <div id="metric-sov" class="text-xl font-black text-indigo-600 mt-0.5">--%</div>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              <i data-lucide="award" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500 font-medium">DeepSeek 首推率</div>
+              <div id="metric-deepseek" class="text-xl font-black text-blue-600 mt-0.5">--%</div>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
+              <i data-lucide="flame" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500 font-medium">豆包 (字节生态) 首推率</div>
+              <div id="metric-doubao" class="text-xl font-black text-red-600 mt-0.5">--%</div>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <i data-lucide="shield-check" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500 font-medium">综合权威信源评分</div>
+              <div id="metric-authority" class="text-xl font-black text-emerald-600 mt-0.5">--/100</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Citation 权威信源加权渗透图谱 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                🌐
+              </div>
+              <div>
+                <h3 class="text-xs font-bold text-slate-800">主流大模型高频权威信源（Citation）渗透加权图谱</h3>
+                <p class="text-[11px] text-slate-500">统计大模型生成答案时引用的权威域名频次与权威权重模型。</p>
+              </div>
+            </div>
+            <span class="text-xs text-slate-400">实时计算模型: 频次 × 平台权威系数</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+              <div>
+                <div class="flex justify-between font-semibold text-slate-700 mb-1">
+                  <span>知乎专栏 / 问答 (zhihu.com) · 权重 1.0</span>
+                  <span id="citation-pct-zhihu">42%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div id="citation-bar-zhihu" class="bg-blue-600 h-2 rounded-full" style="width: 42%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-semibold text-slate-700 mb-1">
+                  <span>今日头条 / 头条号 (toutiao.com) · 权重 0.9</span>
+                  <span id="citation-pct-toutiao">28.5%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div id="citation-bar-toutiao" class="bg-red-600 h-2 rounded-full" style="width: 28.5%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+              <div>
+                <div class="flex justify-between font-semibold text-slate-700 mb-1">
+                  <span>微信公众号 (weixin.qq.com) · 权重 0.85</span>
+                  <span id="citation-pct-wechat">18.2%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div id="citation-bar-wechat" class="bg-emerald-600 h-2 rounded-full" style="width: 18.2%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-semibold text-slate-700 mb-1">
+                  <span>GitHub 开源生态 (github.com) · 权重 0.95</span>
+                  <span id="citation-pct-github">11.3%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div id="citation-bar-github" class="bg-slate-800 h-2 rounded-full" style="width: 11.3%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 详细交付物卡片 -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700">
             <span>📄 交付物：05_企业AI可见度与声量追踪周报.md</span>
@@ -538,8 +654,23 @@
             </button>
           </div>
           <div id="preview-step-5" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
-            <div class="text-center py-12 text-slate-400 text-sm">点击右上角【执行声量监测】生成可视化周报...</div>
+            <div class="text-center py-12 text-slate-400 text-sm">点击右上角【执行实时声量监测】生成完整周报...</div>
           </div>
+        </div>
+
+        <!-- 竞品包抄策略卡 (生成后展示) -->
+        <div id="defense-panel-card" class="hidden bg-amber-50/50 rounded-xl border border-amber-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-3.5 bg-amber-100/60 border-b border-amber-200 flex items-center justify-between text-xs font-bold text-amber-900">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-amber-700"></i>
+              <span>⚔️ 战略交付物：06_竞品权威信源反向包抄策略.md</span>
+            </span>
+            <button onclick="copyOutput('06_竞品权威信源反向包抄策略.md')" class="text-amber-800 hover:text-amber-950 flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制策略全文</span>
+            </button>
+          </div>
+          <div id="preview-step-defense" class="p-6 markdown-body max-h-[500px] overflow-y-auto text-slate-700"></div>
         </div>
       </div>
 
@@ -1217,6 +1348,93 @@
       loadMarkdownToElem('03_普林斯顿9因子高权威语料库.md', 'preview-step-3');
       // Step 5
       loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
+      loadMonitorDashboardMetrics();
+      loadDefensePreview();
+    }
+
+    // 加载声量监控大盘结构化指标
+    async function loadMonitorDashboardMetrics() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/monitor/metrics`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('metric-sov').innerText = `${data.sov_pct}%`;
+          document.getElementById('metric-deepseek').innerText = `${data.deepseek_rank_1_pct}%`;
+          document.getElementById('metric-doubao').innerText = `${data.doubao_rank_1_pct}%`;
+          document.getElementById('metric-authority').innerText = `${data.authority_score}/100`;
+
+          if (data.citations && data.citations.length >= 4) {
+            document.getElementById('citation-pct-zhihu').innerText = `${data.citations[0].pct}%`;
+            document.getElementById('citation-bar-zhihu').style.width = `${data.citations[0].pct}%`;
+
+            document.getElementById('citation-pct-toutiao').innerText = `${data.citations[1].pct}%`;
+            document.getElementById('citation-bar-toutiao').style.width = `${data.citations[1].pct}%`;
+
+            document.getElementById('citation-pct-wechat').innerText = `${data.citations[2].pct}%`;
+            document.getElementById('citation-bar-wechat').style.width = `${data.citations[2].pct}%`;
+
+            document.getElementById('citation-pct-github').innerText = `${data.citations[3].pct}%`;
+            document.getElementById('citation-bar-github').style.width = `${data.citations[3].pct}%`;
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 竞品反向包抄策略生成
+    async function handleGenerateDefense(e) {
+      if (e) e.preventDefault();
+      const btn = document.getElementById('btn-step-defense');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 正在生成包抄策略...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/defense/generate`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || '✅ 竞品反向包抄策略已生成！');
+          loadDefensePreview();
+        } else {
+          showToast('生成失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    // 加载竞品包抄预览
+    async function loadDefensePreview() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent('06_竞品权威信源反向包抄策略.md')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        const card = document.getElementById('defense-panel-card');
+        const preview = document.getElementById('preview-step-defense');
+        if (data.success && data.content) {
+          card.classList.remove('hidden');
+          preview.innerHTML = marked.parse(data.content);
+          lucide.createIcons();
+        } else {
+          card.classList.add('hidden');
+        }
+      } catch (e) {}
+    }
+
+    // 打开美化版打印周报
+    function handlePrintReport(e) {
+      if (e) e.preventDefault();
+      window.open(`/api/projects/${currentProjectId}/report/print?token=${encodeURIComponent(currentAuthToken)}`, '_blank');
     }
 
     async function loadMarkdownToElem(filename, elemId) {

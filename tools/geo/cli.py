@@ -122,6 +122,11 @@ def main():
     p_ingest.add_argument("--url", "-u", help="目标官网 URL")
     p_ingest.add_argument("--file", "-f", help="本地素材文件路径")
 
+    # defense
+    p_def = subparsers.add_parser("defense", help="生成竞品权威信源反向包抄与压制策略")
+    p_def.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_def.add_argument("--project", "-p", default=None, help="客户项目 ID")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -146,6 +151,9 @@ def main():
     elif args.command == "ingest":
         from .ingest import ingest_project_materials
         ingest_project_materials(get_pid(args), url=args.url, file_path=args.file)
+    elif args.command == "defense":
+        from .defense import run_defense
+        run_defense(get_pid(args))
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":
