@@ -51,12 +51,12 @@
         <div><strong>安全隔离</strong>：公网文档与 /llms.txt 开放抓取；管理端商业数据已加密隔离，需认证登录。</div>
       </div>
 
-      <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+      <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)" autocomplete="off">
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-1">管理账号</label>
           <div class="relative">
             <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
-            <input id="login-username" type="text" value="13150568888" required class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="输入管理员账号 (手机号)">
+            <input id="login-username" type="text" required class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="输入管理员账号" autocomplete="off">
           </div>
         </div>
 
@@ -64,7 +64,7 @@
           <label class="block text-sm font-semibold text-slate-700 mb-1">登录密码</label>
           <div class="relative">
             <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
-            <input id="login-password" type="password" value="donghai0516" required class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="输入登录密码">
+            <input id="login-password" type="password" required class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="输入登录密码" autocomplete="new-password">
           </div>
         </div>
 
@@ -653,13 +653,16 @@
         if (data.success) {
           currentAuthToken = data.token;
           localStorage.setItem('geo_token', data.token);
+          document.getElementById('login-password').value = '';
           showDashboard(data.username);
           showToast('欢迎登录 GEO 交付工作台！');
         } else {
+          document.getElementById('login-password').value = '';
           errBox.innerText = data.message || '登录失败！';
           errBox.classList.remove('hidden');
         }
       } catch (err) {
+        document.getElementById('login-password').value = '';
         errBox.innerText = '网络连接异常，请检查服务状态。';
         errBox.classList.remove('hidden');
       }
@@ -673,6 +676,8 @@
       });
       localStorage.removeItem('geo_token');
       currentAuthToken = '';
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
       showLogin();
       showToast('已安全退出登录');
     }
