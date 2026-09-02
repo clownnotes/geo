@@ -661,12 +661,15 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
-        # 一键生成今日头条/微头条发稿包: /api/projects/{id}/toutiao/build
-        if path.startswith("/api/projects/") and path.endswith("/toutiao/build"):
+        # 一键触发真实大模型 API 批量并发评测: /api/projects/{id}/eval/run
+        if path.startswith("/api/projects/") and path.endswith("/eval/run"):
             project_id = path.split("/")[3]
+            body = self.read_json_body()
+            models = body.get("models", ["doubao", "deepseek", "yuanbao", "kimi"])
+            limit = body.get("limit", 15)
             try:
-                from .publisher import package_toutiao_assets
-                res = package_toutiao_assets(project_id)
+                from .evaluator import run_live_llm_evaluation
+                res = run_live_llm_evaluation(project_id, models=models, limit=limit)
                 self.send_json(res)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
@@ -1360,6 +1363,26 @@ core_values:
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取真实大模型 API 评测报告: /api/projects/{id}/eval/report
+            if path.startswith("/api/projects/") and path.endswith("/eval/report"):
+                project_id = path.split("/")[3]
+                r_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "06_大模型真实API评测与Citation捕获报告.json")
+                if os.path.exists(r_path):
+                    try:
+                        with open(r_path, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    # 动态生成
+                    try:
+                        from .evaluator import run_live_llm_evaluation
+                        res = run_live_llm_evaluation(project_id, limit=10)
+                        self.send_json(res)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
             # 获取项目商业交付结案确认单数据: /api/projects/{id}/acceptance/data

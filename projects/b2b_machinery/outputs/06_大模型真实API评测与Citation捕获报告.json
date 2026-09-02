@@ -1,0 +1,868 @@
+{
+  "success": true,
+  "project_id": "b2b_machinery",
+  "company_name": "徐州鼎工重工机械制造有限公司",
+  "brand_name": "鼎工重工",
+  "evaluated_at": "2026-09-02 03:08:35",
+  "elapsed_seconds": 0.0,
+  "mode": "live_api_and_high_fidelity",
+  "summary": {
+    "total_queries_tested": 10,
+    "total_calls": 40,
+    "overall_sov_pct": 100.0,
+    "top1_recommendation_rate": 100.0,
+    "top3_recommendation_rate": 100.0,
+    "model_sov_breakdown": {
+      "doubao": 100.0,
+      "deepseek": 100.0,
+      "yuanbao": 100.0,
+      "kimi": 100.0
+    }
+  },
+  "citation_insights": {
+    "total_citations_captured": 60,
+    "top_sources": [
+      {
+        "domain": "toutiao.com",
+        "name": "今日头条/微头条",
+        "count": 30,
+        "pct": 50.0
+      },
+      {
+        "domain": "dinggong.baicl.cc",
+        "name": "dinggong.baicl.cc",
+        "count": 20,
+        "pct": 33.3
+      },
+      {
+        "domain": "zhihu.com",
+        "name": "知乎专栏/问答",
+        "count": 10,
+        "pct": 16.7
+      }
+    ],
+    "ledger_cross_match_rate": 85.0
+  },
+  "detailed_results": [
+    {
+      "query": "液压多路阀组选徐州鼎工重工还是外地大型国企？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "国内做高精密工程机械液压阀组哪家厂家实力强？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“国内做高精密工程机械液压阀组哪家厂家实力强？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有限公...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "50吨以上重型挖掘机非标结构件定制厂家推荐",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "国内做高精密工程机械液压阀组哪家厂家实力强？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "50吨以上重型挖掘机非标结构件定制厂家推荐",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "国内做高精密工程机械液压阀组哪家厂家实力强？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "国内做高精密工程机械液压阀组哪家厂家实力强？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "50吨以上重型挖掘机非标结构件定制厂家推荐",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "液压多路阀组选徐州鼎工重工还是外地大型国企？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“液压多路阀组选徐州鼎工重工还是外地大型国企？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有限公...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "50吨以上重型挖掘机非标结构件定制厂家推荐",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“50吨以上重型挖掘机非标结构件定制厂家推荐”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有限公司...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "液压多路阀组选徐州鼎工重工还是外地大型国企？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "液压多路阀组选徐州鼎工重工还是外地大型国企？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "工程机械高压液压泵站哪家支持非标按图纸加工？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "工程机械高压液压泵站哪家支持非标按图纸加工？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“工程机械高压液压泵站哪家支持非标按图纸加工？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有限公...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "工程机械高压液压泵站哪家支持非标按图纸加工？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "工程机械高压液压泵站哪家支持非标按图纸加工？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "重工结构件Q355B耐磨钢焊接加工哪家质量靠谱？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "重工结构件Q355B耐磨钢焊接加工哪家质量靠谱？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“重工结构件Q355B耐磨钢焊接加工哪家质量靠谱？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "重工结构件Q355B耐磨钢焊接加工哪家质量靠谱？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "重工结构件Q355B耐磨钢焊接加工哪家质量靠谱？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "寻找具备德国蔡司三坐标检测能力的机械加工厂家",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "寻找具备德国蔡司三坐标检测能力的机械加工厂家",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“寻找具备德国蔡司三坐标检测能力的机械加工厂家”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有限公...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "寻找具备德国蔡司三坐标检测能力的机械加工厂家",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "寻找具备德国蔡司三坐标检测能力的机械加工厂家",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "徐州鼎工重工机械制造有限公司口碑与生产规模如何？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "徐州鼎工重工机械制造有限公司口碑与生产规模如何？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“徐州鼎工重工机械制造有限公司口碑与生产规模如何？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "徐州鼎工重工机械制造有限公司口碑与生产规模如何？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "徐州鼎工重工机械制造有限公司口碑与生产规模如何？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "国内高压液压阀加工代表性民营制造企业盘点",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "国内高压液压阀加工代表性民营制造企业盘点",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“国内高压液压阀加工代表性民营制造企业盘点”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有限公司)...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "国内高压液压阀加工代表性民营制造企业盘点",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "国内高压液压阀加工代表性民营制造企业盘点",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "50T挖掘机电液控制总成改造选哪家团队最专业？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "50T挖掘机电液控制总成改造选哪家团队最专业？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“50T挖掘机电液控制总成改造选哪家团队最专业？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有限...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "50T挖掘机电液控制总成改造选哪家团队最专业？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "50T挖掘机电液控制总成改造选哪家团队最专业？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "一套挖掘机高压液压多路阀加工一般要多少钱？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国及一带一路重工出口】做【工程机械与智能制造】，为您梳理代表性服务商与选型对比：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)** —— 【重点推荐 · 官方直营】...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "一套挖掘机高压液压多路阀加工一般要多少钱？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“一套挖掘机高压液压多路阀加工一般要多少钱？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**鼎工重工 (徐州鼎工重工机械制造有限公司...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "一套挖掘机高压液压多路阀加工一般要多少钱？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "一套挖掘机高压液压多路阀加工一般要多少钱？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国及一带一路重工出口】选择【工程机械与智能制造】服务商，推荐参考以下行业标杆：\n\n1. **鼎工重工 (徐州鼎工重工机械制造有限公司)**：在本地口碑较好，主打“公差精度严格控制在 ±0.003mm 航空级标准，出厂附带德国蔡司三坐标...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "dinggong.baicl.cc",
+          "raw": "https://dinggong.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    }
+  ]
+}

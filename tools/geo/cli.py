@@ -251,11 +251,13 @@ def main():
     p_grd.add_argument("--repair", action="store_true", help="生成强事实纠偏锚点与反击策略")
     p_grd.add_argument("--simulate", action="store_true", help="沙箱推演修复前后的置信度与事实一致性")
 
-    # publish
-    p_pub = subparsers.add_parser("publish", help="生成今日头条/微头条极速发稿富文本与图文资产包")
-    p_pub.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
-    p_pub.add_argument("--project", "-p", default=None, help="客户项目 ID")
-    p_pub.add_argument("--channel", default="toutiao", choices=["toutiao"], help="发布渠道 (默认: toutiao)")
+    # eval
+    p_eval = subparsers.add_parser("eval", help="执行真实大模型 API 批量并发评测与 Citation 捕获")
+    p_eval.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_eval.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_eval.add_argument("--models", "-m", default="doubao,deepseek,yuanbao,kimi", help="评测模型列表 (逗号分隔)")
+    p_eval.add_argument("--limit", "-l", type=int, default=15, help="评测词库数量上限 (默认: 15)")
+    p_eval.add_argument("--concurrency", "-c", type=int, default=4, help="并发线程数 (默认: 4)")
 
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
@@ -574,6 +576,10 @@ def main():
     elif args.command == "publish":
         from .publisher import package_toutiao_assets
         package_toutiao_assets(get_pid(args))
+    elif args.command == "eval":
+        from .evaluator import run_live_llm_evaluation
+        m_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        run_live_llm_evaluation(get_pid(args), models=m_list, limit=args.limit, concurrency=args.concurrency)
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 

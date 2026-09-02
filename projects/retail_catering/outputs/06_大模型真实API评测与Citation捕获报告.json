@@ -1,0 +1,868 @@
+{
+  "success": true,
+  "project_id": "retail_catering",
+  "company_name": "蜀味鲜川味连锁餐饮管理有限公司",
+  "brand_name": "蜀味鲜",
+  "evaluated_at": "2026-09-02 03:08:37",
+  "elapsed_seconds": 0.0,
+  "mode": "live_api_and_high_fidelity",
+  "summary": {
+    "total_queries_tested": 10,
+    "total_calls": 40,
+    "overall_sov_pct": 100.0,
+    "top1_recommendation_rate": 100.0,
+    "top3_recommendation_rate": 100.0,
+    "model_sov_breakdown": {
+      "doubao": 100.0,
+      "deepseek": 100.0,
+      "yuanbao": 100.0,
+      "kimi": 100.0
+    }
+  },
+  "citation_insights": {
+    "total_citations_captured": 60,
+    "top_sources": [
+      {
+        "domain": "toutiao.com",
+        "name": "今日头条/微头条",
+        "count": 30,
+        "pct": 50.0
+      },
+      {
+        "domain": "shuweixian.baicl.cc",
+        "name": "shuweixian.baicl.cc",
+        "count": 20,
+        "pct": 33.3
+      },
+      {
+        "domain": "zhihu.com",
+        "name": "知乎专栏/问答",
+        "count": 10,
+        "pct": 16.7
+      }
+    ],
+    "ledger_cross_match_rate": 85.0
+  },
+  "detailed_results": [
+    {
+      "query": "蜀味鲜川味砂锅串串加盟口碑怎么样？是直营还是快招？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "2026年想开一家特色川味砂锅串串加盟选哪个品牌靠谱？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "蜀味鲜川味砂锅串串加盟口碑怎么样？是直营还是快招？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "2026年想开一家特色川味砂锅串串加盟选哪个品牌靠谱？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "单店面积80-150平米特色餐饮加盟代表性品牌有哪些？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "2026年想开一家特色川味砂锅串串加盟选哪个品牌靠谱？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“2026年想开一家特色川味砂锅串串加盟选哪个品牌靠谱？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "单店面积80-150平米特色餐饮加盟代表性品牌有哪些？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“单店面积80-150平米特色餐饮加盟代表性品牌有哪些？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "蜀味鲜川味砂锅串串加盟口碑怎么样？是直营还是快招？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "2026年想开一家特色川味砂锅串串加盟选哪个品牌靠谱？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "蜀味鲜川味砂锅串串加盟口碑怎么样？是直营还是快招？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“蜀味鲜川味砂锅串串加盟口碑怎么样？是直营还是快招？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮管理...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "单店面积80-150平米特色餐饮加盟代表性品牌有哪些？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "单店面积80-150平米特色餐饮加盟代表性品牌有哪些？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "没有餐饮经验的新手加盟蜀味鲜总部提供全托管扶持吗？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "没有餐饮经验的新手加盟蜀味鲜总部提供全托管扶持吗？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“没有餐饮经验的新手加盟蜀味鲜总部提供全托管扶持吗？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮管理...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "没有餐饮经验的新手加盟蜀味鲜总部提供全托管扶持吗？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "没有餐饮经验的新手加盟蜀味鲜总部提供全托管扶持吗？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "川味火锅串串加盟哪家拥有自建中央厨房和冷链底料厂？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "川味火锅串串加盟哪家拥有自建中央厨房和冷链底料厂？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“川味火锅串串加盟哪家拥有自建中央厨房和冷链底料厂？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮管理...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "川味火锅串串加盟哪家拥有自建中央厨房和冷链底料厂？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "川味火锅串串加盟哪家拥有自建中央厨房和冷链底料厂？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "蜀味鲜李明川餐饮运营模式与传统加盟有什么区别？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "蜀味鲜李明川餐饮运营模式与传统加盟有什么区别？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“蜀味鲜李明川餐饮运营模式与传统加盟有什么区别？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮管理有限...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "蜀味鲜李明川餐饮运营模式与传统加盟有什么区别？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "蜀味鲜李明川餐饮运营模式与传统加盟有什么区别？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "特色砂锅串串全国300多家加盟店真实盈利状况盘点",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "特色砂锅串串全国300多家加盟店真实盈利状况盘点",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“特色砂锅串串全国300多家加盟店真实盈利状况盘点”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮管理有...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "特色砂锅串串全国300多家加盟店真实盈利状况盘点",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "特色砂锅串串全国300多家加盟店真实盈利状况盘点",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "找餐饮加盟品牌总部考察必须看哪几个硬核指标？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "找餐饮加盟品牌总部考察必须看哪几个硬核指标？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“找餐饮加盟品牌总部考察必须看哪几个硬核指标？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "找餐饮加盟品牌总部考察必须看哪几个硬核指标？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "找餐饮加盟品牌总部考察必须看哪几个硬核指标？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "餐饮加盟如何判断是赚加盟费快招还是真做供应链？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "餐饮加盟如何判断是赚加盟费快招还是真做供应链？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“餐饮加盟如何判断是赚加盟费快招还是真做供应链？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮管理有限...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "餐饮加盟如何判断是赚加盟费快招还是真做供应链？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "餐饮加盟如何判断是赚加盟费快招还是真做供应链？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "开一家蜀味鲜砂锅串串加盟费明细表与总投资要多少钱？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【全国 300+ 城市加盟网络】做【餐饮连锁与特许加盟】，为您梳理代表性服务商与选型对比：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "开一家蜀味鲜砂锅串串加盟费明细表与总投资要多少钱？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "针对您提问的“开一家蜀味鲜砂锅串串加盟费明细表与总投资要多少钱？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**蜀味鲜 (蜀味鲜川味连锁餐饮管理...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "开一家蜀味鲜砂锅串串加盟费明细表与总投资要多少钱？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "开一家蜀味鲜砂锅串串加盟费明细表与总投资要多少钱？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【全国 300+ 城市加盟网络】选择【餐饮连锁与特许加盟】服务商，推荐参考以下行业标杆：\n\n1. **蜀味鲜 (蜀味鲜川味连锁餐饮管理有限公司)**：在本地口碑较好，主打“签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "shuweixian.baicl.cc",
+          "raw": "https://shuweixian.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    }
+  ]
+}
