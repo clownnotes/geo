@@ -130,3 +130,41 @@
      - 在幻灯片脚本中补充 `touchstart` 与 `touchend` 事件监听，支持手指左右滑动顺畅翻页。
 - **验证结论**：全量单元与端到端测试均 100% 通过。
 - **状态结论**：`[通过]`，达到归档与交付标准。
+
+---
+
+### 2026-09-01 Cursor [复审：`8b45d6a` 修复项独立核验] [通过]
+
+- **阶段**：Code Review Re-verification（针对 `8b45d6a`，对照上轮 Cursor `[需修正]` 清单逐项闭环）
+- **审查方法**：Git diff `0298613..8b45d6a`、源码核对、本地冒烟 `calculate_pitch_quote(standard/enterprise)` / `generate_pitch_presentation_html`
+
+#### 上轮问题闭环核验
+
+| # | 原问题 | 级别 | 核验结果 |
+|:--|:-------|:-----|:---------|
+| 1 | Slide 3 指标硬编码 | 🟡 | ✅ 已修复：接入 `extract_monitor_metrics`、`bench_lead/bench_name`、`scaffold_desc` 动态渲染（L315–324、L445–467） |
+| 2 | `target_tier` 未生效 | 🟡 | ✅ 已修复：`calculate_pitch_quote` / `generate_pitch_deck` / `get_pitch_data` 全链路支持 standard/pro/enterprise；冒烟 Standard ¥19,800 ROI 1002.6%、Enterprise ¥68,000 ROI 221% |
+| 3 | Benchmark 未接入 | 🟡 | ✅ 已修复：建议书第一节表格与 Slide 3「行业对标洞察」、打印 HTML 均已引用 `bench` |
+| 4 | 缺竞品威胁专页 | 🟡 | ⚠️ 部分闭环：Slide 2 标题改为 `MARKET SHIFT & THREATS`，第三卡「竞品 Citation 反向截流」；未独立整页竞品分析，可接受 |
+| 5 | 全局顶部无 Pitch 入口 | 🟡 | ✅ 已修复：Dashboard 项目列表表头 L228 新增「🎯 售前 Pitch Deck」按钮 |
+| 6 | 触摸滑动未实现 | 🟡 | ✅ 已修复：`touchstart`/`touchend` 翻页（L756+），封面提示含「手机左右滑动」 |
+
+#### 路由与回归检查
+
+- `pitch/data`、`pitch/slides`、`pitch/print` 及 share 公开路由均有 `return`；插入点未破坏 `acceptance/download-zip` 等前置路由。
+
+#### 残余优化建议（不阻断归档）
+
+| # | 建议 | 说明 |
+|:--|:-----|:-----|
+| 1 | CLI `geo pitch` 输出仍硬编码「专业进阶版 Pro」 | `cli.py` L465–466 未读取 `res['selected_tier_info']`，仅影响终端文案 |
+| 2 | 幻灯片 SOV 仅用 `raw_sov`，未回退 `effective_sov_pct` | 离线摸底项目幻灯片可能显示 0%，与 ROI 模块投影口径略不一致 |
+| 3 | `get_pitch_data` 已有 md 时不会按新 tier 重写正文 | 报价 JSON 会重算，但 `content` 可能为旧档；可后续加「重新生成」按钮 |
+| 4 | `data/shares.json` 测试 token | 建议 fixture 隔离 |
+
+#### 冒烟测试摘要
+
+- 三档报价、10 页 HTML（20509+ 字节）、`touchstart` 存在、Benchmark 文案存在
+- 核心售前能力：建议书 + 放映 + 打印 + 门户/API/CLI 全链路可用
+
+- **结论**：`[通过]`。上轮 🟡 主要偏差均已修复或部分可接受闭环，**可进入 `/opsx-archive` 归档阶段**。
