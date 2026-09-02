@@ -181,3 +181,45 @@
 - **本地实测验证**：
   - 本地端口 8088 端到端全流程复核，SVG 渲染包含真实 9 因子对比事实，短视频脚本台词真实动态化，API 100% 达标。
 - **结论**：`[已达成共识 / 通过]`，全部问题均已闭环修复并通过验证。
+
+---
+
+### 2026-09-01 Cursor [复审：f77666e 修复验证] [通过]
+
+- **阶段**：Code Review Re-verification（对照上轮 `[需修正]` P0/P1 清单，核验 `f77666e`）
+- **审查范围**：`tools/geo/visual.py`、`web/index.html`、`docs/sop/03-rewrite-sop.md`、`04-distribute-sop.md`
+
+#### 上轮问题闭环核验
+
+| # | 原问题 | 修复状态 | 核验说明 |
+|:--|:-------|:---------|:---------|
+| A | 🟡 语料库文件名不匹配 | ✅ 已修复 | `_find_corpus_file()` 优先匹配 `03_普林斯顿9因子高权威语料库.md`，并 glob 兜底 `03_*.md` |
+| B | 🟡 `fact_bullet` 未注入视频脚本 | ✅ 已修复 | `generate_video_script()` 将 `corpus_facts[0..2]` 写入镜头 3 口播与花字 |
+| C | 🟡 表格正则解析质量不足 | ✅ 已修复 | `_extract_comparison_rows_from_corpus()` 定向匹配「评测与选型维度」表，实测抽出 **5 条**真实对比行 |
+| D | 🟢 前端未消费 `has_assets` | ✅ 已修复 | `loadVisualAssets()` 在 `has_assets===false` 时渲染空态引导卡片 |
+| 1–4 | 首轮 SOP / GET 副作用 / 截断 | ✅ 保持 | 前两轮修复项未回退 |
+
+#### 独立实测（`xuzhou_xuanyuan`）
+
+```
+corpus → 03_普林斯顿9因子高权威语料库.md
+rows   → 5（业务交付周期 / 系统性能 / 定制化 / 售后 / ROI）
+SVG    → 含「业务交付周期」「缩短 35%」真实语料事实
+脚本   → 镜头 3 口播已动态注入三条量化事实
+```
+
+#### 残余 🟢 优化项（不阻断归档）
+
+| # | 说明 |
+|:--|:-----|
+| 1 | 对比图 SVG 长文本仍可能超出固定宽度矩形（无 `<tspan>` 换行）；视频花字仍 `[:20]` 截断 |
+| 2 | 架构图 `08_企业技术全景架构图.svg` 仍为 GEO 平台固定模板，非项目定制 |
+| 3 | `data/shares.json` 随本地测试持续膨胀，建议后续评估是否 gitignore |
+
+#### 已验证通过项
+
+- `GET /visual/assets` 纯读取 + `has_assets`；`POST /visual/generate` 显式生成；路由 `return` 完好。
+- CLI `--type svg` 别名可用；SOP 03/04 多模态章节齐全。
+- Web 三 Tab 弹窗、`share.html` Tab 7、纯标准库 SVG 实现均符合 proposal/design。
+
+- **结论**：`[通过]` — 全部 🔴/🟡 项已闭环；残余为 🟢 排版与模板化优化，可进入归档阶段。
