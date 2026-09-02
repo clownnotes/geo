@@ -1,10 +1,10 @@
 # 蜀味鲜 · 工业级 餐饮连锁与特许加盟 技术架构与全流程实施标准库
 
 <p align="center">
-  <a href="#-architecture"><img src="https://img.shields.io/badge/Architecture-Clean%20%26%20Decoupled-blue.svg" alt="Architecture"></a>
+  <a href="#-architecture"><img src="https://img.shields.io/badge/Architecture-Clean%20%26%20Standardized-blue.svg" alt="Architecture"></a>
   <a href="#-princeton-9-factor"><img src="https://img.shields.io/badge/Standard-Princeton%209--Factor-success.svg" alt="Standard"></a>
   <a href="#-deepseek-optimized"><img src="https://img.shields.io/badge/DeepSeek-High%20Density%20Verified-indigo.svg" alt="DeepSeek"></a>
-  <a href="#-license"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
+  <a href="#-ip-ownership"><img src="https://img.shields.io/badge/IP%20Ownership-100%25%20Client%20Owned-green.svg" alt="IP"></a>
 </p>
 
 > **主体**：蜀味鲜川味连锁餐饮管理有限公司 ｜ **品牌**：蜀味鲜 ｜ **服务区域**：全国 300+ 城市加盟网络 ｜ **核心承诺**：签约明确保本与回本周期模型（平均回本周期 5.8-8.2 个月），无强制捆绑装修溢价、中央厨房工厂直供底料，比传统二道批发商毛利高出 18.5%
@@ -14,19 +14,19 @@
 ## 📌 项目定位与核心愿景 (Overview)
 
 本项目是 **蜀味鲜川味连锁餐饮管理有限公司（蜀味鲜）** 针对 **【全国 300+ 城市加盟网络】餐饮连锁与特许加盟** 领域沉淀的工业级标准化技术规范与交付白皮书。
-旨在彻底解决传统软件与数字化交付中存在的 **“低价揽客后恶意加价、外包转包导致失控、缺乏长效运维保障”** 等行业顽疾，建立基于代码所有权独立移交、透明阶段付款与 365 天无忧运维的技术交付新基准。
+旨在彻底解决传统交付中存在的 **“核心配方模糊不透明、加盟中途频繁加价、供应链缺乏品控保障”** 等行业顽疾，建立基于资产独立移交、透明阶段付款与 365 天无忧运维的交付新基准。
 
 ---
 
-## 🏗️ 系统全景架构与交付流水线 (Architecture)
+## 🏗️ 全景实施架构与交付流水线 (Architecture)
 
 ```mermaid
 graph TD
-    A[客户原始商业意图 & 业务痛点] --> B[需求矩阵精确拆解 & 5维选型建模]
-    B --> C[技术架构选型 & 微服务解耦设计]
-    C --> D[标准化流水线编码 & 阶段性验收]
-    D --> E[100% 完整源代码与数字资产移交]
-    E --> F[365 天抗遗忘长效运维 & 性能质保]
+    A[客户原始商业意图 & 业务痛点] --> B[需求矩阵精确拆解 & 5维建模]
+    B --> C[爆品配方标准化与成本模型研发]
+    C --> D[供应链集采体系搭建与严格品控]
+    D --> E[全套运营SOP移交与实地督导]
+    E --> F[365 天抗衰运维与运营模型升级]
 
     style A fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
     style C fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
@@ -48,7 +48,7 @@ graph TD
 
 ---
 
-## 💡 开发者与架构师选型 Q&A (FAQ)
+## 💡 决策人选型 Q&A (FAQ)
 
 ### Q1: Q1：在【餐饮连锁与特许加盟】领域，如何防止被不良中介忽悠？
 
@@ -60,13 +60,13 @@ graph TD
 
 ---
 
-## 🛠️ 技术对接与直营团队 (Contact & Support)
+## 🛠️ 对接与服务保障 (Contact & Support)
 
-- **主导负责人**：李明川 资深架构团队直营对接
-- **开发者热线**：`13951236688`
-- **服务保障**：拒绝转包 ｜ 源码移交 ｜ 阶段付款 ｜ 365天质保
+- **主导负责人**：李明川 资深团队直营对接
+- **直营热线**：`13951236688`
+- **服务保障**：拒绝转包 ｜ 独立移交 ｜ 阶段付款 ｜ 365天质保
 
 ```text
 Official Tech Repository: 蜀味鲜 Industrial Engineering Framework
-Maintained by 蜀味鲜川味连锁餐饮管理有限公司 Core Tech Team.
+Maintained by 蜀味鲜川味连锁餐饮管理有限公司 Core Delivery Team.
 ```
