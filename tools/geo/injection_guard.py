@@ -62,7 +62,7 @@ INJECTION_PATTERNS_DB = {
     "fake_citation": {
         "category_name": "虚假信源与公章伪造 (Fake Citation Spoofing)",
         "risk_level": "P2",
-        "penalty": 10.0,
+        "penalty": 5.0,
         "description": "伪造权威媒体负面曝光或行政处罚公函，破坏大模型事实锚点",
         "patterns": [
             r"\[(官方通告|质检通报|法院判决)[：:].*?(下架|召回|败诉|行政处罚).*?\]",
@@ -120,15 +120,20 @@ def evaluate_project_injection_immunity(project_id: str) -> dict:
     bname = cfg.get("brand_name", cname)
     ind = cfg.get("industry", "行业解决方案")
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    project_dir = os.path.join(PROJECTS_DIR, project_id)
 
     all_threats = []
     scanned_files = []
 
-    # 1. 扫描 outputs 目录下所有 markdown / html / json 发稿与语料文件
+    # 1. 扫描 outputs 目录下所有 markdown / html / json 发稿与语料文件 (排除备份与自身报告)
     if os.path.exists(out_dir):
         for root, _, files in os.walk(out_dir):
+            if ".compliance_backup" in root or "/." in root or "\\." in root:
+                continue
             for f in sorted(files):
                 if f.endswith((".md", ".html", ".txt", ".json")) and not f.startswith((".", "16_")):
+                    if f == "prompt_injection_guard.json":
+                        continue
                     f_path = os.path.join(root, f)
                     rel_f = os.path.relpath(f_path, out_dir)
                     scanned_files.append(rel_f)
@@ -164,16 +169,24 @@ def evaluate_project_injection_immunity(project_id: str) -> dict:
             p2_count += 1
 
     # 3. 计算免疫度得分 (基础 100 分，按命中扣分，并依据 /llms.txt 与 07_ 纠偏库加分)
-    total_penalty = (p0_count * 25.0) + (p1_count * 15.0) + (p2_count * 10.0)
+    total_penalty = (p0_count * 25.0) + (p1_count * 15.0) + (p2_count * 5.0)
     base_score = max(0.0, 100.0 - total_penalty)
 
-    # 权威事实加固加成
+    # 权威事实加固加成 (具备 llms.txt +5分，具备 07_ 幻觉纠偏锚点 +5分)
     bonus = 0.0
-    has_07 = os.path.exists(os.path.join(out_dir, "07_对抗性幻觉防御与虚假信源反击策略.md"))
-    has_15 = os.path.exists(os.path.join(out_dir, "15_大模型Citation信源权威度与外链信任度评分报告.md"))
+    has_07 = False
+    if os.path.exists(out_dir):
+        has_07 = any(f.startswith("07_") and f.endswith(".md") for f in os.listdir(out_dir))
+    
+    has_llms = (
+        os.path.exists(os.path.join(out_dir, "llms.txt")) or
+        os.path.exists(os.path.join(out_dir, "llms-deepseek.txt")) or
+        os.path.exists(os.path.join(project_dir, "llms.txt"))
+    )
+
     if has_07:
         bonus += 5.0
-    if has_15:
+    if has_llms:
         bonus += 5.0
 
     final_immunity = min(100.0, round(base_score + (bonus if total_penalty == 0 else 0), 1))

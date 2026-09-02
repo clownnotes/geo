@@ -12,3 +12,9 @@
 - [x] 3. 单元测试与 Benchmark 跑批验证
   - [x] 3.1 编写 `tests/test_injection_guard.py`，覆盖 4 维特征库扫描、免疫度扣分与报告落盘。
   - [x] 3.2 对 4 大垂直行业母版项目跑批生成 16_*.md 报告，本地验证通过并 Git 推送。
+- [x] 4. 跨 IDE 审查 P1 缺陷修复与完善
+  - [x] 4.1 修复 `tools/geo/cli.py`：支持 `--file/-f` 单文件扫描并输出威胁明细。
+  - [x] 4.2 修复 `tools/geo/injection_guard.py`：动态匹配 `07_*.md` 与 `llms.txt` 权威加分；排除 `.compliance_backup`；P2 扣分调整为 5.0。
+  - [x] 4.3 修复 `web/index.html`：在 Step 4 头部合规工具栏挂载「🛡️ 提示词注入防御盾」入口按钮。
+  - [x] 4.4 完善 `tests/test_injection_guard.py`：扩充单文件扫描、P2 扣分数值对齐等单测，全量 40 组单测 100% Pass。
+  - [x] 4.5 四大垂直行业母版全量重新审计落盘。

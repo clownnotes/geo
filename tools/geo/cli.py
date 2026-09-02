@@ -748,24 +748,56 @@ def main():
             print(f"     URL: {l['url']}")
         print("="*65 + "\n")
     elif args.command == "injection-guard":
-        from .injection_guard import evaluate_project_injection_immunity
+        from .injection_guard import evaluate_project_injection_immunity, scan_content_for_injections
         pid = get_pid(args)
-        res = evaluate_project_injection_immunity(pid)
-        print("\n" + "="*65)
-        print(f"🛡️ 项目 [{pid}] 大模型提示词注入防御与品牌安全隔离盾牌报告")
-        print("="*65)
-        print(f"📊 提示词注入免疫度: {res['immunity_score']}/100 ｜ 状态: {'🟢 极高安全免疫' if res['is_secure'] else '🔴 存在注入风险'}")
-        print(f"🚨 捕获威胁总数: {res['total_threats']} 处 (🔴 P0: {res['p0_threats_count']} ｜ 🟡 P1: {res['p1_threats_count']} ｜ 🟢 P2: {res['p2_threats_count']})")
-        print(f"📁 扫描资产文件: {res['scanned_files_count']} 份")
-        print("="*65)
-        for idx, r in enumerate(res["defense_quarantine_rules"], 1):
-            print(f"  {idx}. {r}")
-        if res["threats_detail"]:
-            print("\n--- [威胁明细 Top 5] ---")
-            for idx, t in enumerate(res["threats_detail"][:5], 1):
-                print(f"  {idx}. [{t['risk_level']}] `{t['file']}:L{t['line']}` 命中: 【{t['matched_text']}】")
-                print(f"     上下文: {t['context']}")
-        print("="*65 + "\n")
+        custom_f = getattr(args, "file", None)
+        if custom_f:
+            target_path = custom_f
+            if not os.path.exists(target_path):
+                alt_path = os.path.join(PROJECTS_DIR, pid, "outputs", custom_f)
+                if os.path.exists(alt_path):
+                    target_path = alt_path
+            if os.path.exists(target_path):
+                with open(target_path, "r", encoding="utf-8", errors="ignore") as fp:
+                    text_content = fp.read()
+                findings = scan_content_for_injections(text_content, filename=os.path.basename(target_path))
+                p0_cnt = sum(1 for f in findings if f["risk_level"] == "P0")
+                p1_cnt = sum(1 for f in findings if f["risk_level"] == "P1")
+                p2_cnt = sum(1 for f in findings if f["risk_level"] == "P2")
+                print("\n" + "="*65)
+                print(f"🛡️ 单文件提示词注入防御扫描报告: [{target_path}]")
+                print("="*65)
+                print(f"📊 状态: {'🟢 极高安全免疫 (0 威胁)' if not findings else '🔴 存在注入风险'}")
+                print(f"🚨 捕获威胁总数: {len(findings)} 处 (🔴 P0: {p0_cnt} ｜ 🟡 P1: {p1_cnt} ｜ 🟢 P2: {p2_cnt})")
+                print("="*65)
+                if findings:
+                    print("\n--- [威胁明细 Top 10] ---")
+                    for idx, t in enumerate(findings[:10], 1):
+                        print(f"  {idx}. [{t['risk_level']}] `{t['file']}:L{t['line']}` ({t['category_name']}) 命中: 【{t['matched_text']}】")
+                        print(f"     上下文: {t['context']}")
+                        print(f"     建议: {t['suggestion']}")
+                else:
+                    print("  ✅ 恭喜！未检测到任何提示词注入或 RAG 投毒风险。")
+                print("="*65 + "\n")
+            else:
+                print(f"❌ 错误：指定文件不存在: {custom_f}")
+        else:
+            res = evaluate_project_injection_immunity(pid)
+            print("\n" + "="*65)
+            print(f"🛡️ 项目 [{pid}] 大模型提示词注入防御与品牌安全隔离盾牌报告")
+            print("="*65)
+            print(f"📊 提示词注入免疫度: {res['immunity_score']}/100 ｜ 状态: {'🟢 极高安全免疫' if res['is_secure'] else '🔴 存在注入风险'}")
+            print(f"🚨 捕获威胁总数: {res['total_threats']} 处 (🔴 P0: {res['p0_threats_count']} ｜ 🟡 P1: {res['p1_threats_count']} ｜ 🟢 P2: {res['p2_threats_count']})")
+            print(f"📁 扫描资产文件: {res['scanned_files_count']} 份")
+            print("="*65)
+            for idx, r in enumerate(res["defense_quarantine_rules"], 1):
+                print(f"  {idx}. {r}")
+            if res["threats_detail"]:
+                print("\n--- [威胁明细 Top 5] ---")
+                for idx, t in enumerate(res["threats_detail"][:5], 1):
+                    print(f"  {idx}. [{t['risk_level']}] `{t['file']}:L{t['line']}` 命中: 【{t['matched_text']}】")
+                    print(f"     上下文: {t['context']}")
+            print("="*65 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 
