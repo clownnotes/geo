@@ -821,6 +821,17 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # Citation 信源权威度评分与推演 API: /api/projects/{id}/citation/authority (POST)
+        if path.startswith("/api/projects/") and path.endswith("/citation/authority"):
+            project_id = path.split("/")[3]
+            try:
+                from .citation_authority import evaluate_project_citation_authority
+                res = evaluate_project_citation_authority(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2126,6 +2137,25 @@ core_values:
                     try:
                         from .competitor_gap import analyze_competitor_gap
                         res = analyze_competitor_gap(project_id)
+                        self.send_json(res)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取大模型 Citation 信源权威度与外链信任度数据: /api/projects/{id}/citation/authority (GET)
+            if path.startswith("/api/projects/") and path.endswith("/citation/authority"):
+                project_id = path.split("/")[3]
+                auth_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "citation_authority_matrix.json")
+                if os.path.exists(auth_file):
+                    try:
+                        with open(auth_file, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .citation_authority import evaluate_project_citation_authority
+                        res = evaluate_project_citation_authority(project_id)
                         self.send_json(res)
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)

@@ -303,6 +303,11 @@ def main():
     p_gap.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_gap.add_argument("--competitor", "-c", default=None, help="指定要分析的目标竞对名称 (可选)")
 
+    # citation-auth (大模型 Citation 信源权威度与外链信任度推演)
+    p_cauth = subparsers.add_parser("citation-auth", help="大模型 Citation 信源权威度权重评分与外链信任度推演")
+    p_cauth.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_cauth.add_argument("--project", "-p", default=None, help="客户项目 ID")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -717,6 +722,24 @@ def main():
         for idx, f in enumerate(res["competitor_flaws"], 1):
             print(f"  {idx}. [{f['dimension']}] 破绽: {f['competitor_flaw']}")
             print(f"     反击: {f['tactical_action']}")
+        print("="*65 + "\n")
+    elif args.command == "citation-auth":
+        from .citation_authority import evaluate_project_citation_authority
+        pid = get_pid(args)
+        res = evaluate_project_citation_authority(pid)
+        print("\n" + "="*65)
+        print(f"🏆 项目 [{pid}] 大模型 Citation 信源权威度与外链信任度报告")
+        print("="*65)
+        print(f"📊 全案综合权威指数: {res['overall_authority_score']}/100 ｜ 预估采纳率: {res['estimated_citation_rate']}%")
+        print(f"🔗 外链总数: {res['total_backlinks']} 条 (🟢 有效存活: {res['live_backlinks']} ｜ 🔴 异常死链: {res['dead_backlinks']})")
+        print("\n--- [五大本土大模型生态亲和度大盘] ---")
+        for m, s in res["model_affinity_summary"].items():
+            print(f"  • {m:12s}: {s:4.1f} 分")
+        print("\n--- [全渠道外链权威度明细] ---")
+        for idx, l in enumerate(res["links"][:6], 1):
+            status_icon = "🟢" if l["is_live"] else "🔴"
+            print(f"  {idx}. {status_icon} [{l['channel_name']}] DA: {l['domain_authority']}分 ｜ 采纳率: {l['estimated_citation_rate']}% ｜ 适配: {','.join(l['best_fit_models'])}")
+            print(f"     URL: {l['url']}")
         print("="*65 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))

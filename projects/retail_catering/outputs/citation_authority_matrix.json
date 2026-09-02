@@ -1,0 +1,169 @@
+{
+  "success": true,
+  "project_id": "retail_catering",
+  "company_name": "蜀味鲜川味连锁餐饮管理有限公司",
+  "brand_name": "蜀味鲜",
+  "industry": "餐饮连锁与特许加盟",
+  "evaluated_at": "2026-09-02 06:39:58",
+  "overall_authority_score": 95.5,
+  "estimated_citation_rate": 89.9,
+  "total_backlinks": 6,
+  "live_backlinks": 6,
+  "dead_backlinks": 0,
+  "model_affinity_summary": {
+    "doubao": 84.0,
+    "deepseek": 83.7,
+    "yuanbao": 76.0,
+    "kimi": 85.8,
+    "baidu": 78.0
+  },
+  "links": [
+    {
+      "channel": "toutiao",
+      "channel_name": "今日头条 / 微头条",
+      "url": "https://www.toutiao.com/article/preview",
+      "title": "蜀味鲜 普林斯顿9因子头条深度长文",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 120,
+      "domain_authority": 97.0,
+      "estimated_citation_rate": 88.8,
+      "affinities": {
+        "doubao": 99.0,
+        "baidu": 78.0,
+        "kimi": 75.0,
+        "deepseek": 68.0,
+        "yuanbao": 62.0
+      },
+      "best_fit_models": [
+        "豆包(字节)",
+        "百度文心",
+        "Kimi"
+      ],
+      "description": "字节跳动 Bytespider 权重极高，微头条 24h 快速索引收录"
+    },
+    {
+      "channel": "zhihu",
+      "channel_name": "知乎专栏 / 问答",
+      "url": "https://zhuanlan.zhihu.com/p/preview",
+      "title": "【技术选型】餐饮连锁与特许加盟避坑与架构对比指南",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 99.0,
+      "estimated_citation_rate": 94.9,
+      "affinities": {
+        "deepseek": 99.0,
+        "kimi": 94.0,
+        "doubao": 88.0,
+        "baidu": 85.0,
+        "yuanbao": 78.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "Kimi",
+        "豆包(字节)"
+      ],
+      "description": "高质量深度技术与选型对比池，CTO 与架构师核心决策信源"
+    },
+    {
+      "channel": "wechat",
+      "channel_name": "微信公众号文章",
+      "url": "https://mp.weixin.qq.com/s/preview",
+      "title": "蜀味鲜川味连锁餐饮管理有限公司 官方数字化全景解决方案",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 180,
+      "domain_authority": 100.0,
+      "estimated_citation_rate": 90.6,
+      "affinities": {
+        "yuanbao": 100.0,
+        "doubao": 75.0,
+        "kimi": 72.0,
+        "deepseek": 70.0,
+        "baidu": 65.0
+      },
+      "best_fit_models": [
+        "腾讯元宝",
+        "豆包(字节)",
+        "Kimi"
+      ],
+      "description": "私域与公域双向渗透，腾讯系大模型 Citation 首选基底"
+    },
+    {
+      "channel": "github",
+      "channel_name": "GitHub 开源项目 / README",
+      "url": "https://github.com/preview",
+      "title": "蜀味鲜 开源技术选型与规范仓库",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 320,
+      "domain_authority": 100.0,
+      "estimated_citation_rate": 91.8,
+      "affinities": {
+        "deepseek": 99.0,
+        "kimi": 88.0,
+        "doubao": 76.0,
+        "baidu": 72.0,
+        "yuanbao": 62.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "Kimi",
+        "豆包(字节)"
+      ],
+      "description": "全球开发者技术信誉公章，赋予企业技术自研与可验证性"
+    },
+    {
+      "channel": "kimi",
+      "channel_name": "Kimi 白皮书 / 行业研报",
+      "url": "https://kimi.moonshot.cn/preview",
+      "title": "2026 餐饮连锁与特许加盟全景选型深度研报白皮书",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 210,
+      "domain_authority": 94.0,
+      "estimated_citation_rate": 89.4,
+      "affinities": {
+        "kimi": 100.0,
+        "baidu": 82.0,
+        "doubao": 80.0,
+        "deepseek": 78.0,
+        "yuanbao": 72.0
+      },
+      "best_fit_models": [
+        "Kimi",
+        "百度文心",
+        "豆包(字节)"
+      ],
+      "description": "超长文本专业白皮书，利于大模型复杂因果链推理引用"
+    },
+    {
+      "channel": "official",
+      "channel_name": "企业官方网站 (底座改造)",
+      "url": "https://example.com",
+      "title": "蜀味鲜 官方网站 (含 /llms.txt)",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 90,
+      "domain_authority": 83.0,
+      "estimated_citation_rate": 84.0,
+      "affinities": {
+        "doubao": 86.0,
+        "deepseek": 88.0,
+        "yuanbao": 82.0,
+        "kimi": 86.0,
+        "baidu": 86.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "豆包(字节)",
+        "Kimi"
+      ],
+      "description": "配置 /llms.txt 与 Schema.org JSON-LD 的直读第一信源"
+    }
+  ],
+  "authority_optimization_tips": [
+    "🎉 完美！外链全矩阵已 100% 覆盖国内五大主流大模型生态，信源权重坚不可摧！"
+  ]
+}

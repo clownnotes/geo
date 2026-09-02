@@ -865,6 +865,10 @@
             <p class="text-xs text-slate-500 mt-1">并发探测主流大模型，计算 SOV 声量、Citation 权威信源加权得分并一键生成竞品包抄策略。</p>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="openCitationAuthModal()" class="py-2.5 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
+              <span>🏆 Citation 信源权威度矩阵</span>
+            </button>
             <button onclick="openIntentMatrixModal()" class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="target" class="w-4 h-4 text-emerald-600"></i>
               <span>🎯 三级搜索意图拓扑</span>
@@ -2839,6 +2843,114 @@ GitHub 开源仓库：https://github.com/company/repo
           </div>
           <div id="gap-roadmap-container" class="space-y-3">
             <div class="text-center py-6 text-slate-400 text-xs">加载作战路线中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Citation 信源权威度与外链信任度推演弹窗 ================= -->
+  <div id="citation-auth-modal" onclick="if(event.target === this) closeCitationAuthModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-amber-500/20">
+            <i data-lucide="award" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">大模型 Citation 信源权威度权重评分与外链信任度推演中枢</h3>
+            <p class="text-[11px] text-amber-700 font-medium">五大本土大模型生态亲和度大盘 ｜ 逐链权威分 (DA) 与采纳率推演 ｜ 提权优化方案</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="handleRunCitationAuthEval()" id="btn-re-cauth" class="py-1.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 flex items-center gap-1 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>重新评估</span>
+          </button>
+          <button onclick="closeCitationAuthModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-6 overflow-y-auto flex-1">
+        <!-- 4 维量化综合指标卡 -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-100">
+            <div class="text-[11px] text-amber-800 font-semibold">全案信源综合权威分</div>
+            <div id="cauth-overall-score" class="text-2xl font-black text-amber-900 mt-1">-- 分</div>
+            <div class="text-[10px] text-amber-600 mt-0.5">全渠道域名权重加权</div>
+          </div>
+          <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100">
+            <div class="text-[11px] text-emerald-700 font-semibold">平均预估被采纳率</div>
+            <div id="cauth-avg-rate" class="text-2xl font-black text-emerald-800 mt-1">-- %</div>
+            <div class="text-[10px] text-emerald-600 mt-0.5">跨大模型 Citation 概率</div>
+          </div>
+          <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+            <div class="text-[11px] text-blue-700 font-semibold">有效落地外链总数</div>
+            <div id="cauth-links-count" class="text-2xl font-black text-blue-900 mt-1">-- 条</div>
+            <div class="text-[10px] text-blue-600 mt-0.5">全网高权重信源覆盖</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="text-[11px] text-slate-600 font-semibold">信源健康存活率</div>
+            <div id="cauth-live-rate" class="text-2xl font-black text-slate-800 mt-1">100%</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">无 404/500 权重流失</div>
+          </div>
+        </div>
+
+        <!-- 五大本土模型亲和度大盘卡片 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="cpu" class="w-4 h-4 text-indigo-600"></i>
+              <span>五大本土主流大模型生态亲和度大盘 (Model Affinity Matrix)</span>
+            </span>
+            <span class="text-[11px] text-slate-400">大模型专属信源偏好加权</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3" id="cauth-models-grid">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center text-xs text-slate-400 col-span-5 py-4">加载模型亲和度中...</div>
+          </div>
+        </div>
+
+        <!-- 全渠道外链权威度明细表 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="link" class="w-4 h-4 text-amber-600"></i>
+              <span>全渠道落地外链权威度与采纳率明细 (Backlinks Breakdown)</span>
+            </span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="p-3">渠道来源</th>
+                  <th class="p-3">外链标题 / URL</th>
+                  <th class="p-3 text-center">状态</th>
+                  <th class="p-3 text-amber-700 font-bold">域名权威分 (DA)</th>
+                  <th class="p-3 text-emerald-700 font-bold">预估采纳率</th>
+                  <th class="p-3">最匹配大模型</th>
+                </tr>
+              </thead>
+              <tbody id="cauth-links-tbody" class="divide-y divide-slate-100 bg-white">
+                <tr><td colspan="6" class="p-4 text-center text-slate-400">加载外链明细中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 提权优化建议指南 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600"></i>
+              <span>全案信源提权与补强行动指南 (Actionable Optimization Tips)</span>
+            </span>
+          </div>
+          <div id="cauth-tips-container" class="space-y-2">
+            <div class="text-center py-4 text-slate-400 text-xs">加载提权建议中...</div>
           </div>
         </div>
       </div>
@@ -6761,6 +6873,138 @@ GitHub 开源仓库：https://github.com/company/repo
           showToast(`🎉 竞对声量差距推演完毕！综合领先: +${d.radar_comparison.overall_gap_lead}分！`);
         } else {
           showToast(d.message || '推演失败', 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        lucide.createIcons();
+      }
+    }
+
+    // ===== 大模型 Citation 信源权威度与外链信任度控制器 =====
+    async function openCitationAuthModal() {
+      if (!currentProjectId) {
+        showToast('请先选择一个客户项目', 'warning');
+        return;
+      }
+      document.getElementById('citation-auth-modal').classList.remove('hidden');
+      lucide.createIcons();
+      await loadCitationAuthData();
+    }
+
+    function closeCitationAuthModal() {
+      document.getElementById('citation-auth-modal').classList.add('hidden');
+    }
+
+    async function loadCitationAuthData() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/citation/authority`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderCitationAuthView(d);
+        } else {
+          showToast(d.message || '加载信源权威度失败', 'error');
+        }
+      } catch (err) {
+        console.error('加载信源权威度失败:', err);
+      }
+    }
+
+    function renderCitationAuthView(auth) {
+      const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      document.getElementById('cauth-overall-score').textContent = `${auth.overall_authority_score || 0} 分`;
+      document.getElementById('cauth-avg-rate').textContent = `${auth.estimated_citation_rate || 0} %`;
+      document.getElementById('cauth-links-count').textContent = `${auth.total_backlinks || 0} 条`;
+      const liveRate = auth.total_backlinks > 0 ? Math.round((auth.live_backlinks / auth.total_backlinks) * 100) : 100;
+      document.getElementById('cauth-live-rate').textContent = `${liveRate}%`;
+
+      // 五大模型亲和度卡片渲染
+      const msum = auth.model_affinity_summary || {};
+      const modelsGrid = document.getElementById('cauth-models-grid');
+      const modelConfigs = [
+        { key: 'doubao', name: '🤖 字节·豆包', share: '50%+', color: 'text-red-700 bg-red-50 border-red-200' },
+        { key: 'deepseek', name: '🧠 DeepSeek', share: '25%+', color: 'text-blue-700 bg-blue-50 border-blue-200' },
+        { key: 'yuanbao', name: '💬 腾讯·元宝', share: '10%+', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
+        { key: 'kimi', name: '📑 月暗·Kimi', share: '8%+', color: 'text-purple-700 bg-purple-50 border-purple-200' },
+        { key: 'baidu', name: '🔍 百度·文心', share: '7%+', color: 'text-sky-700 bg-sky-50 border-sky-200' }
+      ];
+
+      modelsGrid.innerHTML = modelConfigs.map(m => {
+        const score = msum[m.key] || 0;
+        return `
+          <div class="p-3 rounded-xl border ${m.color} text-center space-y-1">
+            <div class="text-xs font-bold">${m.name}</div>
+            <div class="text-[10px] opacity-75">市场份额: ${m.share}</div>
+            <div class="text-xl font-black mt-1">${score} 分</div>
+            <div class="text-[10px] font-semibold">${score >= 85 ? '🟢 极易采纳' : (score >= 70 ? '🟡 良好覆盖' : '🔴 建议补强')}</div>
+          </div>
+        `;
+      }).join('');
+
+      // 全渠道外链表格渲染
+      const links = auth.links || [];
+      const tbody = document.getElementById('cauth-links-tbody');
+      if (links.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">暂无外链数据</td></tr>`;
+      } else {
+        tbody.innerHTML = links.map(l => {
+          const statusIcon = l.is_live ? '🟢 200 OK' : `🔴 ${l.http_status}`;
+          const modelsStr = (l.best_fit_models || []).join('、');
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-3 font-bold text-slate-800">${esc(l.channel_name)}</td>
+              <td class="p-3">
+                <div class="font-semibold text-slate-900">${esc(l.title)}</div>
+                <a href="${esc(l.url)}" target="_blank" class="text-[10px] text-indigo-600 hover:underline font-mono truncate max-w-xs block">${esc(l.url)}</a>
+              </td>
+              <td class="p-3 text-center text-[11px] font-mono">${statusIcon}</td>
+              <td class="p-3 font-bold text-amber-700 font-mono text-sm">${l.domain_authority} 分</td>
+              <td class="p-3 font-bold text-emerald-700 font-mono text-sm">${l.estimated_citation_rate}%</td>
+              <td class="p-3 text-slate-600 text-[11px] font-medium">${esc(modelsStr)}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 提权建议指南渲染
+      const tips = auth.authority_optimization_tips || [];
+      const tipsContainer = document.getElementById('cauth-tips-container');
+      tipsContainer.innerHTML = tips.map(t => `
+        <div class="bg-amber-50/70 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+          <span>${esc(t)}</span>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    async function handleRunCitationAuthEval() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-re-cauth');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>评估中...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/citation/authority`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          }
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderCitationAuthView(d);
+          showToast(`🏆 信源权威度评估完毕！全案权威总分: ${d.overall_authority_score}分，预估采纳率: ${d.estimated_citation_rate}%！`);
+        } else {
+          showToast(d.message || '评估失败', 'error');
         }
       } catch (err) {
         showToast('请求异常', 'error');
