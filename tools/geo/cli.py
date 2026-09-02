@@ -252,10 +252,10 @@ def main():
     p_grd.add_argument("--simulate", action="store_true", help="沙箱推演修复前后的置信度与事实一致性")
 
     # publish
-    p_pub = subparsers.add_parser("publish", help="生成今日头条/微信公众号/DeepSeek技术极速发稿资产包")
+    p_pub = subparsers.add_parser("publish", help="生成中国五大本土模型全生态极速发稿资产包")
     p_pub.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_pub.add_argument("--project", "-p", default=None, help="客户项目 ID")
-    p_pub.add_argument("--channel", default="all", choices=["toutiao", "wechat", "deepseek", "all"], help="发布渠道 (默认: all)")
+    p_pub.add_argument("--channel", default="all", choices=["toutiao", "wechat", "deepseek", "kimi_baidu", "all"], help="发布渠道 (默认: all)")
 
     # eval
     p_eval = subparsers.add_parser("eval", help="执行真实大模型 API 批量并发评测与 Citation 捕获")
@@ -583,7 +583,7 @@ def main():
     elif args.command == "monitor":
         run_monitor(get_pid(args))
     elif args.command == "publish":
-        from .publisher import package_toutiao_assets, package_wechat_assets, package_deepseek_assets, package_all_channels
+        from .publisher import package_toutiao_assets, package_wechat_assets, package_deepseek_assets, package_kimi_baidu_assets, package_all_channels
         ch = getattr(args, "channel", "all")
         if ch == "toutiao":
             package_toutiao_assets(get_pid(args))
@@ -591,6 +591,8 @@ def main():
             package_wechat_assets(get_pid(args))
         elif ch == "deepseek":
             package_deepseek_assets(get_pid(args))
+        elif ch == "kimi_baidu":
+            package_kimi_baidu_assets(get_pid(args))
         else:
             package_all_channels(get_pid(args))
     elif args.command == "eval":

@@ -697,6 +697,17 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 一键生成 Kimi 研报与百度百科资产包: /api/projects/{id}/kimi_baidu/build
+        if path.startswith("/api/projects/") and path.endswith("/kimi_baidu/build"):
+            project_id = path.split("/")[3]
+            try:
+                from .publisher import package_kimi_baidu_assets
+                res = package_kimi_baidu_assets(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -1469,6 +1480,39 @@ core_values:
                 from .publisher import build_deepseek_token_optimized_llms
                 try:
                     content = build_deepseek_token_optimized_llms(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "content": content})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取 Kimi 深度选型白皮书: /api/projects/{id}/kimi/whitepaper
+            if path.startswith("/api/projects/") and path.endswith("/kimi/whitepaper"):
+                project_id = path.split("/")[3]
+                from .publisher import build_kimi_research_whitepaper
+                try:
+                    content = build_kimi_research_whitepaper(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "content": content})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取百度百科词条草案: /api/projects/{id}/baidu/baike
+            if path.startswith("/api/projects/") and path.endswith("/baidu/baike"):
+                project_id = path.split("/")[3]
+                from .publisher import build_baidu_baike_entry
+                try:
+                    content = build_baidu_baike_entry(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "content": content})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取百度文库/知道 Q&A 对: /api/projects/{id}/baidu/qa
+            if path.startswith("/api/projects/") and path.endswith("/baidu/qa"):
+                project_id = path.split("/")[3]
+                from .publisher import build_baidu_wenku_qa_pairs
+                try:
+                    content = build_baidu_wenku_qa_pairs(project_id)
                     self.send_json({"success": True, "project_id": project_id, "content": content})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
