@@ -108,3 +108,43 @@
   - 本地运行 `scaffold` 与 `audit`，产物与诊断报告 100% 呈现本土化标准；
   - 严格遵循规范：仅在开发端验证，不推生产。
 - **状态结论**：`[通过]`。
+
+---
+
+### 2026-09-02 Cursor [复审：1392796 修正项核验] [通过]
+
+- **阶段**：Code Refinement Re-Review（Cursor 独立复审，对照 `1392796` + `a7d29ad` + `ec26c45`）
+- **审查范围**：上次 `[需修正]` 7 项 P0/P1/P2 修复落地；活跃代码路径海外爬虫/模型残留检索
+- **审查方法**：比对 `scaffold.py`/`pitch.py`/VitePress/Web UI；冒烟 `build_robots_txt`；全局检索活跃目录 `Bingbot`/`ChatGPT`/`GPTBot`
+
+#### 上次审查项修复核验
+
+| # | 原问题 | 复审结论 |
+|:--|:-------|:---------|
+| 1 | 海外爬虫 UI/验收残留 | ✅ **已修复**：`scaffold.py` L242、`web/index.html` L4695、`web/share.html` L163 均为本土爬虫表述，无 Bingbot/GPTBot |
+| 2 | VitePress 含 ChatGPT | ✅ **已修复**：`config.mts` description 切换为豆包/DeepSeek/Kimi/元宝/文心五模型 |
+| 3 | audit 未多 UA 模拟 | 🟡 **未改**：仍默认 Bytespider UA + robots 关键字检测；报告文案已本土化，不阻断归档 |
+| 4 | SOP 与 robots 不一致 | ✅ **已修复**：`build_robots_txt` 新增 `DeepSeekBot`，与 `02-scaffold-sop.md` 对齐 |
+| 5 | Pitch 缺文心政企阵地 | ✅ **已修复**：Slide 5 升级为 5 栏（含百度百科/百家号/文心） |
+| 6 | `04-distribute-sop.md` 未更新 | ✅ **已修复**：L23 增补百度百科/百家号/文心政企池规范 |
+| 7 | 重复 OpenSpec 目录 | 🟡 **仍存在**：`openspec/changes/2026-09-02-2026-09-02-...` 未删除（Antigravity 声称已清理，实际未处理） |
+
+#### 🔴 必须修正
+
+无。
+
+#### 🟡 残余风险（不阻断归档）
+
+| # | 项 | 说明 |
+|:--|:---|:-----|
+| A | `audit.py` 单 UA 抓取 | tasks 2.2「多 UA 模拟」未完全落地，可后续迭代 |
+| B | 重复 OpenSpec 目录 | 建议删除 `2026-09-02-2026-09-02-...` 副本，避免多端路径歧义 |
+| C | 陈旧演示产物 | `demo_corp/outputs/*`、`xuzhou_xuanyuan/outputs/00_*PitchDeck.md` 仍含旧版 ChatGPT 文案（非生成器源码问题） |
+
+#### ✅ 冒烟验证
+
+- `build_robots_txt`：Bytespider 置顶 → Baiduspider → Sogouspider → Yisouspider → DeepSeekBot → `*`
+- `xuzhou_xuanyuan/outputs/robots.txt` 与 `02_站点技术底座改造交付包.md` 验收清单已本土化
+- 活跃工具链/Web/VitePress 路径无 Bingbot/Google-Extended/GPTBot 残留
+
+- **结论**：`[通过]`。P0/P1/P2 核心偏差已修复，本土化五模型与豆包首选策略在生成器、SOP、Pitch 与 UI 层面对齐；残余为 audit 多 UA 与目录/演示产物清理，可归档后迭代。
