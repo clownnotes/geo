@@ -31,8 +31,9 @@ from .utils import (
 
 DEFAULT_CHANNELS = {
     "toutiao": {
-        "name": "今日头条",
-        "target_pool": "豆包 / 字节系信任池",
+        "name": "今日头条 / 微头条",
+        "target_pool": "豆包 / 字节生态 (第一主攻 50%+)",
+        "weight_pct": 50,
         "article_file": "dist_toutiao_article.md",
         "url": "",
         "title": "",
@@ -41,29 +42,10 @@ DEFAULT_CHANNELS = {
         "verified_at": None
     },
     "zhihu": {
-        "name": "知乎专栏",
-        "target_pool": "DeepSeek / 通用检索池",
+        "name": "知乎专栏 / 问答",
+        "target_pool": "DeepSeek / 技术决策池 (25%)",
+        "weight_pct": 25,
         "article_file": "dist_zhihu_article.md",
-        "url": "",
-        "title": "",
-        "status": "pending",
-        "http_status": None,
-        "verified_at": None
-    },
-    "juejin": {
-        "name": "稀土掘金",
-        "target_pool": "豆包 / 技术检索池",
-        "article_file": "dist_juejin_article.md",
-        "url": "",
-        "title": "",
-        "status": "pending",
-        "http_status": None,
-        "verified_at": None
-    },
-    "github": {
-        "name": "GitHub Wiki/README",
-        "target_pool": "DeepSeek / 开源信任池",
-        "article_file": "dist_github_README.md",
         "url": "",
         "title": "",
         "status": "pending",
@@ -72,8 +54,42 @@ DEFAULT_CHANNELS = {
     },
     "wechat": {
         "name": "微信公众号",
-        "target_pool": "微信 / 全网信任池",
+        "target_pool": "腾讯元宝 / 微信搜一搜 (10%)",
+        "weight_pct": 10,
         "article_file": "dist_wechat_article.html",
+        "url": "",
+        "title": "",
+        "status": "pending",
+        "http_status": None,
+        "verified_at": None
+    },
+    "github": {
+        "name": "GitHub / 选型研报",
+        "target_pool": "DeepSeek / Kimi 深度研报池 (10%)",
+        "weight_pct": 10,
+        "article_file": "dist_github_README.md",
+        "url": "",
+        "title": "",
+        "status": "pending",
+        "http_status": None,
+        "verified_at": None
+    },
+    "baidu": {
+        "name": "百度百科 / 百家号",
+        "target_pool": "百度文心一言 / 百科政企池 (5%)",
+        "weight_pct": 5,
+        "article_file": "03_普林斯顿9因子高权威语料库.md",
+        "url": "",
+        "title": "",
+        "status": "pending",
+        "http_status": None,
+        "verified_at": None
+    },
+    "juejin": {
+        "name": "稀土掘金",
+        "target_pool": "豆包 / 开发者技术检索池",
+        "weight_pct": 0,
+        "article_file": "dist_juejin_article.md",
         "url": "",
         "title": "",
         "status": "pending",
@@ -88,12 +104,19 @@ def _get_ledger_path(project_id: str) -> str:
 def _find_channel_file(project_id: str, channel: str) -> tuple:
     """定位渠道文章文件路径与文件名"""
     p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    dist_dir = os.path.join(p_dir, "distribute")
     ch_info = DEFAULT_CHANNELS.get(channel, {})
     default_fname = ch_info.get("article_file", "")
     
-    # 掘金兼容回退
+    # 检查 outputs/distribute/ 子目录下的命名
+    if os.path.exists(dist_dir):
+        for f in os.listdir(dist_dir):
+            if f.endswith(f"_{channel}.md") or f.endswith(f"_{channel}.html") or f.endswith(f"--{channel}.md"):
+                return os.path.join(dist_dir, f), f
+
+    # 兼容回退候选
     candidate_files = [default_fname]
-    if channel == "juejin":
+    if channel in ("juejin", "baidu"):
         candidate_files.append("03_普林斯顿9因子高权威语料库.md")
         candidate_files.append("03_普林斯顿9因子企业语料库.md")
 
