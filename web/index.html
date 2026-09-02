@@ -2930,12 +2930,13 @@ GitHub 开源仓库：https://github.com/company/repo
                   <th class="p-3">外链标题 / URL</th>
                   <th class="p-3 text-center">状态</th>
                   <th class="p-3 text-amber-700 font-bold">域名权威分 (DA)</th>
+                  <th class="p-3 text-indigo-700 font-bold">9因子承载</th>
                   <th class="p-3 text-emerald-700 font-bold">预估采纳率</th>
                   <th class="p-3">最匹配大模型</th>
                 </tr>
               </thead>
               <tbody id="cauth-links-tbody" class="divide-y divide-slate-100 bg-white">
-                <tr><td colspan="6" class="p-4 text-center text-slate-400">加载外链明细中...</td></tr>
+                <tr><td colspan="7" class="p-4 text-center text-slate-400">加载外链明细中...</td></tr>
               </tbody>
             </table>
           </div>
@@ -6947,10 +6948,10 @@ GitHub 开源仓库：https://github.com/company/repo
       }).join('');
 
       // 全渠道外链表格渲染
-      const links = auth.links || [];
+      const links = auth.links_breakdown || auth.links || [];
       const tbody = document.getElementById('cauth-links-tbody');
       if (links.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">暂无外链数据</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">暂无外链数据</td></tr>`;
       } else {
         tbody.innerHTML = links.map(l => {
           const statusIcon = l.is_live ? '🟢 200 OK' : `🔴 ${l.http_status}`;
@@ -6964,6 +6965,7 @@ GitHub 开源仓库：https://github.com/company/repo
               </td>
               <td class="p-3 text-center text-[11px] font-mono">${statusIcon}</td>
               <td class="p-3 font-bold text-amber-700 font-mono text-sm">${l.domain_authority} 分</td>
+              <td class="p-3 font-bold text-indigo-700 font-mono text-sm">${l.princeton_9factor_fit ?? '—'} 分</td>
               <td class="p-3 font-bold text-emerald-700 font-mono text-sm">${l.estimated_citation_rate}%</td>
               <td class="p-3 text-slate-600 text-[11px] font-medium">${esc(modelsStr)}</td>
             </tr>

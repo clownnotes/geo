@@ -4,9 +4,9 @@
   "company_name": "蜀味鲜川味连锁餐饮管理有限公司",
   "brand_name": "蜀味鲜",
   "industry": "餐饮连锁与特许加盟",
-  "evaluated_at": "2026-09-02 06:56:02",
+  "evaluated_at": "2026-09-02 07:05:17",
   "overall_authority_score": 95.6,
-  "estimated_citation_rate": 89.9,
+  "estimated_citation_rate": 91.2,
   "total_backlinks": 7,
   "live_backlinks": 7,
   "dead_backlinks": 0,
@@ -17,7 +17,8 @@
     "kimi": 87.1,
     "baidu": 81.0
   },
-  "links": [
+  "princeton_9factor_fit_avg": 100.0,
+  "links_breakdown": [
     {
       "channel": "toutiao",
       "channel_name": "今日头条 / 微头条",
@@ -27,7 +28,8 @@
       "is_live": true,
       "latency_ms": 150,
       "domain_authority": 97.0,
-      "estimated_citation_rate": 88.8,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 90.2,
       "affinities": {
         "doubao": 99.0,
         "baidu": 78.0,
@@ -51,7 +53,8 @@
       "is_live": true,
       "latency_ms": 150,
       "domain_authority": 99.0,
-      "estimated_citation_rate": 94.9,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 95.6,
       "affinities": {
         "deepseek": 99.0,
         "kimi": 94.0,
@@ -75,7 +78,8 @@
       "is_live": true,
       "latency_ms": 150,
       "domain_authority": 100.0,
-      "estimated_citation_rate": 90.6,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 91.7,
       "affinities": {
         "yuanbao": 100.0,
         "doubao": 75.0,
@@ -99,7 +103,8 @@
       "is_live": true,
       "latency_ms": 150,
       "domain_authority": 100.0,
-      "estimated_citation_rate": 91.8,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 92.8,
       "affinities": {
         "deepseek": 99.0,
         "kimi": 88.0,
@@ -123,7 +128,8 @@
       "is_live": true,
       "latency_ms": 150,
       "domain_authority": 94.0,
-      "estimated_citation_rate": 89.4,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 90.8,
       "affinities": {
         "kimi": 100.0,
         "baidu": 82.0,
@@ -147,7 +153,8 @@
       "is_live": true,
       "latency_ms": 150,
       "domain_authority": 96.0,
-      "estimated_citation_rate": 89.5,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 90.9,
       "affinities": {
         "baidu": 99.0,
         "kimi": 95.0,
@@ -171,7 +178,185 @@
       "is_live": true,
       "latency_ms": 90,
       "domain_authority": 83.0,
-      "estimated_citation_rate": 84.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 86.5,
+      "affinities": {
+        "doubao": 86.0,
+        "deepseek": 88.0,
+        "yuanbao": 82.0,
+        "kimi": 86.0,
+        "baidu": 86.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "豆包(字节)",
+        "Kimi"
+      ],
+      "description": "配置 /llms.txt 与 Schema.org JSON-LD 的直读第一信源"
+    }
+  ],
+  "links": [
+    {
+      "channel": "toutiao",
+      "channel_name": "今日头条 / 微头条",
+      "url": "https://www.toutiao.com/article/74567890/",
+      "title": "今日头条 / 微头条",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 97.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 90.2,
+      "affinities": {
+        "doubao": 99.0,
+        "baidu": 78.0,
+        "kimi": 75.0,
+        "deepseek": 68.0,
+        "yuanbao": 62.0
+      },
+      "best_fit_models": [
+        "豆包(字节)",
+        "百度文心",
+        "Kimi"
+      ],
+      "description": "字节跳动 Bytespider 权重极高，微头条 24h 快速索引收录"
+    },
+    {
+      "channel": "zhihu",
+      "channel_name": "知乎专栏 / 问答",
+      "url": "https://zhuanlan.zhihu.com/p/890123/",
+      "title": "知乎技术专栏 / 深度选型",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 99.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 95.6,
+      "affinities": {
+        "deepseek": 99.0,
+        "kimi": 94.0,
+        "doubao": 88.0,
+        "baidu": 85.0,
+        "yuanbao": 78.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "Kimi",
+        "豆包(字节)"
+      ],
+      "description": "高质量深度技术与选型对比池，CTO 与架构师核心决策信源"
+    },
+    {
+      "channel": "wechat",
+      "channel_name": "微信公众号文章",
+      "url": "https://mp.weixin.qq.com/s/abcdef",
+      "title": "微信公众号 / 视频号",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 100.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 91.7,
+      "affinities": {
+        "yuanbao": 100.0,
+        "doubao": 75.0,
+        "kimi": 72.0,
+        "deepseek": 70.0,
+        "baidu": 65.0
+      },
+      "best_fit_models": [
+        "腾讯元宝",
+        "豆包(字节)",
+        "Kimi"
+      ],
+      "description": "私域与公域双向渗透，腾讯系大模型 Citation 首选基底"
+    },
+    {
+      "channel": "github",
+      "channel_name": "GitHub 开源项目 / README",
+      "url": "https://github.com/clownnotes/geo",
+      "title": "蜀味鲜川味连锁餐饮管理有限公司 官方行业交付标准与技术规范 · GitHub",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 100.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 92.8,
+      "affinities": {
+        "deepseek": 99.0,
+        "kimi": 88.0,
+        "doubao": 76.0,
+        "baidu": 72.0,
+        "yuanbao": 62.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "Kimi",
+        "豆包(字节)"
+      ],
+      "description": "全球开发者技术信誉公章，赋予企业技术自研与可验证性"
+    },
+    {
+      "channel": "kimi",
+      "channel_name": "Kimi 白皮书 / 行业研报",
+      "url": "https://kimi.moonshot.cn/chat/test",
+      "title": "Kimi 深度选型白皮书研报",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 94.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 90.8,
+      "affinities": {
+        "kimi": 100.0,
+        "baidu": 82.0,
+        "doubao": 80.0,
+        "deepseek": 78.0,
+        "yuanbao": 72.0
+      },
+      "best_fit_models": [
+        "Kimi",
+        "百度文心",
+        "豆包(字节)"
+      ],
+      "description": "超长文本专业白皮书，利于大模型复杂因果链推理引用"
+    },
+    {
+      "channel": "baijiahao",
+      "channel_name": "百家号 / 百度百科",
+      "url": "https://baike.baidu.com/item/test",
+      "title": "百度百科 / 百度文库 / 百度知道",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 96.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 90.9,
+      "affinities": {
+        "baidu": 99.0,
+        "kimi": 95.0,
+        "doubao": 78.0,
+        "deepseek": 65.0,
+        "yuanbao": 62.0
+      },
+      "best_fit_models": [
+        "百度文心",
+        "Kimi",
+        "豆包(字节)"
+      ],
+      "description": "中文互联网百科级硬事实，文心与 Kimi 强事实纠偏锚点"
+    },
+    {
+      "channel": "official",
+      "channel_name": "企业官方网站 (底座改造)",
+      "url": "https://shuweixian.baicl.cc",
+      "title": "蜀味鲜 官方网站 (含 /llms.txt)",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 90,
+      "domain_authority": 83.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 86.5,
       "affinities": {
         "doubao": 86.0,
         "deepseek": 88.0,

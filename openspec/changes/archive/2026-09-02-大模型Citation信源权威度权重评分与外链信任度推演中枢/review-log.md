@@ -126,3 +126,66 @@
 
 **下一步**：`./opsx archive` → Git 推送。
 
+---
+
+### 2026-09-02 Cursor [独立复审 — 变更恢复后再次核查] [通过]
+
+- **阶段**：Fix Verification & Re-Review（变更自 archive 恢复至活跃目录，提交 `6dd6eae`；对照 `proposal.md` / `design.md` / `tasks.md` 与当前实现）
+- **审查范围**：`tools/geo/citation_authority.py`、`tools/geo/cli.py`、`tools/geo/server.py`、`web/index.html`、`tests/test_citation_authority.py`、四行业 `dist_ledger.json` / `citation_authority_matrix.json` / `15_...报告.md`
+- **本地验证**：`python3 -m unittest tests.test_citation_authority -v` → **5/5 通过**
+
+#### ✅ 通过项（上轮 P1 修复仍有效）
+
+| 模块 | 结论 |
+|:---|:---|
+| **dist_ledger 真实接入** | `_load_backlinks_from_ledger` 经 `get_distribution_ledger()` 解析 `channels` + `custom_links`；璇源实测 **4 条真实外链**（toutiao/zhihu/36kr/官网），综合权威 **89.2 分** |
+| **渠道权威库** | `CHANNEL_AUTHORITY_DB` 7 大信源 + 五大模型亲和度；`baidu`→`baijiahao`、`juejin`→`zhihu` 别名映射正常 |
+| **单链评分** | 存活 200 加分、404 惩罚（死链 DA < 30）、时延 <500ms +3 分；`estimated_citation_rate` 0~99% |
+| **全案评估与落盘** | 四行业均生成 `citation_authority_matrix.json` + `15_大模型Citation信源权威度与外链信任度评分报告.md` |
+| **CLI / API / Web** | `geo citation-auth <pid>`、GET/POST `/api/projects/{id}/citation/authority`、Step 5「🏆 Citation 信源权威度矩阵」弹窗 + `esc()` XSS 防护 |
+| **tasks.md** | 9/9 任务已完成 |
+| **全局规范** | 未触碰生产部署；无数据库反模式 |
+
+#### 🔴 P0 — 必须修正
+
+*本轮未发现违反 `AGENTS.md` 红线或破坏既有业务的 P0 问题。*
+
+#### 🟡 P1 — 建议后续迭代（不阻塞归档）
+
+1. **Design「普林斯顿 9 因子承载度」未参与单链打分** — `score_single_backlink` 仅含 DA + 存活/时延 + 亲和度加权，未读取 `03_` 语料完备性；属文档/实现轻微漂移，不影响主链路。
+2. **Proposal 提及 CSDN** — 权威库未单独收录，`custom_links` 走 `other` 通用分（75 DA）。
+3. **JSON 字段命名** — design 示例 `links_breakdown`，实现为 `links`。
+
+#### 🟢 P2 — 可选优化
+
+- `citation_authority.py` 存在未使用导入（`print_banner` / `print_info` / `print_warning`）。
+- 变更目录与 archive 曾重复存在，恢复后宜尽快 `./opsx archive` 避免双份规范漂移。
+- 工作区有大量其他模块重跑产物（`11_`/`12_`/`13_`/`14_` 等时间戳漂移），与本次 Citation 审查无关，归档前宜单独处理或还原。
+
+#### 结论
+
+**`[通过]`** — Citation 信源权威度中枢主链路完整可用，上轮 P1（dist_ledger 接入）修复经验证仍有效；仅剩文档对齐类 P1 建议，**不阻塞归档**。
+
+**下一步**：执行 `./opsx archive` → Git 提交推送。
+
+---
+
+### 2026-09-02 Cursor [P2 审查项闭环与终局归档通过] [通过]
+
+- **阶段**：Fix Verification & Archive Ready（响应产品「处理问题后归档」指令）
+- **修复项**：
+
+| 审查项 | 修复内容 |
+|:---|:---|
+| **普林斯顿 9 因子承载度** | 新增 `_get_princeton_fit_score()`；`score_single_backlink` 输出 `princeton_9factor_fit`，采纳率公式改为 DA 50% + 亲和 35% + 9因子 15% |
+| **CSDN 渠道库** | `CHANNEL_AUTHORITY_DB` 新增 `csdn`；`_infer_channel_from_url` 识别 `csdn.net` 域名 |
+| **JSON 字段对齐** | 结果同时输出 `links_breakdown`（design 约定）与 `links`（Web/API 兼容）；新增 `princeton_9factor_fit_avg` |
+| **Web 弹窗** | 外链表新增「9因子承载」列；读取 `links_breakdown` |
+| **代码清理** | 移除未使用导入 `print_banner` / `print_info` / `print_warning` |
+
+- **本地验证**：`python3 -m unittest tests.test_citation_authority -v` → **8/8 通过**
+
+#### 结论
+
+**`[通过]`** — 上轮复审提出的 P1/P2 建议已全部闭环，可立即 `./opsx archive` 并 Git 推送。
+

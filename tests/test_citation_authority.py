@@ -10,6 +10,8 @@ from tools.geo.citation_authority import (
     score_single_backlink,
     evaluate_project_citation_authority,
     _load_backlinks_from_ledger,
+    _get_princeton_fit_score,
+    _infer_channel_from_url,
 )
 from tools.geo.utils import load_project_config
 
@@ -18,7 +20,7 @@ class TestCitationAuthority(unittest.TestCase):
 
     def test_channel_authority_db_structure(self):
         """测试基础渠道库五大模型生态亲和度完整性"""
-        required_channels = ["toutiao", "zhihu", "wechat", "github", "baijiahao", "kimi", "official"]
+        required_channels = ["toutiao", "zhihu", "wechat", "github", "baijiahao", "kimi", "official", "csdn"]
         required_models = ["doubao", "deepseek", "yuanbao", "kimi", "baidu"]
 
         for ch in required_channels:
@@ -80,6 +82,43 @@ class TestCitationAuthority(unittest.TestCase):
         })
         self.assertEqual(res["channel"], "baijiahao")
         self.assertGreater(res["affinities"]["baidu"], 95.0)
+
+    def test_csdn_channel_and_url_inference(self):
+        """CSDN 渠道库与 URL 自动识别"""
+        self.assertIn("csdn", CHANNEL_AUTHORITY_DB)
+        self.assertEqual(_infer_channel_from_url("https://blog.csdn.net/foo/article", "other"), "csdn")
+        res = score_single_backlink({
+            "channel": "csdn",
+            "url": "https://blog.csdn.net/foo/article",
+            "title": "技术博客",
+            "status_code": 200,
+            "latency_ms": 100,
+        }, princeton_fit=90.0)
+        self.assertEqual(res["channel"], "csdn")
+        self.assertIn("princeton_9factor_fit", res)
+        self.assertEqual(res["princeton_9factor_fit"], 90.0)
+
+    def test_princeton_fit_affects_citation_rate(self):
+        """9 因子承载度应影响预估采纳率"""
+        link = {
+            "channel": "zhihu",
+            "url": "https://zhuanlan.zhihu.com/p/1",
+            "title": "长文",
+            "status_code": 200,
+            "latency_ms": 120,
+        }
+        low = score_single_backlink(link, princeton_fit=55.0)
+        high = score_single_backlink(link, princeton_fit=95.0)
+        self.assertGreater(high["estimated_citation_rate"], low["estimated_citation_rate"])
+
+    def test_evaluate_includes_links_breakdown(self):
+        """JSON 应同时输出 design 约定的 links_breakdown 与兼容字段 links"""
+        res = evaluate_project_citation_authority("xuzhou_xuanyuan")
+        self.assertIn("links_breakdown", res)
+        self.assertIn("links", res)
+        self.assertEqual(res["links_breakdown"], res["links"])
+        self.assertIn("princeton_9factor_fit_avg", res)
+        self.assertGreaterEqual(_get_princeton_fit_score("xuzhou_xuanyuan"), 85.0)
 
     def test_evaluate_project_citation_authority_benchmark(self):
         """测试四大母版项目信源权威评估与资产落盘"""

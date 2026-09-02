@@ -13,10 +13,7 @@ import time
 from .utils import (
     load_project_config,
     PROJECTS_DIR,
-    print_banner,
-    print_info,
     print_success,
-    print_warning
 )
 
 # 核心分发渠道基础域名权威度 (DA) 与五大模型亲和度偏好库 (0~100)
@@ -111,7 +108,20 @@ CHANNEL_AUTHORITY_DB = {
             "baidu": 86.0
         },
         "description": "配置 /llms.txt 与 Schema.org JSON-LD 的直读第一信源"
-    }
+    },
+    "csdn": {
+        "name": "CSDN 博客 / 技术专栏",
+        "domain": "csdn.net",
+        "domain_authority": 90.0,
+        "affinity": {
+            "deepseek": 92.0,
+            "doubao": 82.0,
+            "kimi": 80.0,
+            "baidu": 78.0,
+            "yuanbao": 68.0
+        },
+        "description": "开发者技术博客阵地，DeepSeek 与豆包技术检索高频采纳源"
+    },
 }
 
 
@@ -119,6 +129,37 @@ CHANNEL_KEY_ALIASES = {
     "baidu": "baijiahao",
     "juejin": "zhihu",
 }
+
+
+def _infer_channel_from_url(url: str, channel: str) -> str:
+    """根据 URL 域名推断渠道（如 CSDN 自定义外链）"""
+    url_l = (url or "").lower()
+    if "csdn.net" in url_l:
+        return "csdn"
+    if "juejin.cn" in url_l:
+        return "juejin"
+    if "baijiahao.baidu.com" in url_l or "baike.baidu.com" in url_l:
+        return "baijiahao"
+    return channel
+
+
+def _get_princeton_fit_score(project_id: str) -> float:
+    """评估项目 03_ 普林斯顿 9 因子语料完备度 (0~100)，参与单链采纳率加权"""
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    has_03 = (
+        os.path.exists(os.path.join(out_dir, "03_普林斯顿9因子高权威语料库.md"))
+        or os.path.exists(os.path.join(out_dir, "03_普林斯顿9因子企业语料库.md"))
+    )
+    has_intent = os.path.exists(os.path.join(out_dir, "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md"))
+    has_rag = os.path.exists(os.path.join(out_dir, "rag_chunks_diagnostic.json"))
+    score = 55.0
+    if has_03:
+        score += 30.0
+    if has_intent:
+        score += 10.0
+    if has_rag:
+        score += 5.0
+    return min(100.0, score)
 
 
 def _normalize_channel_key(channel: str) -> str:
@@ -163,7 +204,7 @@ def _load_backlinks_from_ledger(project_id: str, cfg: dict, bname: str, cname: s
         if http_status is None:
             http_status = 200 if link.get("status") in ("verified", "published") else 200
         raw_links.append({
-            "channel": "other",
+            "channel": _infer_channel_from_url(url, "other"),
             "url": url,
             "title": (link.get("title") or "").strip() or f"自定义外链 #{idx}",
             "status_code": http_status,
@@ -196,9 +237,11 @@ def _build_fallback_backlinks(cfg: dict, bname: str, cname: str, ind: str) -> li
     ]
 
 
-def score_single_backlink(link_item: dict) -> dict:
-    """对单条外链计算 5 维权威分与大模型亲和度矩阵"""
-    channel_key = _normalize_channel_key(link_item.get("channel", "other"))
+def score_single_backlink(link_item: dict, princeton_fit: float = 70.0) -> dict:
+    """对单条外链计算权威分、9 因子承载度与大模型亲和度矩阵"""
+    raw_channel = link_item.get("channel", "other")
+    url = link_item.get("url", "")
+    channel_key = _normalize_channel_key(_infer_channel_from_url(url, raw_channel))
     ch_info = CHANNEL_AUTHORITY_DB.get(channel_key, {
         "name": link_item.get("channel", "外部渠道"),
         "domain": "external.com",
@@ -218,10 +261,16 @@ def score_single_backlink(link_item: dict) -> dict:
 
     final_da = min(100.0, round(base_da * status_factor + latency_bonus, 1))
 
-    # 计算预估被采纳率 (Estimated Citation Rate: 0~100%)
+    # 普林斯顿 9 因子语料承载度加权 (0~100)
+    princeton_factor = min(100.0, max(0.0, float(princeton_fit)))
+
+    # 预估被采纳率 = DA(50%) + 模型亲和(35%) + 9因子承载(15%)
     affinities = ch_info["affinity"]
     avg_affinity = sum(affinities.values()) / len(affinities)
-    estimated_rate = min(99.0, round(final_da * 0.6 + avg_affinity * 0.4, 1))
+    estimated_rate = min(
+        99.0,
+        round(final_da * 0.5 + avg_affinity * 0.35 + princeton_factor * 0.15, 1),
+    )
 
     # 找出最匹配的大模型
     sorted_models = sorted(affinities.items(), key=lambda x: x[1], reverse=True)
@@ -243,6 +292,7 @@ def score_single_backlink(link_item: dict) -> dict:
         "is_live": is_live,
         "latency_ms": latency_ms,
         "domain_authority": final_da,
+        "princeton_9factor_fit": round(princeton_factor, 1),
         "estimated_citation_rate": estimated_rate,
         "affinities": affinities,
         "best_fit_models": best_models,
@@ -265,8 +315,9 @@ def evaluate_project_citation_authority(project_id: str) -> dict:
     if not raw_links:
         raw_links = _build_fallback_backlinks(cfg, bname, cname, ind)
 
-    # 2. 逐链打分
-    scored_links = [score_single_backlink(l) for l in raw_links]
+    # 2. 逐链打分（注入全案 9 因子承载度）
+    princeton_fit = _get_princeton_fit_score(project_id)
+    scored_links = [score_single_backlink(l, princeton_fit) for l in raw_links]
 
     # 3. 统计全案权威大盘
     total_links = len(scored_links)
@@ -314,6 +365,10 @@ def evaluate_project_citation_authority(project_id: str) -> dict:
         "live_backlinks": live_links,
         "dead_backlinks": total_links - live_links,
         "model_affinity_summary": model_summary,
+        "princeton_9factor_fit_avg": round(
+            sum(l.get("princeton_9factor_fit", princeton_fit) for l in scored_links) / max(total_links, 1), 1
+        ),
+        "links_breakdown": scored_links,
         "links": scored_links,
         "authority_optimization_tips": tips
     }
@@ -344,7 +399,7 @@ def render_citation_authority_markdown(project_id: str, auth: dict) -> str:
     total_l = auth.get("total_backlinks", 0)
     live_l = auth.get("live_backlinks", 0)
     msum = auth.get("model_affinity_summary", {})
-    links = auth.get("links", [])
+    links = auth.get("links_breakdown", auth.get("links", []))
     tips = auth.get("authority_optimization_tips", [])
 
     md = f"""# 【{bname}】大模型 Citation 信源权威度与外链信任度评分报告
@@ -368,8 +423,8 @@ def render_citation_authority_markdown(project_id: str, auth: dict) -> str:
 
 ## 2. 全渠道落地外链权威度明细表 (Backlinks Authority Breakdown)
 
-| 渠道来源 | 外链标题 / 链接 | HTTP 状态 | 域名权威分 (DA) | 预估采纳率 | 最佳适配大模型 |
-|:---|:---|:---:|:---:|:---:|:---|
+| 渠道来源 | 外链标题 / 链接 | HTTP 状态 | 域名权威分 (DA) | 9因子承载 | 预估采纳率 | 最佳适配大模型 |
+|:---|:---|:---:|:---:|:---:|:---:|:---|
 """
 
     for l in links:
@@ -378,11 +433,12 @@ def render_citation_authority_markdown(project_id: str, auth: dict) -> str:
         url = l.get("url", "#")
         status = l.get("http_status", 200)
         da = l.get("domain_authority", 0.0)
+        p9 = l.get("princeton_9factor_fit", 0.0)
         crate = l.get("estimated_citation_rate", 0.0)
         bmodels = "、".join(l.get("best_fit_models", []))
 
         status_str = f"🟢 {status}" if status == 200 else f"🔴 {status}"
-        md += f"| **{ch_name}** | [{title}]({url}) | {status_str} | **{da}分** | **{crate}%** | `{bmodels}` |\n"
+        md += f"| **{ch_name}** | [{title}]({url}) | {status_str} | **{da}分** | **{p9}分** | **{crate}%** | `{bmodels}` |\n"
 
     md += """
 ---

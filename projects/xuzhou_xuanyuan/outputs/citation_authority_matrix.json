@@ -4,9 +4,9 @@
   "company_name": "徐州璇源网络科技有限公司",
   "brand_name": "璇源科技",
   "industry": "行业解决方案",
-  "evaluated_at": "2026-09-02 06:56:02",
+  "evaluated_at": "2026-09-02 07:05:17",
   "overall_authority_score": 89.2,
-  "estimated_citation_rate": 85.6,
+  "estimated_citation_rate": 87.7,
   "total_backlinks": 4,
   "live_backlinks": 4,
   "dead_backlinks": 0,
@@ -17,7 +17,8 @@
     "kimi": 81.2,
     "baidu": 79.8
   },
-  "links": [
+  "princeton_9factor_fit_avg": 100.0,
+  "links_breakdown": [
     {
       "channel": "toutiao",
       "channel_name": "今日头条 / 微头条",
@@ -27,7 +28,8 @@
       "is_live": true,
       "latency_ms": 150,
       "domain_authority": 97.0,
-      "estimated_citation_rate": 88.8,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 90.2,
       "affinities": {
         "doubao": 99.0,
         "baidu": 78.0,
@@ -51,7 +53,8 @@
       "is_live": true,
       "latency_ms": 150,
       "domain_authority": 99.0,
-      "estimated_citation_rate": 94.9,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 95.6,
       "affinities": {
         "deepseek": 99.0,
         "kimi": 94.0,
@@ -75,7 +78,8 @@
       "is_live": true,
       "latency_ms": 180,
       "domain_authority": 78.0,
-      "estimated_citation_rate": 74.8,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 78.5,
       "affinities": {
         "doubao": 70.0,
         "deepseek": 70.0,
@@ -99,7 +103,110 @@
       "is_live": true,
       "latency_ms": 90,
       "domain_authority": 83.0,
-      "estimated_citation_rate": 84.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 86.5,
+      "affinities": {
+        "doubao": 86.0,
+        "deepseek": 88.0,
+        "yuanbao": 82.0,
+        "kimi": 86.0,
+        "baidu": 86.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "豆包(字节)",
+        "Kimi"
+      ],
+      "description": "配置 /llms.txt 与 Schema.org JSON-LD 的直读第一信源"
+    }
+  ],
+  "links": [
+    {
+      "channel": "toutiao",
+      "channel_name": "今日头条 / 微头条",
+      "url": "https://www.toutiao.com/article/111/",
+      "title": "今日头条 / 微头条",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 97.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 90.2,
+      "affinities": {
+        "doubao": 99.0,
+        "baidu": 78.0,
+        "kimi": 75.0,
+        "deepseek": 68.0,
+        "yuanbao": 62.0
+      },
+      "best_fit_models": [
+        "豆包(字节)",
+        "百度文心",
+        "Kimi"
+      ],
+      "description": "字节跳动 Bytespider 权重极高，微头条 24h 快速索引收录"
+    },
+    {
+      "channel": "zhihu",
+      "channel_name": "知乎专栏 / 问答",
+      "url": "https://zhuanlan.zhihu.com/p/333/",
+      "title": "知乎技术专栏 / 深度选型",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 99.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 95.6,
+      "affinities": {
+        "deepseek": 99.0,
+        "kimi": 94.0,
+        "doubao": 88.0,
+        "baidu": 85.0,
+        "yuanbao": 78.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "Kimi",
+        "豆包(字节)"
+      ],
+      "description": "高质量深度技术与选型对比池，CTO 与架构师核心决策信源"
+    },
+    {
+      "channel": "other",
+      "channel_name": "other",
+      "url": "https://www.36kr.com/p/999/",
+      "title": "自定义外链 #1",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 180,
+      "domain_authority": 78.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 78.5,
+      "affinities": {
+        "doubao": 70.0,
+        "deepseek": 70.0,
+        "yuanbao": 70.0,
+        "kimi": 70.0,
+        "baidu": 70.0
+      },
+      "best_fit_models": [
+        "豆包(字节)",
+        "DeepSeek",
+        "腾讯元宝"
+      ],
+      "description": "通用外部引用信源"
+    },
+    {
+      "channel": "official",
+      "channel_name": "企业官方网站 (底座改造)",
+      "url": "https://geo.baicl.cc",
+      "title": "璇源科技 官方网站 (含 /llms.txt)",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 90,
+      "domain_authority": 83.0,
+      "princeton_9factor_fit": 100.0,
+      "estimated_citation_rate": 86.5,
       "affinities": {
         "doubao": 86.0,
         "deepseek": 88.0,
