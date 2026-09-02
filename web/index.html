@@ -4395,7 +4395,7 @@
         showToast('请先选择项目！', 'error');
         return;
       }
-      const printUrl = `/api/projects/${currentProjectId}/certificate?token=${encodeURIComponent(currentAuthToken)}`;
+      const printUrl = `/api/projects/${currentProjectId}/certificate?token=${encodeURIComponent(currentAuthToken)}&regenerate=1`;
       window.open(printUrl, '_blank');
     }
 

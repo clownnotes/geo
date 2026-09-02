@@ -967,8 +967,10 @@ core_values:
                 return
             project_id = rec["project_id"]
             try:
+                qs = parse_qs(parsed.query)
+                regenerate = qs.get("regenerate", ["0"])[0].lower() in ("1", "true", "yes")
                 cert_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "09_GEO全案商业交付结案与数字资产移交证书.html")
-                if os.path.exists(cert_file):
+                if os.path.exists(cert_file) and not regenerate:
                     with open(cert_file, "r", encoding="utf-8") as cf:
                         html_body = cf.read()
                 else:
@@ -1445,8 +1447,10 @@ core_values:
             if path.startswith("/api/projects/") and path.endswith("/certificate"):
                 project_id = path.split("/")[3]
                 try:
+                    qs = parse_qs(parsed.query)
+                    regenerate = qs.get("regenerate", ["0"])[0].lower() in ("1", "true", "yes")
                     cert_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "09_GEO全案商业交付结案与数字资产移交证书.html")
-                    if os.path.exists(cert_file):
+                    if os.path.exists(cert_file) and not regenerate:
                         with open(cert_file, "r", encoding="utf-8") as cf:
                             html_body = cf.read()
                     else:

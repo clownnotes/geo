@@ -13,6 +13,7 @@ import os
 import json
 import time
 import hashlib
+from urllib.parse import quote
 from .utils import (
     load_project_config,
     print_banner,
@@ -97,6 +98,21 @@ def get_project_asset_manifest(project_id: str) -> list:
 
     return assets
 
+def _resolve_verify_url(project_id: str, cert_sn: str) -> str:
+    """Resolve share portal URL for certificate verification."""
+    try:
+        from .share import list_project_shares
+        for share in list_project_shares(project_id):
+            if share.get("is_active", True) and not share.get("is_expired"):
+                base = os.environ.get("GEO_PUBLIC_BASE_URL", "").rstrip("/")
+                path = f"/share/{share['token']}"
+                return f"{base}{path}" if base else path
+    except Exception:
+        pass
+    base = os.environ.get("GEO_PUBLIC_BASE_URL", "").rstrip("/")
+    path = f"/share?verify={cert_sn}"
+    return f"{base}{path}" if base else path
+
 def build_delivery_certificate_html(project_id: str) -> str:
     """生成高保真 A4 打印优化版的《GEO 全案商业交付结案与数字资产移交证书》"""
     cfg = load_project_config(project_id)
@@ -160,6 +176,8 @@ def build_delivery_certificate_html(project_id: str) -> str:
         grade_badge = f'<span class="inline-block px-2.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">🟡 阶段交付 (A 级 · {existing_assets}/{total_assets} 资产)</span>'
 
     audit_statement = "本证书基于真实 API 联机跑批产生，数据具备客观审计效力。" if eval_mode == "live_api_only" else "⚠️ 本证书测试指标当前基于本地高拟真沙箱推演（环境未配置 API Key）；配置线上 API Key 后可直连真机审计。"
+    header_audit_label = "公文标准排版 · 具备法律与商业审计效力" if eval_mode == "live_api_only" else "公文标准排版 · 演示推演数据（配置 API Key 后可真机审计）"
+    verify_url = _resolve_verify_url(project_id, cert_sn)
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -201,7 +219,7 @@ def build_delivery_certificate_html(project_id: str) -> str:
   <div class="no-print max-w-4xl w-full mb-6 flex items-center justify-between bg-white p-4 rounded-xl shadow-md border border-slate-200 text-xs">
     <div class="flex items-center gap-2 text-slate-700">
       <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-      <span class="font-bold">🎖️ GEO 商业交付结案证书（公文标准排版 · 具备法律与商业审计效力）</span>
+      <span class="font-bold">🎖️ GEO 商业交付结案证书（{header_audit_label}）</span>
     </div>
     <div class="flex items-center gap-3">
       <button onclick="window.print()" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition flex items-center gap-1.5">
@@ -334,6 +352,16 @@ def build_delivery_certificate_html(project_id: str) -> str:
       <rect x="82" y="82" width="8" height="8" fill="#0f172a"/>
     </svg>"""
 
+    # Verification QR: use scannable image when absolute URL is available
+    if verify_url.startswith("http"):
+        qr_block = f"""<a href="{verify_url}" target="_blank" rel="noopener" title="扫码验真存证">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&amp;data={quote(verify_url, safe='')}" alt="验真二维码" class="w-16 h-16 border border-slate-200 rounded" />
+        </a>"""
+    else:
+        qr_block = f"""<a href="{verify_url}" target="_blank" rel="noopener" title="{verify_url}">
+          {qr_svg}
+        </a>"""
+
     html += f"""          </tbody>
         </table>
       </div>
@@ -379,8 +407,9 @@ def build_delivery_certificate_html(project_id: str) -> str:
 
         <!-- 防伪二维码存证栏 -->
         <div class="col-span-2 border border-slate-200 p-2 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50">
-          {qr_svg}
+          {qr_block}
           <span class="text-[9px] text-slate-500 font-bold mt-1">扫码验真存证</span>
+          <span class="text-[8px] text-slate-400 mt-0.5 break-all leading-tight">{verify_url}</span>
         </div>
 
       </div>

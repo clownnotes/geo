@@ -102,4 +102,44 @@
      - P1-8：GET 证书路由优先读取已落盘的 `09_*.html`，确保幂等且无多余写盘副作用。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审：P0/P1 修复验证] [通过]
+
+- **阶段**：Cross-IDE Re-Review（Cursor 独立复审，对照 `736cb2c` 修复提交）
+- **审查范围**：`tools/geo/certificate.py` · `tools/geo/server.py` · `web/index.html` · `xuzhou_xuanyuan` / `b2b_machinery` 的 `09_*.html`
+- **本地验证**：`python3 -m tools.geo certificate xuzhou_xuanyuan` 通过；证书输出台账存活率 **10.0%**、交叉印证率 **50.0%** 分列展示，`Mode: sandbox_only` 与置信度声明正常。
+
+#### P0 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 1 | 台账存活率指标张冠李戴 | ✅ `ledger_alive_rate_str` 改读 `dist_ledger.json` 的 `weighted_completion_pct`；`ledger_cross_match_rate` 独立为「Citation 台账交叉印证率」 |
+| 2 | 缺失资产仍标「已存证」 | ✅ 按 `a['exists']` 输出 `✓ 已存证` / `待生成`；`b2b_machinery` 缺失行已标「待生成」，履约评级降为 `🟡 阶段交付 (A 级 · 6/7 资产)` |
+| 3 | Web 证书打印 401 | ✅ `handlePrintCertificate()` 已补充 `?token=${encodeURIComponent(currentAuthToken)}` |
+
+#### P1 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 4 | 02 词库未入资产清单 | ✅ 已纳入第 3 项「02_企业商业意图与5维提问挖掘词库.json」 |
+| 5 | 防伪二维码未实现 | 🟡 已嵌入内联 SVG 图案与「扫码验真存证」文案，但**非可扫描 QR**、未链接 share portal URL（装饰性实现，**不阻断归档**） |
+| 6 | 履约评级恒 AAA / 沙箱无披露 | ✅ 动态 AAA/AA/A 评级 + `fidelity_note` + `eval_mode` 展示；底部 `audit_statement` 按沙箱/真机区分 |
+| 7 | 无评测报告硬编码默认值 | ✅ 无报告时显示 `— (待评测)`，已消除 85/60/92.5 硬编码 |
+| 8 | GET 每次重写落盘 | ✅ Server 优先读取已落盘 `09_*.html`，不存在时才 `build_delivery_certificate_html` |
+
+#### 🟢 残余优化（可选，归档后处理）
+
+- 证书顶部操作栏仍写「具备法律与商业审计效力」，与底部沙箱降级声明略不一致，可统一按 `eval_mode` 动态调整。
+- 防伪 QR 可升级为真实可扫描链接（嵌入 `/api/share/{token}` 或项目验真页）。
+- GET 证书仅读缓存 HTML，资产更新后需重新执行 `geo certificate` 刷新（可在 Web 增加「重新生成证书」按钮）。
+
+#### 已确认达标项（延续上轮）
+
+- ✅ `geo certificate` CLI、SHA256 指纹、A4 `@media print` CSS 正常
+- ✅ `/api/projects/{id}/certificate` 与 `/api/share/{token}/certificate` 路由可用
+- ✅ 开发端验证合规，未触发生产部署
+
+- **状态结论**：`[通过]` — P0 全部闭环，P1 仅 QR 为装饰性实现属轻微残余，可 `./opsx archive` 归档。
+
 
