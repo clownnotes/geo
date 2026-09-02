@@ -95,10 +95,13 @@ def calculate_project_roi(project_id: str, custom_params: dict = None) -> dict:
         raw_sov = float(metrics.get("sov_pct", 0.0))
         is_offline = bool(metrics.get("is_offline", True))
         auth_score = float(metrics.get("authority_score", 90.0))
-        intercept_count = int(metrics.get("intercept_count", 1))
+        prompt_stats = metrics.get("prompt_stats", {})
+        rank1_hits = int(prompt_stats.get("hit_count", 0))
+        intercept_count = int(prompt_stats.get("intercept_count", 0))
     except Exception:
         raw_sov = 0.0
-        intercept_count = 1
+        rank1_hits = 0
+        intercept_count = 0
 
     try:
         dist_ledger = get_distribution_ledger(project_id)
@@ -120,8 +123,9 @@ def calculate_project_roi(project_id: str, custom_params: dict = None) -> dict:
     # ① 等效 SEM 竞价替代节省价值 (月检索量 * SOV * CPC * 12)
     sem_val = round(monthly_query * (effective_sov / 100.0) * cpc * 12)
 
-    # ② AI 首推精准销售线索估值 (年估算 (SOV/100)*8条/月*12)
-    est_annual_leads = round((effective_sov / 100.0) * 8 * 12)
+    # ② AI 首推精准销售线索估值 (Rank1 问答数 × 8条/月 × 12 × CPL)
+    monthly_leads_per_rank1 = 8
+    est_annual_leads = max(rank1_hits, 1) * monthly_leads_per_rank1 * 12 if rank1_hits > 0 else round((effective_sov / 100.0) * monthly_leads_per_rank1 * 12)
     leads_val = round(est_annual_leads * cpl)
 
     # ③ 数字资产与高权重信任池估值 (每发布信任池 3000元 + 9因子语料资产 15000元)
@@ -132,12 +136,15 @@ def calculate_project_roi(project_id: str, custom_params: dict = None) -> dict:
     roi_pct = round((net_val / fee) * 100.0, 1)
     roi_mult = round(total_val / fee, 2)
 
-    # 4. 续约健康度评分模型 (0~100 分)
+    # 4. 续约健康度评分模型 (0~100 分，对齐 design §2 ⑤)
     score = 40
     score += min(round(effective_sov * 0.25), 25)
-    score += 15 if effective_sov >= 80 else (10 if effective_sov >= 50 else 5)
+    score += 15 if rank1_hits > 0 else 0
     score += min(round(completion_rate * 0.10), 10)
-    score += 10  # 巡检稳定性基础加分
+    if not is_offline and intercept_count == 0:
+        score += 10
+    elif not is_offline:
+        score += 5
     score = min(max(score, 20), 100)
 
     if score >= 85:
@@ -181,6 +188,7 @@ def calculate_project_roi(project_id: str, custom_params: dict = None) -> dict:
             "is_projected": is_projected,
             "completion_rate_pct": completion_rate,
             "published_channels": published_channels,
+            "rank1_hit_count": rank1_hits,
             "intercept_count": intercept_count
         },
         "financial_valuation": {

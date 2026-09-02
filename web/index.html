@@ -115,7 +115,7 @@
     <!-- 主体内容 -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-8 space-y-6">
       <!-- 统计指标 -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-4">
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
           <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
             <i data-lucide="folder-kanban" class="w-6 h-6"></i>
@@ -180,6 +180,19 @@
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">🧪 AI 测序沙箱</div>
             <div class="text-xs font-bold text-purple-600 mt-1 flex items-center gap-1">
               <span>Before/After 双轨演示</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+        </div>
+
+        <div onclick="openRoiFromDashboard()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-amber-300 hover:shadow-md transition">
+          <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center">
+            <i data-lucide="coins" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">💰 商业 ROI 测算</div>
+            <div class="text-xs font-bold text-amber-600 mt-1 flex items-center gap-1">
+              <span>续约预测与财务估值</span>
               <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
             </div>
           </div>
@@ -3392,6 +3405,17 @@
         return;
       }
       openPlaygroundModal();
+    }
+
+    /**
+     * 从 Dashboard 顶部卡片进入商业 ROI 参数配置与测算
+     */
+    function openRoiFromDashboard() {
+      if (!currentProjectId) {
+        showToast('请先从下方项目列表进入某个客户项目，再打开商业 ROI 测算', 'error');
+        return;
+      }
+      openRoiSettingsModal();
     }
 
     function renderPlaygroundHighlighted(text, spans) {

@@ -1088,6 +1088,7 @@ core_values:
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
+                return
             # 获取商业 ROI 测算与续约预测: /api/projects/{id}/roi/calculate
             if path.startswith("/api/projects/") and path.endswith("/roi/calculate"):
                 project_id = path.split("/")[3]
