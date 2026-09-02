@@ -497,36 +497,42 @@ def generate_pitch_presentation_html(project_id: str) -> str:
     <div class="text-xs text-slate-500">依据普林斯顿大学《GEO: Generative Engine Optimization》权威论文算法标准落地</div>
   </section>
 
-  <!-- ===== SLIDE 5: 全网 4 大信任池矩阵分发 ===== -->
+  <!-- ===== SLIDE 5: 全网 5 大本土信任池矩阵分发 ===== -->
   <section class="slide" data-slide="5">
     <div>
       <span class="text-xs font-bold text-indigo-400 tracking-wider">04 / DISTRIBUTION MATRIX</span>
-      <h2 class="text-3xl font-black text-white mt-1">四大权威信任池全域矩阵分发</h2>
+      <h2 class="text-3xl font-black text-white mt-1">五大权威信任池本土全域矩阵分发</h2>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-auto text-xs">
-      <div class="glass-card p-5 rounded-2xl space-y-2 border-blue-500/20">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 my-auto text-xs">
+      <div class="glass-card p-4 rounded-2xl space-y-2 border-red-500/20">
+        <div class="text-xl">📰</div>
+        <div class="font-bold text-white">今日头条 / 微头条</div>
+        <div class="text-red-400 font-semibold">第一主攻：豆包 / 字节</div>
+        <p class="text-[11px] text-slate-400">Bytespider 极速抓取，垄断大众与中小企业采购选型。</p>
+      </div>
+      <div class="glass-card p-4 rounded-2xl space-y-2 border-blue-500/20">
         <div class="text-xl">📘</div>
         <div class="font-bold text-white">知乎专栏 / 问答</div>
         <div class="text-blue-400 font-semibold">主攻：DeepSeek</div>
-        <p class="text-[11px] text-slate-400">大模型首选引用深度评测与同行选型推荐。</p>
+        <p class="text-[11px] text-slate-400">硬核架构深度长文与 5 维参数对比，树立技术权威。</p>
       </div>
-      <div class="glass-card p-5 rounded-2xl space-y-2 border-red-500/20">
-        <div class="text-xl">📰</div>
-        <div class="font-bold text-white">今日头条 / 头条号</div>
-        <div class="text-red-400 font-semibold">主攻：豆包 / 字节生态</div>
-        <p class="text-[11px] text-slate-400">行业科普稿件，垄断大众与中小企业采购决策。</p>
-      </div>
-      <div class="glass-card p-5 rounded-2xl space-y-2 border-emerald-500/20">
+      <div class="glass-card p-4 rounded-2xl space-y-2 border-emerald-500/20">
         <div class="text-xl">💬</div>
         <div class="font-bold text-white">微信公众号</div>
-        <div class="text-emerald-400 font-semibold">主攻：元宝 / 微信搜一搜</div>
-        <p class="text-[11px] text-slate-400">高转化富文本案例排版与私域信任背书。</p>
+        <div class="text-emerald-400 font-semibold">主攻：腾讯元宝 / 微信</div>
+        <p class="text-[11px] text-slate-400">高转化内联排版案例与视频号口播私域闭环。</p>
       </div>
-      <div class="glass-card p-5 rounded-2xl space-y-2 border-purple-500/20">
+      <div class="glass-card p-4 rounded-2xl space-y-2 border-purple-500/20">
         <div class="text-xl">🐙</div>
-        <div class="font-bold text-white">GitHub 仓库</div>
+        <div class="font-bold text-white">GitHub / 研报</div>
         <div class="text-purple-400 font-semibold">主攻：DeepSeek / Kimi</div>
-        <p class="text-[11px] text-slate-400">极高权重技术开源协议 README 与架构指南。</p>
+        <p class="text-[11px] text-slate-400">极高权重开源 README、/llms.txt 与 5000 字白皮书。</p>
+      </div>
+      <div class="glass-card p-4 rounded-2xl space-y-2 border-amber-500/20">
+        <div class="text-xl">🏛️</div>
+        <div class="font-bold text-white">百度百科 / 百家号</div>
+        <div class="text-amber-400 font-semibold">主攻：百度文心一言</div>
+        <p class="text-[11px] text-slate-400">Baiduspider 传统底座、统一信用代码与 LBS 地图商户认领。</p>
       </div>
     </div>
     <div class="text-xs text-slate-500">通过 dist_ledger.json 实时回填真实外网 URL 并进行 HTTP 存活连通性核验</div>

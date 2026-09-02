@@ -193,7 +193,11 @@ Allow: /
 User-agent: Yisouspider
 Allow: /
 
-# 5. 通用爬虫全放行
+# 5. 深度求索 / DeepSeek 爬虫
+User-agent: DeepSeekBot
+Allow: /
+
+# 6. 通用爬虫全放行
 User-agent: *
 Allow: /
 
@@ -235,7 +239,7 @@ def run_scaffold(project_id: str):
 
 - [ ] 访问 `https://domain.com/llms.txt` 状态码为 200 OK 且返回纯文本 Markdown；
 - [ ] 源码中包含 `application/ld+json` 且无语法报错；
-- [ ] `robots.txt` 显式放行 `Bytespider`、`Bingbot`；
+- [ ] `robots.txt` 显式放行 `Bytespider`（豆包）、`Baiduspider`、`Sogouspider`、`DeepSeekBot` 等本土 AI 爬虫；
 - [ ] 运行 `geo audit` 复检，获得 4/4 绿灯通过。
 """
     save_project_output(project_id, "02_站点技术底座改造交付包.md", summary_doc)

@@ -15,7 +15,11 @@ Allow: /
 User-agent: Yisouspider
 Allow: /
 
-# 5. 通用爬虫全放行
+# 5. 深度求索 / DeepSeek 爬虫
+User-agent: DeepSeekBot
+Allow: /
+
+# 6. 通用爬虫全放行
 User-agent: *
 Allow: /
 

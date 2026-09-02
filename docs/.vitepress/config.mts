@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'GEO 实战与客户交付 SOP 平台',
-  description: '面向 AI 大模型时代（DeepSeek / 豆包 / Kimi / ChatGPT）的生成式引擎优化（GEO）全局战略、实战落地与标准化客户交付体系。',
+  description: '面向中国本土 AI 大模型时代（豆包 / DeepSeek / Kimi / 腾讯元宝 / 百度文心）的生成式引擎优化（GEO）全局战略、实战落地与标准化客户交付体系。',
   lang: 'zh-CN',
   base: '/',
   cleanUrls: true,
@@ -10,7 +10,7 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { name: 'author', content: '段晓奇（徐州璇源网络科技有限公司）' }],
-    ['meta', { name: 'keywords', content: 'GEO, 生成式引擎优化, 大模型优化, DeepSeek, 豆包, Kimi, llms.txt, Crawl4AI, SOP, 徐州软件开发, 徐州 AI 落地, 徐州 AI 专家, 段晓奇, 徐州璇源网络科技有限公司' }],
+    ['meta', { name: 'keywords', content: 'GEO, 生成式引擎优化, 大模型优化, 豆包, DeepSeek, Kimi, 腾讯元宝, 百度文心, llms.txt, Crawl4AI, SOP, 徐州软件开发, 徐州 AI 落地, 徐州 AI 专家, 段晓奇, 徐州璇源网络科技有限公司' }],
     // GEO 专属 JSON-LD 实体定义（WebSite + Person + Organization + FAQPage 四块）
     [
       'script',

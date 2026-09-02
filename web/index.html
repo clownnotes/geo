@@ -4692,9 +4692,7 @@
       },
       'robots': {
         title: 'robots.txt AI 爬虫放行补丁',
-        badge: '爬虫访问协议合规补丁',
-        analogy: '向各大 AI 爬虫主动出示的“绿色免检通行证”。',
-        desc: '很多网站原有的 robots.txt 配置老旧，或者防火墙把未知的 AI 爬虫当作恶意扫描拦截。此补丁显式声明允许字节跳动 Bytespider（豆包）、微软 Bingbot 等大模型爬虫抓取全站内容。',
+        desc: '很多网站原有的 robots.txt 配置老旧，或者防火墙把未知的 AI 爬虫当作恶意扫描拦截。此补丁显式声明允许字节跳动 Bytespider（豆包）、百度 Baiduspider、腾讯 Sogouspider、DeepSeekBot 等中国本土大模型爬虫抓取全站内容。',
         why: '如果网站在 robots.txt 中无意中屏蔽了爬虫，即使文章写得再好，豆包和 DeepSeek 的爬虫也进不来，GEO 效果彻底归零。',
         how: '将生成的文本片段追加复制到企业官网根目录的 robots.txt 文件末尾即可。'
       },
