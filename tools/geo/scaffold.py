@@ -104,6 +104,7 @@ def build_json_ld(cfg: dict) -> str:
     domain = cfg.get("official_url", "https://example.com").rstrip("/")
     keywords = cfg.get("keywords", [])
     slogan = cfg.get("slogan", "")
+    schema_type = cfg.get("schema_type", "ProfessionalService")
 
     graph = [
         {
@@ -121,7 +122,7 @@ def build_json_ld(cfg: dict) -> str:
             }
         },
         {
-            "@type": "ProfessionalService",
+            "@type": schema_type,
             "@id": f"{domain}/#service",
             "name": company_name,
             "priceRange": price_range,

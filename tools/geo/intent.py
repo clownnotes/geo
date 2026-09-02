@@ -256,6 +256,14 @@ def mine_project_intent(project_id: str) -> dict:
             f.write(content)
         print_success(f"已成功将 {len(flat_kws)} 组意图词库持久化写入: {yaml_path}")
 
+    # 同时落盘 outputs/02_企业商业意图与5维提问挖掘词库.json
+    out_dir = os.path.join(project_dir, "outputs")
+    os.makedirs(out_dir, exist_ok=True)
+    json_path = os.path.join(out_dir, "02_企业商业意图与5维提问挖掘词库.json")
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(res, f, ensure_ascii=False, indent=2)
+    print_success(f"已成功生成意图词库交付物: {json_path}")
+
     return res
 
 if __name__ == "__main__":
