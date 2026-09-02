@@ -4729,18 +4729,42 @@
       document.getElementById('eval-modal').classList.add('hidden');
     }
 
+    function resetEvalReportUI() {
+      document.getElementById('eval-stat-sov').textContent = '—';
+      document.getElementById('eval-stat-top1').textContent = '—';
+      document.getElementById('eval-stat-citations').innerHTML = '—';
+      document.getElementById('eval-stat-cross').textContent = '—';
+      document.getElementById('eval-mode-badge').textContent = '待评测';
+      document.getElementById('eval-mode-badge').className = 'px-2 py-0.5 rounded-full text-[10px] bg-slate-500/30 text-slate-200 border border-slate-400/30 font-bold';
+      document.getElementById('eval-fidelity-text').textContent = 'ℹ️ 暂无评测报告，请点击上方按钮发起 10 词并发评测。';
+      document.getElementById('eval-models-container').innerHTML = '<p class="text-xs text-slate-400">暂无数据</p>';
+      document.getElementById('eval-sources-container').innerHTML = '<p class="text-xs text-slate-400">暂无数据</p>';
+      document.getElementById('eval-snippets-container').innerHTML = '<p class="text-xs text-slate-400">暂无数据</p>';
+      const btn = document.getElementById('btn-run-eval');
+      if (btn) btn.querySelector('span').textContent = '发起 10 词并发评测';
+    }
+
     async function loadEvalReport() {
       if (!currentProjectId) return;
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/eval/report`, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
+        if (res.status === 404) {
+          resetEvalReportUI();
+          return;
+        }
         const d = await res.json();
         if (d.success) {
           renderEvalReport(d);
+          const btn = document.getElementById('btn-run-eval');
+          if (btn) btn.querySelector('span').textContent = '重新发起 10 词并发评测';
+        } else {
+          resetEvalReportUI();
         }
       } catch (e) {
         console.error('加载评测报告失败', e);
+        resetEvalReportUI();
       }
     }
 

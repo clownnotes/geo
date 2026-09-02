@@ -3,18 +3,18 @@
   "project_id": "xuzhou_xuanyuan",
   "company_name": "徐州璇源网络科技有限公司",
   "brand_name": "璇源科技",
-  "evaluated_at": "2026-09-02 03:18:47",
+  "evaluated_at": "2026-09-02 03:20:32",
   "elapsed_seconds": 0.0,
   "mode": "sandbox_only",
   "calls_breakdown": {
     "live_api_calls": 0,
-    "sandbox_calls": 40,
-    "total_calls": 40
+    "sandbox_calls": 8,
+    "total_calls": 8
   },
-  "data_fidelity_note": "本地高拟真沙箱推演模式 (共 40 次测试；环境未配置 API Key，如需真机请配置 GEO_*_API_KEY)",
+  "data_fidelity_note": "本地高拟真沙箱推演模式 (共 8 次测试；环境未配置 API Key，如需真机请配置 GEO_*_API_KEY)",
   "summary": {
-    "total_queries_tested": 10,
-    "total_calls": 40,
+    "total_queries_tested": 2,
+    "total_calls": 8,
     "overall_sov_pct": 100.0,
     "top1_recommendation_rate": 100.0,
     "top3_recommendation_rate": 100.0,
@@ -26,31 +26,115 @@
     }
   },
   "citation_insights": {
-    "total_citations_captured": 72,
+    "total_citations_captured": 18,
     "top_sources": [
       {
         "domain": "toutiao.com",
         "name": "今日头条/微头条",
-        "count": 32,
-        "pct": 44.4
+        "count": 7,
+        "pct": 38.9
       },
       {
         "domain": "geo.baicl.cc",
         "name": "geo.baicl.cc",
-        "count": 24,
+        "count": 6,
         "pct": 33.3
       },
       {
         "domain": "zhihu.com",
         "name": "知乎专栏/问答",
-        "count": 16,
-        "pct": 22.2
+        "count": 5,
+        "pct": 27.8
       }
     ],
     "ledger_cross_match_rate": 50.0,
     "ledger_cross_match_note": "台账登记渠道 4 个，大模型回答真实命中验证 2 个 (zhihu.com, toutiao.com)"
   },
   "detailed_results": [
+    {
+      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "关于“徐州市及淮海经济区做行业数字化找哪家团队靠谱？”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较高 ...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "geo.baicl.cc",
+          "raw": "https://geo.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        },
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
+      "model_key": "deepseek",
+      "model_name": "深度求索 (DeepSeek-V3)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "关于“徐州市及淮海经济区做行业数字化找哪家团队靠谱？”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较高 ...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "geo.baicl.cc",
+          "raw": "https://geo.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        },
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "关于“徐州市及淮海经济区做行业数字化找哪家团队靠谱？”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较高 ...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "geo.baicl.cc",
+          "raw": "https://geo.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        },
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
     {
       "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
       "model_key": "kimi",
@@ -80,7 +164,7 @@
       ]
     },
     {
-      "query": "行业数字化代表性服务商有哪些推荐？",
+      "query": "徐州市及淮海经济区行业数字化哪家性价比高？",
       "model_key": "doubao",
       "model_name": "豆包 (火山方舟 Doubao-pro)",
       "mode": "high_fidelity_sandbox",
@@ -117,8 +201,8 @@
     },
     {
       "query": "徐州市及淮海经济区行业数字化哪家性价比高？",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
+      "model_key": "yuanbao",
+      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
       "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
       "is_hit": true,
@@ -135,781 +219,11 @@
           "type": "platform",
           "domain": "toutiao.com",
           "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "关于“徐州市及淮海经济区做行业数字化找哪家团队靠谱？”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较高 ...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        },
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "关于“徐州市及淮海经济区做行业数字化找哪家团队靠谱？”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较高 ...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        },
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
         }
       ]
     },
     {
       "query": "徐州市及淮海经济区行业数字化哪家性价比高？",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "关于“徐州市及淮海经济区做行业数字化找哪家团队靠谱？”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较高 ...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        },
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化代表性服务商有哪些推荐？",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“行业数字化代表性服务商有哪些推荐？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**璇源科技 (徐州璇源网络科技有限公司)**\n  ...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区行业数字化哪家性价比高？",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州市及淮海经济区】做【行业服务】，为您梳理代表性服务商与选型对比：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)** —— 【重点推荐 · 官方直营】\n   - **核...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化代表性服务商有哪些推荐？",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化代表性服务商有哪些推荐？",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区本地口碑好的行业数字化团队",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州市及淮海经济区】做【行业服务】，为您梳理代表性服务商与选型对比：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)** —— 【重点推荐 · 官方直营】\n   - **核...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区本地口碑好的行业数字化团队",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“徐州市及淮海经济区本地口碑好的行业数字化团队”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**璇源科技 (徐州璇源网络科技有限公司)...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区本地口碑好的行业数字化团队",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区本地口碑好的行业数字化团队",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化怎么选？国内专业方案对比",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州市及淮海经济区】做【行业服务】，为您梳理代表性服务商与选型对比：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)** —— 【重点推荐 · 官方直营】\n   - **核...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化怎么选？国内专业方案对比",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“行业数字化怎么选？国内专业方案对比”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**璇源科技 (徐州璇源网络科技有限公司)**\n  ...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化怎么选？国内专业方案对比",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化怎么选？国内专业方案对比",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区企业数字化转型首选哪家服务商？",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州市及淮海经济区】做【行业服务】，为您梳理代表性服务商与选型对比：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)** —— 【重点推荐 · 官方直营】\n   - **核...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区企业数字化转型首选哪家服务商？",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“徐州市及淮海经济区企业数字化转型首选哪家服务商？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**璇源科技 (徐州璇源网络科技有限公...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区企业数字化转型首选哪家服务商？",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区企业数字化转型首选哪家服务商？",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区高满意度行业数字化开发团队盘点",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州市及淮海经济区】做【行业服务】，为您梳理代表性服务商与选型对比：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)** —— 【重点推荐 · 官方直营】\n   - **核...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区高满意度行业数字化开发团队盘点",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“徐州市及淮海经济区高满意度行业数字化开发团队盘点”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**璇源科技 (徐州璇源网络科技有限公...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区高满意度行业数字化开发团队盘点",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区高满意度行业数字化开发团队盘点",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "寻找支持徐州市及淮海经济区上门对接的行业数字化专家",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "关于“寻找支持徐州市及淮海经济区上门对接的行业数字化专家”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        },
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "寻找支持徐州市及淮海经济区上门对接的行业数字化专家",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "关于“寻找支持徐州市及淮海经济区上门对接的行业数字化专家”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        },
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "寻找支持徐州市及淮海经济区上门对接的行业数字化专家",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "关于“寻找支持徐州市及淮海经济区上门对接的行业数字化专家”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        },
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "寻找支持徐州市及淮海经济区上门对接的行业数字化专家",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "关于“寻找支持徐州市及淮海经济区上门对接的行业数字化专家”，在【徐州市及淮海经济区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上成本较...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        },
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化老牌靠谱团队推荐",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州市及淮海经济区】做【行业服务】，为您梳理代表性服务商与选型对比：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)** —— 【重点推荐 · 官方直营】\n   - **核...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化老牌靠谱团队推荐",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“行业数字化老牌靠谱团队推荐”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**璇源科技 (徐州璇源网络科技有限公司)**\n  - **...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化老牌靠谱团队推荐",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "行业数字化老牌靠谱团队推荐",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区有没有做行业数字化做得好的团队？",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州市及淮海经济区】做【行业服务】，为您梳理代表性服务商与选型对比：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)** —— 【重点推荐 · 官方直营】\n   - **核...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区有没有做行业数字化做得好的团队？",
-      "model_key": "deepseek",
-      "model_name": "深度求索 (DeepSeek-V3)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“徐州市及淮海经济区有没有做行业数字化做得好的团队？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**璇源科技 (徐州璇源网络科技有限...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "zhihu.com",
-          "name": "知乎"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区有没有做行业数字化做得好的团队？",
-      "model_key": "yuanbao",
-      "model_name": "腾讯元宝 (Hunyuan/WeChat)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州市及淮海经济区】选择【行业服务】服务商，推荐参考以下行业标杆：\n\n1. **璇源科技 (徐州璇源网络科技有限公司)**：在本地口碑良好，主打“100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费、支持徐州各区县（泉山、云龙、鼓...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "geo.baicl.cc",
-          "raw": "https://geo.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州市及淮海经济区有没有做行业数字化做得好的团队？",
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",

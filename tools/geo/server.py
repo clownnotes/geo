@@ -666,7 +666,7 @@ core_values:
             project_id = path.split("/")[3]
             body = self.read_json_body()
             models = body.get("models", ["doubao", "deepseek", "yuanbao", "kimi"])
-            limit = body.get("limit", 15)
+            limit = body.get("limit", 10)
             try:
                 from .evaluator import run_live_llm_evaluation
                 res = run_live_llm_evaluation(project_id, models=models, limit=limit)
@@ -1376,13 +1376,11 @@ core_values:
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)
                 else:
-                    # 动态生成
-                    try:
-                        from .evaluator import run_live_llm_evaluation
-                        res = run_live_llm_evaluation(project_id, limit=10)
-                        self.send_json(res)
-                    except Exception as e:
-                        self.send_json({"success": False, "message": str(e)}, status=500)
+                    self.send_json({
+                        "success": False,
+                        "message": "评测报告尚未生成，请先通过 POST /api/projects/{id}/eval/run 发起评测",
+                        "hint": "use_post_eval_run"
+                    }, status=404)
                 return
 
             # 获取项目商业交付结案确认单数据: /api/projects/{id}/acceptance/data

@@ -103,4 +103,43 @@
      - P1-8：CLI 与文档统一默认 `limit=10`。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审：P0/P1 修复验证] [通过]
+
+- **阶段**：Cross-IDE Re-Review（Cursor 独立复审，对照 `56251dd` 修复提交）
+- **审查范围**：`tools/geo/evaluator.py` · `tools/geo/cli.py` · `tools/geo/server.py` · `web/index.html` · `xuzhou_xuanyuan/outputs/06_*.json`
+- **本地验证**：`python3 -m tools.geo eval xuzhou_xuanyuan --limit 2 --concurrency 2` 通过；报告顶层 `mode: sandbox_only`，`ledger_cross_match_rate: 50.0%`，`ledger_cross_match_note` 含真实命中域名。
+
+#### P0 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 1 | 台账交叉率公式推算 | ✅ `_calculate_real_ledger_cross_match()` 基于 Citation 域名与 `dist_ledger.json` 渠道 URL/主域名做集合交集，无 `weighted_completion_pct + 2.5` 伪造逻辑 |
+| 2 | 顶层 mode 误导 | ✅ 输出 `sandbox_only` / `mixed` / `live_api_only`，含 `calls_breakdown` 与 `data_fidelity_note` |
+| 3 | Web 评测大盘缺失 | ✅ `web/index.html` 新增 Step 5 入口、`eval-modal`、SOV/Top1/Citation/交叉率卡片、模型柱状图与 `renderEvalReport()` |
+
+#### P1 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 4 | `project.yaml` api_keys | ✅ `_eval_single` 已实现 env → `cfg.api_keys` 回退链 |
+| 5 | ernie 非 OpenAI 协议 | ✅ 已从 `MODEL_CONFIGS` 与默认模型列表移除 |
+| 6 | MD 审计效力误导 | ✅ `export_live_eval_report` 按 `mode` 动态输出沙箱/真机声明 |
+| 7 | 沙箱 SOV 偏高 | 🟡 已引入 `seed_index % 7` 竞品分流模板，但 SOV 仍偏高；已有 `data_fidelity_note` 显著披露，**不阻断归档** |
+| 8 | limit 默认不一致 | 🟡 CLI/Web 前端已统一 `limit=10`；`server.py` POST `/eval/run` 默认仍为 `15`（仅裸 API 调用受影响），**不阻断归档** |
+
+#### 🟢 残余优化（可选，归档后处理）
+
+- `GET /eval/report` 无报告时仍同步触发 `run_live_llm_evaluation(limit=10)`，高并发下可能阻塞；建议改为 404 + 引导 POST `/eval/run`。
+- 台账交叉比对对 `toutiao/zhihu/github/wechat` 补充主域名逻辑合理，但若渠道 URL 均未配置时分母仍含 4 个主域名，售前解读时需结合 `ledger_cross_match_note` 阅读。
+
+#### 已确认达标项（延续上轮）
+
+- ✅ `geo eval` CLI 与 eval Server API 可用，ThreadPoolExecutor 并发架构清晰
+- ✅ Citation / SOV / Top1 提取逻辑完整，无 Key 优雅降级
+- ✅ 开发端验证合规，未触发生产部署
+
+- **状态结论**：`[通过]` — P0 全部闭环，P1 残余为轻微一致性问题，可 `./opsx archive` 归档。
+
 
