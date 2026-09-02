@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "GEO 实战与交付平台"
   text: "生成式引擎优化 (Generative Engine Optimization)"
-  tagline: "让 DeepSeek、豆包、Kimi、ChatGPT 在用户提问时，首选推荐你的品牌与业务"
+  tagline: "让 豆包、DeepSeek、Kimi、腾讯元宝 在用户提问时，首选推荐你的品牌与业务"
   actions:
     - theme: brand
       text: 🧭 浏览战略全景

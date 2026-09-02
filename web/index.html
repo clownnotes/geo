@@ -673,7 +673,11 @@
             <h2 class="text-base font-bold text-slate-900">阶段五：AI 可见度监控大盘与竞品反向包抄作战</h2>
             <p class="text-xs text-slate-500 mt-1">并发探测主流大模型，计算 SOV 声量、Citation 权威信源加权得分并一键生成竞品包抄策略。</p>
           </div>
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="openGuardModal()" class="py-2.5 px-3.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
+              <span>🛡️ 幻觉防御与反击</span>
+            </button>
             <button onclick="openPlaygroundModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg border border-purple-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="flask-conical" class="w-4 h-4 text-purple-600"></i>
               <span>🧪 AI 测序沙箱</span>

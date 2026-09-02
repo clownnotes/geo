@@ -92,7 +92,9 @@ from .graph import (
 )
 from .guard import (
     detect_factual_hallucinations,
+    generate_factual_anchor_patch,
     generate_adversarial_countermeasures,
     simulate_guard_repair_effect
 )
 from .server import start_server
+
