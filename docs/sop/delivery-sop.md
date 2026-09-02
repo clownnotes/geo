@@ -49,8 +49,8 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 ### 2.2 嵌入 Schema.org (JSON-LD) 实体元数据
 在客户官网首页及核心产品页 `<head>` 中注入结构化数据。
 
-### 2.3 `robots.txt` 放行 AI 爬虫
-确保包含并放行 `Bytespider`、`Bingbot`、`Google-Extended` 等。
+### 2.3 `robots.txt` 放行本土 AI 爬虫
+确保优先放行 `Bytespider`（豆包核心）、`Baiduspider`、`Sogouspider`、`Yisouspider` 等国内主流爬虫。
 
 ---
 

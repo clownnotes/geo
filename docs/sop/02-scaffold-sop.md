@@ -17,7 +17,7 @@ python3 -m tools.geo scaffold --project <client_id>
 | :--- | :--- | :--- |
 | `llms.txt` | 网站根目录 | AI 爬虫毫秒级站点索引（Answer.AI 规范） |
 | `llms-full.txt` | 网站根目录 | 完整版索引，rewrite 语料产出后回填 |
-| `robots.txt` | 网站根目录 | 放行 Bytespider/Bingbot/Google-Extended/Baiduspider/ChatGPT-User/DeepSeekBot |
+| `robots.txt` | 网站根目录 | 放行 Bytespider（豆包）/ Baiduspider / Sogouspider / Yisouspider / DeepSeekBot 等本土 AI 爬虫 |
 | `json-ld.html` | 全站 `<head>` | WebSite + Organization（含 founder/telephone/areaServed）+ FAQPage 三块实体声明 |
 | `README-挂载说明.md` | 交付给客户技术 | 三步挂载指引 |
 

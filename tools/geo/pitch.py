@@ -153,7 +153,7 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
 
 ## Executive Summary 商业摘要
 
-大模型（DeepSeek、豆包、Kimi、ChatGPT、元宝）已全面接管高意向企业采购与业务选型入口。
+大模型（豆包、DeepSeek、Kimi、腾讯元宝、百度文心）已全面接管高意向企业采购与业务选型入口。
 传统 SEM 竞价广告遭遇**点击成本高昂（行业均价 ¥{fin.get('sem_replacement_value', 0)/3650:.1f}元/次）**与**大模型不引用官网**的双重困境。
 
 本项目建议书为【{client_name}】量身定制**普林斯顿 9 因子高权威技术改造与全网信任池分发体系**：
@@ -525,7 +525,7 @@ def generate_pitch_presentation_html(project_id: str) -> str:
       <div class="glass-card p-5 rounded-2xl space-y-2 border-purple-500/20">
         <div class="text-xl">🐙</div>
         <div class="font-bold text-white">GitHub 仓库</div>
-        <div class="text-purple-400 font-semibold">主攻：Kimi / ChatGPT</div>
+        <div class="text-purple-400 font-semibold">主攻：DeepSeek / Kimi</div>
         <p class="text-[11px] text-slate-400">极高权重技术开源协议 README 与架构指南。</p>
       </div>
     </div>

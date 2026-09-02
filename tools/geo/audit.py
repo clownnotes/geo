@@ -98,8 +98,8 @@ def inspect_website(url: str) -> dict:
     robots_url = url.rstrip("/") + "/robots.txt"
     r_status, r_text, _ = fetch_url_content(robots_url)
     if r_status == 200:
-        if "Bytespider" in r_text or "Bingbot" in r_text or "Google-Extended" in r_text:
-            results["robots_status"] = "已主动配置 AI 爬虫规则"
+        if "Bytespider" in r_text or "Baiduspider" in r_text or "Sogouspider" in r_text:
+            results["robots_status"] = "已主动配置本土 AI 爬虫规则"
         else:
             results["robots_status"] = "标准通用配置（未明确放行 Bytespider）"
     else:
@@ -138,8 +138,8 @@ def generate_audit_report(cfg: dict, audit_data: dict) -> str:
 ## 一、诊断结论与商业洞察先行（Executive Summary）
 
 1. **核心发现**：
-   - 经模拟 **字节跳动（Bytespider）** 与 **通用 AI 爬虫（Bingbot）** 抓取，{client_name} 官网在 AI 检索端存在较明显的抓取壁垒与信息折损。
-   - **大模型声量（SOV）占有率当前预估不足 5%**，主流生成式引擎（DeepSeek、豆包）在回答本行业核心业务问题时，主要推荐了竞品（如：{', '.join(competitors)}）。
+   - 经模拟 **字节跳动（Bytespider / 豆包）** 与 **本土 AI 爬虫（Baiduspider / Sogouspider）** 抓取，{client_name} 官网在 AI 检索端存在较明显的抓取壁垒与信息折损。
+   - **大模型声量（SOV）占有率当前预估不足 5%**，主流生成式引擎（豆包、DeepSeek）在回答本行业核心业务问题时，主要推荐了竞品（如：{', '.join(competitors)}）。
 2. **商业影响**：
    - 潜在企业客户在通过 AI 提问寻找方案（如：“{keywords[0] if keywords else '行业推荐'}”）时，大模型未能主动将【{client_name}】列入推荐名单，造成大量潜在高质量商机的流失。
 
@@ -153,7 +153,7 @@ def generate_audit_report(cfg: dict, audit_data: dict) -> str:
 | **AI 索引标准 (/llms.txt)** | {"✅ 已部署" if audit_data.get("has_llms_txt") else "❌ 未部署"} | 根目录提供纯 Markdown 结构化摘要 | {"正常" if audit_data.get("has_llms_txt") else "⚠️ 缺少 AI 毫秒读取入口"} | {"-0" if audit_data.get("has_llms_txt") else "-25"} |
 | **实体元数据 (JSON-LD)** | {"✅ 已配置" if audit_data.get("has_json_ld") else "❌ 未发现"} | HTML 内置 Schema.org 组织/产品标签 | {"符合" if audit_data.get("has_json_ld") else "⚠️ 无法精准识别公司实体"} | {"-0" if audit_data.get("has_json_ld") else "-20"} |
 | **有效文本密度** | {audit_data.get("text_density_ratio")}%（正文 {audit_data.get("clean_text_length")} 字符） | 文本密度应 > 20%，去除冗余代码 | {"良好" if audit_data.get("text_density_ratio",0)>=20 else "⚠️ 代码与标签占比过重"} | {"-0" if audit_data.get("text_density_ratio",0)>=20 else "-15"} |
-| **爬虫放行 (robots.txt)** | {audit_data.get("robots_status")} | 主动放行 Bytespider、Bingbot 等 | 基本合规 | -0 |
+| **爬虫放行 (robots.txt)** | {audit_data.get("robots_status")} | 主动放行 Bytespider、Baiduspider、Sogouspider 等 | 基本合规 | -0 |
 
 ### ⚠️ 检测到的关键问题清单：
 """
