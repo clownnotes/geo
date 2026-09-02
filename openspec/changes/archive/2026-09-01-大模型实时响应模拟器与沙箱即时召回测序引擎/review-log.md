@@ -123,3 +123,13 @@
 - **本地实测验证**：
   - 本地端口 8088 经端到端全流程复核：问句动态复述、高亮标注、电话提取、并发测序、只读交付门户均 100% 达标。
 - **结论**：`[已达成共识 / 通过]`，全部审查项已完全闭环。
+
+---
+
+### 2026-09-01 Cursor [复审：99eb3da 修复验证] [通过]
+
+- **阶段**：Code Review Re-verification（对照上轮 `[需修正]` 清单，核验 `99eb3da`）
+- **上轮问题闭环**：query 动态融入 ✅｜评分公式 design §2 对齐 ✅｜Dashboard 第 6 张卡 ✅｜`ThreadPoolExecutor` 并发 ✅｜`telephone` 兼容 ✅｜`highlight_spans` 高亮 ✅
+- **独立实测**：`xuzhou_xuanyuan` Before=40 / After=100，问句出现在应答中，电话 `13150568888` 进入高亮列表，批量测序正常。
+- **残余 🟢**：纯离线模板沙箱（无真实 LLM API）、`data/shares.json` 测试 token、`share.html` 仍用 `alert` 报错 — 不阻断归档。
+- **结论**：`[通过]` — 全部 🟡 项已闭环，可进入归档阶段。
