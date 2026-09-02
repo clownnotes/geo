@@ -686,6 +686,17 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 一键生成 DeepSeek / 知乎 / GitHub 技术发稿包: /api/projects/{id}/deepseek/build
+        if path.startswith("/api/projects/") and path.endswith("/deepseek/build"):
+            project_id = path.split("/")[3]
+            try:
+                from .publisher import package_deepseek_assets
+                res = package_deepseek_assets(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -1426,6 +1437,39 @@ core_values:
                 try:
                     video_res = build_wechat_video_script(project_id)
                     self.send_json({"success": True, "project_id": project_id, "data": video_res})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取 DeepSeek GitHub README 接口: /api/projects/{id}/deepseek/readme
+            if path.startswith("/api/projects/") and path.endswith("/deepseek/readme"):
+                project_id = path.split("/")[3]
+                from .publisher import build_deepseek_github_readme
+                try:
+                    content = build_deepseek_github_readme(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "content": content})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取 DeepSeek 知乎深度专栏评测长文接口: /api/projects/{id}/deepseek/zhihu
+            if path.startswith("/api/projects/") and path.endswith("/deepseek/zhihu"):
+                project_id = path.split("/")[3]
+                from .publisher import build_deepseek_zhihu_article
+                try:
+                    content = build_deepseek_zhihu_article(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "content": content})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取 DeepSeek 极简高信息密度知识底座: /api/projects/{id}/deepseek/llms
+            if path.startswith("/api/projects/") and path.endswith("/deepseek/llms"):
+                project_id = path.split("/")[3]
+                from .publisher import build_deepseek_token_optimized_llms
+                try:
+                    content = build_deepseek_token_optimized_llms(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "content": content})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

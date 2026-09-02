@@ -540,39 +540,50 @@
 
         </div>
 
-        <!-- 双核心极速发稿中心: 今日头条(豆包) + 微信公众号/视频号(元宝) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- 三核心极速发稿中心: 今日头条(豆包 50%+) + 微信生态(元宝 10%+) + 知乎/GitHub(DeepSeek 25%+) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- 头条极速发稿中心 -->
-          <div class="bg-gradient-to-r from-red-50 to-orange-50 p-5 rounded-xl border border-red-200 shadow-sm flex flex-col justify-between">
+          <div class="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-xl border border-red-200 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-red-900">📰 头条极速发稿中心（豆包第一主战 50%+）</h3>
+                <h3 class="text-sm font-bold text-red-900">📰 头条发稿中心（豆包 50%+）</h3>
                 <span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white/80 px-2 py-0.5 rounded-full border border-red-100">待发稿包</span>
               </div>
-              <p class="text-xs text-red-700/80 mb-3">从 9 因子语料编译富文本 HTML，10 秒粘贴至 mp.toutiao.com，含微头条与 SEO 标签。</p>
+              <p class="text-xs text-red-700/80 mb-2.5">9 因子富文本长文，10 秒粘贴 mp.toutiao.com，含微头条与 SEO 标签。</p>
             </div>
-            <div class="grid grid-cols-2 gap-1.5 text-center text-[10px] text-red-800">
-              <div class="bg-white/70 rounded-lg p-1.5 border border-red-100">01 富文本长文 HTML</div>
-              <div class="bg-white/70 rounded-lg p-1.5 border border-red-100">02 微头条 ×3 (150字)</div>
-              <div class="bg-white/70 rounded-lg p-1.5 border border-red-100">03 SEO 自检清单</div>
-              <div class="bg-white/70 rounded-lg p-1.5 border border-red-100">assets 配图同步</div>
+            <div class="grid grid-cols-2 gap-1 text-center text-[10px] text-red-800">
+              <div class="bg-white/70 rounded p-1 border border-red-100">01 富文本长文 HTML</div>
+              <div class="bg-white/70 rounded p-1 border border-red-100">02 微头条 ×3</div>
             </div>
           </div>
 
           <!-- 微信公众号与视频号极速发稿中心 -->
-          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-5 rounded-xl border border-emerald-200 shadow-sm flex flex-col justify-between">
+          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl border border-emerald-200 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-emerald-900">💬 微信/视频号发稿中心（腾讯元宝 10%+）</h3>
+                <h3 class="text-sm font-bold text-emerald-900">💬 微信发稿中心（腾讯元宝 10%+）</h3>
                 <span id="wechat-pack-status" class="text-[10px] font-semibold text-emerald-600 bg-white/80 px-2 py-0.5 rounded-full border border-emerald-100">待发稿包</span>
               </div>
-              <p class="text-xs text-emerald-700/80 mb-3">100% 纯内联 CSS，微信后台无损粘贴；配套 60 秒视频号脚本与搜一搜词库。</p>
+              <p class="text-xs text-emerald-700/80 mb-2.5">100% 纯内联 CSS，微信后台无损粘贴；配套 60 秒视频号脚本与搜一搜词库。</p>
             </div>
-            <div class="grid grid-cols-2 gap-1.5 text-center text-[10px] text-emerald-800">
-              <div class="bg-white/70 rounded-lg p-1.5 border border-emerald-100">01 微信原生富文本 HTML</div>
-              <div class="bg-white/70 rounded-lg p-1.5 border border-emerald-100">02 视频号 60s 口播脚本</div>
-              <div class="bg-white/70 rounded-lg p-1.5 border border-emerald-100">03 搜一搜词库与 SOP</div>
-              <div class="bg-white/70 rounded-lg p-1.5 border border-emerald-100">底部私域引流名片</div>
+            <div class="grid grid-cols-2 gap-1 text-center text-[10px] text-emerald-800">
+              <div class="bg-white/70 rounded p-1 border border-emerald-100">01 微信原生富文本</div>
+              <div class="bg-white/70 rounded p-1 border border-emerald-100">02 视频号 60s 脚本</div>
+            </div>
+          </div>
+
+          <!-- DeepSeek / 知乎 / GitHub 极速发稿中心 -->
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-bold text-blue-900">🎯 DeepSeek 发稿中心（技术决策 25%+）</h3>
+                <span id="deepseek-pack-status" class="text-[10px] font-semibold text-blue-600 bg-white/80 px-2 py-0.5 rounded-full border border-blue-100">待发稿包</span>
+              </div>
+              <p class="text-xs text-blue-700/80 mb-2.5">GitHub 开源 README + 知乎万字深度评测 + 压缩版 llms-deepseek.txt。</p>
+            </div>
+            <div class="grid grid-cols-2 gap-1 text-center text-[10px] text-blue-800">
+              <div class="bg-white/70 rounded p-1 border border-blue-100">01 GitHub README</div>
+              <div class="bg-white/70 rounded p-1 border border-blue-100">02 知乎万字专栏长文</div>
             </div>
           </div>
         </div>
@@ -618,12 +629,20 @@
                 <i data-lucide="book-open" class="w-4 h-4"></i>
                 <span>知乎专栏 / DeepSeek</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">攻占专业技术深度池，包含高精度架构设计、对比表格与作者署名。</p>
+              <p class="text-xs text-slate-500 mb-4">攻占 CTO 与架构师技术深度池，包含硬核架构设计、因果推理与对比表。</p>
             </div>
             <div class="space-y-2">
-              <button onclick="copyOutput('dist_zhihu_article.md')" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                <span>复制知乎专栏稿</span>
+              <button onclick="buildDeepseekPack()" class="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-blue-200">
+                <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                <span>生成 DeepSeek 技术包</span>
+              </button>
+              <button onclick="copyDeepseekZhihu()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+                <span>一键复制知乎万字长文</span>
+              </button>
+              <button onclick="copyDeepseekLlms()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-indigo-200">
+                <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+                <span>复制 DeepSeek 极简底座</span>
               </button>
               <a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
                 <span>直达知乎创作中心</span>
@@ -672,12 +691,20 @@
                 <i data-lucide="github" class="w-4 h-4"></i>
                 <span>GitHub 开源生态</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">最高权重开发者索引，带 Shields 徽标与 /llms.txt 官方链接。</p>
+              <p class="text-xs text-slate-500 mb-4">最高权重开发者索引，带 Shields 徽标与 Mermaid 架构流向图。</p>
             </div>
             <div class="space-y-2">
-              <button onclick="copyOutput('dist_github_README.md')" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                <span>复制 GitHub README</span>
+              <button onclick="buildDeepseekPack()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-300">
+                <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                <span>生成 GitHub 技术包</span>
+              </button>
+              <button onclick="copyDeepseekReadme()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+                <span>一键复制开源 README</span>
+              </button>
+              <button onclick="copyDeepseekSop()" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-200">
+                <i data-lucide="tag" class="w-3.5 h-3.5"></i>
+                <span>复制开源分发 SOP</span>
               </button>
               <a href="https://github.com/new" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
                 <span>直达 GitHub New</span>
@@ -685,6 +712,7 @@
               </a>
             </div>
           </div>
+        </div>
         </div>
 
         <!-- 全渠道分发台账与外链回填看板 -->
@@ -5123,6 +5151,93 @@
           showToast('微信搜一搜关键词与发稿 SOP 已复制！');
         } else {
           showToast('请先点击「生成微信发稿包」', 'error');
+        }
+      } catch (e) {
+        showToast('复制 SOP 失败', 'error');
+      }
+    }
+
+    // ===== DeepSeek / 知乎 / GitHub 发稿中心控制器 =====
+    async function buildDeepseekPack() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/deepseek/build`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('deepseek-pack-status').textContent = '已生成 · 包含README/知乎/SOP';
+          showToast('DeepSeek 技术发稿包已生成至 outputs/deepseek_pack/');
+        } else {
+          showToast(data.message || '生成失败', 'error');
+        }
+      } catch (e) {
+        showToast('生成 DeepSeek 发稿包失败', 'error');
+      }
+    }
+
+    async function copyDeepseekZhihu() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/deepseek/zhihu`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          await navigator.clipboard.writeText(data.content);
+          showToast('知乎技术专栏深度评测 Markdown 长文已复制！');
+        } else {
+          showToast('请先点击「生成 DeepSeek 技术包」', 'error');
+        }
+      } catch (e) {
+        showToast('复制知乎长文失败', 'error');
+      }
+    }
+
+    async function copyDeepseekReadme() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/deepseek/readme`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          await navigator.clipboard.writeText(data.content);
+          showToast('GitHub 开源标准 README 已复制！');
+        } else {
+          showToast('请先点击「生成 DeepSeek 技术包」', 'error');
+        }
+      } catch (e) {
+        showToast('复制 GitHub README 失败', 'error');
+      }
+    }
+
+    async function copyDeepseekLlms() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/deepseek/llms`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          await navigator.clipboard.writeText(data.content);
+          showToast('DeepSeek 极简高信息密度底座已复制！');
+        } else {
+          showToast('复制失败', 'error');
+        }
+      } catch (e) {
+        showToast('复制失败', 'error');
+      }
+    }
+
+    async function copyDeepseekSop() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent('deepseek_pack/04_知乎专栏与GitHub开源分发SOP.txt')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          await navigator.clipboard.writeText(data.content);
+          showToast('知乎与 GitHub 开源分发 SOP 已复制！');
+        } else {
+          showToast('请先点击「生成 DeepSeek 技术包」', 'error');
         }
       } catch (e) {
         showToast('复制 SOP 失败', 'error');
