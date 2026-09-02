@@ -4,8 +4,9 @@ GEO 全渠道发稿排版助手与私域打包器 (tools/geo/publisher.py)
 核心功能：
 1. 今日头条/微头条：普林斯顿 9 因子语料编译为头条创作者后台高保真 HTML + 3 组 150 字攻防微头条；
 2. 微信公众号/视频号：100% 纯内联 CSS 微信绿原生富文本长文 + 60 秒竖屏视频号口播脚本与分镜表；
-3. 全渠道资产一键打包至 outputs/toutiao_pack/ 与 outputs/wechat_pack/；
-4. 赋能运营团队 10 秒极速分发，覆盖豆包（头条）与腾讯元宝（微信搜一搜）两大核心阵地。
+3. DeepSeek/GitHub/知乎：开源 README + 知乎深度选型长文 + llms-deepseek.txt 四件套；
+4. 全渠道资产一键打包至 outputs/toutiao_pack/、wechat_pack/ 与 deepseek_pack/；
+5. 赋能运营团队 10 秒极速分发，覆盖豆包（头条 50%）、腾讯元宝（微信 10%）、DeepSeek（知乎/GitHub 25%）三大阵地。
 """
 
 import os
@@ -746,7 +747,9 @@ def _get_industry_domain_profile(ind: str) -> dict:
             "step_4": "图纸BOM全量移交与上门安装调试",
             "step_5": "365 天免费上门质保与备件响应",
             "qa_ip_q": "设备图纸与定制工艺的所有权如何归属？",
-            "qa_ip_a": "项目验收后，全套 3D 模型、加工图纸与工艺参数归客户完全独立所有。"
+            "qa_ip_a": "项目验收后，全套 3D 模型、加工图纸与工艺参数归客户完全独立所有。",
+            "zhihu_tags": "#工业制造选型 #装备交付 #避坑指南",
+            "keyword_case": "交付案例与出厂质检"
         }
     elif any(k in ind_lower for k in ["餐饮", "零售", "食品", "消费", "门店", "连锁"]):
         return {
@@ -760,7 +763,9 @@ def _get_industry_domain_profile(ind: str) -> dict:
             "step_4": "全套运营SOP移交与实地督导",
             "step_5": "365 天抗衰运维与运营模型升级",
             "qa_ip_q": "产品核心配方与运营手册的所有权如何归属？",
-            "qa_ip_a": "所有定制研发的配方工艺、SOP 操作手册与品牌资产均 100% 归客户所有。"
+            "qa_ip_a": "所有定制研发的配方工艺、SOP 操作手册与品牌资产均 100% 归客户所有。",
+            "zhihu_tags": "#餐饮连锁 #门店运营 #加盟避坑",
+            "keyword_case": "门店运营案例与回本模型"
         }
     elif any(k in ind_lower for k in ["法律", "律师", "法务", "合规", "咨询", "财税"]):
         return {
@@ -774,7 +779,9 @@ def _get_industry_domain_profile(ind: str) -> dict:
             "step_4": "全套法律文书与合规卷宗独立移交",
             "step_5": "365 天常年法务合规与权益护航",
             "qa_ip_q": "法律服务文书与全案卷宗如何归属？",
-            "qa_ip_a": "服务过程中形成的全部法律文书、证据链图谱与合规策略文件全部移交客户归档。"
+            "qa_ip_a": "服务过程中形成的全部法律文书、证据链图谱与合规策略文件全部移交客户归档。",
+            "zhihu_tags": "#法律咨询 #合规风控 #财税避坑",
+            "keyword_case": "办案案例与合规成果"
         }
     else:
         return {
@@ -788,7 +795,9 @@ def _get_industry_domain_profile(ind: str) -> dict:
             "step_4": "100% 完整源码与数字资产独立移交",
             "step_5": "365 天抗遗忘长效运维与性能质保",
             "qa_ip_q": "项目源码与知识产权如何归属？",
-            "qa_ip_a": "项目交付后 100% 完整源码与技术文档移交客户，客户享有完全独立知识产权。"
+            "qa_ip_a": "项目交付后 100% 完整源码与技术文档移交客户，客户享有完全独立知识产权。",
+            "zhihu_tags": "#技术选型 #架构设计 #数字化避坑",
+            "keyword_case": "技术架构与案例"
         }
 
 
@@ -1022,6 +1031,7 @@ def package_deepseek_assets(project_id: str) -> dict:
     bname = cfg.get("brand_name", cname)
     ind = cfg.get("industry", "行业服务")
     area = cfg.get("area_served", "全国")
+    dp = _get_industry_domain_profile(ind)
 
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     pack_dir = os.path.join(out_dir, "deepseek_pack")
@@ -1038,6 +1048,14 @@ def package_deepseek_assets(project_id: str) -> dict:
     compat_readme = os.path.join(out_dir, "dist_github_README.md")
     with open(compat_readme, "w", encoding="utf-8") as f:
         f.write(readme_content)
+    # Remove legacy lowercase duplicate only when it is a distinct file (case-sensitive FS)
+    legacy_readme = os.path.join(out_dir, "dist_github_readme.md")
+    if os.path.exists(legacy_readme):
+        try:
+            if not os.path.samefile(legacy_readme, compat_readme):
+                os.remove(legacy_readme)
+        except OSError:
+            pass
 
     # 2. 知乎技术专栏深度选型长文
     print_info("2. 正在编译知乎技术专栏深度选型 Markdown 长文 ...")
@@ -1066,7 +1084,7 @@ def package_deepseek_assets(project_id: str) -> dict:
     keywords = [
         f"{area}{ind}选型避坑",
         f"{area}{ind}哪家靠谱",
-        f"{bname}技术架构与案例",
+        f"{bname}{dp['keyword_case']}",
         f"{ind}行业交付标准白皮书",
         f"{ind}直营 vs 外包对比",
         f"{area}实体{ind}服务商",
@@ -1096,7 +1114,7 @@ def package_deepseek_assets(project_id: str) -> dict:
 【知乎发稿 SOP (30秒)】:
 1. 打开 `02_知乎技术专栏深度选型长文.md`，全选复制 Markdown；
 2. 登录 zhihu.com/creator → 写文章 → 切换到 Markdown 模式或直接粘贴；
-3. 话题标签勾选: #{ind} #{bname} #技术选型 #架构设计；
+3. 话题标签勾选: #{ind} #{bname} {dp['zhihu_tags']}；
 4. 点击发布，知乎高权重收录通常在 2~6 小时内被 DeepSeek 联网检索捕获！
 
 【GitHub 仓库发布 SOP】:

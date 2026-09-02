@@ -101,4 +101,54 @@
      - **P1-6**：SOP 补齐 8 组知乎/DeepSeek 关键词与 5 组 GitHub Topics。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审：P0/P1 修复验证] [通过]
+
+- **阶段**：Cross-IDE Re-Review（Cursor 独立复审，对照 `7156cb9` 修复提交）
+- **审查范围**：`tools/geo/publisher.py` · 四项目 `outputs/deepseek_pack/*` · `dist_github_README.md` · `llms-deepseek.txt`
+- **本地验证**：`python3 -m tools.geo publish retail_catering --channel deepseek` 通过；餐饮知乎稿已无 Schema/源码话术；`xuzhou_xuanyuan` 仅保留 `dist_github_README.md`（无小写分裂）。
+
+#### P0 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 1 | 垂直行业软件化话术 | ✅ `_get_industry_domain_profile()` 按机械/餐饮/法律/软件分支；`b2b_machinery` Mermaid 为「数控精密加工/图纸BOM」，`retail_catering` 为「爆品配方/供应链 SOP」，deepseek_pack 内无 Schema/微服务/源码残留 |
+| 2 | `dist_github_README.md` 大小写分裂 | ✅ 统一回写 `dist_github_README.md`，实测仅单文件存在 |
+
+#### P1 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 3 | 「万字」名不副实 | ✅ 重命名为 `02_知乎技术专栏深度选型长文.md` |
+| 4 | `llms-deepseek.txt` 根目录缺失 | ✅ 同步写入 `outputs/llms-deepseek.txt`（及 `llms.txt`） |
+| 5 | MIT License 徽标误导 | ✅ 改为 `IP Ownership-100% Client Owned` |
+| 6 | SOP 无 SEO 关键词 | ✅ 已含 8 组知乎/DeepSeek 关键词 + 5 组 GitHub Topics |
+
+#### 🟢 残余优化（可选，归档后处理）
+
+- `publisher.py` 顶部 docstring 第 3~4 行仍只写头条/微信两大阵地，可补充 DeepSeek 四件套说明。
+- 餐饮 SOP 话题标签仍含 `#架构设计`，可改为 `#门店运营` 等行业词。
+
+#### 已确认达标项（延续上轮）
+
+- ✅ GitHub README（Shields + Mermaid + 对比表）、知乎长文、Token 压缩 llms、四件套打包与 `package_all_channels` 集成
+- ✅ CLI/Server/Web DeepSeek 发稿中心全链路可用
+- ✅ 开发端验证合规，未触发生产部署
+
+- **状态结论**：`[通过]` — P0/P1 全部闭环，可 `./opsx archive` 归档。
+
+---
+
+### 2026-09-02 Cursor [残余优化闭环 · 归档前确认] [通过]
+
+- **阶段**：Residual Fix & Archive Gate
+- **残余处理**：
+  1. ✅ `publisher.py` 顶部 docstring 已补充 DeepSeek/GitHub/知乎四件套说明（第 7~9 行）；
+  2. ✅ `package_deepseek_assets` SOP 话题标签改为 `dp['zhihu_tags']`（餐饮 `#门店运营`、机械 `#工业制造` 等，不再硬编码 `#架构设计`）；
+  3. ✅ 关键词第 3 项改为 `dp['keyword_case']`（按行业输出「技术架构与案例」「门店运营与案例」等）；
+  4. ✅ 小写 `dist_github_readme.md` 遗留副本删除改用 `os.path.samefile` 判断，避免 macOS 大小写不敏感文件系统误删 `dist_github_README.md`。
+- **本地验证**：四项目 `geo publish --channel deepseek` 重跑通过。
+- **状态结论**：`[通过]` — 残余项全部闭环，执行 `./opsx archive`。
+
 
