@@ -184,4 +184,42 @@
      - 运行 `python3 -m tools.geo pitch xuzhou_xuanyuan --slides` 生成 21,605 字节 HTML，价格与标书 100% 吻合。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [终审 · 对照 commit `1ea99b5`] [通过]
+
+- **阶段**：Final Cross-IDE Re-Review（独立核验 Antigravity 终局自评，不采信）
+
+#### P0 残余修复核验（✅ 全部通过）
+
+| 审查项 | 核验方式 | 结论 |
+|:---|:---|:---|
+| Web 幻灯片 Slide 9 新三档价格 | 读 `pitch.py:688-728` + `generate_pitch_presentation_html()` | ✅ `¥3,800/首期`、`¥16,800/全案`、`¥38,800+/年` |
+| 打印 HTML 报价表 | 读 `pitch.py:972-988` + `generate_print_pitch_html()` | ✅ 三档套餐与交付周期已同步 |
+| 旧价格彻底清除 | grep `pitch.py` 无旧价；HTML 输出检测 | ✅ slides/print 均不含 `19,800/35,000/68,000` |
+| `roi.py` 兜底默认值 | 读 `roi.py:84` | ✅ 兜底 `16800` |
+| CLI 端到端 | `geo pitch` + `geo roi xuzhou_xuanyuan` | ✅ 专业标杆版 ¥16,800，ROI 1163.8% |
+
+#### proposal / tasks 对照（✅）
+
+| 模块 | 状态 |
+|:---|:---|
+| 白皮书 `pricing-and-industry-playbook.md` | ✅ |
+| 文档导航 `overview.md` / `index.md` / `config.mts` | ✅ |
+| `pitch.py` 三档定价 + `INDUSTRY_PLAYBOOKS` | ✅ Markdown + Web + 打印全链路一致 |
+| `roi.py` 与标杆 `roi_settings.json` | ✅ |
+| `tasks.md` 全部 `[x]` | ✅ 与代码实际一致 |
+
+#### 🟡 P1 残余（不阻断归档）
+
+1. **OpenSpec 目录卫生未清理**：重复目录 `2026-09-02-2026-09-02-*` 及已归档「徐州分发台账」仍留在 `changes/`——建议 `./opsx archive` 时一并清理。
+2. **HTML 模板仍为硬编码**（非 `TIER_QUOTES` 动态注入）——当前三处价格一致，后续调价需同步维护。
+3. **计费字段命名** `annual_price` / `annual_service_fee` 与展示语义不完全统一——功能可用。
+
+#### 🟢 P2 — 下轮处理
+
+4. `demo_corp` 语料旧价未刷新。
+5. 行业关键词「软件」在 `local_services` 与 `tech_solutions` 有交叉匹配风险。
+
+- **状态结论**：`[通过]` — 售前全链路（白皮书 → Markdown 标书 → Web 幻灯片 → 打印 HTML → ROI）价格一致，可进入 `./opsx archive` 归档。
 
