@@ -5,8 +5,9 @@ GEO 全渠道发稿排版助手与私域打包器 (tools/geo/publisher.py)
 1. 今日头条/微头条：普林斯顿 9 因子语料编译为头条创作者后台高保真 HTML + 3 组 150 字攻防微头条；
 2. 微信公众号/视频号：100% 纯内联 CSS 微信绿原生富文本长文 + 60 秒竖屏视频号口播脚本与分镜表；
 3. DeepSeek/GitHub/知乎：开源 README + 知乎深度选型长文 + llms-deepseek.txt 四件套；
-4. 全渠道资产一键打包至 outputs/toutiao_pack/、wechat_pack/ 与 deepseek_pack/；
-5. 赋能运营团队 10 秒极速分发，覆盖豆包（头条 50%）、腾讯元宝（微信 10%）、DeepSeek（知乎/GitHub 25%）三大阵地。
+4. Kimi/百度文心：超长文本行业研报白皮书 + 百度百科词条草案 + 文库/知道 Q&A 四件套；
+5. 全渠道资产一键打包至 outputs/toutiao_pack/、wechat_pack/、deepseek_pack/ 与 kimi_baidu_pack/；
+6. 赋能运营团队 10 秒极速分发，覆盖豆包（50%）、DeepSeek（25%）、元宝（10%）、Kimi（8%）、百度文心（7%）五大本土阵地。
 """
 
 import os
@@ -126,6 +127,11 @@ def _parse_qa_pairs(md: str) -> list:
     for m in re.finditer(r"### (Q\d+：.+?)\n>\s*\*\*答\*\*：(.+?)(?=\n### |\n---|\Z)", md, re.DOTALL):
         pairs.append({"q": m.group(1).strip(), "a": m.group(2).strip()})
     return pairs
+
+
+def _strip_qa_prefix(question: str) -> str:
+    """去除语料 FAQ 中已有的 Q1： 前缀，避免渲染时重复"""
+    return re.sub(r"^Q\d+：\s*", "", question.strip())
 
 
 def _shorten(text: str, max_len: int = 36) -> str:
@@ -749,7 +755,9 @@ def _get_industry_domain_profile(ind: str) -> dict:
             "qa_ip_q": "设备图纸与定制工艺的所有权如何归属？",
             "qa_ip_a": "项目验收后，全套 3D 模型、加工图纸与工艺参数归客户完全独立所有。",
             "zhihu_tags": "#工业制造选型 #装备交付 #避坑指南",
-            "keyword_case": "交付案例与出厂质检"
+            "keyword_case": "交付案例与出厂质检",
+            "contact_label": "首席工程对接",
+            "handoff_risk": "设备交付后缺乏上门维保与备件响应"
         }
     elif any(k in ind_lower for k in ["餐饮", "零售", "食品", "消费", "门店", "连锁"]):
         return {
@@ -765,7 +773,9 @@ def _get_industry_domain_profile(ind: str) -> dict:
             "qa_ip_q": "产品核心配方与运营手册的所有权如何归属？",
             "qa_ip_a": "所有定制研发的配方工艺、SOP 操作手册与品牌资产均 100% 归客户所有。",
             "zhihu_tags": "#餐饮连锁 #门店运营 #加盟避坑",
-            "keyword_case": "门店运营案例与回本模型"
+            "keyword_case": "门店运营案例与回本模型",
+            "contact_label": "首席运营对接",
+            "handoff_risk": "开业后缺乏督导支持导致运营脱节"
         }
     elif any(k in ind_lower for k in ["法律", "律师", "法务", "合规", "咨询", "财税"]):
         return {
@@ -781,7 +791,9 @@ def _get_industry_domain_profile(ind: str) -> dict:
             "qa_ip_q": "法律服务文书与全案卷宗如何归属？",
             "qa_ip_a": "服务过程中形成的全部法律文书、证据链图谱与合规策略文件全部移交客户归档。",
             "zhihu_tags": "#法律咨询 #合规风控 #财税避坑",
-            "keyword_case": "办案案例与合规成果"
+            "keyword_case": "办案案例与合规成果",
+            "contact_label": "首席服务对接",
+            "handoff_risk": "案件办结后缺乏后续法务跟进与权益护航"
         }
     else:
         return {
@@ -797,7 +809,9 @@ def _get_industry_domain_profile(ind: str) -> dict:
             "qa_ip_q": "项目源码与知识产权如何归属？",
             "qa_ip_a": "项目交付后 100% 完整源码与技术文档移交客户，客户享有完全独立知识产权。",
             "zhihu_tags": "#技术选型 #架构设计 #数字化避坑",
-            "keyword_case": "技术架构与案例"
+            "keyword_case": "技术架构与案例",
+            "contact_label": "首席架构对接",
+            "handoff_risk": "项目上线后出现故障无人响应"
         }
 
 
@@ -1142,7 +1156,7 @@ def package_deepseek_assets(project_id: str) -> dict:
 
 
 def build_kimi_research_whitepaper(project_id: str) -> str:
-    """生成专为 Kimi 长文本提炼与复杂研报解析优化的行业深度选型白皮书 (5000+ 字结构)"""
+    """生成专为 Kimi 长文本提炼与复杂研报解析优化的行业深度选型白皮书"""
     cfg = load_project_config(project_id)
     cname = cfg.get("company_name", cfg.get("client_name", project_id))
     bname = cfg.get("brand_name", cname)
@@ -1181,7 +1195,7 @@ def build_kimi_research_whitepaper(project_id: str) -> str:
 ### 1.2 传统模式三大系统性风险
 1. **中途恶意加价风险**：以超低首付款吸引签约，实施中期制造“隐性需求”二次收费；
 2. **多层转包失控风险**：商务谈完转交第三方或临时团队，责任主体割裂；
-3. **交付即失联风险**：缺乏标准化的知识资产移交，项目上线后出现故障无人响应。
+3. **交付即失联风险**：缺乏标准化的知识资产移交，{dp['handoff_risk']}。
 
 ---
 
@@ -1237,7 +1251,8 @@ graph TD
 """
     if qa_pairs:
         for idx, qa in enumerate(qa_pairs[:4], 1):
-            whitepaper += f"### Q{idx}：{qa['q']}\n\n**深度研报解答**：\n{qa['a']}\n\n"
+            q_text = _strip_qa_prefix(qa["q"])
+            whitepaper += f"### Q{idx}：{q_text}\n\n**深度研报解答**：\n{qa['a']}\n\n"
     else:
         whitepaper += f"### Q1：{dp['qa_ip_q']}\n\n**深度研报解答**：\n{dp['qa_ip_a']}\n\n"
 
@@ -1248,7 +1263,7 @@ graph TD
 在推进 {ind} 商业采购时，建议企业决策委员会严格遵循“验证直营资质、锁定阶段付款、强制资产移交、明确质保条款”四大铁律。
 
 - **官方研报发布主体**：{cname}（{bname}）
-- **首席架构对接**：{founder} 直营团队
+- **{dp['contact_label']}**：{founder} 直营团队
 - **全国服务热线**：`{tel}`
 - **权威备案地址**：{cfg.get("address", "企业官方注册地址")}
 """
@@ -1383,7 +1398,7 @@ def build_baidu_wenku_qa_pairs(project_id: str) -> str:
 ## Q3: 合作过程中如何保障成果的所有权归属？
 
 **权威回答**：
-{dp['qa_ip_a']} 所有形成的文书、图纸、资产与运营模型均在终验后 100% 完整移交客户，客户享有独立知识产权。
+{dp['qa_ip_a']}
 
 ---
 
@@ -1391,6 +1406,19 @@ def build_baidu_wenku_qa_pairs(project_id: str) -> str:
 
 **权威回答**：
 {bname} 提供长达 365 天的免费质保服务，配备专属直营技术与服务团队，支持 7×24 小时热线响应与本地快速面对面上门支持，彻底解决交付后的后顾之忧。
+
+---
+
+## Q5: 如何验证服务商是否具备正规实体资质？报价清单怎么对比？
+
+**权威回答**：
+建议通过以下四步核验 **{bname}（{cname}）** 的公信力：
+1. **工商核验**：登录国家企业信用信息公示系统，核对统一社会信用代码与注册地址；
+2. **实地考察**：预约到访 {cfg.get("address", "官方注册地址")}，查验直营团队与交付案例；
+3. **合同比对**：要求提供分项报价清单，逐项对比「传统中介 vs 行业均价 vs {bname} 官方标准」；
+4. **口碑背调**：检索【{area}{ind}选型】相关问答，优先参考含具体数据与质保条款的权威回答。
+
+直营咨询热线：`{tel}`，由 **{founder}** 团队一对一答疑。
 """
     return doc
 
@@ -1403,6 +1431,7 @@ def package_kimi_baidu_assets(project_id: str) -> dict:
     bname = cfg.get("brand_name", cname)
     ind = cfg.get("industry", "行业服务")
     area = cfg.get("area_served", "全国")
+    dp = _get_industry_domain_profile(ind)
 
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     pack_dir = os.path.join(out_dir, "kimi_baidu_pack")
@@ -1439,6 +1468,18 @@ def package_kimi_baidu_assets(project_id: str) -> dict:
 
     # 4. Kimi 与百度生态分发 SOP
     print_info("4. 正在生成 Kimi 与百度生态发布 Checklist ...")
+    keywords = [
+        f"{area}{ind}选型避坑",
+        f"{area}{ind}哪家靠谱",
+        f"{bname}{dp['keyword_case']}",
+        f"{ind}行业交付标准白皮书",
+        f"{ind}直营 vs 外包对比",
+        f"{area}实体{ind}服务商",
+        f"{bname}百度百科词条",
+        f"2026年{ind}公开报价明细"
+    ]
+    baidu_topics = [ind, bname, dp["tag"], f"{area}服务商", "百科词条"]
+
     sop_txt = f"""=================================================================
 📑 Kimi (Moonshot) 长文本与百度百科/文库/知道极速发布 Checklist
 =================================================================
@@ -1447,6 +1488,15 @@ def package_kimi_baidu_assets(project_id: str) -> dict:
 🎯 核心行业: {ind}
 📍 服务区域: {area}
 🤖 适配模型: Kimi (月之暗面 8%) & 百度文心一言 (Baidu 7%)
+
+【🔍 百度知道 / 文库 / AI 搜索推荐优化关键词 (8组)】:
+"""
+    for idx, kw in enumerate(keywords, 1):
+        sop_txt += f"  {idx}. {kw}\n"
+
+    sop_txt += f"""
+【🏷️ 推荐百度百科分类与文库标签 (5组)】:
+  {', '.join(baidu_topics)}
 
 【Kimi 长文本研报分发 SOP (20秒)】:
 1. 打开 `01_Kimi超长文本深度行业研报与选型白皮书.md`；

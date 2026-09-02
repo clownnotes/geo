@@ -29,7 +29,7 @@
          ├── 01_Kimi超长文本深度行业研报与选型白皮书.md (同步回写 outputs/dist_kimi_whitepaper.md)
          ├── 02_百度百科词条标准草案与基本信息表.md (同步回写 outputs/dist_baidu_baike.md)
          ├── 03_百度文库与百度知道高权威QA对.md
-         └── 04_Kimi与百度文发生态分发SOP.txt
+         └── 04_Kimi与百度生态分发SOP.txt
 ```
 
 ---
