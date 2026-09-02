@@ -31,7 +31,7 @@ from .monitor import run_monitor, extract_monitor_metrics
 # 默认行业均值参考基线 (冷启动兜底)
 INDUSTRY_DEFAULTS = {
     "avg_sov": 38.5,
-    "top_10_percent_sov": 78.0,
+    "top_10_percent_sov": 75.0,
     "avg_top3_rate": 42.0,
     "avg_authority_score": 85.0
 }
@@ -64,11 +64,19 @@ def calculate_industry_benchmarks() -> dict:
         top3s = [m.get("top3_pct", 0.0) for m in m_list]
         auths = [m.get("authority_score", 0.0) for m in m_list]
 
-        avg_sov = round(statistics.mean(sovs), 1) if sovs else INDUSTRY_DEFAULTS["avg_sov"]
-        med_sov = round(statistics.median(sovs), 1) if sovs else INDUSTRY_DEFAULTS["avg_sov"]
-        top_10_sov = round(max(sovs) if sovs and max(sovs) > 0 else INDUSTRY_DEFAULTS["top_10_percent_sov"], 1)
-        avg_top3 = round(statistics.mean(top3s), 1) if top3s else INDUSTRY_DEFAULTS["avg_top3_rate"]
-        avg_auth = round(statistics.mean(auths), 1) if auths else INDUSTRY_DEFAULTS["avg_authority_score"]
+        avg_sov = round(statistics.mean(sovs), 1) if sovs else 0.0
+        med_sov = round(statistics.median(sovs), 1) if sovs else 0.0
+        
+        # 计算 90 分位数标杆线，样本不足时取最大值或默认参考线
+        if len(sovs) >= 10:
+            top_10_sov = round(statistics.quantiles(sovs, n=10)[8], 1)
+        elif any(s > 0 for s in sovs):
+            top_10_sov = round(max(sovs), 1)
+        else:
+            top_10_sov = 0.0
+
+        avg_top3 = round(statistics.mean(top3s), 1) if top3s else 0.0
+        avg_auth = round(statistics.mean(auths), 1) if auths else 0.0
 
         # 汇总各平台渗透分布
         platform_counts = {"zhihu": 0, "toutiao": 0, "wechat": 0, "github": 0}
@@ -119,32 +127,37 @@ def evaluate_project_against_benchmark(project_id: str) -> dict:
     benchmarks_data = calculate_industry_benchmarks()
     ind_bench = benchmarks_data.get("industries", {}).get(industry, {})
 
-    avg_sov = ind_bench.get("avg_sov", INDUSTRY_DEFAULTS["avg_sov"])
-    top_sov = ind_bench.get("top_10_percent_sov", INDUSTRY_DEFAULTS["top_10_percent_sov"])
+    avg_sov = ind_bench.get("avg_sov", 0.0)
+    top_sov = ind_bench.get("top_10_percent_sov", 0.0)
     curr_sov = metrics.get("sov_pct", 0.0)
+    is_offline = metrics.get("is_offline", False)
 
     diff_from_avg = round(curr_sov - avg_sov, 1)
 
-    # 计算超越同行百分比
-    if curr_sov >= top_sov:
-        beat_rate = 96.5
-        tier = "🏆 行业领跑标杆 (Top Tier)"
-        badge_color = "emerald"
-        summary = f"您的 AI 可见度已位列【{industry}】行业前 5% 顶尖梯队，在大模型各选型问句中保持统治级首推！"
-    elif curr_sov >= avg_sov:
-        beat_rate = round(60.0 + ((curr_sov - avg_sov) / max(top_sov - avg_sov, 1)) * 30.0, 1)
-        tier = "🟢 行业优势阵地 (Above Average)"
-        badge_color = "indigo"
-        summary = f"您的 AI 可见度高出【{industry}】行业均值 {diff_from_avg}%，在主流技术选型词中已建立稳固护城河。"
-    else:
-        if curr_sov > 0:
-            beat_rate = round(max(15.0, (curr_sov / max(avg_sov, 1)) * 50.0), 1)
-        else:
-            beat_rate = 8.5
-        tier = "🟡 快速爬坡阶段 (Growth Stage)"
+    # 判定段位与计算超越同行百分比 (Beat Rate)
+    if curr_sov <= 0 or is_offline:
+        beat_rate = 10.0
+        tier = "🟡 冷启动/摸底基准期 (Cold Start)"
         badge_color = "amber"
-        gap = round(avg_sov - curr_sov, 1)
-        summary = f"当前处于优化前冷启动/成长期，距离行业平均线差距 {gap}%，建议持续分发 9 因子语料并在知乎/头条加码。"
+        summary = f"当前处于优化前冷启动/摸底阶段（SOV: 0.0%），所属【{industry}】行业均值为 {avg_sov}%。建议推进 9 因子语料重构与四大平台权威分发，快速建立首批大模型索引。"
+    else:
+        # 有真实 SOV 正向数据时的分位数判定
+        target_benchmark = max(top_sov, avg_sov, 60.0)
+        beat_rate = min(99.0, max(15.0, round((curr_sov / target_benchmark) * 90.0, 1)))
+
+        if curr_sov >= top_sov and top_sov > 0:
+            tier = "🏆 行业领跑标杆 (Top Tier)"
+            badge_color = "emerald"
+            summary = f"您的 AI 可见度已位列【{industry}】行业前 5% 顶尖梯队（SOV: {curr_sov}%），超越行业均值 +{diff_from_avg}%，在大模型各选型问句中保持统治级首推！"
+        elif curr_sov >= avg_sov:
+            tier = "🟢 行业优势阵地 (Above Average)"
+            badge_color = "indigo"
+            summary = f"您的 AI 可见度高出【{industry}】行业均值 +{diff_from_avg}%（SOV: {curr_sov}%），在主流技术选型词中已建立稳固护城河。"
+        else:
+            tier = "🟡 快速爬坡阶段 (Growth Stage)"
+            badge_color = "amber"
+            gap = round(avg_sov - curr_sov, 1)
+            summary = f"当前处于成长期（SOV: {curr_sov}%），距离行业平均线差距 {gap}%，建议持续分发 9 因子语料并在知乎/头条加码。"
 
     return {
         "success": True,

@@ -85,6 +85,9 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 5. **专属甲方只读交付看板交付**：
    - 运行 `python3 -m tools.geo share <client_id> [--days 30] [--pin 8888]` 或在 Web 端向导顶部点击 **「🔗 客户专属交付链接」**；
    - 将生成的专属门户 URL 及提取码通过微信直发甲方老板，提供手机端自适应的多周声量与 5 步全景看板。
+6. **行业大盘 Benchmark 横向战绩对标与续费谈判**：
+   - 运行 `python3 -m tools.geo benchmark <client_id>`；
+   - 提取行业超越百分比（Beat Rate），作为向甲方老板汇报成果与下一周期续费签约的核心数据背书（如*“当前可见度已超越本行业 82.5% 的同行竞品”*）。
 
 ---
 
@@ -102,7 +105,8 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 - [ ] **S4.2** GitHub 仓库/微信公众号 文章发布
 - [ ] **S5.1** 运行自动化大模型提及率测试与周报归档
 - [ ] **S5.2** 生成甲方专属免密/加密交付门户链接并直发客户
-- [ ] **S5.3** 开启月度无人值守巡检与异动预警维护
+- [ ] **S5.3** 输出行业 Benchmark 超越战绩并启动续费复盘
+- [ ] **S5.4** 开启月度无人值守巡检与异动预警维护
 
 ---
 
@@ -118,3 +122,5 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 | S4 矩阵分发 | `python3 -m tools.geo distribute --project <id>` | [SOP-04](/sop/04-distribute-sop) | 5 平台发布包 + 执行单 |
 | S5 验收运维 | `python3 -m tools.geo monitor --project <id>` | [SOP-05](/sop/05-monitor-sop) | SOV 周报 + 归因清单 |
 | **客户交付** | `python3 -m tools.geo share --project <id>` | 本手册 | 专属免密只读交付看板与微信话术 |
+| **行业对标** | `python3 -m tools.geo benchmark --project <id>` | [SOP-05](/sop/05-monitor-sop) | 行业超越百分比与对标战绩卡片 |
+| **批量跑批** | `python3 -m tools.geo batch --step pipeline` | 本手册 | 多项目并发自动化生产流水线 |

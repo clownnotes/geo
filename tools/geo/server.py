@@ -15,6 +15,7 @@ import sys
 import json
 import time
 import uuid
+import secrets
 import zipfile
 import io
 import shutil
@@ -457,17 +458,38 @@ core_values:
             industry = body.get("industry", "").strip() or None
             target_ids = body.get("target_ids", "all")
             max_workers = int(body.get("max_workers", 4))
+            task_id = f"batch_{int(time.time())}_{secrets.token_hex(4)}"
+            
+            # 计算目标总数
+            target_count = 0
+            if os.path.exists(PROJECTS_DIR):
+                for item in os.listdir(PROJECTS_DIR):
+                    if not item.startswith(".") and item != "_template":
+                        p_dir = os.path.join(PROJECTS_DIR, item)
+                        if os.path.isdir(p_dir):
+                            if not industry:
+                                target_count += 1
+                            else:
+                                try:
+                                    cfg = load_project_config(item)
+                                    if cfg.get("industry") == industry:
+                                        target_count += 1
+                                except Exception:
+                                    pass
+
             from .benchmark import run_batch_pipeline
             def _run_batch():
                 try:
                     run_batch_pipeline(target_ids=target_ids, industry=industry, step=step, max_workers=max_workers)
                 except Exception as err:
-                    print(f"后台批量生产异常: {err}")
+                    print(f"后台批量生产异常 [{task_id}]: {err}")
             import threading
             threading.Thread(target=_run_batch, daemon=True).start()
             self.send_json({
                 "success": True,
-                "message": f"批量并发任务已在后台启动（阶段: {step} ｜ 并发度: {max_workers}）！"
+                "task_id": task_id,
+                "total": target_count,
+                "message": f"批量并发任务 [{task_id}] 已在后台启动（目标: {target_count} 个项目 ｜ 阶段: {step} ｜ 并发度: {max_workers}）！"
             })
             return
 

@@ -243,6 +243,9 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     try:
         from .benchmark import evaluate_project_against_benchmark
         bench_eval = evaluate_project_against_benchmark(project_id)
+        if isinstance(bench_eval, dict):
+            bench_eval = dict(bench_eval)
+            bench_eval.pop("project_id", None)
     except Exception:
         bench_eval = {}
 
