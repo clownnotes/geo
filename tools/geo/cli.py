@@ -231,6 +231,7 @@ def main():
     p_grp.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_grp.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_grp.add_argument("--export", choices=["cypher", "jsonld", "svg"], default=None, help="特定格式输出")
+    p_grp.add_argument("--query", "-q", default=None, help="长尾多跳子图推理检索关键词")
 
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
@@ -488,8 +489,16 @@ def main():
         print(f"📄 拓扑文档: outputs/{res['filename']}")
         print(f"🎨 高清矢量拓扑图: outputs/10_实体知识图谱拓扑图.svg")
         print("="*65 + "\n")
-        exp = getattr(args, "export", None)
-        if exp == "cypher":
+        query_kw = getattr(args, "query", None)
+        if query_kw:
+            from .graph import query_entity_subgraph
+            q_res = query_entity_subgraph(pid, query_kw)
+            print(f"🔍 关键词【{query_kw}】多跳子图检索结果 (命中节点: {q_res['matched_node_count']}, 子图节点: {q_res['subgraph_node_count']}, 关系链: {q_res['subgraph_edge_count']}):")
+            for chain in q_res.get("reasoning_chains", []):
+                flag = "🎯 [直接命中]" if chain["is_direct_hit"] else "🔗 [2跳关联]"
+                print(f"  {flag} {chain['subject']} --[{chain['predicate']}]--> {chain['object']}")
+            print()
+        elif exp == "cypher":
             print(res["cypher_script"])
         elif exp == "jsonld":
             print(json.dumps(res["jsonld_graph"], ensure_ascii=False, indent=2))

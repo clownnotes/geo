@@ -1050,6 +1050,26 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 15. 专属甲方知识图谱多跳子图检索公开 API: /api/share/{token}/graph/query
+        if path.startswith("/api/share/") and path.endswith("/graph/query"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            kw = parse_qs(parsed.query).get("q", [""])[0] or parse_qs(parsed.query).get("keyword", [""])[0]
+            try:
+                from .graph import query_entity_subgraph
+                res = query_entity_subgraph(project_id, kw)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
             token = self.get_auth_token()
@@ -1364,6 +1384,18 @@ core_values:
                     self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
                     self.end_headers()
                     self.wfile.write(body_bytes)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 知识图谱多跳子图推理检索: /api/projects/{id}/graph/query
+            if path.startswith("/api/projects/") and path.endswith("/graph/query"):
+                project_id = path.split("/")[3]
+                kw = parse_qs(parsed.query).get("q", [""])[0] or parse_qs(parsed.query).get("keyword", [""])[0]
+                try:
+                    from .graph import query_entity_subgraph
+                    res = query_entity_subgraph(project_id, kw)
+                    self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

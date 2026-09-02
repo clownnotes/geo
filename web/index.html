@@ -435,6 +435,10 @@
             <p class="text-xs text-slate-500 mt-1">注入三元组结论先行、+41% 采纳率的参数对比表与搜索意图 Q&A 问答对。</p>
           </div>
           <div class="flex items-center gap-3">
+            <button onclick="openGraphModal()" class="py-2.5 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="network" class="w-4 h-4 text-indigo-600"></i>
+              <span>🕸️ 实体知识图谱</span>
+            </button>
             <button onclick="openVisualModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-2 transition">
               <i data-lucide="palette" class="w-4 h-4"></i>
               <span>🎨 多模态视觉与视频资产</span>
@@ -1913,9 +1917,25 @@
 
       <div class="p-6 space-y-4 overflow-y-auto text-xs text-slate-600 flex-1">
         <!-- 动态 SVG 拓扑画布视窗 -->
-        <div class="rounded-xl overflow-hidden border border-slate-800 shadow-inner bg-[#090d16] flex items-center justify-center min-h-[380px]">
+        <div class="rounded-xl overflow-hidden border border-slate-800 shadow-inner bg-[#090d16] flex items-center justify-center min-h-[360px]">
           <div id="graph-svg-container" class="w-full h-full flex items-center justify-center p-2">
             <div class="text-slate-500 text-xs animate-pulse">正在生成知识图谱拓扑网络...</div>
+          </div>
+        </div>
+
+        <!-- 交互式长尾实体检索与 2-Hop 多跳因果推理 -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 flex-1">
+              <i data-lucide="search" class="w-4 h-4 text-indigo-600 shrink-0"></i>
+              <input id="graph-search-input" oninput="handleGraphSearchInput()" type="text" placeholder="输入关键词（如: 小程序 / RAG / 源码 / Flutter / 泉山）实时推演 2-Hop 因果推理链..." class="w-full text-xs px-3 py-1.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <button onclick="handleGraphSearchInput()" class="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs shrink-0 transition">
+              推演推理链
+            </button>
+          </div>
+          <div id="graph-reasoning-chains" class="max-h-[140px] overflow-y-auto space-y-1.5 text-[11px] font-mono">
+            <!-- 动态注入推理链路 -->
           </div>
         </div>
 
@@ -4272,9 +4292,45 @@
           if (document.getElementById('graph-stat-std')) document.getElementById('graph-stat-std').textContent = std;
           if (document.getElementById('graph-stat-cred')) document.getElementById('graph-stat-cred').textContent = cred;
           if (document.getElementById('graph-stat-reg')) document.getElementById('graph-stat-reg').textContent = reg;
+          // 默认展示初始三元组
+          handleGraphSearchInput();
         }
       } catch (err) {
         console.error('加载知识图谱异常:', err);
+      }
+    }
+
+    async function handleGraphSearchInput() {
+      if (!currentProjectId) return;
+      const inputEl = document.getElementById('graph-search-input');
+      const kw = inputEl ? inputEl.value.trim() : '';
+      const box = document.getElementById('graph-reasoning-chains');
+      if (!box) return;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/graph/query?q=${encodeURIComponent(kw)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.reasoning_chains && d.reasoning_chains.length > 0) {
+          box.innerHTML = d.reasoning_chains.map(c => `
+            <div class="flex items-center justify-between p-1.5 rounded bg-white border ${c.is_direct_hit ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200'}">
+              <div class="flex items-center gap-1.5">
+                <span class="px-1.5 py-0.2 rounded text-[9px] font-bold ${c.is_direct_hit ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+                  ${c.is_direct_hit ? '🎯 直接命中' : '🔗 2跳推理'}
+                </span>
+                <span class="font-bold text-slate-900">${c.subject}</span>
+                <span class="text-indigo-600">--[${c.predicate}]--></span>
+                <span class="font-semibold text-slate-800">${c.object}</span>
+              </div>
+              <span class="text-[10px] text-slate-400">${c.relation_code}</span>
+            </div>
+          `).join('');
+        } else {
+          box.innerHTML = `<div class="text-slate-400 py-2 text-center">未检索到关联实体关系链</div>`;
+        }
+      } catch (e) {
+        console.error('查询子图异常:', e);
       }
     }
 

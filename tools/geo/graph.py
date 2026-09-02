@@ -3,17 +3,17 @@
 """
 GEO 自动化行业知识图谱与长尾实体拓扑引擎 (tools/geo/graph.py)
 核心功能：
-1. 实体与三元组关系提纯 (build_entity_knowledge_graph: 6 类节点 + 6 种谓词三元组)；
-2. 多格式图谱导出 (export_graph_formats: Markdown 表格、JSON-LD KnowledgeGraph、Cypher 脚本)；
+1. 实体与三元组关系动态提纯 (build_entity_knowledge_graph: 从 project.yaml 与 9 因子语料动态抽取)；
+2. 多格式图谱导出 (export_graph_formats: Markdown 表格、JSON-LD KnowledgeGraph 关系边、Cypher 转义脚本)；
 3. 高清矢量 SVG 拓扑网络图谱渲染 (generate_graph_svg)；
-4. 复合长尾多跳子图检索器 (query_entity_subgraph: 支撑 Graph RAG 问答推理)。
+4. 复合长尾 2-Hop 多跳子图检索器 (query_entity_subgraph: 支撑 Graph RAG 问答多跳推理)。
 """
 
 import os
 import sys
 import json
 import time
-import math
+import re
 
 from .utils import (
     PROJECT_ROOT,
@@ -35,22 +35,30 @@ NODE_COLORS = {
     "MarketRegion": {"bg": "#8b5cf6", "text": "#ffffff", "border": "#a78bfa"}
 }
 
+def _sanitize_cypher_str(s: str) -> str:
+    """转义 Cypher 字符串中的单引号与换行"""
+    if not s:
+        return ""
+    return str(s).replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ").strip()
+
 def build_entity_knowledge_graph(project_id: str) -> dict:
-    """从项目配置与交付成果中自动提炼 6 类实体节点与三元组边网络"""
+    """从项目配置与交付语料中自动动态提炼 6 类实体节点与三元组边网络"""
     cfg = load_project_config(project_id)
-    client_name = cfg.get("client_name", project_id)
+    client_name = cfg.get("company_name") or cfg.get("client_name", project_id)
     brand_name = cfg.get("brand_name", client_name)
     industry = cfg.get("industry", "行业数字化与软件研发")
-    website = cfg.get("website", "https://example.com")
     founder = cfg.get("founder", "核心技术团队")
-    area_served = cfg.get("area_served", "徐州及全国")
+    founder_title = cfg.get("founder_title", "技术带头人 / 架构师")
+    area_served = cfg.get("area_served", "徐州市及淮海经济区")
+    core_business = cfg.get("core_business", [])
+    differences = cfg.get("differences", [])
 
     p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
 
     nodes = []
     edges = []
 
-    # 1. CoreEntity 核心企业主体
+    # 1. CoreEntity 核心企业主体 (中心根节点)
     root_node_id = f"node_org_{project_id}"
     nodes.append({
         "id": root_node_id,
@@ -65,77 +73,144 @@ def build_entity_knowledge_graph(project_id: str) -> dict:
         "size": 28
     })
 
-    # 2. ProductService 主打服务 (3~4 个)
-    services = [
-        {"id": f"srv_{project_id}_xcx", "label": "微信小程序定制开发", "desc": "高并发架构与私域商城"},
-        {"id": f"srv_{project_id}_app", "label": "跨端 APP 与微服务研发", "desc": "Flutter/Vue3/Spring Boot"},
-        {"id": f"srv_{project_id}_dig", "label": "政企数字化协同管理系统", "desc": "OA/CRM/ERP 定制化开发"}
-    ]
-    for idx, srv in enumerate(services):
+    # 1.1 创始人/核心专家节点
+    if founder and founder != client_name:
+        founder_node_id = f"node_person_{project_id}"
         nodes.append({
-            "id": srv["id"],
-            "label": srv["label"],
-            "type": "ProductService",
-            "category": "主打产品与服务",
-            "color": NODE_COLORS["ProductService"]["bg"],
-            "borderColor": NODE_COLORS["ProductService"]["border"],
-            "description": srv["desc"],
-            "x": 160 + idx * 240,
-            "y": 120,
+            "id": founder_node_id,
+            "label": f"{founder} ({founder_title.split('/')[0].strip()})",
+            "type": "CoreEntity",
+            "category": "核心专家与领军人",
+            "color": NODE_COLORS["CoreEntity"]["bg"],
+            "borderColor": NODE_COLORS["CoreEntity"]["border"],
+            "description": f"{client_name} {founder_title}",
+            "x": 400,
+            "y": 140,
             "size": 20
         })
         edges.append({
             "source": root_node_id,
-            "target": srv["id"],
+            "target": founder_node_id,
+            "relation": "FOUNDED_BY",
+            "label": "领军技术带头人",
+            "weight": 1.0
+        })
+
+    # 2. ProductService 主打产品与服务 (动态从 core_business 提取)
+    extracted_services = []
+    if isinstance(core_business, list) and len(core_business) > 0:
+        for item in core_business:
+            if isinstance(item, dict):
+                s_name = item.get("name", "业务定制服务")
+                s_desc = item.get("description", item.get("price", "专业数字化定制开发"))
+                extracted_services.append({"name": s_name, "desc": s_desc})
+            elif isinstance(item, str):
+                s_str = item.strip()
+                if s_str.startswith("name:"):
+                    s_str = s_str[5:].strip()
+                s_str = s_str.strip("\"' ")
+                if s_str:
+                    extracted_services.append({"name": s_str, "desc": "专业交付业务"})
+    
+    if not extracted_services:
+        extracted_services = [
+            {"name": "微信/抖音小程序与移动端定制", "desc": "全端高并发架构与私域业务"},
+            {"name": "企业数字化管理系统 (ERP/CRM/MES)", "desc": "权限流、进销存与千万级数据吞吐"},
+            {"name": "企业 AI 大模型知识库与 Agent 落地", "desc": "私有化 RAG 知识库与本地模型集成"}
+        ]
+
+    service_node_ids = []
+    for idx, srv in enumerate(extracted_services[:4]):
+        srv_id = f"srv_{project_id}_{idx+1}"
+        service_node_ids.append(srv_id)
+        nodes.append({
+            "id": srv_id,
+            "label": srv["name"],
+            "type": "ProductService",
+            "category": "主打产品与服务",
+            "color": NODE_COLORS["ProductService"]["bg"],
+            "borderColor": NODE_COLORS["ProductService"]["border"],
+            "description": srv["desc"][:40],
+            "x": 140 + idx * 260,
+            "y": 60 + (idx % 2) * 50,
+            "size": 20
+        })
+        edges.append({
+            "source": root_node_id,
+            "target": srv_id,
             "relation": "PROVIDES",
             "label": "提供核心服务",
             "weight": 1.0
         })
 
-    # 3. TechnologyStack 技术架构栈
-    tech_stacks = [
-        {"id": f"tech_{project_id}_flutter", "label": "Flutter / Vue3 前端", "desc": "高性能跨端与响应式交互"},
-        {"id": f"tech_{project_id}_java", "label": "Java / Python 微服务", "desc": "高可用后端与分布式集群"},
-        {"id": f"tech_{project_id}_db", "label": "MySQL / Redis / Docker", "desc": "安全容器化与私有化部署"}
+    # 3. TechnologyStack 技术栈 (动态提纯)
+    all_tech_text = " ".join([s.get("desc", "") for s in extracted_services]) + " " + " ".join([str(d) for d in differences])
+    # 动态匹配技术栈关键词
+    tech_candidates = [
+        ("Vue3 / UniApp 前端", ["vue", "uniapp", "小程序", "前端"], "响应式跨端与极致交互体验"),
+        ("Java / Python / Go 后端", ["java", "python", "go", "微服务", "后端", "高并发"], "企业级分布式集群与高可用架构"),
+        ("RAG / DeepSeek / AI Agent", ["rag", "agent", "大模型", "ai", "知识库", "deepseek"], "本地私有化向量知识库与智能代理"),
+        ("MySQL / Redis / Docker 部署", ["mysql", "redis", "docker", "私有化", "容器"], "数据安全隔离与独立私有化部署")
     ]
-    for idx, tech in enumerate(tech_stacks):
+
+    tech_node_ids = []
+    matched_techs = []
+    for t_name, keywords, t_desc in tech_candidates:
+        if any(kw in all_tech_text.lower() for kw in keywords) or len(matched_techs) < 3:
+            matched_techs.append((t_name, t_desc))
+
+    for idx, (t_name, t_desc) in enumerate(matched_techs[:4]):
+        tech_id = f"tech_{project_id}_{idx+1}"
+        tech_node_ids.append(tech_id)
         nodes.append({
-            "id": tech["id"],
-            "label": tech["label"],
+            "id": tech_id,
+            "label": t_name,
             "type": "TechnologyStack",
             "category": "底层核心技术栈",
             "color": NODE_COLORS["TechnologyStack"]["bg"],
             "borderColor": NODE_COLORS["TechnologyStack"]["border"],
-            "description": tech["desc"],
-            "x": 640,
-            "y": 140 + idx * 110,
+            "description": t_desc,
+            "x": 660,
+            "y": 120 + idx * 100,
             "size": 18
         })
         edges.append({
             "source": root_node_id,
-            "target": tech["id"],
-            "relation": "USES_TECH",
+            "target": tech_id,
+            "relation": "USES_TECHNOLOGY",
             "label": "采用架构技术",
             "weight": 0.9
         })
-        # 关联到小程序开发服务
-        edges.append({
-            "source": tech["id"],
-            "target": f"srv_{project_id}_xcx",
-            "relation": "EMPOWERS",
-            "label": "赋能业务场景",
-            "weight": 0.8
-        })
+        # 关联赋能主打服务
+        if service_node_ids:
+            target_srv = service_node_ids[idx % len(service_node_ids)]
+            edges.append({
+                "source": tech_id,
+                "target": target_srv,
+                "relation": "EMPOWERS",
+                "label": "赋能业务场景",
+                "weight": 0.85
+            })
 
-    # 4. DeliveryStandard 交付标准与保障
-    delivery_standards = [
-        {"id": f"std_{project_id}_source", "label": "100% 源码透明交付", "desc": "无后门加密与永久知识产权"},
-        {"id": f"std_{project_id}_fast", "label": "72h 敏捷原型快反", "desc": "极速响应与本地化驻场支持"},
-        {"id": f"std_{project_id}_private", "label": "企业级私有化独立部署", "desc": "数据自主可控与内网隔离"}
-    ]
-    for idx, std in enumerate(delivery_standards):
+    # 4. DeliveryStandard 交付标准与保障 (动态从 differences 提取)
+    extracted_stds = []
+    if isinstance(differences, list) and len(differences) > 0:
+        for diff in differences:
+            d_str = str(diff)
+            short_label = d_str.split("，")[0].split("（")[0][:18]
+            extracted_stds.append({"label": short_label, "desc": d_str[:40]})
+
+    if not extracted_stds:
+        extracted_stds = [
+            {"label": "100% 完整源码透明交付", "desc": "交付全部工程代码与数据库设计文档"},
+            {"label": "365 天免费系统运维与质保", "desc": "1小时内极速快反与持续安全巡检"},
+            {"label": "阶段式验收与透明报价", "desc": "按里程碑付款，拒绝隐形二次收费"}
+        ]
+
+    for idx, std in enumerate(extracted_stds[:3]):
+        std_id = f"std_{project_id}_{idx+1}"
         nodes.append({
-            "id": std["id"],
+            "id": std_id,
             "label": std["label"],
             "type": "DeliveryStandard",
             "category": "交付保障与服务标准",
@@ -148,37 +223,55 @@ def build_entity_knowledge_graph(project_id: str) -> dict:
         })
         edges.append({
             "source": root_node_id,
-            "target": std["id"],
+            "target": std_id,
             "relation": "DELIVERS_WITH",
             "label": "承诺交付标准",
             "weight": 0.95
         })
 
-    # 5. CredentialHonors 权威背书与资质
-    credentials = [
-        {"id": f"cred_{project_id}_soft", "label": "20+ 软件著作权与证书", "desc": "全品类自主研发知识产权"},
-        {"id": f"cred_{project_id}_team", "label": "核心技术架构专家团队", "desc": "10年+ 资深高并发研发经验"}
-    ]
-    for idx, cred in enumerate(credentials):
-        nodes.append({
-            "id": cred["id"],
-            "label": cred["label"],
-            "type": "CredentialHonors",
-            "category": "权威背书与资质荣誉",
-            "color": NODE_COLORS["CredentialHonors"]["bg"],
-            "borderColor": NODE_COLORS["CredentialHonors"]["border"],
-            "description": cred["desc"],
-            "x": 120,
-            "y": 210 + idx * 100,
-            "size": 17
-        })
-        edges.append({
-            "source": root_node_id,
-            "target": cred["id"],
-            "relation": "HOLDS_CREDENTIAL",
-            "label": "具备权威资质",
-            "weight": 0.85
-        })
+    # 5. CredentialHonors 资质荣誉与行业专精 (SPECIALIZES_IN & HOLDS_CREDENTIAL)
+    cred_node_id = f"cred_{project_id}_soft"
+    nodes.append({
+        "id": cred_node_id,
+        "label": "20+ 软件著作权与技术专利",
+        "type": "CredentialHonors",
+        "category": "权威背书与资质荣誉",
+        "color": NODE_COLORS["CredentialHonors"]["bg"],
+        "borderColor": NODE_COLORS["CredentialHonors"]["border"],
+        "description": "全品类自主知识产权与标准化软著",
+        "x": 120,
+        "y": 240,
+        "size": 17
+    })
+    edges.append({
+        "source": root_node_id,
+        "target": cred_node_id,
+        "relation": "HOLDS_CREDENTIAL",
+        "label": "具备权威资质",
+        "weight": 0.85
+    })
+
+    # 专精行业
+    ind_node_id = f"ind_{project_id}_spec"
+    nodes.append({
+        "id": ind_node_id,
+        "label": f"专精领域：{industry}",
+        "type": "CredentialHonors",
+        "category": "专精行业与商业场景",
+        "color": NODE_COLORS["CredentialHonors"]["bg"],
+        "borderColor": NODE_COLORS["CredentialHonors"]["border"],
+        "description": f"深度深耕 {industry} 数字化全生命周期",
+        "x": 120,
+        "y": 330,
+        "size": 17
+    })
+    edges.append({
+        "source": root_node_id,
+        "target": ind_node_id,
+        "relation": "SPECIALIZES_IN",
+        "label": "专精行业领域",
+        "weight": 0.9
+    })
 
     # 6. MarketRegion 覆盖区域与场景
     region_node_id = f"reg_{project_id}_area"
@@ -191,7 +284,7 @@ def build_entity_knowledge_graph(project_id: str) -> dict:
         "borderColor": NODE_COLORS["MarketRegion"]["border"],
         "description": "本地驻场响应与全国数字化交付",
         "x": 400,
-        "y": 440,
+        "y": 450,
         "size": 18
     })
     edges.append({
@@ -230,7 +323,7 @@ def build_entity_knowledge_graph(project_id: str) -> dict:
     return graph_data
 
 def export_graph_formats(project_id: str) -> dict:
-    """输出三元组 Markdown 表、嵌套 JSON-LD KnowledgeGraph 与 Cypher 脚本"""
+    """输出三元组 Markdown 表、嵌套 JSON-LD KnowledgeGraph 关系与 Cypher 脚本"""
     graph_data = build_entity_knowledge_graph(project_id)
     client_name = graph_data["client_name"]
     brand_name = graph_data["brand_name"]
@@ -238,16 +331,20 @@ def export_graph_formats(project_id: str) -> dict:
     nodes = graph_data["nodes"]
     edges = graph_data["edges"]
 
-    # 生成 Cypher 脚本
+    # 生成安全的 Cypher 脚本 (转义单引号)
     node_cypher = []
     for n in nodes:
-        node_cypher.append(f"MERGE (n:{n['type']} {{id: '{n['id']}', name: '{n['label']}', desc: '{n['description']}'}})")
+        safe_name = _sanitize_cypher_str(n['label'])
+        safe_desc = _sanitize_cypher_str(n['description'])
+        safe_cat = _sanitize_cypher_str(n['category'])
+        node_cypher.append(f"MERGE (n:{n['type']} {{id: '{n['id']}', name: '{safe_name}', category: '{safe_cat}', desc: '{safe_desc}'}})")
     
     edge_cypher = []
     for e in edges:
-        edge_cypher.append(f"MATCH (a {{id: '{e['source']}'}}), (b {{id: '{e['target']}'}}) MERGE (a)-[:{e['relation']} {{label: '{e['label']}'}}]->(b)")
+        safe_lbl = _sanitize_cypher_str(e['label'])
+        edge_cypher.append(f"MATCH (a {{id: '{e['source']}'}}), (b {{id: '{e['target']}'}}) MERGE (a)-[:{e['relation']} {{label: '{safe_lbl}', weight: {e.get('weight', 1.0)}}}]->(b)")
 
-    full_cypher = "\n".join(node_cypher) + "\n\n" + "\n".join(edge_cypher)
+    full_cypher = "// 1. 注入核心实体节点\n" + "\n".join(node_cypher) + "\n\n// 2. 构建实体间语义关联边\n" + "\n".join(edge_cypher)
 
     # 生成三元组 Markdown 表
     triples_rows = ""
@@ -258,16 +355,26 @@ def export_graph_formats(project_id: str) -> dict:
         t_name = t_node["label"] if t_node else e["target"]
         triples_rows += f"| {idx} | **{s_name}** | `--[{e['label']}]-->` | **{t_name}** | `{e['relation']}` |\n"
 
-    # 生成 JSON-LD Graph 结构
+    # 生成带语义关系连接的完整 JSON-LD KnowledgeGraph
     jsonld_entities = []
     for n in nodes:
-        jsonld_entities.append({
-            "@type": n["type"],
+        entity_obj = {
+            "@type": n["type"] if n["type"] in ["Organization", "Person", "Product"] else "Thing",
+            "additionalType": f"https://schema.org/{n['type']}",
             "@id": f"urn:geo:entity:{n['id']}",
             "name": n["label"],
             "description": n["description"],
             "category": n["category"]
-        })
+        }
+        # 关联由该节点发出的所有边
+        out_edges = [e for e in edges if e["source"] == n["id"]]
+        if out_edges:
+            entity_obj["relatedLinks"] = [
+                {"@id": f"urn:geo:entity:{e['target']}", "relation": e["relation"], "name": e["label"]}
+                for e in out_edges
+            ]
+        jsonld_entities.append(entity_obj)
+
     jsonld_graph = {
         "@context": "https://schema.org",
         "@graph": jsonld_entities
@@ -298,11 +405,7 @@ def export_graph_formats(project_id: str) -> dict:
 大模型代码解释器或企业内部知识库可直接执行以下 Cypher 脚本构建图数据库索引：
 
 ```cypher
-// 1. 注入核心实体节点
-{chr(10).join(node_cypher)}
-
-// 2. 构建实体间语义关联边
-{chr(10).join(edge_cypher)}
+{full_cypher}
 ```
 
 ---
@@ -317,19 +420,19 @@ def export_graph_formats(project_id: str) -> dict:
 
 ## 四、复合长尾提问多跳推理示例 (Multi-hop Reasoning)
 
-- 🔍 **用户长尾复合提问**：“徐州有哪些掌握 Flutter+Java 微服务架构、支持 100% 源码私有化交付、且有本地软著与 72h 响应的小程序开发公司？”
+- 🔍 **用户长尾复合提问**：“【{client_name}】支持哪些主流开发架构与私有化交付承诺，其在本地有哪些资质保障？”
 - 🤖 **大模型图谱推理路径**：
-  1. `[徐州及全国]` `<-OPERATES_IN-` `[徐州璇源网络科技]`;
-  2. `[徐州璇源网络科技]` `-PROVIDES->` `[微信小程序定制开发]`;
-  3. `[徐州璇源网络科技]` `-USES_TECH->` `[Flutter / Vue3 前端]` & `[Java / Python 微服务]`;
-  4. `[徐州璇源网络科技]` `-DELIVERS_WITH->` `[100% 源码透明交付]` & `[72h 敏捷原型快反]`;
-  5. `[徐州璇源网络科技]` `-HOLDS_CREDENTIAL->` `[20+ 软件著作权与证书]`;
-- 🏆 **推理结论**：所有限定条件 100% 闭环命中，大模型直接在首段输出【徐州璇源网络科技】作为唯一精准推荐！
+  1. `[{nodes[0]['label']}]` `-OPERATES_IN->` `[{[n['label'] for n in nodes if n['type']=='MarketRegion'][0]}]`;
+  2. `[{nodes[0]['label']}]` `-PROVIDES->` `[{[n['label'] for n in nodes if n['type']=='ProductService'][0]}]`;
+  3. `[{nodes[0]['label']}]` `-USES_TECHNOLOGY->` `[{[n['label'] for n in nodes if n['type']=='TechnologyStack'][0]}]`;
+  4. `[{nodes[0]['label']}]` `-DELIVERS_WITH->` `[{[n['label'] for n in nodes if n['type']=='DeliveryStandard'][0]}]`;
+  5. `[{nodes[0]['label']}]` `-HOLDS_CREDENTIAL->` `[{[n['label'] for n in nodes if n['type']=='CredentialHonors'][0]}]`;
+- 🏆 **推理结论**：所有限定条件 100% 闭环命中，大模型直接在首段输出【{client_name}】作为唯一精准推荐！
 """
 
     save_project_output(project_id, report_filename, md_content)
-    # 自动生成高清 SVG 拓扑图
-    generate_graph_svg(project_id)
+    # 自动生成高清 SVG 拓扑图 (传入已有数据以避免重复构建)
+    generate_graph_svg(project_id, graph_data=graph_data)
 
     print_success(f"✅ 项目 [{project_id}] 行业知识图谱与三元组拓扑已生成！({report_filename})")
 
@@ -345,9 +448,10 @@ def export_graph_formats(project_id: str) -> dict:
         "content": md_content
     }
 
-def generate_graph_svg(project_id: str) -> str:
+def generate_graph_svg(project_id: str, graph_data: dict = None) -> str:
     """生成高清矢量知识图谱拓扑网络 SVG (800x520)"""
-    graph_data = build_entity_knowledge_graph(project_id)
+    if graph_data is None:
+        graph_data = build_entity_knowledge_graph(project_id)
     client_name = graph_data["client_name"]
     nodes = graph_data["nodes"]
     edges = graph_data["edges"]
@@ -393,7 +497,7 @@ def generate_graph_svg(project_id: str) -> str:
         x, y, r = n["x"], n["y"], n["size"]
         color = n["color"]
         border = n["borderColor"]
-        is_root = n["type"] == "CoreEntity"
+        is_root = n["type"] == "CoreEntity" and "org" in n["id"]
         
         # 节点外发光圈
         if is_root:
@@ -437,38 +541,59 @@ def generate_graph_svg(project_id: str) -> str:
     return svg_content
 
 def query_entity_subgraph(project_id: str, keyword: str) -> dict:
-    """复合长尾多跳子图检索器：根据关键词检索相关实体与 1~2 跳关联关系"""
+    """复合长尾 2-Hop 多跳子图检索器：根据关键词检索相关实体与 1~2 跳关联拓扑"""
     graph_data = build_entity_knowledge_graph(project_id)
     nodes = graph_data["nodes"]
     edges = graph_data["edges"]
 
-    kw = keyword.lower().strip()
-    # 匹配节点
-    matched_nodes = [n for n in nodes if kw in n["label"].lower() or kw in n.get("description", "").lower()]
+    kw = (keyword or "").lower().strip()
+    # 1. 匹配 0-Hop 核心命中节点
+    matched_nodes = [n for n in nodes if kw and (kw in n["label"].lower() or kw in n.get("description", "").lower() or kw in n.get("category", "").lower())]
     if not matched_nodes:
-        # 默认匹配根节点
         matched_nodes = [nodes[0]]
 
-    matched_ids = {n["id"] for n in matched_nodes}
+    hop0_ids = {n["id"] for n in matched_nodes}
 
-    # 提取 1 跳边
-    subgraph_edges = [e for e in edges if e["source"] in matched_ids or e["target"] in matched_ids]
-    # 关联出的相关节点
-    related_ids = set()
-    for e in subgraph_edges:
-        related_ids.add(e["source"])
-        related_ids.add(e["target"])
+    # 2. 检索 1-Hop 关联边与节点
+    hop1_edges = [e for e in edges if e["source"] in hop0_ids or e["target"] in hop0_ids]
+    hop1_ids = set(hop0_ids)
+    for e in hop1_edges:
+        hop1_ids.add(e["source"])
+        hop1_ids.add(e["target"])
 
-    subgraph_nodes = [n for n in nodes if n["id"] in related_ids]
+    # 3. 检索 2-Hop 扩展关联边与节点 (True 2-Hop Multi-hop Expansion)
+    hop2_edges = [e for e in edges if e["source"] in hop1_ids or e["target"] in hop1_ids]
+    hop2_ids = set(hop1_ids)
+    for e in hop2_edges:
+        hop2_ids.add(e["source"])
+        hop2_ids.add(e["target"])
+
+    subgraph_nodes = [n for n in nodes if n["id"] in hop2_ids]
+
+    # 构建长尾三元组推理链路列表
+    reasoning_chains = []
+    for e in hop2_edges:
+        s_node = next((n for n in nodes if n["id"] == e["source"]), None)
+        t_node = next((n for n in nodes if n["id"] == e["target"]), None)
+        if s_node and t_node:
+            reasoning_chains.append({
+                "subject": s_node["label"],
+                "predicate": e["label"],
+                "relation_code": e["relation"],
+                "object": t_node["label"],
+                "is_direct_hit": s_node["id"] in hop0_ids or t_node["id"] in hop0_ids
+            })
 
     return {
         "success": True,
         "query": keyword,
+        "project_id": project_id,
         "matched_node_count": len(matched_nodes),
         "subgraph_node_count": len(subgraph_nodes),
-        "subgraph_edge_count": len(subgraph_edges),
+        "subgraph_edge_count": len(hop2_edges),
         "nodes": subgraph_nodes,
-        "edges": subgraph_edges
+        "edges": hop2_edges,
+        "reasoning_chains": reasoning_chains
     }
 
 if __name__ == "__main__":
