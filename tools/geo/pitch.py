@@ -687,14 +687,14 @@ def generate_pitch_presentation_html(project_id: str) -> str:
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto text-xs">
       <!-- Standard -->
       <div class="glass-card p-5 rounded-2xl space-y-3">
-        <div class="font-bold text-slate-300 text-sm">基础版 (Standard)</div>
-        <div class="text-2xl font-black text-white">¥19,800 <span class="text-xs font-normal text-slate-400">/年</span></div>
-        <p class="text-slate-400 text-[11px]">单品牌 ｜ 5 组核心商业词</p>
+        <div class="font-bold text-slate-300 text-sm">基础极速版 (入门型)</div>
+        <div class="text-2xl font-black text-white">¥3,800 <span class="text-xs font-normal text-slate-400">/首期</span></div>
+        <p class="text-slate-400 text-[11px]">3 工作日 ｜ 单品牌 ｜ 10 核心意图词</p>
         <div class="space-y-1.5 text-slate-400 text-[11px] pt-2 border-t border-white/10">
-          <div>· 3 件套技术底座改造</div>
-          <div>· 普林斯顿 9 因子基础语料</div>
-          <div>· 2 大平台矩阵分发</div>
-          <div>· 月度 AI 声量巡检</div>
+          <div>· 基础底座改造 (/llms.txt + robots.txt)</div>
+          <div>· 普林斯顿 9 因子标准测评语料</div>
+          <div>· 今日头条 (豆包第一主战) 矩阵外发</div>
+          <div>· 30 天基础响应支持</div>
         </div>
       </div>
       <!-- Pro (Recommended) -->
@@ -702,30 +702,30 @@ def generate_pitch_presentation_html(project_id: str) -> str:
         <div class="absolute -top-3 right-4 px-2.5 py-0.5 bg-indigo-600 text-white rounded-full text-[10px] font-black tracking-wider uppercase">
           RECOMMENDED
         </div>
-        <div class="font-bold text-indigo-300 text-sm">专业进阶版 (Pro)</div>
-        <div class="text-2xl font-black text-white">¥35,000 <span class="text-xs font-normal text-indigo-300">/年</span></div>
-        <p class="text-indigo-200 text-[11px]">单品牌 ｜ 15 组裂变词 ｜ 全套交付</p>
+        <div class="font-bold text-indigo-300 text-sm">专业标杆版 (主推型)</div>
+        <div class="text-2xl font-black text-white">¥16,800 <span class="text-xs font-normal text-indigo-300">/全案</span></div>
+        <p class="text-indigo-200 text-[11px]">14 工作日 ｜ 45 词三层立体词库 ｜ 全套交付</p>
         <div class="space-y-1.5 text-slate-300 text-[11px] pt-2 border-t border-indigo-500/20">
-          <div>· 全套 5 步商业交付闭环</div>
-          <div>· 5 大主流信任池矩阵分发</div>
-          <div>· 实时沙箱测序 + 企微告警</div>
-          <div>· 专属免密交付门户 + ROI 战报</div>
+          <div>· 全套 5 阶段标准化 SOP 商业交付</div>
+          <div>· 5 大本土信任池全矩阵分发 (含头条/知乎/微信/GitHub/百度)</div>
+          <div>· 5 维幻觉防御 + 强事实锚点 (llms-truth.txt)</div>
+          <div>· 专属免密交付门户 + 365天运维质保</div>
         </div>
       </div>
       <!-- Enterprise -->
       <div class="glass-card p-5 rounded-2xl space-y-3">
-        <div class="font-bold text-purple-300 text-sm">集团旗舰版 (Enterprise)</div>
-        <div class="text-2xl font-black text-white">¥68,000 <span class="text-xs font-normal text-slate-400">/年</span></div>
-        <p class="text-slate-400 text-[11px]">集团多品牌 ｜ 30 组动态演进词</p>
+        <div class="font-bold text-purple-300 text-sm">集团旗舰版 (定制型)</div>
+        <div class="text-2xl font-black text-white">¥38,800+ <span class="text-xs font-normal text-slate-400">/年</span></div>
+        <p class="text-slate-400 text-[11px]">30 工作日 ｜ 集团多品牌 ｜ 100+ 词全网图谱</p>
         <div class="space-y-1.5 text-slate-400 text-[11px] pt-2 border-t border-white/10">
-          <div>· 集团多子品牌协同防御矩阵</div>
-          <div>· 探针动态演进与长尾裂变</div>
-          <div>· 短视频口播脚本 + 高清视觉</div>
-          <div>· 1对1 架构专家深度支持</div>
+          <div>· 集团母子品牌关系图谱 (Graph RAG)</div>
+          <div>· 探针动态演进 + 5 篇行业白皮书</div>
+          <div>· 60 秒短视频口播脚本 + 高清视觉图</div>
+          <div>· 7×24 虚假负面拦截 + 顾问季度复盘</div>
         </div>
       </div>
     </div>
-    <div class="text-xs text-slate-500">支持根据客户具体需求定制模块与灵活组合</div>
+    <div class="text-xs text-slate-500">支持根据客户具体需求定制模块与灵活组合 ｜ 详见《中国本土企业 GEO 商业化定价分级与垂直行业实战打法白皮书》</div>
   </section>
 
   <!-- ===== SLIDE 10: 结案与行动方案 ===== -->
@@ -963,29 +963,29 @@ def generate_print_pitch_html(project_id: str) -> str:
     <thead>
       <tr>
         <th>服务档位</th>
-        <th style="width: 20%;">年化报价</th>
+        <th style="width: 20%;">报价与周期</th>
         <th style="width: 30%;">覆盖范围</th>
         <th>核心权益</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>基础版 (Standard)</td>
-        <td>¥19,800 元/年</td>
-        <td>单品牌 / 5 核心词</td>
-        <td>3 件套底座 + 9 因子语料 + 2 平台矩阵分发</td>
+        <td>🚀 基础极速版 (入门型)</td>
+        <td>¥3,800 元/首期 (3工作日)</td>
+        <td>单品牌 / 10 核心词</td>
+        <td>/llms.txt 底座改造 + 普林斯顿标准语料 + 今日头条(豆包第一主战) 矩阵外发</td>
       </tr>
       <tr class="highlight-row">
-        <td>专业进阶版 (Pro · 推荐)</td>
-        <td>¥35,000 元/年</td>
-        <td>单品牌 / 15 裂变词</td>
-        <td>全套 5 步交付 + 5 大全渠道 + 实时沙箱 + 企微告警 + ROI 战报</td>
+        <td>🌟 专业标杆版 (主推型)</td>
+        <td>¥16,800 元/全案 (14工作日)</td>
+        <td>单品牌 / 45 词三层立体词库</td>
+        <td>全套 5 阶段 SOP + 5 大本土全渠道 + 5 维幻觉防御 + 专属交付门户 + 365天质保</td>
       </tr>
       <tr>
-        <td>集团旗舰版 (Enterprise)</td>
-        <td>¥68,000 元/年</td>
-        <td>集团多品牌 / 30 动态词</td>
-        <td>集团协同矩阵 + 探针动态演进 + 短视频脚本 + 1对1 专家支持</td>
+        <td>🏛️ 集团旗舰版 (定制型)</td>
+        <td>¥38,800 ~ ¥68,000 元/年</td>
+        <td>集团多品牌 / 100+ 词图谱</td>
+        <td>集团 Graph RAG 关系图谱 + 探针动态演进 + 5 篇白皮书 + 短视频口播 + 顾问深度支持</td>
       </tr>
     </tbody>
   </table>

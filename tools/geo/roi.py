@@ -81,7 +81,7 @@ def calculate_project_roi(project_id: str, custom_params: dict = None) -> dict:
     if custom_params and isinstance(custom_params, dict):
         settings.update(custom_params)
 
-    fee = max(float(settings.get("annual_service_fee", 30000)), 1000)
+    fee = max(float(settings.get("annual_service_fee", 16800)), 1000)
     cpl = float(settings.get("cpl", 160.0))
     cpc = float(settings.get("cpc", 6.5))
     monthly_query = int(settings.get("monthly_query_baseline", 2500))

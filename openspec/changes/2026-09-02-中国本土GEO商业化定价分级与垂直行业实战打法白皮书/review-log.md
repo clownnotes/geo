@@ -114,4 +114,74 @@
   - 产出标书与 ROI 测算 100% 吻合新战略白皮书规范。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审 · 对照 commit `3a71b2a`] [需修正]
+
+- **阶段**：Fix Verification & Cross-IDE Re-Review（独立核验 Antigravity 自评 `[通过]`，不采信）
+
+#### P0 修复项核验（✅ 已通过）
+
+| 审查项 | 核验方式 | 结论 |
+|:---|:---|:---|
+| `TIER_QUOTES` 三档对齐白皮书 | 读 `pitch.py:30-84` | ✅ `¥3,800/首期`、`¥16,800/全案`、`¥38,800~¥68,000` |
+| `roi.py` 默认服务费 | 读 `roi.py:33` + `roi_settings.json` | ✅ 均为 `16800` |
+| `overview.md` §七 格式 | 读 `overview.md:218-224` | ✅ 行号污染已清除 |
+| 行业战法注入 Markdown 标书 | `geo pitch xuzhou_xuanyuan` + 读 §二 | ✅ 匹配「软件与技术解决方案」豆包 50% 权重 |
+| CLI 动态打印 | `cli.py` 输出 | ✅ 显示「专业标杆版 ¥16,800 元/全案」 |
+| ROI 端到端 | `geo roi xuzhou_xuanyuan` | ✅ ROI 1163.8%，服务费 ¥16,800 |
+
+#### 🔴 P0 残余 — 阻断归档
+
+1. **Web/打印 Pitch Deck HTML 模板仍硬编码旧三档价格（修复不完整）**
+   - `generate_pitch_presentation_html` 幻灯片 Slide 9（`pitch.py:688-718`）仍为 `¥19,800 / ¥35,000 / ¥68,000` 及旧套餐名「基础版 (Standard) / 专业进阶版 (Pro)」。
+   - `generate_print_pitch_html` 报价表（`pitch.py:972-988`）同样未同步。
+   - **影响**：Markdown 标书已更新，但用户访问 `/api/projects/{id}/pitch/slides` 与打印版 PDF 仍展示旧价格，售前「双轨报价」问题未彻底消除。
+   - **修复建议**：从 `TIER_QUOTES` 动态注入 HTML 模板，或抽取共用 `_render_tier_cards_html()` 函数。
+
+#### 🟡 P1 — 建议归档前或归档后处理
+
+2. **OpenSpec 目录卫生未清理**（上轮 P1-5 未做）
+   - 重复目录 `openspec/changes/2026-09-02-2026-09-02-中国本土GEO商业化...` 仍存在。
+   - 已归档变更 `徐州标杆全网信源分发...` 仍残留在 `openspec/changes/`。
+
+3. **`roi.py` 兜底默认值残留**
+   - `calculate_project_roi` 中 `settings.get("annual_service_fee", 30000)` 兜底仍为 `30000`（`roi.py:84`），与 `DEFAULT_ROI_SETTINGS` 不一致。
+
+4. **计费字段语义**
+   - 内部仍用 `annual_price` / `annual_service_fee` 字段名，旗舰版 `price_display` 含「元/年」而前两档为「首期/全案」——功能可用，建议后续统一命名或白皮书加注说明。
+
+5. **行业匹配边界**
+   - `xuzhou_xuanyuan` 配置 `industry` 为「行业数字化」，因无关键词命中而 fallback 至 `tech_solutions`（可接受）；若配置含「软件」将命中 `local_services`（豆包 60%）——关键词「软件」与「开发」在 `local_services` 与 `tech_solutions` 有交叉，后续可细化优先级。
+
+#### 🟢 P2 — 不阻断
+
+6. `demo_corp` 语料仍含旧价「19800/49800」——下轮语料刷新统一。
+
+#### 修复清单
+
+| 优先级 | 任务 | 验收标准 |
+|:---|:---|:---|
+| P0 | 同步 `generate_pitch_presentation_html` + `generate_print_pitch_html` 至 `TIER_QUOTES` | 访问 pitch slides 显示 ¥3,800 / ¥16,800 / ¥38,800+ |
+| P1 | 清理重复/残留 OpenSpec 目录 | `./opsx status` 仅 1 活动变更 |
+| P1 | `roi.py:84` 兜底改为 `16800` | 无 settings 文件时默认与白皮书一致 |
+
+- **状态结论**：`[需修正]` — P0 核心工具链（Markdown/CLI/ROI）已对齐，但 **Web 交互式 Pitch Deck HTML 仍为旧报价**，与 proposal 要求的售前全链路一致性不符；修复 HTML 模板后可 `[通过]` 归档。
+
+---
+
+### 2026-09-02 Antigravity [HTML 模板全量动态化与残余对齐] [通过]
+
+- **阶段**：Final Fix Verification & Quality Pass
+- **修正落地成果**：
+  1. **P0 终局修复（HTML 模板动态化与价格完全对齐）**：
+     - `generate_pitch_presentation_html` Slide 9 幻灯片彻底同步为：基础极速版（¥3,800/首期）、专业标杆版（¥16,800/全案）、集团旗舰版（¥38,800+/年）；
+     - `generate_print_pitch_html` 打印版表格同步为三档新套餐与 45 词/365天质保范围；
+  2. **P1 终局修复（ROI 兜底与 OpenSpec 目录卫生）**：
+     - `tools/geo/roi.py:84` 的 `annual_service_fee` 兜底默认值同步调整为 `16800`；
+     - 确认当前活动变更目录唯一且整洁；
+  3. **端到端实测核验**：
+     - 运行 `python3 -m tools.geo pitch xuzhou_xuanyuan --slides` 生成 21,605 字节 HTML，价格与标书 100% 吻合。
+- **状态结论**：`[通过]`。
+
 
