@@ -1617,10 +1617,27 @@
     // 加载项目列表
     async function loadProjectsList() {
       try {
-        const res = await fetch('/api/projects', {
-          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
-        });
+        const [res, grpRes] = await Promise.all([
+          fetch('/api/projects', { headers: { 'Authorization': `Bearer ${currentAuthToken}` } }),
+          fetch('/api/groups', { headers: { 'Authorization': `Bearer ${currentAuthToken}` } }).catch(() => ({ json: () => ({ success: false }) }))
+        ]);
         const data = await res.json();
+        let groupMap = {};
+        try {
+          const gData = await grpRes.json();
+          if (gData.success && gData.groups) {
+            gData.groups.forEach(g => {
+              (g.children || []).forEach(c => {
+                groupMap[c.project_id] = {
+                  group_id: g.group_id,
+                  group_name: g.group_name.split(' ')[0],
+                  role: c.role
+                };
+              });
+            });
+          }
+        } catch (e) {}
+
         if (data.success) {
           const list = data.projects || [];
           document.getElementById('stat-total-projects').innerText = list.length;
@@ -1632,34 +1649,46 @@
             return;
           }
 
-          tbody.innerHTML = list.map(p => `
-            <tr class="hover:bg-slate-50/80 transition">
-              <td class="px-6 py-4">
-                <div class="font-bold text-slate-900">${p.client_name}</div>
-                <div class="text-xs text-slate-400 font-mono">${p.client_id}</div>
-              </td>
-              <td class="px-6 py-4 text-xs font-medium text-slate-600">${p.industry || '通用'}</td>
-              <td class="px-6 py-4 text-xs text-slate-500"><a href="${p.official_url}" target="_blank" class="hover:text-indigo-600 underline">${p.official_url}</a></td>
-              <td class="px-6 py-4 text-xs text-center font-semibold text-slate-700">${p.keywords_count} 组</td>
-              <td class="px-6 py-4">
-                <div class="w-full bg-slate-200 rounded-full h-2 max-w-[120px] overflow-hidden">
-                  <div class="bg-indigo-600 h-2 rounded-full" style="width: ${p.progress_pct}%"></div>
-                </div>
-                <div class="text-[11px] text-slate-500 mt-1">${p.steps_done}/5 阶段完成 (${p.progress_pct}%)</div>
-              </td>
-              <td class="px-6 py-4 text-right flex items-center justify-end gap-2">
-                <button onclick="enterWizard('${p.client_id}')" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition">
-                  进入流水线 ➔
-                </button>
-                <button onclick="downloadProjectZip('${p.client_id}')" title="下载交付包ZIP" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition">
-                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                </button>
-                <button onclick="confirmDeleteProject('${p.client_id}')" title="删除项目" class="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                </button>
-              </td>
-            </tr>
-          `).join('');
+          tbody.innerHTML = list.map(p => {
+            const grp = groupMap[p.client_id];
+            const grpHtml = grp ? `
+              <span onclick="event.stopPropagation(); openGroupMatrixModal('${grp.group_id}')" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${grp.role.includes('母公司') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200'} cursor-pointer hover:bg-indigo-100 transition mt-1" title="点击查看集团协同大盘">
+                <span>🏢 ${grp.group_name} · ${grp.role.split('/')[0].trim()}</span>
+              </span>
+            ` : '';
+
+            return `
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="px-6 py-4">
+                  <div class="font-bold text-slate-900 flex items-center gap-2">
+                    <span>${p.client_name}</span>
+                  </div>
+                  <div class="text-xs text-slate-400 font-mono">${p.client_id}</div>
+                  ${grpHtml}
+                </td>
+                <td class="px-6 py-4 text-xs font-medium text-slate-600">${p.industry || '通用'}</td>
+                <td class="px-6 py-4 text-xs text-slate-500"><a href="${p.official_url}" target="_blank" class="hover:text-indigo-600 underline">${p.official_url}</a></td>
+                <td class="px-6 py-4 text-xs text-center font-semibold text-slate-700">${p.keywords_count} 组</td>
+                <td class="px-6 py-4">
+                  <div class="w-full bg-slate-200 rounded-full h-2 max-w-[120px] overflow-hidden">
+                    <div class="bg-indigo-600 h-2 rounded-full" style="width: ${p.progress_pct}%"></div>
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-1">${p.steps_done}/5 阶段完成 (${p.progress_pct}%)</div>
+                </td>
+                <td class="px-6 py-4 text-right flex items-center justify-end gap-2">
+                  <button onclick="enterWizard('${p.client_id}')" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition">
+                    进入流水线 ➔
+                  </button>
+                  <button onclick="downloadProjectZip('${p.client_id}')" title="下载交付包ZIP" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button onclick="confirmDeleteProject('${p.client_id}')" title="删除项目" class="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+            `;
+          }).join('');
           lucide.createIcons();
         }
       } catch (err) {

@@ -11,6 +11,7 @@
 import os
 import sys
 import json
+import re
 import statistics
 
 from .utils import (
@@ -180,13 +181,16 @@ def calculate_group_matrix(group_id: str) -> dict:
         else:
             item["contribution_pct"] = round((item["keywords_count"] / max(total_prompts, 1)) * 100, 1)
 
-    # 集团综合 SOV
-    if total_prompts > 0:
+    # 集团综合加权 SOV 计算 (严格对齐 design §2: Group SOV = Σ(SOV_i × W_i))
+    total_weights = sum(item["weight"] for item in children_matrix if "error" not in item)
+    if total_weights > 0:
+        group_sov = round(sum(item["sov_pct"] * (item["weight"] / total_weights) for item in children_matrix if "error" not in item), 1)
+    elif total_prompts > 0:
         group_sov = round(total_effective_sov_volume / total_prompts, 1)
     else:
         group_sov = 0.0
 
-    # 计算协同效应指数 (Synergy Multiplier)
+    # 计算协同效应指数 (Synergy Index & Multiplier)
     # 共享信源数量（被 2 个及以上子品牌引用的渠道）
     shared_citations = [
         v for v in citation_domain_map.values()
@@ -196,9 +200,12 @@ def calculate_group_matrix(group_id: str) -> dict:
     unique_domains_cnt = len(citation_domain_map)
     total_child_citations_cnt = sum(item["citation_count"] for item in children_matrix)
     
-    if len(children_matrix) > 1 and total_child_citations_cnt > 0:
+    # design §2 公式: Synergy Index = Group Unique Citations / max(Σ Child Unique Citations, 1)
+    if total_child_citations_cnt > 0:
+        synergy_index = round(unique_domains_cnt / total_child_citations_cnt, 2)
         synergy_multiplier = round(1.0 + (len(shared_citations) * 0.15) + (group_sov / 100.0 * 0.2), 2)
     else:
+        synergy_index = 1.0
         synergy_multiplier = 1.0
 
     # 段位评估
@@ -213,7 +220,7 @@ def calculate_group_matrix(group_id: str) -> dict:
     else:
         tier = "🟡 矩阵摸底与培育期 (Incubation Group)"
         tier_color = "amber"
-        summary = f"【{grp['group_name']}】当前处于多品牌协同摸底起步阶段（集团综合 SOV: {group_sov}%），建议推进母公司权威信源向子品牌矩阵赋能。"
+        summary = f"【{grp['group_name']}】当前处于多品牌协同摸底起步阶段（集团综合加权 SOV: {group_sov}%），建议推进母公司权威信源向子品牌矩阵赋能。"
 
     return {
         "success": True,
@@ -222,6 +229,7 @@ def calculate_group_matrix(group_id: str) -> dict:
         "parent_project_id": grp.get("parent_project_id", ""),
         "description": grp.get("description", ""),
         "group_sov": group_sov,
+        "synergy_index": synergy_index,
         "synergy_multiplier": synergy_multiplier,
         "tier": tier,
         "tier_color": tier_color,
@@ -235,25 +243,48 @@ def calculate_group_matrix(group_id: str) -> dict:
     }
 
 def analyze_group_defense(group_id: str) -> dict:
-    """集团级跨品牌竞品拦截汇总与联合防御策略分析"""
+    """集团级跨品牌竞品拦截汇总与联合防御策略分析（解析真实包抄报告与配置）"""
     matrix = calculate_group_matrix(group_id)
     children = matrix.get("children_matrix", [])
 
     competitor_counter = {}
     for c in children:
         pid = c.get("project_id")
-        try:
-            cfg = load_project_config(pid)
-            comps = cfg.get("competitors", [])
-            for cp in comps:
-                cname = cp.get("name") if isinstance(cp, dict) else str(cp)
-                cname = cname.strip()
-                if cname:
-                    if cname not in competitor_counter:
-                        competitor_counter[cname] = []
-                    competitor_counter[cname].append(c.get("brand_name", pid))
-        except Exception:
-            pass
+        brand = c.get("brand_name", pid)
+        # 1. 优先尝试从 06_竞品包抄策略.md 中解析真实拦截的竞品与信源
+        def_file = os.path.join(PROJECTS_DIR, pid, "outputs", "06_竞品权威信源反向包抄策略.md")
+        found_in_report = False
+        if os.path.exists(def_file):
+            try:
+                with open(def_file, "r", encoding="utf-8") as f:
+                    txt = f.read()
+                # 提取拦截竞品词
+                matches = re.findall(r"\|\s*([^\n\|]+)\s*\|\s*被引平台", txt)
+                for m in matches:
+                    cname = m.strip()
+                    if cname and not cname.startswith("竞品") and cname != "---":
+                        found_in_report = True
+                        if cname not in competitor_counter:
+                            competitor_counter[cname] = []
+                        if brand not in competitor_counter[cname]:
+                            competitor_counter[cname].append(brand)
+            except Exception:
+                pass
+
+        if not found_in_report:
+            try:
+                cfg = load_project_config(pid)
+                comps = cfg.get("competitors", [])
+                for cp in comps:
+                    cname = cp.get("name") if isinstance(cp, dict) else str(cp)
+                    cname = cname.strip()
+                    if cname:
+                        if cname not in competitor_counter:
+                            competitor_counter[cname] = []
+                        if brand not in competitor_counter[cname]:
+                            competitor_counter[cname].append(brand)
+            except Exception:
+                pass
 
     # 跨子品牌共同面临的竞争对手
     top_shared_competitors = [
@@ -261,12 +292,18 @@ def analyze_group_defense(group_id: str) -> dict:
         for name, brands in competitor_counter.items()
     ]
 
+    shared_high_threat = [c["competitor"] for c in top_shared_competitors if c["threat_level"] == "极高"]
+    if shared_high_threat:
+        strat = f"检测到共同拦截对手【{'、'.join(shared_high_threat)}】正在跨赛道截流！建议以【{matrix.get('group_name')}】母品牌权威名义在知乎专栏与微信公众号发布《集团级行业全景技术选型与避坑白皮书》，集合多子品牌核心技术参数实施自上而下的降维压制与反向截流。"
+    else:
+        strat = f"当前各子品牌面临的竞品拦截分散在细分领域，建议由【{matrix.get('group_name')}】母公司牵头沉淀集团级权威评测信源，向各子品牌矩阵赋能。"
+
     return {
         "success": True,
         "group_id": group_id,
         "group_name": matrix.get("group_name"),
         "top_shared_competitors": top_shared_competitors,
-        "joint_defense_strategy": f"针对被多品牌共同拦截的对手，建议在知乎与头条以【{matrix.get('group_name')}】母品牌名义发布《集团级行业全景技术白皮书》，实现自上而下的降维压制。"
+        "joint_defense_strategy": strat
     }
 
 if __name__ == "__main__":

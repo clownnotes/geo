@@ -518,6 +518,8 @@ core_values:
                 self.send_json(res)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 12. 创建或更新集团矩阵配置 API: /api/groups
         if path == "/api/groups":
             body = self.read_json_body()
