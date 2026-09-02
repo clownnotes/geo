@@ -308,6 +308,38 @@
         </div>
       </div>
 
+      <!-- 商业交付结案确认单与全套成果归档下载 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">📜</div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-slate-900">商业交付结案确认单与全套成果归档</h2>
+                <span id="share-acceptance-badge" class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">
+                  履约达成率: 94.0% (✅ 符合验收标准)
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">全套 5 步交付成果与技术底座改造已全部就绪，支持在线查验与一键下载离线归档包。</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="handleShareDownloadZip()" class="py-2 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="folder-archive" class="w-3.5 h-3.5"></i>
+              <span>📦 下载全套成果 ZIP</span>
+            </button>
+            <button onclick="handleSharePrintAcceptance()" class="py-2 px-4 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+              <span>🖨️ 查看盖章结案单</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="share-acceptance-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
+          <!-- 动态注入 6 维履约卡 -->
+        </div>
+      </div>
+
       <!-- 多周声量时序趋势 -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -734,6 +766,27 @@
         const leadsEl = document.getElementById('share-roi-leads');
         if (leadsEl && fin.leads_inbound_value !== undefined) {
           leadsEl.textContent = `¥${(fin.leads_inbound_value + (fin.digital_asset_value || 0)).toLocaleString()} 元`;
+      // 渲染商业交付结案确认单与履约考核
+      if (d.acceptance_summary && d.acceptance_summary.total_fulfillment_score !== undefined) {
+        const ful = d.acceptance_summary;
+        const badge = document.getElementById('share-acceptance-badge');
+        if (badge) {
+          badge.textContent = `履约达成率: ${ful.total_fulfillment_score}% (${ful.status_text})`;
+        }
+        const grid = document.getElementById('share-acceptance-grid');
+        if (grid && ful.breakdown) {
+          grid.innerHTML = ful.breakdown.map(item => `
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
+              <div class="flex items-center justify-between font-bold text-slate-800">
+                <span class="truncate">${item.dimension}</span>
+                <span class="text-indigo-600 font-mono">${item.score}/${item.max_score}分</span>
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-slate-500">
+                <span>权重 ${item.weight_pct}%</span>
+                <span class="font-semibold text-emerald-600">${item.status}</span>
+              </div>
+            </div>
+          `).join('');
         }
       }
 
@@ -842,6 +895,35 @@
       } finally {
         btn.disabled = false;
         btn.innerHTML = origHTML;
+      }
+    }
+
+    function handleSharePrintAcceptance() {
+      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
+      const url = `/api/share/${shareToken}/acceptance?pin=${encodeURIComponent(pin)}`;
+      window.open(url, '_blank');
+    }
+
+    async function handleShareDownloadZip() {
+      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
+      const url = `/api/share/${shareToken}/download-zip?pin=${encodeURIComponent(pin)}`;
+      try {
+        const response = await fetch(url);
+        if (response.ok) {
+          const blob = await response.blob();
+          const objUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = objUrl;
+          a.download = `GEO_Delivery_Archive_${currentShareData?.client_name || 'project'}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(objUrl);
+        } else {
+          alert('下载归档包失败，请检查链接有效性');
+        }
+      } catch (e) {
+        alert('下载请求异常');
       }
     }
   </script>

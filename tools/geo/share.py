@@ -276,8 +276,23 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         roi_summary = {}
 
+    # 提取结案验收与合同履约达成状态
+    try:
+        from .acceptance import calculate_fulfillment_score
+        ful_res = calculate_fulfillment_score(project_id)
+        acceptance_summary = {
+            "total_fulfillment_score": ful_res.get("total_fulfillment_score", 0.0),
+            "is_passed": ful_res.get("is_passed", False),
+            "status_text": ful_res.get("status_text", ""),
+            "manifest_summary": ful_res.get("manifest_summary", {}),
+            "breakdown": ful_res.get("breakdown", [])
+        }
+    except Exception:
+        acceptance_summary = {}
+
     return {
         "success": True,
+        "project_id": project_id,
         "client_name": cfg.get("client_name", "客户企业"),
         "industry": cfg.get("industry", "未知行业"),
         "website": cfg.get("website", ""),
@@ -289,7 +304,9 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "visual_assets": visual_assets,
         "distribution_ledger": dist_ledger,
         "roi_summary": roi_summary,
+        "acceptance_summary": acceptance_summary,
         "share_meta": {
+            "token": token,
             "created_at_str": rec.get("created_at_str"),
             "expires_at_str": rec.get("expires_at_str"),
             "view_count": rec.get("view_count", 1)

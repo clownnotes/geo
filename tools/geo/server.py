@@ -903,6 +903,59 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 9. 专属甲方查看/打印商业交付结案确认单公开 API: /api/share/{token}/acceptance
+        if path.startswith("/api/share/") and path.endswith("/acceptance"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                from .acceptance import generate_print_acceptance_html
+                html_body = generate_print_acceptance_html(project_id)
+                body_bytes = html_body.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body_bytes)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(body_bytes)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 10. 专属甲方一键下载全套交付物 ZIP 归档包公开 API: /api/share/{token}/download-zip
+        if path.startswith("/api/share/") and path.endswith("/download-zip"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                from .acceptance import export_project_archive_zip
+                zip_path = export_project_archive_zip(project_id)
+                with open(zip_path, "rb") as zf:
+                    zip_bytes = zf.read()
+                fname = f"GEO_Delivery_Archive_{project_id}.zip"
+                self.send_response(200)
+                self.send_header("Content-Type", "application/zip")
+                self.send_header("Content-Disposition", f'attachment; filename="{fname}"')
+                self.send_header("Content-Length", str(len(zip_bytes)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(zip_bytes)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
             token = self.get_auth_token()
@@ -1096,6 +1149,54 @@ core_values:
                 try:
                     res = calculate_project_roi(project_id)
                     self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取项目商业交付结案确认单数据: /api/projects/{id}/acceptance/data
+            if path.startswith("/api/projects/") and path.endswith("/acceptance/data"):
+                project_id = path.split("/")[3]
+                from .acceptance import generate_acceptance_report
+                try:
+                    res = generate_acceptance_report(project_id)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 打印/导出盖章级商业结案验收单 HTML: /api/projects/{id}/acceptance/print
+            if path.startswith("/api/projects/") and path.endswith("/acceptance/print"):
+                project_id = path.split("/")[3]
+                try:
+                    from .acceptance import generate_print_acceptance_html
+                    html_body = generate_print_acceptance_html(project_id)
+                    body_bytes = html_body.encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(body_bytes)))
+                    self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                    self.end_headers()
+                    self.wfile.write(body_bytes)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 一键下载全套交付物 ZIP 归档包: /api/projects/{id}/acceptance/download-zip
+            if path.startswith("/api/projects/") and path.endswith("/acceptance/download-zip"):
+                project_id = path.split("/")[3]
+                try:
+                    from .acceptance import export_project_archive_zip
+                    zip_path = export_project_archive_zip(project_id)
+                    with open(zip_path, "rb") as zf:
+                        zip_bytes = zf.read()
+                    fname = f"GEO_Delivery_Archive_{project_id}.zip"
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/zip")
+                    self.send_header("Content-Disposition", f'attachment; filename="{fname}"')
+                    self.send_header("Content-Length", str(len(zip_bytes)))
+                    self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                    self.end_headers()
+                    self.wfile.write(zip_bytes)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

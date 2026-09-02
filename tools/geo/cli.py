@@ -209,6 +209,16 @@ def main():
     p_rnw.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_rnw.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
+    # signoff
+    p_sgn = subparsers.add_parser("signoff", help="生成项目商业交付结案确认单 (00_GEO商业交付验收结案确认单.md)")
+    p_sgn.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_sgn.add_argument("--project", "-p", default=None, help="客户项目 ID")
+
+    # pack
+    p_pck = subparsers.add_parser("pack", help="一键将全套交付物打包为标准 ZIP 压缩包")
+    p_pck.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_pck.add_argument("--project", "-p", default=None, help="客户项目 ID")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -413,6 +423,26 @@ def main():
         print("\n🗣️ 核心商务谈判话术要点:")
         for idx, tp in enumerate(ren["talking_points"], 1):
             print(f"  {idx}. {tp}")
+        print("="*65 + "\n")
+    elif args.command == "signoff":
+        from .acceptance import generate_acceptance_report
+        pid = get_pid(args)
+        res = generate_acceptance_report(pid)
+        ful = res["fulfillment"]
+        print("\n" + "="*65)
+        print(f"📜 项目 [{pid}] 商业交付验收结案确认单已生成！")
+        print("="*65)
+        print(f"🏆 综合合同履约达成率: {ful['total_fulfillment_score']}/100 分")
+        print(f"📋 验收判定结论: 【{ful['status_text']}】")
+        print(f"📄 确认单文档: outputs/{res['filename']}")
+        print("="*65 + "\n")
+    elif args.command == "pack":
+        from .acceptance import export_project_archive_zip
+        pid = get_pid(args)
+        zpath = export_project_archive_zip(pid)
+        print("\n" + "="*65)
+        print(f"📦 项目 [{pid}] 全套交付物已打包归档！")
+        print(f"📁 归档包路径: {zpath}")
         print("="*65 + "\n")
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)

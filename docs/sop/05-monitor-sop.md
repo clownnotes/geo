@@ -94,6 +94,20 @@
    - 评分 $70 \sim 84$ 分（健康续约）：安排季度复盘汇报，通过沙箱演示强化心智；
    - 评分 $< 70$ 分（需重点公关）：安排面对面答辩与语料重构。
 
+## 八、商业交付验收结案与全套成果归档规范 (Acceptance & Pack)
+
+1. **生成具备公章签署格式的结案确认单**：
+   ```bash
+   python3 -m tools.geo signoff <client_id>
+   ```
+   - 自动核算 6 维合同履约达成率（达标 $\ge 85\%$），生成《00_GEO商业交付验收结案确认单.md》；
+   - 可在 Web 端或专属交付门户点击 **「🖨️ 打印盖章结案单」**，直接调起浏览器 A4 排版打印或保存为 PDF。
+2. **一键生成离线 ZIP 归档包**：
+   ```bash
+   python3 -m tools.geo pack <client_id>
+   ```
+   - 自动将 15+ 份交付物、底座代码与多模态 SVG 资产打包为 `{client_id}_geo_delivery_archive.zip`。
+
 ---
 
 > 上一步 [SOP-04 矩阵分发](/sop/04-distribute-sop) ｜ 全流程总览见 [客户交付 SOP 手册](/sop/delivery-sop)

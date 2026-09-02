@@ -668,6 +668,14 @@
               <i data-lucide="printer" class="w-4 h-4"></i>
               <span>🖨️ 导出美化周报</span>
             </button>
+            <button onclick="handlePrintAcceptance()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="file-check-2" class="w-4 h-4 text-emerald-600"></i>
+              <span>📜 结案验收单</span>
+            </button>
+            <button onclick="handleDownloadZip()" class="py-2.5 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="folder-archive" class="w-4 h-4 text-indigo-600"></i>
+              <span>📦 归档 ZIP</span>
+            </button>
             <button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="line-chart" class="w-4 h-4"></i>
               <span>执行实时声量监测</span>
@@ -797,6 +805,51 @@
             <div id="roi-talking-points-list" class="space-y-1 pl-1 text-[11px] text-indigo-200">
               <!-- JS 动态注入 -->
             </div>
+          </div>
+        </div>
+
+        <!-- 商业交付验收与结案归档中枢 (Acceptance Hub) -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
+                📜
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-bold text-slate-900">商业交付验收与结案归档中枢</h3>
+                  <span id="acceptance-status-badge" class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold">✅ 符合全额结案回款验收标准 (94.0分)</span>
+                </div>
+                <p class="text-[11px] text-slate-500">自动汇总 S1~S5 全量交付成果，计算 6 维合同履约率并提供盖章级结案单打印与离线 ZIP 下载。</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="handleDownloadZip()" class="py-2 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="folder-archive" class="w-3.5 h-3.5"></i>
+                <span>📦 下载全套成果 ZIP</span>
+              </button>
+              <button onclick="handlePrintAcceptance()" class="py-2 px-3.5 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                <span>🖨️ 打印盖章结案单</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 6 维履约考核进度网格 -->
+          <div id="acceptance-breakdown-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+            <!-- JS 动态注入 -->
+          </div>
+
+          <!-- 交付物就绪率底栏 -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-700">📦 全套交付资产就绪度：</span>
+              <span id="acceptance-manifest-rate" class="text-indigo-600 font-bold">14 / 15 份文件就绪 (93.3%)</span>
+            </div>
+            <button onclick="copyOutput('00_GEO商业交付验收结案确认单.md')" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1 text-[11px]">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span>复制结案单 Markdown 文本</span>
+            </button>
           </div>
         </div>
 
@@ -2404,6 +2457,7 @@
       loadProjectHistoryChart();
       loadAlertHistory();
       loadProjectRoiEvaluation();
+      loadAcceptanceData();
     }
 
     // 加载声量监控大盘结构化指标
@@ -3861,6 +3915,90 @@
         }
       } catch (e) {
         showToast('保存异常', 'error');
+      }
+    }
+
+    // ===== 商业交付验收与结案归档控制器 =====
+    async function loadAcceptanceData() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/acceptance/data`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.fulfillment) {
+          const ful = d.fulfillment;
+          const badgeEl = document.getElementById('acceptance-status-badge');
+          if (badgeEl) {
+            badgeEl.textContent = `${ful.status_text} (${ful.total_fulfillment_score}分)`;
+            badgeEl.className = ful.total_fulfillment_score >= 85
+              ? 'px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold'
+              : 'px-2.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-bold';
+          }
+
+          const gridEl = document.getElementById('acceptance-breakdown-grid');
+          if (gridEl && ful.breakdown) {
+            gridEl.innerHTML = ful.breakdown.map(item => `
+              <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+                <div class="flex items-center justify-between font-bold text-slate-800">
+                  <span class="truncate">${item.dimension}</span>
+                  <span class="text-indigo-600 font-mono">${item.score}/${item.max_score}分</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-500">
+                  <span>权重 ${item.weight_pct}%</span>
+                  <span class="font-semibold text-emerald-600">${item.status}</span>
+                </div>
+              </div>
+            `).join('');
+          }
+
+          const manifestEl = document.getElementById('acceptance-manifest-rate');
+          if (manifestEl && ful.manifest_summary) {
+            manifestEl.textContent = `${ful.manifest_summary.generated_files} / ${ful.manifest_summary.total_files} 份文件就绪 (${ful.manifest_summary.generation_rate_pct}%)`;
+          }
+        }
+      } catch (err) {
+        console.error('加载结案验收数据异常:', err);
+      }
+    }
+
+    function handlePrintAcceptance() {
+      if (!currentProjectId) {
+        showToast('请先选择项目！', 'error');
+        return;
+      }
+      const printUrl = `/api/projects/${currentProjectId}/acceptance/print?token=${encodeURIComponent(currentAuthToken)}`;
+      window.open(printUrl, '_blank');
+    }
+
+    async function handleDownloadZip() {
+      if (!currentProjectId) {
+        showToast('请先选择项目！', 'error');
+        return;
+      }
+      showToast('📦 正在打包生成全套交付物 ZIP 压缩包...');
+      const downloadUrl = `/api/projects/${currentProjectId}/acceptance/download-zip`;
+      
+      try {
+        const response = await fetch(downloadUrl, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `GEO_Delivery_Archive_${currentProjectId}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          showToast('🎉 全套交付物 ZIP 归档包下载成功！');
+        } else {
+          showToast('下载失败，请检查服务状态', 'error');
+        }
+      } catch (e) {
+        showToast('下载请求异常', 'error');
       }
     }
 

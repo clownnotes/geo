@@ -133,3 +133,5 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 | **收录核验** | `python3 -m tools.geo verify-dist <project_id>` | [SOP-04](/sop/04-distribute-sop) | 一键全渠道外链存活探测与完成率评估 |
 | **商业 ROI** | `python3 -m tools.geo roi <project_id> [--fee N] [--cpl N]` | [SOP-05](/sop/05-monitor-sop) | 商业投资回报率测算、SEM 替代节省与财务估值 |
 | **续约预测** | `python3 -m tools.geo renewal <project_id>` | [SOP-05](/sop/05-monitor-sop) | 客户续约健康度评分模型与商务谈判提案话术 |
+| **结案验收单** | `python3 -m tools.geo signoff <project_id>` | 本手册 | 生成具备公章签署格式的交付验收结案确认单 |
+| **全套归档包** | `python3 -m tools.geo pack <project_id>` | 本手册 | 一键打包输出全套 15+ 份交付资产离线 ZIP 归档包 |
