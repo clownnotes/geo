@@ -523,6 +523,10 @@
             <p class="text-xs text-slate-500 mt-1">自适应适配今日头条（打豆包）、知乎长文（打DeepSeek）、微信公众号（内联HTML）与 GitHub 开源技术专版。</p>
           </div>
           <div class="flex items-center gap-3">
+            <button onclick="openGuardModal()" class="py-2.5 px-3.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
+              <span>🛡️ 幻觉防御与公关反击</span>
+            </button>
             <button onclick="openVisualModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-2 transition">
               <i data-lucide="palette" class="w-4 h-4"></i>
               <span>🎨 多模态视觉与视频资产</span>
@@ -1971,6 +1975,114 @@
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
         <span class="text-slate-400 text-[11px]">💡 说明：大模型（DeepSeek-R1 / o1 / Kimi）根据此拓扑进行长链多跳推理，精准消除幻觉。</span>
         <button onclick="closeGraphModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 大模型事实幻觉防御与信源反击弹窗 ================= -->
+  <div id="guard-modal" onclick="if(event.target === this) closeGuardModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-red-950 via-slate-900 to-indigo-950 text-white shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 border border-red-400/30 flex items-center justify-center font-bold text-sm">
+            🛡️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-white">大模型事实幻觉防御与公关反击中枢</h3>
+              <span id="guard-score-badge" class="px-2 py-0.5 rounded-full text-[10px] bg-red-500/30 text-red-200 border border-red-400/30 font-bold">防守就绪度: 96.5%</span>
+            </div>
+            <p class="text-[11px] text-slate-300">排查大模型价格失真、主体混淆与竞品抹黑，注入强事实锚点触发知识熔断与认知重写</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="handleRunGuardRepair()" id="btn-guard-repair" class="py-1.5 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            <span>⚡ 一键生成纠偏补丁</span>
+          </button>
+          <button onclick="copyOutput('07_大模型事实幻觉纠偏与信源反击策略.md')" class="py-1.5 px-3 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition flex items-center gap-1.5">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>复制反击策略</span>
+          </button>
+          <button onclick="closeGuardModal()" class="p-1 text-slate-300 hover:text-white rounded-lg hover:bg-white/10 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto text-xs text-slate-600 flex-1">
+        <!-- 风险概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div class="p-3.5 bg-red-50/60 border border-red-200 rounded-xl space-y-1">
+            <div class="text-[11px] text-red-700 font-bold">排查风险总数</div>
+            <div id="guard-stat-total" class="text-2xl font-black text-red-900">4 <span class="text-xs font-normal text-red-600">项</span></div>
+          </div>
+          <div class="p-3.5 bg-amber-50/60 border border-amber-200 rounded-xl space-y-1">
+            <div class="text-[11px] text-amber-700 font-bold">高危幻觉项目</div>
+            <div id="guard-stat-high" class="text-2xl font-black text-amber-900">2 <span class="text-xs font-normal text-amber-600">项</span></div>
+          </div>
+          <div class="p-3.5 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-1">
+            <div class="text-[11px] text-emerald-700 font-bold">已部署事实锚点</div>
+            <div id="guard-stat-repaired" class="text-2xl font-black text-emerald-900">3 <span class="text-xs font-normal text-emerald-600">项</span></div>
+          </div>
+          <div class="p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-1">
+            <div class="text-[11px] text-indigo-700 font-bold">修复后事实一致性</div>
+            <div id="guard-stat-score" class="text-2xl font-black text-indigo-900">99.2%</div>
+          </div>
+        </div>
+
+        <!-- 实时修复前后双轨沙箱推演 (Before vs After) -->
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3 text-white">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <div class="font-bold text-sm text-slate-200 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+              <span>实时沙箱推演：未纠偏事实幻觉 (Before) vs 强事实熔断重写 (After)</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-slate-400">切换推演风险：</span>
+              <select id="guard-sim-select" onchange="handleGuardSimulateChange()" class="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-red-500">
+                <!-- 动态注入选项 -->
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Left: Before -->
+            <div class="p-4 bg-red-950/20 border border-red-500/30 rounded-xl space-y-2">
+              <div class="flex items-center justify-between border-b border-red-500/20 pb-1.5 font-bold text-red-400">
+                <span id="guard-sim-before-title">👈 未纠偏幻觉状态</span>
+                <span id="guard-sim-before-score" class="bg-red-900/60 px-2 py-0.5 rounded text-[10px] text-red-200 font-mono">34.5分</span>
+              </div>
+              <p id="guard-sim-before-resp" class="text-slate-300 text-[11.5px] leading-relaxed">
+                加载中...
+              </p>
+            </div>
+
+            <!-- Right: After -->
+            <div class="p-4 bg-emerald-950/20 border border-emerald-500/30 rounded-xl space-y-2 shadow-lg">
+              <div class="flex items-center justify-between border-b border-emerald-500/20 pb-1.5 font-bold text-emerald-300">
+                <span id="guard-sim-after-title">👉 注入强事实锚点后</span>
+                <span id="guard-sim-after-score" class="bg-emerald-900/60 px-2 py-0.5 rounded text-[10px] text-emerald-200 font-mono">🏆 99.2分</span>
+              </div>
+              <p id="guard-sim-after-resp" class="text-emerald-100 text-[11.5px] leading-relaxed font-medium">
+                加载中...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 排查到的风险列表 -->
+        <div class="space-y-2.5">
+          <h4 class="font-bold text-slate-800 text-xs">🚨 大模型事实幻觉与虚假负面风险清单</h4>
+          <div id="guard-risks-container" class="space-y-2.5">
+            <!-- 动态注入 -->
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
+        <span class="text-slate-400 text-[11px]">💡 依据普林斯顿与 Stanford 大模型知识溯源与事实熔断算法规范执行</span>
+        <button onclick="closeGuardModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
       </div>
     </div>
   </div>
@@ -4338,6 +4450,139 @@
       if (!currentProjectId) return;
       const svgUrl = `/api/projects/${currentProjectId}/graph/svg?token=${encodeURIComponent(currentAuthToken)}`;
       window.open(svgUrl, '_blank');
+    }
+
+    // ===== 大模型事实幻觉防御与信源反击控制器 =====
+    async function openGuardModal() {
+      if (!currentProjectId) {
+        showToast('请先选择项目！', 'error');
+        return;
+      }
+      document.getElementById('guard-modal').classList.remove('hidden');
+      await loadGuardData();
+      lucide.createIcons();
+    }
+
+    function closeGuardModal() {
+      document.getElementById('guard-modal').classList.add('hidden');
+    }
+
+    let currentGuardRisks = [];
+
+    async function loadGuardData() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/guard/risks`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          currentGuardRisks = d.risks || [];
+          document.getElementById('guard-score-badge').textContent = `防守就绪度: ${d.defense_readiness_score}%`;
+          document.getElementById('guard-stat-total').innerHTML = `${d.total_risks} <span class="text-xs font-normal text-red-600">项</span>`;
+          document.getElementById('guard-stat-high').innerHTML = `${d.high_severity_count} <span class="text-xs font-normal text-amber-600">项</span>`;
+          document.getElementById('guard-stat-repaired').innerHTML = `${d.repaired_count} <span class="text-xs font-normal text-emerald-600">项</span>`;
+          document.getElementById('guard-stat-score').textContent = `${d.defense_readiness_score}%`;
+
+          // 填充下拉选项
+          const sel = document.getElementById('guard-sim-select');
+          if (sel) {
+            sel.innerHTML = currentGuardRisks.map(r => `
+              <option value="${r.risk_id}">[${r.severity}] ${r.category}</option>
+            `).join('');
+          }
+
+          // 填充风险卡片列表
+          const container = document.getElementById('guard-risks-container');
+          if (container) {
+            container.innerHTML = currentGuardRisks.map((r, idx) => `
+              <div class="p-3.5 rounded-xl border ${r.severity === 'HIGH' ? 'bg-red-50/40 border-red-200' : 'bg-slate-50 border-slate-200'} space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.severity === 'HIGH' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}">
+                      ${r.severity}
+                    </span>
+                    <span class="font-bold text-slate-800">${idx+1}. ${r.category}</span>
+                  </div>
+                  <span class="text-[11px] text-slate-500 font-medium">${r.model_affected}</span>
+                </div>
+                <div class="text-[11.5px] text-slate-600 font-mono bg-white p-2 rounded border border-slate-200/80">
+                  <span class="text-slate-400">诱发问句：</span>${r.test_query}
+                </div>
+                <div class="text-[11px] text-slate-700 bg-emerald-50/70 border border-emerald-200 p-2 rounded space-y-1">
+                  <div class="font-bold text-emerald-800 flex items-center gap-1">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span>官方强事实纠偏锚点：</span>
+                  </div>
+                  <div>${r.truth_anchor}</div>
+                </div>
+              </div>
+            `).join('');
+          }
+
+          // 触发首次沙箱模拟
+          await handleGuardSimulateChange();
+        }
+      } catch (err) {
+        console.error('加载幻觉防御数据异常:', err);
+      }
+    }
+
+    async function handleGuardSimulateChange() {
+      if (!currentProjectId) return;
+      const sel = document.getElementById('guard-sim-select');
+      const riskId = sel ? sel.value : (currentGuardRisks[0]?.risk_id || '');
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/guard/simulation?risk_id=${encodeURIComponent(riskId)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.simulation) {
+          const b = d.simulation.before;
+          const a = d.simulation.after;
+
+          document.getElementById('guard-sim-before-title').textContent = `👈 ${b.state}`;
+          document.getElementById('guard-sim-before-score').textContent = `${b.confidence_score}分`;
+          document.getElementById('guard-sim-before-resp').textContent = b.llm_response;
+
+          document.getElementById('guard-sim-after-title').textContent = `👉 ${a.state}`;
+          document.getElementById('guard-sim-after-score').textContent = `🏆 ${a.confidence_score}分 (+${a.score_improvement}分)`;
+          document.getElementById('guard-sim-after-resp').textContent = a.llm_response;
+        }
+      } catch (e) {
+        console.error('获取沙箱推演异常:', e);
+      }
+    }
+
+    async function handleRunGuardRepair() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-guard-repair');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>正在注入强事实锚点与反击语料...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/guard/repair`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ risk_id: 'all' })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('🎉 强事实锚点补丁与公关反击策略已成功生成！');
+          await loadGuardData();
+        } else {
+          showToast(d.message || '生成失败', 'error');
+        }
+      } catch (e) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        lucide.createIcons();
+      }
     }
 
     async function loadMarkdownToElem(filename, elemId) {

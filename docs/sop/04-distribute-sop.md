@@ -63,10 +63,33 @@ python3 -m tools.geo distribute --project <client_id>
 
 ---
 
-## 七、验收标准
+---
+
+## 七、大模型事实幻觉排查与公关反击规范 (Factual Guard)
+
+1. **幻觉风险自动排查**：
+   ```bash
+   python3 -m tools.geo guard <client_id> --detect
+   ```
+2. **一键生成强事实纠偏锚点与反击语料**：
+   ```bash
+   python3 -m tools.geo guard <client_id> --repair
+   ```
+   - 自动生成《07_大模型事实幻觉纠偏与信源反击策略.md》与 `factual_anchors.json`；
+   - 输出带时间戳与官方声明的 `llms-truth.txt` 补丁，挂载到官网；
+   - 在知乎/今日头条发布辟谣与权威评测长文，强制大模型重写事实心智。
+3. **修复前后双轨沙箱推演**：
+   ```bash
+   python3 -m tools.geo guard <client_id> --simulate
+   ```
+
+---
+
+## 八、验收标准
 
 - [ ] 五大平台首批内容全部发布并完成 `dist_ledger.json` URL 回填；
 - [ ] 运行 `geo verify-dist` 全量核验，分发完成率达到 80% 以上且无 404 死链；
+- [ ] 运行 `geo guard` 排查并完成 4 维事实幻觉与虚假负面反击语料部署；
 - [ ] 头条与知乎文章均已插入原生 SVG/PNG 对比图；
 - [ ] 视频号/短视频矩阵已按 60 秒脚本完成至少 1 期拍摄与发布；
 - [ ] 署名口径抽检 5 篇，100% 一致。

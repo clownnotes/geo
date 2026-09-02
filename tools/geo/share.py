@@ -309,6 +309,12 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         graph_summary = {}
 
+    try:
+        from .guard import detect_factual_hallucinations
+        guard_summary = detect_factual_hallucinations(project_id)
+    except Exception:
+        guard_summary = {}
+
     return {
         "success": True,
         "project_id": project_id,
@@ -326,6 +332,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "acceptance_summary": acceptance_summary,
         "pitch_summary": pitch_summary,
         "graph_summary": graph_summary,
+        "guard_summary": guard_summary,
         "share_meta": {
             "token": token,
             "created_at_str": rec.get("created_at_str"),

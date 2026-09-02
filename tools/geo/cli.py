@@ -233,6 +233,14 @@ def main():
     p_grp.add_argument("--export", choices=["cypher", "jsonld", "svg"], default=None, help="特定格式输出")
     p_grp.add_argument("--query", "-q", default=None, help="长尾多跳子图推理检索关键词")
 
+    # guard
+    p_grd = subparsers.add_parser("guard", help="大模型事实幻觉检测、强事实锚点注入与公关反击")
+    p_grd.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_grd.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_grd.add_argument("--detect", action="store_true", help="检测大模型事实幻觉与虚假负面")
+    p_grd.add_argument("--repair", action="store_true", help="生成强事实纠偏锚点与反击策略")
+    p_grd.add_argument("--simulate", action="store_true", help="沙箱推演修复前后的置信度与事实一致性")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -504,6 +512,38 @@ def main():
             print(json.dumps(res["jsonld_graph"], ensure_ascii=False, indent=2))
         elif exp == "svg":
             print(generate_graph_svg(pid))
+    elif args.command == "guard":
+        from .guard import detect_factual_hallucinations, generate_adversarial_countermeasures, simulate_guard_repair_effect
+        pid = get_pid(args)
+        if getattr(args, "simulate", False):
+            sim = simulate_guard_repair_effect(pid)
+            print("\n" + "="*65)
+            print(f"🛡️ 项目 [{pid}] 事实幻觉修复前后沙箱对决推演")
+            print("="*65)
+            b = sim["simulation"]["before"]
+            a = sim["simulation"]["after"]
+            print(f"👈 【修复前】{b['state']} (置信度: {b['confidence_score']}分 - {b['status_tag']})")
+            print(f"   回答: {b['llm_response'][:80]}...")
+            print(f"👉 【修复后】{a['state']} (置信度: {a['confidence_score']}分 - {a['status_tag']})")
+            print(f"   回答: {a['llm_response'][:80]}...")
+            print("="*65 + "\n")
+        elif getattr(args, "repair", False):
+            res = generate_adversarial_countermeasures(pid)
+            print(f"✅ 已生成反击策略文档: outputs/{res['filename']}")
+        else:
+            res = detect_factual_hallucinations(pid)
+            print("\n" + "="*65)
+            print(f"🛡️ 项目 [{pid}] 大模型事实幻觉与虚假信源检测报告")
+            print("="*65)
+            print(f"🏢 企业主体: {res['client_name']} ({res['brand_name']})")
+            print(f"🚨 排查风险总数: {res['total_risks']} 项 (高危: {res['high_severity_count']} 项 ｜ 已修复: {res['repaired_count']} 项)")
+            print(f"🛡️ 品牌防御就绪度: {res['defense_readiness_score']}%")
+            print("="*65)
+            for idx, r in enumerate(res["risks"], 1):
+                print(f"  [{r['severity']}] {idx}. {r['category']} ({r['model_affected']})")
+                print(f"     诱发问句: {r['test_query']}")
+                print(f"     纠偏锚点: {r['truth_anchor'][:60]}...")
+            print("="*65 + "\n")
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

@@ -648,6 +648,19 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 一键生成事实幻觉纠偏与公关反击策略: /api/projects/{id}/guard/repair
+        if path.startswith("/api/projects/") and path.endswith("/guard/repair"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            target_risk_id = body.get("risk_id", "all")
+            try:
+                from .guard import generate_adversarial_countermeasures
+                res = generate_adversarial_countermeasures(project_id, target_risk_id=target_risk_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -669,7 +682,7 @@ core_values:
             return
 
         # 删除客户项目 API: /api/projects/{id}
-        if path.startswith("/api/projects/"):
+        if path.startswith("/api/projects/") and len(path.split("/")) == 4:
             project_id = path.split("/")[3]
             try:
                 target_dir = os.path.join(PROJECTS_DIR, project_id)
@@ -1070,6 +1083,45 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 16. 专属甲方品牌幻觉风险清单公开 API: /api/share/{token}/guard/risks
+        if path.startswith("/api/share/") and path.endswith("/guard/risks"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                from .guard import detect_factual_hallucinations
+                res = detect_factual_hallucinations(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 17. 专属甲方幻觉修复前后沙箱推演公开 API: /api/share/{token}/guard/simulation
+        if path.startswith("/api/share/") and path.endswith("/guard/simulation"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            risk_id = parse_qs(parsed.query).get("risk_id", [None])[0]
+            try:
+                from .guard import simulate_guard_repair_effect
+                res = simulate_guard_repair_effect(project_id, risk_id=risk_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
             token = self.get_auth_token()
@@ -1395,6 +1447,29 @@ core_values:
                 try:
                     from .graph import query_entity_subgraph
                     res = query_entity_subgraph(project_id, kw)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 大模型事实幻觉与虚假负面风险检测: /api/projects/{id}/guard/risks
+            if path.startswith("/api/projects/") and path.endswith("/guard/risks"):
+                project_id = path.split("/")[3]
+                try:
+                    from .guard import detect_factual_hallucinations
+                    res = detect_factual_hallucinations(project_id)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 事实幻觉修复前后沙箱对决推演: /api/projects/{id}/guard/simulation
+            if path.startswith("/api/projects/") and path.endswith("/guard/simulation"):
+                project_id = path.split("/")[3]
+                risk_id = parse_qs(parsed.query).get("risk_id", [None])[0]
+                try:
+                    from .guard import simulate_guard_repair_effect
+                    res = simulate_guard_repair_effect(project_id, risk_id=risk_id)
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
