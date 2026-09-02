@@ -308,6 +308,12 @@ def main():
     p_cauth.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_cauth.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
+    # injection-guard (大模型提示词注入防御与品牌安全隔离)
+    p_inj = subparsers.add_parser("injection-guard", help="大模型提示词注入防御与品牌安全隔离盾牌扫描")
+    p_inj.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_inj.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_inj.add_argument("--file", "-f", default=None, help="指定待扫描的文件路径 (可选)")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -740,6 +746,25 @@ def main():
             status_icon = "🟢" if l["is_live"] else "🔴"
             print(f"  {idx}. {status_icon} [{l['channel_name']}] DA: {l['domain_authority']}分 ｜ 采纳率: {l['estimated_citation_rate']}% ｜ 适配: {','.join(l['best_fit_models'])}")
             print(f"     URL: {l['url']}")
+        print("="*65 + "\n")
+    elif args.command == "injection-guard":
+        from .injection_guard import evaluate_project_injection_immunity
+        pid = get_pid(args)
+        res = evaluate_project_injection_immunity(pid)
+        print("\n" + "="*65)
+        print(f"🛡️ 项目 [{pid}] 大模型提示词注入防御与品牌安全隔离盾牌报告")
+        print("="*65)
+        print(f"📊 提示词注入免疫度: {res['immunity_score']}/100 ｜ 状态: {'🟢 极高安全免疫' if res['is_secure'] else '🔴 存在注入风险'}")
+        print(f"🚨 捕获威胁总数: {res['total_threats']} 处 (🔴 P0: {res['p0_threats_count']} ｜ 🟡 P1: {res['p1_threats_count']} ｜ 🟢 P2: {res['p2_threats_count']})")
+        print(f"📁 扫描资产文件: {res['scanned_files_count']} 份")
+        print("="*65)
+        for idx, r in enumerate(res["defense_quarantine_rules"], 1):
+            print(f"  {idx}. {r}")
+        if res["threats_detail"]:
+            print("\n--- [威胁明细 Top 5] ---")
+            for idx, t in enumerate(res["threats_detail"][:5], 1):
+                print(f"  {idx}. [{t['risk_level']}] `{t['file']}:L{t['line']}` 命中: 【{t['matched_text']}】")
+                print(f"     上下文: {t['context']}")
         print("="*65 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))

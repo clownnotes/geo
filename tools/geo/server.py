@@ -832,6 +832,23 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 提示词注入防御与品牌安全隔离 API: /api/projects/{id}/guard/injection (POST)
+        if path.startswith("/api/projects/") and path.endswith("/guard/injection"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            custom_text = body.get("text")
+            try:
+                from .injection_guard import evaluate_project_injection_immunity, scan_content_for_injections
+                if custom_text:
+                    findings = scan_content_for_injections(custom_text)
+                    self.send_json({"success": True, "findings": findings, "count": len(findings)})
+                else:
+                    res = evaluate_project_injection_immunity(project_id)
+                    self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2156,6 +2173,25 @@ core_values:
                     try:
                         from .citation_authority import evaluate_project_citation_authority
                         res = evaluate_project_citation_authority(project_id)
+                        self.send_json(res)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取提示词注入防御与品牌安全隔离数据: /api/projects/{id}/guard/injection (GET)
+            if path.startswith("/api/projects/") and path.endswith("/guard/injection"):
+                project_id = path.split("/")[3]
+                guard_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "prompt_injection_guard.json")
+                if os.path.exists(guard_file):
+                    try:
+                        with open(guard_file, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .injection_guard import evaluate_project_injection_immunity
+                        res = evaluate_project_injection_immunity(project_id)
                         self.send_json(res)
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)

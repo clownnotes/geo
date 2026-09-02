@@ -865,6 +865,10 @@
             <p class="text-xs text-slate-500 mt-1">并发探测主流大模型，计算 SOV 声量、Citation 权威信源加权得分并一键生成竞品包抄策略。</p>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="openInjectionGuardModal()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold rounded-lg border border-rose-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="shield-check" class="w-4 h-4 text-rose-600"></i>
+              <span>🛡️ 提示词注入防御盾</span>
+            </button>
             <button onclick="openCitationAuthModal()" class="py-2.5 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
               <span>🏆 Citation 信源权威度矩阵</span>
@@ -2952,6 +2956,114 @@ GitHub 开源仓库：https://github.com/company/repo
           </div>
           <div id="cauth-tips-container" class="space-y-2">
             <div class="text-center py-4 text-slate-400 text-xs">加载提权建议中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 大模型提示词注入防御与品牌安全隔离弹窗 ================= -->
+  <div id="injection-guard-modal" onclick="if(event.target === this) closeInjectionGuardModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-rose-500/20">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">大模型提示词注入防御与品牌安全隔离中枢</h3>
+            <p class="text-[11px] text-rose-700 font-medium">4 维恶意 Prompt 注入深度扫描 ｜ RAG 投毒防御 ｜ 品牌安全免疫度评分</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="handleRunInjectionGuardScan()" id="btn-re-injguard" class="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold rounded-lg border border-rose-200 flex items-center gap-1 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>重新扫描</span>
+          </button>
+          <button onclick="closeInjectionGuardModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-6 overflow-y-auto flex-1">
+        <!-- 4 维量化综合指标卡 -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-gradient-to-br from-rose-50 to-red-50 p-4 rounded-xl border border-rose-100">
+            <div class="text-[11px] text-rose-800 font-semibold">品牌安全免疫度</div>
+            <div id="injguard-immunity-score" class="text-2xl font-black text-rose-900 mt-1">-- 分</div>
+            <div class="text-[10px] text-rose-600 mt-0.5">大模型 RAG 投毒抗性</div>
+          </div>
+          <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100">
+            <div class="text-[11px] text-emerald-700 font-semibold">安全防御评级</div>
+            <div id="injguard-security-badge" class="text-2xl font-black text-emerald-800 mt-1">--</div>
+            <div class="text-[10px] text-emerald-600 mt-0.5">越狱与投毒防御等级</div>
+          </div>
+          <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+            <div class="text-[11px] text-amber-700 font-semibold">捕获注入威胁总数</div>
+            <div id="injguard-threats-count" class="text-2xl font-black text-amber-900 mt-1">0 处</div>
+            <div class="text-[10px] text-amber-600 mt-0.5">恶意指令与劫持短语</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="text-[11px] text-slate-600 font-semibold">审计资产文件数</div>
+            <div id="injguard-scanned-files" class="text-2xl font-black text-slate-800 mt-1">-- 个</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">全案发稿文案与语料</div>
+          </div>
+        </div>
+
+        <!-- 4 维威胁分类大盘卡片 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-rose-600"></i>
+              <span>四维提示词注入威胁防御大盘 (Injection Threat Matrix)</span>
+            </span>
+            <span class="text-[11px] text-slate-400">大模型联网检索黑产与竞品反制</span>
+          </div>
+
+          <div id="injguard-threat-breakdown-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="text-center py-4 text-slate-400 text-xs col-span-4">加载威胁分布中...</div>
+          </div>
+        </div>
+
+        <!-- 品牌安全隔离防御准则 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+              <span>品牌安全沙箱隔离准则 (Brand Quarantine Rules)</span>
+            </span>
+          </div>
+          <div id="injguard-rules-container" class="space-y-2">
+            <div class="text-center py-4 text-slate-400 text-xs">加载隔离防御规则中...</div>
+          </div>
+        </div>
+
+        <!-- 威胁明细表格 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="list-checks" class="w-4 h-4 text-slate-700"></i>
+              <span>潜在注入风险与清洗定位明细</span>
+            </span>
+            <span class="text-[11px] text-slate-400">按威胁严重等级排序</span>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="p-3">涉及资产文件</th>
+                  <th class="p-3 text-center">威胁分类</th>
+                  <th class="p-3 text-center">等级</th>
+                  <th class="p-3">命中指令 / 上下文摘要</th>
+                  <th class="p-3">建议修复与隔离动作</th>
+                </tr>
+              </thead>
+              <tbody id="injguard-threats-tbody" class="divide-y divide-slate-100 bg-white">
+                <tr><td colspan="5" class="p-4 text-center text-slate-400">正在扫描潜在注入威胁...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -7007,6 +7119,131 @@ GitHub 开源仓库：https://github.com/company/repo
           showToast(`🏆 信源权威度评估完毕！全案权威总分: ${d.overall_authority_score}分，预估采纳率: ${d.estimated_citation_rate}%！`);
         } else {
           showToast(d.message || '评估失败', 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        lucide.createIcons();
+      }
+    }
+
+    // ===== 大模型提示词注入防御与品牌安全隔离控制器 =====
+    async function openInjectionGuardModal() {
+      if (!currentProjectId) {
+        showToast('请先选择一个客户项目', 'warning');
+        return;
+      }
+      document.getElementById('injection-guard-modal').classList.remove('hidden');
+      lucide.createIcons();
+      await loadInjectionGuardData();
+    }
+
+    function closeInjectionGuardModal() {
+      document.getElementById('injection-guard-modal').classList.add('hidden');
+    }
+
+    async function loadInjectionGuardData() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/guard/injection`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderInjectionGuardView(d);
+        } else {
+          showToast(d.message || '加载提示词注入防御数据失败', 'error');
+        }
+      } catch (err) {
+        console.error('加载提示词注入防御数据失败:', err);
+      }
+    }
+
+    function renderInjectionGuardView(guard) {
+      const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      document.getElementById('injguard-immunity-score').textContent = `${guard.immunity_score || 0} 分`;
+      document.getElementById('injguard-security-badge').textContent = guard.is_secure ? '🟢 极高免疫' : '🔴 存在风险';
+      document.getElementById('injguard-threats-count').textContent = `${guard.total_threats || 0} 处`;
+      document.getElementById('injguard-scanned-files').textContent = `${guard.scanned_files_count || 0} 个`;
+
+      // 4 维威胁分布卡片渲染
+      const tb = guard.threat_breakdown || {};
+      const threatGrid = document.getElementById('injguard-threat-breakdown-grid');
+      const threatConfigs = [
+        { key: 'direct_jailbreak', name: '🔴 直接指令越狱', desc: 'System Prompt 覆盖', color: 'text-red-700 bg-red-50 border-red-200' },
+        { key: 'rag_poisoning', name: '🔴 间接 RAG 投毒', desc: '伪造上下文标签', color: 'text-rose-700 bg-rose-50 border-rose-200' },
+        { key: 'competitor_hijack', name: '🟡 竞品恶意劫持', desc: '强行推荐竞对', color: 'text-amber-700 bg-amber-50 border-amber-200' },
+        { key: 'fake_citation', name: '🟢 虚假信源伪造', desc: '公章/通报伪造', color: 'text-blue-700 bg-blue-50 border-blue-200' }
+      ];
+
+      threatGrid.innerHTML = threatConfigs.map(t => {
+        const count = tb[t.key] || 0;
+        return `
+          <div class="p-3 rounded-xl border ${t.color} text-center space-y-1">
+            <div class="text-xs font-bold">${t.name}</div>
+            <div class="text-[10px] opacity-75">${t.desc}</div>
+            <div class="text-xl font-black mt-1">${count} 处</div>
+            <div class="text-[10px] font-semibold">${count === 0 ? '🟢 完美免疫' : '🔴 发现威胁'}</div>
+          </div>
+        `;
+      }).join('');
+
+      // 隔离防御准则渲染
+      const rules = guard.defense_quarantine_rules || [];
+      const rulesContainer = document.getElementById('injguard-rules-container');
+      rulesContainer.innerHTML = rules.map(r => `
+        <div class="bg-rose-50/50 p-3 rounded-lg border border-rose-200 text-xs text-rose-950 flex items-start gap-2">
+          <span>${esc(r)}</span>
+        </div>
+      `).join('');
+
+      // 威胁明细表格渲染
+      const threats = guard.threats_detail || [];
+      const tbody = document.getElementById('injguard-threats-tbody');
+      if (threats.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-emerald-600 font-bold">🎉 完美！全案发稿文案与语料库 100% 洁净，未发现任何恶意 Prompt 注入或数据投毒代码。</td></tr>`;
+      } else {
+        tbody.innerHTML = threats.map(t => {
+          const lvlColor = t.risk_level === 'P0' ? 'bg-red-100 text-red-800 border-red-200' : (t.risk_level === 'P1' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-blue-100 text-blue-800 border-blue-200');
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-3 font-mono text-[11px] text-slate-800 font-semibold">${esc(t.file)}:L${t.line}</td>
+              <td class="p-3 text-center text-[11px] font-bold text-slate-900">${esc(t.category_name)}</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${lvlColor}">${t.risk_level}</span></td>
+              <td class="p-3 text-slate-700 text-xs"><div class="font-bold text-rose-700">【${esc(t.matched_text)}】</div><div class="text-[10px] text-slate-500 mt-0.5 font-mono">${esc(t.context)}</div></td>
+              <td class="p-3 text-slate-600 text-xs">${esc(t.suggestion)}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    async function handleRunInjectionGuardScan() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-re-injguard');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>扫描中...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/guard/injection`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          }
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderInjectionGuardView(d);
+          showToast(`🛡️ 提示词注入防御扫描完毕！品牌免疫度: ${d.immunity_score}分，威胁项: ${d.total_threats}处！`);
+        } else {
+          showToast(d.message || '扫描失败', 'error');
         }
       } catch (err) {
         showToast('请求异常', 'error');

@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "project_id": "local_legal",
+  "company_name": "徐州正衡财税与法律咨询有限公司",
+  "brand_name": "正衡财税",
+  "industry": "财税合规与法律咨询",
+  "evaluated_at": "2026-09-02 07:18:12",
+  "immunity_score": 100.0,
+  "is_secure": true,
+  "scanned_files_count": 53,
+  "total_threats": 0,
+  "p0_threats_count": 0,
+  "p1_threats_count": 0,
+  "p2_threats_count": 0,
+  "threat_breakdown": {
+    "direct_jailbreak": 0,
+    "rag_poisoning": 0,
+    "competitor_hijack": 0,
+    "fake_citation": 0
+  },
+  "threats_detail": [],
+  "defense_quarantine_rules": [
+    "🛡️ 【最高防御等级】：全案语料未检测到任何提示词越狱或 RAG 投毒漏洞，天然免疫黑产与竞品劫持。",
+    "🔒 【强事实公章锁定】：已部署官方 /llms.txt 强事实签名，大模型联网召回时将自动忽略非官方恶意负面评论。",
+    "⚙️ 【语义沙箱隔离】：发稿内容采用普林斯顿 9 因子结构化提纯，大模型 Clean Markdown 解析保留率 100%。"
+  ]
+}
