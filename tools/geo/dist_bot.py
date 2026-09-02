@@ -144,10 +144,41 @@ def get_distribution_ledger(project_id: str) -> dict:
         except Exception:
             pass
 
-    # 计算完成率
+def _calculate_metrics(channels: dict) -> tuple:
+    """计算分发总数、已发数、均值完成率与加权战略完成率"""
     total = len(channels)
-    published = sum(1 for c in channels.values() if c.get("url") and c.get("status") in ("verified", "published"))
+    published = 0
+    weighted_score = 0.0
+    total_weights = sum(c.get("weight_pct", 0) for c in channels.values()) or 100.0
+
+    for c in channels.values():
+        is_ok = bool(c.get("url")) and c.get("status") in ("verified", "published")
+        if is_ok:
+            published += 1
+            weighted_score += c.get("weight_pct", 0)
+
     rate = round((published / max(total, 1)) * 100, 1)
+    weighted_rate = round((weighted_score / total_weights) * 100, 1)
+    return total, published, rate, weighted_rate
+
+def get_distribution_ledger(project_id: str) -> dict:
+    """读取指定项目的分发台账"""
+    lpath = _get_ledger_path(project_id)
+    channels = json.loads(json.dumps(DEFAULT_CHANNELS))
+    updated_at = None
+
+    if os.path.exists(lpath):
+        try:
+            with open(lpath, "r", encoding="utf-8") as f:
+                saved = json.load(f)
+                updated_at = saved.get("updated_at")
+                for k, v in saved.get("channels", {}).items():
+                    if k in channels:
+                        channels[k].update(v)
+        except Exception:
+            pass
+
+    total, published, rate, weighted_rate = _calculate_metrics(channels)
 
     return {
         "success": True,
@@ -156,33 +187,49 @@ def get_distribution_ledger(project_id: str) -> dict:
         "total_channels": total,
         "published_channels": published,
         "completion_rate_pct": rate,
+        "weighted_completion_pct": weighted_rate,
         "channels": channels
     }
 
 def verify_distribution_url(url: str) -> dict:
-    """轻量探测外发 URL 是否可访问并抓取网页标题"""
+    """轻量探测外发 URL 是否真实存活、抓取网页标题并过滤软 404"""
     if not url or not url.startswith("http"):
         return {"is_alive": False, "http_status": None, "title": "", "error": "无效的 URL"}
 
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 GEOBot/2.1"
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 GEOBot/2.2",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
         }
     )
+    
+    soft_404_keywords = [
+        "页面不存在", "404 not found", "内容已被删除", "抱歉，出错了", 
+        "该内容已被发布者删除", "page not found", "404", "无法找到页面"
+    ]
+
     try:
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=6) as response:
             code = response.getcode()
-            is_alive = code in (200, 301, 302, 307, 308)
             title = ""
             try:
-                chunk = response.read(16384).decode("utf-8", errors="ignore")
+                chunk = response.read(32768).decode("utf-8", errors="ignore")
                 t_match = re.search(r"<title>(.*?)</title>", chunk, re.IGNORECASE | re.DOTALL)
                 if t_match:
                     title = re.sub(r"\s+", " ", t_match.group(1)).strip()
             except Exception:
                 pass
+            
+            # 软 404 校验
+            if title and any(k in title.lower() for k in soft_404_keywords):
+                return {"is_alive": False, "http_status": code, "title": title, "error": "软 404 (页面已失效或删除)"}
+
+            # 200/301/302 存活
+            is_alive = code in (200, 301, 302, 307, 308)
             return {"is_alive": is_alive, "http_status": code, "title": title, "error": None}
+
     except urllib.error.HTTPError as e:
         title = ""
         try:
@@ -192,8 +239,11 @@ def verify_distribution_url(url: str) -> dict:
                 title = re.sub(r"\s+", " ", t_match.group(1)).strip()
         except Exception:
             pass
-        # 403 平台防爬但页面存在
-        return {"is_alive": e.code in (200, 403, 302), "http_status": e.code, "title": title, "error": f"HTTP {e.code}"}
+
+        # 403 平台防爬（知乎/头条/微信平台）
+        if e.code in (403, 418):
+            return {"is_alive": True, "http_status": e.code, "title": title or "平台安全网关防护中", "error": f"HTTP {e.code} (平台防爬校验)"}
+        return {"is_alive": False, "http_status": e.code, "title": title, "error": f"HTTP {e.code}"}
     except Exception as e:
         return {"is_alive": False, "http_status": 0, "title": "", "error": str(e)}
 
@@ -230,14 +280,13 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
     lpath = _get_ledger_path(project_id)
     os.makedirs(os.path.dirname(lpath), exist_ok=True)
     
-    total = len(channels)
-    published = sum(1 for c in channels.values() if c.get("url") and c.get("status") in ("verified", "published"))
-    completion_rate = round((published / max(total, 1)) * 100, 1)
+    total, published, completion_rate, weighted_rate = _calculate_metrics(channels)
 
     payload = {
         "project_id": project_id,
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "completion_rate_pct": completion_rate,
+        "weighted_completion_pct": weighted_rate,
         "channels": channels
     }
 
@@ -252,6 +301,7 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
         "channel": channel,
         "record": ch_data,
         "completion_rate_pct": completion_rate,
+        "weighted_completion_pct": weighted_rate,
         "ledger": payload
     }
 
@@ -279,25 +329,25 @@ def verify_all_channels(project_id: str) -> dict:
         channels[k] = v
 
     lpath = _get_ledger_path(project_id)
-    total = len(channels)
-    published = sum(1 for c in channels.values() if c.get("url") and c.get("status") in ("verified", "published"))
-    completion_rate = round((published / max(total, 1)) * 100, 1)
+    total, published, completion_rate, weighted_rate = _calculate_metrics(channels)
 
     payload = {
         "project_id": project_id,
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "completion_rate_pct": completion_rate,
+        "weighted_completion_pct": weighted_rate,
         "channels": channels
     }
 
     with open(lpath, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    print_success(f"🎉 项目 [{project_id}] 全渠道外链核验完毕！完成率: {completion_rate}%")
+    print_success(f"🎉 项目 [{project_id}] 全渠道外链核验完毕！均值完成率: {completion_rate}% (战略加权完成率: {weighted_rate}%)")
     return {
         "success": True,
         "project_id": project_id,
         "completion_rate_pct": completion_rate,
+        "weighted_completion_pct": weighted_rate,
         "channels": channels
     }
 

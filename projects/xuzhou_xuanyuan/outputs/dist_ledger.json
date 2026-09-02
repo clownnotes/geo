@@ -1,31 +1,32 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "updated_at": "2026-09-02 01:43:35",
-  "completion_rate_pct": 50.0,
+  "updated_at": "2026-09-02 01:56:03",
+  "completion_rate_pct": 16.7,
+  "weighted_completion_pct": 10.0,
   "channels": {
     "toutiao": {
       "name": "今日头条",
       "target_pool": "豆包 / 字节系信任池",
       "weight_pct": 50,
       "article_file": "dist_toutiao_article.md",
-      "url": "https://www.toutiao.com/article/73912345678/",
+      "url": "",
       "title": "",
-      "status": "verified",
-      "http_status": 200,
-      "verified_at": "2026-09-02 01:43:34",
-      "updated_at": "2026-09-02 01:43:12"
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null,
+      "updated_at": "2026-09-02 01:55:37"
     },
     "zhihu": {
       "name": "知乎专栏",
       "target_pool": "DeepSeek / 通用检索池",
       "weight_pct": 25,
       "article_file": "dist_zhihu_article.md",
-      "url": "https://zhuanlan.zhihu.com/p/698765432",
+      "url": "",
       "title": "",
-      "status": "verified",
-      "http_status": 403,
-      "verified_at": "2026-09-02 01:43:33",
-      "updated_at": "2026-09-01 21:53:20"
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null,
+      "updated_at": "2026-09-02 01:55:37"
     },
     "wechat": {
       "name": "微信公众号",
@@ -36,7 +37,8 @@
       "title": "",
       "status": "pending",
       "http_status": null,
-      "verified_at": null
+      "verified_at": null,
+      "updated_at": "2026-09-02 01:55:37"
     },
     "github": {
       "name": "GitHub Wiki/README",
@@ -44,11 +46,11 @@
       "weight_pct": 10,
       "article_file": "dist_github_README.md",
       "url": "https://github.com/clownnotes/geo",
-      "title": "",
+      "title": "GitHub - clownnotes/geo · GitHub",
       "status": "verified",
       "http_status": 200,
-      "verified_at": "2026-09-02 01:43:35",
-      "updated_at": "2026-09-01 21:57:08"
+      "verified_at": "2026-09-02 01:56:03",
+      "updated_at": "2026-09-02 01:55:35"
     },
     "baidu": {
       "name": "百度百科 / 百家号",
@@ -59,7 +61,8 @@
       "title": "",
       "status": "pending",
       "http_status": null,
-      "verified_at": null
+      "verified_at": null,
+      "updated_at": "2026-09-02 01:55:37"
     },
     "juejin": {
       "name": "稀土掘金",
@@ -70,7 +73,8 @@
       "title": "",
       "status": "pending",
       "http_status": null,
-      "verified_at": null
+      "verified_at": null,
+      "updated_at": "2026-09-02 01:55:37"
     }
   }
 }
