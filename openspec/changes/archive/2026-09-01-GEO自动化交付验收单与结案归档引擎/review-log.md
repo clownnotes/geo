@@ -59,3 +59,54 @@
   - 本次仅在本地开发端（8088）测试，严格未向生产机部署；
   - Git 仓库准备执行正常提交与远端推送。
 - **结论**：`[通过]`，全部任务 100% 达成。
+
+---
+
+### 2026-09-01 Cursor [独立代码审查：交付验收单与结案归档引擎] [需修正]
+
+- **阶段**：Code Apply & Cross-IDE Review（Cursor 独立审查，不采信 Antigravity 自评 `[通过]`）
+- **审查范围**：`dbfeb5d` 对照 `proposal.md` / `design.md` / `tasks.md` / `AGENTS.md`
+- **审查方法**：阅读 `acceptance.py`、`server.py` 路由链、`share.py` 注入、Step 5 / 顶部工具栏 / share Tab 5；对比父提交路由 `return`；本地冒烟 `calculate_fulfillment_score` / `export_project_archive_zip`
+
+#### 🔴 必须修正
+
+无阻断级路由 `return` 回归（`roi/calculate`、`rich-content`、三条 acceptance 路由均正确 `return`）。
+
+#### 🟡 建议修正（与 design 偏差）
+
+| # | 问题 | 位置 | 说明 |
+|:--|:-----|:-----|:-----|
+| 1 | **S2 未校验 `robots.txt`** | `acceptance.py` | design §2 要求三件底座齐全；原实现仅 llms(8)+schema(7) |
+| 2 | **全额结案阈值不一致** | `acceptance.py` | design ≥90%；原 `status_text` 用 85%、`is_passed` 用 80% |
+| 3 | **S5 SOV 评分过于宽松** | `acceptance.py` | 原逻辑 `effective_sov≥80` 即满分，离线摸底亦可 20 分 |
+| 4 | **`GET acceptance/data` 有写副作用** | `server.py` | 原调用 `generate_acceptance_report` 每次 GET 重写 md 文件 |
+| 5 | **打印 HTML 状态硬编码** | `acceptance.py` | 各行固定「✅ 已达成」，部分得分时误导 |
+
+#### 🟢 优化建议
+
+| # | 建议 |
+|:--|:-----|
+| 6 | S3 仅检查语料文件存在，未校验 9 因子表格/FAQ 内容质量 |
+| 7 | `data/shares.json` +60 行测试 token |
+| 8 | 打印页 token 走 URL query（既有模式，注意浏览器历史泄露） |
+
+#### ✅ 已验证通过项
+
+- 6 维履约引擎、结案单 Markdown、ZIP 打包（38.7KB / 20 文件）可运行
+- API/CLI/share 公开路由、Step 5 看板 + 顶部「结案验收单」「归档 ZIP」按钮、门户 Tab 5 注入
+- SOP 已更新
+
+- **结论**：`[需修正]`。无路由回归，但履约算法与 GET 语义需 P1 对齐 design。
+
+---
+
+### 2026-09-01 Cursor [复审：P1 修复项闭环核验] [通过]
+
+- **已落地修复**：
+  1. S2 改为 llms/schema/robots 各 5 分
+  2. 全额结案阈值统一为 ≥90%（`is_passed` / `status_text` / 前端徽章）
+  3. S5 按 SOV 分档计分，离线项目不再轻易满分
+  4. 新增 `get_acceptance_data` 只读 GET；`generate_acceptance_report` 留给 signoff/print/pack
+  5. 打印 HTML 按 breakdown 动态渲染履约状态
+- **冒烟**：xuzhou_xuanyuan 履约 94 分、`get_acceptance_data` 只读正常
+- **结论**：`[通过]`，可 `/opsx-archive` 归档。

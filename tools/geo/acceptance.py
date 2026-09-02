@@ -54,6 +54,7 @@ def calculate_fulfillment_score(project_id: str) -> dict:
     has_audit = os.path.exists(os.path.join(p_dir, "01_企业AI可见度现状体检与商业诊断报告.md"))
     has_llms = os.path.exists(os.path.join(p_dir, "llms.txt"))
     has_schema = os.path.exists(os.path.join(p_dir, "schema.jsonld"))
+    has_robots = os.path.exists(os.path.join(p_dir, "robots.txt"))
     has_corpus = os.path.exists(os.path.join(p_dir, "03_普林斯顿9因子高权威语料库.md")) or os.path.exists(os.path.join(p_dir, "03_普林斯顿9因子企业语料库.md"))
     
     dist_ledger = get_distribution_ledger(project_id)
@@ -69,8 +70,8 @@ def calculate_fulfillment_score(project_id: str) -> dict:
     # 1. 调研审计 (15分)
     score_audit = 15 if has_audit else 0
     
-    # 2. 站点底座改造 (15分)
-    score_scaffold = (8 if has_llms else 0) + (7 if has_schema else 0)
+    # 2. 站点底座改造 (15分)：llms.txt / schema.jsonld / robots.txt 各 5 分
+    score_scaffold = (5 if has_llms else 0) + (5 if has_schema else 0) + (5 if has_robots else 0)
     
     # 3. 普林斯顿语料库 (20分)
     score_corpus = 20 if has_corpus else 0
@@ -78,16 +79,23 @@ def calculate_fulfillment_score(project_id: str) -> dict:
     # 4. 全渠道矩阵分发 (15分)
     score_dist = round((dist_rate / 100.0) * 15, 1)
     
-    # 5. 声量监控与 SOV (20分)
-    score_sov = 20 if (raw_sov >= 80 or roi_res.get("metrics_summary", {}).get("effective_sov_pct", 0) >= 80) else 15
+      # 5. 声量监控与 SOV (20分)：以实测 raw_sov 为准，未达标按比例给分
+    effective_sov = float(roi_res.get("metrics_summary", {}).get("effective_sov_pct", 0) or 0)
+    sov_for_score = raw_sov if raw_sov > 0 else effective_sov
+    if sov_for_score >= 80:
+        score_sov = 20
+    elif sov_for_score >= 60:
+        score_sov = 15
+    else:
+        score_sov = round((sov_for_score / 80.0) * 20, 1)
     
     # 6. 商业 ROI 与资产估值 (15分)
     score_roi = 15 if roi_pct >= 100 else (10 if roi_pct > 0 else 5)
     
     total_score = round(score_audit + score_scaffold + score_corpus + score_dist + score_sov + score_roi, 1)
     
-    is_passed = total_score >= 80.0
-    status_text = "✅ 符合全额结案回款验收标准" if total_score >= 85.0 else ("🟢 达到基本交付验收标准" if total_score >= 70.0 else "⚠️ 部分条款需补齐")
+    is_passed = total_score >= 90.0
+    status_text = "✅ 符合全额结案回款验收标准" if total_score >= 90.0 else ("🟢 达到基本交付验收标准" if total_score >= 70.0 else "⚠️ 部分条款需补齐")
     
     # 交付文件存在性统计
     found_count = 0
@@ -119,7 +127,7 @@ def calculate_fulfillment_score(project_id: str) -> dict:
             {"dimension": "S2 站点技术底座改造", "weight_pct": 15, "score": score_scaffold, "max_score": 15, "status": "已达成" if score_scaffold == 15 else "部分完成"},
             {"dimension": "S3 普林斯顿 9 因子语料重构", "weight_pct": 20, "score": score_corpus, "max_score": 20, "status": "已达成" if score_corpus == 20 else "未完成"},
             {"dimension": "S4 全渠道矩阵分发与收录台账", "weight_pct": 15, "score": score_dist, "max_score": 15, "status": f"完成率 {dist_rate}%"},
-            {"dimension": "S5 声量监测与首推占有率 (SOV)", "weight_pct": 20, "score": score_sov, "max_score": 20, "status": "已达标"},
+            {"dimension": "S5 声量监测与首推占有率 (SOV)", "weight_pct": 20, "score": score_sov, "max_score": 20, "status": f"SOV {sov_for_score}%"},
             {"dimension": "S6 商业 ROI 与企业数字资产估值", "weight_pct": 15, "score": score_roi, "max_score": 15, "status": f"ROI +{roi_pct}%"}
         ],
         "manifest": manifest_status
@@ -247,6 +255,27 @@ def generate_acceptance_report(project_id: str) -> dict:
         "content": md_content
     }
 
+def get_acceptance_data(project_id: str) -> dict:
+    """获取结案验收结构化数据（只读，不重复写入结案单文件）"""
+    p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    report_filename = "00_GEO商业交付验收结案确认单.md"
+    report_path = os.path.join(p_dir, report_filename)
+    fulfillment = calculate_fulfillment_score(project_id)
+    roi_data = calculate_project_roi(project_id)
+    content = ""
+    if os.path.exists(report_path):
+        with open(report_path, "r", encoding="utf-8") as f:
+            content = f.read()
+    return {
+        "success": True,
+        "project_id": project_id,
+        "filename": report_filename,
+        "fulfillment": fulfillment,
+        "roi": roi_data,
+        "content": content,
+        "report_exists": bool(content)
+    }
+
 def export_project_archive_zip(project_id: str) -> str:
     """将项目 outputs/ 目录下的所有有效交付物打包为 ZIP 归档压缩包"""
     p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
@@ -283,6 +312,23 @@ def generate_print_acceptance_html(project_id: str) -> str:
     ful = report_res["fulfillment"]
     roi_data = report_res["roi"]
     roi = roi_data["financial_valuation"]
+
+    def _row_status(item: dict) -> str:
+        """根据得分生成打印页履约状态文案"""
+        score = float(item.get("score", 0))
+        max_score = float(item.get("max_score", 0))
+        if score >= max_score:
+            return "✅ 已达成"
+        if score > 0:
+            return f"🟡 部分完成 ({item.get('status', '')})"
+        return "⚠️ 未完成"
+
+    breakdown_rows = ""
+    for item in ful.get("breakdown", []):
+        breakdown_rows += (
+            f"<tr><td>{item['dimension']}</td><td>{item['weight_pct']}%</td>"
+            f"<td>{item['score']} / {item['max_score']}</td><td>{_row_status(item)}</td></tr>"
+        )
     cur_date = time.strftime("%Y年%m月%d日")
 
     html = f"""<!DOCTYPE html>
@@ -469,12 +515,7 @@ def generate_print_acceptance_html(project_id: str) -> str:
       </tr>
     </thead>
     <tbody>
-      <tr><td>S1 商业意图与体检诊断报告</td><td>15%</td><td>{ful['breakdown'][0]['score']} / 15</td><td>✅ 已达成</td></tr>
-      <tr><td>S2 站点技术底座改造交付包 (llms.txt/Schema)</td><td>15%</td><td>{ful['breakdown'][1]['score']} / 15</td><td>✅ 已达成</td></tr>
-      <tr><td>S3 普林斯顿 9 因子重构语料库</td><td>20%</td><td>{ful['breakdown'][2]['score']} / 20</td><td>✅ 已达成</td></tr>
-      <tr><td>S4 全渠道矩阵分发与收录台账</td><td>15%</td><td>{ful['breakdown'][3]['score']} / 15</td><td>✅ 已达成</td></tr>
-      <tr><td>S5 声量监测与首推占有率 (SOV)</td><td>20%</td><td>{ful['breakdown'][4]['score']} / 20</td><td>✅ 已达成</td></tr>
-      <tr><td>S6 商业 ROI 与企业数字资产估值</td><td>15%</td><td>{ful['breakdown'][5]['score']} / 15</td><td>✅ 已达成</td></tr>
+      {breakdown_rows}
       <tr class="highlight-row">
         <td>综合履约达标率总计</td>
         <td>100%</td>

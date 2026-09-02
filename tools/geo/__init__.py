@@ -72,6 +72,7 @@ from .roi import (
 )
 from .acceptance import (
     calculate_fulfillment_score,
+    get_acceptance_data,
     generate_acceptance_report,
     export_project_archive_zip,
     generate_print_acceptance_html

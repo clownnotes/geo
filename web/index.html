@@ -3931,7 +3931,7 @@
           const badgeEl = document.getElementById('acceptance-status-badge');
           if (badgeEl) {
             badgeEl.textContent = `${ful.status_text} (${ful.total_fulfillment_score}分)`;
-            badgeEl.className = ful.total_fulfillment_score >= 85
+            badgeEl.className = ful.total_fulfillment_score >= 90
               ? 'px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold'
               : 'px-2.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-bold';
           }

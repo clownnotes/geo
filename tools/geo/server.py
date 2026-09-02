@@ -1156,9 +1156,9 @@ core_values:
             # 获取项目商业交付结案确认单数据: /api/projects/{id}/acceptance/data
             if path.startswith("/api/projects/") and path.endswith("/acceptance/data"):
                 project_id = path.split("/")[3]
-                from .acceptance import generate_acceptance_report
+                from .acceptance import get_acceptance_data
                 try:
-                    res = generate_acceptance_report(project_id)
+                    res = get_acceptance_data(project_id)
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
