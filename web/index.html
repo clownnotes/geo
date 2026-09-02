@@ -348,16 +348,20 @@
             <h2 class="text-base font-bold text-slate-900">阶段一：客户现状体检与商业诊断</h2>
             <p class="text-xs text-slate-500 mt-1">模拟 AI 爬虫抓取官网，检测 SSR 渲染、/llms.txt、JSON-LD 及文本密度，生成签单体检报告。</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="openPitchModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openCrawlerSimModal()" class="py-2.5 px-3.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="bot" class="w-4 h-4 text-blue-600"></i>
+              <span>🕷️ 爬虫抓取仿真</span>
+            </button>
+            <button onclick="openPitchModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="presentation" class="w-4 h-4 text-purple-600"></i>
-              <span>🎯 售前全案 Pitch Deck</span>
+              <span>🎯 售前 Pitch Deck</span>
             </button>
-            <button onclick="openEvolutionModal()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
+            <button onclick="openEvolutionModal()" class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
-              <span>🌱 词库动态演进与裂变</span>
+              <span>🌱 词库演进</span>
             </button>
-            <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+            <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="scan" class="w-4 h-4"></i>
               <span>执行体检诊断</span>
             </button>
@@ -409,24 +413,23 @@
               <span onclick="showTermHelp(event, 'llms')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
             </button>
             <button onclick="switchScaffoldTab('schema.jsonld')" id="tab-schema" class="px-6 py-3 text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
-              <span>JSON-LD 结构化数据</span>
-              <span onclick="showTermHelp(event, 'schema')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-indigo-100 hover:text-indigo-700 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
+              <span>Schema.org (JSON-LD)</span>
+              <span onclick="showTermHelp(event, 'jsonld')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
             </button>
-            <button onclick="switchScaffoldTab('robots.txt')" id="tab-robots" class="px-6 py-3 text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+            <button onclick="switchScaffoldTab('robots.txt.patch')" id="tab-robots" class="px-6 py-3 text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
               <span>robots.txt 放行补丁</span>
-              <span onclick="showTermHelp(event, 'robots')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-indigo-100 hover:text-indigo-700 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
-            </button>
-            <button onclick="switchScaffoldTab('02_站点技术底座改造交付包.md')" id="tab-guide" class="px-6 py-3 text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
-              <span>交付说明书</span>
-              <span onclick="showTermHelp(event, 'guide')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-indigo-100 hover:text-indigo-700 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
+              <span onclick="showTermHelp(event, 'robots')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看专有名词解释">?</span>
             </button>
           </div>
-          <div class="p-4 bg-slate-900 text-slate-100 font-mono text-xs max-h-[500px] overflow-y-auto relative">
-            <button onclick="copyCurrentScaffold()" class="absolute top-4 right-4 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs flex items-center gap-1">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span>复制代码</span>
-            </button>
-            <pre id="preview-scaffold-code">请点击上方按钮生成代码...</pre>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3 text-xs">
+              <span id="current-filename" class="text-slate-500 font-mono">llms.txt</span>
+              <button onclick="copyCurrentScaffold()" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>复制当前代码</span>
+              </button>
+            </div>
+            <pre class="bg-slate-900 text-slate-100 p-4 rounded-lg text-xs font-mono overflow-x-auto max-h-[500px] leading-relaxed"><code id="code-scaffold">// 点击右上角【一键生成底座代码】加载数据...</code></pre>
           </div>
         </div>
       </div>
@@ -438,16 +441,20 @@
             <h2 class="text-base font-bold text-slate-900">阶段三：普林斯顿 9 因子高权威内容重构</h2>
             <p class="text-xs text-slate-500 mt-1">注入三元组结论先行、+41% 采纳率的参数对比表与搜索意图 Q&A 问答对。</p>
           </div>
-          <div class="flex items-center gap-3">
-            <button onclick="openGraphModal()" class="py-2.5 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 shadow-sm flex items-center gap-1.5 transition">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="openRagDiagModal()" class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="puzzle" class="w-4 h-4 text-emerald-600"></i>
+              <span>🧩 RAG 语义分块诊断</span>
+            </button>
+            <button onclick="openGraphModal()" class="py-2.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="network" class="w-4 h-4 text-indigo-600"></i>
-              <span>🕸️ 实体知识图谱</span>
+              <span>🕸️ 实体图谱</span>
             </button>
-            <button onclick="openVisualModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-2 transition">
+            <button onclick="openVisualModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="palette" class="w-4 h-4"></i>
-              <span>🎨 多模态视觉与视频资产</span>
+              <span>🎨 视觉资产</span>
             </button>
-            <button onclick="runSingleStep(event, 'rewrite')" id="btn-step-3" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+            <button onclick="runSingleStep(event, 'rewrite')" id="btn-step-3" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="sparkles" class="w-4 h-4"></i>
               <span>执行普林斯顿重构</span>
             </button>
@@ -2489,6 +2496,153 @@ GitHub 开源仓库：https://github.com/company/repo
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
         <span class="text-slate-400 text-[11px]">💡 支持配置 GEO_DOUBAO_API_KEY 与 GEO_DEEPSEEK_API_KEY 接入真实线上大模型</span>
         <button onclick="closeEvalModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
+      </div>
+  <!-- ================= 大模型爬虫抓取仿真器弹窗 ================= -->
+  <div id="crawler-sim-modal" onclick="if(event.target === this) closeCrawlerSimModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20">
+            <i data-lucide="bot" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">大模型爬虫抓取仿真器 (LLM Crawler Simulator)</h3>
+            <p class="text-[11px] text-blue-600 font-medium">真实还原 Bytespider (豆包) / Baiduspider / DeepSeek 视角下的 Clean Markdown 提纯</p>
+          </div>
+        </div>
+        <button onclick="closeCrawlerSimModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto flex-1">
+        <!-- 抓取配置与输入 -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <div class="flex flex-col sm:flex-row items-center gap-3">
+            <div class="w-full sm:w-48">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">选择大模型爬虫 UA：</label>
+              <select id="crawler-spider-select" class="w-full text-xs py-2 px-3 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option value="bytespider">Bytespider (字节跳动/豆包)</option>
+                <option value="baidu">Baiduspider 2.0 (百度文心)</option>
+                <option value="deepseek">DeepSeek-Crawler (深度求索)</option>
+                <option value="google">Googlebot 2.1 (谷歌搜索)</option>
+                <option value="browser">标准桌面浏览器 (Chrome)</option>
+              </select>
+            </div>
+            <div class="flex-1 w-full">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">目标网页 URL：</label>
+              <div class="flex items-center gap-2">
+                <input id="crawler-url-input" type="text" placeholder="https://example.com" class="flex-1 text-xs py-2 px-3 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <button onclick="handleRunCrawlerSim()" id="btn-run-crawler" class="py-2 px-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 shadow transition shrink-0">
+                  <i data-lucide="scan" class="w-4 h-4"></i>
+                  <span>发起仿真抓取</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 抓取结果元数据看板 -->
+        <div id="crawler-meta-panel" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+            <div class="text-[10px] text-blue-600 font-medium">HTTP 状态</div>
+            <div id="crawler-status-badge" class="text-sm font-bold text-blue-900 mt-0.5">200 OK</div>
+          </div>
+          <div class="bg-purple-50/50 p-3 rounded-xl border border-purple-100">
+            <div class="text-[10px] text-purple-600 font-medium">响应耗时</div>
+            <div id="crawler-time-badge" class="text-sm font-bold text-purple-900 mt-0.5">180 ms</div>
+          </div>
+          <div class="bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+            <div class="text-[10px] text-emerald-600 font-medium">预估 Tokens</div>
+            <div id="crawler-tokens-badge" class="text-sm font-bold text-emerald-900 mt-0.5">850 Tokens</div>
+          </div>
+          <div class="bg-amber-50/50 p-3 rounded-xl border border-amber-100">
+            <div class="text-[10px] text-amber-600 font-medium">JSON-LD 实体</div>
+            <div id="crawler-jsonld-badge" class="text-sm font-bold text-amber-900 mt-0.5">1 组</div>
+          </div>
+        </div>
+
+        <!-- 提纯 Clean Markdown 视窗 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="file-code" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>爬虫提取的 Clean Markdown (大模型可读纯净文本)</span>
+            </span>
+            <button onclick="copyCrawlerCleanMd()" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
+              <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+              <span>复制 Clean Markdown</span>
+            </button>
+          </div>
+          <pre id="crawler-result-text" class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono overflow-y-auto max-h-[360px] leading-relaxed whitespace-pre-wrap">输入 URL 并点击【发起仿真抓取】...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= RAG 语义分块切片诊断中枢弹窗 ================= -->
+  <div id="rag-diag-modal" onclick="if(event.target === this) closeRagDiagModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-emerald-500/20">
+            <i data-lucide="puzzle" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">大模型 RAG 语义分块切片诊断中枢 (Chunking Diagnostic)</h3>
+            <p class="text-[11px] text-emerald-600 font-medium">按标准 400 Token / 50 Token 重叠滑动窗口透视黄金切片与实体覆盖率</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="handleRunRagDiagnose()" id="btn-re-rag-diag" class="py-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 flex items-center gap-1 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>重新诊断</span>
+          </button>
+          <button onclick="closeRagDiagModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-6 overflow-y-auto flex-1">
+        <!-- 4 维量化核心指标大盘 -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 rounded-xl border border-emerald-100">
+            <div class="text-[11px] text-emerald-700 font-semibold">RAG 检索准备度得分</div>
+            <div id="rag-score-text" class="text-2xl font-black text-emerald-900 mt-1">-- 分</div>
+            <div class="text-[10px] text-emerald-600 mt-0.5">≥ 80分 极易优先召回</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="text-[11px] text-slate-600 font-semibold">语义切片总数 (Chunks)</div>
+            <div id="rag-chunks-text" class="text-2xl font-black text-slate-900 mt-1">-- 个</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">标准 400 Token 窗口</div>
+          </div>
+          <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-100">
+            <div class="text-[11px] text-amber-700 font-semibold">黄金召回块 (Golden)</div>
+            <div id="rag-golden-text" class="text-2xl font-black text-amber-900 mt-1">-- 个</div>
+            <div class="text-[10px] text-amber-600 mt-0.5">高密度实体与量化指标</div>
+          </div>
+          <div class="bg-indigo-50/70 p-4 rounded-xl border border-indigo-100">
+            <div class="text-[11px] text-indigo-700 font-semibold">品牌实体全局覆盖率</div>
+            <div id="rag-coverage-text" class="text-2xl font-black text-indigo-900 mt-1">-- %</div>
+            <div class="text-[10px] text-indigo-600 mt-0.5">避免跨 Chunk 语义断层</div>
+          </div>
+        </div>
+
+        <!-- 逐切片透视列表 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-4 h-4 text-emerald-600"></i>
+              <span>RAG 语义分块逐切片透视大盘</span>
+            </span>
+            <span class="text-[11px] text-slate-400">滑动截断平滑度 100%</span>
+          </div>
+
+          <div id="rag-chunks-list" class="space-y-3">
+            <div class="text-center py-8 text-slate-400 text-xs">加载切片诊断中...</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -5876,6 +6030,187 @@ GitHub 开源仓库：https://github.com/company/repo
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
+        lucide.createIcons();
+      }
+    }
+
+    // ===== 大模型爬虫抓取仿真器控制器 =====
+    function openCrawlerSimModal() {
+      const modal = document.getElementById('crawler-sim-modal');
+      modal.classList.remove('hidden');
+      const urlInput = document.getElementById('crawler-url-input');
+      if (currentProjectData && currentProjectData.official_website && !urlInput.value) {
+        urlInput.value = currentProjectData.official_website;
+      }
+      lucide.createIcons();
+    }
+
+    function closeCrawlerSimModal() {
+      document.getElementById('crawler-sim-modal').classList.add('hidden');
+    }
+
+    async function handleRunCrawlerSim() {
+      const url = document.getElementById('crawler-url-input').value.trim();
+      const spider = document.getElementById('crawler-spider-select').value;
+      const btn = document.getElementById('btn-run-crawler');
+      if (!url) {
+        showToast('请输入要抓取的网页 URL！', 'warning');
+        return;
+      }
+
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>正在仿真抓取...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/crawler/simulate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ url: url, spider_type: spider })
+        });
+        const d = await res.json();
+        if (d.success) {
+          document.getElementById('crawler-meta-panel').classList.remove('hidden');
+          document.getElementById('crawler-status-badge').textContent = `${d.http_status} OK`;
+          document.getElementById('crawler-time-badge').textContent = `${d.elapsed_ms} ms`;
+          document.getElementById('crawler-tokens-badge').textContent = `${d.token_estimate} Tokens`;
+          document.getElementById('crawler-jsonld-badge').textContent = `${d.jsonld_count} 组`;
+          document.getElementById('crawler-result-text').textContent = d.clean_markdown || '(提取为空)';
+          showToast(`🎉 成功以 [${spider}] 身份仿真抓取提纯 ${d.token_estimate} Tokens！`);
+        } else {
+          document.getElementById('crawler-result-text').textContent = `抓取失败: ${d.error || '未知网络错误'}`;
+          showToast(d.error || '抓取失败', 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        lucide.createIcons();
+      }
+    }
+
+    async function copyCrawlerCleanMd() {
+      const text = document.getElementById('crawler-result-text').textContent;
+      if (!text || text.startsWith('输入 URL')) {
+        showToast('暂无抓取内容可复制', 'warning');
+        return;
+      }
+      await navigator.clipboard.writeText(text);
+      showToast('Clean Markdown 已成功复制到剪贴板！');
+    }
+
+    // ===== RAG 语义分块切片诊断控制器 =====
+    async function openRagDiagModal() {
+      if (!currentProjectId) {
+        showToast('请先选择一个客户项目', 'warning');
+        return;
+      }
+      document.getElementById('rag-diag-modal').classList.remove('hidden');
+      lucide.createIcons();
+      await loadRagDiagData();
+    }
+
+    function closeRagDiagModal() {
+      document.getElementById('rag-diag-modal').classList.add('hidden');
+    }
+
+    async function loadRagDiagData() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/rag/diagnose`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderRagDiagView(d);
+        } else {
+          showToast(d.message || '加载 RAG 诊断数据失败', 'error');
+        }
+      } catch (err) {
+        console.error('加载 RAG 诊断失败:', err);
+      }
+    }
+
+    function renderRagDiagView(diag) {
+      document.getElementById('rag-score-text').textContent = `${diag.rag_readiness_score} 分`;
+      document.getElementById('rag-chunks-text').textContent = `${diag.total_chunks} 个`;
+      document.getElementById('rag-golden-text').textContent = `${diag.golden_chunks_count} 个`;
+      document.getElementById('rag-coverage-text').textContent = `${diag.entity_coverage_pct} %`;
+
+      const listEl = document.getElementById('rag-chunks-list');
+      const chunks = diag.chunks || [];
+      if (chunks.length === 0) {
+        listEl.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs">暂无语义分块数据</div>';
+        return;
+      }
+
+      listEl.innerHTML = chunks.map(c => {
+        const isGolden = c.grade.includes('黄金');
+        const badgeBg = isGolden ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-200';
+        const entitiesHtml = (c.entity_hits && c.entity_hits.length > 0)
+          ? c.entity_hits.map(e => `<span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-mono border border-blue-200">${e}</span>`).join(' ')
+          : '<span class="text-slate-400 text-[10px]">无</span>';
+        const quantHtml = (c.quantitative_hits && c.quantitative_hits.length > 0)
+          ? c.quantitative_hits.map(q => `<span class="px-1.5 py-0.5 bg-amber-50 text-amber-800 rounded text-[10px] font-mono border border-amber-200">${q}</span>`).join(' ')
+          : '<span class="text-slate-400 text-[10px]">无</span>';
+
+        return `
+          <div class="bg-white rounded-xl border ${isGolden ? 'border-emerald-200 shadow-sm' : 'border-slate-200'} p-4 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-xs text-slate-800">Chunk #${c.chunk_id}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeBg}">${c.grade}</span>
+              </div>
+              <div class="text-xs font-bold ${isGolden ? 'text-emerald-700' : 'text-slate-600'}">
+                评分: ${c.score} 分 ｜ ${c.tokens} Tokens
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+              <div><span class="text-slate-500 font-medium">命中实体：</span> ${entitiesHtml}</div>
+              <div><span class="text-slate-500 font-medium">量化参数：</span> ${quantHtml}</div>
+            </div>
+            <div class="text-xs text-slate-600 bg-slate-50/50 p-2.5 rounded border border-slate-100 leading-relaxed font-mono whitespace-pre-wrap">
+              ${c.preview}
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    async function handleRunRagDiagnose() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-re-rag-diag');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>诊断中...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/rag/diagnose`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          }
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderRagDiagView(d);
+          showToast(`🎉 重新诊断完毕！RAG 准备度得分: ${d.rag_readiness_score}分`);
+        } else {
+          showToast(d.message || '诊断失败', 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
         lucide.createIcons();
       }
     }

@@ -278,6 +278,17 @@ def main():
     p_ledger.add_argument("--audit", action="store_true", help="执行全网并发死链探活与存活率重算")
     p_ledger.add_argument("--summary", action="store_true", help="查看当前分发台账执行大盘")
 
+    # crawl (大模型爬虫抓取仿真)
+    p_crawl = subparsers.add_parser("crawl", help="大模型爬虫(Bytespider/Baiduspider/DeepSeek)抓取仿真与Clean Markdown提取")
+    p_crawl.add_argument("url", help="目标网页 URL")
+    p_crawl.add_argument("--spider", "-s", default="bytespider", choices=["bytespider", "baidu", "deepseek", "google", "browser"], help="爬虫类型 (默认: bytespider)")
+
+    # rag-diag (RAG 语义分块切片诊断)
+    p_rag = subparsers.add_parser("rag-diag", help="RAG 语义分块切片诊断与准备度评分 (03语料库切片透视)")
+    p_rag.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_rag.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_rag.add_argument("--file", "-f", default=None, help="指定待诊断的语料文件路径 (可选)")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -627,6 +638,26 @@ def main():
             print(f"项目 [{pid}] 填报完成率: {led['completion_rate_pct']}% (加权 {led['weighted_completion_pct']}%) | 真实存活率: {led.get('alive_rate_pct', 0)}% (加权 {led.get('weighted_alive_pct', 0)}%)")
             for k, v in led['channels'].items():
                 print(f" - {v['name']}: {v.get('url') or '(未填报)'} [{v.get('status')}]")
+    elif args.command == "crawl":
+        from .crawler import simulate_crawler_fetch
+        res = simulate_crawler_fetch(args.url, spider_type=args.spider)
+        print("\n" + "="*65)
+        print(f"🕷️ 大模型爬虫抓取仿真报告: [{res.get('spider_type')}] -> {res.get('url')}")
+        print("="*65)
+        if res.get("success"):
+            print(f"✅ HTTP 状态: {res.get('http_status')} ｜ 响应耗时: {res.get('elapsed_ms')}ms ｜ 预估 Token: {res.get('token_estimate')}")
+            print(f"📄 抓取页面标题: {res.get('title') or '(无)'}")
+            print(f"📝 抓取页面简介: {res.get('description') or '(无)'}")
+            print(f"🏷️ 结构化 JSON-LD: {res.get('jsonld_count')} 组")
+            print("\n--- [提纯 Clean Markdown 预览 (前 300 字)] ---")
+            print(res.get("clean_markdown", "")[:300] + "...")
+        else:
+            print(f"❌ 抓取失败: {res.get('error')}")
+        print("="*65 + "\n")
+    elif args.command == "rag-diag":
+        from .rag_diag import diagnose_rag_chunks
+        pid = get_pid(args)
+        diagnose_rag_chunks(pid, text_or_file=getattr(args, "file", None))
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 

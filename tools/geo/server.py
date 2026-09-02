@@ -755,6 +755,35 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 大模型爬虫抓取仿真 API: /api/crawler/simulate
+        if path == "/api/crawler/simulate" or (path.startswith("/api/projects/") and path.endswith("/crawler/simulate")):
+            body = self.read_json_body()
+            url = body.get("url", "").strip()
+            spider = body.get("spider_type", "bytespider").strip()
+            if not url:
+                self.send_json({"success": False, "message": "请输入要抓取的网页 URL！"}, status=400)
+                return
+            try:
+                from .crawler import simulate_crawler_fetch
+                res = simulate_crawler_fetch(url, spider_type=spider)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # RAG 语义分块切片诊断 API: /api/projects/{id}/rag/diagnose (POST)
+        if path.startswith("/api/projects/") and path.endswith("/rag/diagnose"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            custom_text = body.get("text")
+            try:
+                from .rag_diag import diagnose_rag_chunks
+                res = diagnose_rag_chunks(project_id, text_or_file=custom_text)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2008,6 +2037,23 @@ core_values:
                     self.send_json({"success": True, "filename": filename, "content": content})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
+            # 获取 RAG 语义分块切片诊断数据: /api/projects/{id}/rag/diagnose (GET)
+            if path.startswith("/api/projects/") and path.endswith("/rag/diagnose"):
+                project_id = path.split("/")[3]
+                diag_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "rag_chunks_diagnostic.json")
+                if os.path.exists(diag_file):
+                    try:
+                        with open(diag_file, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .rag_diag import diagnose_rag_chunks
+                        res = diagnose_rag_chunks(project_id)
+                        self.send_json(res)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
             # 一键导出打包下载 ZIP: /api/projects/{id}/export
