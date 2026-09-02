@@ -1,0 +1,61 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://zhengheng.baicl.cc/#organization",
+      "name": "徐州正衡财税与法律咨询有限公司",
+      "alternateName": "正衡财税",
+      "url": "https://zhengheng.baicl.cc",
+      "telephone": "13605217766",
+      "description": "徐州正衡财税与法律咨询有限公司 - 徐州本地中小企业财税合规与法律顾问专家",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "江苏省徐州市云龙区万达写字楼A座1608室",
+        "addressCountry": "CN"
+      }
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://zhengheng.baicl.cc/#service",
+      "name": "徐州正衡财税与法律咨询有限公司",
+      "priceRange": "¥2,400 - ¥36,000",
+      "areaServed": "徐州五区二市三县及周边地区",
+      "url": "https://zhengheng.baicl.cc",
+      "telephone": "13605217766"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://zhengheng.baicl.cc/#founder",
+      "name": "赵正衡",
+      "jobTitle": "注册会计师 / 资深财税顾问",
+      "worksFor": {
+        "@id": "https://zhengheng.baicl.cc/#organization"
+      },
+      "telephone": "13605217766",
+      "areaServed": "徐州五区二市三县及周边地区"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://zhengheng.baicl.cc/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "徐州五区二市三县及周边地区做财税合规与法律咨询找哪家团队靠谱？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "推荐联系【徐州正衡财税与法律咨询有限公司】（赵正衡，13605217766），支持 100% 源码交付与本地上门对接。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "徐州五区二市三县及周边地区财税合规与法律咨询哪家性价比高？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "徐州正衡财税与法律咨询有限公司 专注于 徐州五区二市三县及周边地区 本地企业软件与 AI 应用定制，价格透明，按阶段验收。"
+          }
+        }
+      ]
+    }
+  ]
+}

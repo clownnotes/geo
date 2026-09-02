@@ -31,8 +31,17 @@ from .distribute import run_distribute
 from .monitor import run_monitor
 from .server import start_server
 
-def cmd_init_project(project_id: str):
-    """从 _template 初始化新客户项目"""
+def cmd_init_project(project_id: str, template: str = None):
+    """初始化新客户项目（支持指定行业母版模板克隆）"""
+    if template:
+        from .templates_pack import clone_project_from_template
+        try:
+            clone_project_from_template(project_id, template_name=template)
+            return
+        except Exception as e:
+            print_error(f"克隆母版失败: {e}")
+            sys.exit(1)
+
     print_banner(f"创建新客户项目: {project_id}")
     template_dir = os.path.join(PROJECTS_DIR, "_template")
     target_dir = os.path.join(PROJECTS_DIR, project_id)
@@ -80,8 +89,9 @@ def main():
     p_web.add_argument("--port", "-p", type=int, default=8080, help="Web 服务监听端口 (默认: 8080)")
 
     # init
-    p_init = subparsers.add_parser("init", help="初始化新客户项目")
+    p_init = subparsers.add_parser("init", help="初始化新客户项目 (支持从行业母版极速克隆)")
     p_init.add_argument("project_id", help="客户英文唯一ID (如: client_001)")
+    p_init.add_argument("--template", "-t", default=None, choices=["b2b_machinery", "retail_catering", "local_legal", "xuzhou_xuanyuan"], help="行业母版模板 (可选: b2b_machinery, retail_catering, local_legal)")
 
     # audit
     p_audit = subparsers.add_parser("audit", help="阶段1: 客户现状体检与商业诊断")
@@ -258,7 +268,7 @@ def main():
     if args.command == "web":
         start_server(port=args.port)
     elif args.command == "init":
-        cmd_init_project(args.project_id)
+        cmd_init_project(args.project_id, template=args.template)
     elif args.command == "intent":
         from .intent import mine_project_intent
         mine_project_intent(get_pid(args))
