@@ -126,3 +126,49 @@
   - 严格遵循规范：未向生产服务器发布，仅在开发端验证。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审：7412abb 修正项核验] [通过]
+
+- **阶段**：Code Refinement Re-Review（Cursor 独立复审，对照 `7412abb` + `12405cd`）
+- **审查范围**：上次 `[需修正]` 7 项 P0/P1/P2 修复落地情况；路由 `return` 回归；本地冒烟
+- **审查方法**：全量阅读 `guard.py` 修正段、`__init__.py` 导出、Step 4/5 UI、`delivery-sop.md`；冒烟 `detect` / `generate_factual_anchor_patch` / 单项 `repair` / `simulate`
+
+#### 上次审查项修复核验
+
+| # | 原问题 | 复审结论 |
+|:--|:-------|:---------|
+| 1 | 幻觉检测硬编码模板 | ✅ **已改善**：`project.yaml` 字段注入 `truth_anchor`；新增 `has_real_corpus` 标记。🟡 `03_语料库.md` 仅做存在性检测，**未解析语料内容、未联动 playground 测序** 填充 `flawed_response` |
+| 2 | `llms-truth.txt` 未落盘 | ✅ **已修复**：独立 `generate_factual_anchor_patch` 写盘 `llms-truth.txt` 与 `schema_truth_patch.json` |
+| 3 | `cfg` 未定义致锚点错误 | ✅ **已修复**：`founder`/`area_served` 正确（冒烟：段晓奇、徐州市及淮海经济区） |
+| 4 | `target_risk_id` 未生效 | ✅ **已修复**：单项 repair 仅输出 1 项风险与 1 条 anchor |
+| 5 | 缺主体与资质混淆 | ✅ **已修复**：新增 `risk_*_identity` 高危项，共 5 维矩阵 |
+| 6 | Step 5 / 顶部入口 | ✅ **部分完成**：Step 4（L526）与 Step 5（L677）均有 `openGuardModal`。🟡 向导步骤条仍无全局快捷按钮 |
+| 7 | SOP 文档不一致 | ✅ **部分完成**：`delivery-sop.md` L137 已增「幻觉防守」命令行映射。🟡 `04-defense-sop.md` 仍不存在（tasks 5.1 原文），细节仍指向 `04-distribute-sop.md` |
+
+#### 🔴 必须修正
+
+无。`guard/risks`、`guard/simulation`、`POST guard/repair` 及 share 公开路由均正确 `return`。
+
+#### 🟡 残余风险（不阻断归档）
+
+| # | 项 | 说明 |
+|:--|:---|:-----|
+| A | 语料/测序未实质比对 | `has_real_corpus` 为布尔标记，`flawed_response` 仍为模板文案，非真实大模型回答 diff |
+| B | 向导顶栏无全局入口 | proposal/tasks「顶部」仅 Step 面板头部覆盖 |
+| C | `04-defense-sop.md` 缺失 | 与 tasks 5.1 命名不完全一致，功能文档在 `04-distribute-sop.md` |
+
+#### 🟢 优化建议（可选）
+
+- 读取语料库关键词动态生成 `test_query`；repair 后更新风险 `status` 为 `REPAIRED`
+- share 门户补充「查看 07 反击策略」只读链接
+
+#### ✅ 冒烟验证（`xuzhou_xuanyuan`）
+
+- 检测：5 项风险（含主体混淆），`has_real_corpus: True`
+- 补丁：`llms-truth.txt`、`schema_truth_patch.json` 落盘，创始人/区域字段正确
+- 单项 repair：`target_risk_id=price` → 1 项风险、1 条 anchor
+- `__init__.py` 已导出 `generate_factual_anchor_patch`；Step 4/5 弹窗与 share 卡片就绪
+
+- **结论**：`[通过]`。P0/P1 核心偏差已实质性修复，事实锚点落盘与单项修复契约可用；残余为语料深度比对与文档命名，可归档后迭代。
+
