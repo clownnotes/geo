@@ -677,6 +677,19 @@
 
       const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
 
+      function renderShareHighlighted(text, spans) {
+        if (!text) return '';
+        const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let html = escapeHtml(text);
+        if (!spans || !spans.length) return html;
+        const sorted = [...spans].filter(Boolean).sort((a, b) => b.length - a.length);
+        for (const span of sorted) {
+          const escSpan = escapeHtml(span).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          html = html.replace(new RegExp(escSpan, 'g'), `<mark class="bg-amber-300/90 text-amber-950 px-0.5 rounded font-semibold">${escapeHtml(span)}</mark>`);
+        }
+        return html;
+      }
+
       try {
         const res = await fetch(`/api/share/${shareToken}/simulate`, {
           method: 'POST',
@@ -690,7 +703,7 @@
           document.getElementById('share-before-badge').textContent = `${before.brand_mentioned ? '已提及' : '未收录'} · ${before.confidence_score || 0}分`;
 
           const after = data.after || {};
-          document.getElementById('share-after-resp').textContent = after.response || '无应答';
+          document.getElementById('share-after-resp').innerHTML = renderShareHighlighted(after.response || '无应答', after.highlight_spans || []);
           document.getElementById('share-after-badge').textContent = `🏆 Rank ${after.rank || 1} · ${after.confidence_score || 98}/100分`;
         } else {
           alert('测序失败: ' + data.message);

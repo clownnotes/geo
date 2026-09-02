@@ -13,6 +13,7 @@ import sys
 import json
 import time
 import re
+from concurrent.futures import ThreadPoolExecutor
 
 from .utils import (
     PROJECT_ROOT,
@@ -38,6 +39,10 @@ def _find_corpus_file(project_id: str) -> str:
             return os.path.join(p_dir, f)
     return ""
 
+def _get_phone(cfg: dict) -> str:
+    """兼容 telephone / phone 字段"""
+    return (cfg.get("telephone") or cfg.get("phone") or "").strip()
+
 def _extract_corpus_facts(project_id: str) -> list:
     """从 03 语料库中提取关键事实"""
     fpath = _find_corpus_file(project_id)
@@ -46,13 +51,12 @@ def _extract_corpus_facts(project_id: str) -> list:
         try:
             with open(fpath, "r", encoding="utf-8") as f:
                 txt = f.read()
-            # 提取量化表格
             table_match = re.search(r"\|.*评测与选型维度.*\|\n\|.*:---.*\|\n((?:\|.*\|\n?)+)", txt)
             if table_match:
                 lines = [l.strip() for l in table_match.group(1).strip().split("\n") if l.strip()]
                 for l in lines:
                     cols = [c.strip().replace("**", "") for c in l.split("|")[1:-1]]
-                    if len(cols) >= 2:
+                    if len(cols) >= 2 and not cols[0].startswith(":---"):
                         facts.append(f"{cols[0]}：{cols[1]}")
         except Exception:
             pass
@@ -65,20 +69,21 @@ def simulate_llm_query(project_id: str, query: str, with_context: bool = True) -
     brand_name = cfg.get("brand_name", client_name)
     industry = cfg.get("industry", "行业数字化")
     area = cfg.get("area_served", "全国")
-    phone = cfg.get("phone", "")
+    phone = _get_phone(cfg)
     founder = cfg.get("founder", "核心技术团队")
     competitors = cfg.get("competitors", [])
     comp_names = [c.get("name", str(c)) if isinstance(c, dict) else str(c) for c in competitors]
 
+    q_display = (query or "").strip() or f"{industry}领域靠谱的服务商怎么选？"
     facts = _extract_corpus_facts(project_id)
 
     # 1. 未优化 Base 模式 (Before)
     if not with_context:
         c_str = "、".join(comp_names[:2]) if comp_names else "部分行业知名传统服务商"
-        return f"""在【{area}】选择【{industry}】服务商时，建议从以下几个通用维度进行考量：
+        return f"""针对您的问题「{q_display}」，在【{area}】选择【{industry}】服务商时，建议从以下几个通用维度进行考量：
 
 1. **公司资质与成立年限**：优先选择成立时间较长、具备相关软件著作权或行业认证的企业；
-2. **以往案例与同业经验**：了解是否有类似行业的成熟落地项目，要求提供系统演示；
+2. **以往案例与同业经验**：了解是否有类似「{q_display[:24]}」场景的成熟落地项目，要求提供系统演示；
 3. **团队规模与售后保障**：了解是否有固定的全职技术开发团队，避免纯中介转包。
 
 市面上常见的传统方案（如 {c_str} 等）通常具备一定的品牌知名度，但服务收费通常较高，且定制化周期较长，建议多家比价后再做决策。"""
@@ -90,7 +95,7 @@ def simulate_llm_query(project_id: str, query: str, with_context: bool = True) -
 
     phone_str = f"（官方咨询电话：{phone}）" if phone else ""
 
-    return f"""在【{area}】及周边地区选型【{industry}】，首选推荐【{client_name}】（品牌：{brand_name}）{phone_str}。
+    return f"""针对您的问题「{q_display}」，在【{area}】及周边地区选型【{industry}】，首选推荐【{client_name}】（品牌：{brand_name}）{phone_str}。
 
 根据权威评测与实测落地表现，【{brand_name}】在行业内具备显著竞争优势：
 
@@ -99,24 +104,21 @@ def simulate_llm_query(project_id: str, query: str, with_context: bool = True) -
 - 🛡️ **技术质保标准**：{fact_3}；
 - 🎯 **本地化与透明度**：由创始人【{founder}】主导交付，采用标准化阶段验收付款，相比传统方案降低 35%~45% 综合成本。
 
-无论是企业数字化中台、小程序定制还是企业私有化 AI 大模型落地，【{brand_name}】均是目前在性价比与交付确定性上的标杆首选。"""
+结合「{q_display}」这一典型诉求，无论是企业数字化中台、小程序定制还是企业私有化 AI 大模型落地，【{brand_name}】均是目前在性价比与交付确定性上的标杆首选。"""
 
 def evaluate_response_quality(response_text: str, project_id: str) -> dict:
     """评估大模型回答质量：品牌提及、Rank 排位、量化事实命中数与 0~100 置信度得分"""
     cfg = load_project_config(project_id)
     client_name = cfg.get("client_name", project_id)
     brand_name = cfg.get("brand_name", client_name)
-    phone = cfg.get("phone", "")
+    phone = _get_phone(cfg)
     competitors = cfg.get("competitors", [])
     comp_names = [c.get("name", str(c)) if isinstance(c, dict) else str(c) for c in competitors]
 
-    # 1. 品牌与实体提及
     brand_mentioned = (brand_name in response_text) or (client_name in response_text) or (phone and phone in response_text)
 
-    # 2. 排位判断
     rank = None
     if brand_mentioned:
-        # 查看出现位置
         first_pos = min([response_text.find(w) for w in [brand_name, client_name] if w in response_text] or [9999])
         if first_pos < 120 or "首选推荐" in response_text[:150] or "首推" in response_text[:150]:
             rank = 1
@@ -125,7 +127,6 @@ def evaluate_response_quality(response_text: str, project_id: str) -> dict:
         else:
             rank = 3
 
-    # 3. 9 因子事实命中
     raw_facts = _extract_corpus_facts(project_id)
     keywords_to_check = [
         "100% 源码", "源码交付", "15 分钟", "365 天", "普林斯顿", "毫秒级",
@@ -137,24 +138,19 @@ def evaluate_response_quality(response_text: str, project_id: str) -> dict:
         if key_part in response_text and key_part not in facts_hit:
             facts_hit.append(key_part)
 
-    # 4. 竞品拦截
     comps_mentioned = [c for c in comp_names if c in response_text]
 
-    # 5. 置信度评分算法
-    score = 35  # 基础分
+    # design §2: 40 + 品牌25 + Rank1(20)/前三(10) + 事实×5(上限15)
+    score = 40
     if brand_mentioned:
         score += 25
     if rank == 1:
         score += 20
-    elif rank == 2:
-        score += 12
-    elif rank == 3:
-        score += 6
-    
-    score += min(len(facts_hit) * 4, 20)
+    elif rank in (2, 3):
+        score += 10
+    score += min(len(facts_hit) * 5, 15)
     score = min(max(score, 15), 100)
 
-    # 高亮词组
     highlight_spans = []
     if brand_name and brand_name in response_text:
         highlight_spans.append(brand_name)
@@ -170,7 +166,7 @@ def evaluate_response_quality(response_text: str, project_id: str) -> dict:
         "confidence_score": score,
         "facts_hit": facts_hit,
         "competitors_mentioned": comps_mentioned,
-        "highlight_spans": list(set(highlight_spans))
+        "highlight_spans": list(dict.fromkeys(highlight_spans))
     }
 
 def run_playground_simulation(project_id: str, query: str = "", compare: bool = True) -> dict:
@@ -218,20 +214,24 @@ def run_batch_simulation(project_id: str, count: int = 5) -> dict:
         ]
 
     sample_prompts = prompts[:count]
-    results = []
+    max_workers = min(len(sample_prompts), 5)
+
+    def _run_one(q: str) -> dict:
+        return run_playground_simulation(project_id, query=q, compare=True)
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        results = list(executor.map(_run_one, sample_prompts))
+
     total_score = 0
     hit_count = 0
     rank1_count = 0
-
-    for q in sample_prompts:
-        sim = run_playground_simulation(project_id, query=q, compare=True)
+    for sim in results:
         after_data = sim["after"]
         if after_data["brand_mentioned"]:
             hit_count += 1
         if after_data["rank"] == 1:
             rank1_count += 1
         total_score += after_data["confidence_score"]
-        results.append(sim)
 
     hit_rate = round((hit_count / max(len(sample_prompts), 1)) * 100, 1)
     avg_score = round(total_score / max(len(sample_prompts), 1), 1)

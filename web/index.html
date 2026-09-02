@@ -115,7 +115,7 @@
     <!-- 主体内容 -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-8 space-y-6">
       <!-- 统计指标 -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
           <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
             <i data-lucide="folder-kanban" class="w-6 h-6"></i>
@@ -167,6 +167,19 @@
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">🏢 集团多品牌矩阵</div>
             <div class="text-xs font-bold text-emerald-600 mt-1 flex items-center gap-1">
               <span>母子协同大盘</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+        </div>
+
+        <div onclick="openPlaygroundFromDashboard()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-purple-300 hover:shadow-md transition">
+          <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
+            <i data-lucide="flask-conical" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">🧪 AI 测序沙箱</div>
+            <div class="text-xs font-bold text-purple-600 mt-1 flex items-center gap-1">
+              <span>Before/After 双轨演示</span>
               <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
             </div>
           </div>
@@ -1457,7 +1470,7 @@
           </div>
           <div>
             <h3 class="text-base font-bold text-slate-900">大模型实时响应模拟器与沙箱即时召回测序 (LLM Playground)</h3>
-            <p class="text-[11px] text-slate-500">双轨对比未优化泛回答 vs 注入普林斯顿 9 因子语料后的首选推荐状态</p>
+            <p class="text-[11px] text-slate-500">高保真离线演示沙箱 · 双轨 Before/After 对比 · 置信度评分 0~100</p>
           </div>
         </div>
         <button onclick="closePlaygroundModal()" class="text-slate-400 hover:text-slate-600">
@@ -3204,6 +3217,27 @@
     }
 
     // ===== 大模型实时测序沙箱 (Playground) 控制器 =====
+    function openPlaygroundFromDashboard() {
+      if (!currentProjectId) {
+        showToast('请先从下方项目列表进入某个客户项目，再打开 AI 测序沙箱', 'error');
+        return;
+      }
+      openPlaygroundModal();
+    }
+
+    function renderPlaygroundHighlighted(text, spans) {
+      if (!text) return '';
+      const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      let html = escapeHtml(text);
+      if (!spans || !spans.length) return html;
+      const sorted = [...spans].filter(Boolean).sort((a, b) => b.length - a.length);
+      for (const span of sorted) {
+        const escSpan = escapeHtml(span).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        html = html.replace(new RegExp(escSpan, 'g'), `<mark class="bg-amber-200/90 text-amber-900 px-0.5 rounded font-semibold">${escapeHtml(span)}</mark>`);
+      }
+      return html;
+    }
+
     function openPlaygroundModal() {
       if (!currentProjectId) {
         showToast('请先选择项目！', 'error');
@@ -3270,9 +3304,10 @@
           document.getElementById('play-before-badge').textContent = before.brand_mentioned ? '已提及' : '未推荐';
           document.getElementById('play-before-badge').className = before.brand_mentioned ? 'text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold' : 'text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-semibold';
 
-          // 渲染 After
+          // 渲染 After（含 highlight_spans 高亮）
           const after = data.after || {};
-          document.getElementById('play-after-text').textContent = after.response || '无应答';
+          const afterEl = document.getElementById('play-after-text');
+          afterEl.innerHTML = renderPlaygroundHighlighted(after.response || '无应答', after.highlight_spans || []);
           document.getElementById('play-after-score').textContent = (after.confidence_score || 0) + '/100 分';
           document.getElementById('play-after-badge').textContent = after.rank ? `🏆 Rank ${after.rank} 首选推荐` : '✅ 品牌已收录';
           
@@ -3329,7 +3364,7 @@
             document.getElementById('play-query-input').value = first.query;
             document.getElementById('play-before-text').textContent = first.before.response;
             document.getElementById('play-before-score').textContent = first.before.confidence_score + ' 分';
-            document.getElementById('play-after-text').textContent = first.after.response;
+            document.getElementById('play-after-text').innerHTML = renderPlaygroundHighlighted(first.after.response, first.after.highlight_spans || []);
             document.getElementById('play-after-score').textContent = first.after.confidence_score + '/100 分';
             
             const factsBox = document.getElementById('play-after-facts');
