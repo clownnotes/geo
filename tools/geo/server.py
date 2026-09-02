@@ -808,6 +808,19 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 竞对大模型声量差距逆向与反超沙盘 API: /api/projects/{id}/competitor/gap (POST)
+        if path.startswith("/api/projects/") and path.endswith("/competitor/gap"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            comp_name = body.get("competitor_name")
+            try:
+                from .competitor_gap import analyze_competitor_gap
+                res = analyze_competitor_gap(project_id, competitor_name=comp_name)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2094,6 +2107,25 @@ core_values:
                     try:
                         from .compliance import inspect_content_compliance
                         res = inspect_content_compliance(project_id)
+                        self.send_json(res)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取竞对大模型声量差距逆向与反超沙盘数据: /api/projects/{id}/competitor/gap (GET)
+            if path.startswith("/api/projects/") and path.endswith("/competitor/gap"):
+                project_id = path.split("/")[3]
+                gap_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "competitor_gap_analysis.json")
+                if os.path.exists(gap_file):
+                    try:
+                        with open(gap_file, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .competitor_gap import analyze_competitor_gap
+                        res = analyze_competitor_gap(project_id)
                         self.send_json(res)
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)

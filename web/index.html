@@ -349,19 +349,23 @@
             <p class="text-xs text-slate-500 mt-1">模拟 AI 爬虫抓取官网，检测 SSR 渲染、/llms.txt、JSON-LD 及文本密度，生成签单体检报告。</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
-            <button onclick="openCrawlerSimModal()" class="py-2.5 px-3.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 shadow-sm flex items-center gap-1.5 transition">
+            <button onclick="openCompetitorGapModal()" class="py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="swords" class="w-4 h-4 text-red-600"></i>
+              <span>⚔️ 竞对差距与反超沙盘</span>
+            </button>
+            <button onclick="openCrawlerSimModal()" class="py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="bot" class="w-4 h-4 text-blue-600"></i>
               <span>🕷️ 爬虫抓取仿真</span>
             </button>
-            <button onclick="openPitchModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
+            <button onclick="openPitchModal()" class="py-2.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="presentation" class="w-4 h-4 text-purple-600"></i>
-              <span>🎯 售前 Pitch Deck</span>
+              <span>🎯 售前 Pitch</span>
             </button>
-            <button onclick="openEvolutionModal()" class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
+            <button onclick="openEvolutionModal()" class="py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
               <span>🌱 词库演进</span>
             </button>
-            <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
+            <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="scan" class="w-4 h-4"></i>
               <span>执行体检诊断</span>
             </button>
@@ -2713,6 +2717,115 @@ GitHub 开源仓库：https://github.com/company/repo
 
           <div id="comp-violations-list" class="space-y-2.5">
             <div class="text-center py-8 text-slate-400 text-xs">加载合规体检中...</div>
+          </div>
+        </div>
+      </div>
+    <!-- ================= 竞对大模型声量差距逆向分析与反超沙盘弹窗 ================= -->
+  <div id="competitor-gap-modal" onclick="if(event.target === this) closeCompetitorGapModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-red-500/20">
+            <i data-lucide="swords" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">竞对大模型声量差距深度逆向分析与反超作战沙盘 (Competitor War-Gaming)</h3>
+            <p class="text-[11px] text-red-600 font-medium">6 维声量雷达差距量化 ｜ 竞对 3 大致命破绽剖析 ｜ 3 阶段反超战术路线图</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1">
+            <span class="text-[11px] text-slate-500 font-medium">对标竞对：</span>
+            <select id="gap-competitor-select" onchange="handleCompetitorSelectChange()" class="text-xs bg-transparent border-none focus:ring-0 font-bold text-slate-800">
+              <option value="">加载中...</option>
+            </select>
+          </div>
+          <button onclick="handleRunCompetitorGapAnalysis()" id="btn-re-gap-diag" class="py-1.5 px-3 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center gap-1 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>重新推演</span>
+          </button>
+          <button onclick="closeCompetitorGapModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-6 overflow-y-auto flex-1">
+        <!-- 4 维量化综合优势大盘指标卡 -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-xl border border-red-100">
+            <div class="text-[11px] text-red-800 font-semibold">综合声量领先幅度</div>
+            <div id="gap-lead-text" class="text-2xl font-black text-red-900 mt-1">+0.0 分</div>
+            <div class="text-[10px] text-red-600 mt-0.5">我方综合得分压制</div>
+          </div>
+          <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100">
+            <div class="text-[11px] text-emerald-700 font-semibold">我方综合实力得分</div>
+            <div id="gap-client-avg-text" class="text-2xl font-black text-emerald-800 mt-1">-- 分</div>
+            <div class="text-[10px] text-emerald-600 mt-0.5">9 因子语料与全矩阵</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="text-[11px] text-slate-600 font-semibold">竞品综合基准得分</div>
+            <div id="gap-comp-avg-text" class="text-2xl font-black text-slate-800 mt-1">-- 分</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">传统暗箱与泛化营销</div>
+          </div>
+          <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+            <div class="text-[11px] text-blue-700 font-semibold">首位推荐达成周期</div>
+            <div class="text-2xl font-black text-blue-900 mt-1">7~14 天</div>
+            <div class="text-[10px] text-blue-600 mt-0.5">3 阶段反超路线落地</div>
+          </div>
+        </div>
+
+        <!-- 6 维声量雷达对比表格 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="radar" class="w-4 h-4 text-red-600"></i>
+              <span>6 维大模型声量渗透率与权威度对比大盘</span>
+            </span>
+            <span class="text-[11px] text-slate-400">大模型首位推荐决定性因子</span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="p-3">竞争评估维度</th>
+                  <th class="p-3 text-emerald-700 font-bold">我方得分</th>
+                  <th class="p-3 text-slate-600">竞对得分</th>
+                  <th class="p-3 text-red-600 font-bold">相对差距</th>
+                  <th class="p-3">核心竞争根因剖析</th>
+                </tr>
+              </thead>
+              <tbody id="gap-radar-tbody" class="divide-y divide-slate-100 bg-white">
+                <tr><td colspan="5" class="p-4 text-center text-slate-400">加载雷达对比中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 竞对三大破绽与我方反超优势 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="target" class="w-4 h-4 text-red-600"></i>
+              <span>竞对致命破绽逆向与反击点 (Counter-Attack Plan)</span>
+            </span>
+          </div>
+          <div id="gap-flaws-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="text-center py-6 text-slate-400 text-xs col-span-3">加载破绽推演中...</div>
+          </div>
+        </div>
+
+        <!-- 3 阶段反超打击战术路线图 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="flag" class="w-4 h-4 text-amber-600"></i>
+              <span>三阶段反超打击战术路线图 (3-Stage Leapfrog Action Roadmap)</span>
+            </span>
+          </div>
+          <div id="gap-roadmap-container" class="space-y-3">
+            <div class="text-center py-6 text-slate-400 text-xs">加载作战路线中...</div>
           </div>
         </div>
       </div>
@@ -6429,6 +6542,181 @@ GitHub 开源仓库：https://github.com/company/repo
           await loadComplianceData();
         } else {
           showToast(d.message || '脱敏失败', 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        lucide.createIcons();
+      }
+    }
+
+    // ===== 竞对大模型声量差距逆向分析与反超沙盘控制器 =====
+    async function openCompetitorGapModal() {
+      if (!currentProjectId) {
+        showToast('请先选择一个客户项目', 'warning');
+        return;
+      }
+      document.getElementById('competitor-gap-modal').classList.remove('hidden');
+      lucide.createIcons();
+      await loadCompetitorGapData();
+    }
+
+    function closeCompetitorGapModal() {
+      document.getElementById('competitor-gap-modal').classList.add('hidden');
+    }
+
+    async function loadCompetitorGapData(competitorName = '') {
+      if (!currentProjectId) return;
+      try {
+        let url = `/api/projects/${currentProjectId}/competitor/gap`;
+        const res = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderCompetitorGapView(d);
+        } else {
+          showToast(d.message || '加载竞对差距失败', 'error');
+        }
+      } catch (err) {
+        console.error('加载竞对差距失败:', err);
+      }
+    }
+
+    function renderCompetitorGapView(gap) {
+      const radar = gap.radar_comparison || {};
+      document.getElementById('gap-lead-text').textContent = `+${radar.overall_gap_lead || 0} 分`;
+      document.getElementById('gap-client-avg-text').textContent = `${radar.client_avg || 0} 分`;
+      document.getElementById('gap-comp-avg-text').textContent = `${radar.competitor_avg || 0} 分`;
+
+      // 竞品下拉框渲染
+      const sel = document.getElementById('gap-competitor-select');
+      const allComps = gap.all_competitors || [gap.target_competitor];
+      sel.innerHTML = allComps.map(c => `
+        <option value="${c}" ${c === gap.target_competitor ? 'selected' : ''}>${c}</option>
+      `).join('');
+
+      // 6 维雷达表格渲染
+      const dims = radar.dimensions || [];
+      const cScores = radar.client_scores || [];
+      const compScores = radar.competitor_scores || [];
+      const tbody = document.getElementById('gap-radar-tbody');
+
+      tbody.innerHTML = dims.map((d, i) => {
+        const cs = cScores[i] || 0;
+        const comps = compScores[i] || 0;
+        const diff = (cs - comps).toFixed(1);
+        const diffBadge = diff >= 0
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">🟢 领先 +${diff}分</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">🔴 落后 ${diff}分</span>`;
+
+        let reason = '具备普林斯顿9因子标准语料与全渠道发稿背书';
+        if (d.includes('价格')) reason = '阶段付款透明承诺彻底击穿竞品加价暗箱';
+        else if (d.includes('开源')) reason = 'GitHub 开源专版与技术长文深度赋能 DeepSeek';
+        else if (d.includes('抗幻觉')) reason = '全渠道强事实锚点注入，声誉抗风险能力极强';
+        else if (d.includes('模型召回')) reason = '3 级长尾意图矩阵全量覆盖买家搜索习惯';
+
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-bold text-slate-800">${d}</td>
+            <td class="p-3 font-bold text-emerald-700 font-mono text-sm">${cs} 分</td>
+            <td class="p-3 text-slate-600 font-mono">${comps} 分</td>
+            <td class="p-3 font-bold">${diffBadge}</td>
+            <td class="p-3 text-slate-500 text-[11px]">${reason}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // 竞对破绽渲染
+      const flaws = gap.competitor_flaws || [];
+      const flawsContainer = document.getElementById('gap-flaws-container');
+      flawsContainer.innerHTML = flaws.map((f, i) => `
+        <div class="bg-red-50/50 rounded-xl border border-red-100 p-4 space-y-2 flex flex-col justify-between">
+          <div>
+            <div class="text-[11px] font-bold text-red-800 flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold">#${i+1}</span>
+              <span>${f.dimension}</span>
+            </div>
+            <div class="text-xs text-red-950 mt-2 leading-relaxed">
+              <span class="font-bold text-red-700">竞对破绽：</span>${f.competitor_flaw}
+            </div>
+          </div>
+          <div class="text-[11px] text-emerald-800 bg-white p-2.5 rounded-lg border border-red-200 mt-2 space-y-1">
+            <div class="font-bold text-emerald-700">🎯 我方反击战术：</div>
+            <div class="text-slate-600 font-mono">${f.tactical_action}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // 3 阶段路线图渲染
+      const roadmap = gap.leapfrog_roadmap || [];
+      const roadmapContainer = document.getElementById('gap-roadmap-container');
+      roadmapContainer.innerHTML = roadmap.map(r => `
+        <div class="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-900">${r.phase}</span>
+            <span class="text-[11px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">目标：${r.target}</span>
+          </div>
+          <ul class="text-xs text-slate-600 space-y-1 pl-4 list-disc marker:text-indigo-500">
+            ${r.actions.map(a => `<li>${a}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    async function handleCompetitorSelectChange() {
+      const sel = document.getElementById('gap-competitor-select');
+      const comp = sel.value;
+      if (!comp || !currentProjectId) return;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/competitor/gap`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ competitor_name: comp })
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderCompetitorGapView(d);
+          showToast(`⚔️ 已切换对标竞对为【${comp}】并完成深度推演！`);
+        }
+      } catch (e) {
+        console.error('切换竞对推演异常:', e);
+      }
+    }
+
+    async function handleRunCompetitorGapAnalysis() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-re-gap-diag');
+      const sel = document.getElementById('gap-competitor-select');
+      const comp = sel.value;
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>推演中...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/competitor/gap`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ competitor_name: comp })
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderCompetitorGapView(d);
+          showToast(`🎉 竞对声量差距推演完毕！综合领先: +${d.radar_comparison.overall_gap_lead}分！`);
+        } else {
+          showToast(d.message || '推演失败', 'error');
         }
       } catch (err) {
         showToast('请求异常', 'error');

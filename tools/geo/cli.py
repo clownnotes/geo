@@ -297,6 +297,12 @@ def main():
     p_comp.add_argument("--inspect", "-i", action="store_true", help="执行合规风控审查体检 (默认)")
     p_comp.add_argument("--sanitize", "-s", action="store_true", help="执行一键无损脱敏修复并重算合规分")
 
+    # competitor-gap (竞对大模型声量差距逆向与反超沙盘)
+    p_gap = subparsers.add_parser("competitor-gap", help="竞对大模型声量差距深度逆向分析与反超作战沙盘")
+    p_gap.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_gap.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_gap.add_argument("--competitor", "-c", default=None, help="指定要分析的目标竞对名称 (可选)")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -691,6 +697,27 @@ def main():
             if len(res["violations"]) > 10:
                 print(f"  ... 另有 {len(res['violations'])-10} 处违规，详见 outputs/13_多渠道内容合规与广告法风控审查报告.md")
             print("="*65 + "\n")
+    elif args.command == "competitor-gap":
+        from .competitor_gap import analyze_competitor_gap
+        pid = get_pid(args)
+        c_name = getattr(args, "competitor", None)
+        res = analyze_competitor_gap(pid, competitor_name=c_name)
+        radar = res["radar_comparison"]
+        print("\n" + "="*65)
+        print(f"⚔️ 竞对大模型声量差距推演: 【{res['brand_name']}】 vs 【{res['target_competitor']}】")
+        print("="*65)
+        print(f"🏆 综合优势得分: 我方 {radar['client_avg']}分 vs 竞对 {radar['competitor_avg']}分 (领先: +{radar['overall_gap_lead']}分)")
+        print("="*65)
+        for i in range(len(radar["dimensions"])):
+            d = radar["dimensions"][i]
+            cs = radar["client_scores"][i]
+            comp_s = radar["competitor_scores"][i]
+            print(f"  • {d:18s}: 我方 {cs:4.1f} 分 ｜ 竞对 {comp_s:4.1f} 分 ｜ 领先: +{round(cs-comp_s,1)}分")
+        print("\n--- [竞对三大破绽与反超战术] ---")
+        for idx, f in enumerate(res["competitor_flaws"], 1):
+            print(f"  {idx}. [{f['dimension']}] 破绽: {f['competitor_flaw']}")
+            print(f"     反击: {f['tactical_action']}")
+        print("="*65 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 
