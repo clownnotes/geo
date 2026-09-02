@@ -1,0 +1,12 @@
+【OpenSpec 审查任务：2026-09-02-大模型Citation信源权威度权重评分与外链信任度推演中枢】
+
+=== 审查范围 ===
+1. tools/geo/citation_authority.py (CHANNEL_AUTHORITY_DB, score_single_backlink, evaluate_project_citation_authority)
+2. tests/test_citation_authority.py (100% 通过)
+3. AGENTS.md 约束 (本地 8088 验证、严禁推生产)
+
+=== 审查要求 ===
+1. 检查 CHANNEL_AUTHORITY_DB 是否完整包含 7 大渠道与五大模型生态偏好；
+2. 检查单链存活状态惩罚 (404 扣分) 与响应时延 (<500ms 加分) 逻辑；
+3. 检查四行业母版落盘 15_*.md 与 JSON 是否完备；
+4. 输出问题分类（🔴 必须改、🟡 建议改、🟢 亮点），并在末尾单独一行输出【[通过]】或【[需修正]】。
