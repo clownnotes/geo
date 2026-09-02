@@ -708,6 +708,30 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 智能混合文本批量提取与回填分发外链: /api/projects/{id}/ledger/batch-add
+        if path.startswith("/api/projects/") and path.endswith("/ledger/batch-add"):
+            project_id = path.split("/")[3]
+            try:
+                raw_text = data.get("raw_text", "")
+                verify_now = data.get("verify_now", True)
+                from .dist_bot import batch_backfill_urls
+                res = batch_backfill_urls(project_id, raw_text, verify_now=verify_now)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 全网并发死链探活审计与存活率重算: /api/projects/{id}/ledger/audit
+        if path.startswith("/api/projects/") and path.endswith("/ledger/audit"):
+            project_id = path.split("/")[3]
+            try:
+                from .dist_bot import verify_all_channels
+                res = verify_all_channels(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -1514,6 +1538,17 @@ core_values:
                 try:
                     content = build_baidu_wenku_qa_pairs(project_id)
                     self.send_json({"success": True, "project_id": project_id, "content": content})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取分发台账执行大盘与存活汇总: /api/projects/{id}/ledger/summary
+            if path.startswith("/api/projects/") and path.endswith("/ledger/summary"):
+                project_id = path.split("/")[3]
+                from .dist_bot import get_distribution_ledger
+                try:
+                    res = get_distribution_ledger(project_id)
+                    self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

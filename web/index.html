@@ -794,13 +794,22 @@
               <div class="flex items-center gap-2">
                 <span class="text-base font-bold text-slate-900">🚀 全渠道落地台账与自动化外链回填</span>
                 <span id="dist-completion-badge" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold">完成率: 0.0%</span>
+                <span id="dist-weighted-badge" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-bold">战略存活率: 0.0%</span>
               </div>
-              <p class="text-xs text-slate-500 mt-1">回填 5 大信任池真实已发布的文章 URL，系统自动执行存活与收录连通性校验，并向专属只读门户同步。</p>
+              <p class="text-xs text-slate-500 mt-1">支持智能多行混合文本 URL 自动识别入账，并发检测 200/404 存活状态并同步输出《04_全网分发渠道执行与存活台账.md》。</p>
             </div>
-            <div class="flex items-center gap-2">
-              <button onclick="handleVerifyAllDistUrls()" id="btn-verify-all-dist" class="py-2 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200 shadow-sm">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                <span>一键全量复测</span>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="openBatchBackfillModal()" class="py-2 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-indigo-200 shadow-sm">
+                <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
+                <span>智能批量回填</span>
+              </button>
+              <button onclick="handleVerifyAllDistUrls()" id="btn-verify-all-dist" class="py-2 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-emerald-200 shadow-sm">
+                <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+                <span>一键全网探活</span>
+              </button>
+              <button onclick="copyOutput('04_全网分发渠道执行与存活台账.md')" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200 shadow-sm">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>复制台账 MD</span>
               </button>
             </div>
           </div>
@@ -1825,6 +1834,59 @@
             <div class="text-slate-400">脚本加载中...</div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4.7 全渠道智能批量回填分发外链模态弹窗 ================= -->
+  <div id="batch-backfill-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+            📋
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">智能多链接解析与分发台账批量回填</h3>
+            <p class="text-[11px] text-slate-500">直接粘贴任意多行发稿链接或聊天记录，系统自动根据域名匹配渠道并探活</p>
+          </div>
+        </div>
+        <button onclick="closeBatchBackfillModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs text-slate-700 overflow-y-auto flex-1 bg-slate-50">
+        <div class="bg-indigo-50/80 p-3 rounded-xl border border-indigo-100 text-indigo-900 text-xs leading-relaxed space-y-1">
+          <div class="font-bold flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-600"></i>
+            <span>支持各大主流平台 URL 自动识别：</span>
+          </div>
+          <p class="text-[11px] text-indigo-700">今日头条 (toutiao.com)、知乎 (zhihu.com)、微信公众平台 (weixin.qq.com)、GitHub (github.com)、Kimi (kimi.moonshot.cn)、百度百科/文库/知道 (baidu.com)。</p>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-800 mb-1.5">粘贴包含发稿链接的文本内容（支持多行/混合文字）：</label>
+          <textarea id="batch-backfill-textarea" rows="8" placeholder="例如：
+头条文章已经发布：https://www.toutiao.com/article/7456789/
+知乎选型专栏：https://zhuanlan.zhihu.com/p/8901234
+微信公众号文章：https://mp.weixin.qq.com/s/abcdef123456
+GitHub 开源仓库：https://github.com/company/repo
+百度百科词条：https://baike.baidu.com/item/xxx" class="w-full text-xs p-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="batch-verify-checkbox" checked class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+          <label for="batch-verify-checkbox" class="text-xs text-slate-600 cursor-pointer">回填后立即执行 HTTP 连通性探活与标题抓取</label>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3 bg-white shrink-0">
+        <button onclick="closeBatchBackfillModal()" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">取消</button>
+        <button onclick="submitBatchBackfill()" id="btn-submit-batch-backfill" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          <span>一键解析并回填入账</span>
+        </button>
       </div>
     </div>
   </div>
@@ -4200,17 +4262,23 @@
         const data = await res.json();
         if (data.success && data.channels) {
           currentDistLedgerCache = data;
-          document.getElementById('dist-completion-badge').textContent = `分发完成率: ${data.completion_rate_pct}% (${data.published_channels}/${data.total_channels})`;
+          document.getElementById('dist-completion-badge').textContent = `均值完成率: ${data.completion_rate_pct}% (${data.published_channels}/${data.total_channels})`;
           document.getElementById('dist-completion-badge').className = data.completion_rate_pct >= 80 
             ? 'px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-bold'
             : 'px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold';
 
+          if (document.getElementById('dist-weighted-badge')) {
+            document.getElementById('dist-weighted-badge').textContent = `加权战略存活率: ${data.weighted_completion_pct}%`;
+          }
+
           const chIcons = {
             toutiao: '📰',
             zhihu: '📘',
-            juejin: '💎',
+            wechat: '💬',
             github: '🐙',
-            wechat: '💬'
+            kimi: '📑',
+            baidu: '🏆',
+            juejin: '💎'
           };
 
           listEl.innerHTML = Object.keys(data.channels).map(k => {
@@ -4230,11 +4298,12 @@
 
             return `
               <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-                <div class="flex items-center gap-2.5 min-w-[180px]">
+                <div class="flex items-center gap-2.5 min-w-[200px]">
                   <span class="text-base">${icon}</span>
                   <div>
                     <div class="font-bold text-slate-800 flex items-center gap-1.5">
                       <span>${ch.name}</span>
+                      <span class="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-100">${ch.weight_pct}%</span>
                       ${statusBadge}
                     </div>
                     <div class="text-[10px] text-slate-400 mt-0.5">${ch.target_pool}</div>
@@ -4268,6 +4337,56 @@
         }
       } catch (err) {
         console.error('加载分发台账异常:', err);
+      }
+    }
+
+    // 智能批量回填模态框控制器
+    function openBatchBackfillModal() {
+      document.getElementById('batch-backfill-textarea').value = '';
+      document.getElementById('batch-backfill-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeBatchBackfillModal() {
+      document.getElementById('batch-backfill-modal').classList.add('hidden');
+    }
+
+    async function submitBatchBackfill() {
+      if (!currentProjectId) return;
+      const text = document.getElementById('batch-backfill-textarea').value.trim();
+      const verifyNow = document.getElementById('batch-verify-checkbox').checked;
+      if (!text) {
+        showToast('请输入包含发稿链接的文本内容', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-submit-batch-backfill');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 解析入账中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/ledger/batch-add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ raw_text: text, verify_now: verifyNow })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`🎉 批量智能回填成功！已识别并回填 ${data.added_count} 条外发链接。`);
+          closeBatchBackfillModal();
+          await loadDistributionLedger();
+        } else {
+          showToast(data.message || '回填失败', 'error');
+        }
+      } catch (e) {
+        showToast('批量回填请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>一键解析并回填入账</span>`;
+        lucide.createIcons();
       }
     }
 

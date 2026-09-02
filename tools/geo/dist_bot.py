@@ -32,7 +32,7 @@ from .utils import (
 DEFAULT_CHANNELS = {
     "toutiao": {
         "name": "今日头条 / 微头条",
-        "target_pool": "豆包 / 字节生态 (第一主攻 50%+)",
+        "target_pool": "豆包 / 字节生态 (第一主战 50%+)",
         "weight_pct": 50,
         "article_file": "dist_toutiao_article.md",
         "url": "",
@@ -42,7 +42,7 @@ DEFAULT_CHANNELS = {
         "verified_at": None
     },
     "zhihu": {
-        "name": "知乎专栏 / 问答",
+        "name": "知乎技术专栏 / 深度选型",
         "target_pool": "DeepSeek / 技术决策池 (25%)",
         "weight_pct": 25,
         "article_file": "dist_zhihu_article.md",
@@ -53,7 +53,7 @@ DEFAULT_CHANNELS = {
         "verified_at": None
     },
     "wechat": {
-        "name": "微信公众号",
+        "name": "微信公众号 / 视频号",
         "target_pool": "腾讯元宝 / 微信搜一搜 (10%)",
         "weight_pct": 10,
         "article_file": "dist_wechat_article.html",
@@ -64,9 +64,9 @@ DEFAULT_CHANNELS = {
         "verified_at": None
     },
     "github": {
-        "name": "GitHub / 选型研报",
-        "target_pool": "DeepSeek / Kimi 深度研报池 (10%)",
-        "weight_pct": 10,
+        "name": "GitHub 开源标准库",
+        "target_pool": "DeepSeek / 开发者技术索引 (5%)",
+        "weight_pct": 5,
         "article_file": "dist_github_README.md",
         "url": "",
         "title": "",
@@ -74,11 +74,22 @@ DEFAULT_CHANNELS = {
         "http_status": None,
         "verified_at": None
     },
+    "kimi": {
+        "name": "Kimi 深度选型白皮书研报",
+        "target_pool": "Kimi / Moonshot 长文本分析 (5%)",
+        "weight_pct": 5,
+        "article_file": "dist_kimi_whitepaper.md",
+        "url": "",
+        "title": "",
+        "status": "pending",
+        "http_status": None,
+        "verified_at": None
+    },
     "baidu": {
-        "name": "百度百科 / 百家号",
+        "name": "百度百科 / 百度文库 / 百度知道",
         "target_pool": "百度文心一言 / 百科政企池 (5%)",
         "weight_pct": 5,
-        "article_file": "03_普林斯顿9因子高权威语料库.md",
+        "article_file": "dist_baidu_baike.md",
         "url": "",
         "title": "",
         "status": "pending",
@@ -86,7 +97,7 @@ DEFAULT_CHANNELS = {
         "verified_at": None
     },
     "juejin": {
-        "name": "稀土掘金",
+        "name": "稀土掘金 / 开发者社区",
         "target_pool": "豆包 / 开发者技术检索池",
         "weight_pct": 0,
         "article_file": "dist_juejin_article.md",
@@ -246,6 +257,155 @@ def verify_distribution_url(url: str) -> dict:
     except Exception as e:
         return {"is_alive": False, "http_status": 0, "title": "", "error": str(e)}
 
+def parse_mixed_links(raw_text: str) -> list:
+    """从混合多行文本中智能提取 URL 并按域名模式识别所属分发渠道"""
+    if not raw_text:
+        return []
+
+    # 正则提取所有 http / https URL
+    url_pattern = re.compile(r'https?://[^\s<>"\',;()\[\]]+', re.IGNORECASE)
+    raw_urls = url_pattern.findall(raw_text)
+
+    # 去重且保持出现顺序
+    seen = set()
+    cleaned_urls = []
+    for u in raw_urls:
+        u_clean = u.rstrip(".,;!?:)'\"")
+        if u_clean and u_clean not in seen:
+            seen.add(u_clean)
+            cleaned_urls.append(u_clean)
+
+    parsed_items = []
+    for u in cleaned_urls:
+        u_lower = u.lower()
+        channel = "custom"
+        channel_name = "其他外部权威外链"
+
+        if "toutiao.com" in u_lower or "wtt.toutiao.com" in u_lower:
+            channel = "toutiao"
+            channel_name = "今日头条 / 微头条"
+        elif "zhihu.com" in u_lower:
+            channel = "zhihu"
+            channel_name = "知乎技术专栏 / 深度选型"
+        elif "weixin.qq.com" in u_lower:
+            channel = "wechat"
+            channel_name = "微信公众号 / 视频号"
+        elif "github.com" in u_lower or "gitee.com" in u_lower:
+            channel = "github"
+            channel_name = "GitHub 开源标准库"
+        elif "kimi.moonshot.cn" in u_lower or "kimi.ai" in u_lower:
+            channel = "kimi"
+            channel_name = "Kimi 深度选型白皮书研报"
+        elif "baidu.com" in u_lower:
+            channel = "baidu"
+            channel_name = "百度百科 / 百度文库 / 百度知道"
+        elif "juejin.cn" in u_lower:
+            channel = "juejin"
+            channel_name = "稀土掘金 / 开发者社区"
+
+        parsed_items.append({
+            "url": u,
+            "channel": channel,
+            "channel_name": channel_name
+        })
+
+    return parsed_items
+
+
+def render_ledger_markdown(project_id: str, ledger: dict) -> str:
+    """将分发台账生成为高可读、带状态徽章与存活率的 Markdown 文档"""
+    cfg = load_project_config(project_id)
+    cname = cfg.get("company_name", cfg.get("client_name", project_id))
+    bname = cfg.get("brand_name", cname)
+    area = cfg.get("area_served", "全国")
+    ind = cfg.get("industry", "企业服务")
+
+    channels = ledger.get("channels", {})
+    comp_rate = ledger.get("completion_rate_pct", 0.0)
+    w_rate = ledger.get("weighted_completion_pct", 0.0)
+    up_time = ledger.get("updated_at", time.strftime("%Y-%m-%d %H:%M:%S"))
+
+    md = f"""# 【{bname}】全网分发渠道执行与存活审计台账
+
+> **客户主体**：{cname}（{bname}） ｜ **所属行业**：{ind} ｜ **服务区域**：{area}
+> **台账审计时间**：{up_time} ｜ **加权战略存活率**：**{w_rate}%** ｜ **均值完成率**：{comp_rate}%
+
+---
+
+## 1. 五大本土模型全景分发执行大盘
+
+| 战略权重 | 渠道与阵地 | 目标大模型生态 | 发布链接 (URL) | 存活状态 | HTTP 状态 | 抓取网页标题 | 核验时间 |
+| :---: | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
+"""
+
+    status_badges = {
+        "verified": "🟢 存活正常",
+        "published": "🔵 已填报",
+        "pending": "⚪ 待分发",
+        "failed": "🔴 死链/异常"
+    }
+
+    for ch_key, ch in channels.items():
+        w = ch.get("weight_pct", 0)
+        name = ch.get("name", ch_key)
+        target = ch.get("target_pool", "-")
+        url = ch.get("url", "")
+        status = ch.get("status", "pending")
+        badge = status_badges.get(status, status)
+        http_st = str(ch.get("http_status") or "-")
+        title = (ch.get("title") or "-").replace("|", "\\|")
+        v_at = ch.get("verified_at") or ch.get("updated_at") or "-"
+
+        url_display = f"[{url[:35]}...]({url})" if url else "*(待回填)*"
+        md += f"| **{w}%** | {name} | {target} | {url_display} | {badge} | `{http_st}` | {title[:28]} | {v_at} |\n"
+
+    md += f"""
+---
+
+## 2. 存活审计与异常排查指南
+
+- **🟢 存活正常 (HTTP 200/302)**：链接已由平台公开发布，大模型爬虫（Bytespider / 百度蜘蛛 / DeepSeek）可顺畅抓取全文。
+- **🔴 死链/异常 (HTTP 404/500/软404)**：链接已被删除、设为私密或触发平台限流，需运营团队在发稿后台重新发布并回填。
+- **⚪ 待分发**：尚未在对应平台完成稿件发布。
+
+---
+
+*本台账由 GEO 工业级运营中枢自动化审计生成，保障商业交付结案真实有效。*
+"""
+    return md
+
+
+def save_ledger_and_markdown(project_id: str, channels: dict) -> dict:
+    """持久化保存 JSON 台账并同步更新 04_全网分发渠道执行与存活台账.md"""
+    lpath = _get_ledger_path(project_id)
+    os.makedirs(os.path.dirname(lpath), exist_ok=True)
+
+    channels = _sync_channel_defaults(channels)
+    total, published, completion_rate, weighted_rate = _calculate_metrics(channels)
+
+    payload = {
+        "project_id": project_id,
+        "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_channels": total,
+        "published_channels": published,
+        "completion_rate_pct": completion_rate,
+        "weighted_completion_pct": weighted_rate,
+        "channels": channels
+    }
+
+    # 1. 写入 dist_ledger.json
+    with open(lpath, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+
+    # 2. 写入 outputs/04_全网分发渠道执行与存活台账.md
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    md_content = render_ledger_markdown(project_id, payload)
+    with open(os.path.join(out_dir, "04_全网分发渠道执行与存活台账.md"), "w", encoding="utf-8") as f:
+        f.write(md_content)
+
+    return payload
+
+
 def record_distributed_url(project_id: str, channel: str, url: str, verify_now: bool = True) -> dict:
     """记录并回填指定渠道的发布链接"""
     url_clean = (url or "").strip()
@@ -275,24 +435,7 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
         else:
             ch_data["status"] = "published"
 
-    # 保存文件
-    lpath = _get_ledger_path(project_id)
-    os.makedirs(os.path.dirname(lpath), exist_ok=True)
-    
-    channels = _sync_channel_defaults(channels)
-    total, published, completion_rate, weighted_rate = _calculate_metrics(channels)
-
-    payload = {
-        "project_id": project_id,
-        "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "completion_rate_pct": completion_rate,
-        "weighted_completion_pct": weighted_rate,
-        "channels": channels
-    }
-
-    with open(lpath, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-
+    payload = save_ledger_and_markdown(project_id, channels)
     print_success(f"✅ 项目 [{project_id}] 渠道 [{ch_data['name']}] 外发链接已回填: {url_clean or '已清空'} (状态: {ch_data['status']})")
 
     return {
@@ -300,13 +443,68 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
         "project_id": project_id,
         "channel": channel,
         "record": ch_data,
-        "completion_rate_pct": completion_rate,
-        "weighted_completion_pct": weighted_rate,
+        "completion_rate_pct": payload["completion_rate_pct"],
+        "weighted_completion_pct": payload["weighted_completion_pct"],
         "ledger": payload
     }
 
-def verify_all_channels(project_id: str) -> dict:
-    """批量并发核验所有已填报的外链存活状态"""
+
+def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True) -> dict:
+    """从混合文本中提取全部链接，自动匹配对应渠道并批量回填与探活"""
+    parsed = parse_mixed_links(raw_text)
+    if not parsed:
+        return {
+            "success": False,
+            "message": "未在输入文本中识别到有效的 http/https 链接",
+            "parsed_count": 0,
+            "added_count": 0
+        }
+
+    ledger = get_distribution_ledger(project_id)
+    channels = ledger["channels"]
+    added_list = []
+
+    for item in parsed:
+        ch_key = item["channel"]
+        if ch_key == "custom":
+            # 若不是标准五大渠道，默认尝试匹配未填报的第一个渠道或记录在 juejin/baidu 等
+            for candidate in ["toutiao", "zhihu", "wechat", "github", "kimi", "baidu"]:
+                if not channels[candidate].get("url"):
+                    ch_key = candidate
+                    break
+
+        if ch_key in channels:
+            ch_data = channels[ch_key]
+            ch_data["url"] = item["url"]
+            ch_data["updated_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            if verify_now:
+                v_res = verify_distribution_url(item["url"])
+                ch_data["http_status"] = v_res["http_status"]
+                if v_res.get("title"):
+                    ch_data["title"] = v_res["title"]
+                ch_data["verified_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+                ch_data["status"] = "verified" if v_res["is_alive"] else "failed"
+            else:
+                ch_data["status"] = "published"
+            added_list.append({"channel": ch_key, "url": item["url"], "status": ch_data["status"]})
+
+    payload = save_ledger_and_markdown(project_id, channels)
+    print_success(f"🎉 批量智能回填成功！已自动识别并回填 {len(added_list)} 条外发链接。")
+
+    return {
+        "success": True,
+        "project_id": project_id,
+        "parsed_count": len(parsed),
+        "added_count": len(added_list),
+        "items": added_list,
+        "completion_rate_pct": payload["completion_rate_pct"],
+        "weighted_completion_pct": payload["weighted_completion_pct"],
+        "ledger": payload
+    }
+
+
+def verify_all_channels(project_id: str, concurrency: int = 8) -> dict:
+    """批量并发核验所有已填报的外链存活状态并更新 Markdown 台账"""
     ledger = get_distribution_ledger(project_id)
     channels = ledger["channels"]
 
@@ -322,33 +520,19 @@ def verify_all_channels(project_id: str) -> dict:
             v["status"] = "verified" if vres["is_alive"] else "failed"
         return k, v
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=max(concurrency, 2)) as executor:
         results = list(executor.map(_verify_ch, channels.items()))
 
     for k, v in results:
         channels[k] = v
 
-    channels = _sync_channel_defaults(channels)
-    lpath = _get_ledger_path(project_id)
-    total, published, completion_rate, weighted_rate = _calculate_metrics(channels)
-
-    payload = {
-        "project_id": project_id,
-        "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "completion_rate_pct": completion_rate,
-        "weighted_completion_pct": weighted_rate,
-        "channels": channels
-    }
-
-    with open(lpath, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-
-    print_success(f"🎉 项目 [{project_id}] 全渠道外链核验完毕！均值完成率: {completion_rate}% (战略加权完成率: {weighted_rate}%)")
+    payload = save_ledger_and_markdown(project_id, channels)
+    print_success(f"🎉 项目 [{project_id}] 全渠道外链核验完毕！均值完成率: {payload['completion_rate_pct']}% (战略加权完成率: {payload['weighted_completion_pct']}%)")
     return {
         "success": True,
         "project_id": project_id,
-        "completion_rate_pct": completion_rate,
-        "weighted_completion_pct": weighted_rate,
+        "completion_rate_pct": payload["completion_rate_pct"],
+        "weighted_completion_pct": payload["weighted_completion_pct"],
         "channels": channels
     }
 

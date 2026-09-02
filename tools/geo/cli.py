@@ -268,6 +268,14 @@ def main():
     p_cert.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_cert.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
+    # ledger (分发台账智能回填与存活探活审计)
+    p_ledger = subparsers.add_parser("ledger", help="全渠道分发链接智能解析回填与全网死链探活审计")
+    p_ledger.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_ledger.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_ledger.add_argument("--add", default=None, help="批量智能粘贴多行 URL 文本回填")
+    p_ledger.add_argument("--audit", action="store_true", help="执行全网并发死链探活与存活率重算")
+    p_ledger.add_argument("--summary", action="store_true", help="查看当前分发台账执行大盘")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -602,6 +610,18 @@ def main():
     elif args.command == "certificate":
         from .certificate import build_delivery_certificate_html
         build_delivery_certificate_html(get_pid(args))
+    elif args.command == "ledger":
+        from .dist_bot import batch_backfill_urls, verify_all_channels, get_distribution_ledger
+        pid = get_pid(args)
+        if args.add:
+            batch_backfill_urls(pid, args.add, verify_now=True)
+        elif args.audit:
+            verify_all_channels(pid)
+        else:
+            led = get_distribution_ledger(pid)
+            print(f"项目 [{pid}] 当前分发进度: {led['completion_rate_pct']}% (加权: {led['weighted_completion_pct']}%)")
+            for k, v in led['channels'].items():
+                print(f" - {v['name']}: {v.get('url') or '(未填报)'} [{v.get('status')}]")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 
