@@ -967,8 +967,13 @@ core_values:
                 return
             project_id = rec["project_id"]
             try:
-                from .certificate import build_delivery_certificate_html
-                html_body = build_delivery_certificate_html(project_id)
+                cert_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "09_GEO全案商业交付结案与数字资产移交证书.html")
+                if os.path.exists(cert_file):
+                    with open(cert_file, "r", encoding="utf-8") as cf:
+                        html_body = cf.read()
+                else:
+                    from .certificate import build_delivery_certificate_html
+                    html_body = build_delivery_certificate_html(project_id)
                 body_bytes = html_body.encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -1440,8 +1445,13 @@ core_values:
             if path.startswith("/api/projects/") and path.endswith("/certificate"):
                 project_id = path.split("/")[3]
                 try:
-                    from .certificate import build_delivery_certificate_html
-                    html_body = build_delivery_certificate_html(project_id)
+                    cert_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "09_GEO全案商业交付结案与数字资产移交证书.html")
+                    if os.path.exists(cert_file):
+                        with open(cert_file, "r", encoding="utf-8") as cf:
+                            html_body = cf.read()
+                    else:
+                        from .certificate import build_delivery_certificate_html
+                        html_body = build_delivery_certificate_html(project_id)
                     body_bytes = html_body.encode("utf-8")
                     self.send_response(200)
                     self.send_header("Content-Type", "text/html; charset=utf-8")
