@@ -131,3 +131,5 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 | **沙箱测序** | `python3 -m tools.geo test <project_id> [--compare]` | [SOP-05](/sop/05-monitor-sop) | 大模型双轨 Before/After 实时模拟测序与置信度评分 |
 | **分发回填** | `python3 -m tools.geo record <project_id> --channel <ch> --url <url>` | [SOP-04](/sop/04-distribute-sop) | 记录与更新 5 大渠道真实外网落地 URL 台账 |
 | **收录核验** | `python3 -m tools.geo verify-dist <project_id>` | [SOP-04](/sop/04-distribute-sop) | 一键全渠道外链存活探测与完成率评估 |
+| **商业 ROI** | `python3 -m tools.geo roi <project_id> [--fee N] [--cpl N]` | [SOP-05](/sop/05-monitor-sop) | 商业投资回报率测算、SEM 替代节省与财务估值 |
+| **续约预测** | `python3 -m tools.geo renewal <project_id>` | [SOP-05](/sop/05-monitor-sop) | 客户续约健康度评分模型与商务谈判提案话术 |

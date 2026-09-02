@@ -196,6 +196,19 @@ def main():
     p_vdist.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_vdist.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
+    # roi
+    p_roi = subparsers.add_parser("roi", help="测算项目商业投资回报率 (ROI) 与财务估值")
+    p_roi.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_roi.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_roi.add_argument("--fee", type=int, default=None, help="年度服务费成本 (元)")
+    p_roi.add_argument("--cpl", type=float, default=None, help="行业单条销售线索成本 (元)")
+    p_roi.add_argument("--cpc", type=float, default=None, help="搜索单次点击竞价成本 (元)")
+
+    # renewal
+    p_rnw = subparsers.add_parser("renewal", help="预测客户续约健康度并生成谈判话术")
+    p_rnw.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_rnw.add_argument("--project", "-p", default=None, help="客户项目 ID")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -361,6 +374,46 @@ def main():
         from .dist_bot import verify_all_channels
         pid = get_pid(args)
         verify_all_channels(pid)
+    elif args.command == "roi":
+        from .roi import calculate_project_roi
+        pid = get_pid(args)
+        custom_p = {}
+        if getattr(args, "fee", None):
+            custom_p["annual_service_fee"] = args.fee
+        if getattr(args, "cpl", None):
+            custom_p["cpl"] = args.cpl
+        if getattr(args, "cpc", None):
+            custom_p["cpc"] = args.cpc
+        res = calculate_project_roi(pid, custom_params=custom_p)
+        fin = res["financial_valuation"]
+        ren = res["renewal_health"]
+        print("\n" + "="*65)
+        print(f"💰 项目 [{pid}] 商业投资回报率 (ROI) 测算报告")
+        print("="*65)
+        print(f"💵 年度 GEO 服务费成本: ¥{fin['annual_service_fee']:,} 元")
+        print(f"🚀 创造商业综合总价值: ¥{fin['total_business_value']:,} 元 (净回报: ¥{fin['net_profit_value']:,} 元)")
+        print(f"📈 综合投资回报率 (ROI): {fin['roi_pct']}% ({fin['roi_multiplier']} 倍)")
+        print(f"  · 等效 SEM 竞价替代节省: ¥{fin['sem_replacement_value']:,} 元")
+        print(f"  · AI 首推精准销售线索估值: ¥{fin['leads_inbound_value']:,} 元")
+        print(f"  · 权威信任池数字资产估值: ¥{fin['digital_asset_value']:,} 元")
+        print("-"*65)
+        print(f"🎯 续约健康度得分: {ren['score']}/100 ｜ 评级: 【{ren['grade']}】")
+        print(f"💡 建议: {ren['tier_advice']}")
+        print("="*65 + "\n")
+    elif args.command == "renewal":
+        from .roi import predict_renewal_health
+        pid = get_pid(args)
+        ren_res = predict_renewal_health(pid)
+        ren = ren_res["renewal_health"]
+        print("\n" + "="*65)
+        print(f"🤝 项目 [{pid}] 客户续约预测与商务增购谈判提案")
+        print("="*65)
+        print(f"⭐ 续约健康度得分: {ren['score']}/100 ｜ 状态: 【{ren['grade']}】")
+        print(f"📋 商务策略建议: {ren['tier_advice']}")
+        print("\n🗣️ 核心商务谈判话术要点:")
+        for idx, tp in enumerate(ren["talking_points"], 1):
+            print(f"  {idx}. {tp}")
+        print("="*65 + "\n")
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

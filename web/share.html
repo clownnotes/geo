@@ -272,6 +272,42 @@
         </div>
       </div>
 
+      <!-- 商业投资回报 (ROI) 与企业数字资产估值战绩看板 -->
+      <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 rounded-2xl shadow-xl p-6 text-white space-y-4 border border-indigo-500/20">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center text-sm font-bold">💰</div>
+            <div>
+              <h2 class="text-base font-bold text-white">商业投资回报率 (ROI) 与企业数字资产估值</h2>
+              <p class="text-xs text-indigo-200">GEO 服务为企业沉淀的商业获客价值、传统竞价替代价值与全网高权重信任资产</p>
+            </div>
+          </div>
+          <span id="share-roi-badge" class="text-xs bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 px-3 py-1 rounded-full font-bold">
+            ROI: +579.5%
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-3.5 bg-white/5 rounded-xl border border-white/10">
+            <div class="text-[11px] text-indigo-200">商业创造总价值 (年化估算)</div>
+            <div id="share-roi-total" class="text-xl font-black text-amber-300 mt-0.5">¥203,845 元</div>
+            <div id="share-roi-mult" class="text-[10px] text-emerald-300 mt-0.5">相当于 6.79 倍服务投入</div>
+          </div>
+
+          <div class="p-3.5 bg-white/5 rounded-xl border border-white/10">
+            <div class="text-[11px] text-indigo-200">🔍 SEM 竞价广告替代节省</div>
+            <div id="share-roi-sem" class="text-xl font-black text-white mt-0.5">¥166,725 元</div>
+            <div class="text-[10px] text-indigo-300 mt-0.5">替代传统关键词搜索投放</div>
+          </div>
+
+          <div class="p-3.5 bg-white/5 rounded-xl border border-white/10">
+            <div class="text-[11px] text-indigo-200">👥 AI 销售线索与资产估值</div>
+            <div id="share-roi-leads" class="text-xl font-black text-white mt-0.5">¥37,120 元</div>
+            <div class="text-[10px] text-indigo-300 mt-0.5">包含首推销售线索与信任池语料</div>
+          </div>
+        </div>
+      </div>
+
       <!-- 多周声量时序趋势 -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -672,6 +708,32 @@
               </div>
             `;
           }).join('');
+        }
+      }
+
+      // 渲染商业投资回报 (ROI) 战绩看板
+      if (d.roi_summary && d.roi_summary.financial_valuation) {
+        const fin = d.roi_summary.financial_valuation;
+        const ren = d.roi_summary.renewal_health;
+        const badge = document.getElementById('share-roi-badge');
+        if (badge && fin.roi_pct !== undefined) {
+          badge.textContent = `ROI: +${fin.roi_pct}% (${fin.roi_multiplier}倍)`;
+        }
+        const totalEl = document.getElementById('share-roi-total');
+        if (totalEl && fin.total_business_value !== undefined) {
+          totalEl.textContent = `¥${fin.total_business_value.toLocaleString()} 元`;
+        }
+        const multEl = document.getElementById('share-roi-mult');
+        if (multEl && fin.roi_multiplier !== undefined) {
+          multEl.textContent = `相当于 ${fin.roi_multiplier} 倍服务投入 (净回报 ¥${fin.net_profit_value?.toLocaleString()}元)`;
+        }
+        const semEl = document.getElementById('share-roi-sem');
+        if (semEl && fin.sem_replacement_value !== undefined) {
+          semEl.textContent = `¥${fin.sem_replacement_value.toLocaleString()} 元`;
+        }
+        const leadsEl = document.getElementById('share-roi-leads');
+        if (leadsEl && fin.leads_inbound_value !== undefined) {
+          leadsEl.textContent = `¥${(fin.leads_inbound_value + (fin.digital_asset_value || 0)).toLocaleString()} 元`;
         }
       }
 

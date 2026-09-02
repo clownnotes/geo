@@ -705,6 +705,88 @@
           </div>
         </div>
 
+        <!-- 商业 ROI 测算与客户续约预测看板 -->
+        <div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 rounded-2xl shadow-xl p-6 text-white space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center text-xl font-bold shadow-inner">
+                💰
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-bold text-white">商业投资回报率 (ROI) 测算与客户续约预测</h3>
+                  <span id="roi-renewal-badge" class="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-bold">极高概率续约 (92分)</span>
+                </div>
+                <p class="text-xs text-indigo-200 mt-0.5">将技术指标折算为硬核财务资产，为季度续费复盘与大客户增购提供无可辩驳的商业证明。</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openRoiSettingsModal()" class="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 border border-white/10">
+                <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+                <span>自定义商业参数</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3 大核心财务看板 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+              <div class="text-xs text-indigo-200">商业综合创造价值 (年化)</div>
+              <div id="roi-total-val" class="text-2xl font-black text-amber-300 mt-1">¥203,845 元</div>
+              <div id="roi-net-val" class="text-[11px] text-emerald-300 mt-0.5">净商业回报: +¥173,845 元</div>
+            </div>
+
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+              <div class="text-xs text-indigo-200">综合投资回报率 (ROI)</div>
+              <div id="roi-pct-val" class="text-2xl font-black text-emerald-400 mt-1">+579.5%</div>
+              <div id="roi-mult-val" class="text-[11px] text-indigo-300 mt-0.5">价值倍数: 6.79 倍服务费</div>
+            </div>
+
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+              <div class="text-xs text-indigo-200">续约健康度得分</div>
+              <div id="roi-score-val" class="text-2xl font-black text-white mt-1">92 / 100 分</div>
+              <div id="roi-tier-advice-short" class="text-[11px] text-indigo-200 mt-0.5 truncate">建议主推年度增购包</div>
+            </div>
+          </div>
+
+          <!-- 三大细分价值条形卡 -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 bg-white/5 rounded-lg border border-white/5">
+              <div class="text-slate-300 font-semibold flex items-center gap-1.5">
+                <span>🔍 等效 SEM 竞价替代节省</span>
+              </div>
+              <div id="roi-sem-val" class="text-base font-bold text-white mt-1">¥166,725 元</div>
+              <div class="text-[10px] text-indigo-300 mt-0.5">年化替代关键词搜索竞价广告投入</div>
+            </div>
+
+            <div class="p-3 bg-white/5 rounded-lg border border-white/5">
+              <div class="text-slate-300 font-semibold flex items-center gap-1.5">
+                <span>👥 AI 首推精准销售线索估值</span>
+              </div>
+              <div id="roi-leads-val" class="text-base font-bold text-white mt-1">¥13,120 元</div>
+              <div class="text-[10px] text-indigo-300 mt-0.5">基于行业 CPL 与月度转化频次折算</div>
+            </div>
+
+            <div class="p-3 bg-white/5 rounded-lg border border-white/5">
+              <div class="text-slate-300 font-semibold flex items-center gap-1.5">
+                <span>🏛️ 信任池数字资产沉淀估值</span>
+              </div>
+              <div id="roi-asset-val" class="text-base font-bold text-white mt-1">¥24,000 元</div>
+              <div class="text-[10px] text-indigo-300 mt-0.5">全网高权重语料库与外链知识资产</div>
+            </div>
+          </div>
+
+          <!-- 续约谈判核心话术 -->
+          <div id="roi-talking-points-box" class="p-3.5 bg-white/5 rounded-xl border border-white/10 space-y-1.5 text-xs text-indigo-100">
+            <div class="font-bold text-amber-300 flex items-center gap-1">
+              <span>🗣️ 季度复盘与续约增购谈判要点：</span>
+            </div>
+            <div id="roi-talking-points-list" class="space-y-1 pl-1 text-[11px] text-indigo-200">
+              <!-- JS 动态注入 -->
+            </div>
+          </div>
+        </div>
+
         <!-- Citation 权威信源加权渗透图谱 -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -1593,6 +1675,66 @@
     </div>
   </div>
 
+  <!-- 商业 ROI 参数设置模态弹窗 -->
+  <div id="roi-settings-modal" onclick="if(event.target === this) closeRoiSettingsModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-base">
+            💰
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">自定义商业 ROI 测算参数</h3>
+            <p class="text-[11px] text-slate-500">根据客户所在行业定制获客线索成本与竞价基准</p>
+          </div>
+        </div>
+        <button onclick="closeRoiSettingsModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">GEO 年度服务费成本 (元)</label>
+          <input id="roi-input-fee" type="number" step="1000" value="30000" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+          <p class="text-[10px] text-slate-400 mt-1">向该客户收取的年化技术服务费基数</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">行业单线索成本 CPL (元)</label>
+            <input id="roi-input-cpl" type="number" step="10" value="160" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+            <p class="text-[10px] text-slate-400 mt-1">行业平均单条有效线索成本</p>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">搜索单次点击 CPC (元)</label>
+            <input id="roi-input-cpc" type="number" step="0.5" value="6.5" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+            <p class="text-[10px] text-slate-400 mt-1">传统 SEM 关键词平均点击单价</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">月度相关提问检索量 (次)</label>
+            <input id="roi-input-query" type="number" step="500" value="2500" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">业务平均客单价 (元)</label>
+            <input id="roi-input-order" type="number" step="1000" value="25000" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+          <button onclick="closeRoiSettingsModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 font-semibold rounded-lg transition">取消</button>
+          <button onclick="handleSaveRoiSettings()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition flex items-center gap-1">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>保存并重新测算</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="term-modal" onclick="if(event.target === this) closeTermHelp()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
     <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
       <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
@@ -2248,6 +2390,7 @@
       loadDefensePreview();
       loadProjectHistoryChart();
       loadAlertHistory();
+      loadProjectRoiEvaluation();
     }
 
     // 加载声量监控大盘结构化指标
@@ -3585,10 +3728,115 @@
           await navigator.clipboard.writeText(plainText);
           showToast(`✅ [${data.filename}] 稿件内容已复制到剪贴板！`);
         } else {
-          showToast('暂无可复制内容，请先在 Step 4 点击生成发布包！', 'error');
+      // ===== 商业 ROI 量化与客户续约预测控制器 =====
+    let currentRoiDataCache = null;
+
+    async function loadProjectRoiEvaluation() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/roi/calculate`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.financial_valuation) {
+          currentRoiDataCache = d;
+          const fin = d.financial_valuation;
+          const ren = d.renewal_health;
+
+          // 核心财务卡片渲染
+          document.getElementById('roi-total-val').textContent = `¥${fin.total_business_value.toLocaleString()} 元`;
+          document.getElementById('roi-net-val').textContent = `净商业回报: +¥${fin.net_profit_value.toLocaleString()} 元`;
+          document.getElementById('roi-pct-val').textContent = `+${fin.roi_pct}%`;
+          document.getElementById('roi-mult-val').textContent = `价值倍数: ${fin.roi_multiplier} 倍服务费`;
+          document.getElementById('roi-score-val').textContent = `${ren.score} / 100 分`;
+          document.getElementById('roi-tier-advice-short').textContent = ren.tier_advice || '';
+
+          // 续约健康度徽章
+          const badgeEl = document.getElementById('roi-renewal-badge');
+          if (badgeEl) {
+            badgeEl.textContent = `${ren.grade} (${ren.score}分)`;
+            badgeEl.className = ren.score >= 85
+              ? 'px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-bold'
+              : (ren.score >= 70
+                  ? 'px-2.5 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 rounded-full text-xs font-bold'
+                  : 'px-2.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-400/30 rounded-full text-xs font-bold');
+          }
+
+          // 三大细分卡
+          document.getElementById('roi-sem-val').textContent = `¥${fin.sem_replacement_value.toLocaleString()} 元`;
+          document.getElementById('roi-leads-val').textContent = `¥${fin.leads_inbound_value.toLocaleString()} 元`;
+          document.getElementById('roi-asset-val').textContent = `¥${fin.digital_asset_value.toLocaleString()} 元`;
+
+          // 谈判要点清单
+          const tpBox = document.getElementById('roi-talking-points-list');
+          if (tpBox && ren.talking_points) {
+            tpBox.innerHTML = ren.talking_points.map((tp, idx) => `
+              <div class="flex items-start gap-1.5">
+                <span class="text-amber-300 font-bold shrink-0">${idx + 1}.</span>
+                <span>${tp}</span>
+              </div>
+            `).join('');
+          }
+
+          // 回填弹窗表单设置
+          if (d.settings) {
+            document.getElementById('roi-input-fee').value = d.settings.annual_service_fee || 30000;
+            document.getElementById('roi-input-cpl').value = d.settings.cpl || 160;
+            document.getElementById('roi-input-cpc').value = d.settings.cpc || 6.5;
+            document.getElementById('roi-input-query').value = d.settings.monthly_query_baseline || 2500;
+            document.getElementById('roi-input-order').value = d.settings.avg_order_value || 25000;
+          }
+        }
+      } catch (err) {
+        console.error('加载商业 ROI 异常:', err);
+      }
+    }
+
+    function openRoiSettingsModal() {
+      if (!currentProjectId) {
+        showToast('请先选择项目！', 'error');
+        return;
+      }
+      document.getElementById('roi-settings-modal').classList.remove('hidden');
+    }
+
+    function closeRoiSettingsModal() {
+      document.getElementById('roi-settings-modal').classList.add('hidden');
+    }
+
+    async function handleSaveRoiSettings() {
+      if (!currentProjectId) return;
+      const fee = parseFloat(document.getElementById('roi-input-fee').value) || 30000;
+      const cpl = parseFloat(document.getElementById('roi-input-cpl').value) || 160;
+      const cpc = parseFloat(document.getElementById('roi-input-cpc').value) || 6.5;
+      const query = parseInt(document.getElementById('roi-input-query').value) || 2500;
+      const order = parseFloat(document.getElementById('roi-input-order').value) || 25000;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/roi/settings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({
+            annual_service_fee: fee,
+            cpl: cpl,
+            cpc: cpc,
+            monthly_query_baseline: query,
+            avg_order_value: order
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ 商业 ROI 参数已更新！正在重新测算回报率...');
+          closeRoiSettingsModal();
+          await loadProjectRoiEvaluation();
+        } else {
+          showToast('保存失败: ' + data.message, 'error');
         }
       } catch (e) {
-        showToast('获取稿件异常', 'error');
+        showToast('保存异常', 'error');
       }
     }
 

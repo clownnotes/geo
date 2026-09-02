@@ -636,6 +636,18 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 18. 保存商业 ROI 参数 API: /api/projects/{id}/roi/settings
+        if path.startswith("/api/projects/") and path.endswith("/roi/settings"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            from .roi import save_roi_settings
+            try:
+                res = save_roi_settings(project_id, body)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -1073,6 +1085,15 @@ core_values:
                 from .dist_bot import format_rich_text_copy
                 try:
                     res = format_rich_text_copy(project_id, channel)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+            # 获取商业 ROI 测算与续约预测: /api/projects/{id}/roi/calculate
+            if path.startswith("/api/projects/") and path.endswith("/roi/calculate"):
+                project_id = path.split("/")[3]
+                from .roi import calculate_project_roi
+                try:
+                    res = calculate_project_roi(project_id)
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)

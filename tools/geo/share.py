@@ -264,6 +264,18 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         dist_ledger = {}
 
+    # 提取商业 ROI 财务估值与战绩
+    try:
+        from .roi import calculate_project_roi
+        roi_res = calculate_project_roi(project_id)
+        roi_summary = {
+            "financial_valuation": roi_res.get("financial_valuation", {}),
+            "renewal_health": roi_res.get("renewal_health", {}),
+            "metrics_summary": roi_res.get("metrics_summary", {})
+        }
+    except Exception:
+        roi_summary = {}
+
     return {
         "success": True,
         "client_name": cfg.get("client_name", "客户企业"),
@@ -276,6 +288,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "benchmark": bench_eval,
         "visual_assets": visual_assets,
         "distribution_ledger": dist_ledger,
+        "roi_summary": roi_summary,
         "share_meta": {
             "created_at_str": rec.get("created_at_str"),
             "expires_at_str": rec.get("expires_at_str"),
