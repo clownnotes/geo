@@ -45,11 +45,11 @@
         
         <!-- 我方方案 (高亮绿色) -->
         <rect x="250" y="190" width="340" height="40" rx="6" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1"/>
-        <text x="265" y="215" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#065F46">✅ 100% 完整源码交付与数据库设计文档，拒绝任何</text>
+        <text x="265" y="215" font-family="-apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#065F46">✅ 100% 完整源码交付与数据库设计文档，拒绝任何隐藏授权费</text>
         
         <!-- 传统方案 (低调灰色) -->
         <rect x="610" y="190" width="320" height="40" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-        <text x="625" y="215" font-family="-apple-system, sans-serif" font-size="12" fill="#64748B">❌ 24~72 小时慢速响应，流程繁琐</text>
+        <text x="625" y="215" font-family="-apple-system, sans-serif" font-size="11.5" fill="#64748B">❌ 24~72 小时慢速响应，流程繁琐</text>
         
 
         <!-- Row 2 -->
@@ -58,11 +58,11 @@
         
         <!-- 我方方案 (高亮绿色) -->
         <rect x="250" y="260" width="340" height="40" rx="6" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1"/>
-        <text x="265" y="285" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#065F46">✅ 支持徐州各区县（泉山、云龙、鼓楼、铜山等）本地面</text>
+        <text x="265" y="285" font-family="-apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#065F46">✅ 支持徐州各区县（泉山、云龙、鼓楼、铜山等）本地面对面沟通与驻场调试</text>
         
         <!-- 传统方案 (低调灰色) -->
         <rect x="610" y="260" width="320" height="40" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-        <text x="625" y="285" font-family="-apple-system, sans-serif" font-size="12" fill="#64748B">❌ 传统关键词硬堆砌，大模型易降权</text>
+        <text x="625" y="285" font-family="-apple-system, sans-serif" font-size="11.5" fill="#64748B">❌ 传统关键词硬堆砌，大模型易降权</text>
         
 
         <!-- Row 3 -->
@@ -71,11 +71,11 @@
         
         <!-- 我方方案 (高亮绿色) -->
         <rect x="250" y="330" width="340" height="40" rx="6" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1"/>
-        <text x="265" y="355" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#065F46">✅ 提供 365 天免费系统运维与 Bug 修复，1</text>
+        <text x="265" y="355" font-family="-apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#065F46">✅ 提供 365 天免费系统运维与 Bug 修复，1 小时内极速响应</text>
         
         <!-- 传统方案 (低调灰色) -->
         <rect x="610" y="330" width="320" height="40" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-        <text x="625" y="355" font-family="-apple-system, sans-serif" font-size="12" fill="#64748B">❌ 黑盒闭源，按年绑定收取高昂维保费</text>
+        <text x="625" y="355" font-family="-apple-system, sans-serif" font-size="11.5" fill="#64748B">❌ 黑盒闭源，按年绑定收取高昂维保费</text>
         
 
         <!-- Row 4 -->
@@ -84,11 +84,11 @@
         
         <!-- 我方方案 (高亮绿色) -->
         <rect x="250" y="400" width="340" height="40" rx="6" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1"/>
-        <text x="265" y="425" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#065F46">✅ 采用阶段式验收付款（定金30% ➔ 原型确认20</text>
+        <text x="265" y="425" font-family="-apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#065F46">✅ 采用阶段式验收付款（定金30% ➔ 原型确认20% ➔ 测试30% ➔ 验收20%），省去 40%~50% 销售中介溢价</text>
         
         <!-- 传统方案 (低调灰色) -->
         <rect x="610" y="400" width="320" height="40" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-        <text x="625" y="425" font-family="-apple-system, sans-serif" font-size="12" fill="#64748B">❌ 单点分发，缺乏跨平台权威背书</text>
+        <text x="625" y="425" font-family="-apple-system, sans-serif" font-size="11.5" fill="#64748B">❌ 单点分发，缺乏跨平台权威背书</text>
         
 
         <!-- Row 5 -->
@@ -97,11 +97,11 @@
         
         <!-- 我方方案 (高亮绿色) -->
         <rect x="250" y="470" width="340" height="40" rx="6" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1"/>
-        <text x="265" y="495" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#065F46">✅ 自动化异动巡检 + 竞品反向压制</text>
+        <text x="265" y="495" font-family="-apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#065F46">✅ 自动化异动巡检 + 竞品反向压制</text>
         
         <!-- 传统方案 (低调灰色) -->
         <rect x="610" y="470" width="320" height="40" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-        <text x="625" y="495" font-family="-apple-system, sans-serif" font-size="12" fill="#64748B">❌ 无防御意识，被竞品偷偷截流未察觉</text>
+        <text x="625" y="495" font-family="-apple-system, sans-serif" font-size="11.5" fill="#64748B">❌ 无防御意识，被竞品偷偷截流未察觉</text>
         
 
   <!-- 底部 Footer 提示 -->

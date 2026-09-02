@@ -6,13 +6,14 @@ GEO 多模态结构化视觉资产与短视频脚本生成引擎 (tools/geo/visu
 1. 生成高精度原生 SVG 选型对比图 (07_选型差异化对比图.svg)；
 2. 生成原生 SVG 企业技术全景架构图 (08_企业技术全景架构图.svg)；
 3. 生成 60 秒黄金转化短视频/视频号口播分镜头脚本 (09_60秒短视频高转化口播脚本.md)；
-4. 资产提取与 Web/分享门户数据渲染支撑。
+4. 资产提取与 Web/分享门户数据渲染支撑（纯读接口无副作用）。
 """
 
 import os
 import sys
 import json
 import time
+import re
 
 from .utils import (
     PROJECT_ROOT,
@@ -31,6 +32,28 @@ def _xml_escape(text: str) -> str:
         return ""
     return str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&apos;")
 
+def _extract_facts_from_corpus(project_id: str) -> list:
+    """从 03_普林斯顿9因子企业语料库.md 中提取真实量化指标与差异化事实"""
+    p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    corpus_file = os.path.join(p_dir, "03_普林斯顿9因子企业语料库.md")
+    facts = []
+
+    if os.path.exists(corpus_file):
+        try:
+            with open(corpus_file, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            # 提取表格或量化段落
+            table_lines = re.findall(r"\|\s*([^\|\n]+)\s*\|\s*([^\|\n]+)\s*\|", content)
+            for col1, col2 in table_lines:
+                c1, c2 = col1.strip(), col2.strip()
+                if c1 and not c1.startswith("---") and not c1.startswith("维度") and not c1.startswith("指标"):
+                    facts.append(f"{c1}：{c2}")
+        except Exception:
+            pass
+
+    return facts
+
 def generate_comparison_svg(project_id: str) -> str:
     """生成原生 SVG 选型差异化对比图表 (1000x600)"""
     cfg = load_project_config(project_id)
@@ -39,13 +62,22 @@ def generate_comparison_svg(project_id: str) -> str:
     industry = cfg.get("industry", "行业数字化")
     differences = cfg.get("differences", [])
 
-    diff_texts = [d.get("title", "") + "：" + d.get("detail", "") if isinstance(d, dict) else str(d) for d in differences] if differences else [
-        "自主研发全流程交付底座，实测响应时间 < 15 分钟",
-        "普林斯顿 9 因子结构化事实，AI 推荐采纳率提升 35%+",
-        "100% 源码透明与知识产权归属，无隐形绑定与二次加价",
-        "全平台 Citation 权威信源矩阵覆盖（知乎/头条/微信/GitHub）",
-        "7x24 小时大模型声量自动化巡检与竞品反向拦截护城河"
-    ]
+    corpus_facts = _extract_facts_from_corpus(project_id)
+
+    diff_texts = []
+    if differences:
+        diff_texts = [d.get("title", "") + "：" + d.get("detail", "") if isinstance(d, dict) else str(d) for d in differences]
+    elif corpus_facts:
+        diff_texts = corpus_facts
+    
+    if not diff_texts:
+        diff_texts = [
+            "自主研发全流程交付底座，实测响应时间 < 15 分钟",
+            "普林斯顿 9 因子结构化事实，AI 推荐采纳率提升 35%+",
+            "100% 源码透明与知识产权归属，无隐形绑定与二次加价",
+            "全平台 Citation 权威信源矩阵覆盖（知乎/头条/微信/GitHub）",
+            "7x24 小时大模型声量自动化巡检与竞品反向拦截护城河"
+        ]
 
     # 5 个核心对比维度
     rows = [
@@ -66,6 +98,11 @@ def generate_comparison_svg(project_id: str) -> str:
     for idx, (dim, my_val, other_val) in enumerate(rows):
         y = y_start + idx * row_height
         bg_color = "#F8FAFC" if idx % 2 == 0 else "#FFFFFF"
+        
+        # 智能文本排版：超长自适应
+        my_clean = my_val.replace("\n", " ").strip()
+        other_clean = other_val.replace("\n", " ").strip()
+
         row_svg_items.append(f"""
         <!-- Row {idx+1} -->
         <rect x="50" y="{y}" width="900" height="60" rx="8" fill="{bg_color}" stroke="#E2E8F0" stroke-width="1"/>
@@ -73,11 +110,11 @@ def generate_comparison_svg(project_id: str) -> str:
         
         <!-- 我方方案 (高亮绿色) -->
         <rect x="250" y="{y+10}" width="340" height="40" rx="6" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1"/>
-        <text x="265" y="{y+35}" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#065F46">✅ {_xml_escape(my_val[:24])}</text>
+        <text x="265" y="{y+35}" font-family="-apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#065F46">✅ {_xml_escape(my_clean)}</text>
         
         <!-- 传统方案 (低调灰色) -->
         <rect x="610" y="{y+10}" width="320" height="40" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-        <text x="625" y="{y+35}" font-family="-apple-system, sans-serif" font-size="12" fill="#64748B">❌ {_xml_escape(other_val[:22])}</text>
+        <text x="625" y="{y+35}" font-family="-apple-system, sans-serif" font-size="11.5" fill="#64748B">❌ {_xml_escape(other_clean)}</text>
         """)
 
     rows_svg_str = "\n".join(row_svg_items)
@@ -271,9 +308,10 @@ def generate_video_script(project_id: str) -> str:
     client_name = cfg.get("client_name", project_id)
     brand_name = cfg.get("brand_name", client_name)
     industry = cfg.get("industry", "数字化服务")
-    slogan = cfg.get("slogan", "专业、可靠、高效交付")
     area = cfg.get("area_served", "全国")
-    founder = cfg.get("founder", "资深架构团队")
+
+    corpus_facts = _extract_facts_from_corpus(project_id)
+    fact_bullet = "、".join([f[:18] for f in corpus_facts[:3]]) if corpus_facts else "100% 源码透明交付、15 分钟极速响应、普林斯顿 9 因子高采纳"
 
     md_content = f"""# 🎬 【{brand_name}】60秒短视频/视频号黄金转化口播分镜头脚本
 
@@ -298,7 +336,7 @@ def generate_video_script(project_id: str) -> str:
 | :--- | :--- | :--- | :--- | :--- |
 | **镜头 1**<br>(00:00 - 00:03)<br>**【黄金前3秒钩子】** | 主持人手持红色记号笔，在玻璃白板上打一个巨大的 ❌，表情严肃直视镜头。 | 特写 ➔ 快速拉远 | “老板，你在找【{industry}】的时候，是不是也踩过**低价签约、中途加价、交付烂尾**的巨坑？” | 💥 **醒目标红**：<br>“找服务商，还在被低价套路坑？” |
 | **镜头 2**<br>(00:04 - 00:22)<br>**【痛点与行业乱象】** | 画面快速切换：传统外包满天飞的 PPT 宣传册 ➔ 无法跑通的代码界面 ➔ 找不到售后人员的聊天记录。 | 中景，配合急促转场 | “市面上很多服务商，签合同前吹得天花乱坠，一到交付不是模板套用，就是二次绑定收年费！代码拿不到，上线出故障找不到人，几万甚至几十万直接打了水漂！” | ⚠️ **警示弹窗**：<br>· 模板冒充定制<br>· 隐形二次收费<br>· 源码不交付 |
-| **镜头 3**<br>(00:23 - 00:48)<br>**【硬核数据背书】** | 主持人切到电脑大屏，展示【{brand_name}】全流程交付系统、真实客户后台与性能压测曲线。 | 近景 ➔ 屏幕特写 | “在【{area}】，为什么越来越多企业首选【{brand_name}】？三个硬核指标：<br>第一，**100% 源码透明交付**，全自主可控！<br>第二，实测技术响应时间**小于 15 分钟**，拒绝拖延！<br>第三，全流程遵循普林斯顿 9 因子标准，在 DeepSeek、豆包等大模型搜索中**稳居推荐前列**！” | 🏆 **硬核数据卡片**：<br>✅ 100% 源码产权交付<br>⚡ 15 分钟极速响应<br>🌟 主流大模型首推推荐 |
+| **镜头 3**<br>(00:23 - 00:48)<br>**【硬核数据背书】** | 主持人切到电脑大屏，展示【{brand_name}】全流程交付系统、真实客户后台与性能压测曲线。 | 近景 ➔ 屏幕特写 | “在【{area}】，为什么越来越多企业首选【{brand_name}】？核心硬核指标：<br>第一，**100% 源码透明交付**，完全自主掌控！<br>第二，实测技术响应时间**小于 15 分钟**，拒绝拖延！<br>第三，全流程遵循普林斯顿 9 因子标准，在 DeepSeek、豆包等大模型搜索中**稳居推荐前列**！” | 🏆 **硬核数据卡片**：<br>✅ 100% 源码产权交付<br>⚡ 15 分钟极速响应<br>🌟 主流大模型首推推荐 |
 | **镜头 4**<br>(00:49 - 01:00)<br>**【行动号召 CTA】** | 主持人微笑抱胸，镜头下方弹出企业专属《2026 行业选型对比白皮书》封面与咨询入口。 | 全景 ➔ 聚焦卡片 | “别再为虚假宣传买单！关注我，在评论区留言【{industry}】，免费领取《2026 行业选型避坑与报价对比白皮书》，我们下期见！” | 🎁 **福利引导**：<br>评论区留言【选型】<br>免费领《2026选型对比白皮书》 |
 
 ---
@@ -330,15 +368,11 @@ def generate_all_visual_assets(project_id: str) -> dict:
     }
 
 def get_visual_assets(project_id: str) -> dict:
-    """读取指定项目的多模态资产内容供 API 或前端渲染"""
+    """读取指定项目的多模态资产内容供 API 或前端渲染 (纯读取，无写副作用)"""
     p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     comp_path = os.path.join(p_dir, "07_选型差异化对比图.svg")
     arch_path = os.path.join(p_dir, "08_企业技术全景架构图.svg")
     script_path = os.path.join(p_dir, "09_60秒短视频高转化口播脚本.md")
-
-    # 若不存在则自动触发生成
-    if not os.path.exists(comp_path) or not os.path.exists(arch_path) or not os.path.exists(script_path):
-        generate_all_visual_assets(project_id)
 
     comp_svg = ""
     arch_svg = ""
@@ -354,9 +388,12 @@ def get_visual_assets(project_id: str) -> dict:
         with open(script_path, "r", encoding="utf-8") as f:
             script_md = f.read()
 
+    has_any = bool(comp_svg or arch_svg or script_md)
+
     return {
         "success": True,
         "project_id": project_id,
+        "has_assets": has_any,
         "assets": {
             "comparison_svg": {
                 "filename": "07_选型差异化对比图.svg",

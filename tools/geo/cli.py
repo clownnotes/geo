@@ -173,7 +173,7 @@ def main():
     p_vis = subparsers.add_parser("visual", help="生成多模态 SVG 对比图、架构图与 60 秒短视频脚本")
     p_vis.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_vis.add_argument("--project", "-p", default=None, help="客户项目 ID")
-    p_vis.add_argument("--type", "-t", default="all", choices=["all", "comparison", "architecture", "video"], help="资产类型 (默认 all)")
+    p_vis.add_argument("--type", "-t", default="all", choices=["all", "svg", "comparison", "architecture", "video"], help="资产类型 (默认 all)")
 
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
@@ -296,6 +296,9 @@ def main():
         if t == "comparison":
             generate_comparison_svg(pid)
         elif t == "architecture":
+            generate_architecture_svg(pid)
+        elif t == "svg":
+            generate_comparison_svg(pid)
             generate_architecture_svg(pid)
         elif t == "video":
             generate_video_script(pid)
