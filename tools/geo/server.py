@@ -784,6 +784,30 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 内容合规审查 API: /api/projects/{id}/compliance/inspect (POST)
+        if path.startswith("/api/projects/") and path.endswith("/compliance/inspect"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            custom_text = body.get("text")
+            try:
+                from .compliance import inspect_content_compliance
+                res = inspect_content_compliance(project_id, custom_text=custom_text)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 一键智能无损脱敏替换 API: /api/projects/{id}/compliance/sanitize (POST)
+        if path.startswith("/api/projects/") and path.endswith("/compliance/sanitize"):
+            project_id = path.split("/")[3]
+            try:
+                from .compliance import sanitize_project_deliverables
+                res = sanitize_project_deliverables(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2051,6 +2075,25 @@ core_values:
                     try:
                         from .rag_diag import diagnose_rag_chunks
                         res = diagnose_rag_chunks(project_id)
+                        self.send_json(res)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取内容合规与广告法风控审查数据: /api/projects/{id}/compliance/inspect (GET)
+            if path.startswith("/api/projects/") and path.endswith("/compliance/inspect"):
+                project_id = path.split("/")[3]
+                comp_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "compliance_inspection.json")
+                if os.path.exists(comp_file):
+                    try:
+                        with open(comp_file, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .compliance import inspect_content_compliance
+                        res = inspect_content_compliance(project_id)
                         self.send_json(res)
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)

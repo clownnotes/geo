@@ -289,6 +289,13 @@ def main():
     p_rag.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_rag.add_argument("--file", "-f", default=None, help="指定待诊断的语料文件路径 (可选)")
 
+    # compliance (多渠道内容合规审查与广告法风控脱敏)
+    p_comp = subparsers.add_parser("compliance", help="多渠道内容合规审查与新广告法敏感词一键无损脱敏")
+    p_comp.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_comp.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_comp.add_argument("--file", "-f", default=None, help="指定待审查的文件路径 (可选)")
+    p_comp.add_argument("--sanitize", "-s", action="store_true", help="执行一键无损脱敏修复并重算合规分")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -658,6 +665,31 @@ def main():
         from .rag_diag import diagnose_rag_chunks
         pid = get_pid(args)
         diagnose_rag_chunks(pid, text_or_file=getattr(args, "file", None))
+    elif args.command == "compliance":
+        from .compliance import inspect_content_compliance, sanitize_project_deliverables
+        pid = get_pid(args)
+        if getattr(args, "sanitize", False):
+            sanitize_project_deliverables(pid)
+        else:
+            custom_f = getattr(args, "file", None)
+            custom_t = None
+            if custom_f and os.path.exists(custom_f):
+                with open(custom_f, "r", encoding="utf-8") as fp:
+                    custom_t = fp.read()
+            res = inspect_content_compliance(pid, custom_text=custom_t)
+            print("\n" + "="*65)
+            print(f"🛡️ 项目 [{pid}] 内容合规与广告法风控审查报告")
+            print("="*65)
+            print(f"📊 合规就绪度得分: {res['compliance_score']}/100 ｜ 状态: {'🟢 100% 合规通过' if res['is_passed'] else '🔴 存在违规风险'}")
+            print(f"🚨 违规总数: {res['total_violations']} 处 (🔴 P0: {res['p0_count']} ｜ 🟡 P1: {res['p1_count']} ｜ 🟢 P2: {res['p2_count']})")
+            print(f"📁 扫描交付物文件: {res['scanned_files_count']} 份")
+            print("="*65)
+            for idx, v in enumerate(res["violations"][:10], 1):
+                print(f"  {idx}. [{v['level']}] `{v['file']}:L{v['line']}` 命中: 【{v['matched_term']}】 ➔ 建议替换: 【{v['suggested_term']}】")
+                print(f"     上下文: {v['context_snippet']}")
+            if len(res["violations"]) > 10:
+                print(f"  ... 另有 {len(res['violations'])-10} 处违规，详见 outputs/13_多渠道内容合规与广告法风控审查报告.md")
+            print("="*65 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 
