@@ -219,6 +219,13 @@ def main():
     p_pck.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_pck.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
+    # pitch
+    p_ptc = subparsers.add_parser("pitch", help="生成售前商业全案投标建议书与 10 页全屏 Pitch Deck")
+    p_ptc.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_ptc.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_ptc.add_argument("--tier", default="pro", choices=["standard", "pro", "enterprise"], help="推荐服务档位")
+    p_ptc.add_argument("--slides", action="store_true", help="直接打印交互式幻灯片 HTML 内容")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -444,6 +451,25 @@ def main():
         print(f"📦 项目 [{pid}] 全套交付物已打包归档！")
         print(f"📁 归档包路径: {zpath}")
         print("="*65 + "\n")
+    elif args.command == "pitch":
+        from .pitch import generate_pitch_deck, generate_pitch_presentation_html
+        pid = get_pid(args)
+        tier = getattr(args, "tier", "pro") or "pro"
+        res = generate_pitch_deck(pid, target_tier=tier)
+        quotes = res["quotes"]
+        fin = res["roi"]["financial_valuation"]
+        print("\n" + "="*65)
+        print(f"🚀 项目 [{pid}] 售前全案商业投标建议书已生成！")
+        print("="*65)
+        print(f"🏢 目标企业: {res['client_name']} ({res['brand_name']})")
+        print(f"🎯 推荐服务方案: 【专业进阶版 (Pro)】¥35,000 元/年")
+        print(f"💰 预期综合商业回报: ¥{fin['total_business_value']:,} 元 (ROI: +{fin['roi_pct']}%)")
+        print(f"📄 标书文件: outputs/{res['filename']}")
+        print(f"🖥️ 交互式放映幻灯片: 在浏览器访问 /api/projects/{pid}/pitch/slides")
+        print("="*65 + "\n")
+        if getattr(args, "slides", False):
+            slides_html = generate_pitch_presentation_html(pid)
+            print(f"<!-- HTML 演示文稿生成完毕，长度 {len(slides_html)} 字节 -->")
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

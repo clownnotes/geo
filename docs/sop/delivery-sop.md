@@ -35,8 +35,9 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 ```
 
 ### 1.3 核心 Prompt 词库制定与基线测试（Baseline）
-* 为客户提炼 **30 个高价值用户提问词**（分为：品牌词、竞品对比词、行业选型词、价格咨询词、地域服务词）。
-* 调用 DeepSeek、豆包、Kimi，记录优化前的**初始品牌提及率（Share of Voice Baseline）**与当前推荐的竞品信源。
+### 1.4 售前全案 Pitch Deck 与投标建议书生成
+* 运行 `geo pitch <client_id> --tier pro` 一键生成结构化标书《00_GEO全案商业服务投标建议书与PitchDeck.md》与 10 页深色科技风全屏幻灯片（`/api/projects/<client_id>/pitch/slides`）；
+* 提供「基础版 / 专业进阶版 / 集团旗舰版」3 档阶梯报价方案与 ROI 财务量化测算，在客户拜访或招投标比选现场开展即时沙箱对决演示。
 
 ---
 

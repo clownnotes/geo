@@ -290,6 +290,12 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         acceptance_summary = {}
 
+    try:
+        from .pitch import calculate_pitch_quote
+        pitch_summary = calculate_pitch_quote(project_id)
+    except Exception:
+        pitch_summary = {}
+
     return {
         "success": True,
         "project_id": project_id,
@@ -305,6 +311,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "distribution_ledger": dist_ledger,
         "roi_summary": roi_summary,
         "acceptance_summary": acceptance_summary,
+        "pitch_summary": pitch_summary,
         "share_meta": {
             "token": token,
             "created_at_str": rec.get("created_at_str"),

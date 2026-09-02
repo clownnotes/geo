@@ -3,7 +3,7 @@ GEO Commercial Delivery Toolkit
 商用 GEO 交付工作台与自动化工具套件
 """
 
-__version__ = "2.3.0"
+__version__ = "2.4.0"
 
 from .intent import mine_project_intent, generate_intent_for_company
 from .ingest import ingest_project_materials, fetch_and_clean_url, distill_knowledge_facts
@@ -76,5 +76,12 @@ from .acceptance import (
     generate_acceptance_report,
     export_project_archive_zip,
     generate_print_acceptance_html
+)
+from .pitch import (
+    generate_pitch_deck,
+    get_pitch_data,
+    generate_pitch_presentation_html,
+    generate_print_pitch_html,
+    calculate_pitch_quote
 )
 from .server import start_server

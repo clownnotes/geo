@@ -345,6 +345,10 @@
             <p class="text-xs text-slate-500 mt-1">模拟 AI 爬虫抓取官网，检测 SSR 渲染、/llms.txt、JSON-LD 及文本密度，生成签单体检报告。</p>
           </div>
           <div class="flex items-center gap-2">
+            <button onclick="openPitchModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="presentation" class="w-4 h-4 text-purple-600"></i>
+              <span>🎯 售前全案 Pitch Deck</span>
+            </button>
             <button onclick="openEvolutionModal()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
               <span>🌱 词库动态演进与裂变</span>
@@ -1797,6 +1801,71 @@
             <span>保存并重新测算</span>
           </button>
         </div>
+      </div>
+    </div>
+  <!-- ================= 售前商业 Pitch Deck 与建议书弹窗 ================= -->
+  <div id="pitch-modal" onclick="if(event.target === this) closePitchModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-400/30 flex items-center justify-center font-bold text-sm">
+            🎯
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">售前全案商业 Pitch Deck 与投标建议书</h3>
+            <p class="text-[11px] text-purple-200">5 分钟一键生成 10 页全屏科技风幻灯片与 A4 纸排版商业建议书</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="handleOpenPitchSlides()" class="py-1.5 px-3 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+            <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
+            <span>🖥️ 全屏放映幻灯片</span>
+          </button>
+          <button onclick="handlePrintPitch()" class="py-1.5 px-3 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition flex items-center gap-1.5">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>🖨️ 打印标书</span>
+          </button>
+          <button onclick="closePitchModal()" class="p-1 text-slate-300 hover:text-white rounded-lg hover:bg-white/10 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto text-xs text-slate-600 flex-1">
+        <!-- 3 档阶梯报价方案 -->
+        <div>
+          <div class="text-xs font-bold text-slate-800 mb-3 flex items-center gap-1.5">
+            <i data-lucide="layers" class="w-4 h-4 text-purple-600"></i>
+            <span>商用阶梯服务方案与能力矩阵 (Tiered Commercial Packages)</span>
+          </div>
+          <div id="pitch-tiers-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- JS 动态注入 -->
+          </div>
+        </div>
+
+        <!-- 财务收益预测卡 -->
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0">
+              💰
+            </div>
+            <div>
+              <div class="font-bold text-slate-800 text-xs">预期综合商业创造总价值：<span id="pitch-total-val" class="text-emerald-600 text-sm font-black">¥218,310 元</span></div>
+              <div class="text-[11px] text-slate-500">等效 SEM 竞价替代节省 + AI 精准线索商业估值（ROI: <span id="pitch-roi-pct" class="font-bold text-emerald-600">+523.7%</span>）</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="copyOutput('00_GEO全案商业服务投标建议书与PitchDeck.md')" class="py-1.5 px-3 bg-white hover:bg-slate-100 text-slate-700 font-semibold rounded-lg border border-slate-200 text-xs transition flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5 text-indigo-600"></i>
+              <span>复制建议书 Markdown</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
+        <span class="text-slate-400 text-[11px]">💡 提示：在客户拜访或招投标答辩现场，点击【全屏放映幻灯片】即可使用 ◀/▶ 翻页即时演示。</span>
+        <button onclick="closePitchModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
       </div>
     </div>
   </div>
@@ -4000,6 +4069,72 @@
       } catch (e) {
         showToast('下载请求异常', 'error');
       }
+    }
+
+    // ===== 售前商业 Pitch Deck 控制器 =====
+    async function openPitchModal() {
+      if (!currentProjectId) {
+        showToast('请先选择项目！', 'error');
+        return;
+      }
+      document.getElementById('pitch-modal').classList.remove('hidden');
+      await loadPitchData();
+      lucide.createIcons();
+    }
+
+    function closePitchModal() {
+      document.getElementById('pitch-modal').classList.add('hidden');
+    }
+
+    async function loadPitchData() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/pitch/data`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.quotes) {
+          const q = d.quotes;
+          const gridEl = document.getElementById('pitch-tiers-grid');
+          if (gridEl && q.tiers) {
+            gridEl.innerHTML = q.tiers.map(t => `
+              <div class="p-4 rounded-xl border ${t.is_recommended ? 'border-purple-500 bg-purple-50/50 shadow-md ring-1 ring-purple-500/30 relative' : 'border-slate-200 bg-white'} space-y-2.5 flex flex-col justify-between">
+                <div>
+                  ${t.is_recommended ? '<span class="absolute -top-2.5 right-3 px-2 py-0.5 bg-purple-600 text-white rounded-full text-[10px] font-black uppercase tracking-wider">推荐方案</span>' : ''}
+                  <div class="font-bold text-slate-800 text-sm">${t.tier_name}</div>
+                  <div class="text-xl font-black text-slate-900 mt-1">${t.price_display}</div>
+                  <p class="text-[11px] text-purple-700 font-semibold mt-0.5">${t.scope}</p>
+                  <p class="text-[11px] text-slate-500 mt-1">${t.tagline}</p>
+                  <div class="mt-3 pt-2 border-t border-slate-200/80 space-y-1 text-[11px] text-slate-600">
+                    ${t.features.map(f => `<div class="flex items-start gap-1"><span>•</span><span>${f}</span></div>`).join('')}
+                  </div>
+                </div>
+              </div>
+            `).join('');
+          }
+
+          if (q.estimated_roi) {
+            const valEl = document.getElementById('pitch-total-val');
+            if (valEl) valEl.textContent = `¥${q.estimated_roi.total_business_value.toLocaleString()} 元`;
+            const roiEl = document.getElementById('pitch-roi-pct');
+            if (roiEl) roiEl.textContent = `+${q.estimated_roi.roi_pct}% (${q.estimated_roi.roi_multiplier}倍)`;
+          }
+        }
+      } catch (err) {
+        console.error('加载 Pitch 数据异常:', err);
+      }
+    }
+
+    function handleOpenPitchSlides() {
+      if (!currentProjectId) return;
+      const slidesUrl = `/api/projects/${currentProjectId}/pitch/slides?token=${encodeURIComponent(currentAuthToken)}`;
+      window.open(slidesUrl, '_blank');
+    }
+
+    function handlePrintPitch() {
+      if (!currentProjectId) return;
+      const printUrl = `/api/projects/${currentProjectId}/pitch/print?token=${encodeURIComponent(currentAuthToken)}`;
+      window.open(printUrl, '_blank');
     }
 
     async function loadMarkdownToElem(filename, elemId) {

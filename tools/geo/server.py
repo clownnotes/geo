@@ -956,6 +956,56 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 11. 专属甲方全屏放映商业 Pitch Deck 幻灯片公开 API: /api/share/{token}/pitch/slides
+        if path.startswith("/api/share/") and path.endswith("/pitch/slides"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                from .pitch import generate_pitch_presentation_html
+                html_body = generate_pitch_presentation_html(project_id)
+                body_bytes = html_body.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body_bytes)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(body_bytes)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 12. 专属甲方商业投标建议书 A4 打印公开 API: /api/share/{token}/pitch/print
+        if path.startswith("/api/share/") and path.endswith("/pitch/print"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                from .pitch import generate_print_pitch_html
+                html_body = generate_print_pitch_html(project_id)
+                body_bytes = html_body.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body_bytes)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(body_bytes)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
             token = self.get_auth_token()
@@ -1197,6 +1247,51 @@ core_values:
                     self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
                     self.end_headers()
                     self.wfile.write(zip_bytes)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取售前全案商业投标建议书数据: /api/projects/{id}/pitch/data
+            if path.startswith("/api/projects/") and path.endswith("/pitch/data"):
+                project_id = path.split("/")[3]
+                from .pitch import get_pitch_data
+                try:
+                    res = get_pitch_data(project_id)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 全屏交互式售前 Pitch Deck 演示幻灯片: /api/projects/{id}/pitch/slides
+            if path.startswith("/api/projects/") and path.endswith("/pitch/slides"):
+                project_id = path.split("/")[3]
+                try:
+                    from .pitch import generate_pitch_presentation_html
+                    html_body = generate_pitch_presentation_html(project_id)
+                    body_bytes = html_body.encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(body_bytes)))
+                    self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                    self.end_headers()
+                    self.wfile.write(body_bytes)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 商业投标建议书 A4 纸排版打印: /api/projects/{id}/pitch/print
+            if path.startswith("/api/projects/") and path.endswith("/pitch/print"):
+                project_id = path.split("/")[3]
+                try:
+                    from .pitch import generate_print_pitch_html
+                    html_body = generate_print_pitch_html(project_id)
+                    body_bytes = html_body.encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(body_bytes)))
+                    self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                    self.end_headers()
+                    self.wfile.write(body_bytes)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
