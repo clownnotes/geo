@@ -226,6 +226,12 @@ def main():
     p_ptc.add_argument("--tier", default="pro", choices=["standard", "pro", "enterprise"], help="推荐服务档位")
     p_ptc.add_argument("--slides", action="store_true", help="直接打印交互式幻灯片 HTML 内容")
 
+    # graph
+    p_grp = subparsers.add_parser("graph", help="构建企业行业实体知识图谱与三元组拓扑")
+    p_grp.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_grp.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_grp.add_argument("--export", choices=["cypher", "jsonld", "svg"], default=None, help="特定格式输出")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -470,6 +476,25 @@ def main():
         if getattr(args, "slides", False):
             slides_html = generate_pitch_presentation_html(pid)
             print(f"<!-- HTML 演示文稿生成完毕，长度 {len(slides_html)} 字节 -->")
+    elif args.command == "graph":
+        from .graph import export_graph_formats, generate_graph_svg
+        pid = get_pid(args)
+        res = export_graph_formats(pid)
+        print("\n" + "="*65)
+        print(f"🕸️ 项目 [{pid}] 实体知识图谱与三元组拓扑已生成！")
+        print("="*65)
+        print(f"🏢 企业主体: {res['graph_data']['client_name']} ({res['graph_data']['brand_name']})")
+        print(f"🧩 核心实体节点数: {res['node_count']} 个 ｜ 三元组关联边: {res['edge_count']} 条")
+        print(f"📄 拓扑文档: outputs/{res['filename']}")
+        print(f"🎨 高清矢量拓扑图: outputs/10_实体知识图谱拓扑图.svg")
+        print("="*65 + "\n")
+        exp = getattr(args, "export", None)
+        if exp == "cypher":
+            print(res["cypher_script"])
+        elif exp == "jsonld":
+            print(json.dumps(res["jsonld_graph"], ensure_ascii=False, indent=2))
+        elif exp == "svg":
+            print(generate_graph_svg(pid))
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

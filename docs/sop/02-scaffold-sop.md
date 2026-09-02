@@ -39,6 +39,22 @@ python3 -m tools.geo audit --project <client_id>   # 复检
 | FAQPage 结构化问答 | 与客户确认过的口径逐字一致 |
 | 实体署名 | 公司名/人名/电话与 project.yaml 完全一致（多信源一致 = AI 可信） |
 
+## 四、企业行业实体知识图谱与 Graph RAG 拓扑构建
+
+```bash
+# 生成三元组知识图谱与高清矢量拓扑图
+python3 -m tools.geo graph <client_id>
+
+# 导出特定格式 (cypher / jsonld / svg)
+python3 -m tools.geo graph <client_id> --export svg
+```
+
+| 交付产物 | 格式 | 商业与大模型价值 |
+| :--- | :--- | :--- |
+| `10_企业行业实体关系知识图谱.md` | Markdown | 三元组拓扑清单与 Graph RAG 多跳推理示例 |
+| `entity_graph.json` | JSON | 6 类实体节点与 6 种谓词关联边数据 |
+| `10_实体知识图谱拓扑图.svg` | SVG | 800×520 高清矢量拓扑网络图，支持嵌入官网技术架构页 |
+
 > ⚠️ **合规红线**：JSON-LD 与 FAQ 中不得写入无法验证的绝对化承诺（"第一""最强"等广告法禁用语），entity.person 头衔需客户书面授权。
 
 > 上一步 [SOP-01 诊断](/sop/01-audit-sop) ｜ 下一步 ➔ [SOP-03 内容重构](/sop/03-rewrite-sop)

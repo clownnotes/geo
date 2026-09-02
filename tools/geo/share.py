@@ -296,6 +296,19 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         pitch_summary = {}
 
+    try:
+        from .graph import build_entity_knowledge_graph
+        graph_res = build_entity_knowledge_graph(project_id)
+        graph_summary = {
+            "node_count": graph_res.get("node_count", 0),
+            "edge_count": graph_res.get("edge_count", 0),
+            "summary": graph_res.get("summary", {}),
+            "nodes": graph_res.get("nodes", []),
+            "edges": graph_res.get("edges", [])
+        }
+    except Exception:
+        graph_summary = {}
+
     return {
         "success": True,
         "project_id": project_id,
@@ -312,6 +325,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "roi_summary": roi_summary,
         "acceptance_summary": acceptance_summary,
         "pitch_summary": pitch_summary,
+        "graph_summary": graph_summary,
         "share_meta": {
             "token": token,
             "created_at_str": rec.get("created_at_str"),

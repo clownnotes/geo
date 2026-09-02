@@ -366,6 +366,31 @@
         </div>
       </div>
 
+      <!-- 企业行业实体知识图谱与三元组拓扑 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">🕸️</div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-slate-900">企业行业实体知识图谱 (Knowledge Graph)</h2>
+                <span id="share-graph-badge" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full font-bold">13 实体 · 15 关系</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">Graph RAG 结构化语义网络，确保长尾多条件复合提问大模型精准多跳推理。</p>
+            </div>
+          </div>
+          <button onclick="handleShareDownloadGraphSvg()" class="py-2 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>保存高清拓扑 SVG</span>
+          </button>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-slate-800 bg-[#090d16] flex items-center justify-center min-h-[360px]">
+          <div id="share-graph-svg-box" class="w-full h-full flex items-center justify-center p-2">
+            <div class="text-slate-500 text-xs animate-pulse">正在加载知识图谱拓扑...</div>
+          </div>
+        </div>
+      </div>
+
       <!-- 多周声量时序趋势 -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -813,8 +838,20 @@
               </div>
             </div>
           `).join('');
+      // 渲染知识图谱拓扑与 badge
+      if (d.graph_summary) {
+        const badge = document.getElementById('share-graph-badge');
+        if (badge && d.graph_summary.node_count) {
+          badge.textContent = `${d.graph_summary.node_count} 实体 · ${d.graph_summary.edge_count} 关系`;
         }
       }
+      fetch(`/api/share/${currentShareToken}/graph/svg${currentClientPin ? '?pin=' + encodeURIComponent(currentClientPin) : ''}`)
+        .then(r => r.text())
+        .then(svgText => {
+          const box = document.getElementById('share-graph-svg-box');
+          if (box) box.innerHTML = svgText;
+        })
+        .catch(() => {});
 
       // 渲染历史时序大盘
       const histBox = document.getElementById('share-history-cards');
@@ -963,6 +1000,12 @@
       } catch (e) {
         alert('下载请求异常');
       }
+    }
+
+    function handleShareDownloadGraphSvg() {
+      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
+      const url = `/api/share/${shareToken}/graph/svg?pin=${encodeURIComponent(pin)}`;
+      window.open(url, '_blank');
     }
   </script>
 </body>

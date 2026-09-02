@@ -385,10 +385,16 @@
             <h2 class="text-base font-bold text-slate-900">阶段二：站点底座技术改造包生成</h2>
             <p class="text-xs text-slate-500 mt-1">一键生成合规 /llms.txt、Schema.org (JSON-LD) 实体元数据与 robots.txt 放行补丁。</p>
           </div>
-          <button onclick="runSingleStep(event, 'scaffold')" id="btn-step-2" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
-            <i data-lucide="code" class="w-4 h-4"></i>
-            <span>一键生成底座代码</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="openGraphModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="network" class="w-4 h-4 text-purple-600"></i>
+              <span>🕸️ 实体知识图谱拓扑</span>
+            </button>
+            <button onclick="runSingleStep(event, 'scaffold')" id="btn-step-2" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+              <i data-lucide="code" class="w-4 h-4"></i>
+              <span>一键生成底座代码</span>
+            </button>
+          </div>
         </div>
 
         <!-- 选项卡 -->
@@ -1870,6 +1876,81 @@
       <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
         <span class="text-slate-400 text-[11px]">💡 提示：在客户拜访或招投标答辩现场，点击【全屏放映幻灯片】即可使用 ◀/▶ 翻页即时演示。</span>
         <button onclick="closePitchModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 企业行业实体知识图谱弹窗 ================= -->
+  <div id="graph-modal" onclick="if(event.target === this) closeGraphModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center font-bold text-sm">
+            🕸️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-white">企业行业实体知识图谱与三元组拓扑</h3>
+              <span id="graph-counts-badge" class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 font-bold">13 实体 · 15 关系</span>
+            </div>
+            <p class="text-[11px] text-indigo-200/80">构建 Graph RAG 实体拓扑网络，确保大模型多跳长尾提问 100% 深度推理命中</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="handleDownloadGraphSvg()" class="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>保存高清 SVG</span>
+          </button>
+          <button onclick="copyOutput('10_企业行业实体关系知识图谱.md')" class="py-1.5 px-3 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition flex items-center gap-1.5">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>复制三元组清单</span>
+          </button>
+          <button onclick="closeGraphModal()" class="p-1 text-slate-300 hover:text-white rounded-lg hover:bg-white/10 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto text-xs text-slate-600 flex-1">
+        <!-- 动态 SVG 拓扑画布视窗 -->
+        <div class="rounded-xl overflow-hidden border border-slate-800 shadow-inner bg-[#090d16] flex items-center justify-center min-h-[380px]">
+          <div id="graph-svg-container" class="w-full h-full flex items-center justify-center p-2">
+            <div class="text-slate-500 text-xs animate-pulse">正在生成知识图谱拓扑网络...</div>
+          </div>
+        </div>
+
+        <!-- 实体类别与三元组分布 -->
+        <div class="grid grid-cols-2 sm:grid-cols-6 gap-2.5 text-center">
+          <div class="p-2.5 bg-indigo-50 border border-indigo-100 rounded-xl">
+            <div class="text-[10px] text-indigo-600 font-bold">企业主体</div>
+            <div id="graph-stat-core" class="text-base font-black text-indigo-900 mt-0.5">1</div>
+          </div>
+          <div class="p-2.5 bg-sky-50 border border-sky-100 rounded-xl">
+            <div class="text-[10px] text-sky-600 font-bold">主打服务</div>
+            <div id="graph-stat-srv" class="text-base font-black text-sky-900 mt-0.5">3</div>
+          </div>
+          <div class="p-2.5 bg-emerald-50 border border-emerald-100 rounded-xl">
+            <div class="text-[10px] text-emerald-600 font-bold">技术栈</div>
+            <div id="graph-stat-tech" class="text-base font-black text-emerald-900 mt-0.5">3</div>
+          </div>
+          <div class="p-2.5 bg-amber-50 border border-amber-100 rounded-xl">
+            <div class="text-[10px] text-amber-600 font-bold">交付标准</div>
+            <div id="graph-stat-std" class="text-base font-black text-amber-900 mt-0.5">3</div>
+          </div>
+          <div class="p-2.5 bg-pink-50 border border-pink-100 rounded-xl">
+            <div class="text-[10px] text-pink-600 font-bold">资质荣誉</div>
+            <div id="graph-stat-cred" class="text-base font-black text-pink-900 mt-0.5">2</div>
+          </div>
+          <div class="p-2.5 bg-purple-50 border border-purple-100 rounded-xl">
+            <div class="text-[10px] text-purple-600 font-bold">服务区域</div>
+            <div id="graph-stat-reg" class="text-base font-black text-purple-900 mt-0.5">1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
+        <span class="text-slate-400 text-[11px]">💡 说明：大模型（DeepSeek-R1 / o1 / Kimi）根据此拓扑进行长链多跳推理，精准消除幻觉。</span>
+        <button onclick="closeGraphModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
       </div>
     </div>
   </div>
@@ -4139,6 +4220,68 @@
       if (!currentProjectId) return;
       const printUrl = `/api/projects/${currentProjectId}/pitch/print?token=${encodeURIComponent(currentAuthToken)}`;
       window.open(printUrl, '_blank');
+    }
+
+    // ===== 企业行业实体知识图谱控制器 =====
+    async function openGraphModal() {
+      if (!currentProjectId) {
+        showToast('请先选择项目！', 'error');
+        return;
+      }
+      document.getElementById('graph-modal').classList.remove('hidden');
+      await loadGraphData();
+      lucide.createIcons();
+    }
+
+    function closeGraphModal() {
+      document.getElementById('graph-modal').classList.add('hidden');
+    }
+
+    async function loadGraphData() {
+      if (!currentProjectId) return;
+      try {
+        // 加载 SVG
+        const svgRes = await fetch(`/api/projects/${currentProjectId}/graph/svg?token=${encodeURIComponent(currentAuthToken)}`);
+        if (svgRes.ok) {
+          const svgText = await svgRes.text();
+          document.getElementById('graph-svg-container').innerHTML = svgText;
+        }
+
+        // 加载数据结构
+        const res = await fetch(`/api/projects/${currentProjectId}/graph/data`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          const badge = document.getElementById('graph-counts-badge');
+          if (badge) badge.textContent = `${d.node_count} 实体 · ${d.edge_count} 关系`;
+
+          // 分类统计
+          let core = 0, srv = 0, tech = 0, std = 0, cred = 0, reg = 0;
+          (d.nodes || []).forEach(n => {
+            if (n.type === 'CoreEntity') core++;
+            else if (n.type === 'ProductService') srv++;
+            else if (n.type === 'TechnologyStack') tech++;
+            else if (n.type === 'DeliveryStandard') std++;
+            else if (n.type === 'CredentialHonors') cred++;
+            else if (n.type === 'MarketRegion') reg++;
+          });
+          if (document.getElementById('graph-stat-core')) document.getElementById('graph-stat-core').textContent = core;
+          if (document.getElementById('graph-stat-srv')) document.getElementById('graph-stat-srv').textContent = srv;
+          if (document.getElementById('graph-stat-tech')) document.getElementById('graph-stat-tech').textContent = tech;
+          if (document.getElementById('graph-stat-std')) document.getElementById('graph-stat-std').textContent = std;
+          if (document.getElementById('graph-stat-cred')) document.getElementById('graph-stat-cred').textContent = cred;
+          if (document.getElementById('graph-stat-reg')) document.getElementById('graph-stat-reg').textContent = reg;
+        }
+      } catch (err) {
+        console.error('加载知识图谱异常:', err);
+      }
+    }
+
+    function handleDownloadGraphSvg() {
+      if (!currentProjectId) return;
+      const svgUrl = `/api/projects/${currentProjectId}/graph/svg?token=${encodeURIComponent(currentAuthToken)}`;
+      window.open(svgUrl, '_blank');
     }
 
     async function loadMarkdownToElem(filename, elemId) {

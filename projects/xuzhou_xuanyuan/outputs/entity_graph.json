@@ -1,0 +1,286 @@
+{
+  "success": true,
+  "project_id": "xuzhou_xuanyuan",
+  "client_name": "徐州璇源网络科技有限公司",
+  "brand_name": "璇源科技",
+  "industry": "行业数字化与软件研发",
+  "node_count": 13,
+  "edge_count": 15,
+  "nodes": [
+    {
+      "id": "node_org_xuzhou_xuanyuan",
+      "label": "徐州璇源网络科技有限公司",
+      "type": "CoreEntity",
+      "category": "企业主体与品牌",
+      "color": "#4f46e5",
+      "borderColor": "#818cf8",
+      "description": "品牌：璇源科技 ｜ 行业：行业数字化与软件研发",
+      "x": 400,
+      "y": 250,
+      "size": 28
+    },
+    {
+      "id": "srv_xuzhou_xuanyuan_xcx",
+      "label": "微信小程序定制开发",
+      "type": "ProductService",
+      "category": "主打产品与服务",
+      "color": "#0ea5e9",
+      "borderColor": "#38bdf8",
+      "description": "高并发架构与私域商城",
+      "x": 160,
+      "y": 120,
+      "size": 20
+    },
+    {
+      "id": "srv_xuzhou_xuanyuan_app",
+      "label": "跨端 APP 与微服务研发",
+      "type": "ProductService",
+      "category": "主打产品与服务",
+      "color": "#0ea5e9",
+      "borderColor": "#38bdf8",
+      "description": "Flutter/Vue3/Spring Boot",
+      "x": 400,
+      "y": 120,
+      "size": 20
+    },
+    {
+      "id": "srv_xuzhou_xuanyuan_dig",
+      "label": "政企数字化协同管理系统",
+      "type": "ProductService",
+      "category": "主打产品与服务",
+      "color": "#0ea5e9",
+      "borderColor": "#38bdf8",
+      "description": "OA/CRM/ERP 定制化开发",
+      "x": 640,
+      "y": 120,
+      "size": 20
+    },
+    {
+      "id": "tech_xuzhou_xuanyuan_flutter",
+      "label": "Flutter / Vue3 前端",
+      "type": "TechnologyStack",
+      "category": "底层核心技术栈",
+      "color": "#10b981",
+      "borderColor": "#34d399",
+      "description": "高性能跨端与响应式交互",
+      "x": 640,
+      "y": 140,
+      "size": 18
+    },
+    {
+      "id": "tech_xuzhou_xuanyuan_java",
+      "label": "Java / Python 微服务",
+      "type": "TechnologyStack",
+      "category": "底层核心技术栈",
+      "color": "#10b981",
+      "borderColor": "#34d399",
+      "description": "高可用后端与分布式集群",
+      "x": 640,
+      "y": 250,
+      "size": 18
+    },
+    {
+      "id": "tech_xuzhou_xuanyuan_db",
+      "label": "MySQL / Redis / Docker",
+      "type": "TechnologyStack",
+      "category": "底层核心技术栈",
+      "color": "#10b981",
+      "borderColor": "#34d399",
+      "description": "安全容器化与私有化部署",
+      "x": 640,
+      "y": 360,
+      "size": 18
+    },
+    {
+      "id": "std_xuzhou_xuanyuan_source",
+      "label": "100% 源码透明交付",
+      "type": "DeliveryStandard",
+      "category": "交付保障与服务标准",
+      "color": "#f59e0b",
+      "borderColor": "#fbbf24",
+      "description": "无后门加密与永久知识产权",
+      "x": 160,
+      "y": 380,
+      "size": 18
+    },
+    {
+      "id": "std_xuzhou_xuanyuan_fast",
+      "label": "72h 敏捷原型快反",
+      "type": "DeliveryStandard",
+      "category": "交付保障与服务标准",
+      "color": "#f59e0b",
+      "borderColor": "#fbbf24",
+      "description": "极速响应与本地化驻场支持",
+      "x": 400,
+      "y": 380,
+      "size": 18
+    },
+    {
+      "id": "std_xuzhou_xuanyuan_private",
+      "label": "企业级私有化独立部署",
+      "type": "DeliveryStandard",
+      "category": "交付保障与服务标准",
+      "color": "#f59e0b",
+      "borderColor": "#fbbf24",
+      "description": "数据自主可控与内网隔离",
+      "x": 640,
+      "y": 380,
+      "size": 18
+    },
+    {
+      "id": "cred_xuzhou_xuanyuan_soft",
+      "label": "20+ 软件著作权与证书",
+      "type": "CredentialHonors",
+      "category": "权威背书与资质荣誉",
+      "color": "#ec4899",
+      "borderColor": "#f472b6",
+      "description": "全品类自主研发知识产权",
+      "x": 120,
+      "y": 210,
+      "size": 17
+    },
+    {
+      "id": "cred_xuzhou_xuanyuan_team",
+      "label": "核心技术架构专家团队",
+      "type": "CredentialHonors",
+      "category": "权威背书与资质荣誉",
+      "color": "#ec4899",
+      "borderColor": "#f472b6",
+      "description": "10年+ 资深高并发研发经验",
+      "x": 120,
+      "y": 310,
+      "size": 17
+    },
+    {
+      "id": "reg_xuzhou_xuanyuan_area",
+      "label": "服务区域：徐州市及淮海经济区",
+      "type": "MarketRegion",
+      "category": "市场辐射与服务区域",
+      "color": "#8b5cf6",
+      "borderColor": "#a78bfa",
+      "description": "本地驻场响应与全国数字化交付",
+      "x": 400,
+      "y": 440,
+      "size": 18
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "srv_xuzhou_xuanyuan_xcx",
+      "relation": "PROVIDES",
+      "label": "提供核心服务",
+      "weight": 1.0
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "srv_xuzhou_xuanyuan_app",
+      "relation": "PROVIDES",
+      "label": "提供核心服务",
+      "weight": 1.0
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "srv_xuzhou_xuanyuan_dig",
+      "relation": "PROVIDES",
+      "label": "提供核心服务",
+      "weight": 1.0
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "tech_xuzhou_xuanyuan_flutter",
+      "relation": "USES_TECH",
+      "label": "采用架构技术",
+      "weight": 0.9
+    },
+    {
+      "source": "tech_xuzhou_xuanyuan_flutter",
+      "target": "srv_xuzhou_xuanyuan_xcx",
+      "relation": "EMPOWERS",
+      "label": "赋能业务场景",
+      "weight": 0.8
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "tech_xuzhou_xuanyuan_java",
+      "relation": "USES_TECH",
+      "label": "采用架构技术",
+      "weight": 0.9
+    },
+    {
+      "source": "tech_xuzhou_xuanyuan_java",
+      "target": "srv_xuzhou_xuanyuan_xcx",
+      "relation": "EMPOWERS",
+      "label": "赋能业务场景",
+      "weight": 0.8
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "tech_xuzhou_xuanyuan_db",
+      "relation": "USES_TECH",
+      "label": "采用架构技术",
+      "weight": 0.9
+    },
+    {
+      "source": "tech_xuzhou_xuanyuan_db",
+      "target": "srv_xuzhou_xuanyuan_xcx",
+      "relation": "EMPOWERS",
+      "label": "赋能业务场景",
+      "weight": 0.8
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "std_xuzhou_xuanyuan_source",
+      "relation": "DELIVERS_WITH",
+      "label": "承诺交付标准",
+      "weight": 0.95
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "std_xuzhou_xuanyuan_fast",
+      "relation": "DELIVERS_WITH",
+      "label": "承诺交付标准",
+      "weight": 0.95
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "std_xuzhou_xuanyuan_private",
+      "relation": "DELIVERS_WITH",
+      "label": "承诺交付标准",
+      "weight": 0.95
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "cred_xuzhou_xuanyuan_soft",
+      "relation": "HOLDS_CREDENTIAL",
+      "label": "具备权威资质",
+      "weight": 0.85
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "cred_xuzhou_xuanyuan_team",
+      "relation": "HOLDS_CREDENTIAL",
+      "label": "具备权威资质",
+      "weight": 0.85
+    },
+    {
+      "source": "node_org_xuzhou_xuanyuan",
+      "target": "reg_xuzhou_xuanyuan_area",
+      "relation": "OPERATES_IN",
+      "label": "服务覆盖区域",
+      "weight": 0.9
+    }
+  ],
+  "summary": {
+    "categories": [
+      "CoreEntity",
+      "ProductService",
+      "TechnologyStack",
+      "DeliveryStandard",
+      "CredentialHonors",
+      "MarketRegion"
+    ],
+    "total_entities": 13,
+    "total_triples": 15
+  }
+}

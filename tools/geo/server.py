@@ -1006,6 +1006,50 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 13. 专属甲方知识图谱数据公开 API: /api/share/{token}/graph/data
+        if path.startswith("/api/share/") and path.endswith("/graph/data"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                from .graph import build_entity_knowledge_graph
+                res = build_entity_knowledge_graph(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 14. 专属甲方知识图谱 SVG 矢量图公开 API: /api/share/{token}/graph/svg
+        if path.startswith("/api/share/") and path.endswith("/graph/svg"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                from .graph import generate_graph_svg
+                svg_content = generate_graph_svg(project_id)
+                body_bytes = svg_content.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "image/svg+xml; charset=utf-8")
+                self.send_header("Content-Length", str(len(body_bytes)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(body_bytes)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
             token = self.get_auth_token()
@@ -1288,6 +1332,34 @@ core_values:
                     body_bytes = html_body.encode("utf-8")
                     self.send_response(200)
                     self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(body_bytes)))
+                    self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                    self.end_headers()
+                    self.wfile.write(body_bytes)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取企业行业实体知识图谱数据: /api/projects/{id}/graph/data
+            if path.startswith("/api/projects/") and path.endswith("/graph/data"):
+                project_id = path.split("/")[3]
+                from .graph import build_entity_knowledge_graph
+                try:
+                    res = build_entity_knowledge_graph(project_id)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取实体知识图谱高清矢量 SVG 图: /api/projects/{id}/graph/svg
+            if path.startswith("/api/projects/") and path.endswith("/graph/svg"):
+                project_id = path.split("/")[3]
+                try:
+                    from .graph import generate_graph_svg
+                    svg_content = generate_graph_svg(project_id)
+                    body_bytes = svg_content.encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "image/svg+xml; charset=utf-8")
                     self.send_header("Content-Length", str(len(body_bytes)))
                     self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
                     self.end_headers()
