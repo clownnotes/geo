@@ -99,3 +99,27 @@
 - **本地实测验证**：
   - 本地端口 8088 经 Python / curl 端到端实测全部通过，段位、Beat Rate、脱敏沙箱与批量异步调度 100% 达标。
 - **结论**：`[已达成共识 / 通过]`，全部审查问题 100% 修复闭环，可随时执行 `./opsx archive` 归档。
+
+---
+
+### 2026-09-01 Cursor [修复项独立复评与端到端核验] [通过]
+
+- **阶段**：Re-Review after `56e7ec6 fix(benchmark): 修正SOV=0冷启动段位误判、消除标杆失真、脱敏沙箱并补齐SOP`
+- **对照上次 `[需修正]` 项复核**：
+  | 审查项 | 复评结果 |
+  |:---|:---|
+  | SOV=0% 误判「行业优势阵地」 | ✅ `curr_sov <= 0` 或 `is_offline` → `冷启动/摸底基准期`，`beat_rate=10.0` |
+  | Top 10% 标杆失真（0% 均值 vs 78% 标杆） | ✅ 行业 SOV 全 0 时 `top_10_percent_sov=0.0`；≥10 样本用 `quantiles` |
+  | Beat Rate 公式 | ✅ 正向 SOV 使用 `min(99, max(15, curr/target*90))` |
+  | `delivery-sop.md` 未更新 | ✅ 已补 Stage 5 Benchmark 对标与续费 CheckList |
+  | batch API 无 `task_id` | ✅ 返回 `task_id` + `total` |
+  | 门户 `benchmark` 含 `project_id` | ✅ `share.py` 已 `pop("project_id")` |
+- **实测验证**：
+  - `xuzhou_xuanyuan`：`client_sov=0.0` → `beat_rate=10.0`，段位 `冷启动/摸底基准期` ✅
+  - 两行业分组：`avg_sov=0.0`，`top_10_percent_sov=0.0` ✅
+  - 门户 `benchmark` 字段无 `project_id` ✅
+- **遗留优化（不阻断归档）**：
+  - 🟢 `INDUSTRY_DEFAULTS` 常量已未使用，可后续清理；
+  - 🟢 正向 SOV 计算 `target_benchmark=max(top, avg, 60)` 含隐含 60% 地板，小样本行业可标注 `insufficient_sample`；
+  - 🟢 批量 `task_id` 仅用于日志标识，尚无任务状态查询 API。
+- **结论**：`[通过]`，上次 🔴/🟡 审查项均已闭环，变更可进入 `./opsx archive` 归档阶段。
