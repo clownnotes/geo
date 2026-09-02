@@ -10,6 +10,9 @@ hero:
       text: 🧭 浏览战略全景
       link: /strategy/overview
     - theme: alt
+      text: 💰 商业定价与打法
+      link: /strategy/pricing-and-industry-playbook
+    - theme: alt
       text: 📋 客户交付 SOP
       link: /sop/delivery-sop
     - theme: alt
