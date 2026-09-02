@@ -108,4 +108,32 @@
      - [tests/test_intent_mining.py](file:///Users/a1/代码/GEO/tests/test_intent_mining.py) 3 组用例与全库 6 组测试 100% 通过。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审：P0/P1 修复验证] [通过]
+
+- **阶段**：Cross-IDE Re-Review（Cursor 独立复审，对照 `0c77968` 修复提交）
+- **本地验证**：
+  - `python3 -m unittest tests.test_intent_mining -v` 3 项全绿（含四行业去软件化断言）；
+  - 四项目 `total_queries: 30`；`b2b_machinery` / `retail_catering` / `local_legal` 无「源码/二次开发」残留；
+  - `xuzhou_xuanyuan`（software）保留「源码」「私有化部署」；
+  - `evaluator.py` 优先读 `keywords_intent_matrix.json`；`sync-eval` 同步写入 `02_企业商业意图*.json`（`total_count: 30`）；
+  - Web Step 2 与 Step 5 均已挂载「三级搜索意图拓扑」按钮。
+
+#### P0/P1 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 1 | 垂直行业软件化话术 | ✅ `_get_industry_domain_profile` 按 machinery/catering/legal/software 分支；机械含 CAD/三坐标，餐饮含料包/SOP，法律含卷宗/诉前保全 |
+| 2 | sync-eval 未灌入评测池 | ✅ `evaluator` 第一优先 `keywords_intent_matrix.json`；`sync` 双写 `project.yaml` + `02_*.json` |
+| 3 | 规模仅 20 组 | ✅ L1(8)+L2(12)+L3(10)=30 组，符合 30~50 承诺 |
+| 4 | Step 5 无入口 | ✅ `web/index.html:853` Step 5 评测区已挂载按钮 |
+
+#### 🟢 残余优化（可选，归档后处理）
+
+- `intent.py` 与 `publisher.py` 各有一份行业 profile 逻辑，后续可抽取共享模块。
+- `proposal.md` 提及 `evolution.py` 未接入，实际均在 `intent.py`。
+
+- **状态结论**：`[通过]` — P0/P1 全部闭环，可 `./opsx archive` 归档。
+
 
