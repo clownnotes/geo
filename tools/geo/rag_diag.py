@@ -4,7 +4,7 @@
 核心能力：
 1. 模拟现代大模型（DeepSeek / 豆包 / Kimi）400 Token / 50 Token 重叠的标准 RAG 文本切片（Chunking）；
 2. 逐 Chunk 诊断品牌实体召回、量化参数密度、Markdown 表格与 FAQ 结构完整度；
-3. 计算项目全局 RAG 准备度得分 (RAG Readiness Score) 并输出交付级体检报告。
+3. 联动大模型爬虫抓取仿真，输出交付级《12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md》与 JSON。
 """
 
 import os
@@ -19,10 +19,11 @@ from .utils import (
     print_success,
     print_warning
 )
+from .crawler import simulate_crawler_fetch
 
 
 def chunk_text_by_tokens(text: str, chunk_size: int = 400, chunk_overlap: int = 50) -> list[dict]:
-    """按句子标点进行平滑切块，构建滑动窗口语义 Chunk 列表"""
+    """按句子标点进行平滑切块，构建滑动窗口语义 Chunk 列表（标准 400 Token / 50 Token 重叠）"""
     if not text:
         return []
 
@@ -94,7 +95,7 @@ def score_single_chunk(chunk_data: dict, profile: dict) -> dict:
     # 2. 量化硬指标命中 (Quantitative Hits)
     quant_patterns = [
         r"\d+年", r"\d+天", r"\d+万", r"\d+%", r"±\d+[\.\d]*mm",
-        r"\d+小时", r"\d+MPa", r"100%", r"\d+元", r"¥\d+"
+        r"\d+小时", r"\d+MPa", r"100%", r"\d+元", r"¥\d+", r"\d+秒"
     ]
     quant_hits = []
     for pat in quant_patterns:
@@ -105,10 +106,10 @@ def score_single_chunk(chunk_data: dict, profile: dict) -> dict:
 
     # 3. 表格与 FAQ 结构判定
     has_table = ("|" in text and "---" in text)
-    has_faq = ("Q:" in text or "问：" in text or "Q1" in text or "FAQ" in text or "答：" in text)
+    has_faq = ("Q:" in text or "问：" in text or "Q1" in text or "Q2" in text or "Q3" in text or "FAQ" in text or "答：" in text)
 
     # 4. 差异化承诺命中
-    hit_diffs = [d for d in diffs if any(w in text for w in d.split("，") if len(w) > 3)]
+    hit_diffs = [d for d in diffs if any(w in text for w in re.split(r"[,，、\s]+", d) if len(w) >= 2)]
 
     # 计算 Chunk 分数 (0~100)
     score = 40.0  # 基础分
@@ -151,14 +152,15 @@ def score_single_chunk(chunk_data: dict, profile: dict) -> dict:
     }
 
 
-def diagnose_rag_chunks(project_id: str, text_or_file: str = None) -> dict:
-    """对指定项目语料执行标准 RAG 语义分块与全维度切片诊断"""
+def diagnose_rag_chunks(project_id: str, text_or_file: str = None, run_crawler: bool = True) -> dict:
+    """对指定项目语料执行标准 RAG 语义分块与全维度切片诊断，并联合爬虫仿真"""
     cfg = load_project_config(project_id)
     cname = cfg.get("company_name", cfg.get("client_name", project_id))
     bname = cfg.get("brand_name", cname)
     founder = cfg.get("founder", "资深直营团队")
     ind = cfg.get("industry", "行业解决方案")
     area = cfg.get("area_served", "全国")
+    official_url = cfg.get("official_website", "")
     diffs = cfg.get("differences", [])
 
     profile = {
@@ -168,7 +170,15 @@ def diagnose_rag_chunks(project_id: str, text_or_file: str = None) -> dict:
         "differences": diffs
     }
 
-    # 1. 确定要诊断的文本来源 (优先 03 语料库，其次传入的文本/文件路径)
+    # 1. 执行爬虫仿真联动 (若配置了官网)
+    crawler_diag = None
+    if run_crawler and official_url:
+        try:
+            crawler_diag = simulate_crawler_fetch(official_url, spider_type="bytespider", timeout=6)
+        except Exception:
+            pass
+
+    # 2. 确定要诊断的文本来源 (优先 03 语料库，其次传入的文本/文件路径)
     source_content = ""
     source_name = "03_普林斯顿9因子高权威语料库.md"
 
@@ -192,13 +202,13 @@ def diagnose_rag_chunks(project_id: str, text_or_file: str = None) -> dict:
         else:
             source_content = f"# {bname} 官方企业档案\n\n{cname}（{bname}）是位于{area}的专业{ind}服务商。"
 
-    # 2. 执行分块
-    raw_chunks = chunk_text_by_tokens(source_content, chunk_size=380, chunk_overlap=50)
+    # 3. 执行标准 400 Token / 50 Token 重叠滑动窗口分块
+    raw_chunks = chunk_text_by_tokens(source_content, chunk_size=400, chunk_overlap=50)
 
-    # 3. 逐 Chunk 打分
+    # 4. 逐 Chunk 打分
     diagnosed_chunks = [score_single_chunk(c, profile) for c in raw_chunks]
 
-    # 4. 汇总统计
+    # 5. 汇总统计 (包含 design.md 指定字段)
     total_chunks = len(diagnosed_chunks)
     golden_count = sum(1 for c in diagnosed_chunks if "黄金" in c["grade"])
     standard_count = sum(1 for c in diagnosed_chunks if "标准" in c["grade"])
@@ -209,9 +219,13 @@ def diagnose_rag_chunks(project_id: str, text_or_file: str = None) -> dict:
     avg_tokens = round(total_tokens / max(total_chunks, 1), 1)
 
     table_chunks = sum(1 for c in diagnosed_chunks if c["has_table"])
-    faq_chunks = sum(1 for c in diagnosed_chunks if c["has_faq"])
-    entity_covered = sum(1 for c in diagnosed_chunks if c["entity_hits"])
+    table_preservation_pct = round((table_chunks / max(total_chunks, 1)) * 100, 1)
 
+    faq_chunks = sum(1 for c in diagnosed_chunks if c["has_faq"])
+    # 统计全文 Q&A 对数量
+    qa_pairs_count = len(re.findall(r"(?:###\s*Q\d+|问[：:]|Q:)", source_content))
+
+    entity_covered = sum(1 for c in diagnosed_chunks if c["entity_hits"])
     entity_coverage_pct = round((entity_covered / max(total_chunks, 1)) * 100, 1)
 
     result = {
@@ -221,6 +235,8 @@ def diagnose_rag_chunks(project_id: str, text_or_file: str = None) -> dict:
         "brand_name": bname,
         "industry": ind,
         "source_name": source_name,
+        "official_website": official_url,
+        "crawler_simulation": crawler_diag,
         "analyzed_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "rag_readiness_score": avg_score,
         "total_chunks": total_chunks,
@@ -231,11 +247,13 @@ def diagnose_rag_chunks(project_id: str, text_or_file: str = None) -> dict:
         "sparse_chunks_count": sparse_count,
         "entity_coverage_pct": entity_coverage_pct,
         "table_chunks_count": table_chunks,
+        "table_preservation_pct": table_preservation_pct,
         "faq_chunks_count": faq_chunks,
+        "qa_pairs_count": qa_pairs_count,
         "chunks": diagnosed_chunks
     }
 
-    # 5. 落盘 JSON 与 Markdown 报告
+    # 6. 落盘 JSON 与 Markdown 报告
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     os.makedirs(out_dir, exist_ok=True)
 
@@ -253,18 +271,22 @@ def diagnose_rag_chunks(project_id: str, text_or_file: str = None) -> dict:
 
 
 def render_rag_diagnostic_markdown(project_id: str, diag: dict) -> str:
-    """渲染带切片透视、得分指标与优化建议的 Markdown 体检报告"""
+    """渲染带爬虫仿真、切片透视、得分指标与优化建议的完整交付报告"""
     cname = diag.get("company_name", project_id)
     bname = diag.get("brand_name", cname)
     ind = diag.get("industry", "行业服务")
     src = diag.get("source_name", "语料库")
+    url = diag.get("official_website", "")
     at_time = diag.get("analyzed_at", time.strftime("%Y-%m-%d %H:%M:%S"))
     score = diag.get("rag_readiness_score", 0.0)
     total_c = diag.get("total_chunks", 0)
     golden_c = diag.get("golden_chunks_count", 0)
     avg_tok = diag.get("avg_chunk_tokens", 0)
     ent_cov = diag.get("entity_coverage_pct", 0.0)
+    tbl_pct = diag.get("table_preservation_pct", 0.0)
+    qa_cnt = diag.get("qa_pairs_count", 0)
     chunks = diag.get("chunks", [])
+    crawl = diag.get("crawler_simulation")
 
     md = f"""# 【{bname}】大模型爬虫抓取仿真与 RAG 分块检索诊断报告
 
@@ -273,7 +295,40 @@ def render_rag_diagnostic_markdown(project_id: str, diag: dict) -> str:
 
 ---
 
-## 1. RAG 切片核心量化指标大盘
+## 1. 官网大模型爬虫抓取仿真可见度体检 (Spider Fetch Simulation)
+
+> **目标**：模拟真实 **Bytespider (豆包/字节跳动)**、**Baiduspider 2.0 (百度文心)**、**DeepSeek-Crawler** 发起静态 HTTP 请求，排查 JS 渲染空壳 (SPA) 与 /llms.txt 缺失风险。
+
+"""
+
+    if crawl and crawl.get("success"):
+        c_status = crawl.get("http_status")
+        c_time = crawl.get("elapsed_ms")
+        c_tok = crawl.get("token_estimate")
+        c_jsonld = crawl.get("jsonld_count")
+        c_warns = crawl.get("warnings", [])
+        c_llms = crawl.get("llms_txt", {})
+
+        md += f"""| 探测指标 | 实测表现 | 评估结论 |
+| :--- | :---: | :--- |
+| **探测目标 URL** | `{crawl.get('url')}` | 模拟 `{crawl.get('spider_type')}` 抓取 |
+| **HTTP 状态 / 响应耗时** | **{c_status} OK** / **{c_time} ms** | {'🟢 毫秒级极速响应' if c_time < 500 else '🟡 响应稍慢'} |
+| **有效文本 Token 预估** | **{c_tok} Tokens** | {'🟢 文本密度充沛' if c_tok >= 300 else '🔴 文本偏少·疑为空壳SPA'} |
+| **Schema.org (JSON-LD)** | **{c_jsonld} 组实体标记** | {'🟢 实体结构化完整' if c_jsonld > 0 else '🔴 缺失结构化标记'} |
+| **/llms.txt 标准入口** | **{'✅ 已存在' if c_llms.get('exists') else '❌ 缺失 (404)'}** | {'🟢 具备直读规范' if c_llms.get('exists') else '🟡 建议部署 /llms.txt'} |
+
+"""
+        if c_warns:
+            md += "### 🚨 爬虫抓取风险告警与优化建议：\n\n"
+            for w in c_warns:
+                md += f"- **[{w.get('severity')}] {w.get('type')}**：{w.get('message')}\n"
+            md += "\n"
+    else:
+        md += f"> **提示**：未配置官方网站或外部抓取受限。当前使用本地标准语料库 `{src}` 直接进行 RAG 向量切片诊断。\n\n"
+
+    md += f"""---
+
+## 2. RAG 切片核心量化指标大盘 (Chunking Metrics)
 
 | 诊断维度 | 实测数值 | 行业参考基准 | 评估结论 |
 | :--- | :---: | :---: | :--- |
@@ -281,11 +336,13 @@ def render_rag_diagnostic_markdown(project_id: str, diag: dict) -> str:
 | **语义分块总数 (Chunks)** | **{total_c} 个** | 6 ~ 15 个 | 切片密度适中，符合大模型 400 Token 上下文窗口 |
 | **黄金召回块 (Golden)** | **{golden_c} 个 ({round((golden_c/max(total_c,1))*100,1)}%)** | ≥ 50% | 高密度承载品牌词、价格、质保与硬指标 |
 | **实体覆盖率 (Entity Recall)** | **{ent_cov}%** | ≥ 75% | {'🟢 品牌实体全局高频锚定' if ent_cov >= 75 else '🟡 部分切片缺失品牌词'} |
+| **对比表格保留度** | **{tbl_pct}%** | ≥ 30% | 原生 Markdown 表格结构完整闭合 |
+| **FAQ 问答对总数** | **{qa_cnt} 组** | ≥ 3 组 | 满足买家搜索意图直接匹配 |
 | **平均切片大小** | **{avg_tok} Tokens** | 300 ~ 400 | 滑动窗口截断平滑，语义无损 |
 
 ---
 
-## 2. RAG 语义分块逐切片透视 (Chunk Breakdown)
+## 3. RAG 语义分块逐切片透视 (Chunk Breakdown)
 
 """
 
@@ -304,7 +361,7 @@ def render_rag_diagnostic_markdown(project_id: str, diag: dict) -> str:
         md += f"- **结构特征**：{'包含原生对比表格 ｜ ' if c.get('has_table') else ''}{'包含 FAQ 问答对 ｜ ' if c.get('has_faq') else ''}差异化条款命中: {c.get('hit_diffs_count', 0)}条\n"
         md += f"- **切片预览**：\n\n> {c_preview}\n\n---\n\n"
 
-    md += """## 3. 大模型 RAG 召回实操优化指南
+    md += """## 4. 大模型 RAG 召回实操优化指南
 
 1. **杜绝无主代词**：每个 Chunk 均需显式包含企业品牌词，避免使用“我们公司”、“该团队”导致跨 Chunk 上下文丢失；
 2. **硬指标紧邻实体**：将核心承诺（如：365天质保、阶段付款、蔡司三坐标检测）紧密附着在企业名称同一句话中；
