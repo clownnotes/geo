@@ -589,6 +589,30 @@
           </div>
         </div>
 
+        <!-- 全渠道分发台账与外链回填看板 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-base font-bold text-slate-900">🚀 全渠道落地台账与自动化外链回填</span>
+                <span id="dist-completion-badge" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold">完成率: 0.0%</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">回填 5 大信任池真实已发布的文章 URL，系统自动执行存活与收录连通性校验，并向专属只读门户同步。</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="handleVerifyAllDistUrls()" id="btn-verify-all-dist" class="py-2 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200 shadow-sm">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>一键全量复测</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 大渠道台账列表 -->
+          <div id="dist-channels-ledger-list" class="space-y-3">
+            <div class="text-slate-400 text-xs text-center py-4">加载分发台账中...</div>
+          </div>
+        </div>
+
         <!-- 渠道操作卡与执行打勾表 -->
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -2215,6 +2239,8 @@
       loadScaffoldTab(currentScaffoldTab);
       // Step 3
       loadMarkdownToElem('03_普林斯顿9因子高权威语料库.md', 'preview-step-3');
+      // Step 4
+      loadDistributionLedger();
       // Step 5
       loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
       loadMonitorDashboardMetrics();
@@ -3384,6 +3410,165 @@
         btn.disabled = false;
         btn.innerHTML = origHTML;
         lucide.createIcons();
+      }
+    }
+
+    // ===== 全渠道分发台账与落地外链回填控制器 =====
+    let currentDistLedgerCache = null;
+
+    async function loadDistributionLedger() {
+      if (!currentProjectId) return;
+      const listEl = document.getElementById('dist-channels-ledger-list');
+      if (!listEl) return;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/distribution/ledger`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.channels) {
+          currentDistLedgerCache = data;
+          document.getElementById('dist-completion-badge').textContent = `分发完成率: ${data.completion_rate_pct}% (${data.published_channels}/${data.total_channels})`;
+          document.getElementById('dist-completion-badge').className = data.completion_rate_pct >= 80 
+            ? 'px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-bold'
+            : 'px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold';
+
+          const chIcons = {
+            toutiao: '📰',
+            zhihu: '📘',
+            juejin: '💎',
+            github: '🐙',
+            wechat: '💬'
+          };
+
+          listEl.innerHTML = Object.keys(data.channels).map(k => {
+            const ch = data.channels[k];
+            const icon = chIcons[k] || '🔗';
+            const isVerified = ch.status === 'verified';
+            const isPending = !ch.url || ch.status === 'pending';
+            
+            let statusBadge = `<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-semibold">⏳ 待发布回填</span>`;
+            if (isVerified) {
+              statusBadge = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold flex items-center gap-1">✅ 正常在线 (HTTP ${ch.http_status || 200})</span>`;
+            } else if (ch.status === 'failed') {
+              statusBadge = `<span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-[10px] font-bold flex items-center gap-1">⚠️ 连通异常 (${ch.http_status || '404'})</span>`;
+            } else if (ch.status === 'published') {
+              statusBadge = `<span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-semibold">已登记</span>`;
+            }
+
+            return `
+              <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2.5 min-w-[180px]">
+                  <span class="text-base">${icon}</span>
+                  <div>
+                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                      <span>${ch.name}</span>
+                      ${statusBadge}
+                    </div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">${ch.target_pool}</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 flex items-center gap-2">
+                  <input id="dist-url-input-${k}" type="text" value="${ch.url || ''}" placeholder="粘贴真实发布后的落地 URL（如 https://...）" class="w-full text-xs px-3 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono">
+                  <button onclick="handleSaveDistUrl('${k}')" class="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs shrink-0 transition shadow-sm">
+                    保存校验
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="copyChannelRichText('${k}')" class="py-1.5 px-2.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1 transition" title="复制格式化文章稿">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>复制稿件</span>
+                  </button>
+                  ${ch.url ? `
+                    <a href="${ch.url}" target="_blank" class="py-1.5 px-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 rounded-lg text-xs font-semibold flex items-center gap-1 transition" title="访问已发布文章">
+                      <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                      <span>访问</span>
+                    </a>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.error('加载分发台账异常:', err);
+      }
+    }
+
+    async function handleSaveDistUrl(channelKey) {
+      if (!currentProjectId) return;
+      const input = document.getElementById(`dist-url-input-${channelKey}`);
+      const url = input ? input.value.trim() : '';
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/distribution/record`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ channel: channelKey, url: url, verify_now: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✅ [${data.record.name}] 外链台账已更新！状态: ${data.record.status}`);
+          await loadDistributionLedger();
+        } else {
+          showToast('保存失败: ' + data.message, 'error');
+        }
+      } catch (e) {
+        showToast('请求异常', 'error');
+      }
+    }
+
+    async function handleVerifyAllDistUrls() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-verify-all-dist');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 核验中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/distribution/verify`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`🎉 全渠道外链存活核验完毕！完成率: ${data.completion_rate_pct}%`);
+          await loadDistributionLedger();
+        } else {
+          showToast('核验失败: ' + data.message, 'error');
+        }
+      } catch (e) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    async function copyChannelRichText(channelKey) {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/distribution/rich-content/${channelKey}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.raw_content) {
+          navigator.clipboard.writeText(data.raw_content).then(() => {
+            showToast(`✅ [${data.filename}] 文章内容已复制到剪贴板！`);
+          });
+        } else {
+          showToast('暂无可复制内容，请先在 Step 4 点击生成发布包！', 'error');
+        }
+      } catch (e) {
+        showToast('获取稿件异常', 'error');
       }
     }
 

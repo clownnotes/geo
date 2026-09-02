@@ -47,12 +47,28 @@ python3 -m tools.geo distribute --project <client_id>
 
 ---
 
-## 六、验收标准
+## 六、分发落地台账回填与自动化收录核验规范
 
-- [ ] 五大平台首批内容全部发布并留存 URL 台账；
+1. **外发落地链接回填**：
+   ```bash
+   # 回填指定渠道的外网真实已发布链接并自动校验存活
+   python3 -m tools.geo record <client_id> --channel toutiao --url "https://www.toutiao.com/article/73912345678/"
+   ```
+2. **全量外链一键连通性核验**：
+   ```bash
+   python3 -m tools.geo verify-dist <client_id>
+   ```
+   - 自动探测 HTTP 状态码（200/302/404）并输出全渠道分发完成率；
+   - 验证通过的外链将自动同步至客户专属交付门户（`web/share.html`）作为履约证明。
+
+---
+
+## 七、验收标准
+
+- [ ] 五大平台首批内容全部发布并完成 `dist_ledger.json` URL 回填；
+- [ ] 运行 `geo verify-dist` 全量核验，分发完成率达到 80% 以上且无 404 死链；
 - [ ] 头条与知乎文章均已插入原生 SVG/PNG 对比图；
 - [ ] 视频号/短视频矩阵已按 60 秒脚本完成至少 1 期拍摄与发布；
-- [ ] 用 `Crawl4AI`/必应站点收录抽查：头条与 GitHub 至少各 1 篇可被检索；
 - [ ] 署名口径抽检 5 篇，100% 一致。
 
 > 上一步 [SOP-03 内容重构](/sop/03-rewrite-sop) ｜ 下一步 ➔ [SOP-05 监控续费](/sop/05-monitor-sop)

@@ -609,6 +609,30 @@ core_values:
                 self.send_json(res)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
+        # 16. 分发外链回填 API: /api/projects/{id}/distribution/record
+        if path.startswith("/api/projects/") and path.endswith("/distribution/record"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            channel = body.get("channel", "").strip()
+            url = body.get("url", "").strip()
+            verify_now = bool(body.get("verify_now", True))
+            from .dist_bot import record_distributed_url
+            try:
+                res = record_distributed_url(project_id, channel=channel, url=url, verify_now=verify_now)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 17. 一键全量核验外链 API: /api/projects/{id}/distribution/verify
+        if path.startswith("/api/projects/") and path.endswith("/distribution/verify"):
+            project_id = path.split("/")[3]
+            from .dist_bot import verify_all_channels
+            try:
+                res = verify_all_channels(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
         self.send_json({"error": "Not Found"}, status=404)
@@ -1025,6 +1049,30 @@ core_values:
                     from .monitor import extract_monitor_metrics
                     metrics = extract_monitor_metrics(project_id)
                     self.send_json(metrics)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取分发渠道台账与收录状态: /api/projects/{id}/distribution/ledger
+            if path.startswith("/api/projects/") and path.endswith("/distribution/ledger"):
+                project_id = path.split("/")[3]
+                from .dist_bot import get_distribution_ledger
+                try:
+                    ledger = get_distribution_ledger(project_id)
+                    self.send_json(ledger)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取渠道富文本剪贴板内容: /api/projects/{id}/distribution/rich-content/{channel}
+            if path.startswith("/api/projects/") and "/distribution/rich-content/" in path:
+                parts = path.split("/")
+                project_id = parts[3]
+                channel = parts[6] if len(parts) > 6 else ""
+                from .dist_bot import format_rich_text_copy
+                try:
+                    res = format_rich_text_copy(project_id, channel)
+                    self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

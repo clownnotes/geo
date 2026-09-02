@@ -195,6 +195,21 @@
           <p class="text-xs text-slate-500">针对 DeepSeek (知乎/GitHub) 与 豆包 (今日头条/微信) 定向发布排版。</p>
         </div>
       </div>
+
+      <!-- 全网落地外链与收录证明 -->
+      <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-4 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="font-bold text-xs text-indigo-900 flex items-center gap-1.5">
+            <span>🌐 全网落地外链与收录凭证</span>
+            <span id="share-dist-rate" class="px-2 py-0.5 bg-indigo-600 text-white rounded-full text-[10px] font-bold">完成率: 0%</span>
+          </div>
+          <span class="text-[10px] text-slate-400">大模型 Citation 引用抓取来源</span>
+        </div>
+        <div id="share-dist-links-box" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-1 text-xs">
+          <!-- 动态注入真实外链 -->
+        </div>
+      </div>
+
       <div class="space-y-6">
         <div class="border border-slate-200 rounded-xl p-4">
           <div class="font-bold text-sm text-indigo-900 mb-2">① 知乎专栏深度评测稿 (攻 DeepSeek 首推)</div>
@@ -605,6 +620,43 @@
         }
         if (va.video_script?.content) {
           document.getElementById('share-video-script').innerHTML = marked.parse(va.video_script.content);
+        }
+      }
+
+      // 渲染全渠道真实落地外链
+      if (d.distribution_ledger && d.distribution_ledger.channels) {
+        const dl = d.distribution_ledger;
+        const rateEl = document.getElementById('share-dist-rate');
+        if (rateEl) rateEl.textContent = `完成率: ${dl.completion_rate_pct}%`;
+
+        const box = document.getElementById('share-dist-links-box');
+        if (box) {
+          const chIcons = { toutiao: '📰', zhihu: '📘', juejin: '💎', github: '🐙', wechat: '💬' };
+          box.innerHTML = Object.keys(dl.channels).map(k => {
+            const ch = dl.channels[k];
+            const icon = chIcons[k] || '🔗';
+            return `
+              <div class="p-2.5 bg-white border border-indigo-100 rounded-lg flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 overflow-hidden">
+                  <span>${icon}</span>
+                  <div class="truncate">
+                    <div class="font-bold text-slate-800 text-[11px]">${ch.name}</div>
+                    <div class="text-[9.5px] text-slate-400 truncate">${ch.url ? ch.url.replace(/^https?:\/\//, '') : '待外发回填'}</div>
+                  </div>
+                </div>
+                <div>
+                  ${ch.url ? `
+                    <a href="${ch.url}" target="_blank" class="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded text-[10px] font-bold inline-flex items-center gap-0.5 whitespace-nowrap">
+                      <span>查看</span>
+                      <i data-lucide="external-link" class="w-2.5 h-2.5"></i>
+                    </a>
+                  ` : `
+                    <span class="text-[10px] text-slate-400">待发布</span>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join('');
         }
       }
 

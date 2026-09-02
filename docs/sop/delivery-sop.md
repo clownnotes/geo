@@ -129,3 +129,5 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 | **集团矩阵** | `python3 -m tools.geo group [--id <gid>]` | 本手册 | 集团加权 SOV、母子协同效应指数与联合防御 |
 | **视觉与视频** | `python3 -m tools.geo visual <project_id>` | [SOP-03](/sop/03-rewrite-sop) | 原生 SVG 对比/架构图与 60 秒短视频脚本 |
 | **沙箱测序** | `python3 -m tools.geo test <project_id> [--compare]` | [SOP-05](/sop/05-monitor-sop) | 大模型双轨 Before/After 实时模拟测序与置信度评分 |
+| **分发回填** | `python3 -m tools.geo record <project_id> --channel <ch> --url <url>` | [SOP-04](/sop/04-distribute-sop) | 记录与更新 5 大渠道真实外网落地 URL 台账 |
+| **收录核验** | `python3 -m tools.geo verify-dist <project_id>` | [SOP-04](/sop/04-distribute-sop) | 一键全渠道外链存活探测与完成率评估 |

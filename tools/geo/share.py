@@ -257,6 +257,13 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         visual_assets = {}
 
+    # 提取多平台外发落地台账
+    try:
+        from .dist_bot import get_distribution_ledger
+        dist_ledger = get_distribution_ledger(project_id)
+    except Exception:
+        dist_ledger = {}
+
     return {
         "success": True,
         "client_name": cfg.get("client_name", "客户企业"),
@@ -268,6 +275,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "history": clean_history,
         "benchmark": bench_eval,
         "visual_assets": visual_assets,
+        "distribution_ledger": dist_ledger,
         "share_meta": {
             "created_at_str": rec.get("created_at_str"),
             "expires_at_str": rec.get("expires_at_str"),

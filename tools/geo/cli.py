@@ -183,6 +183,19 @@ def main():
     p_test.add_argument("--compare", "-c", action="store_true", default=True, help="输出 Before/After 双轨对比")
     p_test.add_argument("--batch", "-b", type=int, default=0, help="批量跑批抽样测序题数 (如 5)")
 
+    # record / distribution
+    p_rec = subparsers.add_parser("record", help="回填多平台外发文章落地 URL 台账")
+    p_rec.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_rec.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_rec.add_argument("--channel", "-c", required=True, choices=["toutiao", "zhihu", "juejin", "github", "wechat"], help="外发渠道代号")
+    p_rec.add_argument("--url", "-u", required=True, help="外发落地的真实 URL")
+    p_rec.add_argument("--no-verify", action="store_true", help="跳过存活连通性校验")
+
+    # verify-dist
+    p_vdist = subparsers.add_parser("verify-dist", help="一键核验项目全渠道外链存活状态与完成率")
+    p_vdist.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_vdist.add_argument("--project", "-p", default=None, help="客户项目 ID")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -337,6 +350,17 @@ def main():
             print(cmp_res['after']['response'])
             print(f"🏆 排位: Rank {cmp_res['after']['rank']} ｜ 🌟 置信度得分: {cmp_res['after']['confidence_score']}/100 ｜ 命中事实: {len(cmp_res['after']['facts_hit'])} 条")
             print("="*60 + "\n")
+    elif args.command == "record":
+        from .dist_bot import record_distributed_url
+        pid = get_pid(args)
+        ch = args.channel
+        u = args.url
+        no_v = getattr(args, "no_verify", False)
+        record_distributed_url(pid, channel=ch, url=u, verify_now=not no_v)
+    elif args.command == "verify-dist":
+        from .dist_bot import verify_all_channels
+        pid = get_pid(args)
+        verify_all_channels(pid)
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":
