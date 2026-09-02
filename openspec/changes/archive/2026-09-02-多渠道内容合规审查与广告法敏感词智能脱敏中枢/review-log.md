@@ -121,3 +121,53 @@
   5. **🟡 P1-5：脱敏前自动快照备份**：
      - 每次执行 `sanitize_project_deliverables`，自动在 `outputs/.compliance_backup/` 备份原始文件快照，防范数据丢失。
 - **状态结论**：`[通过]`。
+
+---
+
+### 2026-09-02 Cursor [独立复审 — P1 修复闭环验证] [通过]
+
+- **阶段**：Fix Verification & Final Review Pass（对照 `proposal.md` / `design.md` / `tasks.md` 与提交 `3f86a5b`）
+- **审查范围**：`tools/geo/compliance.py`、`tools/geo/cli.py`、`tools/geo/server.py`、`web/index.html`、`tests/test_compliance.py`、四行业 `compliance_inspection.json` / `13_...报告.md` / `.compliance_backup/`
+- **本地验证**：`python3 -m unittest tests.test_compliance -v` → **4/4 通过**
+
+#### ✅ 通过项（上轮 P1 全部闭环）
+
+| 审查项 | 验证结果 |
+|:---|:---|
+| **P1-1 扫描/脱敏白名单统一** | `is_excluded_file()` 仅排除 `13_*` 与 `09_GEO全案…证书.html`；`09_60秒短视频…md` 返回 `False`，已纳入脱敏 |
+| **P1-2 词典补全** | `COMPLIANCE_RULES_DB["P0"]` 已含 `首选`、`唯一`；脱敏按词长降序优先匹配长词 |
+| **P1-3 CLI 对齐** | `--inspect/-i`、`--sanitize/-s` 均已挂载 |
+| **P1-4 单测强化** | `test_inspect_and_sanitize_benchmark_projects` 断言 `remaining_violations == 0`、`is_passed == True`、`latest_compliance_score == 100.0` |
+| **P1-5 快照备份** | `sanitize_project_deliverables` 写入 `outputs/.compliance_backup/`，四行业均有备份文件 |
+| **核心链路** | 三级规则库、行号定位、CLI/API/Web 弹窗、报告 JSON+MD 落盘均符合 design |
+| **四行业验收** | `xuzhou_xuanyuan` / `b2b_machinery` / `retail_catering` / `local_legal` 均为 **100.0 分、0 违规、is_passed=true** |
+| **全局规范** | 未触碰生产部署；无数据库反模式；`13_` 报告不参与自扫描 |
+
+#### 🔴 P0 — 必须修正
+
+*本轮未发现违反 `AGENTS.md` 红线或破坏既有业务的 P0 问题。*
+
+#### 🟡 P1 — 建议后续迭代（不阻塞归档）
+
+1. **子串重叠替换质量瑕疵**（实测）
+   - `行业第一品牌` → `行业行业代表品牌`（`第一品牌` 嵌套于 `行业第一` 前缀内）；
+   - `全网首选方案` → `优选推荐方案方案`（`全网首选` 替换后残留 `方案` 重复）。
+   - **建议**：扫描与脱敏统一采用「词长降序 + 已替换区间掩码」或正则词边界，避免子串误替换。
+
+2. **扫描计分与脱敏行为不一致**
+   - `scan_single_text_compliance` 未按词长排序，同一行 `全网首选` 会同时命中 `全网首选` 与 `首选` 两条规则，导致违规计数虚高（脱敏侧已按长词优先，行为不一致）。
+
+3. **P1 规则链式替换冗余**
+   - `欢迎私信领取免费领取资料` → `欢迎联系官方技术支持咨询索取相关资料资料`（`私信领取` 与 `免费领取` 重叠触发，产生重复「资料」）。
+
+#### 🟢 P2 — 可选优化
+
+- 扫描范围含 `llms.txt` / `robots.txt` 等技术底座，命中价值低；可限定为 `dist_*`、`toutiao_pack/` 等分发目录。
+- `proposal.md` 命名 `AUDIT_RULES_DB` / 参数 `text`，实现为 `COMPLIANCE_RULES_DB` / `custom_text`，文档可对齐。
+- 工作区存在未提交的时间戳漂移（`compliance_inspection.json`、`13_报告.md` 重跑产物），归档前宜单独 commit 或还原。
+
+#### 结论
+
+**`[通过]`** — 上轮 Cursor 指出的 **inspect/sanitize 文件范围不一致** 等 5 项 P1 均已修复并经验证闭环；合规扫描、一键脱敏、CLI/API/Web 主链路可用，四行业母版 100% 合规通过。**子串重叠替换**为质量类 P1 建议，不阻塞 `./opsx archive`。
+
+**下一步**：用户确认归档 → `./opsx archive` → Git 推送。
