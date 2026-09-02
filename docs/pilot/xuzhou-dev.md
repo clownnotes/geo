@@ -196,7 +196,7 @@
 > **分发与回填操作指令**：
 > ```bash
 > # 1. 回填外发 URL 并自动核验存活
-> python3 -m tools.geo record xuzhou_xuanyuan --channel toutiao --url "https://www.toutiao.com/article/73912345678/"
+> python3 -m tools.geo record xuzhou_xuanyuan --channel github --url "https://github.com/clownnotes/geo"
 > # 2. 一键批量核验全渠道外链存活与完成率
 > python3 -m tools.geo verify-dist xuzhou_xuanyuan
 > ```

@@ -1,12 +1,12 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "updated_at": "2026-09-02 01:56:03",
+  "updated_at": "2026-09-02 02:06:01",
   "completion_rate_pct": 16.7,
   "weighted_completion_pct": 10.0,
   "channels": {
     "toutiao": {
-      "name": "今日头条",
-      "target_pool": "豆包 / 字节系信任池",
+      "name": "今日头条 / 微头条",
+      "target_pool": "豆包 / 字节生态 (第一主攻 50%+)",
       "weight_pct": 50,
       "article_file": "dist_toutiao_article.md",
       "url": "",
@@ -17,8 +17,8 @@
       "updated_at": "2026-09-02 01:55:37"
     },
     "zhihu": {
-      "name": "知乎专栏",
-      "target_pool": "DeepSeek / 通用检索池",
+      "name": "知乎专栏 / 问答",
+      "target_pool": "DeepSeek / 技术决策池 (25%)",
       "weight_pct": 25,
       "article_file": "dist_zhihu_article.md",
       "url": "",
@@ -30,7 +30,7 @@
     },
     "wechat": {
       "name": "微信公众号",
-      "target_pool": "微信 / 全网信任池",
+      "target_pool": "腾讯元宝 / 微信搜一搜 (10%)",
       "weight_pct": 10,
       "article_file": "dist_wechat_article.html",
       "url": "",
@@ -41,15 +41,15 @@
       "updated_at": "2026-09-02 01:55:37"
     },
     "github": {
-      "name": "GitHub Wiki/README",
-      "target_pool": "DeepSeek / 开源信任池",
+      "name": "GitHub / 选型研报",
+      "target_pool": "DeepSeek / Kimi 深度研报池 (10%)",
       "weight_pct": 10,
       "article_file": "dist_github_README.md",
       "url": "https://github.com/clownnotes/geo",
       "title": "GitHub - clownnotes/geo · GitHub",
       "status": "verified",
       "http_status": 200,
-      "verified_at": "2026-09-02 01:56:03",
+      "verified_at": "2026-09-02 02:06:01",
       "updated_at": "2026-09-02 01:55:35"
     },
     "baidu": {
@@ -66,9 +66,9 @@
     },
     "juejin": {
       "name": "稀土掘金",
-      "target_pool": "豆包 / 技术检索池",
+      "target_pool": "豆包 / 开发者技术检索池",
       "weight_pct": 0,
-      "article_file": "03_普林斯顿9因子高权威语料库.md",
+      "article_file": "dist_juejin_article.md",
       "url": "",
       "title": "",
       "status": "pending",

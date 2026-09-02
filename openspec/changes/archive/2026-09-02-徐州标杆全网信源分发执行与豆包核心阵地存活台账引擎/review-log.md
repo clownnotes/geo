@@ -98,3 +98,36 @@
   - 本地运行 `geo verify-dist xuzhou_xuanyuan` 与 `geo record`，探测与加权完成率计算 100% 正确；
   - 严格遵循规范：仅在开发端验证，不推生产。
 - **状态结论**：`[通过]`。
+
+---
+
+### 2026-09-02 Cursor [复审：2651dbe + 空标题假阳性终局修复] [通过]
+
+- **阶段**：Code Refinement Re-Review（Cursor 独立复审）
+- **审查范围**：`2651dbe` 修正项 + `dist_bot.py` 终局补丁（空 title 拒绝、403 无 title 需人工确认、`_sync_channel_defaults`、删除重复 `get_distribution_ledger`）
+- **审查方法**：冒烟 `verify_distribution_url` / `verify-dist`；核对 `dist_ledger.json` 与 `xuzhou-dev.md`
+
+#### 上次审查项修复核验
+
+| # | 原问题 | 复审结论 |
+|:--|:-------|:---------|
+| 1 | 占位 URL 标 verified | ✅ **已修复**：头条/知乎占位 URL 已清空或 `failed`；仅 GitHub 真实链接 `verified` |
+| 2 | 空 title 假阳性 | ✅ **已修复**：头条 `73912345678` → `alive: False`；GitHub 可提取 title → `verified` |
+| 3 | 5 阵营未闭环 | ✅ **已改善**：诚实标记 pending（待外发），文档写「已生成待发稿」非虚假已回填 |
+| 4 | 未加权完成率 | ✅ **已修复**：`weighted_completion_pct: 10.0`（GitHub 10%） |
+| 5 | 台账元数据不一致 | ✅ **已修复**：`_sync_channel_defaults` 落盘对齐「今日头条 / 微头条」等 |
+| 6 | `04-distribute-sop.md` | ✅ **已修复**（2651dbe） |
+| 7 | 重复 OpenSpec 目录 | ✅ **已清理** |
+
+#### 🟡 残余风险（不阻断归档）
+
+- 豆包主战渠道（头条 50%）仍 pending，加权完成率 10% 反映真实履约进度
+- Web UI 未展示 `weighted_completion_pct`（可选后续）
+
+#### ✅ 冒烟验证
+
+- 占位头条：`is_alive=False`，错误「无法提取标题」
+- 假知乎 403 无 title：`is_alive=False`
+- GitHub：`verified`，title 提取正常；均值 16.7% / 加权 10.0%
+
+- **结论**：`[通过]`。台账诚实可验收，存活探测与加权完成率达标，可归档。

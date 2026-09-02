@@ -127,22 +127,15 @@ def _find_channel_file(project_id: str, channel: str) -> tuple:
 
     return os.path.join(p_dir, default_fname), default_fname
 
-def get_distribution_ledger(project_id: str) -> dict:
-    """读取指定项目的分发台账"""
-    lpath = _get_ledger_path(project_id)
-    channels = json.loads(json.dumps(DEFAULT_CHANNELS))
-    updated_at = None
-
-    if os.path.exists(lpath):
-        try:
-            with open(lpath, "r", encoding="utf-8") as f:
-                saved = json.load(f)
-                updated_at = saved.get("updated_at")
-                for k, v in saved.get("channels", {}).items():
-                    if k in channels:
-                        channels[k].update(v)
-        except Exception:
-            pass
+def _sync_channel_defaults(channels: dict) -> dict:
+    """将落盘台账的渠道元数据与 DEFAULT_CHANNELS 模板对齐（保留 url/status 等业务字段）"""
+    for k, tmpl in DEFAULT_CHANNELS.items():
+        if k not in channels:
+            channels[k] = json.loads(json.dumps(tmpl))
+        else:
+            for field in ("name", "target_pool", "weight_pct", "article_file"):
+                channels[k][field] = tmpl[field]
+    return channels
 
 def _calculate_metrics(channels: dict) -> tuple:
     """计算分发总数、已发数、均值完成率与加权战略完成率"""
@@ -178,6 +171,7 @@ def get_distribution_ledger(project_id: str) -> dict:
         except Exception:
             pass
 
+    channels = _sync_channel_defaults(channels)
     total, published, rate, weighted_rate = _calculate_metrics(channels)
 
     return {
@@ -226,8 +220,11 @@ def verify_distribution_url(url: str) -> dict:
             if title and any(k in title.lower() for k in soft_404_keywords):
                 return {"is_alive": False, "http_status": code, "title": title, "error": "软 404 (页面已失效或删除)"}
 
-            # 200/301/302 存活
-            is_alive = code in (200, 301, 302, 307, 308)
+            # 200 且无有效 title 视为软 404 / 占位假阳性
+            if code in (200, 301, 302, 307, 308) and not title:
+                return {"is_alive": False, "http_status": code, "title": "", "error": "无法提取标题 (疑似软 404 或占位链接)"}
+
+            is_alive = code in (200, 301, 302, 307, 308) and bool(title)
             return {"is_alive": is_alive, "http_status": code, "title": title, "error": None}
 
     except urllib.error.HTTPError as e:
@@ -240,9 +237,11 @@ def verify_distribution_url(url: str) -> dict:
         except Exception:
             pass
 
-        # 403 平台防爬（知乎/头条/微信平台）
+        # 403 平台防爬：仅当提取到真实 title 时视为存活，否则需人工确认
         if e.code in (403, 418):
-            return {"is_alive": True, "http_status": e.code, "title": title or "平台安全网关防护中", "error": f"HTTP {e.code} (平台防爬校验)"}
+            if title:
+                return {"is_alive": True, "http_status": e.code, "title": title, "error": f"HTTP {e.code} (平台防爬，已提取标题)"}
+            return {"is_alive": False, "http_status": e.code, "title": "", "error": f"HTTP {e.code} (平台防爬，无法提取标题，需人工确认)"}
         return {"is_alive": False, "http_status": e.code, "title": title, "error": f"HTTP {e.code}"}
     except Exception as e:
         return {"is_alive": False, "http_status": 0, "title": "", "error": str(e)}
@@ -280,6 +279,7 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
     lpath = _get_ledger_path(project_id)
     os.makedirs(os.path.dirname(lpath), exist_ok=True)
     
+    channels = _sync_channel_defaults(channels)
     total, published, completion_rate, weighted_rate = _calculate_metrics(channels)
 
     payload = {
@@ -328,6 +328,7 @@ def verify_all_channels(project_id: str) -> dict:
     for k, v in results:
         channels[k] = v
 
+    channels = _sync_channel_defaults(channels)
     lpath = _get_ledger_path(project_id)
     total, published, completion_rate, weighted_rate = _calculate_metrics(channels)
 
