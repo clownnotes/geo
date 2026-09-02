@@ -30,7 +30,7 @@ from .monitor import extract_monitor_metrics
 from .dist_bot import get_distribution_ledger
 
 DEFAULT_ROI_SETTINGS = {
-    "annual_service_fee": 30000,       # GEO 年化服务费 (元)
+    "annual_service_fee": 16800,       # GEO 专业标杆版全案交付/年化服务费 (元)
     "cpl": 160.0,                      # 行业单条精准销售线索成本 (Cost Per Lead, 元)
     "cpc": 6.5,                        # 传统 SEM 搜索单次点击竞价成本 (元)
     "monthly_query_baseline": 2500,     # 月度相关商业意图 Prompt 检索量 (次)

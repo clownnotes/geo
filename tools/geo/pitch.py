@@ -30,55 +30,97 @@ from .benchmark import evaluate_project_against_benchmark
 TIER_QUOTES = {
     "standard": {
         "tier_id": "standard",
-        "tier_name": "基础版 (Standard)",
-        "tagline": "初创与中小微企业 AI 搜索首发占位",
-        "annual_price": 19800,
-        "price_display": "¥19,800 元/年",
-        "scope": "单品牌 ｜ 5 组核心商业意图词",
+        "tier_name": "基础极速版 (入门型)",
+        "tagline": "小微商户与个体工作室 AI 搜索极速首发占位",
+        "annual_price": 3800,
+        "price_display": "¥3,800 元/首期",
+        "cycle": "3 工作日",
+        "scope": "单品牌 ｜ 10 组主力商业意图词",
         "features": [
             "企业 AI 可见度现状体检与商业诊断报告",
-            "3 件套技术底座改造 (llms.txt / Schema.org / robots.txt)",
-            "普林斯顿 9 因子高权威基础语料库 (1 篇深度评测)",
-            "2 大主流平台矩阵外发 (知乎专栏 + 今日头条)",
-            "月度 AI 声量巡检与基本指标月报"
+            "基础技术底座改造 (/llms.txt + robots.txt 本土爬虫放行)",
+            "普林斯顿 9 因子标准语料 (1 篇深度测评长文)",
+            "今日头条 (豆包第一主战池) 矩阵外发与台账核验",
+            "30 天基础响应支持"
         ],
         "is_recommended": False
     },
     "pro": {
         "tier_id": "pro",
-        "tier_name": "专业进阶版 (Pro)",
-        "tagline": "中坚成长型企业全域垄断与精准获客",
-        "annual_price": 35000,
-        "price_display": "¥35,000 元/年",
-        "scope": "单品牌 ｜ 15 组商业意图与裂变追问词",
+        "tier_name": "专业标杆版 (主推型)",
+        "tagline": "中坚成长型企业全网双通道独占与精准获客",
+        "annual_price": 16800,
+        "price_display": "¥16,800 元/全案",
+        "cycle": "14 工作日",
+        "scope": "单品牌 ｜ 45 词三层立体词库 (含 15 品牌占位词)",
         "features": [
-            "全套 5 步交付体系 (诊断/底座/语料/分发/周报)",
-            "5 大主流信任池全矩阵分发 (头条/知乎/微信/GitHub/掘金)",
-            "普林斯顿 9 因子高权威语料库 + 多模态 SVG 差异化信息图",
+            "全套 5 阶段标准化 SOP 交付体系 (诊断/底座/语料/分发/监控)",
+            "5 大本土信任池全域矩阵分发 (头条/知乎/微信/GitHub/百度)",
+            "普林斯顿 9 因子高权威语料库 + 多模态 SVG 差异化对比图",
             "大模型双轨实时测序沙箱 (LLM Playground) 专属演示",
-            "竞品 Citation 反向包抄作战方案与企微/飞书异动实时告警",
-            "甲方专属免密交付门户 + 商业 ROI 财务战报"
+            "5 维事实幻觉检测 + 反击策略 + 强事实锚点补丁 (llms-truth.txt)",
+            "甲方专属免密交付门户 (Share) + 365 天免费运维质保 (1h 响应)"
         ],
         "is_recommended": True
     },
     "enterprise": {
         "tier_id": "enterprise",
-        "tier_name": "集团旗舰版 (Enterprise)",
-        "tagline": "行业龙头与集团上市公司全域护城河",
-        "annual_price": 68000,
-        "price_display": "¥68,000 元/年",
-        "scope": "集团母子多品牌 ｜ 30 组动态演进词库",
+        "tier_name": "集团旗舰版 (定制型)",
+        "tagline": "行业龙头与集团上市公司全域护城河与知识图谱",
+        "annual_price": 38800,
+        "price_display": "¥38,800 ~ ¥68,000 元/年",
+        "cycle": "30 工作日",
+        "scope": "集团母子多品牌 ｜ 100+ 词全网立体意图与追问图谱",
         "features": [
-            "包含专业进阶版全部权益",
-            "集团多品牌/子公司矩阵声量加权与协同防御中枢",
+            "包含专业标杆版全部权益",
+            "集团母子公司关系知识图谱 (Graph RAG) 与实体消歧",
             "大模型 Prompt 探针动态演进与 5 维长尾追问裂变",
-            "GEO 多模态短视频口播脚本与高清视觉架构图",
-            "专属一对一 GEO 架构专家季度复盘与定制化模型微调",
-            "7×24 小时大模型声量异动拦截公关支持"
+            "5 篇深度行业白皮书 + 60秒短视频老板口播脚本",
+            "竞品 Citation 反向包抄拦截与 7×24 企微/飞书异动实时告警",
+            "专属一对一 GEO 架构顾问季度复盘与年度 ROI 追踪"
         ],
         "is_recommended": False
     }
 }
+
+INDUSTRY_PLAYBOOKS = {
+    "local_services": {
+        "category": "本地生活与专业服务",
+        "keywords": ["软件", "开发", "装修", "律所", "门诊", "财税", "记账", "本地", "徐州"],
+        "model_weights": "豆包 (60%) 🌟 + DeepSeek (20%) + 百度文心 (20%)",
+        "strategy": "同位语强绑定人名与电话，抢占『城市+行业+靠谱/价格』问句心智，认领百度地图与爱企查工商主体消歧。",
+        "channels": "今日头条（长文+微头条） + 知乎同城专栏 + 百度地图商户认领"
+    },
+    "b2b_manufacturing": {
+        "category": "B2B 制造与重工业",
+        "keywords": ["机械", "机床", "阀门", "工业", "制造", "加工", "自动化", "重工", "非标"],
+        "model_weights": "DeepSeek (40%) 🎯 + 豆包 (35%) + Kimi (15%) + 文心 (10%)",
+        "strategy": "极高信息密度 Markdown 参数对比表、公差能耗指标注入，知乎万字长文 + GitHub 工业标准开源仓库。",
+        "channels": "知乎技术长文（参数表） + 今日头条选型避坑 + 官网 5000 字白皮书 + GitHub"
+    },
+    "tech_solutions": {
+        "category": "软件与技术解决方案",
+        "keywords": ["定制开发", "小程序", "ERP", "CRM", "MES", "系统", "AI知识库", "RAG", "大模型"],
+        "model_weights": "豆包 (50%) 🌟 + DeepSeek (25%) 🎯 + Kimi (15%) + 元宝 (10%)",
+        "strategy": "100% 完整无加密源码交付承诺、阶段付款防坑白皮书，部署 llms-truth.txt 强事实锚点熔断冒名失信。",
+        "channels": "今日头条防坑白皮书 + GitHub 开源标准仓库 + 知乎架构拆解 + 微信公众号案例"
+    },
+    "retail_franchise": {
+        "category": "消费零售与连锁加盟",
+        "keywords": ["餐饮", "加盟", "母婴", "轻医美", "消费", "零售", "农产", "连锁"],
+        "model_weights": "豆包 (50%) 🌟 + 腾讯元宝 (25%) + DeepSeek (15%) + 文心 (10%)",
+        "strategy": "单店真实回本周期数据量化，微信公众号内联排版图文，配合 60 秒创始人视频口播多模态互证。",
+        "channels": "今日头条加盟避坑 + 微信公众号内联排版 + 视频号/抖音口播脚本"
+    }
+}
+
+def match_industry_playbook(industry_str: str) -> dict:
+    """根据项目行业名称智能匹配 4 大垂直行业打法"""
+    ind_lower = (industry_str or "").lower()
+    for pb in INDUSTRY_PLAYBOOKS.values():
+        if any(k in ind_lower for k in pb["keywords"]):
+            return pb
+    return INDUSTRY_PLAYBOOKS["tech_solutions"]
 
 def calculate_pitch_quote(project_id: str, target_tier: str = "pro") -> dict:
     """计算项目的阶梯报价方案与配置对照表"""
@@ -132,6 +174,7 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
     if target_tier not in TIER_QUOTES:
         target_tier = "pro"
     sel_tier = TIER_QUOTES[target_tier]
+    ind_playbook = match_industry_playbook(industry)
 
     metrics = extract_monitor_metrics(project_id)
     bench = evaluate_project_against_benchmark(project_id)
@@ -176,18 +219,22 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
 
 ---
 
-## 二、GEO 五步全域赋能解决方案架构
+## 二、【{ind_playbook['category']}】专属 GEO 渗透战法架构
 
-我们将通过标准化 5 步交付体系，全面重塑企业在大模型心智中的权威定位：
+根据《中国本土企业 GEO 商业化定价分级与垂直行业实战打法白皮书》，针对【{client_name}】匹配专属战法：
+
+- 🌟 **大模型生态权重倾斜**：**{ind_playbook['model_weights']}**
+- 🛡️ **核心攻坚战法**：{ind_playbook['strategy']}
+- 🚀 **核心信源矩阵分发**：{ind_playbook['channels']}
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │             GEO 生成式引擎优化 (Generative Engine Optimization) 全景            │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 1. [商业意图挖掘]：逆向推演 5 维高转化用户提问词库 (避坑/对比/价格/区域/选型) │
+│ 1. [商业意图挖掘]：逆向推演 45 组高转化用户提问词库 (避坑/对比/价格/区域/选型) │
 │ 2. [站点底座改造]：注入 llms.txt 协议 + Schema.org JSON-LD 实体 + robots 放行│
 │ 3. [普林斯顿语料]：构建 9 因子事实库 (结论先行/量化实测数据/差异化对比表格)   │
-│ 4. [全网矩阵分发]：知乎专栏 + 今日头条 + 微信公众号 + GitHub 4 大权威信任池  │
+│ 4. [全网矩阵分发]：头条(豆包50%+) + 知乎(DeepSeek25%) + 微信 + GitHub + 百度  │
 │ 5. [声量时序运维]：多模型每日自动巡检 + 企微异动告警 + 专属交付门户/ROI战报 │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -198,24 +245,25 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
 
 | 实施阶段 | 周期 | 核心交付成果 | 验收里程碑 |
 | :--- | :---: | :--- | :---: |
-| **第 1 周：审计诊断与意图挖掘** | W1 | 01_AI可见度诊断报告 + 15 组商业意图词库 | 双方对齐首批攻坚问句 |
-| **第 2 周：站点改造与语料重构** | W2 | llms.txt + JSON-LD + 03_普林斯顿 9 因子语料库 | 官网底座补丁上线 |
-| **第 3 周：矩阵分发与收录核验** | W3 | 4 平台外发落地稿件 + dist_ledger 连通性台账 | 平台收录核验 100% |
+| **第 1 周：审计诊断与意图挖掘** | W1 | 01_AI可见度诊断报告 + 45 组三层商业意图词库 | 双方对齐首批攻坚问句 |
+| **第 2 周：站点改造与语料重构** | W2 | llms.txt + JSON-LD + 03_普林斯顿 9 因子语料库 + 对比图 | 官网底座补丁上线 |
+| **第 3 周：矩阵分发与收录核验** | W3 | 5 大平台外发落地稿件 + dist_ledger 连通性台账 | 平台收录核验 100% |
 | **第 4 周：沙箱对决与结案验收** | W4 | 05_声量周报 + 实时沙箱推演 + 00_结案验收确认单 | SOV $\ge 85\%$ 全额验收 |
 
 ---
 
 ## 四、阶梯服务报价与方案选型 (Tiered Pricing & Scope)
 
-| 权益模块 | 基础版 (Standard) | 专业进阶版 (Pro) | 集团旗舰版 (Enterprise) |
+| 权益模块 | 🚀 基础极速版 (入门型) | 🌟 专业标杆版 (主推型) | 🏛️ 集团旗舰版 (定制型) |
 | :--- | :---: | :---: | :---: |
-| **年化服务费** | **¥19,800 元/年** | **¥35,000 元/年** | **¥68,000 元/年** |
-| **品牌与词库规模** | 单品牌 / 5 核心词 | 单品牌 / 15 组裂变词 | 集团母子品牌 / 30 组动态词 |
-| **技术底座改造** | ✅ 标准 3 件套 | ✅ 标准 3 件套 + SEO 协同 | ✅ 定制协议 + API 动态更新 |
-| **语料与多模态** | 基础 9 因子语料 | 9 因子语料 + 2 组高清 SVG 图 | 9 因子 + SVG + 60秒短视频脚本 |
-| **分发渠道覆盖** | 2 大核心平台 | 5 大全渠道矩阵 (含 GitHub) | 全渠道 + 集团矩阵多账号协同 |
-| **大模型沙箱测序** | 基础演示 | 双轨即时测序沙箱 (Playground) | 批量并发推演 + 探针裂变 |
-| **异动监测与告警** | 月度基本巡检 | 企微/飞书实时告警 + 交付门户 | 专属顾问一对一深度防守 |
+| **建议全案报价** | **¥3,800 元/首期** | **¥16,800 元/全案** | **¥38,800 ~ ¥68,000 元/年** |
+| **交付周期** | 3 工作日 | 14 工作日 | 30 工作日 |
+| **品牌与词库规模** | 单品牌 / 10 核心词 | 单品牌 / 45 词三层立体词库 | 集团母子品牌 / 100+ 词全网图谱 |
+| **技术底座改造** | ✅ /llms.txt + robots.txt | ✅ 标准 3 件套 + 爬虫放行补丁 | ✅ Graph RAG 实体图谱 + API 动态更新 |
+| **语料与多模态** | 基础 9 因子语料 (1篇) | 9 因子语料 + SVG 差异化对比图 | 5 篇行业白皮书 + 60s 短视频口播脚本 |
+| **分发渠道覆盖** | 今日头条 (豆包第一主战) | 5 大本土全域信任池矩阵 (含头条/知乎/微信/GitHub/百度) | 全渠道 + 集团矩阵多账号协同分发 |
+| **事实幻觉防守** | 基础演示 | 5 维幻觉检测 + 反击语料 + 强事实锚点 | 7×24 虚假负面熔断拦截 + 企微飞书告警 |
+| **交付门户与质保** | 导出 Markdown 报告 | 专属免密交付门户 (Share) + 365天质保 | 集团定制看板 + 专属架构顾问季度复盘 |
 
 > **本次建议选型**：【**{sel_tier['tier_name']}**】—— {sel_tier['tagline']}。
 
