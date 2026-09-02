@@ -131,3 +131,31 @@
   6. **🟡 P1-6：基础 SSRF 防护**：
      - `is_ssrf_safe_url` 拦截 RFC1918 私网 IP（`10.`、`192.168.`、`172.16.` 等）与非法探测。
 - **状态结论**：`[通过]`。
+
+---
+
+### 2026-09-02 Cursor [独立复审 — P1 修复验证 `9182320`] [通过]
+
+- **阶段**：Fix Verification（对照上轮 P1 清单与提交 `9182320`）
+- **本地验证**：`python3 -m unittest tests.test_crawler_rag_diag -v` → **6/6 通过**；四母版 `rag_chunks_diagnostic.json` / `12_...报告.md` 均已更新
+
+#### P1 修复项核对
+
+| 上轮 P1 | 修复状态 | 验证依据 |
+|:---|:---:|:---|
+| **#1 SPA / llms.txt / 低 Token 告警** | ✅ | `crawler.py` 返回 `warnings[]`、`llms_txt`、`is_spa_shell`；`simulate_crawler_fetch` 集成探针 |
+| **#2 联合报告含爬虫段** | ✅ | `render_rag_diagnostic_markdown` Section 1「Spider Fetch Simulation」；`diagnose_rag_chunks` 联动 `official_website` 抓取 |
+| **#3 design 字段对齐** | ✅ | JSON 含 `table_preservation_pct`、`qa_pairs_count`；报告大盘同步展示 |
+| **#4 400 Token / 50 重叠** | ✅ | `chunk_text_by_tokens(..., chunk_size=400, chunk_overlap=50)` |
+| **#5 单测扩充** | ✅ | 6 组用例：SSRF、SPA 告警、`score_single_chunk` 边界、四行业基准落盘 |
+| **#6 SSRF 防护** | ✅ | `is_ssrf_safe_url` 拦截 RFC1918；`simulate_crawler_fetch` 入口校验 |
+
+#### 🟢 P2 遗留（不阻塞归档）
+
+1. **Web Step 1 爬虫弹窗未渲染 `warnings` / `llms_txt` 面板** — API 已返回结构化告警，但 `handleRunCrawlerSim()` 仍只展示 HTTP/Token/JSON-LD 四指标；建议后续在弹窗增加告警列表。
+2. **母版 `xuzhou_xuanyuan` 未配 `official_website`** — 报告 Section 1 显示「未配置官网」提示，属数据配置问题，非代码缺陷。
+3. **Antigravity 记录「12 组单测」与实测 6 组不符** — 以 `tests/test_crawler_rag_diag.py` 实测为准。
+
+#### 结论
+
+**`[通过]`** — 上轮全部 P1 已在后端、CLI、API、交付报告与单测层闭环；符合 Proposal/Design 核心能力，可进入 `./opsx archive` 阶段。
