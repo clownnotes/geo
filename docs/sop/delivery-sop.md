@@ -128,3 +128,4 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 | **词库裂变** | `python3 -m tools.geo evolve --project <id>` | [SOP-05](/sop/05-monitor-sop) | 四象限健康度评估与 15 组新词库扩容 |
 | **集团矩阵** | `python3 -m tools.geo group [--id <gid>]` | 本手册 | 集团加权 SOV、母子协同效应指数与联合防御 |
 | **视觉与视频** | `python3 -m tools.geo visual <project_id>` | [SOP-03](/sop/03-rewrite-sop) | 原生 SVG 对比/架构图与 60 秒短视频脚本 |
+| **沙箱测序** | `python3 -m tools.geo test <project_id> [--compare]` | [SOP-05](/sop/05-monitor-sop) | 大模型双轨 Before/After 实时模拟测序与置信度评分 |

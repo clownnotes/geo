@@ -161,6 +161,40 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             self.send_json({"success": True, "message": "已成功退出登录！"})
             return
 
+        # 专属甲方只读沙箱实时测序公开 API: /api/share/{token}/simulate
+        if path.startswith("/api/share/") and path.endswith("/simulate"):
+            parts = path.split("/")
+            share_tok = parts[3]
+            from .share import load_shares_data
+            data = load_shares_data()
+            shares = data.get("shares", {})
+            if share_tok not in shares or not shares[share_tok].get("is_active", False):
+                self.send_json({"success": False, "message": "分享链接不存在或已失效！"}, status=404)
+                return
+            rec = shares[share_tok]
+            if rec.get("expires_at") and rec["expires_at"] < time.time():
+                self.send_json({"success": False, "message": "分享链接已过期！"}, status=403)
+                return
+            
+            body = self.read_json_body()
+            if rec.get("has_pin"):
+                user_pin = body.get("pin", "")
+                salt = rec.get("salt", "")
+                if not user_pin or hashlib.sha256((user_pin + salt).encode("utf-8")).hexdigest() != rec.get("pin_hash"):
+                    self.send_json({"success": False, "message": "PIN 码不正确或未提供！"}, status=403)
+                    return
+            
+            project_id = rec["project_id"]
+            query = body.get("query", "").strip()
+            compare = bool(body.get("compare", True))
+            from .playground import run_playground_simulation
+            try:
+                res = run_playground_simulation(project_id, query=query, compare=compare)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # --- 以下私有接口必须通过鉴权拦截 ---
         token = self.get_auth_token()
         if not is_authenticated(token):
@@ -546,6 +580,33 @@ core_values:
             try:
                 res = generate_all_visual_assets(project_id)
                 self.send_json({"success": True, "project_id": project_id, "message": "多模态视觉资产与短视频脚本已全部生成！", "details": res})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 14. 大模型沙箱单条实时测序 API: /api/projects/{id}/playground/simulate
+        if path.startswith("/api/projects/") and path.endswith("/playground/simulate"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            query = body.get("query", "").strip()
+            compare = bool(body.get("compare", True))
+            from .playground import run_playground_simulation
+            try:
+                res = run_playground_simulation(project_id, query=query, compare=compare)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 15. 大模型沙箱批量并发测序 API: /api/projects/{id}/playground/batch
+        if path.startswith("/api/projects/") and path.endswith("/playground/batch"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            count = int(body.get("count", 5))
+            from .playground import run_batch_simulation
+            try:
+                res = run_batch_simulation(project_id, count=count)
+                self.send_json(res)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return

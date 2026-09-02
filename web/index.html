@@ -602,6 +602,10 @@
             <p class="text-xs text-slate-500 mt-1">并发探测主流大模型，计算 SOV 声量、Citation 权威信源加权得分并一键生成竞品包抄策略。</p>
           </div>
           <div class="flex items-center gap-2.5">
+            <button onclick="openPlaygroundModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg border border-purple-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="flask-conical" class="w-4 h-4 text-purple-600"></i>
+              <span>🧪 AI 测序沙箱</span>
+            </button>
             <button onclick="openEvolutionModal()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
               <span>🌱 词库演进裂变</span>
@@ -1437,6 +1441,115 @@
           </div>
           <div id="vis-video-script-container" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm markdown-body max-h-[500px] overflow-y-auto">
             <div class="text-slate-400">脚本加载中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4.8 大模型实时测序沙箱 (Playground) 模态弹窗 ================= -->
+  <div id="playground-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+            🧪
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">大模型实时响应模拟器与沙箱即时召回测序 (LLM Playground)</h3>
+            <p class="text-[11px] text-slate-500">双轨对比未优化泛回答 vs 注入普林斯顿 9 因子语料后的首选推荐状态</p>
+          </div>
+        </div>
+        <button onclick="closePlaygroundModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 text-xs text-slate-700 overflow-y-auto flex-1 bg-slate-50">
+        <!-- 输入测序 Prompt 栏 -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="message-square" class="w-4 h-4 text-indigo-600"></i>
+              <span>输入自然语言提问 Prompt（模拟大模型用户提问）</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <button onclick="handleRunBatchPlayground()" id="btn-play-batch" class="py-1 px-3 bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold rounded-lg text-xs border border-purple-200 flex items-center gap-1 transition">
+                <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                <span>批量 5 组测序</span>
+              </button>
+              <button onclick="handleRunSinglePlayground()" id="btn-play-run" class="py-1.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1 shadow transition">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                <span>执行即时测序</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="play-query-input" type="text" placeholder="例如：徐州做小程序开发哪家靠谱？/ 本地性价比高的数字化服务商" class="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <!-- 快捷推荐词 Tags -->
+          <div class="flex items-center gap-1.5 flex-wrap pt-1">
+            <span class="text-[10px] text-slate-400">快捷预设：</span>
+            <div id="play-quick-chips" class="flex items-center gap-1.5 flex-wrap">
+              <!-- JS 动态注入 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 批量测序总览卡 (默认隐藏，批量跑批后呈现) -->
+        <div id="play-batch-summary-panel" class="hidden bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-4 rounded-xl shadow-md space-y-2">
+          <div class="flex items-center justify-between border-b border-purple-700/80 pb-2">
+            <span class="font-bold text-xs flex items-center gap-1.5">
+              <span>📊 批量测序雷达报告</span>
+              <span id="play-batch-badge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">5 组抽样</span>
+            </span>
+            <div class="text-[11px] text-purple-200">
+              品牌首推率 (Rank 1): <strong id="play-batch-rank1" class="text-emerald-300">100%</strong> ｜ 平均置信度得分: <strong id="play-batch-score" class="text-amber-300">98/100</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 双栏对比视窗 (Before vs After) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Left: 未优化 Base 模式 (Before) -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="px-4 py-3 bg-slate-100/80 border-b border-slate-200 flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                <span class="font-bold text-xs text-slate-700">👈 未优化基准应答 (Base LLM / Before)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="play-before-badge" class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-semibold">未收录</span>
+                <span id="play-before-score" class="text-[10px] font-bold text-slate-500">35 分</span>
+              </div>
+            </div>
+            <div id="play-before-text" class="p-4 text-xs text-slate-600 leading-relaxed overflow-y-auto flex-1 max-h-[380px] min-h-[220px] whitespace-pre-wrap">
+              点击上方【执行即时测序】查看未接入 GEO 语料前大模型的泛回答...
+            </div>
+          </div>
+
+          <!-- Right: GEO 增强首选推荐 (After) -->
+          <div class="bg-white rounded-xl border border-emerald-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-200 flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="font-bold text-xs text-emerald-900">👉 普林斯顿语料增强推荐 (GEO / After)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="play-after-badge" class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-bold shadow-sm">🏆 Rank 1 首选推荐</span>
+                <span id="play-after-score" class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">98/100 分</span>
+              </div>
+            </div>
+            <div id="play-after-text" class="p-4 text-xs text-slate-700 leading-relaxed overflow-y-auto flex-1 max-h-[380px] min-h-[220px] whitespace-pre-wrap">
+              点击上方【执行即时测序】查看注入普林斯顿 9 因子事实后的精准首选推荐效果...
+            </div>
+            <!-- 底部命中事实 Tags -->
+            <div class="px-4 py-2.5 bg-emerald-50/50 border-t border-emerald-100 flex items-center gap-1.5 flex-wrap text-[10px] text-emerald-800">
+              <span class="font-semibold">已命中事实：</span>
+              <div id="play-after-facts" class="flex items-center gap-1 flex-wrap">
+                <span class="text-slate-400">尚未测序</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -3088,6 +3201,155 @@
       navigator.clipboard.writeText(scriptMd).then(() => {
         showToast('✅ 60秒短视频分镜头脚本已复制到剪贴板！');
       });
+    }
+
+    // ===== 大模型实时测序沙箱 (Playground) 控制器 =====
+    function openPlaygroundModal() {
+      if (!currentProjectId) {
+        showToast('请先选择项目！', 'error');
+        return;
+      }
+      document.getElementById('playground-modal').classList.remove('hidden');
+
+      // 提取项目 Prompt 作为快捷推荐 chips
+      const chipsBox = document.getElementById('play-quick-chips');
+      const p = currentProjects.find(x => x.id === currentProjectId);
+      const prompts = p?.intent_prompts || [
+        `${p?.industry || '行业数字化'}做小程序开发哪家靠谱？`,
+        `${p?.industry || '行业数字化'}解决方案找谁好？`,
+        `本地性价比高的${p?.industry || '技术服务'}推荐`
+      ];
+
+      chipsBox.innerHTML = prompts.slice(0, 4).map(q => `
+        <button onclick="setPlaygroundQuery('${encodeURIComponent(q)}')" class="px-2 py-0.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[10px] text-slate-600 transition border border-slate-200">
+          ${q}
+        </button>
+      `).join('');
+
+      // 默认填入第一个 Prompt
+      if (!document.getElementById('play-query-input').value && prompts.length > 0) {
+        document.getElementById('play-query-input').value = prompts[0];
+      }
+
+      lucide.createIcons();
+    }
+
+    function closePlaygroundModal() {
+      document.getElementById('playground-modal').classList.add('hidden');
+    }
+
+    function setPlaygroundQuery(encodedQ) {
+      const q = decodeURIComponent(encodedQ);
+      document.getElementById('play-query-input').value = q;
+      handleRunSinglePlayground();
+    }
+
+    async function handleRunSinglePlayground() {
+      if (!currentProjectId) return;
+      const query = document.getElementById('play-query-input').value.trim();
+      const btn = document.getElementById('btn-play-run');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 测序中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/playground/simulate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ query: query, compare: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          // 渲染 Before
+          const before = data.before || {};
+          document.getElementById('play-before-text').textContent = before.response || '无应答';
+          document.getElementById('play-before-score').textContent = (before.confidence_score || 0) + ' 分';
+          document.getElementById('play-before-badge').textContent = before.brand_mentioned ? '已提及' : '未推荐';
+          document.getElementById('play-before-badge').className = before.brand_mentioned ? 'text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold' : 'text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-semibold';
+
+          // 渲染 After
+          const after = data.after || {};
+          document.getElementById('play-after-text').textContent = after.response || '无应答';
+          document.getElementById('play-after-score').textContent = (after.confidence_score || 0) + '/100 分';
+          document.getElementById('play-after-badge').textContent = after.rank ? `🏆 Rank ${after.rank} 首选推荐` : '✅ 品牌已收录';
+          
+          // 渲染命中事实
+          const factsBox = document.getElementById('play-after-facts');
+          if (after.facts_hit && after.facts_hit.length > 0) {
+            factsBox.innerHTML = after.facts_hit.map(f => `
+              <span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-medium">✨ ${f}</span>
+            `).join('');
+          } else {
+            factsBox.innerHTML = `<span class="text-slate-400">已包含核心实体</span>`;
+          }
+
+          document.getElementById('play-batch-summary-panel').classList.add('hidden');
+          showToast('🧪 沙箱即时测序完成！');
+        } else {
+          showToast('测序失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('沙箱请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    async function handleRunBatchPlayground() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-play-batch');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 批量并发跑批中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/playground/batch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ count: 5 })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('play-batch-summary-panel').classList.remove('hidden');
+          document.getElementById('play-batch-badge').textContent = `${data.total_tested} 组并发测试`;
+          document.getElementById('play-batch-rank1').textContent = `${data.rank1_rate_pct}%`;
+          document.getElementById('play-batch-score').textContent = `${data.avg_confidence_score}/100`;
+
+          // 将第一条测序结果渲染在主双栏
+          if (data.results && data.results.length > 0) {
+            const first = data.results[0];
+            document.getElementById('play-query-input').value = first.query;
+            document.getElementById('play-before-text').textContent = first.before.response;
+            document.getElementById('play-before-score').textContent = first.before.confidence_score + ' 分';
+            document.getElementById('play-after-text').textContent = first.after.response;
+            document.getElementById('play-after-score').textContent = first.after.confidence_score + '/100 分';
+            
+            const factsBox = document.getElementById('play-after-facts');
+            if (first.after.facts_hit && first.after.facts_hit.length > 0) {
+              factsBox.innerHTML = first.after.facts_hit.map(f => `
+                <span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-medium">✨ ${f}</span>
+              `).join('');
+            }
+          }
+          showToast(`🎉 批量 5 组沙箱测序完成！首推率: ${data.rank1_rate_pct}%`);
+        } else {
+          showToast('批量测序失败: ' + data.message, 'error');
+        }
+      } catch (e) {
+        showToast('批量测序请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
     }
 
     async function loadMarkdownToElem(filename, elemId) {

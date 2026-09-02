@@ -175,6 +175,14 @@ def main():
     p_vis.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_vis.add_argument("--type", "-t", default="all", choices=["all", "svg", "comparison", "architecture", "video"], help="资产类型 (默认 all)")
 
+    # test / playground
+    p_test = subparsers.add_parser("test", help="大模型实时响应模拟器与沙箱即时召回测序")
+    p_test.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_test.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_test.add_argument("--query", "-q", default=None, help="自定义测试提问 Prompt")
+    p_test.add_argument("--compare", "-c", action="store_true", default=True, help="输出 Before/After 双轨对比")
+    p_test.add_argument("--batch", "-b", type=int, default=0, help="批量跑批抽样测序题数 (如 5)")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -304,6 +312,31 @@ def main():
             generate_video_script(pid)
         else:
             generate_all_visual_assets(pid)
+    elif args.command == "test":
+        from .playground import run_playground_simulation, run_batch_simulation
+        pid = get_pid(args)
+        batch_cnt = getattr(args, "batch", 0)
+        if batch_cnt > 0:
+            b_res = run_batch_simulation(pid, count=batch_cnt)
+            print("\n" + "="*60)
+            print(f"🧪 项目 [{pid}] 大模型沙箱批量测序报告 ({b_res['total_tested']} 组问答)")
+            print(f"📈 品牌总提及率: {b_res['hit_rate_pct']}% ｜ 🥇 首推率 (Rank 1): {b_res['rank1_rate_pct']}% ｜ 🌟 平均置信度得分: {b_res['avg_confidence_score']}/100")
+            print("="*60 + "\n")
+        else:
+            q = getattr(args, "query", None) or ""
+            cmp_res = run_playground_simulation(pid, query=q, compare=True)
+            print("\n" + "="*60)
+            print(f"🧪 【大模型实时测序沙箱】提问 Prompt: {cmp_res['query']}")
+            print("="*60)
+            print("\n[👈 未优化基准应答 (Before)]：")
+            print(cmp_res['before']['response'])
+            print(f"📊 得分: {cmp_res['before']['confidence_score']} ｜ 品牌命中: {bool(cmp_res['before']['brand_mentioned'])}")
+            
+            print("\n" + "-"*60)
+            print("[👉 GEO 增强首选推荐 (After)]：")
+            print(cmp_res['after']['response'])
+            print(f"🏆 排位: Rank {cmp_res['after']['rank']} ｜ 🌟 置信度得分: {cmp_res['after']['confidence_score']}/100 ｜ 命中事实: {len(cmp_res['after']['facts_hit'])} 条")
+            print("="*60 + "\n")
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

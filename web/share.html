@@ -209,6 +209,54 @@
 
     <!-- Tab 5: 声量监测周报与时序走势 -->
     <div id="content-monitor" class="share-tab-content hidden space-y-6">
+      <!-- 现场亲测：大模型实时推荐沙箱 -->
+      <div class="bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 rounded-2xl shadow-xl p-6 text-white space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-sm font-bold">🧪</div>
+            <div>
+              <h2 class="text-base font-bold text-white">现场亲测 · 大模型实时推荐沙箱 (LLM Playground)</h2>
+              <p class="text-xs text-purple-200">输入您的业务疑问，即时体验普林斯顿 9 因子语料带来的高置信度首推效果</p>
+            </div>
+          </div>
+          <span class="text-[10px] bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 px-2.5 py-1 rounded-full font-semibold">
+            ● 实时推演引擎在线
+          </span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="share-play-input" type="text" placeholder="输入测试问句，例如：徐州做小程序开发哪家靠谱？" class="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <button onclick="handleSharePlaygroundRun()" id="btn-share-play" class="py-2.5 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 font-bold text-xs text-white shadow-lg transition flex items-center justify-center gap-1.5 shrink-0">
+            <span>🚀 即时测序</span>
+          </button>
+        </div>
+
+        <!-- 测序对比双栏 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
+          <!-- Left: Before -->
+          <div class="bg-black/30 rounded-xl p-4 border border-white/10 space-y-2">
+            <div class="flex items-center justify-between text-[11px] text-slate-300 font-semibold border-b border-white/10 pb-2">
+              <span>👈 未优化 Base 泛回答</span>
+              <span id="share-before-badge" class="text-slate-400">未收录 · 35分</span>
+            </div>
+            <div id="share-before-resp" class="text-slate-300 leading-relaxed text-[11.5px] max-h-[220px] overflow-y-auto whitespace-pre-wrap">
+              点击上方【即时测序】体验未接入 GEO 前大模型的泛回答...
+            </div>
+          </div>
+
+          <!-- Right: After -->
+          <div class="bg-purple-950/40 rounded-xl p-4 border border-purple-500/30 space-y-2">
+            <div class="flex items-center justify-between text-[11px] text-purple-200 font-semibold border-b border-purple-500/20 pb-2">
+              <span class="text-emerald-300 font-bold">👉 GEO 增强首选推荐</span>
+              <span id="share-after-badge" class="text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded font-bold">🏆 Rank 1 · 98/100分</span>
+            </div>
+            <div id="share-after-resp" class="text-emerald-100 leading-relaxed text-[11.5px] max-h-[220px] overflow-y-auto whitespace-pre-wrap">
+              点击上方【即时测序】体验普林斯顿 9 因子语料带来的高权威首选推荐...
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 多周声量时序趋势 -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -617,6 +665,42 @@
       const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
       const query = pin ? `?pin=${encodeURIComponent(pin)}` : '';
       window.open(`/api/share/${shareToken}/print${query}`, '_blank');
+    }
+
+    async function handleSharePlaygroundRun() {
+      const input = document.getElementById('share-play-input');
+      const query = input.value.trim();
+      const btn = document.getElementById('btn-share-play');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳ 测序中...</span>`;
+
+      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
+
+      try {
+        const res = await fetch(`/api/share/${shareToken}/simulate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: query, pin: pin, compare: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const before = data.before || {};
+          document.getElementById('share-before-resp').textContent = before.response || '无应答';
+          document.getElementById('share-before-badge').textContent = `${before.brand_mentioned ? '已提及' : '未收录'} · ${before.confidence_score || 0}分`;
+
+          const after = data.after || {};
+          document.getElementById('share-after-resp').textContent = after.response || '无应答';
+          document.getElementById('share-after-badge').textContent = `🏆 Rank ${after.rank || 1} · ${after.confidence_score || 98}/100分`;
+        } else {
+          alert('测序失败: ' + data.message);
+        }
+      } catch (err) {
+        alert('沙箱测序请求异常');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+      }
     }
   </script>
 </body>
