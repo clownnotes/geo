@@ -256,16 +256,17 @@ def generate_acceptance_report(project_id: str) -> dict:
     }
 
 def get_acceptance_data(project_id: str) -> dict:
-    """获取结案验收结构化数据（只读，不重复写入结案单文件）"""
+    """获取结案验收结构化数据（若文件不存在则自动生成）"""
     p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     report_filename = "00_GEO商业交付验收结案确认单.md"
     report_path = os.path.join(p_dir, report_filename)
+    if not os.path.exists(report_path) or os.path.getsize(report_path) == 0:
+        return generate_acceptance_report(project_id)
+
     fulfillment = calculate_fulfillment_score(project_id)
     roi_data = calculate_project_roi(project_id)
-    content = ""
-    if os.path.exists(report_path):
-        with open(report_path, "r", encoding="utf-8") as f:
-            content = f.read()
+    with open(report_path, "r", encoding="utf-8") as f:
+        content = f.read()
     return {
         "success": True,
         "project_id": project_id,
@@ -273,7 +274,7 @@ def get_acceptance_data(project_id: str) -> dict:
         "fulfillment": fulfillment,
         "roi": roi_data,
         "content": content,
-        "report_exists": bool(content)
+        "report_exists": True
     }
 
 def export_project_archive_zip(project_id: str) -> str:
