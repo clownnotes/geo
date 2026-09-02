@@ -538,6 +538,25 @@
           </div>
         </div>
 
+        </div>
+
+        <!-- 头条极速发稿中心 -->
+        <div class="bg-gradient-to-r from-red-50 to-orange-50 p-5 rounded-xl border border-red-200 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-red-900">📰 头条极速发稿中心（豆包第一主战 50%+）</h3>
+              <p class="text-xs text-red-700/80 mt-1">从普林斯顿 9 因子语料编译富文本 HTML，10 秒粘贴至 mp.toutiao.com 后台，表格与导读卡片保真。</p>
+            </div>
+            <span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white/80 px-2 py-1 rounded-full border border-red-100">待发稿包</span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-[10px] text-red-800">
+            <div class="bg-white/70 rounded-lg p-2 border border-red-100">01 富文本长文 HTML</div>
+            <div class="bg-white/70 rounded-lg p-2 border border-red-100">02 微头条 ×3（约150字）</div>
+            <div class="bg-white/70 rounded-lg p-2 border border-red-100">03 SEO 自检清单</div>
+            <div class="bg-white/70 rounded-lg p-2 border border-red-100">assets 配图同步</div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <!-- 头条 -->
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
@@ -549,9 +568,21 @@
               <p class="text-xs text-slate-500 mb-4">攻占字节跳动 Bytespider 检索信任池，附微头条短动态，24h 内快速收录。</p>
             </div>
             <div class="space-y-2">
-              <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+              <button onclick="buildToutiaoPack()" class="w-full py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-red-200">
+                <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                <span>生成头条发稿包</span>
+              </button>
+              <button onclick="copyToutiaoRichHtml()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+                <span>一键复制富文本长文</span>
+              </button>
+              <button onclick="copyToutiaoMicroPosts()" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                <span>复制头条发布稿</span>
+                <span>复制微头条 3 组文案</span>
+              </button>
+              <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-200">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>复制 Markdown 分发稿</span>
               </button>
               <a href="https://mp.toutiao.com/" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
                 <span>直达头条号后台</span>
@@ -4664,6 +4695,64 @@
         }
       } catch (e) {
         showToast('复制失败', 'error');
+      }
+    }
+
+    async function buildToutiaoPack() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/toutiao/build`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const chars = data.article_char_count || '—';
+          document.getElementById('toutiao-pack-status').textContent = `已生成 · 约${chars}字`;
+          showToast('头条发稿包已生成至 outputs/toutiao_pack/');
+        } else {
+          showToast(data.message || '生成失败', 'error');
+        }
+      } catch (e) {
+        showToast('生成头条发稿包失败', 'error');
+      }
+    }
+
+    async function copyToutiaoRichHtml() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/toutiao/copy`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.clipboard_html) {
+          const htmlBlob = new Blob([data.clipboard_html], { type: 'text/html' });
+          const textBlob = new Blob([data.plain_text || ''], { type: 'text/plain' });
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
+          ]);
+          showToast(`富文本长文已复制（约 ${data.char_count || '—'} 字，来源 9 因子语料）`);
+        } else {
+          showToast(data.message || '复制失败，请先生成发稿包', 'error');
+        }
+      } catch (e) {
+        showToast('富文本复制失败，请检查浏览器剪贴板权限', 'error');
+      }
+    }
+
+    async function copyToutiaoMicroPosts() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/toutiao/micro`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.data && data.data.posts) {
+          const text = data.data.posts.map((p, i) => `【${i + 1}】${p.title} (${p.char_count}字)\n${p.content}`).join('\n\n---\n\n');
+          await navigator.clipboard.writeText(text);
+          showToast('3 组微头条文案已复制到剪贴板！');
+        } else {
+          showToast('暂无微头条文案', 'error');
+        }
+      } catch (e) {
+        showToast('复制微头条失败', 'error');
       }
     }
 

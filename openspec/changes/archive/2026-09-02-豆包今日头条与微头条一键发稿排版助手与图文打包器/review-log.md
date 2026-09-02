@@ -40,3 +40,43 @@
      - 对 `xuzhou_xuanyuan`、`b2b_machinery`、`retail_catering`、`local_legal` 全量执行 `geo publish` 全部成功。
 - **状态结论**：`[已达成共识]`，提请跨 IDE 联机对抗审查（`/opsx-review`）。
 
+---
+
+### 2026-09-02 Cursor [独立跨 IDE 对抗审查 · commit `e902406`] [需修正]
+
+- **阶段**：Implementation & Cross-IDE Review
+
+#### 🔴 P0 — 阻断归档
+
+1. **未编译 `03_普林斯顿9因子高权威语料库.md`**：`build_toutiao_article_html` 仅从 `project.yaml` 模板生成，与 proposal/tasks「将 9 因子语料转换」不符。
+2. **微头条字数超标**：3 组文案实测 270/183/206 字，非承诺的约 150 字。
+3. **Web 发稿中心缺失**：proposal 要求 Web「头条极速发稿中心」与一键复制富文本；`web/index.html` 未集成，tasks 2.2「一键复制富文本接口」仅有 preview JSON。
+
+#### 🟡 P1
+
+4. 长文文件名写「2000字」但纯文本约 1671 字（未读语料全文）。
+5. `assets/` 目录在无 SVG 时为空。
+
+- **状态结论**：`[需修正]`
+
+---
+
+### 2026-09-02 Cursor [P0/P1 修复复审] [通过]
+
+- **阶段**：Fix Verification（对照未提交修复：publisher.py / server.py / web/index.html）
+
+| 审查项 | 结论 |
+|:---|:---|
+| 9 因子语料编译 | ✅ 读取 `03_普林斯顿9因子高权威语料库.md`，解析结论/对比表/业务块/Q&A |
+| 微头条约 150 字 | ✅ b2b 实测 97~128 字/组（含话题标签，符合「约150字」） |
+| `/toutiao/copy` 富文本复制 API | ✅ 返回 `clipboard_html` + `plain_text` |
+| Web 头条极速发稿中心 | ✅ Step 4 新增发稿包生成/富文本复制/微头条复制按钮 |
+| 四项目 `geo publish` | ✅ xuzhou + 3 行业母版均成功 |
+
+#### 🟡 P1 残余（不阻断）
+
+- 长文纯文本约 1700 字，未达 2000 字文件名暗示（已补充语料段落，可下轮扩写）。
+- `assets/` 仍依赖项目是否已有 SVG 对比图。
+
+- **状态结论**：`[通过]` — 可进入 `./opsx archive` 归档。
+

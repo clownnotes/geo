@@ -1329,6 +1329,17 @@ core_values:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
+            # 一键复制富文本接口: /api/projects/{id}/toutiao/copy
+            if path.startswith("/api/projects/") and path.endswith("/toutiao/copy"):
+                project_id = path.split("/")[3]
+                from .publisher import get_toutiao_rich_html_for_clipboard
+                try:
+                    res = get_toutiao_rich_html_for_clipboard(project_id)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
             # 获取微头条 150 字三维短动态接口: /api/projects/{id}/toutiao/micro
             if path.startswith("/api/projects/") and path.endswith("/toutiao/micro"):
                 project_id = path.split("/")[3]
