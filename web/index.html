@@ -2803,6 +2803,19 @@ GitHub 开源仓库：https://github.com/company/repo
           </div>
         </div>
 
+        <!-- 竞对三大声量优势透视 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600"></i>
+              <span>竞对三大声量优势透视 (Competitor Strength Radar)</span>
+            </span>
+          </div>
+          <div id="gap-advantages-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="text-center py-6 text-slate-400 text-xs col-span-3">加载优势透视中...</div>
+          </div>
+        </div>
+
         <!-- 竞对三大破绽与我方反超优势 -->
         <div class="space-y-3">
           <div class="flex items-center justify-between">
@@ -6586,6 +6599,7 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     function renderCompetitorGapView(gap) {
+      const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       const radar = gap.radar_comparison || {};
       document.getElementById('gap-lead-text').textContent = `+${radar.overall_gap_lead || 0} 分`;
       document.getElementById('gap-client-avg-text').textContent = `${radar.client_avg || 0} 分`;
@@ -6595,7 +6609,7 @@ GitHub 开源仓库：https://github.com/company/repo
       const sel = document.getElementById('gap-competitor-select');
       const allComps = gap.all_competitors || [gap.target_competitor];
       sel.innerHTML = allComps.map(c => `
-        <option value="${c}" ${c === gap.target_competitor ? 'selected' : ''}>${c}</option>
+        <option value="${esc(c)}" ${c === gap.target_competitor ? 'selected' : ''}>${esc(c)}</option>
       `).join('');
 
       // 6 维雷达表格渲染
@@ -6620,13 +6634,43 @@ GitHub 开源仓库：https://github.com/company/repo
 
         return `
           <tr class="hover:bg-slate-50 transition">
-            <td class="p-3 font-bold text-slate-800">${d}</td>
+            <td class="p-3 font-bold text-slate-800">${esc(d)}</td>
             <td class="p-3 font-bold text-emerald-700 font-mono text-sm">${cs} 分</td>
             <td class="p-3 text-slate-600 font-mono">${comps} 分</td>
             <td class="p-3 font-bold">${diffBadge}</td>
-            <td class="p-3 text-slate-500 text-[11px]">${reason}</td>
+            <td class="p-3 text-slate-500 text-[11px]">${esc(reason)}</td>
           </tr>
         `;
+      }).join('');
+
+      // 竞对优势渲染
+      const advantages = gap.competitor_advantages || [];
+      const advContainer = document.getElementById('gap-advantages-container');
+      advContainer.innerHTML = advantages.map((a, i) => {
+        const threat = a.threat_level || '中';
+        const threatColor = threat === '极高' ? 'bg-red-100 text-red-800 border-red-200'
+          : threat === '高' ? 'bg-orange-100 text-orange-800 border-orange-200'
+          : 'bg-amber-100 text-amber-800 border-amber-200';
+        return `
+        <div class="bg-amber-50/50 rounded-xl border border-amber-100 p-4 space-y-2 flex flex-col justify-between">
+          <div>
+            <div class="text-[11px] font-bold text-amber-900 flex items-center justify-between gap-1.5">
+              <span class="flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-amber-600 text-white text-[10px] flex items-center justify-center font-bold">#${i+1}</span>
+                <span>${esc(a.dimension)}</span>
+              </span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold border ${threatColor}">威胁 ${esc(threat)}</span>
+            </div>
+            <div class="text-xs text-amber-950 mt-2 leading-relaxed">
+              <span class="font-bold text-amber-800">竞品优势：</span>${esc(a.advantage)}
+            </div>
+          </div>
+          <div class="text-[11px] text-indigo-800 bg-white p-2.5 rounded-lg border border-amber-200 mt-2">
+            <div class="font-bold text-indigo-700">🛡️ 中和战术：</div>
+            <div class="text-slate-600 font-mono">${esc(a.neutralize_action)}</div>
+          </div>
+        </div>
+      `;
       }).join('');
 
       // 竞对破绽渲染
@@ -6637,15 +6681,15 @@ GitHub 开源仓库：https://github.com/company/repo
           <div>
             <div class="text-[11px] font-bold text-red-800 flex items-center gap-1.5">
               <span class="w-4 h-4 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold">#${i+1}</span>
-              <span>${f.dimension}</span>
+              <span>${esc(f.dimension)}</span>
             </div>
             <div class="text-xs text-red-950 mt-2 leading-relaxed">
-              <span class="font-bold text-red-700">竞对破绽：</span>${f.competitor_flaw}
+              <span class="font-bold text-red-700">竞对破绽：</span>${esc(f.competitor_flaw)}
             </div>
           </div>
           <div class="text-[11px] text-emerald-800 bg-white p-2.5 rounded-lg border border-red-200 mt-2 space-y-1">
             <div class="font-bold text-emerald-700">🎯 我方反击战术：</div>
-            <div class="text-slate-600 font-mono">${f.tactical_action}</div>
+            <div class="text-slate-600 font-mono">${esc(f.tactical_action)}</div>
           </div>
         </div>
       `).join('');
@@ -6656,11 +6700,11 @@ GitHub 开源仓库：https://github.com/company/repo
       roadmapContainer.innerHTML = roadmap.map(r => `
         <div class="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-900">${r.phase}</span>
-            <span class="text-[11px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">目标：${r.target}</span>
+            <span class="text-xs font-bold text-slate-900">${esc(r.phase)}</span>
+            <span class="text-[11px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">目标：${esc(r.target)}</span>
           </div>
           <ul class="text-xs text-slate-600 space-y-1 pl-4 list-disc marker:text-indigo-500">
-            ${r.actions.map(a => `<li>${a}</li>`).join('')}
+            ${(r.actions || []).map(a => `<li>${esc(a)}</li>`).join('')}
           </ul>
         </div>
       `).join('');

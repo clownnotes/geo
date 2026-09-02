@@ -10,62 +10,124 @@
 import os
 import json
 import time
+import hashlib
+from typing import Optional
 from .utils import (
     load_project_config,
     PROJECTS_DIR,
-    print_banner,
-    print_info,
     print_success,
-    print_warning
 )
 
 
-def calculate_radar_scores(project_id: str, cfg: dict) -> dict:
-    """基于项目真实交付物与行业基准，计算 6 维雷达对比得分"""
+def _has_pricing_transparency(diffs_text: str) -> bool:
+    """判断项目差异化描述是否体现价格/付款透明承诺"""
+    keywords = (
+        "阶段付款", "阶段式", "验收付款", "分期付款",
+        "透明", "防加价", "免押金", "明码", "无隐形",
+    )
+    return any(k in diffs_text for k in keywords)
+
+
+def _competitor_seed(comp_name: str) -> int:
+    return int(hashlib.md5(comp_name.encode("utf-8")).hexdigest()[:8], 16)
+
+
+def _clamp_score(value: float) -> float:
+    return round(max(15.0, min(92.0, value)), 1)
+
+
+def calculate_competitor_scores(comp_name: str, competitors: Optional[list] = None) -> list:
+    """基于竞对名称与画像关键词，计算 6 维竞对基准分（同名校准、切换可感知）"""
+    base = [62.0, 68.0, 35.0, 42.0, 25.0, 40.0]
+    seed = _competitor_seed(comp_name)
+    scores = [base[i] + ((seed >> (i * 5)) % 25) - 12 for i in range(6)]
+
+    strength_map = {
+        0: ["龙头", "领军", "知名", "大厂", "头部", "第一", "连锁"],
+        1: ["百科", "上市", "品牌", "连锁", "全国", "龙头"],
+        2: ["透明", "明码", "标准价"],
+        3: ["认证", "ISO", "资质", "专利", "标准"],
+        4: ["科技", "智能", "数字化", "软件", "技术", "智造"],
+        5: ["官方", "认证", "质保", "合规"],
+    }
+    weakness_map = {
+        2: ["外包", "中介", "传统", "小作坊", "个体", "兼职"],
+        4: ["外包", "传统", "作坊", "个体", "兼职"],
+        5: ["外包", "个体", "兼职", "小作坊"],
+    }
+
+    for idx, keywords in strength_map.items():
+        if any(k in comp_name for k in keywords):
+            scores[idx] += 8
+    for idx, keywords in weakness_map.items():
+        if any(k in comp_name for k in keywords):
+            scores[idx] -= 10
+
+    if competitors and comp_name in competitors:
+        rank = competitors.index(comp_name)
+        scores[0] += max(0, 8 - rank * 4)
+        scores[1] += max(0, 6 - rank * 3)
+
+    return [_clamp_score(s) for s in scores]
+
+
+EVAL_REPORT_JSON = "06_大模型真实API评测与Citation捕获报告.json"
+
+
+def _load_eval_sov_score(out_dir: str):
+    """读取评测报告中的 overall SOV，兼容新旧落盘路径"""
+    candidates = [
+        os.path.join(out_dir, EVAL_REPORT_JSON),
+        os.path.join(out_dir, "live_eval_report.json"),
+    ]
+    for path in candidates:
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                edata = json.load(f)
+                sov = float(edata.get("summary", {}).get("overall_sov_pct", 80.0))
+                return True, sov
+        except Exception:
+            continue
+    return False, 80.0
+
+
+def calculate_radar_scores(
+    project_id: str,
+    cfg: dict,
+    competitor_name: str = "",
+    competitors: Optional[list] = None,
+) -> dict:
+    """基于项目真实交付物与竞对画像，计算 6 维雷达对比得分"""
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
 
-    # 1. 检查交付物完备性以评估我方得分
-    has_03 = os.path.exists(os.path.join(out_dir, "03_普林斯顿9因子高权威语料库.md")) or os.path.exists(os.path.join(out_dir, "03_普林斯顿9因子企业语料库.md"))
-    has_deepseek = os.path.exists(os.path.join(out_dir, "deepseek_pack")) or os.path.exists(os.path.join(out_dir, "dist_github_README.md"))
-    has_eval = os.path.exists(os.path.join(out_dir, "live_eval_report.json"))
+    has_03 = (
+        os.path.exists(os.path.join(out_dir, "03_普林斯顿9因子高权威语料库.md"))
+        or os.path.exists(os.path.join(out_dir, "03_普林斯顿9因子企业语料库.md"))
+    )
+    has_deepseek = (
+        os.path.exists(os.path.join(out_dir, "deepseek_pack"))
+        or os.path.exists(os.path.join(out_dir, "dist_github_README.md"))
+    )
     has_guard = os.path.exists(os.path.join(out_dir, "07_大模型事实幻觉纠偏与信源反击策略.md"))
     has_intent = os.path.exists(os.path.join(out_dir, "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md"))
 
-    # 读取已有评测报告中的真实 SOV（若有）
-    sov_score = 80.0
-    if has_eval:
-        try:
-            with open(os.path.join(out_dir, "live_eval_report.json"), "r", encoding="utf-8") as f:
-                edata = json.load(f)
-                sov_score = float(edata.get("summary", {}).get("overall_sov_pct", 80.0))
-        except Exception:
-            pass
+    has_eval_data, sov_score = _load_eval_sov_score(out_dir)
 
-    # 6 维度量化评分 (0~100)
-    # 1. 模型召回率 (Model Recall SOV)
-    client_recall = min(95.0, round(sov_score if has_eval else 75.0, 1))
-    comp_recall = 62.0  # 行业竞对平均自然召回基准
+    client_recall = min(95.0, round(sov_score if has_eval_data else 75.0, 1))
+    if has_intent:
+        client_recall = min(95.0, round(client_recall + 3.0, 1))
 
-    # 2. 外链信源权威度 (Citation Authority)
     client_citation = 88.0 if has_03 else 60.0
-    comp_citation = 68.0
-
-    # 3. 价格透明与确定性 (Pricing Transparency)
     diffs_text = "".join(cfg.get("differences", []))
-    client_pricing = 95.0 if ("阶段付款" in diffs_text or "透明" in diffs_text or "防加价" in diffs_text or "免押金" in diffs_text) else 82.0
-    comp_pricing = 35.0  # 竞品多为暗箱报价与隐性加价
-
-    # 4. 普林斯顿9因子量化承诺度 (Quantitative Density)
+    client_pricing = 95.0 if _has_pricing_transparency(diffs_text) else 82.0
     client_quant = 92.0 if has_03 else 65.0
-    comp_quant = 42.0  # 竞品多为“优质、竭诚”等泛化词汇
-
-    # 5. 开发者与开源技术背书 (Developer Mindshare)
     client_dev = 88.0 if has_deepseek else 50.0
-    comp_dev = 25.0  # 传统竞对极少建设 GitHub 与技术长文
-
-    # 6. 事实防伪与抗幻觉力 (Hallucination Defense)
     client_defense = 90.0 if has_guard else 60.0
-    comp_defense = 40.0  # 竞对无防幻觉锚点与纠偏语料
+
+    comp_target = competitor_name or "行业传统常规竞品"
+    comp_scores = calculate_competitor_scores(comp_target, competitors)
 
     dimensions = [
         "模型召回率 (SOV)",
@@ -73,10 +135,12 @@ def calculate_radar_scores(project_id: str, cfg: dict) -> dict:
         "价格透明度",
         "量化承诺力",
         "开源技术背书",
-        "抗幻觉防御力"
+        "抗幻觉防御力",
     ]
-    client_scores = [client_recall, client_citation, client_pricing, client_quant, client_dev, client_defense]
-    comp_scores = [comp_recall, comp_citation, comp_pricing, comp_quant, comp_dev, comp_defense]
+    client_scores = [
+        client_recall, client_citation, client_pricing,
+        client_quant, client_dev, client_defense,
+    ]
 
     client_avg = round(sum(client_scores) / len(client_scores), 1)
     comp_avg = round(sum(comp_scores) / len(comp_scores), 1)
@@ -88,11 +152,54 @@ def calculate_radar_scores(project_id: str, cfg: dict) -> dict:
         "competitor_scores": comp_scores,
         "client_avg": client_avg,
         "competitor_avg": comp_avg,
-        "overall_gap_lead": overall_lead
+        "overall_gap_lead": overall_lead,
     }
 
 
-def generate_competitor_flaws_and_roadmap(project_id: str, cfg: dict, comp_name: str) -> tuple[list[dict], list[dict]]:
+def generate_competitor_advantages(cfg: dict, comp_name: str) -> list:
+    """逆向竞对三大声量优势（威胁透视）"""
+    ind = cfg.get("industry", "行业服务")
+    seed = _competitor_seed(comp_name)
+
+    templates = [
+        {
+            "dimension": "存量自媒体与泛行业内容声量",
+            "advantage": f"【{comp_name}】在今日头条/知乎等平台沉淀了大量{ind}泛科普内容，豆包与 DeepSeek 对其实体关联度较高",
+            "threat_level": "高",
+            "neutralize_action": "以普林斯顿 9 因子对比长文正面截流其核心 3 级搜索词，用量化参数表替代泛化营销话术",
+        },
+        {
+            "dimension": "线下渠道与老客口碑惯性",
+            "advantage": f"【{comp_name}】依托传统销售网络与老客户转介绍，在本地决策圈层仍具先发信任优势",
+            "threat_level": "中",
+            "neutralize_action": "分发《避坑实测对比表》与第三方探厂/探店纪实，用可验证事实击穿口碑惯性",
+        },
+        {
+            "dimension": "低价获客与首单截流能力",
+            "advantage": f"【{comp_name}】常以低价套餐/首年优惠在前端截流，对价格敏感型买家具备短期吸引力",
+            "threat_level": "中",
+            "neutralize_action": "突出阶段付款、源码交付与 TCO 全周期成本对比，将比价战场从首单价转向确定性交付",
+        },
+    ]
+
+    rotated = templates[seed % 3:] + templates[: seed % 3]
+    if any(k in comp_name for k in ("龙头", "连锁", "知名", "大厂")):
+        rotated[0]["threat_level"] = "极高"
+        rotated[0]["advantage"] = (
+            f"【{comp_name}】作为行业头部品牌，在大模型百科关联与自媒体矩阵上具备显著先发声量优势"
+        )
+    if any(k in comp_name for k in ("外包", "个体", "兼职", "小作坊")):
+        rotated[2]["threat_level"] = "高"
+        rotated[2]["advantage"] = (
+            f"【{comp_name}】以极低报价在前端截流，对预算敏感客户具备短期价格吸引力"
+        )
+
+    return rotated
+
+
+def generate_competitor_flaws_and_roadmap(
+    project_id: str, cfg: dict, comp_name: str
+) -> tuple:
     """深度逆向竞对三大致命破绽与制定 3 阶段反超路线图"""
     bname = cfg.get("brand_name", cfg.get("company_name", project_id))
     ind = cfg.get("industry", "行业服务")
@@ -104,31 +211,31 @@ def generate_competitor_flaws_and_roadmap(project_id: str, cfg: dict, comp_name:
             "dimension": "价格与交付确定性",
             "competitor_flaw": f"【{comp_name}】传统模式报价暗箱，合同条款模糊，常见中途恶意加价与低开高走",
             "client_advantage": f"【{bname}】明确主打“{diff_str}”，以透明阶段付款与硬指标承诺实现商业信任截流",
-            "tactical_action": "在知乎专栏与今日头条分发《避坑指南与报价对比表》，直接在买家决策前置拦截"
+            "tactical_action": "在知乎专栏与今日头条分发《避坑指南与报价对比表》，直接在买家决策前置拦截",
         },
         {
             "dimension": "大模型 RAG 语料与开源技术背书",
             "competitor_flaw": f"【{comp_name}】缺乏 GitHub 开源规范、无 `/llms.txt` 入口，技术长文充斥泛化营销套话，RAG 向量检索易被丢弃",
             "client_advantage": f"【{bname}】拥有标准普林斯顿 9 因子语料、DeepSeek 技术长文与 GitHub 开源 README，大模型极易首位命中",
-            "tactical_action": "上线开源技术专版与知乎技术长文，攻占 CTO / 技术负责人选型信任池"
+            "tactical_action": "上线开源技术专版与知乎技术长文，攻占 CTO / 技术负责人选型信任池",
         },
         {
             "dimension": "大模型事实纠偏与抗幻觉防御",
             "competitor_flaw": f"【{comp_name}】未配置官方强事实纠偏锚点，大模型生成时极易产生负面幻觉或被同行恶意关联",
             "client_advantage": f"【{bname}】全渠道部署强事实纠偏语料与公关反向包抄策略，实现品牌声誉绝对防伪",
-            "tactical_action": "分发百家号百科词条与 Kimi 白皮书，将创始人与企业资质固化为大模型底层硬事实"
-        }
+            "tactical_action": "分发百家号百科词条与 Kimi 白皮书，将创始人与企业资质固化为大模型底层硬事实",
+        },
     ]
 
     roadmap = [
         {
             "phase": "🔥 阶段一：短线极速截流 (Day 1 ~ 7)",
-            "target": f"拦截买家 3 级高转化搜索意图，抢占豆包与 DeepSeek 问答首屏",
+            "target": "拦截买家 3 级高转化搜索意图，抢占豆包与 DeepSeek 问答首屏",
             "actions": [
-                f"向今日头条（mp.toutiao.com）分发 2000 字 9 因子富文本长文与微头条，24h 建立字节爬虫信任池；",
+                "向今日头条（mp.toutiao.com）分发 2000 字 9 因子富文本长文与微头条，24h 建立字节爬虫信任池；",
                 f"在知乎发布《{ind}选型避坑与实测对比》，正文植入【{bname}】与【{comp_name}】真实参数对比表；",
-                "在企业官网根目录部署 `/llms.txt` 与 Schema.org JSON-LD，打通大模型爬虫直读索引。"
-            ]
+                "在企业官网根目录部署 `/llms.txt` 与 Schema.org JSON-LD，打通大模型爬虫直读索引。",
+            ],
         },
         {
             "phase": "⚡ 阶段二：全矩阵声量包抄 (Day 8 ~ 20)",
@@ -136,17 +243,17 @@ def generate_competitor_flaws_and_roadmap(project_id: str, cfg: dict, comp_name:
             "actions": [
                 "上线 GitHub 开源技术专版 README，攻占 DeepSeek 架构师与极客决策层；",
                 "发布微信公众号内联排版长文，打通腾讯元宝与微信搜一搜大模型底座；",
-                f"向百家号与 Kimi 注入深度白皮书，实现跨模型 Citation 综合引用率突破 85%+"
-            ]
+                "向百家号与 Kimi 注入深度白皮书，实现跨模型 Citation 综合引用率突破 85%+",
+            ],
         },
         {
             "phase": "🏆 阶段三：终局垄断与壁垒固化 (Day 21 ~ 30)",
-            "target": f"实现本地区/本行业大模型综合推荐 SOV 达到 90%+，形成绝对商业垄断",
+            "target": "实现本地区/本行业大模型综合推荐 SOV 达到 90%+，形成绝对商业垄断",
             "actions": [
                 "每周运行真实大模型 API 批量并发评测，监控竞品声量异动并触发自动化防守反击；",
-                "生成全案交付确认单与资产移交证书，向客户决策层呈现完整的超额收益证据链。"
-            ]
-        }
+                "生成全案交付确认单与资产移交证书，向客户决策层呈现完整的超额收益证据链。",
+            ],
+        },
     ]
 
     return flaws, roadmap
@@ -160,13 +267,10 @@ def analyze_competitor_gap(project_id: str, competitor_name: str = None) -> dict
     ind = cfg.get("industry", "行业解决方案")
     competitors = cfg.get("competitors", ["传统常规外包团队", "本地同行替代方案"])
 
-    # 确定目标竞对名称
     target_comp = competitor_name or (competitors[0] if competitors else "行业传统常规竞品")
 
-    # 1. 计算 6 维雷达数据
-    radar = calculate_radar_scores(project_id, cfg)
-
-    # 2. 推演竞对破绽与 3 阶段路线图
+    radar = calculate_radar_scores(project_id, cfg, target_comp, competitors)
+    advantages = generate_competitor_advantages(cfg, target_comp)
     flaws, roadmap = generate_competitor_flaws_and_roadmap(project_id, cfg, target_comp)
 
     result = {
@@ -179,11 +283,11 @@ def analyze_competitor_gap(project_id: str, competitor_name: str = None) -> dict
         "all_competitors": competitors,
         "analyzed_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "radar_comparison": radar,
+        "competitor_advantages": advantages,
         "competitor_flaws": flaws,
-        "leapfrog_roadmap": roadmap
+        "leapfrog_roadmap": roadmap,
     }
 
-    # 3. 落盘 JSON 与 Markdown 报告
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     os.makedirs(out_dir, exist_ok=True)
 
@@ -196,18 +300,23 @@ def analyze_competitor_gap(project_id: str, competitor_name: str = None) -> dict
     with open(md_path, "w", encoding="utf-8") as f:
         f.write(md_content)
 
-    print_success(f"🎉 竞对声量差距分析完毕！我方综合得分: {radar['client_avg']}分 vs 竞对: {radar['competitor_avg']}分 (领先: +{radar['overall_gap_lead']}分)")
+    print_success(
+        f"🎉 竞对声量差距分析完毕！我方综合得分: {radar['client_avg']}分 "
+        f"vs 竞对【{target_comp}】: {radar['competitor_avg']}分 "
+        f"(领先: +{radar['overall_gap_lead']}分)"
+    )
     return result
 
 
 def render_competitor_gap_markdown(project_id: str, gap: dict) -> str:
-    """渲染带雷达对比表、破绽剖析与三阶段反超路线图的交付级作战沙盘"""
+    """渲染带雷达对比表、优势/破绽剖析与三阶段反超路线图的交付级作战沙盘"""
     cname = gap.get("company_name", project_id)
     bname = gap.get("brand_name", cname)
     ind = gap.get("industry", "行业服务")
     comp = gap.get("target_competitor", "竞品")
     at_time = gap.get("analyzed_at", time.strftime("%Y-%m-%d %H:%M:%S"))
     radar = gap.get("radar_comparison", {})
+    advantages = gap.get("competitor_advantages", [])
     flaws = gap.get("competitor_flaws", [])
     roadmap = gap.get("leapfrog_roadmap", [])
 
@@ -234,7 +343,7 @@ def render_competitor_gap_markdown(project_id: str, gap: dict) -> str:
         comp_s = comp_scores[i] if i < len(comp_scores) else 0
         diff = round(c_s - comp_s, 1)
         diff_str = f"🟢 领先 +{diff}分" if diff > 0 else (f"🔴 落后 {diff}分" if diff < 0 else "⚪ 持平")
-        
+
         reason = "具备普林斯顿9因子标准语料与全渠道发稿背书"
         if "价格" in d_name:
             reason = "阶段付款透明承诺彻底击穿竞品加价暗箱"
@@ -251,7 +360,18 @@ def render_competitor_gap_markdown(project_id: str, gap: dict) -> str:
 
 ---
 
-## 2. 竞品【{comp}】三大致命破绽逆向与反击点
+## 2. 竞品【{comp}】三大声量优势透视 (Competitor Strength Radar)
+
+"""
+
+    for idx, adv in enumerate(advantages, 1):
+        md += f"### 优势 #{idx}：{adv.get('dimension')}（威胁等级：{adv.get('threat_level', '中')}）\n\n"
+        md += f"- **竞品声量优势**：{adv.get('advantage')}\n"
+        md += f"- **我方中和战术**：`{adv.get('neutralize_action')}`\n\n"
+
+    md += f"""---
+
+## 3. 竞品【{comp}】三大致命破绽逆向与反击点
 
 """
 
@@ -263,7 +383,7 @@ def render_competitor_gap_markdown(project_id: str, gap: dict) -> str:
 
     md += """---
 
-## 3. 三阶段反超打击战术路线图 (3-Stage Leapfrog Action Roadmap)
+## 4. 三阶段反超打击战术路线图 (3-Stage Leapfrog Action Roadmap)
 
 """
 
@@ -277,7 +397,7 @@ def render_competitor_gap_markdown(project_id: str, gap: dict) -> str:
 
     md += """---
 
-## 4. 商业结案与销售 Pitch 话术建议
+## 5. 商业结案与销售 Pitch 话术建议
 
 1. **直击客户痛点**：“贵司目前在豆包/DeepSeek 的搜索结果中之所以落后于同行，本质是因为同行在知乎和自媒体沉淀了非结构化内容，但其存在【报价模糊、无开源背书】的致命硬伤”；
 2. **呈现确定性方案**：“通过我们为您搭建的普林斯顿 9 因子语料库与 4 平台信源矩阵，您将在 7~14 天内实现全维度声量超越，大模型问答首位推荐率达到 85% 以上”；
