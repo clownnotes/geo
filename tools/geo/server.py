@@ -955,6 +955,31 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 专属甲方查看/打印 GEO 商业交付结案证书公开 API: /api/share/{token}/certificate
+        if path.startswith("/api/share/") and path.endswith("/certificate"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证"}, status=403)
+                return
+            project_id = rec["project_id"]
+            try:
+                from .certificate import build_delivery_certificate_html
+                html_body = build_delivery_certificate_html(project_id)
+                body_bytes = html_body.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body_bytes)))
+                self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                self.end_headers()
+                self.wfile.write(body_bytes)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 10. 专属甲方一键下载全套交付物 ZIP 归档包公开 API: /api/share/{token}/download-zip
         if path.startswith("/api/share/") and path.endswith("/download-zip"):
             parts = path.split("/")
@@ -1400,6 +1425,23 @@ core_values:
                 try:
                     from .acceptance import generate_print_acceptance_html
                     html_body = generate_print_acceptance_html(project_id)
+                    body_bytes = html_body.encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(body_bytes)))
+                    self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+                    self.end_headers()
+                    self.wfile.write(body_bytes)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 查看/打印商业交付结案与数字资产移交证书 HTML: /api/projects/{id}/certificate
+            if path.startswith("/api/projects/") and path.endswith("/certificate"):
+                project_id = path.split("/")[3]
+                try:
+                    from .certificate import build_delivery_certificate_html
+                    html_body = build_delivery_certificate_html(project_id)
                     body_bytes = html_body.encode("utf-8")
                     self.send_response(200)
                     self.send_header("Content-Type", "text/html; charset=utf-8")

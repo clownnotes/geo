@@ -58,6 +58,11 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <button onclick="handlePrintShareCertificate()" class="py-1.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="award" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span class="hidden sm:inline">🎖️ 结案移交证书</span>
+          <span class="sm:hidden">证书</span>
+        </button>
         <button onclick="handlePrintShareReport()" class="py-1.5 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
           <i data-lucide="printer" class="w-3.5 h-3.5 text-indigo-600"></i>
           <span class="hidden sm:inline">美化打印周报 (PDF)</span>
@@ -1023,6 +1028,12 @@
     function handleSharePrintAcceptance() {
       const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
       const url = `/api/share/${shareToken}/acceptance?pin=${encodeURIComponent(pin)}`;
+      window.open(url, '_blank');
+    }
+
+    function handlePrintShareCertificate() {
+      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
+      const url = `/api/share/${shareToken}/certificate?pin=${encodeURIComponent(pin)}`;
       window.open(url, '_blank');
     }
 

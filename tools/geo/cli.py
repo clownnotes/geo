@@ -257,7 +257,10 @@ def main():
     p_eval.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_eval.add_argument("--models", "-m", default="doubao,deepseek,yuanbao,kimi", help="评测模型列表 (逗号分隔)")
     p_eval.add_argument("--limit", "-l", type=int, default=10, help="评测词库数量上限 (默认: 10)")
-    p_eval.add_argument("--concurrency", "-c", type=int, default=4, help="并发线程数 (默认: 4)")
+    # certificate
+    p_cert = subparsers.add_parser("certificate", help="生成GEO商业交付结案与数字资产移交证书(A4打印优化)")
+    p_cert.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_cert.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
@@ -579,7 +582,10 @@ def main():
     elif args.command == "eval":
         from .evaluator import run_live_llm_evaluation
         m_list = [m.strip() for m in args.models.split(",") if m.strip()]
-        run_live_llm_evaluation(get_pid(args), models=m_list, limit=args.limit, concurrency=args.concurrency)
+        run_live_llm_evaluation(get_pid(args), models=m_list, limit=args.limit, concurrency=4)
+    elif args.command == "certificate":
+        from .certificate import build_delivery_certificate_html
+        build_delivery_certificate_html(get_pid(args))
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 
