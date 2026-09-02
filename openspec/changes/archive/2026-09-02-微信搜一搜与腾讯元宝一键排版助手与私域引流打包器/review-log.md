@@ -98,4 +98,40 @@
      - 补充 `publisher.py` 顶部 docstring 双渠道说明。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审：P0/P1 修复验证] [通过]
+
+- **阶段**：Cross-IDE Re-Review（Cursor 独立复审，对照 `3f20cb2` 修复提交）
+- **审查范围**：`tools/geo/publisher.py` · `tools/geo/server.py` · `web/index.html` · `xuzhou_xuanyuan/outputs/wechat_pack/*` · `dist_wechat_article.html`
+- **本地验证**：`python3 -m tools.geo publish xuzhou_xuanyuan --channel wechat` 通过；`get_wechat_rich_html_for_clipboard` 返回 `clipboard_html`/`plain_text`（1339 字）；`dist_wechat_article.html` 与 `wechat_pack/01_*.html` 均为 9950B 同步一致。
+
+#### P0 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 1 | Web 未接入 `wechat_pack` | ✅ 微信卡片已接入 `buildWechatPack()`、`copyWechatRichHtml()`、`copyWechatVideoScript()`、`copyWechatSop()`，移除旧 `copyOutput('dist_wechat_article.html')` 主路径 |
+| 2 | 缺少一键复制 API | ✅ `get_wechat_rich_html_for_clipboard()` + `GET /wechat/copy`，前端 `ClipboardItem` 双格式复制 |
+| 3 | 微信发稿中心 UI 缺失 | ✅ Step 4 新增对称绿色「💬 微信/视频号发稿中心」横幅与 `wechat-pack-status` |
+
+#### P1 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 4 | 未同步 `dist_wechat_article.html` | ✅ `package_wechat_assets` 回写兼容路径，实测与 pack 文件大小一致 |
+| 5 | SOP 无 SEO Tag | ✅ 已含 8 组搜一搜关键词 + 5 组话题 Tag |
+| 6 | 回退文案软件化 | ✅ 无表格回退改为动态 `diff_str` 表述 |
+| — | 模块 docstring | ✅ 已更新为双渠道说明 |
+
+#### 🟢 残余优化（可选，归档后处理）
+
+- 微信 HTML 仍使用 `display: flex` / `linear-gradient`，极端情况下公众号编辑器可能降级样式（不阻断归档）。
+
+#### 已确认达标项（延续上轮）
+
+- ✅ 100% 内联 CSS 长文、60 秒视频号分镜、CLI `wechat|all`、Server 全路由可用
+- ✅ 开发端验证合规，未触发生产部署
+
+- **状态结论**：`[通过]` — P0/P1 全部闭环，可 `./opsx archive` 归档。
+
 
