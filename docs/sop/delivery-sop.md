@@ -106,7 +106,8 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 - [ ] **S5.1** 运行自动化大模型提及率测试与周报归档
 - [ ] **S5.2** 生成甲方专属免密/加密交付门户链接并直发客户
 - [ ] **S5.3** 输出行业 Benchmark 超越战绩并启动续费复盘
-- [ ] **S5.4** 开启月度无人值守巡检与异动预警维护
+- [ ] **S5.4** 运行 Prompt 动态演进与追问词裂变，生成下一季度 15 组新词库
+- [ ] **S5.5** 开启月度无人值守巡检与异动预警维护
 
 ---
 
@@ -124,3 +125,4 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 | **客户交付** | `python3 -m tools.geo share --project <id>` | 本手册 | 专属免密只读交付看板与微信话术 |
 | **行业对标** | `python3 -m tools.geo benchmark --project <id>` | [SOP-05](/sop/05-monitor-sop) | 行业超越百分比与对标战绩卡片 |
 | **批量跑批** | `python3 -m tools.geo batch --step pipeline` | 本手册 | 多项目并发自动化生产流水线 |
+| **词库裂变** | `python3 -m tools.geo evolve --project <id>` | [SOP-05](/sop/05-monitor-sop) | 四象限健康度评估与 15 组新词库扩容 |

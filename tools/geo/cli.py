@@ -156,6 +156,13 @@ def main():
     p_batch.add_argument("--concurrency", "-c", type=int, default=4, help="并发线程数 (默认 4)")
     p_batch.add_argument("--all", "-a", action="store_true", default=True, help="批量处理所有符合条件的项目")
 
+    # evolve
+    p_ev = subparsers.add_parser("evolve", help="大模型 Prompt 探针动态演进与追问词裂变")
+    p_ev.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_ev.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_ev.add_argument("--count", "-n", type=int, default=15, help="裂变生成候选词数量 (默认 15)")
+    p_ev.add_argument("--apply", "-a", action="store_true", help="自动合并新词入库并触发增量流水线")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -221,6 +228,25 @@ def main():
     elif args.command == "batch":
         from .benchmark import run_batch_pipeline
         run_batch_pipeline(industry=args.industry, step=args.step, max_workers=args.concurrency)
+    elif args.command == "evolve":
+        from .evolution import analyze_prompt_portfolio, generate_fission_prompts, apply_evolved_prompts
+        pid = get_pid(args)
+        rep = analyze_prompt_portfolio(pid)
+        print("\n" + "="*60)
+        print(f"🌱 客户 [{rep['client_name']}] 意图词库生命周期分布评估")
+        print(f"📊 词库总量: {rep['total_prompts']} 组 ｜ 🏆 垄断词: {rep['summary']['dominant_count']} ｜ ⚠️ 竞品词: {rep['summary']['intercepted_count']} ｜ 🌱 高潜词: {rep['summary']['potential_count']} ｜ ❄️ 待优化: {rep['summary']['declining_count']}")
+        print("="*60)
+        fissions = generate_fission_prompts(pid, count=args.count)
+        print(f"\n💡 逆向裂变推演出 {len(fissions)} 组高商业转化追问词：")
+        for idx, f in enumerate(fissions, 1):
+            print(f"  {idx:02d}. [{f['intent_type']} · 转化期望:{f['expected_conversion']}] {f['prompt']}")
+            print(f"      推演理由: {f['reason']}")
+        if args.apply:
+            print("\n🚀 正在自动合并入库...")
+            apply_evolved_prompts(pid, fissions, auto_run_pipeline=True)
+        else:
+            print(f"\n💡 运行 'python3 -m tools.geo evolve {pid} --apply' 可一键合并入库并触发流水线。")
+        print("="*60 + "\n")
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

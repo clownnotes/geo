@@ -305,10 +305,16 @@
             <h2 class="text-base font-bold text-slate-900">阶段一：客户现状体检与商业诊断</h2>
             <p class="text-xs text-slate-500 mt-1">模拟 AI 爬虫抓取官网，检测 SSR 渲染、/llms.txt、JSON-LD 及文本密度，生成签单体检报告。</p>
           </div>
-          <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
-            <i data-lucide="scan" class="w-4 h-4"></i>
-            <span>执行体检诊断</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="openEvolutionModal()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
+              <span>🌱 词库动态演进与裂变</span>
+            </button>
+            <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+              <span>执行体检诊断</span>
+            </button>
+          </div>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -571,6 +577,10 @@
             <p class="text-xs text-slate-500 mt-1">并发探测主流大模型，计算 SOV 声量、Citation 权威信源加权得分并一键生成竞品包抄策略。</p>
           </div>
           <div class="flex items-center gap-2.5">
+            <button onclick="openEvolutionModal()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
+              <span>🌱 词库演进裂变</span>
+            </button>
             <button onclick="handleGenerateDefense(event)" id="btn-step-defense" class="py-2.5 px-4 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600"></i>
               <span>⚔️ 竞品反向包抄策略</span>
@@ -1147,6 +1157,84 @@
         <div id="industry-benchmarks-list" class="space-y-4">
           <!-- 动态注入各行业卡片 -->
           <div class="text-center py-6 text-slate-400">正在计算全库行业大盘数据...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ================= 4.5 大模型 Prompt 动态演进与追问词裂变模态弹窗 ================= -->
+  <div id="evolution-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-5 h-5 text-emerald-600"></i>
+          <span>大模型 Prompt 探针动态演进与追问词裂变中枢</span>
+        </h3>
+        <button onclick="closeEvolutionModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 text-xs text-slate-700 overflow-y-auto flex-1">
+        <!-- 词库生命周期四象限健康度统计 -->
+        <div>
+          <h4 class="font-bold text-slate-800 text-xs mb-2.5">📊 客户当前意图词库 · 生命周期健康度分布</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+              <div class="text-[10px] text-emerald-700 font-semibold">🏆 垄断占位词</div>
+              <div id="ev-stat-dominant" class="text-xl font-black text-emerald-700 mt-1">0 组</div>
+              <p class="text-[9px] text-emerald-600 mt-0.5">绝对优势·持续防冒名</p>
+            </div>
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+              <div class="text-[10px] text-amber-700 font-semibold">⚠️ 竞品截流词</div>
+              <div id="ev-stat-intercepted" class="text-xl font-black text-amber-700 mt-1">0 组</div>
+              <p class="text-[9px] text-amber-600 mt-0.5">争夺激烈·需反向包抄</p>
+            </div>
+            <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-xl">
+              <div class="text-[10px] text-indigo-700 font-semibold">🌱 高潜裂变词</div>
+              <div id="ev-stat-potential" class="text-xl font-black text-indigo-700 mt-1">0 组</div>
+              <p class="text-[9px] text-indigo-600 mt-0.5">高转化意图·待加码</p>
+            </div>
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="text-[10px] text-slate-500 font-semibold">❄️ 待优化词</div>
+              <div id="ev-stat-declining" class="text-xl font-black text-slate-600 mt-1">0 组</div>
+              <p class="text-[9px] text-slate-400 mt-0.5">粒度偏泛·建议场景化</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 裂变候选词列表 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-slate-800 text-xs">💡 逆向推演 · 高商业转化裂变追问词候选</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5">涵盖痛点避坑、选型对比、价格咨询、本地化与技术演进 5 大高转化维度</p>
+            </div>
+            <button onclick="triggerGenerateFissionPrompts()" id="btn-ev-generate" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition flex items-center gap-1 border border-slate-200">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>重新逆向裂变</span>
+            </button>
+          </div>
+
+          <div id="ev-fission-list" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+            <div class="text-center py-8 text-slate-400">正在分析推演中...</div>
+          </div>
+        </div>
+
+        <!-- 操作区 -->
+        <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+          <div class="text-slate-500 text-[11px]">
+            已选中 <span id="ev-selected-count" class="font-bold text-indigo-600">0</span> 组新意图词准备入库
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-1.5 text-[11px] text-slate-600 cursor-pointer">
+              <input id="ev-auto-run-check" type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+              <span>合并后自动执行增量流水线重算</span>
+            </label>
+            <button type="button" onclick="handleApplySelectedFissionPrompts()" id="btn-ev-apply" class="py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center gap-1.5">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>一键合并入库 (完成扩容)</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -2424,6 +2512,152 @@
           closeBatchModal();
         } else {
           showToast('启动失败: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    // ==========================================
+    // 大模型 Prompt 动态演进与追问词裂变
+    // ==========================================
+    let currentFissionCandidateList = [];
+
+    async function openEvolutionModal() {
+      if (!currentProjectId) return;
+      document.getElementById('evolution-modal').classList.remove('hidden');
+      await loadEvolutionAnalysis();
+      lucide.createIcons();
+    }
+
+    function closeEvolutionModal() {
+      document.getElementById('evolution-modal').classList.add('hidden');
+    }
+
+    async function loadEvolutionAnalysis() {
+      if (!currentProjectId) return;
+      const listBox = document.getElementById('ev-fission-list');
+      listBox.innerHTML = `<div class="text-center py-8 text-slate-400"><span class="inline-block animate-spin mr-1">⏳</span> 正在推演评估词库生命周期分布...</div>`;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/evolution/analyze`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const s = data.summary || {};
+          document.getElementById('ev-stat-dominant').innerText = `${s.dominant_count || 0} 组`;
+          document.getElementById('ev-stat-intercepted').innerText = `${s.intercepted_count || 0} 组`;
+          document.getElementById('ev-stat-potential').innerText = `${s.potential_count || 0} 组`;
+          document.getElementById('ev-stat-declining').innerText = `${s.declining_count || 0} 组`;
+
+          // 自动触发一次完整 15 组裂变推演
+          await triggerGenerateFissionPrompts();
+        }
+      } catch (e) {
+        listBox.innerHTML = `<div class="text-center py-6 text-slate-400">词库评估加载异常</div>`;
+      }
+    }
+
+    async function triggerGenerateFissionPrompts() {
+      if (!currentProjectId) return;
+      const listBox = document.getElementById('ev-fission-list');
+      const btn = document.getElementById('btn-ev-generate');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 推演中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/evolution/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ count: 15 })
+        });
+        const data = await res.json();
+        if (data.success && data.generated_prompts && data.generated_prompts.length > 0) {
+          currentFissionCandidateList = data.generated_prompts;
+          renderFissionCandidateList();
+        } else {
+          listBox.innerHTML = `<div class="text-center py-6 text-slate-400">暂无裂变生成词</div>`;
+        }
+      } catch (e) {
+        listBox.innerHTML = `<div class="text-center py-6 text-slate-400">裂变推演异常</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    function renderFissionCandidateList() {
+      const listBox = document.getElementById('ev-fission-list');
+      listBox.innerHTML = currentFissionCandidateList.map((item, idx) => `
+        <label class="p-3 bg-white border border-slate-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50/20 transition flex items-start gap-3 cursor-pointer">
+          <input type="checkbox" checked value="${idx}" onchange="updateFissionSelectionCount()" class="ev-prompt-check mt-1 rounded text-emerald-600 focus:ring-emerald-500">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-slate-800 text-xs">${item.prompt}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold shrink-0">
+                ${item.intent_type || '长尾选型'} · 转化: ${item.expected_conversion || '高'}
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">推演理由: ${item.reason || '大模型长尾追问场景'}</p>
+          </div>
+        </label>
+      `).join('');
+      updateFissionSelectionCount();
+      lucide.createIcons();
+    }
+
+    function updateFissionSelectionCount() {
+      const checkedBoxes = document.querySelectorAll('.ev-prompt-check:checked');
+      document.getElementById('ev-selected-count').innerText = checkedBoxes.length;
+    }
+
+    async function handleApplySelectedFissionPrompts() {
+      if (!currentProjectId) return;
+      const checkedBoxes = document.querySelectorAll('.ev-prompt-check:checked');
+      if (checkedBoxes.length === 0) {
+        showToast('请至少勾选一组裂变新词！', 'error');
+        return;
+      }
+
+      const selectedPrompts = Array.from(checkedBoxes).map(cb => {
+        const idx = parseInt(cb.value);
+        return currentFissionCandidateList[idx];
+      });
+
+      const autoRun = document.getElementById('ev-auto-run-check').checked;
+      const btn = document.getElementById('btn-ev-apply');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 合并中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/evolution/apply`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({
+            new_prompts: selectedPrompts,
+            auto_run_pipeline: autoRun
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`🎉 ${data.message} (词库扩充至 ${data.total_prompts} 组)`);
+          closeEvolutionModal();
+          loadProjectInfo(currentProjectId);
+        } else {
+          showToast('合并失败: ' + data.message, 'error');
         }
       } catch (err) {
         showToast('请求异常', 'error');

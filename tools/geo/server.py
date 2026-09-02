@@ -493,6 +493,33 @@ core_values:
             })
             return
 
+        # 10. 大模型 Prompt 动态演进与追问词裂变生成 API: /api/projects/{id}/evolution/generate
+        if path.startswith("/api/projects/") and path.endswith("/evolution/generate"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            count = int(body.get("count", 15))
+            from .evolution import generate_fission_prompts
+            try:
+                prompts = generate_fission_prompts(project_id, count=count)
+                self.send_json({"success": True, "project_id": project_id, "generated_prompts": prompts})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 11. 一键合并裂变新词入库 API: /api/projects/{id}/evolution/apply
+        if path.startswith("/api/projects/") and path.endswith("/evolution/apply"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            new_prompts = body.get("new_prompts", [])
+            auto_run = bool(body.get("auto_run_pipeline", False))
+            from .evolution import apply_evolved_prompts
+            try:
+                res = apply_evolved_prompts(project_id, new_prompts, auto_run_pipeline=auto_run)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -856,6 +883,17 @@ core_values:
                     from .benchmark import evaluate_project_against_benchmark
                     report = evaluate_project_against_benchmark(project_id)
                     self.send_json(report)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取词库生命周期健康度评估与快速裂变分析: /api/projects/{id}/evolution/analyze
+            if path.startswith("/api/projects/") and path.endswith("/evolution/analyze"):
+                project_id = path.split("/")[3]
+                try:
+                    from .evolution import analyze_prompt_portfolio
+                    analysis = analyze_prompt_portfolio(project_id)
+                    self.send_json(analysis)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
