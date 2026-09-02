@@ -108,6 +108,52 @@ def load_project_config(project_id: str) -> dict:
     
     return cfg
 
+def append_project_keywords(project_id: str, new_keywords: list) -> tuple:
+    """
+    向 project.yaml 的 keywords 列表安全追加新词（保留原有 YAML 结构与注释，仅增量写入）。
+    返回: (added_list, total_count)
+    """
+    import re
+    cfg = load_project_config(project_id)
+    yaml_path = os.path.join(cfg["_project_dir"], "project.yaml")
+    existing = cfg.get("keywords", [])
+    if isinstance(existing, str):
+        existing = [k.strip() for k in existing.split("\n") if k.strip()]
+
+    existing_set = set(existing)
+    added = []
+    for item in new_keywords:
+        text = item.get("prompt") if isinstance(item, dict) else str(item)
+        text = text.strip()
+        if text and text not in existing_set:
+            existing_set.add(text)
+            added.append(text)
+
+    if not added:
+        return [], len(existing)
+
+    with open(yaml_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    append_lines = "\n".join(
+        '  - "' + k.replace("\\", "\\\\").replace('"', '\\"') + '"' for k in added
+    )
+
+    if "keywords:" in content:
+        content = re.sub(
+            r"(keywords:\n(?:[ \t]*- [^\n]+\n)*)",
+            lambda m: m.group(1) + append_lines + "\n",
+            content,
+            count=1,
+        )
+    else:
+        content = content.rstrip() + f"\n\nkeywords:\n{append_lines}\n"
+
+    with open(yaml_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    return added, len(existing) + len(added)
+
 def save_project_output(target, filename: str, content: str) -> str:
     """保存交付物到客户 outputs 目录（支持传入 cfg 字典或 project_id 字符串）"""
     if isinstance(target, str):
