@@ -661,6 +661,17 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 一键生成今日头条/微头条发稿包: /api/projects/{id}/toutiao/build
+        if path.startswith("/api/projects/") and path.endswith("/toutiao/build"):
+            project_id = path.split("/")[3]
+            try:
+                from .publisher import package_toutiao_assets
+                res = package_toutiao_assets(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -1307,7 +1318,28 @@ core_values:
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
+            # 获取今日头条富文本长文预览接口: /api/projects/{id}/toutiao/preview
+            if path.startswith("/api/projects/") and path.endswith("/toutiao/preview"):
+                project_id = path.split("/")[3]
+                from .publisher import build_toutiao_article_html
+                try:
+                    html_content = build_toutiao_article_html(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "html": html_content})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
                 return
+
+            # 获取微头条 150 字三维短动态接口: /api/projects/{id}/toutiao/micro
+            if path.startswith("/api/projects/") and path.endswith("/toutiao/micro"):
+                project_id = path.split("/")[3]
+                from .publisher import build_toutiao_micro_post
+                try:
+                    micro_res = build_toutiao_micro_post(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "data": micro_res})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
             # 获取商业 ROI 测算与续约预测: /api/projects/{id}/roi/calculate
             if path.startswith("/api/projects/") and path.endswith("/roi/calculate"):
                 project_id = path.split("/")[3]

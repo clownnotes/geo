@@ -251,6 +251,12 @@ def main():
     p_grd.add_argument("--repair", action="store_true", help="生成强事实纠偏锚点与反击策略")
     p_grd.add_argument("--simulate", action="store_true", help="沙箱推演修复前后的置信度与事实一致性")
 
+    # publish
+    p_pub = subparsers.add_parser("publish", help="生成今日头条/微头条极速发稿富文本与图文资产包")
+    p_pub.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_pub.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_pub.add_argument("--channel", default="toutiao", choices=["toutiao"], help="发布渠道 (默认: toutiao)")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -565,6 +571,9 @@ def main():
         run_distribute(get_pid(args))
     elif args.command == "monitor":
         run_monitor(get_pid(args))
+    elif args.command == "publish":
+        from .publisher import package_toutiao_assets
+        package_toutiao_assets(get_pid(args))
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 
