@@ -271,11 +271,20 @@ def run_live_llm_evaluation(project_id: str, models: list = None, limit: int = 1
     cname = cfg.get("company_name", cfg.get("client_name", project_id))
     bname = cfg.get("brand_name", cname)
 
-    # 1. 获取评测词库 (优先 02 词库，其次 project.yaml)
+    # 1. 获取评测词库 (优先 keywords_intent_matrix.json 3级意图，其次 02 词库，再次 project.yaml)
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    matrix_path = os.path.join(out_dir, "keywords_intent_matrix.json")
     json_path = os.path.join(out_dir, "02_企业商业意图与5维提问挖掘词库.json")
     queries = []
-    if os.path.exists(json_path):
+    if os.path.exists(matrix_path):
+        try:
+            with open(matrix_path, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                queries = d.get("flat_queries", [])
+        except Exception:
+            pass
+
+    if not queries and os.path.exists(json_path):
         try:
             with open(json_path, "r", encoding="utf-8") as f:
                 d = json.load(f)
