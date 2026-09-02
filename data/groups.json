@@ -1,0 +1,24 @@
+{
+  "groups": {
+    "xuanyuan_group": {
+      "group_id": "xuanyuan_group",
+      "group_name": "璇源控股集团 (Xuanyuan Group)",
+      "parent_project_id": "xuzhou_xuanyuan",
+      "description": "淮海经济区企业数字化与 AI 商业应用领军集团",
+      "children": [
+        {
+          "project_id": "xuzhou_xuanyuan",
+          "brand_name": "璇源网络科技",
+          "role": "集团母公司 / 核心技术中枢",
+          "weight": 0.6
+        },
+        {
+          "project_id": "demo_corp",
+          "brand_name": "智数科技 (Demo Corp)",
+          "role": "旗下工业数字化应用子公司",
+          "weight": 0.4
+        }
+      ]
+    }
+  }
+}

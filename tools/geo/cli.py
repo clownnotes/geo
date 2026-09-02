@@ -163,6 +163,12 @@ def main():
     p_ev.add_argument("--count", "-n", type=int, default=15, help="裂变生成候选词数量 (默认 15)")
     p_ev.add_argument("--apply", "-a", action="store_true", help="自动合并新词入库并触发增量流水线")
 
+    # group
+    p_grp = subparsers.add_parser("group", help="集团多品牌/子公司层级矩阵与协同声量大盘")
+    p_grp.add_argument("group_pos", nargs="?", default=None, help="集团 ID (可选)")
+    p_grp.add_argument("--id", "-g", default=None, help="集团 ID")
+    p_grp.add_argument("--defense", "-d", action="store_true", help="输出集团级联合竞品防御策略")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -247,6 +253,36 @@ def main():
         else:
             print(f"\n💡 运行 'python3 -m tools.geo evolve {pid} --apply' 可一键合并入库并触发流水线。")
         print("="*60 + "\n")
+    elif args.command == "group":
+        from .group import load_groups_config, calculate_group_matrix, analyze_group_defense
+        gid = getattr(args, "group_pos", None) or getattr(args, "id", None) or "xuanyuan_group"
+        if args.defense:
+            d_rep = analyze_group_defense(gid)
+            print("\n" + "="*60)
+            print(f"🛡️ 【{d_rep['group_name']}】集团跨品牌竞品联合防御大盘")
+            print("="*60)
+            print("共同面临的竞争对手：")
+            for c in d_rep.get("top_shared_competitors", []):
+                brands = "、".join(c["intercepting_brands"])
+                print(f"  - 竞品 [{c['competitor']}] ｜ 威胁等级: {c['threat_level']} ｜ 拦截子品牌: {brands}")
+            print(f"\n💡 联合反制策略: {d_rep['joint_defense_strategy']}")
+            print("="*60 + "\n")
+        else:
+            g_rep = calculate_group_matrix(gid)
+            print("\n" + "="*60)
+            print(f"🏢 【{g_rep['group_name']}】集团多品牌矩阵协同大盘")
+            print(f"📈 集团综合 SOV: {g_rep['group_sov']}% ｜ ⚡ 协同效应倍数: {g_rep['synergy_multiplier']}x ｜ 段位: {g_rep['tier']}")
+            print(f"💡 结论: {g_rep['summary']}")
+            print("="*60)
+            print("矩阵子品牌声量贡献表：")
+            for c in g_rep.get("children_matrix", []):
+                print(f"  - [{c['role']}] {c['client_name']} ({c['brand_name']})")
+                print(f"      SOV: {c['sov_pct']}% ｜ 词库量: {c['keywords_count']} 组 ｜ 矩阵声量贡献率: {c['contribution_pct']}%")
+            print("\n跨子品牌共享核心信源渠道：")
+            for sc in g_rep.get("shared_citations", []):
+                b_str = "、".join(sc["shared_by_brands"])
+                print(f"  - 🔗 {sc['name']} ({sc['domain']}) ｜ 被引频次: {sc['total_count']} ｜ 赋能品牌: {b_str}")
+            print("\n" + "="*60 + "\n")
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

@@ -126,3 +126,4 @@ crawl4ai --url "https://client-domain.com" -o "client_audit.md"
 | **行业对标** | `python3 -m tools.geo benchmark --project <id>` | [SOP-05](/sop/05-monitor-sop) | 行业超越百分比与对标战绩卡片 |
 | **批量跑批** | `python3 -m tools.geo batch --step pipeline` | 本手册 | 多项目并发自动化生产流水线 |
 | **词库裂变** | `python3 -m tools.geo evolve --project <id>` | [SOP-05](/sop/05-monitor-sop) | 四象限健康度评估与 15 组新词库扩容 |
+| **集团矩阵** | `python3 -m tools.geo group [--id <gid>]` | 本手册 | 集团加权 SOV、母子协同效应指数与联合防御 |

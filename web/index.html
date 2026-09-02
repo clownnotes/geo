@@ -115,7 +115,7 @@
     <!-- 主体内容 -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-8 space-y-6">
       <!-- 统计指标 -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
           <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
             <i data-lucide="folder-kanban" class="w-6 h-6"></i>
@@ -154,6 +154,19 @@
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">🌐 行业大盘基准</div>
             <div class="text-xs font-bold text-indigo-600 mt-1 flex items-center gap-1">
               <span>点击查看行业均值</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+        </div>
+
+        <div onclick="openGroupMatrixModal()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-emerald-300 hover:shadow-md transition">
+          <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
+            <i data-lucide="building-2" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">🏢 集团多品牌矩阵</div>
+            <div class="text-xs font-bold text-emerald-600 mt-1 flex items-center gap-1">
+              <span>母子协同大盘</span>
               <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
             </div>
           </div>
@@ -1234,6 +1247,92 @@
               <i data-lucide="plus" class="w-4 h-4"></i>
               <span>一键合并入库 (完成扩容)</span>
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ================= 4.6 集团多品牌/子公司层级矩阵协同大盘模态弹窗 ================= -->
+  <div id="group-matrix-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            🏢
+          </div>
+          <div>
+            <h3 id="grp-modal-title" class="text-base font-bold text-slate-900">集团多品牌/子公司协同大盘</h3>
+            <p id="grp-modal-desc" class="text-[11px] text-slate-500">母子品牌层级绑定与跨矩阵协同声量图谱</p>
+          </div>
+        </div>
+        <button onclick="closeGroupMatrixModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 text-xs text-slate-700 overflow-y-auto flex-1">
+        <!-- 集团顶部 3 维核心量化指标卡 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl">
+            <div class="text-[10px] text-emerald-700 font-semibold uppercase">集团综合加权 SOV</div>
+            <div id="grp-stat-sov" class="text-2xl font-black text-emerald-700 mt-1">--%</div>
+            <p id="grp-stat-tier" class="text-[10px] text-emerald-600 font-medium mt-0.5">计算中...</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50/60 border border-indigo-200 rounded-xl">
+            <div class="text-[10px] text-indigo-700 font-semibold uppercase">⚡ 矩阵协同效应指数</div>
+            <div id="grp-stat-synergy" class="text-2xl font-black text-indigo-700 mt-1">1.0x</div>
+            <p class="text-[10px] text-indigo-600 font-medium mt-0.5">>1.0 跨品牌信源互补赋能</p>
+          </div>
+
+          <div class="p-4 bg-purple-50/60 border border-purple-200 rounded-xl">
+            <div class="text-[10px] text-purple-700 font-semibold uppercase">🔗 共享核心信源渠道</div>
+            <div id="grp-stat-citations" class="text-2xl font-black text-purple-700 mt-1">0 个</div>
+            <p class="text-[10px] text-purple-600 font-medium mt-0.5">多品牌共同引用的权威阵地</p>
+          </div>
+        </div>
+
+        <!-- 矩阵子品牌声量与贡献率列表 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-800 text-xs">📋 矩阵子品牌 / 子公司声量与贡献度表</h4>
+          <div class="overflow-x-auto border border-slate-200 rounded-xl">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-2.5">组织定位 / 角色</th>
+                  <th class="px-4 py-2.5">企业主体与品牌</th>
+                  <th class="px-4 py-2.5 text-center">独立 SOV</th>
+                  <th class="px-4 py-2.5 text-center">核心词库量</th>
+                  <th class="px-4 py-2.5 text-right">矩阵声量贡献率</th>
+                </tr>
+              </thead>
+              <tbody id="grp-children-tbody" class="divide-y divide-slate-200">
+                <!-- 动态注入 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 跨品牌共享信源渠道与联合反制策略 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              <i data-lucide="share-2" class="w-4 h-4 text-purple-600"></i>
+              <span>跨品牌高权重共享信源</span>
+            </h5>
+            <div id="grp-shared-citations-list" class="space-y-1.5 text-[11px] text-slate-600">
+              <div class="text-slate-400 py-2">暂无共享信源数据</div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50/50 border border-amber-200 rounded-xl space-y-2">
+            <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              <i data-lucide="shield" class="w-4 h-4 text-amber-600"></i>
+              <span>集团级竞品联合防御与白皮书下发</span>
+            </h5>
+            <p id="grp-defense-text" class="text-[11px] text-slate-600 leading-relaxed">
+              针对被多品牌共同拦截的对手，建议在知乎与头条以母品牌名义发布《集团级行业全景技术白皮书》，实现自上而下的降维压制。
+            </p>
           </div>
         </div>
       </div>
@@ -2665,6 +2764,77 @@
         btn.disabled = false;
         btn.innerHTML = origHTML;
         lucide.createIcons();
+      }
+    }
+
+    // ==========================================
+    // 集团多品牌/子公司层级矩阵协同大盘
+    // ==========================================
+    async function openGroupMatrixModal(groupId = 'xuanyuan_group') {
+      document.getElementById('group-matrix-modal').classList.remove('hidden');
+      await loadGroupMatrixData(groupId);
+      lucide.createIcons();
+    }
+
+    function closeGroupMatrixModal() {
+      document.getElementById('group-matrix-modal').classList.add('hidden');
+    }
+
+    async function loadGroupMatrixData(groupId = 'xuanyuan_group') {
+      try {
+        const res = await fetch(`/api/groups/${groupId}/matrix`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('grp-modal-title').innerText = data.group_name;
+          document.getElementById('grp-modal-desc').innerText = `${data.description || '集团母子矩阵'} · 包含 ${data.total_brands} 家主体/子品牌 · 共 ${data.total_prompts} 组词库`;
+          document.getElementById('grp-stat-sov').innerText = `${data.group_sov}%`;
+          document.getElementById('grp-stat-tier').innerText = `${data.tier}`;
+          document.getElementById('grp-stat-synergy').innerText = `${data.synergy_multiplier}x`;
+          document.getElementById('grp-stat-citations').innerText = `${data.shared_citations_count} 个`;
+
+          // 渲染子品牌表格
+          const tbody = document.getElementById('grp-children-tbody');
+          tbody.innerHTML = data.children_matrix.map(c => `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="px-4 py-3">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${c.role.includes('母公司') ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-700'}">
+                  ${c.role}
+                </span>
+              </td>
+              <td class="px-4 py-3 font-semibold text-slate-800">
+                ${c.client_name}
+                <div class="text-[10px] text-slate-400 font-normal">品牌: ${c.brand_name} ｜ ID: ${c.project_id}</div>
+              </td>
+              <td class="px-4 py-3 text-center font-bold text-indigo-600">${c.sov_pct}%</td>
+              <td class="px-4 py-3 text-center text-slate-600">${c.keywords_count} 组</td>
+              <td class="px-4 py-3 text-right">
+                <span class="font-bold text-emerald-600">${c.contribution_pct}%</span>
+              </td>
+            </tr>
+          `).join('');
+
+          // 渲染共享信源
+          const citBox = document.getElementById('grp-shared-citations-list');
+          if (data.shared_citations && data.shared_citations.length > 0) {
+            citBox.innerHTML = data.shared_citations.map(sc => `
+              <div class="p-2 bg-white border border-slate-200 rounded-lg flex items-center justify-between">
+                <div>
+                  <strong class="text-indigo-600">${sc.name}</strong>
+                  <span class="text-slate-400 text-[10px]">(${sc.domain})</span>
+                </div>
+                <div class="text-[10px] text-slate-500">
+                  赋能: <span class="font-semibold text-slate-700">${sc.shared_by_brands.join('、')}</span>
+                </div>
+              </div>
+            `).join('');
+          } else {
+            citBox.innerHTML = `<div class="text-slate-400 py-2">暂无跨品牌共享信源，建议矩阵协同分发。</div>`;
+          }
+        }
+      } catch (err) {
+        console.error('加载集团矩阵异常:', err);
       }
     }
 

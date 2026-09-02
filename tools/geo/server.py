@@ -518,6 +518,23 @@ core_values:
                 self.send_json(res)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
+        # 12. 创建或更新集团矩阵配置 API: /api/groups
+        if path == "/api/groups":
+            body = self.read_json_body()
+            group_id = body.get("group_id", "").strip()
+            group_name = body.get("group_name", "").strip()
+            parent_id = body.get("parent_project_id", "").strip()
+            children = body.get("children", [])
+            desc = body.get("description", "").strip()
+            if not group_id or not group_name:
+                self.send_json({"success": False, "message": "集团 ID 与集团名称不能为空！"}, status=400)
+                return
+            from .group import save_group_config
+            try:
+                res = save_group_config(group_id, group_name, parent_id, children, description=desc)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
         self.send_json({"error": "Not Found"}, status=404)
@@ -894,6 +911,24 @@ core_values:
                     from .evolution import analyze_prompt_portfolio
                     analysis = analyze_prompt_portfolio(project_id)
                     self.send_json(analysis)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取所有集团矩阵配置列表: /api/groups
+            if path == "/api/groups":
+                from .group import load_groups_config
+                cfg = load_groups_config()
+                self.send_json({"success": True, "groups": list(cfg.get("groups", {}).values())})
+                return
+
+            # 获取指定集团的综合协同大盘与矩阵声量: /api/groups/{id}/matrix
+            if path.startswith("/api/groups/") and path.endswith("/matrix"):
+                group_id = path.split("/")[3]
+                from .group import calculate_group_matrix
+                try:
+                    matrix = calculate_group_matrix(group_id)
+                    self.send_json(matrix)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
