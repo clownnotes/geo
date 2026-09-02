@@ -619,7 +619,7 @@ def main():
             verify_all_channels(pid)
         else:
             led = get_distribution_ledger(pid)
-            print(f"项目 [{pid}] 当前分发进度: {led['completion_rate_pct']}% (加权: {led['weighted_completion_pct']}%)")
+            print(f"项目 [{pid}] 填报完成率: {led['completion_rate_pct']}% (加权 {led['weighted_completion_pct']}%) | 真实存活率: {led.get('alive_rate_pct', 0)}% (加权 {led.get('weighted_alive_pct', 0)}%)")
             for k, v in led['channels'].items():
                 print(f" - {v['name']}: {v.get('url') or '(未填报)'} [{v.get('status')}]")
     elif args.command == "pipeline":

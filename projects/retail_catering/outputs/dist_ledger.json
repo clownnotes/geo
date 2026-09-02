@@ -1,10 +1,14 @@
 {
   "project_id": "retail_catering",
-  "updated_at": "2026-09-02 05:23:46",
+  "updated_at": "2026-09-02 05:29:23",
   "total_channels": 7,
   "published_channels": 6,
+  "alive_channels": 0,
+  "dead_channels": 0,
   "completion_rate_pct": 85.7,
   "weighted_completion_pct": 100.0,
+  "alive_rate_pct": 0.0,
+  "weighted_alive_pct": 0.0,
   "channels": {
     "toutiao": {
       "name": "今日头条 / 微头条",
@@ -89,5 +93,6 @@
       "http_status": null,
       "verified_at": null
     }
-  }
+  },
+  "custom_links": []
 }

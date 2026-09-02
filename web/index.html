@@ -4268,7 +4268,7 @@ GitHub 开源仓库：https://github.com/company/repo
             : 'px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold';
 
           if (document.getElementById('dist-weighted-badge')) {
-            document.getElementById('dist-weighted-badge').textContent = `加权战略存活率: ${data.weighted_completion_pct}%`;
+            document.getElementById('dist-weighted-badge').textContent = `加权战略存活率: ${data.weighted_alive_pct ?? 0}%`;
           }
 
           const chIcons = {
@@ -4424,13 +4424,13 @@ GitHub 开源仓库：https://github.com/company/repo
       btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 核验中...`;
 
       try {
-        const res = await fetch(`/api/projects/${currentProjectId}/distribution/verify`, {
+        const res = await fetch(`/api/projects/${currentProjectId}/ledger/audit`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
         if (data.success) {
-          showToast(`🎉 全渠道外链存活核验完毕！完成率: ${data.completion_rate_pct}%`);
+          showToast(`🎉 全网外链探活完毕！真实存活: ${data.alive}，死链: ${data.dead}，加权存活率: ${data.weighted_alive_pct}%`);
           await loadDistributionLedger();
         } else {
           showToast('核验失败: ' + data.message, 'error');

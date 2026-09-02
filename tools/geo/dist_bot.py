@@ -148,22 +148,72 @@ def _sync_channel_defaults(channels: dict) -> dict:
                 channels[k][field] = tmpl[field]
     return channels
 
-def _calculate_metrics(channels: dict) -> tuple:
-    """计算分发总数、已发数、均值完成率与加权战略完成率"""
+def _calculate_metrics(channels: dict) -> dict:
+    """计算分发总数、已发数、真实存活数，严格拆分完成率与真实探活存活率"""
     total = len(channels)
     published = 0
-    weighted_score = 0.0
+    alive = 0
+    dead = 0
+    weighted_pub_score = 0.0
+    weighted_alive_score = 0.0
     total_weights = sum(c.get("weight_pct", 0) for c in channels.values()) or 100.0
 
     for c in channels.values():
-        is_ok = bool(c.get("url")) and c.get("status") in ("verified", "published")
-        if is_ok:
-            published += 1
-            weighted_score += c.get("weight_pct", 0)
+        u = (c.get("url") or "").strip()
+        status = c.get("status", "pending")
+        w = c.get("weight_pct", 0)
 
-    rate = round((published / max(total, 1)) * 100, 1)
-    weighted_rate = round((weighted_score / total_weights) * 100, 1)
-    return total, published, rate, weighted_rate
+        is_published = bool(u) and status in ("verified", "published", "failed")
+        is_alive = bool(u) and status == "verified"
+        is_dead = bool(u) and status == "failed"
+
+        if is_published:
+            published += 1
+            weighted_pub_score += w
+        if is_alive:
+            alive += 1
+            weighted_alive_score += w
+        if is_dead:
+            dead += 1
+
+    comp_rate = round((published / max(total, 1)) * 100, 1)
+    w_comp_rate = round((weighted_pub_score / total_weights) * 100, 1)
+    alive_rate = round((alive / max(total, 1)) * 100, 1)
+    w_alive_rate = round((weighted_alive_score / total_weights) * 100, 1)
+
+    return {
+        "total_channels": total,
+        "published_channels": published,
+        "alive_channels": alive,
+        "dead_channels": dead,
+        "completion_rate_pct": comp_rate,
+        "weighted_completion_pct": w_comp_rate,
+        "alive_rate_pct": alive_rate,
+        "weighted_alive_pct": w_alive_rate
+    }
+
+def _load_custom_links(lpath: str) -> list:
+    if not os.path.exists(lpath):
+        return []
+    try:
+        with open(lpath, "r", encoding="utf-8") as f:
+            return json.load(f).get("custom_links", []) or []
+    except Exception:
+        return []
+
+
+def _collect_existing_urls(channels: dict, custom_links: list) -> set:
+    urls = set()
+    for ch in channels.values():
+        u = (ch.get("url") or "").strip()
+        if u:
+            urls.add(u)
+    for item in custom_links:
+        u = (item.get("url") or "").strip()
+        if u:
+            urls.add(u)
+    return urls
+
 
 def get_distribution_ledger(project_id: str) -> dict:
     """读取指定项目的分发台账"""
@@ -182,18 +232,17 @@ def get_distribution_ledger(project_id: str) -> dict:
         except Exception:
             pass
 
+    custom_links = _load_custom_links(lpath)
     channels = _sync_channel_defaults(channels)
-    total, published, rate, weighted_rate = _calculate_metrics(channels)
+    m = _calculate_metrics(channels)
 
     return {
         "success": True,
         "project_id": project_id,
         "updated_at": updated_at or time.strftime("%Y-%m-%d %H:%M:%S"),
-        "total_channels": total,
-        "published_channels": published,
-        "completion_rate_pct": rate,
-        "weighted_completion_pct": weighted_rate,
-        "channels": channels
+        **m,
+        "channels": channels,
+        "custom_links": custom_links
     }
 
 def verify_distribution_url(url: str) -> dict:
@@ -313,7 +362,7 @@ def parse_mixed_links(raw_text: str) -> list:
 
 
 def render_ledger_markdown(project_id: str, ledger: dict) -> str:
-    """将分发台账生成为高可读、带状态徽章与存活率的 Markdown 文档"""
+    """将分发台账生成为高可读、带双轨完成率与真实存活率的 Markdown 文档"""
     cfg = load_project_config(project_id)
     cname = cfg.get("company_name", cfg.get("client_name", project_id))
     bname = cfg.get("brand_name", cname)
@@ -322,13 +371,16 @@ def render_ledger_markdown(project_id: str, ledger: dict) -> str:
 
     channels = ledger.get("channels", {})
     comp_rate = ledger.get("completion_rate_pct", 0.0)
-    w_rate = ledger.get("weighted_completion_pct", 0.0)
+    w_comp_rate = ledger.get("weighted_completion_pct", 0.0)
+    alive_rate = ledger.get("alive_rate_pct", 0.0)
+    w_alive_rate = ledger.get("weighted_alive_pct", 0.0)
     up_time = ledger.get("updated_at", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     md = f"""# 【{bname}】全网分发渠道执行与存活审计台账
 
 > **客户主体**：{cname}（{bname}） ｜ **所属行业**：{ind} ｜ **服务区域**：{area}
-> **台账审计时间**：{up_time} ｜ **加权战略存活率**：**{w_rate}%** ｜ **均值完成率**：{comp_rate}%
+> **台账审计时间**：{up_time}
+> **📊 填报完成率**：均值 {comp_rate}% (加权 **{w_comp_rate}%**) ｜ **🟢 真实存活率**：均值 {alive_rate}% (加权 **{w_alive_rate}%**)
 
 ---
 
@@ -340,7 +392,7 @@ def render_ledger_markdown(project_id: str, ledger: dict) -> str:
 
     status_badges = {
         "verified": "🟢 存活正常",
-        "published": "🔵 已填报",
+        "published": "🔵 已填报待测",
         "pending": "⚪ 待分发",
         "failed": "🔴 死链/异常"
     }
@@ -359,10 +411,30 @@ def render_ledger_markdown(project_id: str, ledger: dict) -> str:
         url_display = f"[{url[:35]}...]({url})" if url else "*(待回填)*"
         md += f"| **{w}%** | {name} | {target} | {url_display} | {badge} | `{http_st}` | {title[:28]} | {v_at} |\n"
 
+    # 自定义外部链接清单
+    custom_links = ledger.get("custom_links", [])
+    if custom_links:
+        md += f"""
+---
+
+## 2. 外部行业垂直媒体与权威外链 (Custom Backlinks)
+
+| 序号 | 外部发布链接 (URL) | 存活状态 | HTTP 状态 | 抓取网页标题 | 录入时间 |
+| :---: | :--- | :---: | :---: | :--- | :--- |
+"""
+        for idx, cl in enumerate(custom_links, 1):
+            c_url = cl.get("url", "")
+            c_st = cl.get("status", "published")
+            c_badge = status_badges.get(c_st, c_st)
+            c_http = str(cl.get("http_status") or "-")
+            c_title = (cl.get("title") or "-").replace("|", "\\|")
+            c_time = cl.get("updated_at", "-")
+            md += f"| {idx} | [{c_url[:40]}...]({c_url}) | {c_badge} | `{c_http}` | {c_title[:30]} | {c_time} |\n"
+
     md += f"""
 ---
 
-## 2. 存活审计与异常排查指南
+## 3. 存活审计与异常排查指南
 
 - **🟢 存活正常 (HTTP 200/302)**：链接已由平台公开发布，大模型爬虫（Bytespider / 百度蜘蛛 / DeepSeek）可顺畅抓取全文。
 - **🔴 死链/异常 (HTTP 404/500/软404)**：链接已被删除、设为私密或触发平台限流，需运营团队在发稿后台重新发布并回填。
@@ -375,22 +447,30 @@ def render_ledger_markdown(project_id: str, ledger: dict) -> str:
     return md
 
 
-def save_ledger_and_markdown(project_id: str, channels: dict) -> dict:
+def save_ledger_and_markdown(project_id: str, channels: dict, custom_links: list = None) -> dict:
     """持久化保存 JSON 台账并同步更新 04_全网分发渠道执行与存活台账.md"""
     lpath = _get_ledger_path(project_id)
     os.makedirs(os.path.dirname(lpath), exist_ok=True)
 
     channels = _sync_channel_defaults(channels)
-    total, published, completion_rate, weighted_rate = _calculate_metrics(channels)
+    m = _calculate_metrics(channels)
+
+    if custom_links is None:
+        # 保留已存在的 custom_links
+        try:
+            if os.path.exists(lpath):
+                with open(lpath, "r", encoding="utf-8") as f:
+                    old_data = json.load(f)
+                    custom_links = old_data.get("custom_links", [])
+        except Exception:
+            custom_links = []
 
     payload = {
         "project_id": project_id,
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "total_channels": total,
-        "published_channels": published,
-        "completion_rate_pct": completion_rate,
-        "weighted_completion_pct": weighted_rate,
-        "channels": channels
+        **m,
+        "channels": channels,
+        "custom_links": custom_links or []
     }
 
     # 1. 写入 dist_ledger.json
@@ -435,7 +515,7 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
         else:
             ch_data["status"] = "published"
 
-    payload = save_ledger_and_markdown(project_id, channels)
+    payload = save_ledger_and_markdown(project_id, channels, ledger.get("custom_links"))
     print_success(f"✅ 项目 [{project_id}] 渠道 [{ch_data['name']}] 外发链接已回填: {url_clean or '已清空'} (状态: {ch_data['status']})")
 
     return {
@@ -443,42 +523,59 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
         "project_id": project_id,
         "channel": channel,
         "record": ch_data,
-        "completion_rate_pct": payload["completion_rate_pct"],
-        "weighted_completion_pct": payload["weighted_completion_pct"],
+        **{k: payload[k] for k in ["completion_rate_pct", "weighted_completion_pct", "alive_rate_pct", "weighted_alive_pct"]},
         "ledger": payload
     }
 
 
 def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True) -> dict:
-    """从混合文本中提取全部链接，自动匹配对应渠道并批量回填与探活"""
+    """从混合文本中提取全部链接，自动匹配对应渠道并批量回填与探活（含去重与覆盖统计）"""
     parsed = parse_mixed_links(raw_text)
     if not parsed:
         return {
             "success": False,
             "message": "未在输入文本中识别到有效的 http/https 链接",
             "parsed_count": 0,
-            "added_count": 0
+            "added_count": 0,
+            "duplicates": 0,
+            "overwritten": 0
         }
 
     ledger = get_distribution_ledger(project_id)
     channels = ledger["channels"]
-    added_list = []
+    custom_links = ledger.get("custom_links", [])
+
+    added_count = 0
+    duplicates = 0
+    overwritten = 0
+    items_report = []
 
     for item in parsed:
         ch_key = item["channel"]
-        if ch_key == "custom":
-            # 若不是标准五大渠道，默认尝试匹配未填报的第一个渠道或记录在 juejin/baidu 等
-            for candidate in ["toutiao", "zhihu", "wechat", "github", "kimi", "baidu"]:
-                if not channels[candidate].get("url"):
-                    ch_key = candidate
-                    break
+        target_url = item["url"]
 
         if ch_key in channels:
             ch_data = channels[ch_key]
-            ch_data["url"] = item["url"]
+            old_url = (ch_data.get("url") or "").strip()
+
+            if old_url == target_url:
+                # 完全相同 URL，判定为重复
+                duplicates += 1
+                items_report.append({"channel": ch_key, "url": target_url, "action": "duplicate", "status": ch_data.get("status")})
+                continue
+            elif old_url:
+                # 同渠道已存在旧 URL，判定为覆盖
+                overwritten += 1
+                action = "overwritten"
+            else:
+                # 新增填报
+                added_count += 1
+                action = "added"
+
+            ch_data["url"] = target_url
             ch_data["updated_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
             if verify_now:
-                v_res = verify_distribution_url(item["url"])
+                v_res = verify_distribution_url(target_url)
                 ch_data["http_status"] = v_res["http_status"]
                 if v_res.get("title"):
                     ch_data["title"] = v_res["title"]
@@ -486,31 +583,57 @@ def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True)
                 ch_data["status"] = "verified" if v_res["is_alive"] else "failed"
             else:
                 ch_data["status"] = "published"
-            added_list.append({"channel": ch_key, "url": item["url"], "status": ch_data["status"]})
 
-    payload = save_ledger_and_markdown(project_id, channels)
-    print_success(f"🎉 批量智能回填成功！已自动识别并回填 {len(added_list)} 条外发链接。")
+            items_report.append({"channel": ch_key, "url": target_url, "action": action, "status": ch_data["status"]})
+        else:
+            # 外部自定义链接，写入 custom_links，绝不乱抢占战略渠道
+            existing_custom = [c.get("url") for c in custom_links]
+            if target_url in existing_custom:
+                duplicates += 1
+                items_report.append({"channel": "custom", "url": target_url, "action": "duplicate", "status": "published"})
+            else:
+                added_count += 1
+                c_item = {
+                    "url": target_url,
+                    "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "status": "published",
+                    "http_status": None,
+                    "title": ""
+                }
+                if verify_now:
+                    v_res = verify_distribution_url(target_url)
+                    c_item["http_status"] = v_res["http_status"]
+                    c_item["title"] = v_res.get("title", "")
+                    c_item["status"] = "verified" if v_res["is_alive"] else "failed"
+                custom_links.append(c_item)
+                items_report.append({"channel": "custom", "url": target_url, "action": "added", "status": c_item["status"]})
+
+    payload = save_ledger_and_markdown(project_id, channels, custom_links)
+    print_success(f"🎉 批量回填处理完毕：新增 {added_count} 条，覆盖 {overwritten} 条，跳过重复 {duplicates} 条。")
 
     return {
         "success": True,
         "project_id": project_id,
         "parsed_count": len(parsed),
-        "added_count": len(added_list),
-        "items": added_list,
-        "completion_rate_pct": payload["completion_rate_pct"],
-        "weighted_completion_pct": payload["weighted_completion_pct"],
+        "added_count": added_count,
+        "overwritten": overwritten,
+        "duplicates": duplicates,
+        "items": items_report,
+        **{k: payload[k] for k in ["completion_rate_pct", "weighted_completion_pct", "alive_rate_pct", "weighted_alive_pct"]},
         "ledger": payload
     }
 
 
 def verify_all_channels(project_id: str, concurrency: int = 8) -> dict:
-    """批量并发核验所有已填报的外链存活状态并更新 Markdown 台账"""
+    """批量并发核验所有已填报的外链存活状态并返回详情列表与存活指标"""
     ledger = get_distribution_ledger(project_id)
     channels = ledger["channels"]
+    custom_links = ledger.get("custom_links", [])
 
     def _verify_ch(item):
         k, v = item
         u = v.get("url", "").strip()
+        error = None
         if u:
             vres = verify_distribution_url(u)
             v["http_status"] = vres["http_status"]
@@ -518,21 +641,69 @@ def verify_all_channels(project_id: str, concurrency: int = 8) -> dict:
                 v["title"] = vres["title"]
             v["verified_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
             v["status"] = "verified" if vres["is_alive"] else "failed"
-        return k, v
+            error = vres.get("error")
+        return k, v, error
 
     with ThreadPoolExecutor(max_workers=max(concurrency, 2)) as executor:
         results = list(executor.map(_verify_ch, channels.items()))
 
-    for k, v in results:
-        channels[k] = v
+    details = []
+    alive_count = 0
+    dead_count = 0
 
-    payload = save_ledger_and_markdown(project_id, channels)
-    print_success(f"🎉 项目 [{project_id}] 全渠道外链核验完毕！均值完成率: {payload['completion_rate_pct']}% (战略加权完成率: {payload['weighted_completion_pct']}%)")
+    for k, v, err in results:
+        channels[k] = v
+        if v.get("url"):
+            if v.get("status") == "verified":
+                alive_count += 1
+            elif v.get("status") == "failed":
+                dead_count += 1
+            details.append({
+                "channel": k,
+                "name": v.get("name"),
+                "url": v.get("url"),
+                "status": v.get("status"),
+                "http_status": v.get("http_status"),
+                "title": v.get("title", ""),
+                "error": err
+            })
+
+    # 核验 custom_links
+    for cl in custom_links:
+        cu = cl.get("url", "").strip()
+        if cu:
+            vres = verify_distribution_url(cu)
+            cl["http_status"] = vres["http_status"]
+            cl["title"] = vres.get("title", "")
+            cl["status"] = "verified" if vres["is_alive"] else "failed"
+            cl["updated_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            if cl["status"] == "verified":
+                alive_count += 1
+            else:
+                dead_count += 1
+            details.append({
+                "channel": "custom",
+                "name": "外部权威外链",
+                "url": cu,
+                "status": cl["status"],
+                "http_status": cl["http_status"],
+                "title": cl["title"],
+                "error": vres.get("error")
+            })
+
+    payload = save_ledger_and_markdown(project_id, channels, custom_links)
+    print_success(f"🎉 项目 [{project_id}] 全渠道外链核验完毕！存活: {alive_count}, 死链: {dead_count}, 加权存活率: {payload['weighted_alive_pct']}%")
     return {
         "success": True,
         "project_id": project_id,
+        "total": len(details),
+        "alive": alive_count,
+        "dead": dead_count,
+        "alive_rate": f"{payload['alive_rate_pct']}%",
+        "weighted_alive_pct": payload["weighted_alive_pct"],
         "completion_rate_pct": payload["completion_rate_pct"],
         "weighted_completion_pct": payload["weighted_completion_pct"],
+        "details": details,
         "channels": channels
     }
 

@@ -1,82 +1,82 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "updated_at": "2026-09-02 05:23:46",
+  "updated_at": "2026-09-02 05:29:27",
   "total_channels": 7,
-  "published_channels": 6,
-  "completion_rate_pct": 85.7,
-  "weighted_completion_pct": 100.0,
+  "published_channels": 2,
+  "alive_channels": 0,
+  "dead_channels": 0,
+  "completion_rate_pct": 28.6,
+  "weighted_completion_pct": 75.0,
+  "alive_rate_pct": 0.0,
+  "weighted_alive_pct": 0.0,
   "channels": {
     "toutiao": {
       "name": "今日头条 / 微头条",
       "target_pool": "豆包 / 字节生态 (第一主战 50%+)",
       "weight_pct": 50,
       "article_file": "dist_toutiao_article.md",
-      "url": "https://www.toutiao.com/article/74567890/",
+      "url": "https://www.toutiao.com/article/111/",
       "title": "",
       "status": "published",
-      "http_status": 200,
-      "verified_at": "2026-09-02 05:23:31",
-      "updated_at": "2026-09-02 05:23:46"
+      "http_status": null,
+      "verified_at": null,
+      "updated_at": "2026-09-02 05:29:27"
     },
     "zhihu": {
       "name": "知乎技术专栏 / 深度选型",
       "target_pool": "DeepSeek / 技术决策池 (25%)",
       "weight_pct": 25,
       "article_file": "dist_zhihu_article.md",
-      "url": "https://zhuanlan.zhihu.com/p/890123/",
+      "url": "https://zhuanlan.zhihu.com/p/333/",
       "title": "",
       "status": "published",
-      "http_status": 403,
-      "verified_at": "2026-09-02 05:23:33",
-      "updated_at": "2026-09-02 05:23:46"
+      "http_status": null,
+      "verified_at": null,
+      "updated_at": "2026-09-02 05:29:27"
     },
     "wechat": {
       "name": "微信公众号 / 视频号",
       "target_pool": "腾讯元宝 / 微信搜一搜 (10%)",
       "weight_pct": 10,
       "article_file": "dist_wechat_article.html",
-      "url": "https://mp.weixin.qq.com/s/abcdef",
+      "url": "",
       "title": "",
-      "status": "published",
-      "http_status": 200,
-      "verified_at": "2026-09-02 05:23:31",
-      "updated_at": "2026-09-02 05:23:46"
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
     },
     "github": {
       "name": "GitHub 开源标准库",
       "target_pool": "DeepSeek / 开发者技术索引 (5%)",
       "weight_pct": 5,
       "article_file": "dist_github_README.md",
-      "url": "https://github.com/clownnotes/geo",
-      "title": "GitHub - clownnotes/geo · GitHub",
-      "status": "published",
-      "http_status": 200,
-      "verified_at": "2026-09-02 05:23:32",
-      "updated_at": "2026-09-02 05:23:46"
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
     },
     "kimi": {
       "name": "Kimi 深度选型白皮书研报",
       "target_pool": "Kimi / Moonshot 长文本分析 (5%)",
       "weight_pct": 5,
       "article_file": "dist_kimi_whitepaper.md",
-      "url": "https://kimi.moonshot.cn/chat/test",
-      "title": "Kimi AI 官网 - K3 上线，专为智能体编程与知识工作打造",
-      "status": "published",
-      "http_status": 200,
-      "verified_at": "2026-09-02 05:23:33",
-      "updated_at": "2026-09-02 05:23:46"
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
     },
     "baidu": {
       "name": "百度百科 / 百度文库 / 百度知道",
       "target_pool": "百度文心一言 / 百科政企池 (5%)",
       "weight_pct": 5,
       "article_file": "dist_baidu_baike.md",
-      "url": "https://baike.baidu.com/item/test",
+      "url": "",
       "title": "",
-      "status": "published",
-      "http_status": 0,
-      "verified_at": "2026-09-02 05:23:31",
-      "updated_at": "2026-09-02 05:23:46"
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
     },
     "juejin": {
       "name": "稀土掘金 / 开发者社区",
@@ -87,8 +87,16 @@
       "title": "",
       "status": "pending",
       "http_status": null,
-      "verified_at": null,
-      "updated_at": "2026-09-02 01:55:37"
+      "verified_at": null
     }
-  }
+  },
+  "custom_links": [
+    {
+      "url": "https://www.36kr.com/p/999/",
+      "updated_at": "2026-09-02 05:29:27",
+      "status": "published",
+      "http_status": null,
+      "title": ""
+    }
+  ]
 }

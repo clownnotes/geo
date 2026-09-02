@@ -138,7 +138,7 @@ def build_delivery_certificate_html(project_id: str) -> str:
         try:
             with open(ledger_path, "r", encoding="utf-8") as f:
                 ld = json.load(f)
-                rate = ld.get("weighted_completion_pct", 0)
+                rate = ld.get("weighted_alive_pct", ld.get("weighted_completion_pct", 0))
                 ledger_alive_rate_str = f"{rate}%"
         except Exception:
             pass
