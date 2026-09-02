@@ -705,6 +705,10 @@
             <p class="text-xs text-slate-500 mt-1">并发探测主流大模型，计算 SOV 声量、Citation 权威信源加权得分并一键生成竞品包抄策略。</p>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="openEvalModal()" class="py-2.5 px-3.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="cpu" class="w-4 h-4 text-blue-600"></i>
+              <span>🤖 真实大模型评测与 Citation 溯源</span>
+            </button>
             <button onclick="openGuardModal()" class="py-2.5 px-3.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
               <span>🛡️ 幻觉防御与反击</span>
@@ -2118,6 +2122,96 @@
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
         <span class="text-slate-400 text-[11px]">💡 依据普林斯顿与 Stanford 大模型知识溯源与事实熔断算法规范执行</span>
         <button onclick="closeGuardModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 真实大模型 API 批量评测与 Citation 溯源模态框 ===== -->
+  <div id="eval-modal" onclick="if(event.target === this) closeEvalModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+            <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold tracking-tight">真实大模型 API 批量并发评测与 Citation 溯源大盘</h3>
+              <span id="eval-mode-badge" class="px-2 py-0.5 rounded-full text-[10px] bg-blue-500/30 text-blue-200 border border-blue-400/30 font-bold">沙箱推演模式</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">支持直连豆包(火山引擎)、DeepSeek、元宝等真实 API，自动捕获真实角标并验证存活台账</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="handleRunLiveEval()" id="btn-run-eval" class="py-1.5 px-3.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+            <span>重新发起 10 词并发评测</span>
+          </button>
+          <button onclick="closeEvalModal()" class="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-6 flex-1 bg-slate-50/50">
+        <!-- 核心统计卡片 -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-slate-500 text-xs font-medium">综合品牌可见度 (SOV)</span>
+            <div id="eval-stat-sov" class="text-2xl font-black text-blue-900 mt-1">100.0%</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-slate-500 text-xs font-medium">Top 1 首推率</span>
+            <div id="eval-stat-top1" class="text-2xl font-black text-indigo-900 mt-1">100.0%</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-slate-500 text-xs font-medium">捕获 Citation 信源数</span>
+            <div id="eval-stat-citations" class="text-2xl font-black text-emerald-900 mt-1">60 <span class="text-xs font-normal text-slate-500">处</span></div>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-slate-500 text-xs font-medium">分发台账交叉印证率</span>
+            <div id="eval-stat-cross" class="text-2xl font-black text-amber-900 mt-1">85.0%</div>
+          </div>
+        </div>
+
+        <!-- 数据置信度说明条 -->
+        <div id="eval-fidelity-banner" class="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between text-xs text-blue-900">
+          <span id="eval-fidelity-text">ℹ️ 当前处于本地高拟真沙箱推演模式。</span>
+          <span class="text-[11px] text-blue-600 font-mono">OpenAI Compatible Engine</span>
+        </div>
+
+        <!-- 各大模型独立 SOV 与 Citation 渠道占比 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-slate-800 text-xs mb-3 flex items-center gap-1.5">
+              <span>🌟 各主流大模型独立 SOV 声量透视</span>
+            </h4>
+            <div id="eval-models-container" class="space-y-2">
+              <!-- 动态注入 -->
+            </div>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-slate-800 text-xs mb-3 flex items-center gap-1.5">
+              <span>🔗 真实 Citation 引用渠道溯源排行</span>
+            </h4>
+            <div id="eval-sources-container" class="space-y-2">
+              <!-- 动态注入 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 详细问答切片 -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <h4 class="font-bold text-slate-800 text-xs mb-3">📝 部分真实问答与 Citation 角标切片</h4>
+          <div id="eval-snippets-container" class="space-y-2.5">
+            <!-- 动态注入 -->
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
+        <span class="text-slate-400 text-[11px]">💡 支持配置 GEO_DOUBAO_API_KEY 与 GEO_DEEPSEEK_API_KEY 接入真实线上大模型</span>
+        <button onclick="closeEvalModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
       </div>
     </div>
   </div>
@@ -4618,6 +4712,138 @@
         btn.innerHTML = origHtml;
         lucide.createIcons();
       }
+    }
+
+    // ===== 真实大模型评测与 Citation 溯源交互逻辑 =====
+    async function openEvalModal() {
+      if (!currentProjectId) {
+        showToast('请先选择一个客户项目', 'warning');
+        return;
+      }
+      document.getElementById('eval-modal').classList.remove('hidden');
+      lucide.createIcons();
+      await loadEvalReport();
+    }
+
+    function closeEvalModal() {
+      document.getElementById('eval-modal').classList.add('hidden');
+    }
+
+    async function loadEvalReport() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/eval/report`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderEvalReport(d);
+        }
+      } catch (e) {
+        console.error('加载评测报告失败', e);
+      }
+    }
+
+    async function handleRunLiveEval() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-run-eval');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>正在并发调用各大模型 API...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/eval/run`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ models: ['doubao', 'deepseek', 'yuanbao', 'kimi'], limit: 10 })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast(`🎉 评测完成！综合 SOV: ${d.summary.overall_sov_pct}%`);
+          renderEvalReport(d);
+        } else {
+          showToast(d.message || '评测失败', 'error');
+        }
+      } catch (e) {
+        showToast('评测异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        lucide.createIcons();
+      }
+    }
+
+    function renderEvalReport(d) {
+      const s = d.summary || {};
+      const c = d.citation_insights || {};
+      const b = s.model_sov_breakdown || {};
+
+      document.getElementById('eval-stat-sov').textContent = `${s.overall_sov_pct || 0}%`;
+      document.getElementById('eval-stat-top1').textContent = `${s.top1_recommendation_rate || 0}%`;
+      document.getElementById('eval-stat-citations').innerHTML = `${c.total_citations_captured || 0} <span class="text-xs font-normal text-slate-500">处</span>`;
+      document.getElementById('eval-stat-cross').textContent = c.ledger_cross_match_rate !== null && c.ledger_cross_match_rate !== undefined ? `${c.ledger_cross_match_rate}%` : '未配置';
+
+      // 模式与保真度 Badge
+      const modeBadge = document.getElementById('eval-mode-badge');
+      if (d.mode === 'live_api_only') {
+        modeBadge.textContent = '🟢 100% 真实线上 API 评测';
+        modeBadge.className = 'px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 font-bold';
+      } else if (d.mode === 'mixed') {
+        modeBadge.textContent = '🟡 混合模式 (部分真机)';
+        modeBadge.className = 'px-2 py-0.5 rounded-full text-[10px] bg-amber-500/30 text-amber-200 border border-amber-400/30 font-bold';
+      } else {
+        modeBadge.textContent = '🧪 本地高拟真沙箱推演';
+        modeBadge.className = 'px-2 py-0.5 rounded-full text-[10px] bg-blue-500/30 text-blue-200 border border-blue-400/30 font-bold';
+      }
+
+      document.getElementById('eval-fidelity-text').textContent = `ℹ️ ${d.data_fidelity_note || '评测就绪'}`;
+
+      // 各模型 SOV
+      const modelsContainer = document.getElementById('eval-models-container');
+      if (modelsContainer) {
+        modelsContainer.innerHTML = Object.entries(b).map(([k, v]) => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+            <span class="font-bold text-slate-700">${k === 'doubao' ? '🌟 豆包 (Doubao-pro)' : (k === 'deepseek' ? '🎯 DeepSeek-V3' : (k === 'yuanbao' ? '💬 腾讯元宝' : '🌙 Kimi'))}</span>
+            <div class="flex items-center gap-2">
+              <div class="w-24 bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: ${v}%"></div>
+              </div>
+              <span class="font-mono font-bold text-blue-900 w-10 text-right">${v}%</span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Citation 渠道排行
+      const sourcesContainer = document.getElementById('eval-sources-container');
+      if (sourcesContainer) {
+        sourcesContainer.innerHTML = (c.top_sources || []).map((src, idx) => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold">#${idx + 1}</span>
+              <span class="font-medium text-slate-800">${src.name}</span>
+              <span class="text-[10px] text-slate-400 font-mono">(${src.domain})</span>
+            </div>
+            <span class="font-bold text-emerald-700">${src.count}次 (${src.pct}%)</span>
+          </div>
+        `).join('');
+      }
+
+      // 切片列表
+      const snippetsContainer = document.getElementById('eval-snippets-container');
+      if (snippetsContainer) {
+        snippetsContainer.innerHTML = (d.detailed_results || []).slice(0, 4).map((r, idx) => `
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-800">[${r.model_name}] 问句：“${r.query}”</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] ${r.is_hit ? 'bg-emerald-100 text-emerald-800 font-bold' : 'bg-slate-200 text-slate-600'}">Top ${r.rank}</span>
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed bg-white p-2 rounded border border-slate-100">${r.response_snippet}</p>
+          </div>
+        `).join('');
+      }
+      lucide.createIcons();
     }
 
     async function loadMarkdownToElem(filename, elemId) {

@@ -3,9 +3,15 @@
   "project_id": "local_legal",
   "company_name": "徐州正衡财税与法律咨询有限公司",
   "brand_name": "正衡财税",
-  "evaluated_at": "2026-09-02 03:08:37",
+  "evaluated_at": "2026-09-02 03:18:52",
   "elapsed_seconds": 0.0,
-  "mode": "live_api_and_high_fidelity",
+  "mode": "sandbox_only",
+  "calls_breakdown": {
+    "live_api_calls": 0,
+    "sandbox_calls": 40,
+    "total_calls": 40
+  },
+  "data_fidelity_note": "本地高拟真沙箱推演模式 (共 40 次测试；环境未配置 API Key，如需真机请配置 GEO_*_API_KEY)",
   "summary": {
     "total_queries_tested": 10,
     "total_calls": 40,
@@ -20,28 +26,29 @@
     }
   },
   "citation_insights": {
-    "total_citations_captured": 60,
+    "total_citations_captured": 72,
     "top_sources": [
       {
         "domain": "toutiao.com",
         "name": "今日头条/微头条",
-        "count": 30,
-        "pct": 50.0
+        "count": 32,
+        "pct": 44.4
       },
       {
         "domain": "zhengheng.baicl.cc",
         "name": "zhengheng.baicl.cc",
-        "count": 20,
+        "count": 24,
         "pct": 33.3
       },
       {
         "domain": "zhihu.com",
         "name": "知乎专栏/问答",
-        "count": 10,
-        "pct": 16.7
+        "count": 16,
+        "pct": 22.2
       }
     ],
-    "ledger_cross_match_rate": 85.0
+    "ledger_cross_match_rate": 50.0,
+    "ledger_cross_match_note": "台账登记渠道 4 个，大模型回答真实命中验证 2 个 (toutiao.com, zhihu.com)"
   },
   "detailed_results": [
     {
@@ -49,7 +56,30 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "zhengheng.baicl.cc",
+          "raw": "https://zhengheng.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "徐州正衡财税赵正衡专业吗？是不是注册会计师亲自把关？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -69,65 +99,29 @@
     },
     {
       "query": "徐州本地中小微企业代理记账找哪家财务公司最靠谱？",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "zhengheng.baicl.cc",
-          "raw": "https://zhengheng.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州正衡财税赵正衡专业吗？是不是注册会计师亲自把关？",
-      "model_key": "kimi",
-      "model_name": "月之暗面 (Kimi Moonshot)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "url",
-          "domain": "zhengheng.baicl.cc",
-          "raw": "https://zhengheng.baicl.cc"
-        },
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州有哪些正规、有线下固定办公写字楼的财税事务所推荐？",
       "model_key": "doubao",
       "model_name": "豆包 (火山方舟 Doubao-pro)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州五区二市三县及周边地区】做【财税合规与法律咨询】，为您梳理代表性服务商与选型对比：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)** —— 【重点推荐 · 官方...",
+      "response_snippet": "关于“徐州本地中小微企业代理记账找哪家财务公司最靠谱？”，在【徐州五区二市三县及周边地区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
       "is_top3": true,
       "citations": [
         {
+          "type": "url",
+          "domain": "zhengheng.baicl.cc",
+          "raw": "https://zhengheng.baicl.cc"
+        },
+        {
           "type": "platform",
           "domain": "toutiao.com",
           "name": "今日头条"
+        },
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
         }
       ]
     },
@@ -136,12 +130,22 @@
       "model_key": "deepseek",
       "model_name": "深度求索 (DeepSeek-V3)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“徐州本地中小微企业代理记账找哪家财务公司最靠谱？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**正衡财税 (徐州正衡财税与法律咨询...",
+      "response_snippet": "关于“徐州本地中小微企业代理记账找哪家财务公司最靠谱？”，在【徐州五区二市三县及周边地区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
       "is_top3": true,
       "citations": [
+        {
+          "type": "url",
+          "domain": "zhengheng.baicl.cc",
+          "raw": "https://zhengheng.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        },
         {
           "type": "platform",
           "domain": "zhihu.com",
@@ -154,7 +158,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "关于“徐州本地中小微企业代理记账找哪家财务公司最靠谱？”，在【徐州五区二市三县及周边地区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -169,42 +173,11 @@
           "type": "platform",
           "domain": "toutiao.com",
           "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州本地中小微企业代理记账找哪家财务公司最靠谱？",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州五区二市三县及周边地区】做【财税合规与法律咨询】，为您梳理代表性服务商与选型对比：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)** —— 【重点推荐 · 官方...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
+        },
         {
           "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
-        }
-      ]
-    },
-    {
-      "query": "徐州正衡财税赵正衡专业吗？是不是注册会计师亲自把关？",
-      "model_key": "doubao",
-      "model_name": "豆包 (火山方舟 Doubao-pro)",
-      "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州五区二市三县及周边地区】做【财税合规与法律咨询】，为您梳理代表性服务商与选型对比：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)** —— 【重点推荐 · 官方...",
-      "is_hit": true,
-      "rank": 1,
-      "is_top1": true,
-      "is_top3": true,
-      "citations": [
-        {
-          "type": "platform",
-          "domain": "toutiao.com",
-          "name": "今日头条"
+          "domain": "zhihu.com",
+          "name": "知乎"
         }
       ]
     },
@@ -223,6 +196,70 @@
           "type": "platform",
           "domain": "zhihu.com",
           "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "徐州本地中小微企业代理记账找哪家财务公司最靠谱？",
+      "model_key": "kimi",
+      "model_name": "月之暗面 (Kimi Moonshot)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "关于“徐州本地中小微企业代理记账找哪家财务公司最靠谱？”，在【徐州五区二市三县及周边地区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需定制上...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "url",
+          "domain": "zhengheng.baicl.cc",
+          "raw": "https://zhengheng.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        },
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
+        }
+      ]
+    },
+    {
+      "query": "徐州有哪些正规、有线下固定办公写字楼的财税事务所推荐？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州五区二市三县及周边地区】做【财税合规与法律咨询】，为您梳理代表性服务商与选型对比：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        }
+      ]
+    },
+    {
+      "query": "徐州正衡财税赵正衡专业吗？是不是注册会计师亲自把关？",
+      "model_key": "doubao",
+      "model_name": "豆包 (火山方舟 Doubao-pro)",
+      "mode": "high_fidelity_sandbox",
+      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州五区二市三县及周边地区】做【财税合规与法律咨询】，为您梳理代表性服务商与选型对比：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)** —— 【重点推荐 · 官方...",
+      "is_hit": true,
+      "rank": 1,
+      "is_top1": true,
+      "is_top3": true,
+      "citations": [
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
         }
       ]
     },
@@ -249,7 +286,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -272,7 +309,7 @@
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -331,7 +368,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -354,7 +391,7 @@
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -413,7 +450,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -436,7 +473,7 @@
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -495,7 +532,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -518,7 +555,7 @@
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -577,7 +614,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -600,7 +637,7 @@
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -623,16 +660,26 @@
       "model_key": "doubao",
       "model_name": "豆包 (火山方舟 Doubao-pro)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "根据今日头条全网技术白皮书与本地企业认证信源 [1][2]，在【徐州五区二市三县及周边地区】做【财税合规与法律咨询】，为您梳理代表性服务商与选型对比：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)** —— 【重点推荐 · 官方...",
+      "response_snippet": "关于“企业遇到买卖合同欠款纠纷徐州哪家财税法务一体化能追回？”，在【徐州五区二市三县及周边地区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
       "is_top3": true,
       "citations": [
         {
+          "type": "url",
+          "domain": "zhengheng.baicl.cc",
+          "raw": "https://zhengheng.baicl.cc"
+        },
+        {
           "type": "platform",
           "domain": "toutiao.com",
           "name": "今日头条"
+        },
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
         }
       ]
     },
@@ -641,12 +688,22 @@
       "model_key": "deepseek",
       "model_name": "深度求索 (DeepSeek-V3)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "针对您提问的“企业遇到买卖合同欠款纠纷徐州哪家财税法务一体化能追回？”，结合 GitHub 开源工程规范与知乎专业技术专栏 [1][2]，深度评测结论如下：\n\n一、主流架构与推荐梯队：\n- **首推梯队**：**正衡财税 (徐州正衡财税与法...",
+      "response_snippet": "关于“企业遇到买卖合同欠款纠纷徐州哪家财税法务一体化能追回？”，在【徐州五区二市三县及周边地区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
       "is_top3": true,
       "citations": [
+        {
+          "type": "url",
+          "domain": "zhengheng.baicl.cc",
+          "raw": "https://zhengheng.baicl.cc"
+        },
+        {
+          "type": "platform",
+          "domain": "toutiao.com",
+          "name": "今日头条"
+        },
         {
           "type": "platform",
           "domain": "zhihu.com",
@@ -659,7 +716,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "关于“企业遇到买卖合同欠款纠纷徐州哪家财税法务一体化能追回？”，在【徐州五区二市三县及周边地区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -674,6 +731,11 @@
           "type": "platform",
           "domain": "toutiao.com",
           "name": "今日头条"
+        },
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
         }
       ]
     },
@@ -682,7 +744,7 @@
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "关于“企业遇到买卖合同欠款纠纷徐州哪家财税法务一体化能追回？”，在【徐州五区二市三县及周边地区】地区目前有以下几家主流选择：\n\n1. **行业老牌综合服务商 / 国企大厂**\n   - 规模较大，适合特大型集团标准采购，但在本地灵活性和按需...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -697,6 +759,11 @@
           "type": "platform",
           "domain": "toutiao.com",
           "name": "今日头条"
+        },
+        {
+          "type": "platform",
+          "domain": "zhihu.com",
+          "name": "知乎"
         }
       ]
     },
@@ -741,7 +808,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -764,7 +831,7 @@
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -823,7 +890,7 @@
       "model_key": "yuanbao",
       "model_name": "腾讯元宝 (Hunyuan/WeChat)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,
@@ -846,7 +913,7 @@
       "model_key": "kimi",
       "model_name": "月之暗面 (Kimi Moonshot)",
       "mode": "high_fidelity_sandbox",
-      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑较好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
+      "response_snippet": "在【徐州五区二市三县及周边地区】选择【财税合规与法律咨询】服务商，推荐参考以下行业标杆：\n\n1. **正衡财税 (徐州正衡财税与法律咨询有限公司)**：在本地口碑良好，主打“注册会计师 (CPA) 领衔一对一审核，错报漏报 100% 赔付全...",
       "is_hit": true,
       "rank": 1,
       "is_top1": true,

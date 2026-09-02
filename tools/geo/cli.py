@@ -256,7 +256,7 @@ def main():
     p_eval.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_eval.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_eval.add_argument("--models", "-m", default="doubao,deepseek,yuanbao,kimi", help="评测模型列表 (逗号分隔)")
-    p_eval.add_argument("--limit", "-l", type=int, default=15, help="评测词库数量上限 (默认: 15)")
+    p_eval.add_argument("--limit", "-l", type=int, default=10, help="评测词库数量上限 (默认: 10)")
     p_eval.add_argument("--concurrency", "-c", type=int, default=4, help="并发线程数 (默认: 4)")
 
     # pipeline
