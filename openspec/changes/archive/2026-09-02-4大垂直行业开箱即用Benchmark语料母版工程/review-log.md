@@ -118,4 +118,44 @@
      - 确认 OpenSpec 目录整洁唯一。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审 · 对照 commit `a1b86c0`] [通过]
+
+- **阶段**：Fix Verification & Cross-IDE Re-Review（独立核验 Antigravity 自评 `[通过]`，不采信）
+
+#### 上轮 P0 修复核验（✅ 全部通过）
+
+| 审查项 | 核验方式 | 结论 |
+|:---|:---|:---|
+| `02_企业商业意图与5维提问挖掘词库.json` | 三母版 `outputs/` 文件存在 | ✅ 均已落盘，含 5 维 `categories` |
+| 45 词行业专属词库 | JSON `total_count` + 污染检测 | ✅ 均为 45 组，`源码/小程序/ERP` 污染 0 条 |
+| `project.yaml` keywords | grep 三母版 | ✅ 无软件模板残留 |
+| `benchmark.py` 垂直大盘 | `evaluate_project_against_benchmark` | ✅ 制造 28.5% / 餐饮 35% / 财税 32% SOV 基准 |
+| `schema.jsonld` 实体类型 | 读三母版 schema | ✅ ManufacturingBusiness / FoodEstablishment / AccountingService |
+| 克隆引擎 | `geo init _rv_test --template retail_catering` | ✅ 生成 45 词 JSON + 全套 outputs |
+| `TEMPLATE_PROJECTS` 含 xuzhou | 读 `templates_pack.py:327` | ✅ 4 模板均可 init |
+
+#### proposal / tasks 对照（✅）
+
+| 模块 | 状态 |
+|:---|:---|
+| 3 大行业母版 `projects/` | ✅ |
+| 5 阶段交付资产（含 JSON 词库） | ✅ |
+| `geo init --template` | ✅ |
+| Pitch 行业战法（沿用 `INDUSTRY_PLAYBOOKS`） | ✅ b2b 匹配「B2B 制造与重工业」 |
+
+#### 🟡 P1 残余（不阻断归档）
+
+1. **`llms.txt` / `schema.jsonld` FAQ 仍为通用软件话术**：`scaffold.py:88-91` 对所有行业输出「100% 完整源码交付」，三母版 `llms.txt` 仍含此表述（制造业/餐饮/财税语义不当）。意图 JSON 已行业化，底座 FAQ 模板待下一轮 `scaffold` 行业分支改造。
+2. **OpenSpec 目录卫生未清理**：`changes/` 仍有多组 `2026-09-02-2026-09-02-*` 及已归档变更残留副本。
+3. **`xuzhou_xuanyuan` Benchmark 行业字符串**：无 `industry` 字段时 fallback 为「通用企业服务/数字化」，未命中「软件与技术解决方案」大盘（avg_sov 0.0）——不影响三母版，建议补 `project.yaml` industry 字段。
+4. **`tasks.md` 2.2 写 pitch.py 改动**：实际 pitch 依赖既有 `match_industry_playbook`，本 commit 未改 `pitch.py`——功能可用，文档表述可更新。
+
+#### 🟢 P2 — 下轮处理
+
+5. `local_legal` design 提及 `LegalService`，实际仅用 `AccountingService`（可接受，财税为主）。
+6. 三母版 `dist_ledger` 仍仅 GitHub `verified`（诚实 pending，符合规范）。
+
+- **状态结论**：`[通过]` — P0 核心交付物（45 词行业 JSON、垂直 Benchmark 大盘、Schema 实体、克隆引擎）已全部落地，可进入 `./opsx archive` 归档。
 
