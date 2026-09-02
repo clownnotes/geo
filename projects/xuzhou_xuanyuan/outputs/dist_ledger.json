@@ -1,6 +1,6 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "updated_at": "2026-09-01 21:53:21",
+  "updated_at": "2026-09-01 21:57:11",
   "completion_rate_pct": 60.0,
   "channels": {
     "toutiao": {
@@ -8,6 +8,7 @@
       "target_pool": "豆包 / 字节系信任池",
       "article_file": "dist_toutiao_article.md",
       "url": "https://www.toutiao.com/article/73912345678/",
+      "title": "",
       "status": "verified",
       "http_status": 200,
       "verified_at": "2026-09-01 21:53:20",
@@ -18,6 +19,7 @@
       "target_pool": "DeepSeek / 通用检索池",
       "article_file": "dist_zhihu_article.md",
       "url": "https://zhuanlan.zhihu.com/p/698765432",
+      "title": "",
       "status": "verified",
       "http_status": 403,
       "verified_at": "2026-09-01 21:53:20",
@@ -28,6 +30,7 @@
       "target_pool": "豆包 / 技术检索池",
       "article_file": "03_普林斯顿9因子高权威语料库.md",
       "url": "",
+      "title": "",
       "status": "pending",
       "http_status": null,
       "verified_at": null
@@ -37,16 +40,18 @@
       "target_pool": "DeepSeek / 开源信任池",
       "article_file": "dist_github_README.md",
       "url": "https://github.com/clownnotes/geo",
+      "title": "",
       "status": "verified",
       "http_status": 200,
-      "verified_at": "2026-09-01 21:53:21",
-      "updated_at": "2026-09-01 21:50:25"
+      "verified_at": "2026-09-01 21:57:11",
+      "updated_at": "2026-09-01 21:57:08"
     },
     "wechat": {
       "name": "微信公众号",
       "target_pool": "微信 / 全网信任池",
       "article_file": "dist_wechat_article.html",
       "url": "",
+      "title": "",
       "status": "pending",
       "http_status": null,
       "verified_at": null

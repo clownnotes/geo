@@ -3560,10 +3560,30 @@
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
-        if (data.success && data.raw_content) {
-          navigator.clipboard.writeText(data.raw_content).then(() => {
-            showToast(`✅ [${data.filename}] 文章内容已复制到剪贴板！`);
-          });
+        if (data.success && (data.html_content || data.raw_content)) {
+          const htmlContent = data.html_content || data.raw_content;
+          const plainText = data.raw_content || data.html_content;
+
+          if (navigator.clipboard && window.ClipboardItem) {
+            try {
+              const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+              const textBlob = new Blob([plainText], { type: 'text/plain' });
+              await navigator.clipboard.write([
+                new ClipboardItem({
+                  'text/html': htmlBlob,
+                  'text/plain': textBlob
+                })
+              ]);
+              showToast(`🎉 [${data.filename}] 带样式富文本已复制！可直接粘贴到公众号/知乎编辑器`);
+              return;
+            } catch (clipErr) {
+              console.warn('ClipboardItem 写入失败，降级为普通文本:', clipErr);
+            }
+          }
+
+          // 降级为传统复制
+          await navigator.clipboard.writeText(plainText);
+          showToast(`✅ [${data.filename}] 稿件内容已复制到剪贴板！`);
         } else {
           showToast('暂无可复制内容，请先在 Step 4 点击生成发布包！', 'error');
         }

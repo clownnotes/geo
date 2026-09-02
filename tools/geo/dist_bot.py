@@ -4,7 +4,7 @@
 GEO 自动化分发台账回填与收录核验中枢 (tools/geo/dist_bot.py)
 核心功能：
 1. 管理 5 大信任池渠道（今日头条/知乎/掘金/GitHub/微信公众号）外发台账 (outputs/dist_ledger.json)；
-2. 记录与更新外发 URL，并自动化发起轻量 HTTP 存活与收录连通性探测；
+2. 记录与更新外发 URL，并自动化发起轻量 HTTP 存活与收录连通性探测及页面标题抓取；
 3. 计算项目全渠道分发完成率 (0~100%) 与收录状态；
 4. 生成适配公众号/知乎带样式的富文本 HTML 剪贴板内容。
 """
@@ -13,6 +13,7 @@ import os
 import sys
 import json
 import time
+import re
 import urllib.request
 import urllib.error
 from concurrent.futures import ThreadPoolExecutor
@@ -34,6 +35,7 @@ DEFAULT_CHANNELS = {
         "target_pool": "豆包 / 字节系信任池",
         "article_file": "dist_toutiao_article.md",
         "url": "",
+        "title": "",
         "status": "pending",
         "http_status": None,
         "verified_at": None
@@ -43,6 +45,7 @@ DEFAULT_CHANNELS = {
         "target_pool": "DeepSeek / 通用检索池",
         "article_file": "dist_zhihu_article.md",
         "url": "",
+        "title": "",
         "status": "pending",
         "http_status": None,
         "verified_at": None
@@ -50,8 +53,9 @@ DEFAULT_CHANNELS = {
     "juejin": {
         "name": "稀土掘金",
         "target_pool": "豆包 / 技术检索池",
-        "article_file": "03_普林斯顿9因子高权威语料库.md",
+        "article_file": "dist_juejin_article.md",
         "url": "",
+        "title": "",
         "status": "pending",
         "http_status": None,
         "verified_at": None
@@ -61,6 +65,7 @@ DEFAULT_CHANNELS = {
         "target_pool": "DeepSeek / 开源信任池",
         "article_file": "dist_github_README.md",
         "url": "",
+        "title": "",
         "status": "pending",
         "http_status": None,
         "verified_at": None
@@ -70,6 +75,7 @@ DEFAULT_CHANNELS = {
         "target_pool": "微信 / 全网信任池",
         "article_file": "dist_wechat_article.html",
         "url": "",
+        "title": "",
         "status": "pending",
         "http_status": None,
         "verified_at": None
@@ -78,6 +84,25 @@ DEFAULT_CHANNELS = {
 
 def _get_ledger_path(project_id: str) -> str:
     return os.path.join(PROJECTS_DIR, project_id, "outputs", "dist_ledger.json")
+
+def _find_channel_file(project_id: str, channel: str) -> tuple:
+    """定位渠道文章文件路径与文件名"""
+    p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    ch_info = DEFAULT_CHANNELS.get(channel, {})
+    default_fname = ch_info.get("article_file", "")
+    
+    # 掘金兼容回退
+    candidate_files = [default_fname]
+    if channel == "juejin":
+        candidate_files.append("03_普林斯顿9因子高权威语料库.md")
+        candidate_files.append("03_普林斯顿9因子企业语料库.md")
+
+    for f in candidate_files:
+        fpath = os.path.join(p_dir, f)
+        if os.path.exists(fpath):
+            return fpath, f
+
+    return os.path.join(p_dir, default_fname), default_fname
 
 def get_distribution_ledger(project_id: str) -> dict:
     """读取指定项目的分发台账"""
@@ -112,25 +137,42 @@ def get_distribution_ledger(project_id: str) -> dict:
     }
 
 def verify_distribution_url(url: str) -> dict:
-    """轻量探测外发 URL 是否可访问"""
+    """轻量探测外发 URL 是否可访问并抓取网页标题"""
     if not url or not url.startswith("http"):
-        return {"is_alive": False, "http_status": None, "error": "无效的 URL"}
+        return {"is_alive": False, "http_status": None, "title": "", "error": "无效的 URL"}
 
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 GEOBot/2.0"
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 GEOBot/2.1"
         }
     )
     try:
-        with urllib.request.urlopen(req, timeout=4) as response:
+        with urllib.request.urlopen(req, timeout=5) as response:
             code = response.getcode()
-            return {"is_alive": code in (200, 301, 302, 307, 308), "http_status": code, "error": None}
+            is_alive = code in (200, 301, 302, 307, 308)
+            title = ""
+            try:
+                chunk = response.read(16384).decode("utf-8", errors="ignore")
+                t_match = re.search(r"<title>(.*?)</title>", chunk, re.IGNORECASE | re.DOTALL)
+                if t_match:
+                    title = re.sub(r"\s+", " ", t_match.group(1)).strip()
+            except Exception:
+                pass
+            return {"is_alive": is_alive, "http_status": code, "title": title, "error": None}
     except urllib.error.HTTPError as e:
-        # 部分平台返回 403 但实际内容存在
-        return {"is_alive": e.code in (200, 403, 302), "http_status": e.code, "error": f"HTTP {e.code}"}
+        title = ""
+        try:
+            chunk = e.read(4096).decode("utf-8", errors="ignore")
+            t_match = re.search(r"<title>(.*?)</title>", chunk, re.IGNORECASE | re.DOTALL)
+            if t_match:
+                title = re.sub(r"\s+", " ", t_match.group(1)).strip()
+        except Exception:
+            pass
+        # 403 平台防爬但页面存在
+        return {"is_alive": e.code in (200, 403, 302), "http_status": e.code, "title": title, "error": f"HTTP {e.code}"}
     except Exception as e:
-        return {"is_alive": False, "http_status": 0, "error": str(e)}
+        return {"is_alive": False, "http_status": 0, "title": "", "error": str(e)}
 
 def record_distributed_url(project_id: str, channel: str, url: str, verify_now: bool = True) -> dict:
     """记录并回填指定渠道的发布链接"""
@@ -148,11 +190,14 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
     if not url_clean:
         ch_data["status"] = "pending"
         ch_data["http_status"] = None
+        ch_data["title"] = ""
         ch_data["verified_at"] = None
     else:
         if verify_now:
             v_res = verify_distribution_url(url_clean)
             ch_data["http_status"] = v_res["http_status"]
+            if v_res.get("title"):
+                ch_data["title"] = v_res["title"]
             ch_data["verified_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
             ch_data["status"] = "verified" if v_res["is_alive"] else "failed"
         else:
@@ -198,6 +243,8 @@ def verify_all_channels(project_id: str) -> dict:
         if u:
             vres = verify_distribution_url(u)
             v["http_status"] = vres["http_status"]
+            if vres.get("title"):
+                v["title"] = vres["title"]
             v["verified_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
             v["status"] = "verified" if vres["is_alive"] else "failed"
         return k, v
@@ -231,24 +278,114 @@ def verify_all_channels(project_id: str) -> dict:
         "channels": channels
     }
 
+def markdown_to_styled_html(md_text: str, title: str = "") -> str:
+    """将 Markdown 转换为适合直接粘贴到公众号/知乎的内联带样式 HTML"""
+    if not md_text:
+        return ""
+    
+    # 简易而优雅的 HTML 转换器（带内联样式）
+    lines = md_text.split("\n")
+    html_out = []
+    html_out.append('<div style="font-family: -apple-system, BlinkMacSystemFont, \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei\', sans-serif; font-size: 15px; line-height: 1.75; color: #333333; word-break: break-word;">')
+    
+    in_table = False
+    table_rows = []
+    
+    def _flush_table():
+        nonlocal in_table, table_rows
+        if table_rows:
+            html_out.append('<table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px;">')
+            for idx, r in enumerate(table_rows):
+                cols = [c.strip() for c in r.split("|")[1:-1]]
+                if idx == 0:
+                    html_out.append('<tr style="background-color: #f3f4f6; font-weight: bold;">')
+                    for c in cols:
+                        html_out.append(f'<th style="border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left;">{c}</th>')
+                    html_out.append('</tr>')
+                elif idx == 1 and all(set(c).issubset({"-", ":"}) for c in cols):
+                    continue
+                else:
+                    bg = "#ffffff" if idx % 2 == 0 else "#f9fafb"
+                    html_out.append(f'<tr style="background-color: {bg};">')
+                    for c in cols:
+                        html_out.append(f'<td style="border: 1px solid #e5e7eb; padding: 8px 10px;">{c}</td>')
+                    html_out.append('</tr>')
+            html_out.append('</table>')
+            table_rows = []
+        in_table = False
+
+    for line in lines:
+        s_line = line.strip()
+        if s_line.startswith("|") and s_line.endswith("|"):
+            in_table = True
+            table_rows.append(s_line)
+            continue
+        else:
+            if in_table:
+                _flush_table()
+
+        if s_line.startswith("# "):
+            h1_text = s_line[2:].strip()
+            html_out.append(f'<h1 style="font-size: 22px; font-weight: 800; color: #1e1b4b; border-bottom: 2px solid #4f46e5; padding-bottom: 8px; margin-top: 24px; margin-bottom: 16px;">{h1_text}</h1>')
+        elif s_line.startswith("## "):
+            h2_text = s_line[3:].strip()
+            html_out.append(f'<h2 style="font-size: 18px; font-weight: 700; color: #312e81; border-left: 4px solid #6366f1; padding-left: 10px; margin-top: 20px; margin-bottom: 12px;">{h2_text}</h2>')
+        elif s_line.startswith("### "):
+            h3_text = s_line[4:].strip()
+            html_out.append(f'<h3 style="font-size: 16px; font-weight: 600; color: #4338ca; margin-top: 16px; margin-bottom: 8px;">{h3_text}</h3>')
+        elif s_line.startswith("> "):
+            q_text = s_line[2:].strip()
+            html_out.append(f'<blockquote style="margin: 12px 0; padding: 10px 14px; background-color: #f5f3ff; border-left: 3px solid #8b5cf6; color: #5b21b6; font-size: 14px; border-radius: 4px;">{q_text}</blockquote>')
+        elif s_line.startswith("- ") or s_line.startswith("* "):
+            li_text = s_line[2:].strip()
+            # 替换 **粗体**
+            li_text = re.sub(r"\*\*(.*?)\*\*", r'<strong style="color: #1e1b4b;">\1</strong>', li_text)
+            html_out.append(f'<p style="margin: 4px 0; padding-left: 14px; text-indent: -14px;">• {li_text}</p>')
+        elif s_line:
+            p_text = re.sub(r"\*\*(.*?)\*\*", r'<strong style="color: #1e1b4b;">\1</strong>', s_line)
+            html_out.append(f'<p style="margin: 10px 0; line-height: 1.8;">{p_text}</p>')
+        else:
+            html_out.append('<div style="height: 6px;"></div>')
+
+    if in_table:
+        _flush_table()
+
+    html_out.append('</div>')
+    return "\n".join(html_out)
+
 def format_rich_text_copy(project_id: str, channel: str) -> dict:
-    """获取指定渠道的文章内容，并格式化为适合富文本剪贴板粘贴的 HTML"""
-    p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
-    ch_info = DEFAULT_CHANNELS.get(channel, {})
-    fname = ch_info.get("article_file", "")
-    fpath = os.path.join(p_dir, fname)
+    """获取指定渠道的文章内容，并输出预编译带样式的富文本 HTML"""
+    fpath, fname = _find_channel_file(project_id, channel)
 
     raw_content = ""
     if os.path.exists(fpath):
         with open(fpath, "r", encoding="utf-8") as f:
             raw_content = f.read()
 
+    # 提取文章主标题
+    title = ""
+    t_match = re.search(r"^#\s+(.+)$", raw_content, re.MULTILINE)
+    if t_match:
+        title = t_match.group(1).strip()
+    elif "<title>" in raw_content:
+        t_html = re.search(r"<title>(.*?)</title>", raw_content, re.IGNORECASE)
+        if t_html:
+            title = t_html.group(1).strip()
+
+    # 转换为内联样式富文本 HTML
+    if fpath.endswith(".html"):
+        html_content = raw_content
+    else:
+        html_content = markdown_to_styled_html(raw_content, title=title)
+
     return {
         "success": True,
         "project_id": project_id,
         "channel": channel,
         "filename": fname,
+        "title": title,
         "raw_content": raw_content,
+        "html_content": html_content,
         "length": len(raw_content)
     }
 

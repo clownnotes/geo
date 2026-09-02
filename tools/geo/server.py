@@ -609,6 +609,7 @@ core_values:
                 self.send_json(res)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
+            return
         # 16. 分发外链回填 API: /api/projects/{id}/distribution/record
         if path.startswith("/api/projects/") and path.endswith("/distribution/record"):
             project_id = path.split("/")[3]

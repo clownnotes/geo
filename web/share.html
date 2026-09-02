@@ -635,13 +635,28 @@
           box.innerHTML = Object.keys(dl.channels).map(k => {
             const ch = dl.channels[k];
             const icon = chIcons[k] || '🔗';
+            const isVerified = ch.status === 'verified';
+            let badge = `<span class="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] font-semibold">⏳ 待发布</span>`;
+            if (isVerified) {
+              badge = `<span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold">✅ 已收录</span>`;
+            } else if (ch.status === 'failed') {
+              badge = `<span class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-[9px] font-bold">⚠️ 异常</span>`;
+            } else if (ch.status === 'published') {
+              badge = `<span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-semibold">已登记</span>`;
+            }
+
+            const titleDisplay = ch.title || (ch.url ? ch.url.replace(/^https?:\/\//, '') : '待外发回填');
+
             return `
-              <div class="p-2.5 bg-white border border-indigo-100 rounded-lg flex items-center justify-between gap-2">
+              <div class="p-2.5 bg-white border border-indigo-100 rounded-lg flex items-center justify-between gap-2 shadow-xs">
                 <div class="flex items-center gap-1.5 overflow-hidden">
-                  <span>${icon}</span>
+                  <span class="text-base">${icon}</span>
                   <div class="truncate">
-                    <div class="font-bold text-slate-800 text-[11px]">${ch.name}</div>
-                    <div class="text-[9.5px] text-slate-400 truncate">${ch.url ? ch.url.replace(/^https?:\/\//, '') : '待外发回填'}</div>
+                    <div class="font-bold text-slate-800 text-[11px] flex items-center gap-1">
+                      <span>${ch.name}</span>
+                      ${badge}
+                    </div>
+                    <div class="text-[9.5px] text-slate-400 truncate max-w-[200px]" title="${titleDisplay}">${titleDisplay}</div>
                   </div>
                 </div>
                 <div>
