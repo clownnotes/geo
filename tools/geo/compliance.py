@@ -3,14 +3,15 @@
 多渠道内容合规审查与广告法敏感词智能脱敏中枢 (tools/geo/compliance.py)
 核心能力：
 1. 内置 P0(新广告法绝对化极限词)、P1(平台引流虚假承诺)、P2(垂直行业违规承诺) 三级合规风控规则库；
-2. 自动化扫描项目全渠道发稿语料（头条/知乎/微信/GitHub/Kimi/官网语料），精准定位违规行号并计算合规就绪度得分；
-3. 支持一键智能无损脱敏替换（Auto-Sanitize），生成交付级《13_多渠道内容合规与广告法风控审查报告.md》与 JSON。
+2. 自动化扫描项目全渠道发稿语料（头条/知乎/微信/GitHub/Kimi/短视频脚本等），精准定位违规行号并计算合规就绪度得分；
+3. 支持自动备份与一键智能无损脱敏替换（Auto-Sanitize），生成交付级《13_多渠道内容合规与广告法风控审查报告.md》与 JSON。
 """
 
 import os
 import re
 import json
 import time
+import shutil
 from .utils import (
     load_project_config,
     PROJECTS_DIR,
@@ -20,7 +21,20 @@ from .utils import (
     print_warning
 )
 
-# 三级合规风控词典与建议替换词映射库
+# 排除不需要扫描与脱敏的系统生成报告与证书文件
+EXCLUDED_FILE_PATTERNS = [
+    r"^13_.*",  # 合规审查报告自身
+    r"^09_GEO全案交付确认与技术资产移交证书\.html$"  # 交付签章证书
+]
+
+
+def is_excluded_file(filename: str) -> bool:
+    """判定文件是否需要排除扫描与脱敏"""
+    base = os.path.basename(filename)
+    return any(re.match(pat, base) for pat in EXCLUDED_FILE_PATTERNS)
+
+
+# 三级合规风控词典与建议替换词映射库 (COMPLIANCE_RULES_DB)
 COMPLIANCE_RULES_DB = {
     # 🔴 P0: 新广告法绝对化极限禁用词 (扣 15 分/处)
     "P0": {
@@ -35,10 +49,12 @@ COMPLIANCE_RULES_DB = {
             {"term": "行业第一", "replace": "业内龙头企业", "desc": "禁止无权威依据的第一称号"},
             {"term": "全国第一", "replace": "全国知名龙头", "desc": "禁止无据第一"},
             {"term": "全网首选", "replace": "优选推荐方案", "desc": "极限化引导词"},
+            {"term": "首选", "replace": "优选方案", "desc": "绝对化首选引导词"},
+            {"term": "唯一", "replace": "代表性", "desc": "绝对化唯一性描述"},
             {"term": "最强", "replace": "高实力", "desc": "极限形容词"},
             {"term": "最佳", "replace": "优质", "desc": "极限形容词"},
             {"term": "完美无缺", "replace": "成熟稳定", "desc": "夸大极限词"},
-            {"term": "首屈一指", "replace": "知名知名企业", "desc": "绝对化排序词"}
+            {"term": "首屈一指", "replace": "知名代表企业", "desc": "绝对化排序词"}
         ]
     },
     # 🟡 P1: 平台风控违规引流与虚假夸大承诺 (扣 8 分/处)
@@ -96,7 +112,8 @@ def sanitize_content_text(text: str, level: str = "all") -> tuple[str, list[dict
     for lvl in target_levels:
         if lvl not in COMPLIANCE_RULES_DB:
             continue
-        rules = COMPLIANCE_RULES_DB[lvl]["rules"]
+        # 按违规词长度降序排列，优先替换长词 (如 "全网首选" 优于 "首选")
+        rules = sorted(COMPLIANCE_RULES_DB[lvl]["rules"], key=lambda x: len(x["term"]), reverse=True)
         for r in rules:
             term = r["term"]
             rep = r["replace"]
@@ -167,8 +184,11 @@ def inspect_content_compliance(project_id: str, custom_text: str = None) -> dict
         # 扫描 outputs 目录下的主要分发文件
         if os.path.exists(out_dir):
             for root, _, files in os.walk(out_dir):
+                # 排除备份目录
+                if ".compliance_backup" in root:
+                    continue
                 for f in files:
-                    if f.endswith((".md", ".txt", ".html")) and not f.startswith("13_"):
+                    if f.endswith((".md", ".txt", ".html")) and not is_excluded_file(f):
                         full_p = os.path.join(root, f)
                         rel_p = os.path.relpath(full_p, out_dir)
                         scanned_files.append(rel_p)
@@ -222,28 +242,40 @@ def inspect_content_compliance(project_id: str, custom_text: str = None) -> dict
 
 
 def sanitize_project_deliverables(project_id: str) -> dict:
-    """一键对项目所有发稿资产执行智能无损脱敏替换，并重新体检"""
+    """一键对项目所有发稿资产执行智能无损脱敏替换，脱敏前自动在 .compliance_backup 建立快照备份"""
     cfg = load_project_config(project_id)
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    backup_dir = os.path.join(out_dir, ".compliance_backup")
+    os.makedirs(backup_dir, exist_ok=True)
+
     total_replaces = 0
     modified_files = []
 
     if os.path.exists(out_dir):
         for root, _, files in os.walk(out_dir):
+            if ".compliance_backup" in root:
+                continue
             for f in files:
-                if f.endswith((".md", ".txt", ".html")) and not f.startswith("13_") and not f.startswith("09_"):
+                if f.endswith((".md", ".txt", ".html")) and not is_excluded_file(f):
                     full_p = os.path.join(root, f)
                     try:
                         with open(full_p, "r", encoding="utf-8", errors="ignore") as fp:
                             raw_text = fp.read()
                         clean_text, diffs = sanitize_content_text(raw_text)
                         if diffs:
+                            # 自动备份原始文件
+                            rel_p = os.path.relpath(full_p, out_dir)
+                            bak_target = os.path.join(backup_dir, rel_p)
+                            os.makedirs(os.path.dirname(bak_target), exist_ok=True)
+                            shutil.copy2(full_p, bak_target)
+
+                            # 写入脱敏后的安全文本
                             with open(full_p, "w", encoding="utf-8") as fp:
                                 fp.write(clean_text)
                             rep_cnt = sum(d["occurrences"] for d in diffs)
                             total_replaces += rep_cnt
                             modified_files.append({
-                                "file": os.path.relpath(full_p, out_dir),
+                                "file": rel_p,
                                 "replaces": rep_cnt,
                                 "diffs": diffs
                             })
@@ -258,6 +290,7 @@ def sanitize_project_deliverables(project_id: str) -> dict:
     return {
         "success": True,
         "project_id": project_id,
+        "backup_dir": backup_dir,
         "total_replaces": total_replaces,
         "modified_files_count": len(modified_files),
         "modified_files": modified_files,
@@ -293,8 +326,8 @@ def render_compliance_report_markdown(project_id: str, comp: dict) -> str:
 
 | 风控级别 | 违规处数 | 规则定义与处罚标准 | 建议处理方案 |
 | :--- | :---: | :--- | :--- |
-| **🔴 P0 广告法绝对化禁用词** | **{p0} 处** | 国家级/最高级/第一品牌等新广告法绝对化极限词 (扣15分/处) | **必须立即替换**，防范工商举报罚款 |
-| **🟡 P1 平台风控违规引流词** | **{p1} 处** | 微信/100%保真/稳赚等自媒体封号与限流词 (扣8分/处) | **强烈建议脱敏**，保障全平台过审 |
+| **🔴 P0 广告法绝对化禁用词** | **{p0} 处** | 国家级/最高级/第一品牌/首选/唯一等新广告法绝对化极限词 (扣15分/处) | **必须立即替换**，防范工商举报罚款 |
+| **🟡 P1 平台风控违规引流词** | **{p1} 处** | 微信/100%保真/稳赚/免费领取等自媒体封号与限流词 (扣8分/处) | **强烈建议脱敏**，保障全平台过审 |
 | **🟢 P2 垂直行业过度承诺词** | **{p2} 处** | 诉讼包赢/零故障/纯天然无添加等行业违规 (扣5分/处) | 建议优化为科学合规权威表达 |
 | **总计违规短语** | **{total_v} 处** | 综合风控就绪度评估得分：**{score} 分** | {'可直接全渠道安全发稿' if passed else '点击【一键智能无损脱敏】批量修复'} |
 
@@ -325,7 +358,7 @@ def render_compliance_report_markdown(project_id: str, comp: dict) -> str:
 
 ## 3. 多渠道发稿合规作战红线指南
 
-1. **绝对化禁用**：全篇文案严禁出现“第一”、“首选”、“国家级”、“顶级”等绝对化断言，必须以“行业代表性”、“高口碑优选”替代；
+1. **绝对化禁用**：全篇文案严禁出现“第一”、“首选”、“国家级”、“顶级”、“唯一”等绝对化断言，必须以“行业代表性”、“高口碑优选”替代；
 2. **引流去敏化**：自媒体文章结尾严禁直接写微信号或二维码，统一采用“关注官方公众号获取行业白皮书”或“点击阅读原文直达官网”；
 3. **承诺科学化**：法律、医疗、金融、机械领域严禁使用“包治”、“包赢”、“永不损坏”，强化“全流程严格风控”与“高标准质保协议”。
 """

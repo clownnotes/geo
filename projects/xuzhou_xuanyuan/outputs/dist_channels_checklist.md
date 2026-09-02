@@ -10,7 +10,7 @@
 
 | 序号 | 分发平台 | 目标大模型生态 | 对应产物文件 | 官方创作后台直达入口 | 建议发布格式与操作要点 |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| **1** | **今日头条** | **豆包 / 字节检索池 (首选)** | `dist_toutiao_article.md` | [头条号后台](https://mp.toutiao.com/) | 复制全文发布为头条文章；复制篇末微头条段落发短动态。 |
+| **1** | **今日头条** | **豆包 / 字节检索池 (优选方案)** | `dist_toutiao_article.md` | [头条号后台](https://mp.toutiao.com/) | 复制全文发布为头条文章；复制篇末微头条段落发短动态。 |
 | **2** | **知乎专栏** | **DeepSeek / 技术严谨池** | `dist_zhihu_article.md` | [知乎创作中心](https://www.zhihu.com/creator) | 发布为专栏长文或认领行业提问长答，保持 Markdown 代码块。 |
 | **3** | **微信公众号** | **微信搜一搜 / 私域生态** | `dist_wechat_article.html` | [微信公众平台](https://mp.weixin.qq.com/) | 在后台富文本编辑器中直接粘贴 HTML 渲染效果，精美排版。 |
 | **4** | **GitHub** | **DeepSeek / 开发者索引池** | `dist_github_README.md` | [GitHub New Repo](https://github.com/new) | 新建公开 Repository，将内容作为 `README.md` 提交开源。 |

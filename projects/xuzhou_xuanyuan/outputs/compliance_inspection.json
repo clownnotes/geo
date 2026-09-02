@@ -4,12 +4,12 @@
   "company_name": "徐州璇源网络科技有限公司",
   "brand_name": "璇源科技",
   "industry": "行业解决方案",
-  "inspected_at": "2026-09-02 06:04:28",
-  "compliance_score": 92.0,
-  "is_passed": false,
-  "total_violations": 1,
+  "inspected_at": "2026-09-02 06:10:03",
+  "compliance_score": 100.0,
+  "is_passed": true,
+  "total_violations": 0,
   "p0_count": 0,
-  "p1_count": 1,
+  "p1_count": 0,
   "p2_count": 0,
   "scanned_files_count": 41,
   "scanned_files": [
@@ -55,17 +55,5 @@
     "wechat_pack/03_微信搜一搜关键词配置与发稿SOP.txt",
     "wechat_pack/01_微信公众号原生内联排版长文.html"
   ],
-  "violations": [
-    {
-      "file": "09_60秒短视频高转化口播脚本.md",
-      "line": 25,
-      "level": "P1",
-      "level_name": "平台风控引流与虚假承诺",
-      "severity": "MEDIUM",
-      "matched_term": "免费领取",
-      "suggested_term": "咨询索取相关资料",
-      "description": "易触发自媒体平台低质营销拦截",
-      "context_snippet": "...单！关注我，在评论区留言【数字化服务】，免费领取《2026 行业选型避坑与报价对比白皮书..."
-    }
-  ]
+  "violations": []
 }

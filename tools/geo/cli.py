@@ -294,6 +294,7 @@ def main():
     p_comp.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_comp.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_comp.add_argument("--file", "-f", default=None, help="指定待审查的文件路径 (可选)")
+    p_comp.add_argument("--inspect", "-i", action="store_true", help="执行合规风控审查体检 (默认)")
     p_comp.add_argument("--sanitize", "-s", action="store_true", help="执行一键无损脱敏修复并重算合规分")
 
     # pipeline
