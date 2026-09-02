@@ -675,6 +675,17 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 一键生成微信公众号/视频号发稿包: /api/projects/{id}/wechat/build
+        if path.startswith("/api/projects/") and path.endswith("/wechat/build"):
+            project_id = path.split("/")[3]
+            try:
+                from .publisher import package_wechat_assets
+                res = package_wechat_assets(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -1382,6 +1393,28 @@ core_values:
                 try:
                     micro_res = build_toutiao_micro_post(project_id)
                     self.send_json({"success": True, "project_id": project_id, "data": micro_res})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取微信公众号原生内联富文本长文接口: /api/projects/{id}/wechat/preview
+            if path.startswith("/api/projects/") and path.endswith("/wechat/preview"):
+                project_id = path.split("/")[3]
+                from .publisher import build_wechat_article_html
+                try:
+                    html_content = build_wechat_article_html(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "html": html_content})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取微信视频号 60 秒口播脚本与分镜表接口: /api/projects/{id}/wechat/video
+            if path.startswith("/api/projects/") and path.endswith("/wechat/video"):
+                project_id = path.split("/")[3]
+                from .publisher import build_wechat_video_script
+                try:
+                    video_res = build_wechat_video_script(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "data": video_res})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
