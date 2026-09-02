@@ -131,3 +131,47 @@
 - **本地实测验证**：
   - 本地端口 8088 经端到端全流程复核：Playground Batch 正常返回且无 404、分发台账回填、富文本生成、专属门户外链与徽章均 100% 达标。
 - **结论**：`[已达成共识 / 通过]`，全部审查项已完全闭环。
+
+---
+
+### 2026-09-01 Cursor [复审：e38c955 修复项独立核验] [通过]
+
+- **阶段**：Code Review Re-verification（针对 `e38c955` 修复提交，对照上轮 Cursor `[需修正]` 清单逐项闭环）
+- **审查范围**：`e38c955`（`fix(distribution): 补齐playground/batch路由return、研发内联样式真富文本HTML生成引擎...`）+ `5e4480f` 原始实现
+- **审查方法**：Git diff 比对、源码逐行核对、`dist_bot` 冒烟测试（`format_rich_text_copy` / `markdown_to_styled_html` / `verify_distribution_url` / `get_distribution_ledger`）
+
+#### 上轮问题闭环核验
+
+| # | 原问题 | 级别 | 核验结果 |
+|:--|:-------|:-----|:---------|
+| 1 | `playground/batch` 缺 `return` | 🔴 | ✅ 已修复：`server.py` L612 已补 `return`，与 `simulate`/`record` 一致 |
+| 2 | 富文本仅返回 `raw_content` | 🟡 | ✅ 已修复：`markdown_to_styled_html` 生成内联样式 HTML；API 返回 `html_content`（zhihu 实测 4706 字符） |
+| 3 | 剪贴板未写 `text/html` MIME | 🟡 | ✅ 已修复：`copyChannelRichText` 优先 `ClipboardItem({text/html, text/plain})`，失败降级 `writeText` |
+| 4 | 收录核验仅 HTTP 状态码 | 🟡 | ⚠️ 部分闭环：已增加首屏 `<title>` 抓取与 16KB 响应体读取；**未接入 Crawl4AI/Firecrawl Clean Markdown 提取**（design API 契约仅要求 HTTP 连通性，可接受为后续增强） |
+| 5 | `title` 字段未填充 | 🟡 | ✅ 已修复：`DEFAULT_CHANNELS` 含 `title`；`record`/`verify_all` 写入；`format_rich_text_copy` 从稿件提取标题 |
+| 6 | 掘金 `article_file` 路径异常 | 🟡 | ✅ 已修复：默认 `dist_juejin_article.md` + `_find_channel_file` 语料库回退 |
+| 7 | share Tab 4 无状态徽章 | 🟢 | ✅ 已修复：`[✅ 已收录]` / `[⏳ 待发布]` / `[⚠️ 异常]` / `已登记` 徽章 + `titleDisplay` |
+| 8 | `data/shares.json` 膨胀 | 🟢 | 未处理（+15 行测试 token，非阻断，建议归档前或后续变更清理） |
+
+#### 冒烟测试摘要
+
+- `format_rich_text_copy('xuzhou_xuanyuan', 'zhihu')` → `html_content` 非空，含表格/标题样式
+- `markdown_to_styled_html` → 表格 `<table>`、粗体 `<strong>` 正常
+- `get_distribution_ledger` → 五渠道结构完整，完成率 60%（3/5 verified）
+- `verify_distribution_url('https://github.com')` → HTTP 200（title 因站点结构可能为空，属平台差异）
+
+#### 残余优化建议（不阻断归档）
+
+| # | 建议 | 说明 |
+|:--|:-----|:-----|
+| 1 | Step 4 台账卡片未展示 `ch.title` | `index.html` 仅显示渠道名与 HTTP 状态，title 已入库但未渲染（share 端已展示） |
+| 2 | 演示 `dist_ledger.json` 中掘金 `article_file` 仍为旧值 | 运行时 `_find_channel_file` 已覆盖；下次 `verify-dist` 或重填 URL 会自然刷新 |
+| 3 | Clean Markdown 收录探测 | proposal 愿景项，可单独立项对接 Crawl4AI |
+
+#### ✅ 最终确认通过项
+
+- 分发台账引擎、五渠道 API/CLI、Step 4 看板、share 门户注入与状态徽章、SOP 更新均符合 `proposal.md` / `design.md` / `tasks.md`
+- Playground 批量路由回归已消除，无新增路由穿透风险
+- 富文本一键复制能力达到 proposal 核心交付标准
+
+- **结论**：`[通过]`。上轮 🔴 阻断项与主要 🟡 偏差均已修复；残余为 🟢 级体验优化，**可进入 `/opsx-archive` 归档阶段**。
