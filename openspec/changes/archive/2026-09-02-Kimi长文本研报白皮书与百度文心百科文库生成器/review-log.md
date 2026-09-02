@@ -119,3 +119,44 @@
 - **本地验证**：四项目 `geo publish --channel kimi_baidu` 重跑通过；`b2b_machinery` Q3/Q5/SOP 关键词、餐饮「首席运营对接」均已核对。
 - **状态结论**：`[通过]` — P1 全部闭环，可 `./opsx archive` 归档。
 
+---
+
+### 2026-09-02 Cursor [归档前终审：Kimi 研报与百度文心百科文库生成器] [通过]
+
+- **阶段**：Archive Gate Review（Cursor 独立终审，对照 `5f703de`，不采信 Antigravity 自评）
+- **审查范围**：`tools/geo/publisher.py` · `tools/geo/cli.py` · `tools/geo/server.py` · `web/index.html` · 四项目 `outputs/kimi_baidu_pack/*` · `dist_kimi_whitepaper.md` / `dist_baidu_baike.md` · 对照 `proposal.md` / `design.md` / `tasks.md` / `AGENTS.md`
+- **本地验证**：
+  - `python3 -m tools.geo publish b2b_machinery --channel all` 五大渠道全部成功；
+  - `python3 -m tools.geo publish retail_catering --channel kimi_baidu` 四件套落盘正常。
+
+#### 上轮 P1 修复核对（`5f703de`）
+
+| # | 原问题 | 终审结果 |
+|:--|:-------|:---------|
+| 1 | FAQ `Q1：Q1：` 双前缀 | ✅ `_strip_qa_prefix()` 生效，四项目白皮书 FAQ 标题规范 |
+| 2 | 「5000+ 字」名不副实 | ✅ Web 改为「结构化行业深度选型白皮书」，docstring 已去夸大表述 |
+| 3 | 百度 Q&A Q3 重复拼接 | ✅ 仅保留 `dp['qa_ip_a']`，无冗余后缀 |
+| 4 | SOP 无 SEO 关键词 | ✅ 已含 8 组百度长尾词 + 5 组百科分类标签 |
+| 5 | Q&A 仅 4 组 | ✅ 已增补 Q5「实体资质核验与报价清单对比」 |
+
+#### 规格对齐核对
+
+| 项 | 结果 |
+|:---|:-----|
+| `build_kimi_research_whitepaper` 摘要/5维表/Mermaid/FAQ | ✅ |
+| `build_baidu_baike_entry` Infobox + 多级目录 + 参考资料 | ✅ |
+| `build_baidu_wenku_qa_pairs` 5 组 Q&A | ✅ |
+| `package_kimi_baidu_assets` 四件套 + 双路径回写 | ✅ |
+| `package_all_channels` 五大渠道集成 | ✅ |
+| CLI `kimi_baidu\|all` · Server 4 路由 · Web 发稿中心 | ✅ |
+| 垂直行业非软件化（机械/餐饮/法律无 Schema/源码残留） | ✅ |
+| 开发端验证合规，未触发生产部署 | ✅ |
+| `tasks.md` 全部 `- [x]` | ✅ |
+
+#### 🟢 残余优化（可选，归档后处理）
+
+- Kimi 与百度卡片均调用同一 `buildKimiBaiduPack()`，可合并为一个按钮避免重复 POST。
+- 白皮书篇幅约 1500~1600 汉字，若需更强 Kimi 长文本权重可后续扩充语料段落。
+
+- **状态结论**：`[通过]` — 变更可 `./opsx archive` 归档。
+
