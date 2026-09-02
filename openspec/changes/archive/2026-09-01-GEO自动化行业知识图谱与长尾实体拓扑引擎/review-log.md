@@ -129,3 +129,50 @@
      - Markdown 模板多跳示例使用动态 `client_name` 变量。
 - **验证结论**：全量单元、CLI 与端到端 API 测试均 100% 通过。
 - **状态结论**：`[通过]`，达到归档与交付标准。
+
+---
+
+### 2026-09-02 Cursor [复审：a21afbd 修正项核验] [通过]
+
+- **阶段**：Code Refinement Re-Review（Cursor 独立复审，对照 `a21afbd` + `973f699`）
+- **审查范围**：上次 `[需修正]` 7 项 P0/P1/P2 修复落地情况；路由 `return` 回归；本地冒烟
+- **审查方法**：全量阅读 `graph.py` 修正段、`server.py` graph/query 路由、`web/index.html` 弹窗交互、CLI `--query`；对照 `proposal.md` / `design.md` / `tasks.md`
+
+#### 上次审查项修复核验
+
+| # | 原问题 | 复审结论 |
+|:--|:-------|:---------|
+| 1 | 实体硬编码模板 | ✅ **已改善**：`core_business` / `differences` / `founder` / `industry` 动态提纯；技术栈关键词匹配 + 交付标准从差异因子截取。🟡 仍依赖 `project.yaml`，未读 `03_语料库.md`；`parse_simple_yaml` 对多 dict 项 `core_business` 解析不全（演示项目仅 1 项服务） |
+| 2 | 前端无交互 | ✅ **已满足替代路径**：弹窗新增关键词检索 + 2-Hop 因果推理链列表（`handleGraphSearchInput`）。🟡 SVG 仍为静态布局，无节点拖拽/图谱高亮 |
+| 3 | 1 跳子图且无 API | ✅ **已修复**：`query_entity_subgraph` 2-Hop 扩展 + `is_direct_hit`；`GET graph/query` 与 share 公开路由；CLI `--query` |
+| 4 | 谓词 schema 不一致 | ✅ **已对齐**：`USES_TECHNOLOGY`、`SPECIALIZES_IN` 等 design 6 种均已出现；额外 `EMPOWERS`/`FOUNDED_BY` 为合理扩展 |
+| 5 | JSON-LD 缺边 | ✅ **已修复**：节点 `relatedLinks` 输出关系边 |
+| 6 | Step 3 / 顶部入口 | ✅ **部分完成**：Step 2（L389）与 Step 3（L438）均有入口。🟡 向导步骤条（L302–339）无全局快捷按钮 |
+| 7 | Cypher 单引号 | ✅ **已修复**：`_sanitize_cypher_str` |
+
+#### 🔴 必须修正
+
+无。`pitch/print`、`acceptance/*`、`graph/data|svg|query` 及 share 公开路由均正确 `return`。
+
+#### 🟡 残余风险（不阻断归档）
+
+| # | 项 | 说明 |
+|:--|:---|:-----|
+| A | `parse_simple_yaml` 限制 | `xuzhou_xuanyuan` 的 3 项 `core_business` 仅解析出 1 项，图谱服务节点偏少（`utils.py` 既有问题，建议后续 graph 直读 YAML 或语料兜底） |
+| B | 未接入 `03_语料库.md` | proposal 提及「语料库」；当前仅 `project.yaml` 字段 |
+| C | `delivery-sop.md` 未更新 | tasks 5.1 勾选完成但仅 `02-scaffold-sop.md` 有 Graph 章节 |
+| D | 门户 `share.html` | 静态 SVG 卡片，无关键词多跳检索 UI |
+
+#### 🟢 优化建议（可选）
+
+- 搜索命中时高亮 SVG 对应节点；向导顶栏增加图谱快捷入口
+- `data/shares.json` 测试 token 隔离至 fixture
+
+#### ✅ 冒烟验证（`xuzhou_xuanyuan`）
+
+- 构建：12 节点 / 14 边；谓词集含 `USES_TECHNOLOGY`、`SPECIALIZES_IN`、`EMPOWERS` 等
+- `query_entity_subgraph('RAG')`：1 直接命中，14 条推理链
+- `export_graph_formats`：JSON-LD `relatedLinks` 存在；Cypher/Markdown/SVG 正常生成
+- Step 2/3 按钮、`graph-modal` 搜索框与推理链渲染、share `graph_summary` 注入均就绪
+
+- **结论**：`[通过]`。P0/P1 核心偏差已实质性修复，2-Hop 检索 API + 前端推理链满足多跳长尾能力；残余项为文档与解析器增强，可归档后迭代。
