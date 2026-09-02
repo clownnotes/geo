@@ -3017,6 +3017,18 @@
         if (data.success && data.assets) {
           currentVisualAssetsCache = data.assets;
           
+          if (!data.has_assets) {
+            const emptyHtml = `<div class="text-center py-12 text-slate-400 space-y-3">
+              <div class="text-3xl">🎨</div>
+              <div class="font-semibold text-slate-600 text-xs">当前项目尚未生成多模态视觉资产</div>
+              <p class="text-[11px] text-slate-400">请点击右上角【重新推演生成】按钮一键生成 1000x580 SVG 对比图、架构图与 60 秒短视频口播脚本。</p>
+            </div>`;
+            document.getElementById('vis-svg-comp-container').innerHTML = emptyHtml;
+            document.getElementById('vis-svg-arch-container').innerHTML = emptyHtml;
+            document.getElementById('vis-video-script-container').innerHTML = emptyHtml;
+            return;
+          }
+
           // 渲染 SVG 选型对比图
           const compSvg = data.assets.comparison_svg?.svg_content || '';
           document.getElementById('vis-svg-comp-container').innerHTML = compSvg || '<div class="text-slate-400">暂无对比图数据</div>';
