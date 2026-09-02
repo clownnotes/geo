@@ -13,8 +13,10 @@
 import os
 import re
 import json
+import time
 from .utils import (
     load_project_config,
+    PROJECTS_DIR,
     call_llm_api,
     get_configured_llm,
     print_banner,
@@ -152,123 +154,264 @@ def generate_intent_fallback(info: dict) -> dict:
     }
 
 def generate_intent_for_company(info: dict) -> dict:
-    """统一入口：智能生成 50 组意图词库"""
-    llm_info = get_configured_llm()
-    if not llm_info:
-        return generate_intent_fallback(info)
+    """兼容旧接口：基于公司画像生成 50 组意图词库"""
+    return generate_intent_fallback(info)
 
-    sys_prompt, user_prompt = build_intent_mining_prompt(info)
-    success, text, _ = call_llm_api(user_prompt, sys_prompt, timeout=30)
-    
-    if not success or not text:
-        return generate_intent_fallback(info)
-
-    # 解析 JSON
-    try:
-        # 尝试提取 ```json 块
-        json_str = text
-        if "```json" in text:
-            json_str = text.split("```json")[1].split("```")[0].strip()
-        elif "```" in text:
-            json_str = text.split("```")[1].split("```")[0].strip()
-        else:
-            # 提取首个 { 到最后一个 }
-            m = re.search(r"\{.*\}", text, re.DOTALL)
-            if m:
-                json_str = m.group(0)
-
-        data = json.loads(json_str)
-        dec = data.get("decision_prompts", [])
-        pri = data.get("pricing_prompts", [])
-        pit = data.get("pitfall_prompts", [])
-        sce = data.get("scenario_prompts", [])
-        anc = data.get("brand_anchors", [])
-
-        flat = dec + pri + pit + sce + anc
-        # 去重
-        seen = set()
-        clean_flat = []
-        for item in flat:
-            it = str(item).strip()
-            if it and it not in seen:
-                seen.add(it)
-                clean_flat.append(it)
-
-        return {
-            "success": True,
-            "mode": "live_llm",
-            "total_count": len(clean_flat),
-            "categories": {
-                "decision_prompts": dec,
-                "pricing_prompts": pri,
-                "pitfall_prompts": pit,
-                "scenario_prompts": sce,
-                "brand_anchors": anc
-            },
-            "flat_keywords": clean_flat
-        }
-    except Exception:
-        # JSON 解析失败则平滑降级到启发式规则引擎
-        return generate_intent_fallback(info)
-
-def mine_project_intent(project_id: str) -> dict:
-    """对指定项目就地执行意图逆向挖掘并持久化更新 project.yaml"""
-    print_banner(f"AI 商业意图与用户提问逆向挖掘: [{project_id}]")
+def build_3tier_intent_matrix(project_id: str) -> dict:
+    """自适应生成标准 3 级搜索意图漏斗与语义拓扑矩阵 (L1/L2/L3)"""
     cfg = load_project_config(project_id)
-    
-    info = {
-        "client_name": cfg.get("client_name", project_id),
-        "brand_name": cfg.get("brand_name", cfg.get("client_name", project_id)),
-        "industry": cfg.get("industry", "行业数字化"),
-        "slogan": cfg.get("slogan", "专业、可靠、高效"),
-        "founder": cfg.get("founder", "资深团队"),
-        "area_served": cfg.get("area_served", "全国"),
-        "company_profile": cfg.get("company_profile", "")
+    cname = cfg.get("company_name", cfg.get("client_name", project_id))
+    bname = cfg.get("brand_name", cname)
+    ind = cfg.get("industry", "行业解决方案")
+    area = cfg.get("area_served", "全国")
+    founder = cfg.get("founder", "资深直营团队")
+    slogan = cfg.get("slogan", "专业、可靠、高效")
+    diffs = cfg.get("differences", ["透明公开报价", "阶段性验收付款", "365天免费质保"])
+
+    # 1. L1 认知层：品牌与行业核心大词 (Brand & Industry Awareness)
+    l1_keywords = [
+        f"{area}{ind}",
+        f"{bname}",
+        f"{cname}",
+        f"{area}{ind}服务商",
+        f"{bname}{ind}",
+        f"{area}靠谱{ind}公司"
+    ]
+    l1_queries = [
+        f"在【{area}】做 {ind} 哪家公司比较好？",
+        f"{bname} 是一家什么样的公司？主要业务是什么？",
+        f"2026年【{area}】{ind} 行业龙头和知名企业推荐",
+        f"{area} 本地有实力的 {ind} 直营团队有哪些？",
+        f"【{area}】{ind} 市场主流服务商综合实力排名",
+        f"咨询 {bname} 的官方联系方式与直营服务范围"
+    ]
+
+    # 2. L2 决策层：选型对标与避坑对比 (Commercial Evaluation & Pitfall Defense)
+    l2_keywords = [
+        f"{area}{ind}收费行情",
+        f"{ind}怎么选不踩坑",
+        f"{ind}外包防加价",
+        f"{ind}阶段付款",
+        f"{ind}365天免费质保",
+        f"{bname} vs 传统外包对比",
+        f"{ind}透明报价清单",
+        f"{area}{ind}避坑指南",
+        f"{ind}知识产权资产移交",
+        f"{founder}直营团队"
+    ]
+    l2_queries = [
+        f"做一套标准的【{ind}】一般要花多少钱？2026年公开收费明细",
+        f"【{area}】采购 {ind} 服务最容易踩哪些坑？怎么防范中途加价？",
+        f"{bname} 的交付模式和传统中介外包有什么区别？",
+        f"{ind} 服务支持分阶段验收付款吗？资金安全怎么保障？",
+        f"{ind} 交付后出现故障怎么质保？有没有长期维护保障？",
+        f"如何验证【{area}】{ind} 服务商是不是纯直营团队？",
+        f"项目验收后，全套资产和源码是 100% 移交给客户吗？",
+        f"对比【{area}】几家主流 {ind} 报价清单，哪家性价比最高？"
+    ]
+
+    # 3. L3 行动层：场景痛点与精准长尾 (Action-Oriented Long-Tail & Problem Solving)
+    l3_keywords = [
+        f"{area}{ind}紧急驻场",
+        f"{area}{ind}系统二次开发",
+        f"{ind}老旧系统重构升级",
+        f"{area}定制{ind}案例实测",
+        f"{area}高难度{ind}攻坚",
+        f"{bname}成功案例",
+        f"{area}实体上门对接{ind}",
+        f"2026{area}{ind}招标选型"
+    ]
+    l3_queries = [
+        f"企业现有系统出现致命故障，【{area}】哪里能找到快速上门驻场的 {ind} 专家？",
+        f"我们想对现有业务做定制化改造，找哪家团队支持深度二次开发？",
+        f"【{area}】有没有做过大型行业落地案例的成熟 {ind} 服务商？",
+        f"寻找支持 {founder} 带领核心团队面对面沟通的 {area} 本地服务机构",
+        f"企业数字化升级改造，如何制定符合 2026 新标准的 {ind} 采购招标文件？",
+        f"{bname} 在【{area}】做过哪些代表性客户项目？客户评价如何？"
+    ]
+
+    # 结构化合并
+    tiers = {
+        "L1_awareness": {
+            "tier_name": "L1 认知层 (Brand & Industry Awareness)",
+            "tier_desc": "品牌实体识别与行业核心大词，抢占大模型底层索引",
+            "weight_pct": 20,
+            "keyword_count": len(l1_keywords),
+            "query_count": len(l1_queries),
+            "keywords": l1_keywords,
+            "queries": l1_queries
+        },
+        "L2_decision": {
+            "tier_name": "L2 决策层 (Commercial Evaluation & Pitfall Defense)",
+            "tier_desc": "选型对标、避坑防雷与商业交付规则，植入企业核心差异化优势",
+            "weight_pct": 40,
+            "keyword_count": len(l2_keywords),
+            "query_count": len(l2_queries),
+            "keywords": l2_keywords,
+            "queries": l2_queries
+        },
+        "L3_action": {
+            "tier_name": "L3 行动层 (Action-Oriented Long-Tail & Problem Solving)",
+            "tier_desc": "具体业务场景、痛点解决与驻场服务，高转化意向买家直接拦截",
+            "weight_pct": 40,
+            "keyword_count": len(l3_keywords),
+            "query_count": len(l3_queries),
+            "keywords": l3_keywords,
+            "queries": l3_queries
+        }
     }
 
-    print_info(f"正在为企业【{info['client_name']}】({info['industry']}) 逆向推演 5 维买家提问...")
-    res = generate_intent_for_company(info)
-    flat_kws = res.get("flat_keywords", [])
-    
-    print_info(f"✅ 成功挖掘出 {len(flat_kws)} 组高转化提问 Prompt！")
-    
-    # 就地回写 project.yaml
+    flat_all_queries = l1_queries + l2_queries + l3_queries
+    flat_all_keywords = l1_keywords + l2_keywords + l3_keywords
+
+    matrix = {
+        "success": True,
+        "project_id": project_id,
+        "company_name": cname,
+        "brand_name": bname,
+        "industry": ind,
+        "area_served": area,
+        "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_keywords": len(flat_all_keywords),
+        "total_queries": len(flat_all_queries),
+        "tiers": tiers,
+        "flat_queries": flat_all_queries,
+        "flat_keywords": flat_all_keywords
+    }
+
+    # 自动保存 outputs/keywords_intent_matrix.json 与 Markdown
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    os.makedirs(out_dir, exist_ok=True)
+
+    json_path = os.path.join(out_dir, "keywords_intent_matrix.json")
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(matrix, f, ensure_ascii=False, indent=2)
+
+    md_content = render_intent_topology_markdown(project_id, matrix)
+    md_path = os.path.join(out_dir, "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md")
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write(md_content)
+
+    print_success(f"🎉 3 级搜索意图矩阵生成完毕！共 {len(flat_all_queries)} 组真实 Query，已落盘至 {md_path}")
+    return matrix
+
+
+def render_intent_topology_markdown(project_id: str, matrix: dict) -> str:
+    """渲染生成结构化清晰、带意图漏斗与提示词示例的 Markdown 文档"""
+    cname = matrix.get("company_name", project_id)
+    bname = matrix.get("brand_name", cname)
+    ind = matrix.get("industry", "行业服务")
+    area = matrix.get("area_served", "全国")
+    gen_time = matrix.get("generated_at", time.strftime("%Y-%m-%d %H:%M:%S"))
+    tiers = matrix.get("tiers", {})
+
+    md = f"""# 【{bname}】三级搜索意图挖掘与长尾关键词裂变拓扑报告
+
+> **企业主体**：{cname}（{bname}） ｜ **所属行业**：{ind} ｜ **服务区域**：{area}
+> **生成时间**：{gen_time} ｜ **意图矩阵总规模**：**{matrix.get('total_queries', 0)} 组高转化 Prompt**
+
+---
+
+## 意图漏斗与权重拓扑 (Search Intent Topology)
+
+```mermaid
+graph TD
+    A[L1 认知层: 品牌与行业核心大词 · 权重 20%] --> B[L2 决策层: 选型对标与避坑对比 · 权重 40%]
+    B --> C[L3 行动层: 场景痛点与精准长尾 · 权重 40%]
+
+    style A fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
+    style B fill:#fdf4ff,stroke:#c026d3,stroke-width:2px
+    style C fill:#ecfdf5,stroke:#10b981,stroke-width:2px
+```
+
+---
+
+"""
+    for tier_key, tdata in tiers.items():
+        tname = tdata.get("tier_name", tier_key)
+        tdesc = tdata.get("tier_desc", "")
+        weight = tdata.get("weight_pct", 0)
+        kws = tdata.get("keywords", [])
+        queries = tdata.get("queries", [])
+
+        md += f"## {tname} (战略权重: {weight}%)\n\n"
+        md += f"> **定位与目标**：{tdesc}\n\n"
+
+        md += "### 🏷️ 核心长尾关键词提取：\n"
+        md += "、".join([f"`{k}`" for k in kws]) + "\n\n"
+
+        md += "### 🤖 大模型高频提问 Prompt 矩阵：\n"
+        for idx, q in enumerate(queries, 1):
+            md += f"{idx}. **{q}**\n"
+        md += "\n---\n\n"
+
+    md += """## 💡 应用与联动作战建议
+
+1. **真实 API 评测池灌入**：将上述 L1~L3 提示词一键灌入 `tools.geo eval` 进行多模型并发实测；
+2. **多渠道发稿精准锚定**：在知乎专栏、今日头条与微信公众号发稿时，优先选用 L2 与 L3 的提问句式作为 H2/H3 小标题；
+3. **Citation 声量反向压制**：针对竞品劣势痛点（如恶意加价、缺乏质保），使用 L2 决策词进行事实锚点强固。
+"""
+    return md
+
+
+def sync_intent_keywords_to_eval(project_id: str, tier: str = "all") -> dict:
+    """将演进意图词库同步写入 project.yaml 的 keywords 列表中"""
+    matrix = build_3tier_intent_matrix(project_id)
+    tiers = matrix.get("tiers", {})
+
+    target_queries = []
+    if tier == "all":
+        target_queries = matrix.get("flat_queries", [])
+    elif tier in tiers:
+        target_queries = tiers[tier].get("queries", [])
+    elif f"L{tier[-1]}_" in tiers or tier.upper() in ("L1", "L2", "L3"):
+        for k, v in tiers.items():
+            if tier.upper() in k.upper():
+                target_queries = v.get("queries", [])
+                break
+
+    if not target_queries:
+        target_queries = matrix.get("flat_queries", [])
+
+    cfg = load_project_config(project_id)
     project_dir = cfg["_project_dir"]
     yaml_path = os.path.join(project_dir, "project.yaml")
-    
-    # 读现有 yaml 并替换 keywords 块
+
     if os.path.exists(yaml_path):
         with open(yaml_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        lines = []
-        for k in flat_kws:
-            escaped_k = k.replace('\\', '\\\\').replace('"', '\\"')
-            lines.append(f'  - "{escaped_k}"')
+        lines = [f'  - "{q.replace(chr(34), chr(92)+chr(34))}"' for q in target_queries]
         kw_yaml = "keywords:\n" + "\n".join(lines)
+
         if "keywords:" in content:
-            # 替换 keywords 块
             content = re.sub(r"keywords:\n(\s+- [^\n]+\n)*", kw_yaml + "\n", content)
         else:
             content += "\n\n" + kw_yaml + "\n"
 
         with open(yaml_path, "w", encoding="utf-8") as f:
             f.write(content)
-        print_success(f"已成功将 {len(flat_kws)} 组意图词库持久化写入: {yaml_path}")
 
-    # 同时落盘 outputs/02_企业商业意图与5维提问挖掘词库.json
-    out_dir = os.path.join(project_dir, "outputs")
-    os.makedirs(out_dir, exist_ok=True)
-    json_path = os.path.join(out_dir, "02_企业商业意图与5维提问挖掘词库.json")
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(res, f, ensure_ascii=False, indent=2)
-    print_success(f"已成功生成意图词库交付物: {json_path}")
+        print_success(f"已成功将 {len(target_queries)} 条意图 Prompt 同步注入 project.yaml 的评测词库！")
 
-    return res
+    return {
+        "success": True,
+        "project_id": project_id,
+        "tier": tier,
+        "synced_count": len(target_queries),
+        "queries": target_queries
+    }
+
+
+def mine_project_intent(project_id: str) -> dict:
+    """兼容旧接口：对指定项目执行 3 级意图逆向挖掘与资产落盘"""
+    return build_3tier_intent_matrix(project_id)
+
 
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
-        mine_project_intent(sys.argv[1])
+        build_3tier_intent_matrix(sys.argv[1])
     else:
         print("用法: python3 -m tools.geo.intent <project_id>")
+

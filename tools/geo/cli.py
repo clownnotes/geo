@@ -120,10 +120,12 @@ def main():
     p_mon.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_mon.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
-    # intent
-    p_intent = subparsers.add_parser("intent", help="AI 逆向挖掘买家 5 维商业提问 Prompt 词库")
+    # intent (3 级搜索意图挖掘与语义拓扑裂变)
+    p_intent = subparsers.add_parser("intent", help="3级搜索意图挖掘(L1认知/L2决策/L3行动)与长尾提示词拓扑裂变")
     p_intent.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_intent.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_intent.add_argument("--tier", default="all", choices=["l1", "l2", "l3", "all"], help="挖掘或导出的意图层级 (默认: all)")
+    p_intent.add_argument("--sync-eval", action="store_true", help="一键同步写入 project.yaml 的评测词库")
 
     # ingest
     p_ingest = subparsers.add_parser("ingest", help="企业原始多模态素材抓取与事实提纯")
@@ -295,8 +297,11 @@ def main():
     elif args.command == "init":
         cmd_init_project(args.project_id, template=args.template)
     elif args.command == "intent":
-        from .intent import mine_project_intent
-        mine_project_intent(get_pid(args))
+        from .intent import build_3tier_intent_matrix, sync_intent_keywords_to_eval
+        pid = get_pid(args)
+        build_3tier_intent_matrix(pid)
+        if getattr(args, "sync_eval", False):
+            sync_intent_keywords_to_eval(pid, tier=getattr(args, "tier", "all"))
     elif args.command == "ingest":
         from .ingest import ingest_project_materials
         ingest_project_materials(get_pid(args), url=args.url, file_path=args.file)

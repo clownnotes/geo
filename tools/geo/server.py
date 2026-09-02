@@ -732,6 +732,29 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 3 级搜索意图矩阵生成: /api/projects/{id}/intent/generate
+        if path.startswith("/api/projects/") and path.endswith("/intent/generate"):
+            project_id = path.split("/")[3]
+            try:
+                from .intent import build_3tier_intent_matrix
+                res = build_3tier_intent_matrix(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 3 级搜索意图一键同步至评测词库: /api/projects/{id}/intent/sync-eval
+        if path.startswith("/api/projects/") and path.endswith("/intent/sync-eval"):
+            project_id = path.split("/")[3]
+            tier = data.get("tier", "all") if 'data' in locals() and isinstance(data, dict) else "all"
+            try:
+                from .intent import sync_intent_keywords_to_eval
+                res = sync_intent_keywords_to_eval(project_id, tier=tier)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -1236,8 +1259,21 @@ core_values:
             if path.startswith("/api/projects/") and path.endswith("/share/info"):
                 project_id = path.split("/")[3]
                 from .share import list_project_shares
-                shares = list_project_shares(project_id)
-                self.send_json({"success": True, "project_id": project_id, "shares": shares})
+            # 查询项目 3 级搜索意图矩阵: /api/projects/{id}/intent/matrix
+            if path.startswith("/api/projects/") and path.endswith("/intent/matrix"):
+                project_id = path.split("/")[3]
+                try:
+                    out_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "keywords_intent_matrix.json")
+                    if os.path.exists(out_file):
+                        with open(out_file, "r", encoding="utf-8") as f:
+                            idata = json.load(f)
+                        self.send_json(idata)
+                    else:
+                        from .intent import build_3tier_intent_matrix
+                        res = build_3tier_intent_matrix(project_id)
+                        self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
             # 分发平台排版预览接口: /api/projects/{id}/distribute/preview
