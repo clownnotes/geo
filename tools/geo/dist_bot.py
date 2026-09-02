@@ -550,6 +550,14 @@ def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True)
     overwritten = 0
     items_report = []
 
+    def _url_taken_elsewhere(url: str, current_channel: str = None) -> bool:
+        for ck, cv in channels.items():
+            if ck == current_channel:
+                continue
+            if (cv.get("url") or "").strip() == url:
+                return True
+        return any((c.get("url") or "").strip() == url for c in custom_links)
+
     for item in parsed:
         ch_key = item["channel"]
         target_url = item["url"]
@@ -559,9 +567,12 @@ def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True)
             old_url = (ch_data.get("url") or "").strip()
 
             if old_url == target_url:
-                # 完全相同 URL，判定为重复
                 duplicates += 1
                 items_report.append({"channel": ch_key, "url": target_url, "action": "duplicate", "status": ch_data.get("status")})
+                continue
+            if old_url != target_url and _url_taken_elsewhere(target_url, ch_key):
+                duplicates += 1
+                items_report.append({"channel": ch_key, "url": target_url, "action": "duplicate_cross_channel", "status": "skipped"})
                 continue
             elif old_url:
                 # 同渠道已存在旧 URL，判定为覆盖
@@ -588,7 +599,7 @@ def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True)
         else:
             # 外部自定义链接，写入 custom_links，绝不乱抢占战略渠道
             existing_custom = [c.get("url") for c in custom_links]
-            if target_url in existing_custom:
+            if target_url in existing_custom or _url_taken_elsewhere(target_url):
                 duplicates += 1
                 items_report.append({"channel": "custom", "url": target_url, "action": "duplicate", "status": "published"})
             else:

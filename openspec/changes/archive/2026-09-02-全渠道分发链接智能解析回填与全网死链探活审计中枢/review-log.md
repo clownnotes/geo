@@ -107,4 +107,26 @@
      - 新增 [tests/test_dist_bot_ledger.py](file:///Users/a1/代码/GEO/tests/test_dist_bot_ledger.py)，覆盖域名正则提取、双轨指标计算、去重与覆盖逻辑，单测全绿通过。
 - **状态结论**：`[通过]`。
 
+---
+
+### 2026-09-02 Cursor [复审：P1 修复验证] [通过]
+
+- **阶段**：Cross-IDE Re-Review（Cursor 独立复审，对照 P1 修复落地）
+- **本地验证**：
+  - `python3 -m unittest tests.test_dist_bot_ledger -v` 3 项全绿；
+  - `batch_backfill_urls` 实测 custom 链接写入 `custom_links`，不再抢占战略渠道；
+  - `verify_all_channels` 返回 `total` / `alive` / `dead` / `alive_rate` / `details[]`；
+  - CLI 输出双轨指标（填报完成率 + 真实存活率）；`certificate.py` 改读 `weighted_alive_pct`。
+
+#### P1 修复核对
+
+| # | 原问题 | 复审结果 |
+|:--|:-------|:---------|
+| 1 | 存活率/完成率混用 | ✅ `_calculate_metrics` 拆分四套指标；Markdown 双轨展示 |
+| 2 | custom 错账抢占 | ✅ 未知域名写入 `custom_links` 独立表 |
+| 3 | 无去重/覆盖提示 | ✅ 返回 `added_count` / `overwritten` / `duplicates`；跨渠道 URL 重复跳过 |
+| 4 | audit API 未对齐 | ✅ `verify_all_channels` 返回 design 契约字段 |
+| 5 | 无单元测试 | ✅ `tests/test_dist_bot_ledger.py` 3 用例通过 |
+
+- **状态结论**：`[通过]` — P1 全部闭环，可 `./opsx archive` 归档。
 
