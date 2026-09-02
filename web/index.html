@@ -540,20 +540,40 @@
 
         </div>
 
-        <!-- 头条极速发稿中心 -->
-        <div class="bg-gradient-to-r from-red-50 to-orange-50 p-5 rounded-xl border border-red-200 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
+        <!-- 双核心极速发稿中心: 今日头条(豆包) + 微信公众号/视频号(元宝) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- 头条极速发稿中心 -->
+          <div class="bg-gradient-to-r from-red-50 to-orange-50 p-5 rounded-xl border border-red-200 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 class="text-sm font-bold text-red-900">📰 头条极速发稿中心（豆包第一主战 50%+）</h3>
-              <p class="text-xs text-red-700/80 mt-1">从普林斯顿 9 因子语料编译富文本 HTML，10 秒粘贴至 mp.toutiao.com 后台，表格与导读卡片保真。</p>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-bold text-red-900">📰 头条极速发稿中心（豆包第一主战 50%+）</h3>
+                <span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white/80 px-2 py-0.5 rounded-full border border-red-100">待发稿包</span>
+              </div>
+              <p class="text-xs text-red-700/80 mb-3">从 9 因子语料编译富文本 HTML，10 秒粘贴至 mp.toutiao.com，含微头条与 SEO 标签。</p>
             </div>
-            <span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white/80 px-2 py-1 rounded-full border border-red-100">待发稿包</span>
+            <div class="grid grid-cols-2 gap-1.5 text-center text-[10px] text-red-800">
+              <div class="bg-white/70 rounded-lg p-1.5 border border-red-100">01 富文本长文 HTML</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border border-red-100">02 微头条 ×3 (150字)</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border border-red-100">03 SEO 自检清单</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border border-red-100">assets 配图同步</div>
+            </div>
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-[10px] text-red-800">
-            <div class="bg-white/70 rounded-lg p-2 border border-red-100">01 富文本长文 HTML</div>
-            <div class="bg-white/70 rounded-lg p-2 border border-red-100">02 微头条 ×3（约150字）</div>
-            <div class="bg-white/70 rounded-lg p-2 border border-red-100">03 SEO 自检清单</div>
-            <div class="bg-white/70 rounded-lg p-2 border border-red-100">assets 配图同步</div>
+
+          <!-- 微信公众号与视频号极速发稿中心 -->
+          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-5 rounded-xl border border-emerald-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-bold text-emerald-900">💬 微信/视频号发稿中心（腾讯元宝 10%+）</h3>
+                <span id="wechat-pack-status" class="text-[10px] font-semibold text-emerald-600 bg-white/80 px-2 py-0.5 rounded-full border border-emerald-100">待发稿包</span>
+              </div>
+              <p class="text-xs text-emerald-700/80 mb-3">100% 纯内联 CSS，微信后台无损粘贴；配套 60 秒视频号脚本与搜一搜词库。</p>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 text-center text-[10px] text-emerald-800">
+              <div class="bg-white/70 rounded-lg p-1.5 border border-emerald-100">01 微信原生富文本 HTML</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border border-emerald-100">02 视频号 60s 口播脚本</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border border-emerald-100">03 搜一搜词库与 SOP</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border border-emerald-100">底部私域引流名片</div>
+            </div>
           </div>
         </div>
 
@@ -612,19 +632,31 @@
             </div>
           </div>
 
-          <!-- 微信公众号 -->
+          <!-- 微信公众号与视频号 -->
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-2 text-emerald-600 font-bold text-sm mb-2">
                 <i data-lucide="message-square" class="w-4 h-4"></i>
-                <span>微信公众号 (富文本)</span>
+                <span>微信生态 / 腾讯元宝</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">生成内联 CSS 样式 HTML，在公众号后台编辑器可直接无损粘贴排版。</p>
+              <p class="text-xs text-slate-500 mb-4">100% 纯内联富文本 + 视频号 60 秒口播 + 私域直营引流名片。</p>
             </div>
             <div class="space-y-2">
-              <button onclick="copyOutput('dist_wechat_article.html')" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                <span>复制公众号 HTML</span>
+              <button onclick="buildWechatPack()" class="w-full py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-emerald-200">
+                <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                <span>生成微信发稿包</span>
+              </button>
+              <button onclick="copyWechatRichHtml()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+                <span>一键复制微信富文本</span>
+              </button>
+              <button onclick="copyWechatVideoScript()" class="w-full py-2 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                <span>复制视频号 60s 脚本</span>
+              </button>
+              <button onclick="copyWechatSop()" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-200">
+                <i data-lucide="tag" class="w-3.5 h-3.5"></i>
+                <span>复制搜一搜词库与 SOP</span>
               </button>
               <a href="https://mp.weixin.qq.com/" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
                 <span>直达公众号平台</span>
@@ -5016,6 +5048,84 @@
         }
       } catch (e) {
         showToast('复制微头条失败', 'error');
+      }
+    }
+
+    // ===== 微信生态发稿中心控制器 =====
+    async function buildWechatPack() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/wechat/build`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('wechat-pack-status').textContent = '已生成 · 包含长文/视频号/SOP';
+          showToast('微信发稿包已生成至 outputs/wechat_pack/');
+        } else {
+          showToast(data.message || '生成失败', 'error');
+        }
+      } catch (e) {
+        showToast('生成微信发稿包失败', 'error');
+      }
+    }
+
+    async function copyWechatRichHtml() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/wechat/copy`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.clipboard_html) {
+          const htmlBlob = new Blob([data.clipboard_html], { type: 'text/html' });
+          const textBlob = new Blob([data.plain_text || ''], { type: 'text/plain' });
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
+          ]);
+          showToast(`微信原生内联富文本已复制（约 ${data.char_count || '—'} 字，支持直接粘贴后台）`);
+        } else {
+          showToast(data.message || '复制失败，请先生成发稿包', 'error');
+        }
+      } catch (e) {
+        showToast('富文本复制失败，请检查剪贴板权限', 'error');
+      }
+    }
+
+    async function copyWechatVideoScript() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/wechat/video`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          const d = data.data;
+          let text = `# ${d.title}\n时长: ${d.duration_seconds}秒 ｜ 配乐: ${d.bgm_recommendation}\n\n`;
+          text += `## 推荐爆款封面标题:\n` + d.cover_titles.map((t, i) => `${i+1}. ${t}`).join('\n') + `\n\n`;
+          text += `## 60秒分镜与口播:\n` + d.storyboard.map(s => `【${s.time_range}】${s.stage}\n画面: ${s.visual}\n台词: ${s.speech}`).join('\n\n');
+          await navigator.clipboard.writeText(text);
+          showToast('微信视频号 60s 口播脚本已复制到剪贴板！');
+        } else {
+          showToast('暂无视频号脚本', 'error');
+        }
+      } catch (e) {
+        showToast('复制视频号脚本失败', 'error');
+      }
+    }
+
+    async function copyWechatSop() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent('wechat_pack/03_微信搜一搜关键词配置与发稿SOP.txt')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          await navigator.clipboard.writeText(data.content);
+          showToast('微信搜一搜关键词与发稿 SOP 已复制！');
+        } else {
+          showToast('请先点击「生成微信发稿包」', 'error');
+        }
+      } catch (e) {
+        showToast('复制 SOP 失败', 'error');
       }
     }
 

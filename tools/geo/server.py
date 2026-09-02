@@ -1408,6 +1408,17 @@ core_values:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
+            # 一键复制微信富文本接口: /api/projects/{id}/wechat/copy
+            if path.startswith("/api/projects/") and path.endswith("/wechat/copy"):
+                project_id = path.split("/")[3]
+                from .publisher import get_wechat_rich_html_for_clipboard
+                try:
+                    res = get_wechat_rich_html_for_clipboard(project_id)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
             # 获取微信视频号 60 秒口播脚本与分镜表接口: /api/projects/{id}/wechat/video
             if path.startswith("/api/projects/") and path.endswith("/wechat/video"):
                 project_id = path.split("/")[3]

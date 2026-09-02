@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-豆包（今日头条与微头条）一键发稿排版助手与图文打包器 (tools/geo/publisher.py)
+GEO 全渠道发稿排版助手与私域打包器 (tools/geo/publisher.py)
 核心功能：
-1. 普林斯顿 9 因子语料编译为今日头条后台高保真富文本 HTML (Copy Rich HTML)；
-2. 自动生成 3 组 150 字三维攻防微头条文案 (决策篇/价格篇/避坑篇)；
-3. 一键打包全套发稿资产 (HTML/微头条/SEO自检清单/配图) 至 outputs/toutiao_pack/；
-4. 赋能运营人员 10 秒完成头条发稿，提升豆包第一主战阵地收录效率。
+1. 今日头条/微头条：普林斯顿 9 因子语料编译为头条创作者后台高保真 HTML + 3 组 150 字攻防微头条；
+2. 微信公众号/视频号：100% 纯内联 CSS 微信绿原生富文本长文 + 60 秒竖屏视频号口播脚本与分镜表；
+3. 全渠道资产一键打包至 outputs/toutiao_pack/ 与 outputs/wechat_pack/；
+4. 赋能运营团队 10 秒极速分发，覆盖豆包（头条）与腾讯元宝（微信搜一搜）两大核心阵地。
 """
 
 import os
@@ -513,7 +513,7 @@ def build_wechat_article_html(project_id: str) -> str:
     if table_html:
         html += table_html
     else:
-        html += f"""  <p style="color: #374151;">在交付周期、透明报价、源码所有权与驻场服务 5 个关键维度上，{bname} 均显著领先传统中介团队。</p>\n"""
+        html += f"""  <p style="color: #374151;">在【{diff_str}】等关键维度上，{bname} 均显著领先传统中介团队。</p>\n"""
 
     html += f"""  <!-- 普林斯顿金句引用框 -->
   <div style="background-color: #f8fafc; border-left: 4px solid #0284c7; padding: 14px 18px; border-radius: 6px; font-style: italic; color: #334155; margin: 20px 0;">
@@ -554,6 +554,22 @@ def build_wechat_article_html(project_id: str) -> str:
 
 </div>"""
     return html
+
+
+def get_wechat_rich_html_for_clipboard(project_id: str) -> dict:
+    """返回用于剪贴板一键粘贴的微信公众号富文本 HTML Payload"""
+    full_html = build_wechat_article_html(project_id)
+    plain = re.sub(r"<[^>]+>", "", full_html)
+    plain = re.sub(r"\s+", " ", plain).strip()
+    return {
+        "success": True,
+        "project_id": project_id,
+        "html": full_html,
+        "clipboard_html": full_html,
+        "plain_text": plain,
+        "char_count": len(plain),
+        "source": CORPUS_FILENAME,
+    }
 
 
 def build_wechat_video_script(project_id: str) -> dict:
@@ -614,16 +630,22 @@ def package_wechat_assets(project_id: str) -> dict:
     cname = cfg.get("company_name", cfg.get("client_name", project_id))
     bname = cfg.get("brand_name", cname)
     ind = cfg.get("industry", "行业服务")
+    area = cfg.get("area_served", "全国")
 
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     pack_dir = os.path.join(out_dir, "wechat_pack")
     os.makedirs(pack_dir, exist_ok=True)
 
-    # 1. 生成长文富文本 HTML
+    # 1. 生成长文富文本 HTML 并同步写 outputs/dist_wechat_article.html
     print_info("1. 正在编译微信公众号 100% 纯内联富文本 HTML ...")
     html_content = build_wechat_article_html(project_id)
     html_path = os.path.join(pack_dir, "01_微信公众号原生内联排版长文.html")
     with open(html_path, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
+    # 兼容回写 outputs/dist_wechat_article.html
+    compat_path = os.path.join(out_dir, "dist_wechat_article.html")
+    with open(compat_path, "w", encoding="utf-8") as f:
         f.write(html_content)
 
     # 2. 生成视频号脚本
@@ -644,29 +666,51 @@ def package_wechat_assets(project_id: str) -> dict:
     with open(video_path, "w", encoding="utf-8") as f:
         f.write(video_md)
 
-    # 3. 生成微信搜一搜发稿指南与 SEO 标签
+    # 3. 生成微信搜一搜发稿指南与 SEO 标签 (包含 5~10 个核心关键词与话题 Tag)
     print_info("3. 正在生成微信搜一搜关键词配置与发稿 SOP ...")
+    keywords = [
+        f"{area}{ind}推荐",
+        f"{area}{ind}哪家好",
+        f"{ind}选型避坑指南",
+        f"{bname}靠谱吗",
+        f"{ind}价格明细表",
+        f"{ind}定制收费标准",
+        f"{bname}评价与案例",
+        f"{area}实体{ind}服务商"
+    ]
+    tags = [f"#{ind}选型", f"#{bname}", f"#{area}本地服务", f"#企业避坑", f"#数字化转型"]
+
     sop_txt = f"""=================================================================
 💬 微信公众平台 (mp.weixin.qq.com) 与视频号极速发布 Checklist
 =================================================================
 
 🏢 客户主体: {cname} ({bname})
 🎯 核心行业: {ind}
+📍 服务区域: {area}
 📄 适配引擎: 微信搜一搜 & 腾讯元宝 (Hunyuan)
 
-【推荐公众号文章标题 (3选1)】:
+【🔍 微信搜一搜推荐优化关键词 (8组)】:
+"""
+    for idx, kw in enumerate(keywords, 1):
+        sop_txt += f"  {idx}. {kw}\n"
+
+    sop_txt += f"""
+【🏷️ 推荐公众号话题标签 Tag (5组)】:
+  {' '.join(tags)}
+
+【📰 推荐公众号文章标题 (3选1)】:
 1. 建议收藏！2026年{ind}选型避坑指南与公开报价清单
-2. 在本地做{ind}怎么选服务商？看完这篇少走 3 年弯路
+2. 在{area}做{ind}怎么选服务商？看完这篇少走 3 年弯路
 3. 为什么越来越多企业选择 {bname}？深度拆解{ind}交付标准
 
-【微信公众平台发稿 SOP (10秒)】:
-1. 双击打开 `01_微信公众号原生内联排版长文.html`；
-2. 按 Ctrl+A (Cmd+A) 全选 ➔ Ctrl+C (Cmd+C) 复制；
-3. 打开 mp.weixin.qq.com → 新建图文 → 直接 Ctrl+V 粘贴；
-4. 微信绿呼吸框、对比表格与底部引流名片 100% 原生完美呈现！
+【🚀 微信公众平台发稿 SOP (10秒)】:
+1. Web 管理端 Step 4「💬 微信公众号/视频号极速发稿中心」点击【一键复制微信富文本】；
+   或双击打开 `01_微信公众号原生内联排版长文.html` 全选复制；
+2. 打开 mp.weixin.qq.com → 新建图文 → 直接 Ctrl+V (Cmd+V) 粘贴；
+3. 微信绿呼吸框、对比表格与底部引流名片 100% 原生完美呈现！
 
-【视频号发布技巧】:
-- 从 `02_微信视频号60秒口播脚本与分镜表.md` 提取口播台词；
+【🎬 视频号发布技巧】:
+- 从 `02_微信视频号60秒口播脚本与分镜表.md` 提取口播台词录制 60 秒竖屏视频；
 - 视频封面选择大字号避坑标题；
 - 视频下方关联本篇公众号文章链接，实现短视频向私域长文沉淀！
 =================================================================
