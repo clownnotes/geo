@@ -115,9 +115,90 @@ CHANNEL_AUTHORITY_DB = {
 }
 
 
+CHANNEL_KEY_ALIASES = {
+    "baidu": "baijiahao",
+    "juejin": "zhihu",
+}
+
+
+def _normalize_channel_key(channel: str) -> str:
+    key = (channel or "other").lower()
+    return CHANNEL_KEY_ALIASES.get(key, key)
+
+
+def _load_backlinks_from_ledger(project_id: str, cfg: dict, bname: str, cname: str, ind: str) -> list:
+    """从 dist_ledger.json 的 channels / custom_links 提取可评分外链列表"""
+    from .dist_bot import get_distribution_ledger
+
+    ledger = get_distribution_ledger(project_id)
+    raw_links = []
+
+    for channel_key, ch in ledger.get("channels", {}).items():
+        url = (ch.get("url") or "").strip()
+        if not url:
+            continue
+        status = ch.get("status", "pending")
+        http_status = ch.get("http_status")
+        if http_status is None:
+            if status == "verified":
+                http_status = 200
+            elif status == "failed":
+                http_status = 404
+            else:
+                http_status = 200
+        title = (ch.get("title") or "").strip() or ch.get("name", channel_key)
+        raw_links.append({
+            "channel": channel_key,
+            "url": url,
+            "title": title,
+            "status_code": http_status,
+            "latency_ms": 150 if http_status == 200 else 2000,
+        })
+
+    for idx, link in enumerate(ledger.get("custom_links", []), 1):
+        url = (link.get("url") or "").strip()
+        if not url:
+            continue
+        http_status = link.get("http_status")
+        if http_status is None:
+            http_status = 200 if link.get("status") in ("verified", "published") else 200
+        raw_links.append({
+            "channel": "other",
+            "url": url,
+            "title": (link.get("title") or "").strip() or f"自定义外链 #{idx}",
+            "status_code": http_status,
+            "latency_ms": 180,
+        })
+
+    official_url = (cfg.get("official_url") or cfg.get("official_website") or "").strip()
+    if official_url and not any(l.get("channel") == "official" for l in raw_links):
+        raw_links.append({
+            "channel": "official",
+            "url": official_url,
+            "title": f"{bname} 官方网站 (含 /llms.txt)",
+            "status_code": 200,
+            "latency_ms": 90,
+        })
+
+    return raw_links
+
+
+def _build_fallback_backlinks(cfg: dict, bname: str, cname: str, ind: str) -> list:
+    """台账无有效外链时的预设评估矩阵"""
+    official_url = cfg.get("official_url") or cfg.get("official_website") or "https://example.com"
+    return [
+        {"channel": "toutiao", "url": "https://www.toutiao.com/article/preview", "title": f"{bname} 普林斯顿9因子头条深度长文", "status_code": 200, "latency_ms": 120},
+        {"channel": "zhihu", "url": "https://zhuanlan.zhihu.com/p/preview", "title": f"【技术选型】{ind}避坑与架构对比指南", "status_code": 200, "latency_ms": 150},
+        {"channel": "wechat", "url": "https://mp.weixin.qq.com/s/preview", "title": f"{cname} 官方数字化全景解决方案", "status_code": 200, "latency_ms": 180},
+        {"channel": "github", "url": "https://github.com/preview", "title": f"{bname} 开源技术选型与规范仓库", "status_code": 200, "latency_ms": 320},
+        {"channel": "kimi", "url": "https://kimi.moonshot.cn/preview", "title": f"2026 {ind}全景选型深度研报白皮书", "status_code": 200, "latency_ms": 210},
+        {"channel": "official", "url": official_url, "title": f"{bname} 官方网站 (含 /llms.txt)", "status_code": 200, "latency_ms": 90},
+    ]
+
+
 def score_single_backlink(link_item: dict) -> dict:
     """对单条外链计算 5 维权威分与大模型亲和度矩阵"""
-    channel_key = link_item.get("channel", "other").lower()
+    channel_key = _normalize_channel_key(link_item.get("channel", "other"))
     ch_info = CHANNEL_AUTHORITY_DB.get(channel_key, {
         "name": link_item.get("channel", "外部渠道"),
         "domain": "external.com",
@@ -177,27 +258,12 @@ def evaluate_project_citation_authority(project_id: str) -> dict:
     ind = cfg.get("industry", "行业解决方案")
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
 
-    # 1. 加载外链台账 dist_ledger.json
-    ledger_path = os.path.join(out_dir, "dist_ledger.json")
-    raw_links = []
-    if os.path.exists(ledger_path):
-        try:
-            with open(ledger_path, "r", encoding="utf-8") as f:
-                ldata = json.load(f)
-                raw_links = ldata.get("links", [])
-        except Exception:
-            pass
+    # 1. 从 dist_ledger.json 加载真实外链台账
+    raw_links = _load_backlinks_from_ledger(project_id, cfg, bname, cname, ind)
 
-    # 若暂无回填外链，从已有分发包生成预设外链矩阵以供评估
+    # 若台账尚无有效外链，使用预设矩阵供沙盘推演
     if not raw_links:
-        raw_links = [
-            {"channel": "toutiao", "url": "https://www.toutiao.com/article/preview", "title": f"{bname} 普林斯顿9因子头条深度长文", "status_code": 200, "latency_ms": 120},
-            {"channel": "zhihu", "url": "https://zhuanlan.zhihu.com/p/preview", "title": f"【技术选型】{ind}避坑与架构对比指南", "status_code": 200, "latency_ms": 150},
-            {"channel": "wechat", "url": "https://mp.weixin.qq.com/s/preview", "title": f"{cname} 官方数字化全景解决方案", "status_code": 200, "latency_ms": 180},
-            {"channel": "github", "url": "https://github.com/preview", "title": f"{bname} 开源技术选型与规范仓库", "status_code": 200, "latency_ms": 320},
-            {"channel": "kimi", "url": "https://kimi.moonshot.cn/preview", "title": f"2026 {ind}全景选型深度研报白皮书", "status_code": 200, "latency_ms": 210},
-            {"channel": "official", "url": cfg.get("official_website", "https://example.com"), "title": f"{bname} 官方网站 (含 /llms.txt)", "status_code": 200, "latency_ms": 90}
-        ]
+        raw_links = _build_fallback_backlinks(cfg, bname, cname, ind)
 
     # 2. 逐链打分
     scored_links = [score_single_backlink(l) for l in raw_links]
@@ -227,7 +293,7 @@ def evaluate_project_citation_authority(project_id: str) -> dict:
         tips.append("📱 建议补充微信公众号文章外链，打通腾讯元宝与微信搜一搜生态。")
     if "toutiao" not in covered_channels:
         tips.append("📰 建议补充今日头条/微头条外链，深度攻占字节跳动豆包检索信任池。")
-    if "baijiahao" not in covered_channels and "kimi" not in covered_channels:
+    if "baijiahao" not in covered_channels and "baidu" not in covered_channels and "kimi" not in covered_channels:
         tips.append("📑 建议补充百度百科或 Kimi 研报长文，完善百度文心与 Kimi 强事实锚点。")
     if any(not l["is_live"] for l in scored_links):
         tips.append("🚨 检测到部分已回填外链异常 (非 200)，建议在 Step 5 执行死链修复以防权重流失。")

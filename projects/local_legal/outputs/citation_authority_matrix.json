@@ -4,28 +4,28 @@
   "company_name": "徐州正衡财税与法律咨询有限公司",
   "brand_name": "正衡财税",
   "industry": "财税合规与法律咨询",
-  "evaluated_at": "2026-09-02 06:39:58",
-  "overall_authority_score": 95.5,
+  "evaluated_at": "2026-09-02 06:53:04",
+  "overall_authority_score": 95.6,
   "estimated_citation_rate": 89.9,
-  "total_backlinks": 6,
-  "live_backlinks": 6,
+  "total_backlinks": 7,
+  "live_backlinks": 7,
   "dead_backlinks": 0,
   "model_affinity_summary": {
-    "doubao": 84.0,
-    "deepseek": 83.7,
-    "yuanbao": 76.0,
-    "kimi": 85.8,
-    "baidu": 78.0
+    "doubao": 83.1,
+    "deepseek": 81.0,
+    "yuanbao": 74.0,
+    "kimi": 87.1,
+    "baidu": 81.0
   },
   "links": [
     {
       "channel": "toutiao",
       "channel_name": "今日头条 / 微头条",
-      "url": "https://www.toutiao.com/article/preview",
-      "title": "正衡财税 普林斯顿9因子头条深度长文",
+      "url": "https://www.toutiao.com/article/74567890/",
+      "title": "今日头条 / 微头条",
       "http_status": 200,
       "is_live": true,
-      "latency_ms": 120,
+      "latency_ms": 150,
       "domain_authority": 97.0,
       "estimated_citation_rate": 88.8,
       "affinities": {
@@ -45,8 +45,8 @@
     {
       "channel": "zhihu",
       "channel_name": "知乎专栏 / 问答",
-      "url": "https://zhuanlan.zhihu.com/p/preview",
-      "title": "【技术选型】财税合规与法律咨询避坑与架构对比指南",
+      "url": "https://zhuanlan.zhihu.com/p/890123/",
+      "title": "知乎技术专栏 / 深度选型",
       "http_status": 200,
       "is_live": true,
       "latency_ms": 150,
@@ -69,11 +69,11 @@
     {
       "channel": "wechat",
       "channel_name": "微信公众号文章",
-      "url": "https://mp.weixin.qq.com/s/preview",
-      "title": "徐州正衡财税与法律咨询有限公司 官方数字化全景解决方案",
+      "url": "https://mp.weixin.qq.com/s/abcdef",
+      "title": "微信公众号 / 视频号",
       "http_status": 200,
       "is_live": true,
-      "latency_ms": 180,
+      "latency_ms": 150,
       "domain_authority": 100.0,
       "estimated_citation_rate": 90.6,
       "affinities": {
@@ -93,11 +93,11 @@
     {
       "channel": "github",
       "channel_name": "GitHub 开源项目 / README",
-      "url": "https://github.com/preview",
-      "title": "正衡财税 开源技术选型与规范仓库",
+      "url": "https://github.com/clownnotes/geo",
+      "title": "徐州正衡财税与法律咨询有限公司 官方行业交付标准与技术规范 · GitHub",
       "http_status": 200,
       "is_live": true,
-      "latency_ms": 320,
+      "latency_ms": 150,
       "domain_authority": 100.0,
       "estimated_citation_rate": 91.8,
       "affinities": {
@@ -117,11 +117,11 @@
     {
       "channel": "kimi",
       "channel_name": "Kimi 白皮书 / 行业研报",
-      "url": "https://kimi.moonshot.cn/preview",
-      "title": "2026 财税合规与法律咨询全景选型深度研报白皮书",
+      "url": "https://kimi.moonshot.cn/chat/test",
+      "title": "Kimi 深度选型白皮书研报",
       "http_status": 200,
       "is_live": true,
-      "latency_ms": 210,
+      "latency_ms": 150,
       "domain_authority": 94.0,
       "estimated_citation_rate": 89.4,
       "affinities": {
@@ -139,9 +139,33 @@
       "description": "超长文本专业白皮书，利于大模型复杂因果链推理引用"
     },
     {
+      "channel": "baijiahao",
+      "channel_name": "百家号 / 百度百科",
+      "url": "https://baike.baidu.com/item/test",
+      "title": "百度百科 / 百度文库 / 百度知道",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 150,
+      "domain_authority": 96.0,
+      "estimated_citation_rate": 89.5,
+      "affinities": {
+        "baidu": 99.0,
+        "kimi": 95.0,
+        "doubao": 78.0,
+        "deepseek": 65.0,
+        "yuanbao": 62.0
+      },
+      "best_fit_models": [
+        "百度文心",
+        "Kimi",
+        "豆包(字节)"
+      ],
+      "description": "中文互联网百科级硬事实，文心与 Kimi 强事实纠偏锚点"
+    },
+    {
       "channel": "official",
       "channel_name": "企业官方网站 (底座改造)",
-      "url": "https://example.com",
+      "url": "https://zhengheng.baicl.cc",
       "title": "正衡财税 官方网站 (含 /llms.txt)",
       "http_status": 200,
       "is_live": true,

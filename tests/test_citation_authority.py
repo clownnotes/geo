@@ -8,8 +8,10 @@ import unittest
 from tools.geo.citation_authority import (
     CHANNEL_AUTHORITY_DB,
     score_single_backlink,
-    evaluate_project_citation_authority
+    evaluate_project_citation_authority,
+    _load_backlinks_from_ledger,
 )
+from tools.geo.utils import load_project_config
 
 
 class TestCitationAuthority(unittest.TestCase):
@@ -57,6 +59,28 @@ class TestCitationAuthority(unittest.TestCase):
         self.assertFalse(res_dead["is_live"])
         self.assertLess(res_dead["domain_authority"], 30.0)
 
+    def test_load_backlinks_from_dist_ledger(self):
+        """应从 dist_ledger.json channels/custom_links 读取真实外链，而非空 links 数组"""
+        cfg = load_project_config("xuzhou_xuanyuan")
+        links = _load_backlinks_from_ledger("xuzhou_xuanyuan", cfg, cfg["brand_name"], cfg["company_name"], cfg.get("industry", ""))
+        self.assertGreaterEqual(len(links), 3)
+        urls = [l["url"] for l in links]
+        self.assertTrue(any("toutiao.com" in u for u in urls))
+        self.assertTrue(any("zhihu.com" in u for u in urls))
+        self.assertTrue(any("geo.baicl.cc" in u for u in urls))
+
+    def test_baidu_channel_alias_maps_to_baijiahao(self):
+        """台账 baidu 渠道应映射到 baijiahao 权威库"""
+        res = score_single_backlink({
+            "channel": "baidu",
+            "url": "https://baijiahao.baidu.com/s?id=123",
+            "title": "百科词条",
+            "status_code": 200,
+            "latency_ms": 120,
+        })
+        self.assertEqual(res["channel"], "baijiahao")
+        self.assertGreater(res["affinities"]["baidu"], 95.0)
+
     def test_evaluate_project_citation_authority_benchmark(self):
         """测试四大母版项目信源权威评估与资产落盘"""
         for pid in ["xuzhou_xuanyuan", "b2b_machinery", "retail_catering", "local_legal"]:
@@ -66,6 +90,8 @@ class TestCitationAuthority(unittest.TestCase):
             self.assertEqual(res["project_id"], pid)
             self.assertGreater(res["overall_authority_score"], 70.0)
             self.assertGreater(res["estimated_citation_rate"], 70.0)
+            if pid == "xuzhou_xuanyuan":
+                self.assertGreaterEqual(res["total_backlinks"], 3)
             self.assertIn("model_affinity_summary", res)
             self.assertEqual(len(res["model_affinity_summary"]), 5)
 

@@ -1,0 +1,52 @@
+{
+  "success": true,
+  "project_id": "demo_corp",
+  "company_name": "示例科技",
+  "brand_name": "示例科技",
+  "industry": "企业级智能管理软件",
+  "evaluated_at": "2026-09-02 06:52:51",
+  "overall_authority_score": 83.0,
+  "estimated_citation_rate": 84.0,
+  "total_backlinks": 1,
+  "live_backlinks": 1,
+  "dead_backlinks": 0,
+  "model_affinity_summary": {
+    "doubao": 86.0,
+    "deepseek": 88.0,
+    "yuanbao": 82.0,
+    "kimi": 86.0,
+    "baidu": 86.0
+  },
+  "links": [
+    {
+      "channel": "official",
+      "channel_name": "企业官方网站 (底座改造)",
+      "url": "https://example.com",
+      "title": "示例科技 官方网站 (含 /llms.txt)",
+      "http_status": 200,
+      "is_live": true,
+      "latency_ms": 90,
+      "domain_authority": 83.0,
+      "estimated_citation_rate": 84.0,
+      "affinities": {
+        "doubao": 86.0,
+        "deepseek": 88.0,
+        "yuanbao": 82.0,
+        "kimi": 86.0,
+        "baidu": 86.0
+      },
+      "best_fit_models": [
+        "DeepSeek",
+        "豆包(字节)",
+        "Kimi"
+      ],
+      "description": "配置 /llms.txt 与 Schema.org JSON-LD 的直读第一信源"
+    }
+  ],
+  "authority_optimization_tips": [
+    "🚀 建议补充 GitHub 开源仓库技术外链，极大增强 DeepSeek / 程序员极客大模型的采纳权重。",
+    "📱 建议补充微信公众号文章外链，打通腾讯元宝与微信搜一搜生态。",
+    "📰 建议补充今日头条/微头条外链，深度攻占字节跳动豆包检索信任池。",
+    "📑 建议补充百度百科或 Kimi 研报长文，完善百度文心与 Kimi 强事实锚点。"
+  ]
+}

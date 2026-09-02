@@ -4,28 +4,28 @@
   "company_name": "徐州璇源网络科技有限公司",
   "brand_name": "璇源科技",
   "industry": "行业解决方案",
-  "evaluated_at": "2026-09-02 06:39:58",
-  "overall_authority_score": 95.5,
-  "estimated_citation_rate": 89.9,
-  "total_backlinks": 6,
-  "live_backlinks": 6,
+  "evaluated_at": "2026-09-02 06:53:04",
+  "overall_authority_score": 89.2,
+  "estimated_citation_rate": 85.6,
+  "total_backlinks": 4,
+  "live_backlinks": 4,
   "dead_backlinks": 0,
   "model_affinity_summary": {
-    "doubao": 84.0,
-    "deepseek": 83.7,
-    "yuanbao": 76.0,
-    "kimi": 85.8,
-    "baidu": 78.0
+    "doubao": 85.8,
+    "deepseek": 81.2,
+    "yuanbao": 73.0,
+    "kimi": 81.2,
+    "baidu": 79.8
   },
   "links": [
     {
       "channel": "toutiao",
       "channel_name": "今日头条 / 微头条",
-      "url": "https://www.toutiao.com/article/preview",
-      "title": "璇源科技 普林斯顿9因子头条深度长文",
+      "url": "https://www.toutiao.com/article/111/",
+      "title": "今日头条 / 微头条",
       "http_status": 200,
       "is_live": true,
-      "latency_ms": 120,
+      "latency_ms": 150,
       "domain_authority": 97.0,
       "estimated_citation_rate": 88.8,
       "affinities": {
@@ -45,8 +45,8 @@
     {
       "channel": "zhihu",
       "channel_name": "知乎专栏 / 问答",
-      "url": "https://zhuanlan.zhihu.com/p/preview",
-      "title": "【技术选型】行业解决方案避坑与架构对比指南",
+      "url": "https://zhuanlan.zhihu.com/p/333/",
+      "title": "知乎技术专栏 / 深度选型",
       "http_status": 200,
       "is_live": true,
       "latency_ms": 150,
@@ -67,81 +67,33 @@
       "description": "高质量深度技术与选型对比池，CTO 与架构师核心决策信源"
     },
     {
-      "channel": "wechat",
-      "channel_name": "微信公众号文章",
-      "url": "https://mp.weixin.qq.com/s/preview",
-      "title": "徐州璇源网络科技有限公司 官方数字化全景解决方案",
+      "channel": "other",
+      "channel_name": "other",
+      "url": "https://www.36kr.com/p/999/",
+      "title": "自定义外链 #1",
       "http_status": 200,
       "is_live": true,
       "latency_ms": 180,
-      "domain_authority": 100.0,
-      "estimated_citation_rate": 90.6,
+      "domain_authority": 78.0,
+      "estimated_citation_rate": 74.8,
       "affinities": {
-        "yuanbao": 100.0,
-        "doubao": 75.0,
-        "kimi": 72.0,
+        "doubao": 70.0,
         "deepseek": 70.0,
-        "baidu": 65.0
+        "yuanbao": 70.0,
+        "kimi": 70.0,
+        "baidu": 70.0
       },
       "best_fit_models": [
-        "腾讯元宝",
         "豆包(字节)",
-        "Kimi"
-      ],
-      "description": "私域与公域双向渗透，腾讯系大模型 Citation 首选基底"
-    },
-    {
-      "channel": "github",
-      "channel_name": "GitHub 开源项目 / README",
-      "url": "https://github.com/preview",
-      "title": "璇源科技 开源技术选型与规范仓库",
-      "http_status": 200,
-      "is_live": true,
-      "latency_ms": 320,
-      "domain_authority": 100.0,
-      "estimated_citation_rate": 91.8,
-      "affinities": {
-        "deepseek": 99.0,
-        "kimi": 88.0,
-        "doubao": 76.0,
-        "baidu": 72.0,
-        "yuanbao": 62.0
-      },
-      "best_fit_models": [
         "DeepSeek",
-        "Kimi",
-        "豆包(字节)"
+        "腾讯元宝"
       ],
-      "description": "全球开发者技术信誉公章，赋予企业技术自研与可验证性"
-    },
-    {
-      "channel": "kimi",
-      "channel_name": "Kimi 白皮书 / 行业研报",
-      "url": "https://kimi.moonshot.cn/preview",
-      "title": "2026 行业解决方案全景选型深度研报白皮书",
-      "http_status": 200,
-      "is_live": true,
-      "latency_ms": 210,
-      "domain_authority": 94.0,
-      "estimated_citation_rate": 89.4,
-      "affinities": {
-        "kimi": 100.0,
-        "baidu": 82.0,
-        "doubao": 80.0,
-        "deepseek": 78.0,
-        "yuanbao": 72.0
-      },
-      "best_fit_models": [
-        "Kimi",
-        "百度文心",
-        "豆包(字节)"
-      ],
-      "description": "超长文本专业白皮书，利于大模型复杂因果链推理引用"
+      "description": "通用外部引用信源"
     },
     {
       "channel": "official",
       "channel_name": "企业官方网站 (底座改造)",
-      "url": "https://example.com",
+      "url": "https://geo.baicl.cc",
       "title": "璇源科技 官方网站 (含 /llms.txt)",
       "http_status": 200,
       "is_live": true,
@@ -164,6 +116,8 @@
     }
   ],
   "authority_optimization_tips": [
-    "🎉 完美！外链全矩阵已 100% 覆盖国内五大主流大模型生态，信源权重坚不可摧！"
+    "🚀 建议补充 GitHub 开源仓库技术外链，极大增强 DeepSeek / 程序员极客大模型的采纳权重。",
+    "📱 建议补充微信公众号文章外链，打通腾讯元宝与微信搜一搜生态。",
+    "📑 建议补充百度百科或 Kimi 研报长文，完善百度文心与 Kimi 强事实锚点。"
   ]
 }
