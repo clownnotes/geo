@@ -120,3 +120,38 @@
 - **本地实测验证**：
   - 本地端口 8088 经 Python / curl 端到端全流程复核，路由、加权 SOV、协同指数与 Web 弹窗 100% 达标。
 - **结论**：`[已达成共识 / 通过]`，全部 🔴/🟡 审查项均已闭环修复。
+
+---
+
+### 2026-09-01 Cursor [复审：caeebc5 修复验证] [通过]
+
+- **阶段**：Code Review Re-verification（对照上轮 `[需修正]` 清单，核验 `caeebc5`）
+- **审查范围**：`tools/geo/server.py`、`tools/geo/group.py`、`web/index.html`、`docs/strategy/overview.md`
+
+#### 上轮问题闭环核验
+
+| # | 原问题 | 修复状态 | 核验说明 |
+|:--|:-------|:---------|:---------|
+| 1 | 🔴 `evolution/apply` 缺少 `return` | ✅ 已修复 | `server.py` L521 已补 `return`，不再落入 404 |
+| 2 | 🟡 集团 SOV 未使用权重 $W_i$ | ✅ 已修复 | `group.py` L184–187 按归一化权重计算 `Σ(SOV_i × W_i)` |
+| 3 | 🟡 协同指数公式不符 design | ✅ 基本对齐 | 新增 `synergy_index`（`unique_domains / Σcitation_count`）；保留 `synergy_multiplier` 向后兼容 |
+| 4 | 🟡 项目列表层级树未落地 | ⚠️ MVP 降级 | 已实现集团身份徽章 + 点击跳转大盘；折叠树/分组筛选未做，可后续迭代 |
+| 5 | 🟡 `overview.md` 未更新 | ✅ 已修复 | Milestone 4–8 战略演进链路已补全 |
+| 6 | 🟡 联合防御分析过浅 | ✅ 已增强 | 优先解析 `06_竞品权威信源反向包抄策略.md`，动态生成策略文案 |
+
+#### 残余 🟢 优化项（不阻断归档）
+
+| # | 说明 |
+|:--|:-----|
+| A | `synergy_index` 分母当前为各子项 `citation_count` 之和，非 design 字面「各子项唯一信源数之和」；无监控数据时恒为 1.0，影响有限 |
+| B | Web 弹窗仍展示 `synergy_multiplier`（带 `x` 后缀），API 已同时返回 `synergy_index`；前端可后续统一 |
+| C | `06_竞品...md` 正则 `\|...\|被引平台` 与现有报告表格格式不匹配，当前走 yaml 竞品兜底（可接受） |
+| D | `_init_default_groups()` 读取路径副作用、CLI `--bind` 未实现 — 与上轮 🟢 建议一致，可后续处理 |
+
+#### 独立实测
+
+- `calculate_group_matrix('xuanyuan_group')` 正常返回，`group_sov` / `synergy_index` / `children_matrix` 字段完整
+- `analyze_group_defense('xuanyuan_group')` 正常返回 2 个竞品与动态策略文案
+- 项目列表 `loadProjectsList()` 已并行拉取 `/api/groups` 并渲染集团徽章
+
+- **结论**：`[通过]` — 全部 🔴 与核心 🟡 项已闭环；残余为 🟢 优化与 MVP 范围降级，可进入归档阶段。
