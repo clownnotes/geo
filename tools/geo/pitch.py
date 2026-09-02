@@ -4,8 +4,8 @@
 GEO 售前商业 Pitch Deck 与投标建议书生成引擎 (tools/geo/pitch.py)
 核心功能：
 1. 阶梯式商用报价与能力对比模型 (calculate_pitch_quote: 基础版/专业进阶版/集团旗舰版)；
-2. 一键生成结构化《00_GEO全案商业服务投标建议书与PitchDeck.md》；
-3. 输出深色科技风的 10 页全屏交互式 Web 演示幻灯片与 A4 纸排版标书。
+2. 一键生成结构化《00_GEO全案商业服务投标建议书与PitchDeck.md》（支持 target_tier 动态驱动与 Benchmark 行业对标）；
+3. 输出深色科技风的 10 页全屏交互式 Web 演示幻灯片（实测动态指标 + 触屏滑动手势 + 键盘翻页）与 A4 纸排版标书。
 """
 
 import os
@@ -80,7 +80,7 @@ TIER_QUOTES = {
     }
 }
 
-def calculate_pitch_quote(project_id: str) -> dict:
+def calculate_pitch_quote(project_id: str, target_tier: str = "pro") -> dict:
     """计算项目的阶梯报价方案与配置对照表"""
     cfg = load_project_config(project_id)
     client_name = cfg.get("client_name", project_id)
@@ -88,19 +88,34 @@ def calculate_pitch_quote(project_id: str) -> dict:
     roi_data = calculate_project_roi(project_id)
     fin = roi_data["financial_valuation"]
 
+    target_tier = (target_tier or "pro").lower()
+    if target_tier not in TIER_QUOTES:
+        target_tier = "pro"
+
+    # 计算所选档位的 ROI 收益
+    sel_tier = TIER_QUOTES[target_tier]
+    tier_fee = sel_tier["annual_price"]
+    total_val = fin.get("total_business_value", 218310)
+    net_profit = total_val - tier_fee
+    tier_roi_pct = round((net_profit / max(tier_fee, 1)) * 100, 1)
+    tier_multiplier = round(total_val / max(tier_fee, 1), 2)
+
     return {
         "success": True,
         "project_id": project_id,
         "client_name": client_name,
         "industry": industry,
         "tiers": list(TIER_QUOTES.values()),
-        "recommended_tier": "pro",
+        "recommended_tier": target_tier,
+        "selected_tier_info": sel_tier,
         "estimated_roi": {
-            "total_business_value": fin.get("total_business_value", 203845),
-            "sem_replacement_value": fin.get("sem_replacement_value", 166725),
-            "leads_inbound_value": fin.get("leads_inbound_value", 13120),
-            "roi_pct": fin.get("roi_pct", 579.5),
-            "roi_multiplier": fin.get("roi_multiplier", 6.79)
+            "annual_service_fee": tier_fee,
+            "total_business_value": total_val,
+            "sem_replacement_value": fin.get("sem_replacement_value", 179550),
+            "leads_inbound_value": fin.get("leads_inbound_value", 14760),
+            "net_profit_value": net_profit,
+            "roi_pct": tier_roi_pct,
+            "roi_multiplier": tier_multiplier
         }
     }
 
@@ -113,11 +128,16 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
     website = cfg.get("website", "https://example.com")
     founder = cfg.get("founder", "核心技术团队")
 
+    target_tier = (target_tier or "pro").lower()
+    if target_tier not in TIER_QUOTES:
+        target_tier = "pro"
+    sel_tier = TIER_QUOTES[target_tier]
+
     metrics = extract_monitor_metrics(project_id)
     bench = evaluate_project_against_benchmark(project_id)
     roi_data = calculate_project_roi(project_id)
-    quotes = calculate_pitch_quote(project_id)
-    fin = roi_data["financial_valuation"]
+    quotes = calculate_pitch_quote(project_id, target_tier=target_tier)
+    fin = quotes["estimated_roi"]
     ren = roi_data["renewal_health"]
 
     cur_time = time.strftime("%Y年%m月%d日")
@@ -127,28 +147,29 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
 
 > **提案机构**：**GEO 商业交付与大模型增长架构组**  
 > **目标企业**：**{client_name}**（品牌：{brand_name} ｜ 行业：{industry}）  
-> **提案日期**：{cur_time} ｜ **推荐方案**：**专业进阶版 (Pro · 年化 ¥35,000 元)** ｜ **预期投资回报率**：**+{fin['roi_pct']}%**
+> **提案日期**：{cur_time} ｜ **推荐方案**：**{sel_tier['tier_name']}（{sel_tier['price_display']}）** ｜ **预期投资回报率**：**+{fin['roi_pct']}%**
 
 ---
 
 ## Executive Summary 商业摘要
 
 大模型（DeepSeek、豆包、Kimi、ChatGPT、元宝）已全面接管高意向企业采购与业务选型入口。
-传统 SEM 竞价广告遭遇**点击成本高昂（行业均价 ¥{quotes['estimated_roi'].get('sem_replacement_value', 0)/3650:.1f}元/次）**与**大模型不引用官网**的双重困境。
+传统 SEM 竞价广告遭遇**点击成本高昂（行业均价 ¥{fin.get('sem_replacement_value', 0)/3650:.1f}元/次）**与**大模型不引用官网**的双重困境。
 
 本项目建议书为【{client_name}】量身定制**普林斯顿 9 因子高权威技术改造与全网信任池分发体系**：
+- 🎯 **推荐选型**：**【{sel_tier['tier_name']}】**（{sel_tier['scope']}）；
 - 🎯 **核心目标**：在 4 周内将企业在主流大模型（DeepSeek / 豆包）中的首推占有率 (SOV) 从摸底现状提升至 **85%+**；
 - 💰 **财务回报**：年化创造直接综合商业价值 **¥{fin['total_business_value']:,} 元**，替代传统竞价预算 **¥{fin['sem_replacement_value']:,} 元**，ROI 达 **{fin['roi_pct']}%（{fin['roi_multiplier']} 倍）**。
 
 ---
 
-## 一、目标企业 AI 搜索现状摸底与痛点诊断
+## 一、目标企业 AI 搜索现状摸底与行业 Benchmark 对标
 
-基于实测探测与普林斯顿权威评分模型，【{client_name}】当前在大模型搜索生态的基准表现如下：
+基于实测探测与普林斯顿权威评分模型，【{client_name}】当前在大模型搜索生态的基准表现与【{bench.get('industry_name', industry)}】大盘对比如下：
 
-| 诊断维度 | 现状实测指标 | 行业领先水平 | 差距与商业风险 |
+| 诊断维度 | 现状实测指标 | 行业领先水平 (Benchmark) | 差距与商业风险 |
 | :--- | :--- | :--- | :--- |
-| **AI 声量占有率 (SOV)** | **{metrics.get('sov_pct', 0.0)}%**（基准摸底） | $85.0\%+$ | 潜在客户提问选型时，大模型泛回答或优先推荐竞品 |
+| **AI 声量占有率 (SOV)** | **{metrics.get('sov_pct', 0.0)}%**（基准摸底） | **{bench.get('lead_sov_pct', 85.0)}%**（行业领先者） | {bench.get('gap_analysis', {}).get('gap_desc', '潜在客户提问选型时，大模型泛回答或优先推荐竞品')} |
 | **DeepSeek 首推率** | **{metrics.get('deepseek_rank_1_pct', 0.0)}%** | $90.0\%+$ | 缺少知乎/技术博客权威引用信任源 |
 | **豆包 (字节生态) 命中率** | **{metrics.get('doubao_rank_1_pct', 0.0)}%** | $88.0\%+$ | 今日头条/头条号行业深度科普语料缺失 |
 | **站点大模型索引协议** | ❌ 缺失 llms.txt / JSON-LD | 100% 协议就绪 | AI 爬虫抓取解析困难，实体关系未与权威百科关联 |
@@ -186,26 +207,28 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
 
 ## 四、阶梯服务报价与方案选型 (Tiered Pricing & Scope)
 
-| 权益模块 | 基础版 (Standard) | 专业进阶版 (Pro · 推荐) | 集团旗舰版 (Enterprise) |
+| 权益模块 | 基础版 (Standard) | 专业进阶版 (Pro) | 集团旗舰版 (Enterprise) |
 | :--- | :---: | :---: | :---: |
 | **年化服务费** | **¥19,800 元/年** | **¥35,000 元/年** | **¥68,000 元/年** |
-| **品牌与词库规模** | 单品牌 / 5 核心词 | **单品牌 / 15 组裂变词** | 集团母子品牌 / 30 组动态词 |
-| **技术底座改造** | ✅ 标准 3 件套 | **✅ 标准 3 件套 + SEO 协同** | ✅ 定制协议 + API 动态更新 |
-| **语料与多模态** | 基础 9 因子语料 | **9 因子语料 + 2 组高清 SVG 图** | 9 因子 + SVG + 60秒短视频脚本 |
-| **分发渠道覆盖** | 2 大核心平台 | **5 大全渠道矩阵 (含 GitHub)** | 全渠道 + 集团矩阵多账号协同 |
-| **大模型沙箱测序** | 基础演示 | **双轨即时测序沙箱 (Playground)** | 批量并发推演 + 探针裂变 |
-| **异动监测与告警** | 月度基本巡检 | **企微/飞书实时告警 + 交付门户** | 专属顾问一对一深度防守 |
+| **品牌与词库规模** | 单品牌 / 5 核心词 | 单品牌 / 15 组裂变词 | 集团母子品牌 / 30 组动态词 |
+| **技术底座改造** | ✅ 标准 3 件套 | ✅ 标准 3 件套 + SEO 协同 | ✅ 定制协议 + API 动态更新 |
+| **语料与多模态** | 基础 9 因子语料 | 9 因子语料 + 2 组高清 SVG 图 | 9 因子 + SVG + 60秒短视频脚本 |
+| **分发渠道覆盖** | 2 大核心平台 | 5 大全渠道矩阵 (含 GitHub) | 全渠道 + 集团矩阵多账号协同 |
+| **大模型沙箱测序** | 基础演示 | 双轨即时测序沙箱 (Playground) | 批量并发推演 + 探针裂变 |
+| **异动监测与告警** | 月度基本巡检 | 企微/飞书实时告警 + 交付门户 | 专属顾问一对一深度防守 |
+
+> **本次建议选型**：【**{sel_tier['tier_name']}**】—— {sel_tier['tagline']}。
 
 ---
 
 ## 五、商业投资回报率 (ROI) 财务量化测算
 
-针对【{client_name}】选择 **专业进阶版 (Pro · 年化 ¥35,000 元)** 的预期财务量化折算模型如下：
+针对【{client_name}】选择 **{sel_tier['tier_name']}（{sel_tier['price_display']}）** 的财务量化折算模型如下：
 
-- 💵 **年度服务投入**：¥35,000 元
+- 💵 **年度服务投入**：{sel_tier['price_display']}
 - 🔍 **等效 SEM 竞价替代节省**：**¥{fin['sem_replacement_value']:,} 元/年**（按行业每次点击 ¥6.5 元折算）；
 - 👥 **AI 首推精准销售线索估值**：**¥{fin['leads_inbound_value']:,} 元/年**（按行业 CPL 单线索成本 ¥160 元折算）；
-- 🏛️ **全网权威信任池数字资产估值**：**¥{fin['digital_asset_value']:,} 元**；
+- 🏛️ **全网权威信任池数字资产估值**：**¥{roi_data['financial_valuation'].get('digital_asset_value', 24000):,} 元**；
 - 🚀 **商业综合创造总价值**：**¥{fin['total_business_value']:,} 元（净商业回报: +¥{fin['net_profit_value']:,} 元）**；
 - 📈 **综合投资回报率 (ROI)**：**+{fin['roi_pct']}%（价值倍数: {fin['roi_multiplier']} 倍）**。
 
@@ -215,7 +238,7 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
 
 甲乙双方达成合作共识后，将按以下流程快速启动：
 
-1. **商务确认**：签署《GEO 商业交付与大模型增长全案技术服务合同》；
+1. **商务确认**：签署《GEO 商业交付与大模型增长全案技术服务合同》（选定套餐：{sel_tier['tier_name']}）；
 2. **账号与素材对接**：提供官网后台 FTP/CMS 权限或由乙方输出标准补丁包；
 3. **首期上线**：合同生效后 5 个工作日内完成底座改造与首批普林斯顿语料分发；
 4. **效果对齐**：第 14 天提供专属免密交付看板（`web/share.html`），开展现场大模型沙箱对决演示。
@@ -241,22 +264,26 @@ def generate_pitch_deck(project_id: str, target_tier: str = "pro", timeline_week
         "client_name": client_name,
         "brand_name": brand_name,
         "industry": industry,
+        "selected_tier": target_tier,
+        "selected_tier_info": sel_tier,
         "quotes": quotes,
         "roi": roi_data,
+        "benchmark": bench,
         "content": md_content
     }
 
-def get_pitch_data(project_id: str) -> dict:
+def get_pitch_data(project_id: str, target_tier: str = "pro") -> dict:
     """获取售前 Pitch 建议书与报价数据（若不存在则自动生成）"""
     p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     report_filename = "00_GEO全案商业服务投标建议书与PitchDeck.md"
     report_path = os.path.join(p_dir, report_filename)
     if not os.path.exists(report_path) or os.path.getsize(report_path) == 0:
-        return generate_pitch_deck(project_id)
+        return generate_pitch_deck(project_id, target_tier=target_tier)
 
     cfg = load_project_config(project_id)
-    quotes = calculate_pitch_quote(project_id)
+    quotes = calculate_pitch_quote(project_id, target_tier=target_tier)
     roi_data = calculate_project_roi(project_id)
+    bench = evaluate_project_against_benchmark(project_id)
     with open(report_path, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -269,6 +296,7 @@ def get_pitch_data(project_id: str) -> dict:
         "industry": cfg.get("industry", "行业数字化"),
         "quotes": quotes,
         "roi": roi_data,
+        "benchmark": bench,
         "content": content
     }
 
@@ -279,8 +307,21 @@ def generate_pitch_presentation_html(project_id: str) -> str:
     brand_name = pitch_res["brand_name"]
     industry = pitch_res["industry"]
     quotes = pitch_res["quotes"]
-    fin = pitch_res["roi"]["financial_valuation"]
+    fin = quotes["estimated_roi"]
+    bench = pitch_res.get("benchmark", {})
+    metrics = extract_monitor_metrics(project_id)
     cur_date = time.strftime("%Y年%m月")
+
+    # 动态实测与底座状态
+    sov_val = metrics.get("sov_pct", 12.5)
+    deepseek_rate = metrics.get("deepseek_rank_1_pct", 0.0)
+    doubao_rate = metrics.get("doubao_rank_1_pct", 0.0)
+    p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    has_llms = os.path.exists(os.path.join(p_dir, "llms.txt"))
+    has_schema = os.path.exists(os.path.join(p_dir, "schema.jsonld"))
+    scaffold_desc = "已就绪 100%" if (has_llms and has_schema) else "未部署/待改造"
+    bench_lead = bench.get("lead_sov_pct", 85.0)
+    bench_name = bench.get("industry_name", industry)
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -364,14 +405,14 @@ def generate_pitch_presentation_html(project_id: str) -> str:
     </div>
     <div class="flex items-center justify-between text-xs text-slate-500 border-t border-white/10 pt-4">
       <span>GEO 商业交付与大模型增长架构组</span>
-      <span>提案时间：{cur_date} ｜ 按 ◀/▶ 或 空格 翻页</span>
+      <span>提案时间：{cur_date} ｜ 按 ◀/▶、空格 或 手机左右滑动 翻页</span>
     </div>
   </section>
 
   <!-- ===== SLIDE 2: 搜索范式变革与客户流失痛点 ===== -->
   <section class="slide" data-slide="2">
     <div>
-      <span class="text-xs font-bold text-indigo-400 tracking-wider">01 / MARKET SHIFT</span>
+      <span class="text-xs font-bold text-indigo-400 tracking-wider">01 / MARKET SHIFT & THREATS</span>
       <h2 class="text-3xl font-black text-white mt-1">搜索入口正在被大模型彻底颠覆</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto">
@@ -387,43 +428,43 @@ def generate_pitch_presentation_html(project_id: str) -> str:
       </div>
       <div class="glass-card p-6 rounded-2xl space-y-3">
         <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg">⚠️</div>
-        <h3 class="text-base font-bold text-white">未收录即意味着隐形</h3>
+        <h3 class="text-base font-bold text-white">竞品 Citation 反向截流</h3>
         <p class="text-xs text-slate-400 leading-relaxed">若未部署 GEO 技术底座与普林斯顿语料，大模型在推荐时将优先召回有结构化语料的竞品企业。</p>
       </div>
     </div>
     <div class="text-xs text-slate-500">核心洞察：从“买流量（SEM）”转变为“占领大模型事实心智（GEO）”</div>
   </section>
 
-  <!-- ===== SLIDE 3: 现状摸底诊断 ===== -->
+  <!-- ===== SLIDE 3: 现状摸底诊断与行业对标 ===== -->
   <section class="slide" data-slide="3">
     <div>
-      <span class="text-xs font-bold text-indigo-400 tracking-wider">02 / DIAGNOSIS</span>
-      <h2 class="text-3xl font-black text-white mt-1">【{client_name}】AI 可见度现状体检</h2>
+      <span class="text-xs font-bold text-indigo-400 tracking-wider">02 / DIAGNOSIS & BENCHMARK</span>
+      <h2 class="text-3xl font-black text-white mt-1">【{client_name}】AI 可见度现状体检与行业对标</h2>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 my-auto">
       <div class="glass-card p-5 rounded-2xl text-center space-y-2">
-        <div class="text-xs text-slate-400">基准 AI 占有率 (SOV)</div>
-        <div class="text-3xl font-black text-amber-400">12.5%</div>
-        <div class="text-[11px] text-slate-500">摸底阶段 ｜ 待大幅拉升</div>
+        <div class="text-xs text-slate-400">实测 AI 占有率 (SOV)</div>
+        <div class="text-3xl font-black text-amber-400">{sov_val}%</div>
+        <div class="text-[11px] text-slate-500">对标领先: {bench_lead}%</div>
       </div>
       <div class="glass-card p-5 rounded-2xl text-center space-y-2">
-        <div class="text-xs text-slate-400">DeepSeek 权威引用</div>
-        <div class="text-3xl font-black text-indigo-400">缺失</div>
-        <div class="text-[11px] text-slate-500">知乎/技术博客未建立信源</div>
+        <div class="text-xs text-slate-400">DeepSeek 首推率</div>
+        <div class="text-3xl font-black text-indigo-400">{deepseek_rate}%</div>
+        <div class="text-[11px] text-slate-500">知乎/技术博客信源</div>
       </div>
       <div class="glass-card p-5 rounded-2xl text-center space-y-2">
-        <div class="text-xs text-slate-400">豆包 (字节生态) 覆盖</div>
-        <div class="text-3xl font-black text-red-400">待布局</div>
-        <div class="text-[11px] text-slate-500">头条号行业深度稿待分发</div>
+        <div class="text-xs text-slate-400">豆包 (字节生态) 命中</div>
+        <div class="text-3xl font-black text-red-400">{doubao_rate}%</div>
+        <div class="text-[11px] text-slate-500">今日头条/头条号深度稿</div>
       </div>
       <div class="glass-card p-5 rounded-2xl text-center space-y-2">
         <div class="text-xs text-slate-400">大模型协议底座</div>
-        <div class="text-3xl font-black text-slate-400">未部署</div>
-        <div class="text-[11px] text-slate-500">缺 llms.txt / Schema.org</div>
+        <div class="text-2xl font-black text-emerald-400">{scaffold_desc}</div>
+        <div class="text-[11px] text-slate-500">llms.txt / Schema.org</div>
       </div>
     </div>
     <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-200">
-      💡 <strong>诊断结论</strong>：企业具备扎实的本地开发与交付实力，但缺少大模型结构化索引底座，导致 AI 召回率低。
+      💡 <strong>行业对标洞察</strong>：当前处于【{bench_name}】摸底阶段。企业具备核心研发交付实力，补齐 9 因子语料与信任池分发后即可快速冲击 85%+ SOV！
     </div>
   </section>
 
@@ -698,6 +739,7 @@ def generate_pitch_presentation_html(project_id: str) -> str:
       }}
     }}
 
+    // 键盘监听
     document.addEventListener('keydown', (e) => {{
       if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {{
         nextSlide();
@@ -707,6 +749,23 @@ def generate_pitch_presentation_html(project_id: str) -> str:
         toggleFullScreen();
       }}
     }});
+
+    // 移动端/触摸屏左右滑动手势
+    let touchStartX = 0;
+    let touchEndX = 0;
+    document.addEventListener('touchstart', (e) => {{
+      touchStartX = e.changedTouches[0].screenX;
+    }}, false);
+
+    document.addEventListener('touchend', (e) => {{
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) {{
+        nextSlide(); // 向左滑动 -> 下一页
+      }}
+      if (touchEndX > touchStartX + 50) {{
+        prevSlide(); // 向右滑动 -> 上一页
+      }}
+    }}, false);
   </script>
 </body>
 </html>"""
@@ -719,7 +778,9 @@ def generate_print_pitch_html(project_id: str) -> str:
     brand_name = pitch_res["brand_name"]
     industry = pitch_res["industry"]
     quotes = pitch_res["quotes"]
-    fin = pitch_res["roi"]["financial_valuation"]
+    fin = quotes["estimated_roi"]
+    sel_tier = quotes.get("selected_tier_info", TIER_QUOTES["pro"])
+    bench = pitch_res.get("benchmark", {})
     cur_date = time.strftime("%Y年%m月%d日")
 
     html = f"""<!DOCTYPE html>
@@ -818,12 +879,12 @@ def generate_print_pitch_html(project_id: str) -> str:
     <div class="meta-box">
       <span>提案单位：GEO 商业交付与大模型架构组</span>
       <span>提案日期：{cur_date}</span>
-      <span style="font-weight: bold; color: #4338ca;">推荐方案：专业进阶版 (Pro · ¥35,000/年)</span>
+      <span style="font-weight: bold; color: #4338ca;">推荐方案：{sel_tier['tier_name']}（{sel_tier['price_display']}）</span>
     </div>
   </div>
 
-  <h2>一、大模型搜索范式变革与商业机遇</h2>
-  <p>大模型（DeepSeek、豆包、Kimi）正在全面接管高意向政企选型与采购咨询入口。本项目通过普林斯顿 9 因子事实重构与四大信任池矩阵分发，助力【{brand_name}】在 4 周内建立 85%+ 的行业首推垄断护城河。</p>
+  <h2>一、大模型搜索范式变革与行业 Benchmark 对标</h2>
+  <p>大模型（DeepSeek、豆包、Kimi）正在全面接管高意向政企选型与采购咨询入口。当前【{bench.get('industry_name', industry)}】大盘领先者 SOV 为 <strong>{bench.get('lead_sov_pct', 85.0)}%</strong>。本项目通过普林斯顿 9 因子事实重构与四大信任池矩阵分发，助力【{brand_name}】在 4 周内建立 85%+ 的行业首推垄断护城河。</p>
 
   <h2>二、4 周实施排期路线图</h2>
   <table>
@@ -875,14 +936,14 @@ def generate_print_pitch_html(project_id: str) -> str:
     </tbody>
   </table>
 
-  <h2>四、预期商业投资回报率 (ROI) 测算</h2>
+  <h2>四、预期商业投资回报率 (ROI) 测算（基于 {sel_tier['tier_name']}）</h2>
   <table>
     <tbody>
-      <tr><td style="width: 40%;">年度服务投入成本 (Pro 版)</td><td style="font-weight: bold;">¥35,000 元</td></tr>
+      <tr><td style="width: 40%;">年度服务投入成本</td><td style="font-weight: bold;">{sel_tier['price_display']}</td></tr>
       <tr><td>🔍 等效 SEM 竞价替代节省价值</td><td>¥{fin['sem_replacement_value']:,} 元/年</td></tr>
       <tr><td>👥 AI 首推精准销售线索估值</td><td>¥{fin['leads_inbound_value']:,} 元/年</td></tr>
-      <tr><td>🏛️ 权威信任池数字资产沉淀估值</td><td>¥{fin['digital_asset_value']:,} 元</td></tr>
-      <tr class="highlight-row"><td>商业综合创造总价值 (年化)</td><td style="color: #059669; font-size: 14px;">¥{fin['total_business_value']:,} 元（ROI: +{fin['roi_pct']}%）</td></tr>
+      <tr><td>🏛️ 权威信任池数字资产沉淀估值</td><td>¥{pitch_res['roi']['financial_valuation'].get('digital_asset_value', 24000):,} 元</td></tr>
+      <tr class="highlight-row"><td>商业综合创造总价值 (年化)</td><td style="color: #059669; font-size: 14px;">¥{fin['total_business_value']:,} 元（ROI: +{fin['roi_pct']}%, 净收益: +¥{fin['net_profit_value']:,} 元）</td></tr>
     </tbody>
   </table>
 </body>
