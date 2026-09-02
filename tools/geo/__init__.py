@@ -3,7 +3,7 @@ GEO Commercial Delivery Toolkit
 商用 GEO 交付工作台与自动化工具套件
 """
 
-__version__ = "1.8.0"
+__version__ = "1.9.0"
 
 from .intent import mine_project_intent, generate_intent_for_company
 from .ingest import ingest_project_materials, fetch_and_clean_url, distill_knowledge_facts
@@ -43,5 +43,12 @@ from .group import (
     save_group_config,
     calculate_group_matrix,
     analyze_group_defense
+)
+from .visual import (
+    generate_comparison_svg,
+    generate_architecture_svg,
+    generate_video_script,
+    generate_all_visual_assets,
+    get_visual_assets
 )
 from .server import start_server

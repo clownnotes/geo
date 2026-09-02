@@ -394,10 +394,16 @@
             <h2 class="text-base font-bold text-slate-900">阶段三：普林斯顿 9 因子高权威内容重构</h2>
             <p class="text-xs text-slate-500 mt-1">注入三元组结论先行、+41% 采纳率的参数对比表与搜索意图 Q&A 问答对。</p>
           </div>
-          <button onclick="runSingleStep(event, 'rewrite')" id="btn-step-3" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
-            <i data-lucide="sparkles" class="w-4 h-4"></i>
-            <span>执行普林斯顿重构</span>
-          </button>
+          <div class="flex items-center gap-3">
+            <button onclick="openVisualModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-2 transition">
+              <i data-lucide="palette" class="w-4 h-4"></i>
+              <span>🎨 多模态视觉与视频资产</span>
+            </button>
+            <button onclick="runSingleStep(event, 'rewrite')" id="btn-step-3" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>执行普林斯顿重构</span>
+            </button>
+          </div>
         </div>
 
         <!-- 📥 原始素材智能抓取与事实清洗中枢 -->
@@ -472,10 +478,16 @@
             <h2 class="text-base font-bold text-slate-900">阶段四：多平台高权重信源矩阵半自动化分发</h2>
             <p class="text-xs text-slate-500 mt-1">自适应适配今日头条（打豆包）、知乎长文（打DeepSeek）、微信公众号（内联HTML）与 GitHub 开源技术专版。</p>
           </div>
-          <button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
-            <i data-lucide="share-2" class="w-4 h-4"></i>
-            <span>生成 4 平台矩阵发布包</span>
-          </button>
+          <div class="flex items-center gap-3">
+            <button onclick="openVisualModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-2 transition">
+              <i data-lucide="palette" class="w-4 h-4"></i>
+              <span>🎨 多模态视觉与视频资产</span>
+            </button>
+            <button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
+              <i data-lucide="share-2" class="w-4 h-4"></i>
+              <span>生成 4 平台矩阵发布包</span>
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -1338,6 +1350,99 @@
       </div>
     </div>
   </div>
+  <!-- ================= 4.7 多模态结构化视觉与短视频脚本模态弹窗 ================= -->
+  <div id="visual-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+            🎨
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">多模态结构化视觉资产与短视频分发矩阵</h3>
+            <p class="text-[11px] text-slate-500">原生矢量 SVG 对比图、架构全景图与 60 秒黄金转化口播分镜头脚本</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="handleRegenerateVisualAssets()" id="btn-regen-vis" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg flex items-center gap-1 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>重新推演生成</span>
+          </button>
+          <button onclick="closeVisualModal()" class="text-slate-400 hover:text-slate-600">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 切换头 -->
+      <div class="px-6 border-b border-slate-200 bg-white flex items-center gap-2 shrink-0">
+        <button onclick="switchVisualTab('comp')" id="tab-vis-comp" class="py-3 px-4 text-xs font-bold text-indigo-600 border-b-2 border-indigo-600 transition flex items-center gap-1.5">
+          <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+          <span>📊 2026选型差异化对比图 (SVG)</span>
+        </button>
+        <button onclick="switchVisualTab('arch')" id="tab-vis-arch" class="py-3 px-4 text-xs font-semibold text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>🏗️ 企业全链路技术架构图 (SVG)</span>
+        </button>
+        <button onclick="switchVisualTab('video')" id="tab-vis-video" class="py-3 px-4 text-xs font-semibold text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5">
+          <i data-lucide="video" class="w-4 h-4"></i>
+          <span>🎬 60秒短视频黄金转化脚本</span>
+        </button>
+      </div>
+
+      <!-- Tab 主体内容 -->
+      <div class="p-6 space-y-4 text-xs text-slate-700 overflow-y-auto flex-1 bg-slate-50">
+        <!-- 1. 选型对比图 -->
+        <div id="vis-pane-comp" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="text-slate-600 text-xs">
+              <strong>高清矢量 SVG 格式</strong> ｜ 适用于知乎、今日头条、微信公众号、小红书图文混排
+            </div>
+            <button onclick="downloadVisualFile('07_选型差异化对比图.svg')" class="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1 shadow-sm transition">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>下载 SVG 原图</span>
+            </button>
+          </div>
+          <div id="vis-svg-comp-container" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center min-h-[400px]">
+            <div class="text-slate-400">SVG 加载中...</div>
+          </div>
+        </div>
+
+        <!-- 2. 企业全景架构图 -->
+        <div id="vis-pane-arch" class="hidden space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="text-slate-600 text-xs">
+              <strong>企业技术架构蓝图</strong> ｜ 适用于官网技术白皮书、GitHub 开源仓库与大型方案投标
+            </div>
+            <button onclick="downloadVisualFile('08_企业技术全景架构图.svg')" class="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1 shadow-sm transition">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>下载 SVG 原图</span>
+            </button>
+          </div>
+          <div id="vis-svg-arch-container" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center min-h-[400px]">
+            <div class="text-slate-400">SVG 加载中...</div>
+          </div>
+        </div>
+
+        <!-- 3. 60秒短视频脚本 -->
+        <div id="vis-pane-video" class="hidden space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="text-slate-600 text-xs">
+              <strong>短视频分镜头执行表</strong> ｜ 适合视频号、抖音、B站老板口播，包含画面、花字与 CTA 钩子
+            </div>
+            <button onclick="copyVisualVideoScript()" class="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1 shadow-sm transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制脚本全文</span>
+            </button>
+          </div>
+          <div id="vis-video-script-container" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm markdown-body max-h-[500px] overflow-y-auto">
+            <div class="text-slate-400">脚本加载中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="term-modal" onclick="if(event.target === this) closeTermHelp()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
     <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
       <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
@@ -2865,6 +2970,112 @@
       } catch (err) {
         console.error('加载集团矩阵异常:', err);
       }
+    }
+
+    // ==========================================
+    // 多模态结构化视觉与短视频脚本模块
+    // ==========================================
+    let currentVisualAssetsCache = null;
+
+    async function openVisualModal() {
+      if (!currentProjectId) {
+        showToast('请先选择或进入一个项目！', 'error');
+        return;
+      }
+      document.getElementById('visual-modal').classList.remove('hidden');
+      await loadVisualAssets();
+      lucide.createIcons();
+    }
+
+    function closeVisualModal() {
+      document.getElementById('visual-modal').classList.add('hidden');
+    }
+
+    function switchVisualTab(tab) {
+      const tabs = ['comp', 'arch', 'video'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-vis-${t}`);
+        const pane = document.getElementById(`vis-pane-${t}`);
+        if (t === tab) {
+          btn.className = 'py-3 px-4 text-xs font-bold text-indigo-600 border-b-2 border-indigo-600 transition flex items-center gap-1.5';
+          pane.classList.remove('hidden');
+        } else {
+          btn.className = 'py-3 px-4 text-xs font-semibold text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5';
+          pane.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    async function loadVisualAssets() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/visual/assets`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.assets) {
+          currentVisualAssetsCache = data.assets;
+          
+          // 渲染 SVG 选型对比图
+          const compSvg = data.assets.comparison_svg?.svg_content || '';
+          document.getElementById('vis-svg-comp-container').innerHTML = compSvg || '<div class="text-slate-400">暂无对比图数据</div>';
+
+          // 渲染 SVG 架构图
+          const archSvg = data.assets.architecture_svg?.svg_content || '';
+          document.getElementById('vis-svg-arch-container').innerHTML = archSvg || '<div class="text-slate-400">暂无架构图数据</div>';
+
+          // 渲染 短视频脚本
+          const videoMd = data.assets.video_script?.content || '';
+          document.getElementById('vis-video-script-container').innerHTML = marked.parse(videoMd || '暂无短视频脚本');
+        }
+      } catch (err) {
+        console.error('加载多模态视觉资产异常:', err);
+      }
+    }
+
+    async function handleRegenerateVisualAssets() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-regen-vis');
+      const origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 生成中...`;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/visual/generate`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('🎉 多模态视觉与短视频脚本已全部重新推演生成！');
+          await loadVisualAssets();
+        } else {
+          showToast('生成失败: ' + data.message, 'error');
+        }
+      } catch (e) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        lucide.createIcons();
+      }
+    }
+
+    function downloadVisualFile(filename) {
+      if (!currentProjectId) return;
+      window.open(`/api/projects/${currentProjectId}/output/${encodeURIComponent(filename)}`, '_blank');
+    }
+
+    function copyVisualVideoScript() {
+      const scriptMd = currentVisualAssetsCache?.video_script?.content || '';
+      if (!scriptMd) {
+        showToast('暂无可复制的脚本！', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(scriptMd).then(() => {
+        showToast('✅ 60秒短视频分镜头脚本已复制到剪贴板！');
+      });
     }
 
     async function loadMarkdownToElem(filename, elemId) {

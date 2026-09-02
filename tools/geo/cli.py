@@ -169,6 +169,12 @@ def main():
     p_grp.add_argument("--id", "-g", default=None, help="集团 ID")
     p_grp.add_argument("--defense", "-d", action="store_true", help="输出集团级联合竞品防御策略")
 
+    # visual
+    p_vis = subparsers.add_parser("visual", help="生成多模态 SVG 对比图、架构图与 60 秒短视频脚本")
+    p_vis.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_vis.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_vis.add_argument("--type", "-t", default="all", choices=["all", "comparison", "architecture", "video"], help="资产类型 (默认 all)")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -283,6 +289,18 @@ def main():
                 b_str = "、".join(sc["shared_by_brands"])
                 print(f"  - 🔗 {sc['name']} ({sc['domain']}) ｜ 被引频次: {sc['total_count']} ｜ 赋能品牌: {b_str}")
             print("\n" + "="*60 + "\n")
+    elif args.command == "visual":
+        from .visual import generate_comparison_svg, generate_architecture_svg, generate_video_script, generate_all_visual_assets
+        pid = get_pid(args)
+        t = getattr(args, "type", "all")
+        if t == "comparison":
+            generate_comparison_svg(pid)
+        elif t == "architecture":
+            generate_architecture_svg(pid)
+        elif t == "video":
+            generate_video_script(pid)
+        else:
+            generate_all_visual_assets(pid)
     elif args.command == "audit":
         run_audit(get_pid(args), custom_url=args.url)
     elif args.command == "scaffold":

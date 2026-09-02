@@ -140,6 +140,9 @@
       <button onclick="switchShareTab('defense')" id="tab-defense" class="py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
         <span>⚔️ 竞品反向包抄策略</span>
       </button>
+      <button onclick="switchShareTab('visual')" id="tab-visual" class="py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🎨 视觉与短视频矩阵</span>
+      </button>
     </div>
 
     <!-- Tab 1: 体检报告 -->
@@ -333,6 +336,46 @@
       <div id="preview-defense" class="markdown-body"></div>
     </div>
 
+    <!-- Tab 7: 多模态视觉资产与视频号脚本 -->
+    <div id="content-visual" class="share-tab-content hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h2 class="text-base font-bold text-purple-900">🎨 07/08/09 多模态结构化视觉资产与视频号矩阵</h2>
+          <p class="text-xs text-purple-700">原生矢量 SVG 选型对比图、企业技术架构全景图与 60 秒黄金转化短视频分镜头脚本。</p>
+        </div>
+      </div>
+
+      <!-- 选型对比图 -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+          <span>📊 2026 企业选型差异化对比图 (高清 SVG 矢量)</span>
+        </h3>
+        <div id="share-svg-comp" class="bg-slate-50 p-4 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
+          <div class="text-slate-400 text-xs">对比图加载中...</div>
+        </div>
+      </div>
+
+      <!-- 架构全景图 -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+          <span>🏗️ 企业级全链路 GEO 技术与服务架构全景图 (高清 SVG 矢量)</span>
+        </h3>
+        <div id="share-svg-arch" class="bg-slate-50 p-4 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
+          <div class="text-slate-400 text-xs">架构图加载中...</div>
+        </div>
+      </div>
+
+      <!-- 短视频脚本 -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+          <span>🎬 60 秒黄金转化短视频/视频号老板口播分镜头脚本</span>
+        </h3>
+        <div id="share-video-script" class="bg-slate-50 p-6 rounded-xl border border-slate-200 markdown-body max-h-[500px] overflow-y-auto">
+          <div class="text-slate-400 text-xs">脚本加载中...</div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- 提取码 (PIN) 保护解锁弹窗 -->
@@ -503,6 +546,20 @@
         document.getElementById('share-bm-summary-text').innerText = bm.summary || '行业对标评估完成。';
       }
 
+      // 渲染多模态视觉与视频资产
+      if (d.visual_assets) {
+        const va = d.visual_assets;
+        if (va.comparison_svg?.svg_content) {
+          document.getElementById('share-svg-comp').innerHTML = va.comparison_svg.svg_content;
+        }
+        if (va.architecture_svg?.svg_content) {
+          document.getElementById('share-svg-arch').innerHTML = va.architecture_svg.svg_content;
+        }
+        if (va.video_script?.content) {
+          document.getElementById('share-video-script').innerHTML = marked.parse(va.video_script.content);
+        }
+      }
+
       // 渲染历史时序大盘
       const histBox = document.getElementById('share-history-cards');
       if (d.history && d.history.length > 0) {
@@ -537,7 +594,7 @@
       const activeContent = document.getElementById(`content-${tabKey}`);
       if (activeContent) activeContent.classList.remove('hidden');
 
-      const tabs = ['audit', 'scaffold', 'rewrite', 'distribute', 'monitor', 'defense'];
+      const tabs = ['audit', 'scaffold', 'rewrite', 'distribute', 'monitor', 'defense', 'visual'];
       tabs.forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         if (!btn) return;

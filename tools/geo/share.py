@@ -249,6 +249,14 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         bench_eval = {}
 
+    # 提取多模态视觉资产
+    try:
+        from .visual import get_visual_assets
+        vis_res = get_visual_assets(project_id)
+        visual_assets = vis_res.get("assets", {})
+    except Exception:
+        visual_assets = {}
+
     return {
         "success": True,
         "client_name": cfg.get("client_name", "客户企业"),
@@ -259,6 +267,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "metrics": metrics,
         "history": clean_history,
         "benchmark": bench_eval,
+        "visual_assets": visual_assets,
         "share_meta": {
             "created_at_str": rec.get("created_at_str"),
             "expires_at_str": rec.get("expires_at_str"),

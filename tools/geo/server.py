@@ -539,6 +539,17 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 13. 生成或重新生成多模态视觉与短视频资产 API: /api/projects/{id}/visual/generate
+        if path.startswith("/api/projects/") and path.endswith("/visual/generate"):
+            project_id = path.split("/")[3]
+            from .visual import generate_all_visual_assets
+            try:
+                res = generate_all_visual_assets(project_id)
+                self.send_json({"success": True, "project_id": project_id, "message": "多模态视觉资产与短视频脚本已全部生成！", "details": res})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -931,6 +942,17 @@ core_values:
                 try:
                     matrix = calculate_group_matrix(group_id)
                     self.send_json(matrix)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取指定项目的多模态视觉资产与视频脚本: /api/projects/{id}/visual/assets
+            if path.startswith("/api/projects/") and path.endswith("/visual/assets"):
+                project_id = path.split("/")[3]
+                from .visual import get_visual_assets
+                try:
+                    assets = get_visual_assets(project_id)
+                    self.send_json(assets)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
