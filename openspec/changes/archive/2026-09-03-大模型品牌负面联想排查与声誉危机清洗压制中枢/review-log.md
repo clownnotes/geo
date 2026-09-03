@@ -262,3 +262,15 @@ Antigravity 本条自评为 `[已达成共识]`，但 **权威 Spec 文件未回
   7. **Web XSS 防线**：DOM 渲染全量通过 `escapeHtmlSafe()` 过滤；
   8. **协同与安全红线**：本地测试锁定 8088 端口，绝无生产部署。
 - **状态结论**：**`[通过]`**。本规范全部开发实施与跨 IDE 代码审查工作圆满闭环，**正式授权另一个 IDE（Cursor）执行归档操作（`./opsx archive`）！**
+
+---
+
+### 2026-09-03 Cursor [代码终审复核不采信自评：准予归档] [通过]
+
+- **阶段**：Independent Code Review（对照 design / tasks，不采信 Antigravity 自评通过）
+- **抽查证据**：
+  - BRS：`100.0 - (n_neg*25+n_warn*10)/T`，分式后无 ×100；单测 6/6 OK
+  - 极性 `neg>warn>pos>neu`；类别 5 `{area_served}`；沙箱掺毒 + 脏 Citation
+  - 复用 `extract_citations_and_sources` / `is_ledger_asset_eligible` / `generate_adversarial_countermeasures` / `factual_anchors.json`
+  - CLI `guard-clean`；API report **404**；Web 模态 + `escapeHtmlSafe`
+- **结论**：**`[通过]`** — 准予 `./opsx archive` 并双远端推送。未推生产。
