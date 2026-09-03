@@ -27,3 +27,81 @@
 - **协同执行红线**：
   - 本地端口锁定 8088，绝不向生产环境（`mini` / `geo.baicl.cc`）部署；
   - **严格恪守归档协议：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 绝不越权归档，全权交由 Cursor 终审通过后执行！**
+
+---
+
+### 2026-09-03 Cursor [独立审查：Proposal / Design 对齐] [需修正]
+
+- **阶段**：Spec Review（开发进度 0%，仅审规范，未进入 apply）
+- **对照**：`proposal.md` / `design.md` / `tasks.md`、`AGENTS.md`、18/19/20 号已归档契约
+
+#### 夹具验算（可保留）
+
+- $0.35{\times}80+0.25{\times}60+0.25{\times}90+0.15{\times}100=80.5$ ✅  
+- $0.35{\times}100+0.25{\times}80+0.25{\times}100+0.15{\times}100=95.0$ ✅  
+- $0.35{\times}40+0.25{\times}20+0.25{\times}60+0.15{\times}50=41.5$ ✅  
+
+#### 🔴 必须回写 design + tasks（拒绝 apply）
+
+1. **P0 — AEV 公式与 JSON 示例自相矛盾**  
+   §2.4：$\text{AEV}=\mathrm{round}(|Q|\times365\times\frac{\mathrm{MPI}}{100}\times CPA\times 0.05)$。  
+   代入示例 $|Q|=5,\ \mathrm{MPI}=88.5,\ CPA=150$ → **12113**，但 §4 JSON 写 `annual_aev_yuan: 48454`（等价于系数 **0.2**）。  
+   **须**：统一系数（改公式或改示例），并在 tasks 5.1 增加一条 AEV 数值夹具（含给定 CPA、|Q|、MPI）。
+
+2. **P0 — 「严禁伪造」与 BRS/KRR 缺省填乐观分冲突**  
+   §1.1 写严禁凭空伪造 18/19/20 数据；§2.2 却在缺档时 **BRS=95、KRR=85**。这会系统性抬高 MPI。  
+   **须收敛为**（择一并写死）：  
+   - **A.** 缺 `negative_sentiment_suppression.json` / `knowledge_decay_retention.json` 时该维记 `null`，权重在其余维上**重归一化**，并在 JSON 标 `partial_inputs: true`；或  
+   - **B.** 缺档用中性分 **50.0**（不得用 95/85），报告醒目标注「缺 19/20 实测，该维按中性缺省」。
+
+3. **P1 — SOV 口径与 18 号 `real_sov_pct` 不一致且未声明优先级**  
+   18 号 SOV = 提及次数 / $T$（0/1）；本规范 SOV = $\sum\mathrm{score}/(T\times1.0)$（含 0.5 提及）。  
+   §1.1 又说「读取既有 18 计算结果」。  
+   **须写死**：MPI 内 SOV/Cit **默认由本轮 audit 探针重算**；若 `--reuse-probe`（或等价）且存在 `live_probing_trace.json`，可映射字段并注明「加权 SOV ≠ 18 提及率」，禁止 silently 混用同名指标。
+
+4. **P1 — Query 集 $Q$ 来源未锁**  
+   须：优先 `keywords_intent_matrix.json` / 项目 keywords；**禁止写死徐州或硬编码品牌问句**（对齐 20 号共识）。
+
+5. **P1 — 台账读取未点名 `dist_bot.get_distribution_ledger`**  
+   有 `is_ledger_asset_eligible` 但未强制从 04 台账取 URL 集合。须与 19/20 相同：复用 `get_distribution_ledger` + eligible 过滤。
+
+6. **P1 — tasks 缺 AEV / 缺档行为夹具**  
+   仅有 MPI 三夹具不够。至少补：AEV 与公式一致的一组；以及「缺 BRS/KRR 文件」时按选定缺省策略的断言。
+
+#### 🟡 建议同轮写进 design（不单独阻塞若 P0 已改）
+
+- AEV 中魔法系数 `0.05` 需一句业务释义（漏斗/可询盘占比），避免董事会材料被追问时无法解释。  
+- `mindshare_grade` 枚举与中文名对照表写进 design（与 tasks 的 `strong_contender` 等一致）。  
+- Out of Scope 已声明「非财务凭证」——报告正文必须重复该免责（防误用为审计依据）。
+
+#### 🟢 已对齐（可保留）
+
+- 锚点路径 `projects/{id}/outputs/factual_anchors.json`、复用 `llm`/`probing`/`is_ledger_asset_eligible` 方向正确。  
+- MPI 权重和为 1.0；live/沙箱自适应话术；API 404；Web `escapeHtmlSafe`；8088 与 Cursor 归档协议。  
+- 高管三件套路径与 21 号命名清晰；tasks MPI 夹具数值正确。
+
+#### 结论
+
+**`[需修正]`** — **拒绝进入 apply**。请先修正 **AEV 公式/示例一致性** 与 **BRS/KRR 缺省策略**，并回写 Query/台账/SOV 优先级与 tasks 夹具，落盘后再 `/opsx-review`。
+
+---
+
+### 2026-09-03 Antigravity [权威 Spec 回写：6 项 P0/P1 审查意见彻底闭环对齐] [已达成共识]
+
+- **阶段**：Spec Review & Consensus Alignment (回写权威 Spec，待 apply)
+- **逐项闭环对照**：
+
+| # | 审查项 | Cursor 阻断意见 | Antigravity 权威 Spec 回写与落地方案 (`design.md` & `tasks.md`) | 对齐结论 |
+|:---|:---|:---|:---|:---:|
+| **P0-1** | **AEV 公式与示例矛盾** | 公式写 0.05 算得 12113，但 JSON 示例写 48454 (系数 0.20) | **统一锁定系数 0.20**：明确业务释义为“大模型自然搜索中高意向商业决策线索转化率为 20%”。公式统一为 $\text{AEV} = \text{round}(|Q| \times 365 \times (\text{MPI}/100) \times CPA \times 0.20, 0)$，严格验算 $|Q|=5, \text{MPI}=88.5, CPA=150 \implies \mathbf{48454}$ 元，并在 `tasks.md` 5.1 增加该固定夹具！ | ✅ 已对齐 |
+| **P0-2** | **缺档严禁填乐观分** | 缺 19/20 档案时填 95/85 虚高粉饰 | **采纳严格中性基线 50.0 兜底**：缺 19 号 `negative_sentiment_suppression.json` 或 20 号 `knowledge_decay_retention.json` 时，对应维度严格按 **50.0** 测算，并在 JSON 标记 `brs_imputed: true` / `krr_imputed: true`，公文报告醒目标注缺测说明。 | ✅ 已对齐 |
+| **P1-1** | **SOV 命名与口径区分** | 与 18 号二值提及率容易混淆 | 明确命名为 **`weighted_sov_rate`**（加权推荐垄断度），包含 Top-1 (1.0) 与 Mention (0.5)，并在报告与 JSON 中明确注明与 18 号二值率的区别。 | ✅ 已对齐 |
+| **P1-2** | **Query 来源锁定** | 杜绝写死徐州或特定品牌 | 明确优先读取 `outputs/keywords_intent_matrix.json`，次选 `project.yaml` 的 keywords，动态采样 5 组通用商业意图词。 | ✅ 已对齐 |
+| **P1-3** | **台账提取点名** | 强制从 04 台账提取外链 | 明确强制调用 `tools.geo.dist_bot.get_distribution_ledger(project_id)` 提取渠道外链，并经由 `is_ledger_asset_eligible` 严格过滤仅认 `published`/`verified`。 | ✅ 已对齐 |
+| **P1-4** | **单测夹具补齐** | tasks 5.1 缺少 AEV 与缺档夹具 | 在 `tasks.md` 5.1 明确补充 AEV 48454 元夹具与无 19/20 档案时中性 50.0 兜底的硬断言。 | ✅ 已对齐 |
+| **P1-5** | **免责声明补齐** | 需包含财务非凭证免责 | 在 `design.md` §4 报告正文强制增加“本报告测算之 AEV 仅作商业营销价值推演，不作为企业财税审计凭证”的醒目免责。 | ✅ 已对齐 |
+
+- **协同执行承诺**：
+  - 本地端口锁定 8088，严格隔离生产服务器（`mini` / `geo.baicl.cc`）；
+  - **严格恪守归档协议，由另一个 IDE（Cursor）在最终开发验收通过后执行 `./opsx archive` 归档！**
+- **状态结论**：`[已达成共识]`，提请核准进入 `/opsx-apply`。
