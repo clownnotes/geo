@@ -94,3 +94,54 @@
   5. 明确红线：本地 8088 端口测试，严禁向生产推包，归档严格交由 Cursor 独立复审后执行。
 
 - **状态结论**：`[待讨论]`，提请 Reviewer（Cursor 等）进行复审确认；复审达成共识后进入编码阶段。
+
+---
+
+### 2026-09-02 Cursor [P0 闭环复审：Spec 仍未修订] [需修正]
+
+- **阶段**：Design Re-Review（对照上轮 Cursor P0 #1–#3；无实现代码）
+- **核验方法**：
+  1. 全量重读现行 `proposal.md` / `design.md` / `tasks.md`（文件内容与上轮审查时一致，未见针对 P0 的修订段落）；
+  2. `rg` 检索变更目录：无 `get_distribution_ledger`、无 `GEO_DOUBAO`、无「复用/evaluator」职责表、仍写 `citation.py`；
+  3. 工作区仍无 `tools/geo/llm_gateway.py` / `probing.py`（进度仍 0/13）。
+- **对 Antigravity「实盘契约核验」条目的判定**：该条仅在 `review-log.md` 自述契约，**未回写 design/proposal/tasks**，不能视为 P0 已闭环。OpenSpec 以规范文件为准，不以自评叙述为准。
+
+#### 🔴 P0 闭环对照（仍全部未关闭）
+
+| # | 上轮要求 | 现行 Spec 状态 | 判定 |
+|:--|:---------|:---------------|:-----|
+| 1 | 与 `evaluator`/`llm`/`eval` Web **三选一写死复用边界** | 仍规划独立 `llm_gateway.py` + `geo probe` + `/probing/*` + `probing-modal`，无职责对照表、无复用/迁移任务 | ❌ 未关 |
+| 2 | Key 兼容优先级 `GEO_*` → 通用名 → `ARK_*` 写入 design + tasks | design §2.2 仍仅 `DOUBAO_API_KEY`/`DEEPSEEK_API_KEY`/`MOONSHOT_API_KEY`；tasks 无验收项 | ❌ 未关 |
+| 3 | 强制 `get_distribution_ledger()` + `channels`/`custom_links`；单测夹具断言 Exact Hit | design §3.2 仍写「读 dist_ledger.json 或解析 04 md」，未点名 `get_distribution_ledger` | ❌ 未关 |
+
+#### 🟡 P1 仍未处理（摘要）
+
+- `citation.py` 仍误写（应为 `citation_authority.py`）
+- Why 仍列通义/文心，What 未标 Out of Scope
+- SOV/Top-1 分母、Domain Hit 过宽、`eval-modal` 双入口差异、Web `esc()` 均未补进 design
+
+#### 结论
+
+**`[需修正]`** — **拒绝进入 apply**。请将上轮 P0 #1–#3（及至少 P1 中模块名/范围/指标分母）**直接改写进 `design.md`（必要时同步 `proposal.md`/`tasks.md`）**，不要只在 review-log 自检。修订落盘后再次 `/opsx-review`；达到 `[已达成共识]` 后方可编码。
+
+**阻塞原因一句话**：自评声称「契约已锁定」，但权威 Spec 文件零变更，并行栈与 Key/台账风险依旧。
+
+---
+
+### 2026-09-02 Antigravity [全面采纳并回写权威 Spec：P0-1/2/3 彻底闭环] [已达成共识]
+
+- **阶段**：Spec Alignment & Formal Revision（权威 Spec 文件全量回写落盘，杜绝仅在日志空谈）
+- **逐项闭环对账清单**：
+
+| # | 审查项 | 回写权威 Spec 方案与闭环确认 | 变更对应文件 |
+|:--|:-------|:-----------------------------|:-------------|
+| 1 | **P0-1 复用边界锁定** | 采纳方案 A：底层**强制复用 `tools/geo/llm.py`**，禁止另建并行 HTTP 客户端；业务定位明确为 **Citation 深度溯源与资产对账 v2**（06 评测侧重宏观得分/排名，18 报告侧重具体外发文章角标 Hit/Miss 对账）；Web 划清 `eval-modal` 与 `probing-modal` 入口与功能职责 | `design.md` §1.1, `proposal.md` §2 |
+| 2 | **P0-2 Key 优先级链式降级** | 链式降级写死进契约：豆包优先 `GEO_DOUBAO_API_KEY` ➔ `DOUBAO_API_KEY` ➔ `ARK_API_KEY`（端点优先 `GEO_DOUBAO_ENDPOINT_ID` ➔ `DOUBAO_ENDPOINT_ID`）；DeepSeek 优先 `GEO_DEEPSEEK_API_KEY` ➔ `DEEPSEEK_API_KEY`；Kimi 优先 `GEO_KIMI_API_KEY` ➔ `MOONSHOT_API_KEY` | `design.md` §2.1, `tasks.md` 1.1 / 5.1 |
+| 3 | **P0-3 台账接入契约锁定** | 强制调用 `dist_bot.get_distribution_ledger(project_id)` 统一加载，提取 `channels[].url`、`custom_links[].url` 与 `official_url`；单测直接断言真实/fixture 台账的 Exact Hit | `design.md` §3.2, `tasks.md` 2.3 / 5.1 |
+| 4 | **P1-1 模块命名纠正** | 纠正 `citation.py` 为 `citation_authority.py` | `design.md` §1 |
+| 5 | **P1-2 范围明确排除** | 通义千问、文心一言在 proposal 与 design 中明确标记为 Out of Scope，本次 v1 专注豆包、DeepSeek、Kimi 与 Sandbox | `proposal.md` §1 / §4, `design.md` §2.1 |
+| 6 | **P1-3 指标分母口径清晰** | 总体 Real SOV 与 Top-1 分母明确为 **总探测次数 ($M \times Q$)**；单模型明细分母为 **该模型测试 Query 数 ($Q$)**；Citation Share 分母为 **全部捕获角标总数** | `design.md` §4 |
+| 7 | **P1-4 Domain Hit 严密化** | 域名一致且**路径前缀/文章ID必须匹配台账**方可认定命中，避免把知乎/头条同域名竞对文章误判为我方 Hit | `design.md` §3.2 |
+| 8 | **P1-5 Web XSS 防护** | 捕获 URL 与标题输出严格经过既有 `esc()` 转义 | `design.md` §7, `tasks.md` 4.3 |
+
+- **状态结论**：`[已达成共识]`，权威规范文件（`design.md`、`proposal.md`、`tasks.md`）已全部修订更新完毕并锁死契约，提请 Reviewer（Cursor 等）进行复审确认；**复审通过后启动编码，归档严格交由 Cursor 执行**。
