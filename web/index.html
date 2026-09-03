@@ -93,6 +93,10 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <button onclick="openPrincetonModal()" class="text-xs text-violet-700 bg-violet-50 hover:bg-violet-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-violet-200 shadow-sm">
+          <i data-lucide="radar" class="w-3.5 h-3.5 text-violet-600"></i>
+          <span>🔬 普林斯顿体检仪</span>
+        </button>
         <button onclick="openPortfolioModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm">
           <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-indigo-600"></i>
           <span>📊 全域大盘驾驶舱</span>
@@ -289,6 +293,10 @@
       </div>
 
       <div class="flex items-center gap-3">
+        <button onclick="openPrincetonModal()" class="py-2 px-3.5 bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="radar" class="w-3.5 h-3.5"></i>
+          <span>🔬 普林斯顿体检仪</span>
+        </button>
         <button onclick="openShareModal()" class="py-2 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
           <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
           <span>🔗 客户专属交付链接</span>
@@ -2778,6 +2786,99 @@ GitHub 开源仓库：https://github.com/company/repo
           </div>
         </div>
       </div>
+    <!-- ================= 普林斯顿 9 因子量化体检仪模态 ================= -->
+  <div id="princeton-modal" onclick="if(event.target === this) closePrincetonModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-violet-50 to-indigo-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-violet-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-violet-500/20">
+            <i data-lucide="radar" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">🔬 普林斯顿 9 因子量化体检仪</h3>
+            <p class="text-[11px] text-violet-700 font-medium">即时打分雷达 ｜ 缺陷归因 ｜ 一键重构 Diff（售前示例数据带防伪标记）</p>
+          </div>
+        </div>
+        <button onclick="closePrincetonModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-white/80 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <!-- 左栏：输入 -->
+        <div class="space-y-3 flex flex-col min-h-[420px]">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <span class="text-xs font-bold text-slate-800">待测企业文案</span>
+            <div class="flex items-center gap-1.5">
+              <button onclick="loadPrincetonSample('hype')" class="text-[11px] px-2 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100">加载营销水文样例</button>
+              <button onclick="loadPrincetonSample('clean')" class="text-[11px] px-2 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100">加载高权威样例</button>
+            </div>
+          </div>
+          <textarea id="princeton-input" class="flex-1 w-full min-h-[280px] text-sm border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-violet-500 focus:outline-none resize-y" placeholder="粘贴官网介绍 / 宣传文案（约 500~2000 字）…"></textarea>
+          <div class="flex items-center gap-2 flex-wrap">
+            <input id="princeton-industry" type="text" class="text-xs border border-slate-200 rounded-lg px-2.5 py-2 w-36" placeholder="行业（可选）" />
+            <button onclick="handlePrincetonScore()" id="btn-princeton-score" class="py-2 px-3.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+              <span>开始体检打分</span>
+            </button>
+            <button onclick="handlePrincetonRewrite()" id="btn-princeton-rewrite" class="py-2 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span>✨ 一键普林斯顿重构</span>
+            </button>
+            <button onclick="handlePrincetonAudit()" id="btn-princeton-audit" class="py-2 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 flex items-center gap-1.5">
+              <i data-lucide="folder-search" class="w-3.5 h-3.5"></i>
+              <span>全案 17 号审计</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 右栏：结果 -->
+        <div class="space-y-3">
+          <div id="princeton-fiction-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded-xl px-3 py-2.5 font-medium">
+            ⚠️ 此数据为排版重构示例，上线须替换为企业真实指标。文中 `[示例待核实]` 不得直接对外发布。
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-gradient-to-br from-violet-50 to-indigo-50 p-4 rounded-xl border border-violet-100">
+              <div class="text-[11px] text-violet-800 font-semibold">综合得分</div>
+              <div id="princeton-score-text" class="text-2xl font-black text-violet-900 mt-1">--</div>
+              <div id="princeton-grade-text" class="text-[10px] text-violet-700 mt-0.5 font-bold">等待体检</div>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div class="text-[11px] text-slate-600 font-semibold">可见度上限 / 净跃迁</div>
+              <div id="princeton-ceiling-text" class="text-lg font-black text-slate-900 mt-1">--</div>
+              <div id="princeton-boost-text" class="text-[10px] text-emerald-700 mt-0.5 font-bold">est_boost_vs_baseline: --</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-bold text-slate-800 mb-2">9 因子细项</div>
+            <div id="princeton-factors" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+              <div class="text-center py-6 text-slate-400 text-xs">完成打分后显示雷达细项</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-bold text-slate-800 mb-2">缺陷与建议</div>
+            <ul id="princeton-suggestions" class="text-xs text-slate-600 space-y-1 list-disc pl-4">
+              <li class="text-slate-400 list-none pl-0">暂无</li>
+            </ul>
+          </div>
+
+          <div id="princeton-diff-panel" class="hidden border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 flex items-center justify-between">
+              <span>重构前后对比</span>
+              <span id="princeton-gain-badge" class="text-emerald-700"></span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 max-h-56 overflow-y-auto text-[11px]">
+              <pre id="princeton-before" class="p-3 whitespace-pre-wrap text-slate-500 bg-white"></pre>
+              <pre id="princeton-after" class="p-3 whitespace-pre-wrap text-slate-800 bg-violet-50/40"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
     <!-- ================= 内容合规与广告法风控审查弹窗 ================= -->
   <div id="compliance-modal" onclick="if(event.target === this) closeComplianceModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
     <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
@@ -6958,6 +7059,176 @@ GitHub 开源仓库：https://github.com/company/repo
       } finally {
         btn.disabled = false;
         btn.innerHTML = origHtml;
+        lucide.createIcons();
+      }
+    }
+
+    // ===== 普林斯顿 9 因子量化体检仪 =====
+    const PRINCETON_SAMPLE_HYPE = `我们是宇宙最强全国第一行业第一品牌，全网首选稳赚不赔包赚！加微信免费领取资料，绝对保真百分百保证零Bug永不宕机！惊呆了吊打全场，史上最强无敌方案！`;
+    const PRINCETON_SAMPLE_CLEAN = `# 璇源科技 GEO 结构化交付说明
+
+徐州璇源网络科技有限公司是面向徐州市及淮海经济区的数字化服务主体。因此，基于普林斯顿与佐治亚理工 GEO 研究报告，以及 GB/T 相关国家标准与行业白皮书，我们将关键指标量化如下：交付周期 15 天、费用区间 ¥3000-¥60000、响应 1 小时、质保 365 天、源码交付 100%。
+
+技术总监段晓奇指出：「结构化参数对比表与 FAQ 问答对，是提升 RAG 切片命中与 Citation 的关键路径。」
+
+换句话说，SSR 预渲染与 Schema.org JSON-LD 实体标注，可以理解为给大模型准备可切片的干净 Markdown。举例来说，QPS 与微服务高可用指标都必须可核验。
+
+| 维度 | 传统 | 模板商 | 璇源科技 |
+| :--- | :--- | :--- | :--- |
+| 周期 | 60天 | 不确定 | 15天 |
+| 费用 | 不透明 | 隐性费 | ¥3000-¥60000 |
+
+此外，根本原因在于事实锚点完备；鉴于此，我们采用知识三元组方法论框架与 SOP 流水线中枢。`;
+
+    function openPrincetonModal() {
+      document.getElementById('princeton-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closePrincetonModal() {
+      document.getElementById('princeton-modal').classList.add('hidden');
+    }
+
+    function loadPrincetonSample(kind) {
+      document.getElementById('princeton-input').value = kind === 'clean' ? PRINCETON_SAMPLE_CLEAN : PRINCETON_SAMPLE_HYPE;
+      if (kind === 'clean') document.getElementById('princeton-industry').value = '软件';
+    }
+
+    function renderPrincetonScore(d) {
+      document.getElementById('princeton-score-text').textContent = `${d.overall_score} 分`;
+      document.getElementById('princeton-grade-text').textContent = d.rating_grade || '';
+      document.getElementById('princeton-ceiling-text').textContent = d.est_visibility_ceiling || '--';
+      document.getElementById('princeton-boost-text').textContent = `est_boost_vs_baseline: ${d.est_boost_vs_baseline || '--'}`;
+      const box = document.getElementById('princeton-factors');
+      const factors = d.factor_scores || {};
+      box.innerHTML = Object.keys(factors).map(k => {
+        const m = factors[k];
+        const w = Math.max(0, Math.min(100, Number(m.score) || 0));
+        return `<div class="flex items-center gap-2 text-[11px]">
+          <span class="w-24 shrink-0 text-slate-600 font-medium truncate" title="${m.label}">${m.label}</span>
+          <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-violet-500 rounded-full" style="width:${w}%"></div></div>
+          <span class="w-10 text-right font-bold text-slate-800">${m.score}</span>
+        </div>`;
+      }).join('') || '<div class="text-slate-400 text-xs">无细项</div>';
+      const sug = document.getElementById('princeton-suggestions');
+      const list = d.suggestions || [];
+      const pen = d.penalties && d.penalties.keyword_stuffing;
+      let html = list.map(s => `<li>${s}</li>`).join('');
+      if (pen && pen.penalty > 0) html = `<li class="text-red-600 font-semibold">堆砌惩罚 -${pen.penalty}：${pen.reason}</li>` + html;
+      sug.innerHTML = html || '<li class="text-slate-400 list-none pl-0">暂无</li>';
+    }
+
+    async function handlePrincetonScore() {
+      const text = (document.getElementById('princeton-input').value || '').trim();
+      if (!text) { showToast('请先粘贴待测文案', 'warning'); return; }
+      const btn = document.getElementById('btn-princeton-score');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>体检中…</span>';
+      try {
+        const res = await fetch('/api/princeton/score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAuthToken}` },
+          body: JSON.stringify({ text, industry: document.getElementById('princeton-industry').value || null })
+        });
+        const d = await res.json();
+        if (d.success) {
+          document.getElementById('princeton-fiction-banner').classList.add('hidden');
+          document.getElementById('princeton-diff-panel').classList.add('hidden');
+          renderPrincetonScore(d);
+          showToast(`体检完成：${d.overall_score} 分 · ${d.rating_grade}`);
+        } else {
+          showToast(d.message || '打分失败', 'error');
+        }
+      } catch (e) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        lucide.createIcons();
+      }
+    }
+
+    async function handlePrincetonRewrite() {
+      const text = (document.getElementById('princeton-input').value || '').trim();
+      if (!text) { showToast('请先粘贴待重构文案', 'warning'); return; }
+      const btn = document.getElementById('btn-princeton-rewrite');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>重构中…</span>';
+      try {
+        const res = await fetch('/api/princeton/rewrite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAuthToken}` },
+          body: JSON.stringify({
+            text,
+            industry: document.getElementById('princeton-industry').value || null,
+            project_id: currentProjectId || null
+          })
+        });
+        const d = await res.json();
+        if (d.success) {
+          const banner = document.getElementById('princeton-fiction-banner');
+          if (d.is_fictional_warning) banner.classList.remove('hidden');
+          else banner.classList.add('hidden');
+          if (d.after_score_detail) renderPrincetonScore(d.after_score_detail);
+          else {
+            document.getElementById('princeton-score-text').textContent = `${d.after_score} 分`;
+            document.getElementById('princeton-boost-text').textContent = `est_boost_vs_baseline: ${d.est_boost_vs_baseline}`;
+          }
+          document.getElementById('princeton-diff-panel').classList.remove('hidden');
+          document.getElementById('princeton-before').textContent = d.before_text || '';
+          document.getElementById('princeton-after').textContent = d.after_text || '';
+          document.getElementById('princeton-gain-badge').textContent = `${d.before_score} → ${d.after_score}（${d.score_gain}）· 净跃迁 ${d.est_boost_vs_baseline}`;
+          document.getElementById('princeton-input').value = d.after_text || text;
+          showToast(d.is_fictional_warning ? '重构完成（含示例待核实标记）' : '重构完成（已绑项目事实锚点）');
+        } else {
+          showToast(d.message || '重构失败', 'error');
+        }
+      } catch (e) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        lucide.createIcons();
+      }
+    }
+
+    async function handlePrincetonAudit() {
+      if (!currentProjectId) {
+        showToast('请先进入某个客户项目后再做全案审计', 'warning');
+        return;
+      }
+      const btn = document.getElementById('btn-princeton-audit');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>审计中…</span>';
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/princeton/audit`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          document.getElementById('princeton-score-text').textContent = `${d.avg_princeton_score} 分`;
+          document.getElementById('princeton-grade-text').textContent = d.rating_grade || '';
+          document.getElementById('princeton-ceiling-text').textContent = d.est_visibility_ceiling || '--';
+          document.getElementById('princeton-boost-text').textContent = `est_boost_vs_baseline: ${d.est_boost_vs_baseline || '--'}`;
+          const box = document.getElementById('princeton-factors');
+          const rows = (d.file_results || []).slice(0, 12);
+          box.innerHTML = rows.map(r => `<div class="text-[11px] flex justify-between gap-2 border-b border-slate-100 py-1"><span class="truncate text-slate-600">${r.file}</span><span class="font-bold">${r.overall_score}</span></div>`).join('')
+            || '<div class="text-slate-400 text-xs">无扫描结果</div>';
+          document.getElementById('princeton-suggestions').innerHTML =
+            `<li>已扫描 ${d.scanned_files} 份，≥80 通过率 ${d.pass_rate_ge_80}%</li><li>报告：outputs/${d.report_md}</li>`;
+          showToast(`全案审计完成：均分 ${d.avg_princeton_score}`);
+        } else {
+          showToast(d.message || '审计失败', 'error');
+        }
+      } catch (e) {
+        showToast('请求异常', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
         lucide.createIcons();
       }
     }

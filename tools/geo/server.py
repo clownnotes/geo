@@ -859,6 +859,51 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 普林斯顿 9 因子打分 API: POST /api/princeton/score
+        if path == "/api/princeton/score":
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            text = (body.get("text") or "").strip()
+            industry = body.get("industry")
+            if not text:
+                self.send_json({"success": False, "message": "请先粘贴待测文案！"}, status=400)
+                return
+            try:
+                from .princeton import score_text_princeton_factors
+                brand_hints = body.get("brand_hints") or []
+                res = score_text_princeton_factors(text, industry=industry, brand_hints=brand_hints)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 普林斯顿 9 因子一键重写 API: POST /api/princeton/rewrite
+        if path == "/api/princeton/rewrite":
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            text = (body.get("text") or "").strip()
+            project_id = body.get("project_id")
+            industry = body.get("industry")
+            if not text:
+                self.send_json({"success": False, "message": "请先粘贴待重构文案！"}, status=400)
+                return
+            try:
+                from .princeton import rewrite_text_princeton_factors
+                res = rewrite_text_princeton_factors(text, project_id=project_id, industry=industry)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 普林斯顿全案审计触发 API: POST /api/projects/{id}/princeton/audit
+        if path.startswith("/api/projects/") and path.endswith("/princeton/audit"):
+            project_id = path.split("/")[3]
+            try:
+                from .princeton import audit_project_deliverables_princeton
+                res = audit_project_deliverables_princeton(project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2237,6 +2282,25 @@ core_values:
                     try:
                         from .injection_guard import evaluate_project_injection_immunity
                         res = evaluate_project_injection_immunity(project_id)
+                        self.send_json(res)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取普林斯顿 9 因子全案质检报告: /api/projects/{id}/princeton/audit (GET)
+            if path.startswith("/api/projects/") and path.endswith("/princeton/audit"):
+                project_id = path.split("/")[3]
+                audit_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "princeton_audit.json")
+                if os.path.exists(audit_file):
+                    try:
+                        with open(audit_file, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .princeton import audit_project_deliverables_princeton
+                        res = audit_project_deliverables_princeton(project_id)
                         self.send_json(res)
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)

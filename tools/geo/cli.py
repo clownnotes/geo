@@ -319,6 +319,14 @@ def main():
     p_port.add_argument("--patrol", action="store_true", help="执行全域轻量只读健康巡检并输出风险红黑榜")
     p_port.add_argument("--report", action="store_true", help="生成并落盘《GEO代运营全域多项目执行与商业回报大盘报告.md》")
 
+    # score (普林斯顿 9 因子量化体检与智能重写)
+    p_score = subparsers.add_parser("score", help="普林斯顿 9 因子量化体检、一键重写与全案 17 号质检审计")
+    p_score.add_argument("target", nargs="?", default=None, help="待测文本原文，或本地文件路径")
+    p_score.add_argument("--industry", default=None, help="所属行业（用于术语词典）")
+    p_score.add_argument("--rewrite", action="store_true", help="对输入文本/文件执行一键普林斯顿重构")
+    p_score.add_argument("--project", "-p", default=None, help="客户项目 ID（全案审计或绑定事实锚点重写）")
+    p_score.add_argument("--audit", action="store_true", help="对 --project 指定项目执行全案 17 号质检审计")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -805,6 +813,66 @@ def main():
                     print(f"  {idx}. [{t['risk_level']}] `{t['file']}:L{t['line']}` 命中: 【{t['matched_text']}】")
                     print(f"     上下文: {t['context']}")
             print("="*65 + "\n")
+    elif args.command == "score":
+        from .princeton import (
+            score_text_princeton_factors,
+            rewrite_text_princeton_factors,
+            audit_project_deliverables_princeton,
+        )
+        project_id = getattr(args, "project", None)
+        do_audit = getattr(args, "audit", False) or (project_id and not args.target and not getattr(args, "rewrite", False))
+        if project_id and (do_audit or getattr(args, "audit", False)) and not getattr(args, "rewrite", False) and not args.target:
+            res = audit_project_deliverables_princeton(project_id)
+            print("\n" + "=" * 65)
+            print(f"🔬 项目 [{project_id}] 普林斯顿 9 因子全案质检")
+            print("=" * 65)
+            print(f"📊 全案均分: {res['avg_princeton_score']}/100 ｜ 评级: {res['rating_grade']}")
+            print(f"📈 可见度上限: {res['est_visibility_ceiling']} ｜ 相对基线净跃迁: {res['est_boost_vs_baseline']}")
+            print(f"📁 扫描文件: {res['scanned_files']} ｜ ≥80 通过率: {res['pass_rate_ge_80']}%")
+            print(f"📄 报告: outputs/{res['report_md']} + {res['report_json']}")
+            print("=" * 65 + "\n")
+        else:
+            raw = args.target or ""
+            if raw and os.path.exists(raw) and os.path.isfile(raw):
+                with open(raw, "r", encoding="utf-8", errors="ignore") as fp:
+                    text = fp.read()
+            else:
+                text = raw
+            if not text.strip():
+                print_error("请提供待测文本、文件路径，或使用 --project <id> [--audit] 做全案审计")
+                sys.exit(1)
+            if getattr(args, "rewrite", False):
+                res = rewrite_text_princeton_factors(text, project_id=project_id, industry=args.industry)
+                print("\n" + "=" * 65)
+                print("✨ 普林斯顿 9 因子一键重构结果")
+                print("=" * 65)
+                print(f"📊 得分: {res['before_score']} → {res['after_score']}（增益 {res['score_gain']}）")
+                print(f"📈 净跃迁 est_boost_vs_baseline: {res['est_boost_vs_baseline']}")
+                if res.get("is_fictional_warning"):
+                    print("⚠️  售前沙箱：文中 [示例待核实] 为排版示例，上线须替换为真实数据")
+                print("-" * 65)
+                print(res["after_text"][:2000])
+                if len(res["after_text"]) > 2000:
+                    print("\n...（已截断，完整文本请走 API / Web）")
+                print("=" * 65 + "\n")
+            else:
+                res = score_text_princeton_factors(text, industry=args.industry)
+                print("\n" + "=" * 65)
+                print("🔬 普林斯顿 9 因子量化体检报告")
+                print("=" * 65)
+                print(f"🏆 综合得分: {res['overall_score']}/100 ｜ {res['rating_grade']}")
+                print(f"📈 可见度上限 est_visibility_ceiling: {res['est_visibility_ceiling']}")
+                print(f"🚀 相对基线净跃迁 est_boost_vs_baseline: {res['est_boost_vs_baseline']}")
+                print("-" * 65)
+                for key, meta in res["factor_scores"].items():
+                    bar = "█" * int(meta["score"] / 10) + "░" * (10 - int(meta["score"] / 10))
+                    print(f"  {meta['label']:<10} {meta['score']:>5.1f} [{bar}] w={meta['weight']}%  {meta['detail']}")
+                pen = res["penalties"]["keyword_stuffing"]
+                print(f"  堆砌惩罚      -{pen['penalty']}  {pen['reason']}")
+                print("-" * 65)
+                for s in res["suggestions"][:5]:
+                    print(f"  • {s}")
+                print("=" * 65 + "\n")
     elif args.command == "portfolio":
         from .portfolio import get_portfolio_summary, run_portfolio_health_patrol, generate_portfolio_executive_report
         if getattr(args, "patrol", False):

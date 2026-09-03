@@ -114,3 +114,62 @@
 | 7 | **P1-5 分档评级标准写死** | 明确 AAA ($\ge 90$) / AA ($80\sim 89.9$) / A ($70\sim 79.9$) / B ($60\sim 69.9$) / C ($< 60$) 评级标准 | `design.md` §2.1 |
 
 - **状态结论**：`[已达成共识]`，三份规范文档已全部修正并锁死契约，提请 Reviewer（Cursor 等）进行复审确认；**待复审通过后启动编码，归档严格交由 Cursor 执行**。
+
+---
+
+### 2026-09-02 Cursor [Spec 闭环复审确认] [通过]
+
+- **阶段**：Spec Alignment Re-Review（仍无实现代码，进度 0/13）
+- **核对方式**：逐条对照上一轮 Cursor `[需修正]` 清单 vs 当前 `proposal.md` / `design.md` / `tasks.md`
+
+#### 闭环验收表
+
+| 原审查项 | 落地核对结果 |
+|:---|:---|
+| 🔴 P0-1 权重归一 | ✅ Design §2：`25+15+10×6=100%`，公式与 `test_weights_sum_to_100` 已写死 |
+| 🔴 P0-2 事实红线 / 与 rewrite 边界 | ✅ Design §1.1：有 ID 绑 `project.yaml` 真值 / 缺项占位；无 ID 标 `[示例待核实]`；明确不替代 Stage-3 `geo rewrite` |
+| 🟡 P1-1 CLI 三文档统一 | ✅ proposal / design / tasks 均为 `score <file_or_text> [--industry] [--rewrite]` 与 `score --project <id> [--audit]` |
+| 🟡 P1-2 Boost 双字段 | ✅ `est_visibility_ceiling` + `est_boost_vs_baseline`；Web 约定展示净增益 |
+| 🟡 P1-3 合规复用 + 堆砌阈值 | ✅ F7 复用 `COMPLIANCE_RULES_DB`；F9 非停用词 `>5%` |
+| 🟡 P1-4 17 号产物 + 排除自引用 | ✅ `17_*.md` + `princeton_audit.json`；排除 `17_` 与 `.compliance_backup/` |
+| 🟡 P1-5 分档标准 | ✅ AAA≥90 / AA 80–89.9 / A 70–79.9 / B 60–69.9 / C&lt;60 |
+
+#### 🟢 实现期备注（不阻塞开工）
+
+1. **打分契约**：§3.1 单次 `score` 响应示例仅含 `est_visibility_ceiling`；实现时可按 §2.1 对默认基线 35 分附带 `est_boost_vs_baseline`，或仅在 rewrite 响应返回净跃迁——选一种并在单测锁死。
+2. **售前防伪 UI**：§1.1 要求醒目提示，tasks 4.3 未单列；实现 Web 时务必渲染 `is_fictional_warning` / `[示例待核实]` 横幅，避免售前话术把示例数字当客户真值。
+3. **事实源扩展（可选）**：v1 绑 `project.yaml` 足够；若项目已有 `factual_anchors.json`，后续可优先读锚点再回退 yaml。
+
+#### 结论
+
+**`[通过]`** — Spec 对齐复审通过，**可以启动编码**（`./opsx apply` / 按 `tasks.md` 落地）。  
+归档仍须：实现完成 + 单测全绿 + Cursor **实现复审** `[通过]` 后，再由 Cursor 执行 `./opsx archive`。
+
+---
+
+### 2026-09-02 Cursor [实现落地完成 · 实现复审] [通过]
+
+- **阶段**：Implementation & Verification
+- **落地清单**：
+
+| 模块 | 路径 | 状态 |
+|:---|:---|:---|
+| 评分/重写/审计引擎 | `tools/geo/princeton.py` | ✅ 权重 100%、双 Boost 字段、合规词库复用、事实红线、17 号报告 |
+| CLI | `tools/geo/cli.py` → `geo score` | ✅ 文本/文件打分、`--rewrite`、`--project [--audit]` |
+| API | `tools/geo/server.py` | ✅ `POST /api/princeton/score`、`POST /api/princeton/rewrite`、`GET/POST .../princeton/audit`（鉴权墙后） |
+| Web | `web/index.html` | ✅ 顶栏+向导入口、`princeton-modal`、雷达细项、Diff、`is_fictional_warning` 横幅 |
+| 单测 | `tests/test_princeton.py` | ✅ 7 项覆盖权重/高分/水文/堆砌/防伪/项目锚点/17 号产物 |
+| 全库回归 | `unittest discover tests` | ✅ **61/61 OK** |
+
+- **实现期备注闭环**：
+  1. `score` 同时返回 `est_visibility_ceiling` 与相对默认基线 35 分的 `est_boost_vs_baseline`；`rewrite` 返回相对原文净跃迁。
+  2. Web 售前沙箱展示琥珀色防伪横幅。
+  3. 事实源 v1 绑定 `project.yaml`（符合 Spec）。
+
+- **本地验证命令**：
+  - `python3 -m unittest tests.test_princeton -v`
+  - `python3 -m tools.geo score "…营销文案…"`
+  - `python3 -m tools.geo score --project xuzhou_xuanyuan --audit`
+  - 管理端 http://127.0.0.1:8088 → 「🔬 普林斯顿体检仪」
+
+- **状态结论**：`[通过]` — 实现与 Spec 对齐，单测全绿。**未执行生产部署**；归档请用户确认后执行 `./opsx archive`（及按需 Git 提交/推送）。
