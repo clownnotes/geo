@@ -234,4 +234,43 @@
 
 - **状态结论**：`[已达成共识]`，保持在活跃变更目录，提请 Reviewer（Cursor 等）进行独立复审；在 Reviewer 正式给出 `[通过]` 前绝不提前归档。
 
+---
+
+### 2026-09-02 Cursor [独立复审：P0/P1 热修闭环验收] [通过]
+
+- **阶段**：Cross-IDE Review（Cursor 独立复审，对照上次归档后 `[需修正]` 清单，不采信 Antigravity 自评）
+- **审查对象**：活动变更 `openspec/changes/2026-09-02-GEO全景16维资产大一统商业验收门户与结案交付中枢/` · 提交 `cf40165` · `acceptance.py` / `share.py` / `server.py` / `web/share.html` / `tests/test_acceptance.py` / `.gitignore`
+- **本地验证**：`python3 -m unittest tests.test_acceptance -v` → **9/9 OK**；徐州结案单实跑；`get_share_single_file_content` 合法读 / 非法 key；四母版 `10_*.md` 存在性
+
+#### 上次 P0 闭环核对
+
+| # | 原问题 | 核验结果 |
+|:--|:-------|:---------|
+| 1 | 结案单未过线仍写全额验收 | ✅ 徐州 `89.3` / `is_passed=False`；正文无「全额验收与结案回款要求」；含「基本技术交付」「全额回款条款待补齐」；第一节分发 `⚠️ 分发补充中 (28.6%)`；第二节 S4 `🟢 完成率 28.6%`；打印 HTML 同步动态声明 |
+| 2 | `/file` 无 realpath、整包拉门户 | ✅ `get_share_single_file_content`：MANIFEST/ATTACHED 白名单 + candidates + `realpath` 前缀校验；`increment_view=False`；非法 `../roi_settings.json` → 400；`server.py` 直接转发该函数 |
+| 3 | 门户虚假默认分 / RAG「命中」文案 | ✅ 齐套指标无 `\|\|100/\|\|18`；免疫/权威/合规/RAG 缺省显示 `—`；RAG 标签改为「向量就绪度」；子 Tab 按需 `/file?key=` |
+
+#### 上次 P1 闭环核对
+
+| # | 原问题 | 核验结果 |
+|:--|:-------|:---------|
+| 4 | 三母版无 10 主报告、14 可被旧 06 顶替 | ✅ 四母版均有 `10_企业行业实体关系知识图谱.md`；`graph.candidates` 仅主报告；`competitor` 已移除旧 06 |
+| 5 | `/file` key 不一致 | ✅ 读盘走标准 MANIFEST key（含 `acceptance`/`visual`） |
+| 6 | 注入威胁计数字段 | ✅ 优先 `total_threats` 顶层字段 |
+| 7 | intent `or 30` | ✅ 改为真实规模 / 0 |
+| 8 | `data/shares.json` 入库 | ✅ 已从仓库删除并写入 `.gitignore` |
+
+#### 🟢 残留优化（不阻塞归档）
+
+- ZIP 仍为「全量 walk + 敏感黑名单」（约 60 文件），非严格白名单；`roi_settings` / `acceptance_summary` / `.compliance_backup` 已排除，可接受。
+- 02/04/06/11~16 等项仍允许 JSON/附属文件计入齐套（design 别名回退）；仅 10 已收紧为主报告。若要「主报告绝对主义」，可另开小变更。
+- `share.html` 行业对标区仍有历史兜底（`beat_rate \|\| 80` 等），与本轮攻防指标无关，建议后续清掉。
+
+#### 已确认达标
+
+- ✅ 双轨履约：合同分与 16 齐套率并存且语义分离。
+- ✅ 活动目录已从 `archive/` 移回；流程上等待本条 `[通过]` 后方可 `/opsx-archive`。
+- ✅ 单测覆盖公文诚信与单文件安全；未触发生产部署。
+
+- **状态结论**：`[通过]`。上次复审 P0/P1 已闭环，允许进入归档（`/opsx-archive`）。
 
