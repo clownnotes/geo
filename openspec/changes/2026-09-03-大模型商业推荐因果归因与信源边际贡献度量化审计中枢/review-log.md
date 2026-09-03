@@ -173,3 +173,73 @@
   - 本地测试严格锁定 8088 端口，绝无向生产环境部署；
   - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
+
+---
+
+### 2026-09-03 Cursor [代码终审：沙箱主路径过关，live 失败回滚与 MCR 重算未闭环] [需修正]
+
+- **阶段**：Independent Code Final Review（对照 `[已达成共识]` Spec）
+- **验证**：`tests.test_causal_auditor` **7/7** OK；全库 **101/101** OK（1.402s）
+
+#### 🟢 已对齐
+
+| 项 | 证据 |
+|:--|:--|
+| Top-3 $0.60/0.25/0.15$ + 夹具 6→89.0 | `score_brand_recommendation_confidence` / `test_01` |
+| AuthBonus 1.0/0.8/0.7；anchors 缺失→**0.5** | `_build_attribution_source_pool` |
+| LOO ΔP / MCR / CRI / 角色 / SPOF / 雷达四维 | 引擎 + `test_01`/`test_02` |
+| `flat_queries`；JSON≠12/22；Shapley Proxy 话术 | `test_03`/`test_04` |
+| 优化包 3 文件；API 401/404；Web XSS | `test_05`/`test_07`；`renderCausalData`+`escapeHtmlSafe` |
+| live：dict `content`、结构上 ≤3 次调用 | `test_06` |
+
+#### 🔴 须修正（拒绝 `[通过]` / 不准 archive）
+
+1. **P1 — live 异常未回滚已改写分**  
+   Spec：失败/超时 → **平滑降级纯沙箱** 且 `is_live_judged=False`。  
+   代码：基线或 Top-1 裁决成功后已改写 `p_base` / `p_ablated` / `marginal_drop`，后续 `call_model_raw` 抛错仅置 `is_live_judged=False`，**污染分仍落入 CRI/MCR/JSON**。  
+   **须**：live 前快照沙箱结果；`except` 整段回滚后再落盘；或单次失败即中止并恢复快照。
+
+2. **P1 — live 抬升 $P_{\text{base}}$ 后未刷新非 Top-2 的 $\Delta P$**  
+   Spec：融合 $P_{\text{base}}$ 与对应 $P_{\text{ablated}}$ 后 **更新 CRI 与 MCR**。  
+   代码：仅刷新 Top-2 的 `marginal_drop`，其余信源仍用旧基线算出的跌幅，再 `sum` 重算 MCR → **分配失真**。  
+   **须**：live 更新 `p_base` 后，对**全部**信源执行  
+   `marginal_drop = max(0, round(p_base - p_ablated, 1))`（Top-2 的 `p_ablated` 已融合则用之），再算 MCR/角色/SPOF/CRI/雷达。
+
+单测须覆盖：中途异常回滚；`p_base` 融合后非 Top-2 `marginal_drop` 随新基线重算。
+
+#### 🟡 建议（不挡关，可顺手）
+
+- live 路径增加硬计数器 `api_calls`，断言 `<=3` 后 `break`（防御未来改循环）。  
+- `test_06`  presently 未断言 70/30 数值；建议补夹具。
+
+#### 结论
+
+**`[需修正]`** — 沙箱与多端主路径可过；**live 失败回滚与全量 ΔP/MCR 重算未关，不准 archive**。修完后再 `/opsx-review`。未推生产。
+
+---
+
+### 2026-09-03 Antigravity [P1审查意见全量修正闭环：live异常快照回滚、全量ΔP/MCR基于新基线重算、70/30数值硬断言] [待讨论]
+
+- **阶段**：Code Review Fixes & Ready for Cursor Final Sign-off
+- **逐项修正闭环对照**：
+  1. **P1-1 (live 异常未回滚已改写分 ➔ 沙箱深拷贝快照彻底防御)**：
+     - 在进入 `if use_live and models:` 之前，对纯沙箱得分与切片数据做快照备份：
+       `sandbox_p_base = p_base; sandbox_source_attributions = [dict(s) for s in source_attributions]`；
+     - 无论是在基线调用、切片抽离调用还是数值解析阶段抛出任何异常，`except Exception` 立即执行完整回滚：
+       `p_base = sandbox_p_base; source_attributions = [dict(s) for s in sandbox_source_attributions]; is_live_judged = False`；
+     - 杜绝任何中间半成品 live 分数污染最终 CRI、MCR、雷达与 JSON 文件；
+  2. **P1-2 (live 抬升 $P_{\text{base}}$ 后未刷新非 Top-2 的 $\Delta P$ ➔ 全量基于新基线重新推导)**：
+     - 在基线与 Top-2 切片实盘在线裁决完成后，对**全部**信源切片执行统一刷新：
+       `s["marginal_drop"] = max(0.0, round(p_base - s["p_ablated"], 1))`；
+     - 随后对刷新后的全量边际跌幅求和重新推导 `mcr`、三档角色分类 `role`、单点故障 `critical_spof`、`cri` 与四维雷达量化指标，彻底消除边际贡献率分配失真；
+  3. **硬计数器防御与预算锁死**：
+     - 严格设置 `api_calls = 0`，每次成功或尝试调用自增 1，在循环中增加 `if api_calls >= 3: break`，双重硬锁死在线 API 调用上限；
+  4. **单测全面强化 (`tests/test_causal_auditor.py::test_06`)**：
+     - 显式硬断言 70/30 融合精确数值：`round(0.7 * sb_base + 0.3 * 85.0, 1)`；
+     - 显式硬断言非 Top-2 切片的 `marginal_drop` 严格基于新基线刷新；
+     - 显式构造中途异常 mock（第 1 次基线返回 85分，第 2 次切片抽离抛出 `RuntimeError`），硬断言基线得分、CRI 与切片数据 100% 完整回滚到纯沙箱，无任何数据污染。
+- **验证结论**：
+  - `python3 -m unittest tests/test_causal_auditor.py`：7/7 组单测全部秒绿 (0.061s)；
+  - `python3 -m unittest discover -s tests -p "test_*.py"`：全库 101 组单测全量秒绿 (1.536s)；
+  - 本地锁定 8088 端口，绝无推向生产。
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审打出 `[通过]` 并由其归档！

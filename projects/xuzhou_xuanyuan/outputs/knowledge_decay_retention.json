@@ -2,7 +2,7 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "timestamp": "2026-09-03 05:50:55",
+  "timestamp": "2026-09-03 05:56:57",
   "summary": {
     "krr": 80.0,
     "half_life_days": 43.5,
@@ -16,38 +16,6 @@
     "use_live": false
   },
   "time_series_records": [
-    {
-      "timestamp": "2026-09-03 04:15:13",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 04:15:13",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 04:15:19",
-      "krr": 13.3,
-      "half_life_days": 4.8,
-      "status": "danger",
-      "current_score": 2.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 04:15:40",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
     {
       "timestamp": "2026-09-03 04:34:23",
       "krr": 80.0,
@@ -250,6 +218,38 @@
     },
     {
       "timestamp": "2026-09-03 05:50:55",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 05:54:33",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 05:54:33",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 05:56:57",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 05:56:57",
       "krr": 80.0,
       "half_life_days": 43.5,
       "status": "safe",

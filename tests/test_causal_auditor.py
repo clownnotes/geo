@@ -167,8 +167,17 @@ class TestCausalAuditor(unittest.TestCase):
         self.assertTrue(os.path.exists(f3))
 
     def test_06_live_mode_call_budget_and_dict_mock(self):
-        """测试 Live 模式下 Mock 生产字典返回、70/30 融合、调用上限 (<=3次) 与异常降级"""
-        # 1. 验证生产字典返回 {"content": "85分"} 成功解析并限制 API 调用次数至多 3 次
+        """测试 Live 模式下 Mock 生产字典返回、70/30 融合、非 Top-2 跌幅刷新、中途异常回滚与调用上限 (<=3次)"""
+        # 0. 先跑一次纯沙箱作为对照快照
+        res_sandbox = CausalAttributionSimulator.audit_causal_attribution(
+            project_id=self.test_pid,
+            models=["doubao"],
+            query_sample_size=3,
+            use_live=False,
+        )
+        sb_base = res_sandbox["summary"]["baseline_score"]
+
+        # 1. 验证生产字典返回 {"content": "85分"} 成功解析、70/30 融合与非 Top-2 跌幅刷新
         with patch("tools.geo.causal_auditor.call_model_raw", return_value={"content": "裁决得分: 85分", "model": "doubao"}) as mock_api:
             res_live = CausalAttributionSimulator.audit_causal_attribution(
                 project_id=self.test_pid,
@@ -180,7 +189,31 @@ class TestCausalAuditor(unittest.TestCase):
             # 断言 API 调用次数至多 3 次 (1 次基线 + 至多 2 次 Top-2 抽离)
             self.assertLessEqual(mock_api.call_count, 3)
 
-        # 2. 验证 live 模式下若 API 调用异常，平滑降级纯沙箱且 is_live_judged 为 False
+            # 断言 70/30 融合数值: p_base = 0.7 * sb_base + 0.3 * 85.0
+            expected_live_base = round(0.7 * sb_base + 0.3 * 85.0, 1)
+            self.assertEqual(res_live["summary"]["baseline_score"], expected_live_base)
+
+            # 断言非 Top-2 切片的 marginal_drop 必须基于最新的 expected_live_base 重新计算
+            live_sources = res_live["source_attributions"]
+            if len(live_sources) > 2:
+                for other_src in live_sources[2:]:
+                    expected_drop = max(0.0, round(expected_live_base - other_src["p_ablated"], 1))
+                    self.assertEqual(other_src["marginal_drop"], expected_drop)
+
+        # 2. 验证中途异常 (基线调用成功，但切片抽离调用抛出超时) 必须完整回滚纯沙箱快照
+        with patch("tools.geo.causal_auditor.call_model_raw", side_effect=[{"content": "85分"}, RuntimeError("网关超时")]):
+            res_mid_err = CausalAttributionSimulator.audit_causal_attribution(
+                project_id=self.test_pid,
+                models=["doubao"],
+                query_sample_size=3,
+                use_live=True,
+            )
+            # 必须平滑回滚，标记未实盘裁决且基线分数回滚为沙箱原值
+            self.assertFalse(res_mid_err["is_live_judged"])
+            self.assertEqual(res_mid_err["summary"]["baseline_score"], sb_base)
+            self.assertEqual(res_mid_err["summary"]["cri"], res_sandbox["summary"]["cri"])
+
+        # 3. 验证初始即异常时平滑降级纯沙箱
         with patch("tools.geo.causal_auditor.call_model_raw", side_effect=RuntimeError("网络超时")):
             res_fallback = CausalAttributionSimulator.audit_causal_attribution(
                 project_id=self.test_pid,
@@ -190,6 +223,7 @@ class TestCausalAuditor(unittest.TestCase):
             )
             self.assertFalse(res_fallback["is_live_judged"])
             self.assertTrue(res_fallback["success"])
+            self.assertEqual(res_fallback["summary"]["baseline_score"], sb_base)
 
     def test_07_api_auth_and_404(self):
         """测试 API 未授权 401 拦截与报告不存在返回 404"""

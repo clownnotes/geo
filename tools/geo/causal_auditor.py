@@ -342,10 +342,17 @@ class CausalAttributionSimulator:
 
         # 4. 若开启 live 模式，执行有限预算在线裁决 (最多 3 次 API 调用: 1 次基线 + 至多 2 次 Top-2 抽离)
         is_live_judged = False
+        # 在进入 live 前保存沙箱快照 (闭环 P1-1: 任何异常完整回滚)
+        sandbox_p_base = p_base
+        sandbox_source_attributions = [dict(s) for s in source_attributions]
+
+        # 4. 若开启 live 模式，执行有限预算在线裁决 (最多 3 次 API 调用: 1 次基线 + 至多 2 次 Top-2 抽离)
+        is_live_judged = False
         if use_live and models:
             live_model = models[0]
+            api_calls = 0
             try:
-                # 4.1 基线在线裁决
+                # 4.1 基线在线裁决 (第 1 次 API 调用)
                 base_prompt = (
                     f"你是一名商业品牌推荐归因评测专家。请评估在以下完整信源支撑下，面对商业提问推荐【{client_name}】的综合置信度得分：\n"
                     f"查询: {queries[0]}\n"
@@ -353,16 +360,22 @@ class CausalAttributionSimulator:
                     f"只需回复一个 0-100 的整数评分，例如: 88"
                 )
                 resp_base = call_model_raw(live_model, base_prompt)
+                api_calls += 1
                 txt_base = resp_base if isinstance(resp_base, str) else (resp_base or {}).get("content") or ""
                 m_base = re.search(r"(\d{1,3})", txt_base)
-                if m_base:
-                    live_base_val = float(m_base.group(1))
-                    if 0.0 <= live_base_val <= 100.0:
-                        p_base = round(0.7 * p_base + 0.3 * live_base_val, 1)
-                        is_live_judged = True
+                if not m_base:
+                    raise ValueError("在线基线裁决评分解析失败")
+                live_base_val = float(m_base.group(1))
+                if not (0.0 <= live_base_val <= 100.0):
+                    raise ValueError(f"在线基线裁决值超出区间: {live_base_val}")
 
-                # 4.2 对 Top-2 核心切片抽离状态进行在线裁决
+                # 融合基线得分
+                p_base = round(0.7 * p_base + 0.3 * live_base_val, 1)
+
+                # 4.2 对 Top-2 核心切片抽离状态进行在线裁决 (最多 2 次 API 调用，硬锁死 <=3 次)
                 for top_item in source_attributions[:2]:
+                    if api_calls >= 3:
+                        break
                     target_id = top_item["source_id"]
                     ablated_ctx = [s for s in sources if s["id"] != target_id]
                     abl_prompt = (
@@ -372,16 +385,22 @@ class CausalAttributionSimulator:
                         f"只需回复一个 0-100 的整数评分，例如: 65"
                     )
                     resp_abl = call_model_raw(live_model, abl_prompt)
+                    api_calls += 1
                     txt_abl = resp_abl if isinstance(resp_abl, str) else (resp_abl or {}).get("content") or ""
                     m_abl = re.search(r"(\d{1,3})", txt_abl)
-                    if m_abl:
-                        live_abl_val = float(m_abl.group(1))
-                        if 0.0 <= live_abl_val <= 100.0:
-                            top_item["p_ablated"] = round(0.7 * top_item["p_ablated"] + 0.3 * live_abl_val, 1)
-                            top_item["marginal_drop"] = max(0.0, round(p_base - top_item["p_ablated"], 1))
-                            is_live_judged = True
+                    if not m_abl:
+                        raise ValueError(f"在线切片抽离裁决解析失败: {target_id}")
+                    live_abl_val = float(m_abl.group(1))
+                    if not (0.0 <= live_abl_val <= 100.0):
+                        raise ValueError(f"在线抽离裁决值超出区间: {live_abl_val}")
 
-                # 重新计算 MCR
+                    top_item["p_ablated"] = round(0.7 * top_item["p_ablated"] + 0.3 * live_abl_val, 1)
+
+                # P1-2 闭环: 基于最新的 p_base，刷新【所有】信源的 marginal_drop
+                for s in source_attributions:
+                    s["marginal_drop"] = max(0.0, round(p_base - s["p_ablated"], 1))
+
+                # 重新计算 MCR 与角色
                 new_sum_delta = sum(s["marginal_drop"] for s in source_attributions)
                 for s in source_attributions:
                     s["mcr"] = round((s["marginal_drop"] / new_sum_delta) * 100.0, 1) if new_sum_delta > 0.0 else 0.0
@@ -391,8 +410,11 @@ class CausalAttributionSimulator:
                     s["critical_spof"] = bool(s["mcr"] >= 40.0 and s["p_ablated"] < 50.0)
 
                 source_attributions.sort(key=lambda x: x["mcr"], reverse=True)
+                is_live_judged = True
             except Exception:
-                # 异常时平滑保持沙箱算法分
+                # P1-1 闭环: 任何中途异常立即完整回滚到纯沙箱快照，杜绝半成品污染
+                p_base = sandbox_p_base
+                source_attributions = [dict(s) for s in sandbox_source_attributions]
                 is_live_judged = False
 
         # 5. 计算 CRI 与综合统计
