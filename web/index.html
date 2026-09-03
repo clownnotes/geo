@@ -93,6 +93,10 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <button onclick="openDecayMonitorModal()" class="text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-amber-200 shadow-sm" title="20 号大模型知识半衰期衰减监测与长效自愈">
+          <i data-lucide="hourglass" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span>⏳ 知识衰减 (20)</span>
+        </button>
         <button onclick="openSentimentGuardModal()" class="text-xs text-rose-700 bg-rose-50 hover:bg-rose-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-rose-200 shadow-sm">
           <i data-lucide="shield" class="w-3.5 h-3.5 text-rose-600"></i>
           <span>🛡️ 声誉排查 (19)</span>
@@ -913,6 +917,10 @@
             <button onclick="openSentimentGuardModal()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg border border-rose-200 transition flex items-center gap-1.5 shadow-sm" title="19 号对抗性负面探针、BRS 声誉分与危机清洗压制（与幻觉防御并列区分）">
               <i data-lucide="shield" class="w-4 h-4 text-rose-600"></i>
               <span>🛡️ 品牌声誉排查与危机清洗 (19)</span>
+            </button>
+            <button onclick="openDecayMonitorModal()" class="py-2.5 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm" title="20 号大模型知识半衰期衰减监测与长效自愈补量刷新">
+              <i data-lucide="hourglass" class="w-4 h-4 text-amber-600"></i>
+              <span>⏳ 知识半衰期与自愈 (20)</span>
             </button>
             <button onclick="openGuardModal()" class="py-2.5 px-3.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
@@ -3007,6 +3015,72 @@ GitHub 开源仓库：https://github.com/company/repo
           <div class="flex justify-between mb-2"><span class="text-xs font-bold" id="sg-report-name">19 号报告</span>
             <button onclick="copySentimentReport()" class="text-xs px-2 py-1 bg-slate-100 rounded">复制</button></div>
           <div id="sg-report-content" class="markdown-body text-xs max-h-64 overflow-y-auto p-3 bg-slate-50 rounded border"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 20 号大模型知识半衰期衰减监测与长效自愈模态 ================= -->
+  <div id="decay-monitor-modal" onclick="if(event.target === this) closeDecayMonitorModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 text-white shrink-0">
+        <div>
+          <h3 class="text-sm font-bold flex items-center gap-2">
+            <span>⏳ 大模型知识半衰期衰减监测与长效自愈</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">20 号中枢</span>
+          </h3>
+          <p class="text-[11px] text-slate-300 mt-0.5">时间序列留存建模 · 指数半衰期估算 · 自愈补量分发推荐</p>
+        </div>
+        <button onclick="closeDecayMonitorModal()" class="p-1 text-slate-400 hover:text-white rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-4 overflow-y-auto flex-1 bg-slate-50/50">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+              <input type="checkbox" id="dm-use-live" class="rounded border-slate-300 text-amber-600">
+              <span class="font-semibold text-amber-700">🌐 真实联网 API</span>
+            </label>
+            <div class="flex items-center gap-1.5 text-xs text-slate-500">
+              <span>间隔天数(Δt):</span>
+              <input type="number" id="dm-delta-days" value="14" min="1" max="90" class="w-14 px-2 py-1 text-xs border rounded text-center">
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="triggerDecayTrack()" id="btn-dm-track" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow">开始监测</button>
+            <button onclick="triggerDecayHeal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow">生成自愈包</button>
+            <button onclick="viewDecayReport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow">20 号报告</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">知识留存率 (KRR)</div><div id="dm-krr" class="text-2xl font-black text-amber-600 mt-1">--%</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">预估记忆半衰期</div><div id="dm-half-life" class="text-2xl font-black text-indigo-600 mt-1">-- 天</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">健康预警等级</div><div id="dm-level" class="text-2xl font-black text-slate-800 mt-1">--</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">衰减意图词数</div><div id="dm-decayed-count" class="text-2xl font-black text-rose-600 mt-1">--</div></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-2.5 bg-slate-50 border-b text-xs font-bold text-slate-800 flex justify-between">
+              <span>时间序列打卡历史 (Day 1 / 7 / 14 / 30)</span>
+              <span class="text-[10px] text-slate-400 font-normal">记录数: <span id="dm-ts-count">0</span></span>
+            </div>
+            <div class="overflow-y-auto max-h-52 p-3 divide-y divide-slate-100 text-xs" id="dm-ts-list">
+              <div class="text-center py-6 text-slate-400">暂无时间序列历史</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-2.5 bg-slate-50 border-b text-xs font-bold text-slate-800">各搜索意图留存状态明细</div>
+            <div class="overflow-y-auto max-h-52">
+              <table class="w-full text-xs">
+                <thead><tr class="bg-slate-100 text-slate-600"><th class="px-3 py-2 text-left">搜索意图 Query</th><th class="px-3 py-2 text-center">得分</th><th class="px-3 py-2 text-center">留存率</th><th class="px-3 py-2 text-center">状态</th></tr></thead>
+                <tbody id="dm-query-body"><tr><td colspan="4" class="text-center py-6 text-slate-400">点击【开始监测】刷新</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="dm-report-box" class="hidden bg-white rounded-xl border p-4">
+          <div class="flex justify-between mb-2"><span class="text-xs font-bold" id="dm-report-name">20 号公文报告</span>
+            <button onclick="copyDecayReport()" class="text-xs px-2 py-1 bg-slate-100 rounded">复制</button></div>
+          <div id="dm-report-content" class="markdown-body text-xs max-h-64 overflow-y-auto p-3 bg-slate-50 rounded border"></div>
         </div>
       </div>
     </div>
@@ -7763,6 +7837,148 @@ GitHub 开源仓库：https://github.com/company/repo
     function copySentimentReport() {
       if (!cachedSentimentReport) { showToast('暂无报告', 'warning'); return; }
       navigator.clipboard.writeText(cachedSentimentReport).then(() => showToast('已复制 19 号报告'));
+    }
+
+    // ===== 20 号大模型知识半衰期衰减监测与长效自愈 =====
+    let cachedDecayReport = '';
+
+    async function openDecayMonitorModal() {
+      if (!currentProjectId) { showToast('请先选择客户项目', 'warning'); return; }
+      document.getElementById('decay-monitor-modal').classList.remove('hidden');
+      lucide.createIcons();
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/decay/status`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.summary) renderDecayResults(d);
+      } catch (e) { console.error(e); }
+    }
+
+    function closeDecayMonitorModal() {
+      document.getElementById('decay-monitor-modal').classList.add('hidden');
+    }
+
+    async function triggerDecayTrack() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-dm-track');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '测算中…';
+      try {
+        const dt = parseFloat(document.getElementById('dm-delta-days').value) || 14.0;
+        const res = await fetch(`/api/projects/${currentProjectId}/decay/track`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAuthToken}` },
+          body: JSON.stringify({
+            models: ['doubao', 'deepseek', 'kimi'],
+            use_live: document.getElementById('dm-use-live').checked,
+            delta_days: dt
+          })
+        });
+        const d = await res.json();
+        if (d.success) {
+          renderDecayResults(d);
+          showToast(`KRR ${d.summary.krr}% · 半衰期 ${d.summary.half_life_days}天`);
+        } else {
+          showToast(d.message || '测算失败', 'error');
+        }
+      } catch (e) {
+        showToast(e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+      }
+    }
+
+    async function triggerDecayHeal() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/decay/heal`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast(`自愈补量包已生成（${(d.files || []).length} 份文件）`);
+        } else {
+          showToast(d.message || '生成失败', 'error');
+        }
+      } catch (e) { showToast(e.message, 'error'); }
+    }
+
+    function renderDecayResults(data) {
+      const s = data.summary || {};
+      document.getElementById('dm-krr').innerText = `${s.krr ?? '--'}%`;
+      document.getElementById('dm-half-life').innerText = `${s.half_life_days ?? '--'} 天`;
+      document.getElementById('dm-level').innerText = `${escapeHtmlSafe(s.risk_level || '--')}`;
+      document.getElementById('dm-decayed-count').innerText = `${s.decayed_queries_count ?? 0}`;
+
+      // 渲染时间序列打卡列表
+      const tsRecords = data.time_series_records || [];
+      document.getElementById('dm-ts-count').innerText = tsRecords.length;
+      const tsList = document.getElementById('dm-ts-list');
+      if (tsRecords.length) {
+        tsList.innerHTML = tsRecords.slice().reverse().map(r => `
+          <div class="py-2 flex items-center justify-between">
+            <div>
+              <span class="font-mono text-slate-700 font-semibold">${escapeHtmlSafe(r.timestamp)}</span>
+              <span class="ml-2 text-[10px] px-1.5 py-0.5 rounded ${r.status === 'safe' ? 'bg-emerald-50 text-emerald-700' : (r.status === 'warning' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700')}">${escapeHtmlSafe(r.status)}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-bold text-amber-700">KRR ${escapeHtmlSafe(String(r.krr))}%</span>
+              <span class="text-slate-400 ml-1.5 text-[11px]">半衰期 ${escapeHtmlSafe(String(r.half_life_days))}天</span>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        tsList.innerHTML = '<div class="text-center py-6 text-slate-400">暂无时间序列历史</div>';
+      }
+
+      // 渲染意图衰减矩阵表格
+      const body = document.getElementById('dm-query-body');
+      const queries = data.query_decay_breakdown || [];
+      if (queries.length) {
+        body.innerHTML = queries.map(q => {
+          const stClass = q.status === 'safe' ? 'text-emerald-700 bg-emerald-50' : (q.status === 'warning' ? 'text-amber-700 bg-amber-50' : 'text-rose-700 bg-rose-50');
+          return `
+            <tr class="border-t border-slate-100">
+              <td class="px-3 py-2 text-slate-800">${escapeHtmlSafe(q.query)}</td>
+              <td class="px-3 py-2 text-center font-mono">${escapeHtmlSafe(String(q.score))} / ${escapeHtmlSafe(String(q.max_score))}</td>
+              <td class="px-3 py-2 text-center font-bold text-slate-900">${escapeHtmlSafe(String(q.retention_rate))}%</td>
+              <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold ${stClass}">${escapeHtmlSafe(q.status)}</span></td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        body.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-400">暂无搜索意图明细</td></tr>';
+      }
+    }
+
+    async function viewDecayReport() {
+      if (!currentProjectId) return;
+      const box = document.getElementById('dm-report-box');
+      box.classList.remove('hidden');
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/decay/report`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          cachedDecayReport = d.content;
+          document.getElementById('dm-report-name').innerText = d.filename;
+          document.getElementById('dm-report-content').innerHTML = marked.parse(d.content);
+        } else {
+          document.getElementById('dm-report-content').innerText = d.message || '报告不存在';
+        }
+      } catch (e) {
+        document.getElementById('dm-report-content').innerText = e.message;
+      }
+    }
+
+    function copyDecayReport() {
+      if (!cachedDecayReport) { showToast('暂无报告', 'warning'); return; }
+      navigator.clipboard.writeText(cachedDecayReport).then(() => showToast('已复制 20 号报告'));
     }
 
     async function handlePrincetonAudit() {

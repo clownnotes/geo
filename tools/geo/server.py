@@ -952,6 +952,36 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 20 号衰减追踪: POST /api/projects/{id}/decay/track
+        if path.startswith("/api/projects/") and path.endswith("/decay/track"):
+            project_id = path.split("/")[3]
+            try:
+                from .decay_monitor import track_knowledge_decay
+                data = self.read_json_body()
+                models = data.get("models")
+                use_live = bool(data.get("use_live", False))
+                delta_days = float(data.get("delta_days", 14.0))
+                res = track_knowledge_decay(
+                    project_id=project_id,
+                    models=models,
+                    use_live=use_live,
+                    delta_days=delta_days
+                )
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 20 号自愈补量包: POST /api/projects/{id}/decay/heal
+        if path.startswith("/api/projects/") and path.endswith("/decay/heal"):
+            project_id = path.split("/")[3]
+            try:
+                from .decay_monitor import generate_decay_healing_pack
+                self.send_json(generate_decay_healing_pack(project_id))
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2435,6 +2465,42 @@ core_values:
                         "success": True,
                         "project_id": project_id,
                         "filename": "19_大模型品牌负面联想排查与声誉危机清洗压制公关报告.md",
+                        "content": content,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 20 号知识衰减状态: GET /api/projects/{id}/decay/status
+            if path.startswith("/api/projects/") and path.endswith("/decay/status"):
+                project_id = path.split("/")[3]
+                try:
+                    from .decay_monitor import get_decay_status
+                    self.send_json(get_decay_status(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 20 号衰减公关报告: GET /api/projects/{id}/decay/report（无文件 404，禁止自动后台计算）
+            if path.startswith("/api/projects/") and path.endswith("/decay/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(
+                    PROJECTS_DIR, project_id, "outputs",
+                    "20_大模型知识半衰期衰减监测与长效留存自愈报告.md",
+                )
+                if not os.path.exists(report_file):
+                    self.send_json({
+                        "success": False,
+                        "message": "20 号报告尚未生成，请先 POST /decay/track",
+                    }, status=404)
+                    return
+                try:
+                    with open(report_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "filename": "20_大模型知识半衰期衰减监测与长效留存自愈报告.md",
                         "content": content,
                     })
                 except Exception as e:

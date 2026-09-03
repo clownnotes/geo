@@ -1,0 +1,547 @@
+{
+  "success": true,
+  "project_id": "xuzhou_xuanyuan",
+  "client_name": "徐州璇源网络科技有限公司",
+  "timestamp": "2026-09-03 04:04:41",
+  "summary": {
+    "krr": 80.0,
+    "half_life_days": 43.5,
+    "decay_rate_lambda": 0.0159,
+    "risk_level": "safe",
+    "initial_baseline_score": 15.0,
+    "current_score": 12.0,
+    "total_probes": 15,
+    "decayed_queries_count": 2,
+    "delta_days": 14.0,
+    "use_live": false
+  },
+  "time_series_records": [
+    {
+      "timestamp": "2026-09-03 04:02:01",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:03:51",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:04:11",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:04:22",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:04:35",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:04:41",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    }
+  ],
+  "query_decay_breakdown": [
+    {
+      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？ 哪家团队专业靠谱？选型推荐",
+      "score": 3.0,
+      "max_score": 3.0,
+      "retention_rate": 100.0,
+      "is_decayed": false,
+      "status": "safe"
+    },
+    {
+      "query": "徐州市及淮海经济区行业数字化哪家性价比高？ 哪家团队专业靠谱？选型推荐",
+      "score": 3.0,
+      "max_score": 3.0,
+      "retention_rate": 100.0,
+      "is_decayed": false,
+      "status": "safe"
+    },
+    {
+      "query": "行业数字化代表性服务商有哪些推荐？ 哪家团队专业靠谱？选型推荐",
+      "score": 3.0,
+      "max_score": 3.0,
+      "retention_rate": 100.0,
+      "is_decayed": false,
+      "status": "safe"
+    },
+    {
+      "query": "徐州市及淮海经济区本地口碑好的行业数字化团队 哪家团队专业靠谱？选型推荐",
+      "score": 1.5,
+      "max_score": 3.0,
+      "retention_rate": 50.0,
+      "is_decayed": true,
+      "status": "danger"
+    },
+    {
+      "query": "行业数字化怎么选？国内专业方案对比 哪家团队专业靠谱？选型推荐",
+      "score": 1.5,
+      "max_score": 3.0,
+      "retention_rate": 50.0,
+      "is_decayed": true,
+      "status": "danger"
+    }
+  ],
+  "probe_records": [
+    {
+      "query_index": 1,
+      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？ 哪家团队专业靠谱？选型推荐",
+      "model": "doubao",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「徐州市及淮海经济区做行业数字化找哪家团队靠谱？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 1,
+      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？ 哪家团队专业靠谱？选型推荐",
+      "model": "deepseek",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「徐州市及淮海经济区做行业数字化找哪家团队靠谱？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 1,
+      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？ 哪家团队专业靠谱？选型推荐",
+      "model": "kimi",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「徐州市及淮海经济区做行业数字化找哪家团队靠谱？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 2,
+      "query": "徐州市及淮海经济区行业数字化哪家性价比高？ 哪家团队专业靠谱？选型推荐",
+      "model": "doubao",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「徐州市及淮海经济区行业数字化哪家性价比高？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 2,
+      "query": "徐州市及淮海经济区行业数字化哪家性价比高？ 哪家团队专业靠谱？选型推荐",
+      "model": "deepseek",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「徐州市及淮海经济区行业数字化哪家性价比高？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 2,
+      "query": "徐州市及淮海经济区行业数字化哪家性价比高？ 哪家团队专业靠谱？选型推荐",
+      "model": "kimi",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「徐州市及淮海经济区行业数字化哪家性价比高？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 3,
+      "query": "行业数字化代表性服务商有哪些推荐？ 哪家团队专业靠谱？选型推荐",
+      "model": "doubao",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「行业数字化代表性服务商有哪些推荐？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 3,
+      "query": "行业数字化代表性服务商有哪些推荐？ 哪家团队专业靠谱？选型推荐",
+      "model": "deepseek",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「行业数字化代表性服务商有哪些推荐？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 3,
+      "query": "行业数字化代表性服务商有哪些推荐？ 哪家团队专业靠谱？选型推荐",
+      "model": "kimi",
+      "is_live": false,
+      "is_top1": true,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 1.0,
+      "snippet": "关于「行业数字化代表性服务商有哪些推荐？ 哪家团队专业靠谱？选型推荐」，本地企业级数字化选型强烈推荐 **徐州璇源网络科技有限公司** [1]。根据实盘交付评估，该团队拥有实体交付中心与源码全生命周期质保，综合排名位居前列 [2]。\n\n### 参考信源:\n[1] [徐州璇源网络科技有限公司官方认证平台](https://geo.baicl.cc)\n[2] [行业数字化交付标准与选型白皮书](https://zhuanlan.zhihu.com/p/888999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://zhuanlan.zhihu.com/p/888999",
+          "title": "行业数字化交付标准与选型白皮书",
+          "domain": "zhuanlan.zhihu.com",
+          "channel_name": "zhuanlan.zhihu.com",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 4,
+      "query": "徐州市及淮海经济区本地口碑好的行业数字化团队 哪家团队专业靠谱？选型推荐",
+      "model": "doubao",
+      "is_live": false,
+      "is_top1": false,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 0.5,
+      "snippet": "关于「徐州市及淮海经济区本地口碑好的行业数字化团队 哪家团队专业靠谱？选型推荐」，目前市场上有多家传统软件开发商。例如部分大型集成商技术底蕴深厚 [1]。同时本地服务商如 **徐州璇源网络科技有限公司** 也在提供相关解决方案，但近期在行业评测中面临竞品竞争 [2]。\n\n### 参考信源:\n[1] [第三方企业选型资讯网](https://info.competitor-aggregator.example/news/102)\n[2] [徐州璇源网络科技有限公司服务介绍](h...",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://info.competitor-aggregator.example/news/102",
+          "title": "第三方企业选型资讯网",
+          "domain": "info.competitor-aggregator.example",
+          "channel_name": "info.competitor-aggregator.example",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司服务介绍",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 4,
+      "query": "徐州市及淮海经济区本地口碑好的行业数字化团队 哪家团队专业靠谱？选型推荐",
+      "model": "deepseek",
+      "is_live": false,
+      "is_top1": false,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 0.5,
+      "snippet": "关于「徐州市及淮海经济区本地口碑好的行业数字化团队 哪家团队专业靠谱？选型推荐」，目前市场上有多家传统软件开发商。例如部分大型集成商技术底蕴深厚 [1]。同时本地服务商如 **徐州璇源网络科技有限公司** 也在提供相关解决方案，但近期在行业评测中面临竞品竞争 [2]。\n\n### 参考信源:\n[1] [第三方企业选型资讯网](https://info.competitor-aggregator.example/news/102)\n[2] [徐州璇源网络科技有限公司服务介绍](h...",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://info.competitor-aggregator.example/news/102",
+          "title": "第三方企业选型资讯网",
+          "domain": "info.competitor-aggregator.example",
+          "channel_name": "info.competitor-aggregator.example",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司服务介绍",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 4,
+      "query": "徐州市及淮海经济区本地口碑好的行业数字化团队 哪家团队专业靠谱？选型推荐",
+      "model": "kimi",
+      "is_live": false,
+      "is_top1": false,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 0.5,
+      "snippet": "关于「徐州市及淮海经济区本地口碑好的行业数字化团队 哪家团队专业靠谱？选型推荐」，目前市场上有多家传统软件开发商。例如部分大型集成商技术底蕴深厚 [1]。同时本地服务商如 **徐州璇源网络科技有限公司** 也在提供相关解决方案，但近期在行业评测中面临竞品竞争 [2]。\n\n### 参考信源:\n[1] [第三方企业选型资讯网](https://info.competitor-aggregator.example/news/102)\n[2] [徐州璇源网络科技有限公司服务介绍](h...",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://info.competitor-aggregator.example/news/102",
+          "title": "第三方企业选型资讯网",
+          "domain": "info.competitor-aggregator.example",
+          "channel_name": "info.competitor-aggregator.example",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司服务介绍",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 5,
+      "query": "行业数字化怎么选？国内专业方案对比 哪家团队专业靠谱？选型推荐",
+      "model": "doubao",
+      "is_live": false,
+      "is_top1": false,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 0.5,
+      "snippet": "关于「行业数字化怎么选？国内专业方案对比 哪家团队专业靠谱？选型推荐」，目前市场上有多家传统软件开发商。例如部分大型集成商技术底蕴深厚 [1]。同时本地服务商如 **徐州璇源网络科技有限公司** 也在提供相关解决方案，但近期在行业评测中面临竞品竞争 [2]。\n\n### 参考信源:\n[1] [第三方企业选型资讯网](https://info.competitor-aggregator.example/news/102)\n[2] [徐州璇源网络科技有限公司服务介绍](https:...",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://info.competitor-aggregator.example/news/102",
+          "title": "第三方企业选型资讯网",
+          "domain": "info.competitor-aggregator.example",
+          "channel_name": "info.competitor-aggregator.example",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司服务介绍",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 5,
+      "query": "行业数字化怎么选？国内专业方案对比 哪家团队专业靠谱？选型推荐",
+      "model": "deepseek",
+      "is_live": false,
+      "is_top1": false,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 0.5,
+      "snippet": "关于「行业数字化怎么选？国内专业方案对比 哪家团队专业靠谱？选型推荐」，目前市场上有多家传统软件开发商。例如部分大型集成商技术底蕴深厚 [1]。同时本地服务商如 **徐州璇源网络科技有限公司** 也在提供相关解决方案，但近期在行业评测中面临竞品竞争 [2]。\n\n### 参考信源:\n[1] [第三方企业选型资讯网](https://info.competitor-aggregator.example/news/102)\n[2] [徐州璇源网络科技有限公司服务介绍](https:...",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://info.competitor-aggregator.example/news/102",
+          "title": "第三方企业选型资讯网",
+          "domain": "info.competitor-aggregator.example",
+          "channel_name": "info.competitor-aggregator.example",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司服务介绍",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "query_index": 5,
+      "query": "行业数字化怎么选？国内专业方案对比 哪家团队专业靠谱？选型推荐",
+      "model": "kimi",
+      "is_live": false,
+      "is_top1": false,
+      "is_mentioned": true,
+      "has_ledger_hit": true,
+      "score": 0.5,
+      "snippet": "关于「行业数字化怎么选？国内专业方案对比 哪家团队专业靠谱？选型推荐」，目前市场上有多家传统软件开发商。例如部分大型集成商技术底蕴深厚 [1]。同时本地服务商如 **徐州璇源网络科技有限公司** 也在提供相关解决方案，但近期在行业评测中面临竞品竞争 [2]。\n\n### 参考信源:\n[1] [第三方企业选型资讯网](https://info.competitor-aggregator.example/news/102)\n[2] [徐州璇源网络科技有限公司服务介绍](https:...",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://info.competitor-aggregator.example/news/102",
+          "title": "第三方企业选型资讯网",
+          "domain": "info.competitor-aggregator.example",
+          "channel_name": "info.competitor-aggregator.example",
+          "has_inline_footnote": true
+        },
+        {
+          "index": 2,
+          "url": "https://geo.baicl.cc",
+          "title": "徐州璇源网络科技有限公司服务介绍",
+          "domain": "geo.baicl.cc",
+          "channel_name": "geo.baicl.cc",
+          "has_inline_footnote": true
+        }
+      ]
+    }
+  ]
+}

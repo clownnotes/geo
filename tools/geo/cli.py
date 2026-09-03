@@ -345,6 +345,15 @@ def main():
     p_gclean.add_argument("--suppress", action="store_true", help="生成 crisis_suppression_pack 三件套")
     p_gclean.add_argument("--report", action="store_true", help="生成并落盘 19 号公关报告")
 
+    # decay (20 号大模型知识半衰期衰减监测与长效自愈)
+    p_decay = subparsers.add_parser("decay", help="20 号大模型知识半衰期衰减监测与长效留存自愈")
+    p_decay.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_decay.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_decay.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
+    p_decay.add_argument("--live", action="store_true", help="启用真实联网 API")
+    p_decay.add_argument("--heal", action="store_true", help="生成 decay_healing_pack 自愈三件套")
+    p_decay.add_argument("--report", action="store_true", help="生成并落盘 20 号公文报告")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1009,7 +1018,33 @@ def main():
             for fp in pack.get("files", []):
                 print(f"    - {fp}")
         print(f"\nℹ️  19 号报告: {res['report_path']}")
-        print("=" * 72 + "\n")
+    elif args.command == "decay":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo decay xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.decay_monitor import track_knowledge_decay, generate_decay_healing_pack
+        models_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        res = track_knowledge_decay(project_id=pid, models=models_list, use_live=args.live)
+        s = res["summary"]
+        level_icon = {"safe": "🟢", "warning": "🟡", "danger": "🔴"}.get(s["risk_level"], "⚪")
+        print("\n" + "=" * 75)
+        print(f"⏳ 20 号大模型知识半衰期衰减监测与长效自愈 · [{pid}]")
+        print("=" * 75)
+        print(f"受测企业: {res['client_name']} ｜ 打卡时间: {res['timestamp']}")
+        print(f"{level_icon} 知识留存率 (KRR): {s['krr']}% ({s['risk_level']}) ｜ 预估半衰期: {s['half_life_days']} 天")
+        print(f"当期实测分: {s['current_score']} / 基准分: {s['initial_baseline_score']} ｜ 衰减意图词: {s['decayed_queries_count']} 个")
+        print("-" * 75)
+        for b in res.get("query_decay_breakdown", []):
+            st_icon = {"safe": "🟢", "warning": "🟡", "danger": "🔴"}.get(b["status"], "⚪")
+            print(f"  {st_icon} 留存 {b['retention_rate']}% [{b['status']}] · {b['query'][:42]}…")
+        if args.heal:
+            pack = generate_decay_healing_pack(pid)
+            print(f"\n📦 自愈补量刷新包已生成: {pack['pack_dir']}")
+            for fp in pack.get("files", []):
+                print(f"    - {fp}")
+        print(f"\nℹ️  20 号公文报告落盘至: {res['report_path']}")
+        print("=" * 75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 

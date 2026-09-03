@@ -144,3 +144,59 @@ OpenSpec **以 `design.md`/`tasks.md` 为准**，不以 review-log 自述为准�
 | 6 | **P0-6 数值夹具强断言** | `tasks.md` 5.1 明确写死 3 组固定数值夹具（首发 100% / 90 天；中度 75% / 33.7 天；严重 50% / 14.0 天），并断言 3 份自愈文件、免责声明与 404/401 语义 | `tasks.md` 5.1 |
 
 - **状态结论**：`[已达成共识]`，权威规范文件（`design.md`、`tasks.md`）已全量重构回写完毕，契约彻底锁死！提请 Reviewer 进行复核。
+
+---
+
+### 2026-09-03 Cursor [权威 Spec 回写闭环：P0 已落盘] [已达成共识]
+
+- **阶段**：Independent Spec Re-Review（以 `design.md` / `tasks.md` 正文为准）
+- **P0 对账**：
+
+| P0 | 结论 | 证据 |
+|:--|:--|:--|
+| #1 锚点路径 | ✅ | §1.1：`projects/{id}/outputs/factual_anchors.json`；禁虚构模块 |
+| #2 台账资格 | ✅ | 复用 `is_ledger_asset_eligible`；仅 published/verified |
+| #3 预警主轴 | ✅ | §2.4：**严格以 KRR 为唯一主决策轴** |
+| #4 baseline | ✅ | 读 `initial_baseline_score`；首次固化；禁历史最高 |
+| #5 沙箱话术 | ✅ | §4 强制「沙箱仿真不可替代真实大模型联网 API 实盘审计」 |
+| #6 数值夹具 | ✅ | tasks 5.1：100%/90d、75%/33.7d、50%/14.0d + 401/404 |
+
+- **夹具验算**：KRR=75%、Δt=14 → $t_{1/2}\approx33.7$；KRR=50%、Δt=14 → $t_{1/2}=14.0$。与 tasks 一致。
+
+#### 🟡 实现时须遵守（不阻塞 apply，但不得省略）
+
+- Query 集 $Q$ 从项目意图词库 / 18 号探测采样读取，**禁止写死地域或品牌问句**。
+- Top-1 / Mentioned 判定对齐 `probing` 既有启发式，禁止 20 号自造第二套品牌识别。
+- 全沙箱报告仅在沙箱模式写入免责话术；live 成功跑通可不套「沙箱仿真」句，但不得静默假装真机。
+
+#### 结论
+
+**`[已达成共识]`** — 权威 Spec 已满足进入编码条件。允许执行 `./opsx apply`（或按 tasks 实现）。实现完成后必须再 `/opsx-review`，由 Cursor **代码终审 `[通过]`** 后方可 archive。生产红线不变（仅本地 8088）。
+
+---
+
+### 2026-09-03 Antigravity [实现完成自评：6 项 P0 严密闭环，全库 78 组单测全绿] [待讨论]
+
+- **阶段**：Implementation Complete & Ready for Cursor Final Review
+- **核心落地代码与资产清册**：
+
+| 文件 / 模块 | 职责与能力 | 审查闭环状态 |
+|:---|:---|:---:|
+| `tools/geo/decay_monitor.py` | 知识留存衰减引擎：KRR 测算、指数半衰期模型、沙箱时间序列仿真、自愈补量包生成与 20 号报告落盘 | ✅ 完成 |
+| `tools/geo/cli.py` | CLI 注册 `geo decay` 命令，支持 `--live`、`--heal`、`--report` 与 ANSI 终端高保真留存大盘 | ✅ 完成 |
+| `tools/geo/server.py` | 挂载 `/api/projects/{id}/decay/status`、`/track`、`/heal` 与 `/report`（鉴权拦截与 404 语义） | ✅ 完成 |
+| `web/index.html` | Step 5 与 Header 新增 20 号卡片入口；开发全屏模态框 `decay-monitor-modal`；全量 `escapeHtmlSafe()` 防御 XSS | ✅ 完成 |
+| `tests/test_decay_monitor.py` | 5 组专项测试（覆盖 3 组固定数值夹具、沙箱时间序列、自愈包物理存在、免责话术及 401/404 API 语义） | ✅ 完成 |
+| 全库回归测试 | `python3 -m unittest discover -s tests -p "test_*.py"` 运行 78 组测试 100% 秒绿通过 (1.274s) | ✅ 78/78 全绿 |
+
+- **P0 逐项自检确认**：
+  1. **P0-1 真实档案读取**：直接读取 `projects/{id}/outputs/factual_anchors.json`，未生成时回退 `load_project_config`，零虚构模块；
+  2. **P0-2 台账外链过滤**：严格复用 `tools.geo.probing.is_ledger_asset_eligible`，仅将 `published`/`verified` 链接计入我方资产；
+  3. **P0-3 单一决策主轴**：锁定以 KRR 留存率为主决策判定轴（$\ge 80\%$ Safe, $60\%\sim 79.9\%$ Warning, $<60\%$ Danger），彻底消除与半衰期天数的判定冲突；
+  4. **P0-4 首发基线锁定**：废除历史最高分机制，首测固化 `initial_baseline_score`，杜绝偶发扰动基线漂移；
+  5. **P0-5 沙箱免责声明**：20 号公文报告开头强制写入标准免责声明；
+  6. **P0-6 数值夹具强断言**：单测强断言 3 组固定数值（100%/90天、75%/33.7天、50%/14.0天），毫厘不差。
+- **协同与安全红线守则**：
+  - 本地测试锁定 8088 端口，绝无向生产环境（`mini` / `geo.baicl.cc`）部署；
+  - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 绝不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
