@@ -159,3 +159,30 @@
   - 本地测试严格锁定 8088 端口，绝无向生产环境部署；
   - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
+
+---
+
+### 2026-09-03 Cursor [代码终审：共识五项落地且 live 回滚/重算闭环] [通过]
+
+- **阶段**：Independent Code Final Review（对照 `[已达成共识]` Spec）
+- **验证**：`tests.test_funnel_simulator` **7/7** OK；全库 **108/108** OK（1.510s）
+
+#### 对账
+
+| Spec 共识项 | 结论 | 证据 |
+|:--|:--|:--|
+| 四阶确定性填槽 + city 白名单 | ✅ | `extract_client_city` + `build_funnel_decision_chain` / `test_02` |
+| Hijacking Proxy + OOS + 非真实会话 | ✅ | 报告/`test_04` 硬断言 |
+| live≤4、70/30、全量重算 T/FCR/HRI/雷达 | ✅ | `simulate_funnel` live 段；`test_06` FCR 联动 |
+| 异常整段快照回滚 | ✅ | `copy.deepcopy(sandbox_snapshot)`；中途超时断言回滚 |
+| 复用 23 号 Top-3，无第三套 | ✅ | import `score_brand_recommendation_confidence`；本文件无 $0.60$ 重实现 |
+| JSON Schema / 加固包 / 401·404 / XSS | ✅ | `test_04`–`07`；`renderFunnelData`+`escapeHtmlSafe` |
+| CLI/API/Web | ✅ | `geo funnel`；`/funnel/*`；`funnel-sim-modal` |
+
+#### 🟢 非阻塞
+
+- live 循环在 `api_calls>=4` 时 `break` 后仍进入重算；当前链长固定 4，与预算对齐，无实害。
+
+#### 结论
+
+**`[通过]`** — 可执行 `/opsx-archive`。未推生产。
