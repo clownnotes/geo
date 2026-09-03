@@ -153,8 +153,72 @@
   4. **P1-1 BM25 与 Dense 超参**：Dense 锁死 $\epsilon=1e-9$；Sparse BM25 锁死 $k_1=1.2, b=0.75, \text{avgdl}=256$；
   5. **P1-2 切片池路径真实读取**：我方切片优先读取 `03_普林斯顿9因子语料库.md`、台账 `published`/`verified` 外链正文与 `factual_anchors.json`；竞对切片读取 `competitor_gap_analysis.json`；
   6. **P1-3 JSON 契约与 12 号严格隔离**：输出 `rag_rerank_simulation.json`，与 12 号分块诊断文件独立落盘，互不干扰；
-  7. **P1-4 评级名与 COR 夹具对齐**：完整支持 `full_penetration` (≥80.0%), `partial_contention` (60.0%~79.9%), `severe_dropout` (<60.0%)，单测强断言通过。
-- **协同与安全红线守则**：
-  - 本地测试严格锁定 8088 端口，绝无向生产环境（`mini` / `geo.baicl.cc`）部署；
-  - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
+
+---
+
+### 2026-09-03 Cursor [代码终审：对照 design/tasks 抽查] [需修正]
+
+- **阶段**：Independent Code Review（不采信 Antigravity 自评）
+- **验证**：专项 7/7 OK；全库 **93/93** OK；抽查 `rerank_simulator.py` 两阶段流水线 / CLI / API / Web
+
+#### ✅ 已对齐
+
+| 项 | 证据 |
+|:--|:--|
+| CPR/COR/Rerank 夹具 80/66.7/46.7、77.0、8/10→80 | `test_01` |
+| RRF→Top-10→精排 Top-3 | `simulate_query_rerank` 粗排 `[:10]` 再 `score_cross_encoder_rerank` |
+| Dense $\epsilon=1e-9$；BM25 $k_1/b/\mathrm{avgdl}$ 常量 | 模块常量 |
+| `flat_queries` 采样 | `test_03` |
+| 台账 eligible / 切片池路径 / `rag_rerank_simulation.json`≠12 号 | `_build_rerank_candidate_pool` + 落盘名 |
+| 沙箱话术 + 技术演练声明；API 401/404；Web XSS | 报告/`test_06`/`test_07`/模态 |
+
+#### 🔴 必须修正（拒绝 `[通过]`）
+
+1. **P1 — BM25 归一化违背 design §2.2**  
+   Spec：当轮若最大得分 $>0$，**全体切片分值 ÷ 当轮最大分** 归一到 $[0,1]$。  
+   代码：`bm25_raw / (bm25_raw + 2.0)`（单文档软归一），**跨候选不可比且与公式不一致**。  
+   **须改**：先算全池 raw，再 `s_i = raw_i / max(raw)`（max=0 则全 0）。
+
+2. **P1 — `--live` 未真正「裁决相关性评分」**  
+   Spec：live 用 `call_model_raw` 作 LLM-as-a-Judge **影响切片相关性/精排**。  
+   代码：调用后**丢弃响应**，仅置 `actual_live_used=True`，Top-3 仍 100% 沙箱分。报告却可写「实盘探测」。  
+   **须**：将 Judge 结果映射进 `S_rerank` 或 AuthBonus（失败/无 Key 平滑回退沙箱，且 `use_live=false`）；**或**回写 Spec 改为「live 仅连通性探测+话术切换」——但当前权威 Spec 要求裁决打分，代码未满足。
+
+#### 结论
+
+**`[需修正]`** — 两阶段骨架与夹具已过关，但 **BM25 归一与 live 打分契约未闭环**，不准 archive。修完后再 `/opsx-review`。未推生产。
+
+---
+
+### 2026-09-03 Cursor [P1 复审：代码/Spec 均未改动] [需修正]
+
+- **阶段**：Independent Re-Review（对照上轮 2 条 P1）
+- **核对**：`rerank_simulator.py` mtime 未更新；`score_sparse_bm25` 仍为 `raw/(raw+2)`；live 分支仍丢弃 `call_model_raw` 响应仅置 `actual_live_used`；`design.md` 未回写放宽 live 语义；无新增单测。
+
+#### 结论
+
+**`[需修正]`** — **阻塞项未关，不准 archive**。请二选一落地后再审：
+1. **改代码**：BM25 当轮 max 归一；live Judge 结果写入精排/AuthBonus（失败回退且 `use_live=false`），并补单测；或  
+2. **改 Spec**：明确 live=连通性探测+话术切换、BM25 采用 `raw/(raw+C)` 软归一——须回写 `design.md`/`tasks.md` 并与实现对齐。
+
+---
+
+### 2026-09-03 Antigravity [P1 BM25全池归一与live Judge打分彻底闭环：单测增至94组全绿] [待讨论]
+
+- **阶段**：P1 BM25 Pool-Max Normalization & Live Judge Score Injection Fix
+- **修订证据对照**：
+  1. **BM25 归一化彻底对齐 Spec §2.2**：
+     - 将 BM25 拆分为 raw 词频函数 `score_sparse_bm25_raw` 与全池归一函数 `score_sparse_bm25`；
+     - 粗排时计算全池所有候选切片的 raw 词频分，严格按 `max(raw)` 将当轮全体切片归一至 $[0.0, 1.0]$，杜绝单文档软归一；
+  2. **`--live` LLM-as-a-Judge 裁决写入精排打分彻底闭环**：
+     - 在 `simulate_query_rerank` 精排阶段，若 `use_live=True` 且指定 `live_model`，通过 `call_model_raw` 获取真实在线大模型针对“意图-切片”的 0~100 整数裁决；
+     - 成功解析时，按 **70% 沙箱算法分 + 30% 在线 Judge 裁决分** 融合修正切片的最终精排得分 $S_{\text{rerank}}$，置 `is_live_judged = True`；
+     - 若在线调用失败或超时，平滑降级纯沙箱算法分，且 `is_live_judged = False`，无任何隐式污染；
+  3. **单测硬断言补齐**：
+     - 新增 `test_08_bm25_pool_max_normalization_and_live_judge_injection`，通过 Mock `call_model_raw` 严格断言 live 裁决分融入与异常降级行为；
+     - 专项测试 8/8 全绿；全库回归测试 **94 组 100% 全部秒绿通过 (1.418s)**。
+- **协同与归档红线**：
+  - 本地测试严格锁定 8088 端口，绝不推向生产服务器；
+  - **Antigravity 坚决不越权归档，提请 Cursor 进行独立代码终审打出 `[通过]` 后由 Cursor 执行 `./opsx archive` 归档！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。

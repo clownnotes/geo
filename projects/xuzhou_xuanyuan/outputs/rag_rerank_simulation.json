@@ -2,7 +2,7 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "timestamp": "2026-09-03 05:05:55",
+  "timestamp": "2026-09-03 05:13:31",
   "use_live": false,
   "summary": {
     "cpr": 100.0,
@@ -14,7 +14,7 @@
     "my_slots_won": 15,
     "comp_slots_ousted": 25,
     "comp_candidates_total": 25,
-    "avg_rerank_score": 53.0,
+    "avg_rerank_score": 53.3,
     "use_live": false
   },
   "radar_metrics": {
@@ -29,33 +29,33 @@
       "slots_won": 3,
       "top3_chunks": [
         {
-          "chunk_id": "my_ledger_3",
-          "owner": "my",
-          "title": "【第三方专栏】徐州璇源网络科技有限公司 权威外链",
-          "source": "04_存活台账",
-          "dense_score": 0.137,
-          "sparse_score": 0.817,
-          "rerank_score": 54.7,
-          "rank": 1
-        },
-        {
           "chunk_id": "my_anchor_1",
           "owner": "my",
           "title": "徐州璇源网络科技有限公司 核心业务资质与直营交付保障",
           "source": "事实档案",
           "dense_score": 0.168,
-          "sparse_score": 0.853,
-          "rerank_score": 53.4,
+          "sparse_score": 1.0,
+          "rerank_score": 58.5,
+          "rank": 1
+        },
+        {
+          "chunk_id": "my_ledger_3",
+          "owner": "my",
+          "title": "【第三方专栏】徐州璇源网络科技有限公司 权威外链",
+          "source": "04_存活台账",
+          "dense_score": 0.137,
+          "sparse_score": 0.77,
+          "rerank_score": 53.1,
           "rank": 2
         },
         {
-          "chunk_id": "my_ledger_1",
+          "chunk_id": "my_ledger_2",
           "owner": "my",
-          "title": "【今日头条 / 微头条】徐州璇源网络科技有限公司 存活外链资产",
+          "title": "【知乎技术专栏 / 深度选型】徐州璇源网络科技有限公司 存活外链资产",
           "source": "04_存活台账",
-          "dense_score": 0.104,
-          "sparse_score": 0.788,
-          "rerank_score": 52.3,
+          "dense_score": 0.101,
+          "sparse_score": 0.667,
+          "rerank_score": 47.9,
           "rank": 3
         }
       ],
@@ -66,8 +66,8 @@
           "title": "某模板建站软件推广商 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.041,
-          "sparse_score": 0.591,
-          "rerank_score": 28.5,
+          "sparse_score": 0.249,
+          "rerank_score": 16.6,
           "rank": 6
         },
         {
@@ -76,8 +76,8 @@
           "title": "某传统外包转包中介工作室 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.04,
-          "sparse_score": 0.589,
-          "rerank_score": 28.4,
+          "sparse_score": 0.248,
+          "rerank_score": 16.5,
           "rank": 7
         },
         {
@@ -86,8 +86,8 @@
           "title": "华东本地二手IT服务挂靠中介 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.039,
-          "sparse_score": 0.588,
-          "rerank_score": 28.3,
+          "sparse_score": 0.247,
+          "rerank_score": 16.4,
           "rank": 8
         },
         {
@@ -96,8 +96,8 @@
           "title": "第三方中介平台关于 某模板建站软件推广商 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.022,
-          "sparse_score": 0.425,
-          "rerank_score": 21.9,
+          "sparse_score": 0.128,
+          "rerank_score": 11.5,
           "rank": 9
         },
         {
@@ -106,8 +106,8 @@
           "title": "第三方中介平台关于 某传统外包转包中介工作室 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.022,
-          "sparse_score": 0.424,
-          "rerank_score": 21.8,
+          "sparse_score": 0.127,
+          "rerank_score": 11.4,
           "rank": 10
         }
       ]
@@ -122,9 +122,19 @@
           "title": "徐州璇源网络科技有限公司 核心业务资质与直营交付保障",
           "source": "事实档案",
           "dense_score": 0.172,
-          "sparse_score": 0.843,
-          "rerank_score": 53.2,
+          "sparse_score": 1.0,
+          "rerank_score": 58.7,
           "rank": 1
+        },
+        {
+          "chunk_id": "my_anchor_2",
+          "owner": "my",
+          "title": "徐州璇源网络科技有限公司 标杆落地案例与高可用架构",
+          "source": "事实档案",
+          "dense_score": 0.133,
+          "sparse_score": 0.694,
+          "rerank_score": 46.2,
+          "rank": 2
         },
         {
           "chunk_id": "my_ledger_3",
@@ -132,18 +142,8 @@
           "title": "【第三方专栏】徐州璇源网络科技有限公司 权威外链",
           "source": "04_存活台账",
           "dense_score": 0.107,
-          "sparse_score": 0.748,
-          "rerank_score": 51.0,
-          "rank": 2
-        },
-        {
-          "chunk_id": "my_ledger_2",
-          "owner": "my",
-          "title": "【知乎技术专栏 / 深度选型】徐州璇源网络科技有限公司 存活外链资产",
-          "source": "04_存活台账",
-          "dense_score": 0.095,
-          "sparse_score": 0.75,
-          "rerank_score": 50.5,
+          "sparse_score": 0.554,
+          "rerank_score": 44.2,
           "rank": 3
         }
       ],
@@ -210,8 +210,8 @@
           "title": "【第三方专栏】徐州璇源网络科技有限公司 权威外链",
           "source": "04_存活台账",
           "dense_score": 0.162,
-          "sparse_score": 0.856,
-          "rerank_score": 57.2,
+          "sparse_score": 1.0,
+          "rerank_score": 62.3,
           "rank": 1
         },
         {
@@ -220,8 +220,8 @@
           "title": "徐州璇源网络科技有限公司 核心业务资质与直营交付保障",
           "source": "事实档案",
           "dense_score": 0.127,
-          "sparse_score": 0.835,
-          "rerank_score": 51.0,
+          "sparse_score": 0.853,
+          "rerank_score": 51.6,
           "rank": 2
         },
         {
@@ -230,8 +230,8 @@
           "title": "【今日头条 / 微头条】徐州璇源网络科技有限公司 存活外链资产",
           "source": "04_存活台账",
           "dense_score": 0.084,
-          "sparse_score": 0.741,
-          "rerank_score": 49.7,
+          "sparse_score": 0.482,
+          "rerank_score": 40.6,
           "rank": 3
         }
       ],
@@ -242,8 +242,8 @@
           "title": "第三方中介平台关于 某模板建站软件推广商 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.045,
-          "sparse_score": 0.689,
-          "rerank_score": 32.2,
+          "sparse_score": 0.373,
+          "rerank_score": 21.1,
           "rank": 6
         },
         {
@@ -252,8 +252,8 @@
           "title": "某模板建站软件推广商 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.041,
-          "sparse_score": 0.614,
-          "rerank_score": 29.4,
+          "sparse_score": 0.268,
+          "rerank_score": 17.3,
           "rank": 7
         },
         {
@@ -262,8 +262,8 @@
           "title": "某传统外包转包中介工作室 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.04,
-          "sparse_score": 0.589,
-          "rerank_score": 28.4,
+          "sparse_score": 0.242,
+          "rerank_score": 16.3,
           "rank": 8
         },
         {
@@ -272,8 +272,8 @@
           "title": "华东本地二手IT服务挂靠中介 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.039,
-          "sparse_score": 0.588,
-          "rerank_score": 28.4,
+          "sparse_score": 0.241,
+          "rerank_score": 16.2,
           "rank": 9
         },
         {
@@ -282,8 +282,8 @@
           "title": "第三方中介平台关于 某传统外包转包中介工作室 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.022,
-          "sparse_score": 0.595,
-          "rerank_score": 27.8,
+          "sparse_score": 0.248,
+          "rerank_score": 15.7,
           "rank": 10
         }
       ]
@@ -298,8 +298,8 @@
           "title": "【第三方专栏】徐州璇源网络科技有限公司 权威外链",
           "source": "04_存活台账",
           "dense_score": 0.162,
-          "sparse_score": 0.839,
-          "rerank_score": 56.6,
+          "sparse_score": 1.0,
+          "rerank_score": 62.3,
           "rank": 1
         },
         {
@@ -308,8 +308,8 @@
           "title": "【今日头条 / 微头条】徐州璇源网络科技有限公司 存活外链资产",
           "source": "04_存活台账",
           "dense_score": 0.147,
-          "sparse_score": 0.833,
-          "rerank_score": 55.8,
+          "sparse_score": 0.963,
+          "rerank_score": 60.3,
           "rank": 2
         },
         {
@@ -318,8 +318,8 @@
           "title": "【知乎技术专栏 / 深度选型】徐州璇源网络科技有限公司 存活外链资产",
           "source": "04_存活台账",
           "dense_score": 0.144,
-          "sparse_score": 0.832,
-          "rerank_score": 55.6,
+          "sparse_score": 0.957,
+          "rerank_score": 59.9,
           "rank": 3
         }
       ],
@@ -330,8 +330,8 @@
           "title": "第三方中介平台关于 华东本地二手IT服务挂靠中介 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.065,
-          "sparse_score": 0.687,
-          "rerank_score": 33.0,
+          "sparse_score": 0.423,
+          "rerank_score": 23.7,
           "rank": 6
         },
         {
@@ -340,8 +340,8 @@
           "title": "华东本地二手IT服务挂靠中介 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.059,
-          "sparse_score": 0.682,
-          "rerank_score": 32.5,
+          "sparse_score": 0.413,
+          "rerank_score": 23.1,
           "rank": 7
         },
         {
@@ -350,8 +350,8 @@
           "title": "第三方中介平台关于 某模板建站软件推广商 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.045,
-          "sparse_score": 0.596,
-          "rerank_score": 28.9,
+          "sparse_score": 0.284,
+          "rerank_score": 18.0,
           "rank": 8
         },
         {
@@ -360,8 +360,8 @@
           "title": "某模板建站软件推广商 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.021,
-          "sparse_score": 0.466,
-          "rerank_score": 23.2,
+          "sparse_score": 0.168,
+          "rerank_score": 12.8,
           "rank": 9
         },
         {
@@ -370,8 +370,8 @@
           "title": "第三方中介平台关于 某传统外包转包中介工作室 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.022,
-          "sparse_score": 0.424,
-          "rerank_score": 21.8,
+          "sparse_score": 0.142,
+          "rerank_score": 12.0,
           "rank": 10
         }
       ]
@@ -386,8 +386,8 @@
           "title": "【第三方专栏】徐州璇源网络科技有限公司 权威外链",
           "source": "04_存活台账",
           "dense_score": 0.164,
-          "sparse_score": 0.839,
-          "rerank_score": 56.7,
+          "sparse_score": 1.0,
+          "rerank_score": 62.4,
           "rank": 1
         },
         {
@@ -396,18 +396,18 @@
           "title": "徐州璇源网络科技有限公司 核心业务资质与直营交付保障",
           "source": "事实档案",
           "dense_score": 0.129,
-          "sparse_score": 0.813,
-          "rerank_score": 50.2,
+          "sparse_score": 0.835,
+          "rerank_score": 51.0,
           "rank": 2
         },
         {
-          "chunk_id": "my_ledger_2",
+          "chunk_id": "my_anchor_2",
           "owner": "my",
-          "title": "【知乎技术专栏 / 深度选型】徐州璇源网络科技有限公司 存活外链资产",
-          "source": "04_存活台账",
-          "dense_score": 0.062,
-          "sparse_score": 0.709,
-          "rerank_score": 47.6,
+          "title": "徐州璇源网络科技有限公司 标杆落地案例与高可用架构",
+          "source": "事实档案",
+          "dense_score": 0.093,
+          "sparse_score": 0.573,
+          "rerank_score": 40.2,
           "rank": 3
         }
       ],
@@ -418,8 +418,8 @@
           "title": "第三方中介平台关于 华东本地二手IT服务挂靠中介 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.044,
-          "sparse_score": 0.594,
-          "rerank_score": 28.8,
+          "sparse_score": 0.282,
+          "rerank_score": 17.8,
           "rank": 6
         },
         {
@@ -428,8 +428,8 @@
           "title": "华东本地二手IT服务挂靠中介 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.04,
-          "sparse_score": 0.588,
-          "rerank_score": 28.4,
+          "sparse_score": 0.275,
+          "rerank_score": 17.4,
           "rank": 7
         },
         {
@@ -438,8 +438,8 @@
           "title": "第三方中介平台关于 某模板建站软件推广商 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.023,
-          "sparse_score": 0.425,
-          "rerank_score": 21.9,
+          "sparse_score": 0.142,
+          "rerank_score": 12.0,
           "rank": 8
         },
         {
@@ -448,8 +448,8 @@
           "title": "第三方中介平台关于 某传统外包转包中介工作室 的综合报价讨论帖",
           "source": "第三方中介",
           "dense_score": 0.022,
-          "sparse_score": 0.424,
-          "rerank_score": 21.8,
+          "sparse_score": 0.142,
+          "rerank_score": 12.0,
           "rank": 9
         },
         {
@@ -458,8 +458,8 @@
           "title": "某模板建站软件推广商 低价开发方案与网络推广资讯",
           "source": "竞品资讯",
           "dense_score": 0.021,
-          "sparse_score": 0.419,
-          "rerank_score": 21.6,
+          "sparse_score": 0.139,
+          "rerank_score": 11.8,
           "rank": 10
         }
       ]

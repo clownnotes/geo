@@ -211,6 +211,44 @@ class TestRerankSimulator(unittest.TestCase):
         self.assertEqual(captured.get("status"), 404)
         self.assertIn("22 号报告尚未生成", captured.get("payload", {}).get("message", ""))
 
+    def test_08_bm25_pool_max_normalization_and_live_judge_injection(self):
+        """测试 BM25 全池 max 归一化与 live 模式下 Judge 裁决分注入精排打分 (闭环 Cursor 审查)"""
+        from unittest.mock import patch
+        from tools.geo.rerank_simulator import RerankSandboxSimulator, score_sparse_bm25_raw
+
+        # 1. 验证 BM25 全池 max 归一化
+        q = "直营团队软件定制开发"
+        candidates = [
+            {"id": "c1", "owner": "my", "title": "直营团队", "text": "直营团队软件定制开发交付有保障", "auth_bonus": 1.0},
+            {"id": "c2", "owner": "competitor", "title": "泛行业", "text": "行业资讯与新闻概览", "auth_bonus": 0.3},
+        ]
+        raw1 = score_sparse_bm25_raw(q, candidates[0]["text"])
+        raw2 = score_sparse_bm25_raw(q, candidates[1]["text"])
+        self.assertGreater(raw1, raw2)
+
+        # 2. 验证纯沙箱模式精排得分
+        res_sandbox = RerankSandboxSimulator.simulate_query_rerank(q, candidates, use_live=False)
+        self.assertFalse(res_sandbox["is_live_judged"])
+        c1_score_sandbox = res_sandbox["top3"][0]["rerank_score"]
+
+        # 3. 验证 live 模式下 Mock 大模型裁判给出高分 95 分，精排得分被成功融合修正
+        with patch("tools.geo.rerank_simulator.call_model_raw", return_value="评分结果: 95 分"):
+            res_live = RerankSandboxSimulator.simulate_query_rerank(
+                q, candidates, use_live=True, live_model="doubao"
+            )
+            self.assertTrue(res_live["is_live_judged"])
+            c1_score_live = res_live["top3"][0]["rerank_score"]
+            expected_score = round(0.7 * c1_score_sandbox + 0.3 * 95.0, 1)
+            self.assertEqual(c1_score_live, expected_score)
+
+        # 4. 验证 live 模式下若大模型调用异常，平滑回退纯沙箱且 is_live_judged 为 False
+        with patch("tools.geo.rerank_simulator.call_model_raw", side_effect=RuntimeError("API 超时")):
+            res_fallback = RerankSandboxSimulator.simulate_query_rerank(
+                q, candidates, use_live=True, live_model="doubao"
+            )
+            self.assertFalse(res_fallback["is_live_judged"])
+            self.assertEqual(res_fallback["top3"][0]["rerank_score"], c1_score_sandbox)
+
 
 if __name__ == "__main__":
     unittest.main()

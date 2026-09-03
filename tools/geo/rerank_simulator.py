@@ -58,8 +58,8 @@ def score_dense_similarity(query: str, doc_text: str) -> float:
     return max(0.0, min(1.0, score))
 
 
-def score_sparse_bm25(query: str, doc_text: str) -> float:
-    """计算 Query 与文档切片的 Sparse BM25 词频评分 (中文按 2-gram 词项提取，区间 [0.0, 1.0])"""
+def score_sparse_bm25_raw(query: str, doc_text: str) -> float:
+    """计算 Query 与文档切片的 Sparse BM25 未归一化原始得分 (中文按 2-gram 词项提取)"""
     clean_q = re.sub(r"\s+", "", query.lower())
     if not clean_q or not doc_text:
         return 0.0
@@ -81,9 +81,15 @@ def score_sparse_bm25(query: str, doc_text: str) -> float:
             denominator = tf + BM25_K1 * (1.0 - BM25_B + BM25_B * (doc_len / BM25_AVGDL))
             bm25_raw += numerator / denominator
 
-    # 简易归一化至 [0.0, 1.0]
-    norm_score = bm25_raw / (bm25_raw + 2.0)
-    return max(0.0, min(1.0, norm_score))
+    return bm25_raw
+
+
+def score_sparse_bm25(query: str, doc_text: str, max_raw: float = 1.0) -> float:
+    """计算 Query 与文档切片的 Sparse BM25 归一化得分 (严格对齐 design §2.2: 除以当轮候选池最大得分)"""
+    raw = score_sparse_bm25_raw(query, doc_text)
+    if max_raw <= 0.0:
+        return 0.0
+    return max(0.0, min(1.0, raw / max_raw))
 
 
 def calculate_rrf_rankings(
@@ -350,28 +356,64 @@ class RerankSandboxSimulator:
 
     @staticmethod
     def simulate_query_rerank(
-        query: str, candidate_chunks: List[Dict[str, Any]]
+        query: str,
+        candidate_chunks: List[Dict[str, Any]],
+        use_live: bool = False,
+        live_model: Optional[str] = None,
     ) -> Dict[str, Any]:
         """对单条 Query 执行粗排 (Dense + Sparse -> RRF) 与精排 (Cross-Encoder -> Top-3)"""
         n = len(candidate_chunks)
         if n == 0:
-            return {"query": query, "top3": [], "recall_top10": [], "ousted_competitors": []}
+            return {"query": query, "top3": [], "rank4_to_10": [], "ousted_competitors": [], "is_live_judged": False}
 
         dense_scores = [score_dense_similarity(query, c["text"]) for c in candidate_chunks]
-        sparse_scores = [score_sparse_bm25(query, c["text"]) for c in candidate_chunks]
+
+        # 严格对齐 design §2.2: 全池先算 raw，再除以当轮最大 raw 归一化至 [0, 1]
+        raw_sparse_scores = [score_sparse_bm25_raw(query, c["text"]) for c in candidate_chunks]
+        max_raw = max(raw_sparse_scores) if raw_sparse_scores else 0.0
+        if max_raw > 0.0:
+            sparse_scores = [max(0.0, min(1.0, r / max_raw)) for r in raw_sparse_scores]
+        else:
+            sparse_scores = [0.0] * n
+
         rrf_scores = calculate_rrf_rankings(dense_scores, sparse_scores)
 
         # 粗排截断 Top-10
         recall_indices = sorted(range(n), key=lambda i: rrf_scores[i], reverse=True)[:10]
 
-        # 精排计算 S_rerank
+        # 精排计算 S_rerank (闭环 P1-2: live 时真正将 LLM-as-a-Judge 裁决写入精排打分)
         reranked = []
+        is_live_judged = False
+
         for idx in recall_indices:
             c = candidate_chunks[idx]
             s_dense = dense_scores[idx]
             s_sparse = sparse_scores[idx]
             auth = c.get("auth_bonus", 0.5)
             s_rerank = score_cross_encoder_rerank(s_dense, s_sparse, auth)
+
+            # live 模式裁决
+            if use_live and live_model:
+                try:
+                    judge_prompt = (
+                        f"你是一名 RAG 重排序精排裁决专家。请分析以下切片与商业意图的相关度并输出 0 到 100 的整数评分：\n"
+                        f"查询: {query}\n"
+                        f"切片标题: {c['title']}\n"
+                        f"切片内容: {c['text'][:140]}\n"
+                        f"只需回复一个 0-100 的整数评分，例如: 85"
+                    )
+                    resp = call_model_raw(live_model, judge_prompt)
+                    if resp:
+                        m_num = re.search(r"\b(\d{1,3})\b", resp)
+                        if m_num:
+                            j_val = float(m_num.group(1))
+                            if 0.0 <= j_val <= 100.0:
+                                # 融合 70% 算法精排分 + 30% 在线大模型裁决分
+                                s_rerank = round(0.7 * s_rerank + 0.3 * j_val, 1)
+                                is_live_judged = True
+                except Exception:
+                    pass
+
             reranked.append({
                 "chunk_id": c["id"],
                 "owner": c["owner"],
@@ -403,6 +445,7 @@ class RerankSandboxSimulator:
             "ousted_comp_count": len(ousted_comp),
             "ousted_competitors": ousted_comp,
             "my_in_top3": sum(1 for c in top3 if c["owner"] == "my"),
+            "is_live_judged": is_live_judged,
         }
 
 
@@ -433,20 +476,15 @@ def simulate_rag_rerank_competition(
     actual_live_used = False
 
     for q in queries:
-        sim_res = RerankSandboxSimulator.simulate_query_rerank(q, candidates)
+        sim_res = RerankSandboxSimulator.simulate_query_rerank(
+            q, candidates, use_live=use_live, live_model=models[0] if models else None
+        )
         my_slots_won += sim_res["my_in_top3"]
         total_comp_in_recall += sim_res["total_comp_recall"]
         total_comp_ousted += sim_res["ousted_comp_count"]
 
-        # 若开启 live 且配置有效 Key，调用真实在线模型进行辅助评测验证 (对齐 P0-3)
-        if use_live:
-            try:
-                live_prompt = f"请作为 Rerank 评测裁决专家，分析以下查询与切片的意图吻合度：\nQuery: {q}\n"
-                resp = call_model_raw(models[0], live_prompt)
-                if resp:
-                    actual_live_used = True
-            except Exception:
-                pass
+        if sim_res.get("is_live_judged"):
+            actual_live_used = True
 
         query_details.append({
             "query": q,
