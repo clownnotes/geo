@@ -1,6 +1,6 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "generated_at": "2026-09-02T23:03:44Z",
+  "generated_at": "2026-09-03T03:39:06Z",
   "fulfillment_rate": 89.3,
   "manifest_summary": {
     "total_files": 16,
@@ -71,7 +71,7 @@
       "file": "07_大模型事实幻觉纠偏与信源反击策略.md",
       "stage": "S4/S5 事实防御",
       "exists": true,
-      "size": 3757
+      "size": 8693
     },
     {
       "index": "08",

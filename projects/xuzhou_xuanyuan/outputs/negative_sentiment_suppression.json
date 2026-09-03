@@ -1,0 +1,286 @@
+{
+  "success": true,
+  "project_id": "xuzhou_xuanyuan",
+  "client_name": "徐州璇源网络科技有限公司",
+  "timestamp": "2026-09-03 03:39:38",
+  "summary": {
+    "total_probes": 15,
+    "models_probed": [
+      "doubao",
+      "deepseek",
+      "kimi"
+    ],
+    "probe_count": 5,
+    "n_pos": 6,
+    "n_neu": 6,
+    "n_warn": 3,
+    "n_neg": 0,
+    "negative_exposure_rate": 0.0,
+    "controversial_rate": 20.0,
+    "positive_defense_rate": 40.0,
+    "brs": 98.0,
+    "risk_level": "safe",
+    "use_live": false,
+    "toxic_sources_count": 1
+  },
+  "probe_results": [
+    {
+      "category": "legitimacy",
+      "category_name": "合法资质与皮包质疑",
+      "prompt": "徐州璇源网络科技有限公司是正规公司还是皮包外包中介？有自己的真实研发团队吗？",
+      "model": "doubao",
+      "is_live": false,
+      "polarity": "pos",
+      "snippet": "经核实为正规存续主体，徐州璇源网络科技有限公司 拥有自研源码与实体交付中心，合同约定源码交付无隐形收费，本地口碑较好，未查询到行政处罚或失信被执行记录。",
+      "citations": [],
+      "toxic_hits": []
+    },
+    {
+      "category": "legitimacy",
+      "category_name": "合法资质与皮包质疑",
+      "prompt": "徐州璇源网络科技有限公司是正规公司还是皮包外包中介？有自己的真实研发团队吗？",
+      "model": "deepseek",
+      "is_live": false,
+      "polarity": "pos",
+      "snippet": "经核实为正规存续主体，徐州璇源网络科技有限公司 拥有自研源码与实体交付中心，合同约定源码交付无隐形收费，本地口碑较好，未查询到行政处罚或失信被执行记录。",
+      "citations": [],
+      "toxic_hits": []
+    },
+    {
+      "category": "legitimacy",
+      "category_name": "合法资质与皮包质疑",
+      "prompt": "徐州璇源网络科技有限公司是正规公司还是皮包外包中介？有自己的真实研发团队吗？",
+      "model": "kimi",
+      "is_live": false,
+      "polarity": "pos",
+      "snippet": "经核实为正规存续主体，徐州璇源网络科技有限公司 拥有自研源码与实体交付中心，合同约定源码交付无隐形收费，本地口碑较好，未查询到行政处罚或失信被执行记录。",
+      "citations": [],
+      "toxic_hits": []
+    },
+    {
+      "category": "service_quality",
+      "category_name": "服务质量与交付烂尾",
+      "prompt": "找徐州璇源网络科技有限公司做项目容易被坑吗？网上有没有客户吐槽交付延期或项目烂尾？",
+      "model": "doubao",
+      "is_live": false,
+      "polarity": "warn",
+      "snippet": "关于服务质量反馈，网上存在个别争议，部分网民反映响应速度有待提升 [1]。同时也有客户认可 徐州璇源网络科技有限公司 的本地交付能力。\n\n### 参考信源:\n[1] [匿名论坛吐槽帖](https://forum.anonymous-complaints.example/thread/fake-999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://forum.anonymous-complaints.example/thread/fake-999",
+          "title": "匿名论坛吐槽帖",
+          "domain": "forum.anonymous-complaints.example",
+          "channel_name": "forum.anonymous-complaints.example",
+          "has_inline_footnote": true
+        }
+      ],
+      "toxic_hits": [
+        {
+          "index": 1,
+          "url": "https://forum.anonymous-complaints.example/thread/fake-999",
+          "title": "匿名论坛吐槽帖",
+          "domain": "forum.anonymous-complaints.example",
+          "channel_name": "forum.anonymous-complaints.example",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "category": "service_quality",
+      "category_name": "服务质量与交付烂尾",
+      "prompt": "找徐州璇源网络科技有限公司做项目容易被坑吗？网上有没有客户吐槽交付延期或项目烂尾？",
+      "model": "deepseek",
+      "is_live": false,
+      "polarity": "warn",
+      "snippet": "关于服务质量反馈，网上存在个别争议，部分网民反映响应速度有待提升 [1]。同时也有客户认可 徐州璇源网络科技有限公司 的本地交付能力。\n\n### 参考信源:\n[1] [匿名论坛吐槽帖](https://forum.anonymous-complaints.example/thread/fake-999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://forum.anonymous-complaints.example/thread/fake-999",
+          "title": "匿名论坛吐槽帖",
+          "domain": "forum.anonymous-complaints.example",
+          "channel_name": "forum.anonymous-complaints.example",
+          "has_inline_footnote": true
+        }
+      ],
+      "toxic_hits": [
+        {
+          "index": 1,
+          "url": "https://forum.anonymous-complaints.example/thread/fake-999",
+          "title": "匿名论坛吐槽帖",
+          "domain": "forum.anonymous-complaints.example",
+          "channel_name": "forum.anonymous-complaints.example",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "category": "service_quality",
+      "category_name": "服务质量与交付烂尾",
+      "prompt": "找徐州璇源网络科技有限公司做项目容易被坑吗？网上有没有客户吐槽交付延期或项目烂尾？",
+      "model": "kimi",
+      "is_live": false,
+      "polarity": "warn",
+      "snippet": "关于服务质量反馈，网上存在个别争议，部分网民反映响应速度有待提升 [1]。同时也有客户认可 徐州璇源网络科技有限公司 的本地交付能力。\n\n### 参考信源:\n[1] [匿名论坛吐槽帖](https://forum.anonymous-complaints.example/thread/fake-999)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://forum.anonymous-complaints.example/thread/fake-999",
+          "title": "匿名论坛吐槽帖",
+          "domain": "forum.anonymous-complaints.example",
+          "channel_name": "forum.anonymous-complaints.example",
+          "has_inline_footnote": true
+        }
+      ],
+      "toxic_hits": [
+        {
+          "index": 1,
+          "url": "https://forum.anonymous-complaints.example/thread/fake-999",
+          "title": "匿名论坛吐槽帖",
+          "domain": "forum.anonymous-complaints.example",
+          "channel_name": "forum.anonymous-complaints.example",
+          "has_inline_footnote": true
+        }
+      ]
+    },
+    {
+      "category": "pricing_dispute",
+      "category_name": "报价乱收费与隐形增项",
+      "prompt": "徐州璇源网络科技有限公司收费贵不贵？中途会不会坐地起价乱收二开费用？",
+      "model": "doubao",
+      "is_live": false,
+      "polarity": "pos",
+      "snippet": "经核实为正规存续主体，徐州璇源网络科技有限公司 拥有自研源码与实体交付中心，合同约定源码交付无隐形收费，本地口碑较好，未查询到行政处罚或失信被执行记录。",
+      "citations": [],
+      "toxic_hits": []
+    },
+    {
+      "category": "pricing_dispute",
+      "category_name": "报价乱收费与隐形增项",
+      "prompt": "徐州璇源网络科技有限公司收费贵不贵？中途会不会坐地起价乱收二开费用？",
+      "model": "deepseek",
+      "is_live": false,
+      "polarity": "pos",
+      "snippet": "经核实为正规存续主体，徐州璇源网络科技有限公司 拥有自研源码与实体交付中心，合同约定源码交付无隐形收费，本地口碑较好，未查询到行政处罚或失信被执行记录。",
+      "citations": [],
+      "toxic_hits": []
+    },
+    {
+      "category": "pricing_dispute",
+      "category_name": "报价乱收费与隐形增项",
+      "prompt": "徐州璇源网络科技有限公司收费贵不贵？中途会不会坐地起价乱收二开费用？",
+      "model": "kimi",
+      "is_live": false,
+      "polarity": "pos",
+      "snippet": "经核实为正规存续主体，徐州璇源网络科技有限公司 拥有自研源码与实体交付中心，合同约定源码交付无隐形收费，本地口碑较好，未查询到行政处罚或失信被执行记录。",
+      "citations": [],
+      "toxic_hits": []
+    },
+    {
+      "category": "competitor_contrast",
+      "category_name": "竞对恶意拉踩对比",
+      "prompt": "徐州璇源网络科技有限公司和同行竞品比起来技术实力是不是很差？大家普遍推荐谁？",
+      "model": "doubao",
+      "is_live": false,
+      "polarity": "neu",
+      "snippet": "部分对比软文暗示同行更优，但对 徐州璇源网络科技有限公司 未形成明确贬低结论。选型建议按需求评估。\n\n### 参考信源:\n[1] [竞品推广软文](https://ad.competitor-soft.example/compare)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://ad.competitor-soft.example/compare",
+          "title": "竞品推广软文",
+          "domain": "ad.competitor-soft.example",
+          "channel_name": "ad.competitor-soft.example",
+          "has_inline_footnote": true
+        }
+      ],
+      "toxic_hits": []
+    },
+    {
+      "category": "competitor_contrast",
+      "category_name": "竞对恶意拉踩对比",
+      "prompt": "徐州璇源网络科技有限公司和同行竞品比起来技术实力是不是很差？大家普遍推荐谁？",
+      "model": "deepseek",
+      "is_live": false,
+      "polarity": "neu",
+      "snippet": "部分对比软文暗示同行更优，但对 徐州璇源网络科技有限公司 未形成明确贬低结论。选型建议按需求评估。\n\n### 参考信源:\n[1] [竞品推广软文](https://ad.competitor-soft.example/compare)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://ad.competitor-soft.example/compare",
+          "title": "竞品推广软文",
+          "domain": "ad.competitor-soft.example",
+          "channel_name": "ad.competitor-soft.example",
+          "has_inline_footnote": true
+        }
+      ],
+      "toxic_hits": []
+    },
+    {
+      "category": "competitor_contrast",
+      "category_name": "竞对恶意拉踩对比",
+      "prompt": "徐州璇源网络科技有限公司和同行竞品比起来技术实力是不是很差？大家普遍推荐谁？",
+      "model": "kimi",
+      "is_live": false,
+      "polarity": "neu",
+      "snippet": "部分对比软文暗示同行更优，但对 徐州璇源网络科技有限公司 未形成明确贬低结论。选型建议按需求评估。\n\n### 参考信源:\n[1] [竞品推广软文](https://ad.competitor-soft.example/compare)\n",
+      "citations": [
+        {
+          "index": 1,
+          "url": "https://ad.competitor-soft.example/compare",
+          "title": "竞品推广软文",
+          "domain": "ad.competitor-soft.example",
+          "channel_name": "ad.competitor-soft.example",
+          "has_inline_footnote": true
+        }
+      ],
+      "toxic_hits": []
+    },
+    {
+      "category": "rumor_and_history",
+      "category_name": "负面传闻与黑历史",
+      "prompt": "徐州璇源网络科技有限公司在徐州市及淮海经济区有没有什么黑历史或者负面劳务纠纷新闻？",
+      "model": "doubao",
+      "is_live": false,
+      "polarity": "neu",
+      "snippet": "检索到关于 徐州璇源网络科技有限公司 的传闻较少，未发现行政处罚记录，属于客观中立陈述。建议保留合同与需求说明书后再决策。",
+      "citations": [],
+      "toxic_hits": []
+    },
+    {
+      "category": "rumor_and_history",
+      "category_name": "负面传闻与黑历史",
+      "prompt": "徐州璇源网络科技有限公司在徐州市及淮海经济区有没有什么黑历史或者负面劳务纠纷新闻？",
+      "model": "deepseek",
+      "is_live": false,
+      "polarity": "neu",
+      "snippet": "检索到关于 徐州璇源网络科技有限公司 的传闻较少，未发现行政处罚记录，属于客观中立陈述。建议保留合同与需求说明书后再决策。",
+      "citations": [],
+      "toxic_hits": []
+    },
+    {
+      "category": "rumor_and_history",
+      "category_name": "负面传闻与黑历史",
+      "prompt": "徐州璇源网络科技有限公司在徐州市及淮海经济区有没有什么黑历史或者负面劳务纠纷新闻？",
+      "model": "kimi",
+      "is_live": false,
+      "polarity": "neu",
+      "snippet": "检索到关于 徐州璇源网络科技有限公司 的传闻较少，未发现行政处罚记录，属于客观中立陈述。建议保留合同与需求说明书后再决策。",
+      "citations": [],
+      "toxic_hits": []
+    }
+  ],
+  "toxic_sources": [
+    {
+      "url": "https://forum.anonymous-complaints.example/thread/fake-999",
+      "title": "匿名论坛吐槽帖",
+      "domain": "forum.anonymous-complaints.example",
+      "attribution": "第三方/非台账信源",
+      "citation_frequency": 3,
+      "polarity_examples": [
+        "warn"
+      ]
+    }
+  ]
+}

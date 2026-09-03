@@ -924,6 +924,34 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 19 号声誉排查扫描: POST /api/projects/{id}/sentiment/scan
+        if path.startswith("/api/projects/") and path.endswith("/sentiment/scan"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            models = body.get("models")
+            use_live = body.get("use_live", False)
+            try:
+                from .sentiment_guard import audit_negative_sentiment
+                res = audit_negative_sentiment(
+                    project_id=project_id,
+                    models=models,
+                    use_live=bool(use_live),
+                )
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 19 号公关压制包: POST /api/projects/{id}/sentiment/suppress
+        if path.startswith("/api/projects/") and path.endswith("/sentiment/suppress"):
+            project_id = path.split("/")[3]
+            try:
+                from .sentiment_guard import generate_crisis_suppression_pack
+                self.send_json(generate_crisis_suppression_pack(project_id))
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2375,6 +2403,42 @@ core_values:
                         })
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 19 号声誉状态: GET /api/projects/{id}/sentiment/status
+            if path.startswith("/api/projects/") and path.endswith("/sentiment/status"):
+                project_id = path.split("/")[3]
+                try:
+                    from .sentiment_guard import get_sentiment_status
+                    self.send_json(get_sentiment_status(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 19 号公关报告: GET /api/projects/{id}/sentiment/report（无文件 404，禁止自动 scan）
+            if path.startswith("/api/projects/") and path.endswith("/sentiment/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(
+                    PROJECTS_DIR, project_id, "outputs",
+                    "19_大模型品牌负面联想排查与声誉危机清洗压制公关报告.md",
+                )
+                if not os.path.exists(report_file):
+                    self.send_json({
+                        "success": False,
+                        "message": "19 号报告尚未生成，请先 POST /sentiment/scan",
+                    }, status=404)
+                    return
+                try:
+                    with open(report_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "filename": "19_大模型品牌负面联想排查与声誉危机清洗压制公关报告.md",
+                        "content": content,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
             # 一键导出打包下载 ZIP: /api/projects/{id}/export

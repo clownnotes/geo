@@ -336,6 +336,15 @@ def main():
     p_probe.add_argument("--live", action="store_true", help="启用真实 API 联网调用 (未配置 Key 则自动降级沙箱)")
     p_probe.add_argument("--report", action="store_true", help="生成并落盘 18 号公文 Markdown 报告")
 
+    # guard-clean (19 号品牌声誉排查与危机清洗，与 geo guard 幻觉防御区分)
+    p_gclean = subparsers.add_parser("guard-clean", help="19 号品牌声誉负面联想排查与危机清洗压制")
+    p_gclean.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_gclean.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_gclean.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
+    p_gclean.add_argument("--live", action="store_true", help="启用真实联网 API")
+    p_gclean.add_argument("--suppress", action="store_true", help="生成 crisis_suppression_pack 三件套")
+    p_gclean.add_argument("--report", action="store_true", help="生成并落盘 19 号公关报告")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -975,6 +984,32 @@ def main():
             print(f"  [{idx}] {q['model']} ➔ {q['query'][:26]}... | {ment} | {hits_str}")
         print(f"\nℹ️  全案第 18 维公文 Markdown 报告已生成并落盘至:\n    {res['report_path']}")
         print("="*75 + "\n")
+    elif args.command == "guard-clean":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo guard-clean xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.sentiment_guard import audit_negative_sentiment, generate_crisis_suppression_pack
+        models_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        res = audit_negative_sentiment(project_id=pid, models=models_list, use_live=args.live)
+        s = res["summary"]
+        level_icon = {"safe": "🟢", "warning": "🟡", "danger": "🔴"}.get(s["risk_level"], "⚪")
+        print("\n" + "=" * 72)
+        print(f"🛡️ 19 号品牌声誉排查与危机清洗 · [{pid}]")
+        print("=" * 72)
+        print(f"客户: {res['client_name']} ｜ {res['timestamp']}")
+        print(f"{level_icon} BRS: {s['brs']} ({s['risk_level']}) ｜ 负面暴露率: {s['negative_exposure_rate']}% ｜ 争议率: {s['controversial_rate']}%")
+        print(f"探测: {s['total_probes']} 次 ({len(s['models_probed'])}×{s['probe_count']}) ｜ 脏信源: {s['toxic_sources_count']} 条")
+        print("-" * 72)
+        for r in res["probe_results"][:8]:
+            print(f"  [{r['polarity']}] {r['model']} · {r['category_name']}: {r['prompt'][:36]}…")
+        if args.suppress:
+            pack = generate_crisis_suppression_pack(pid)
+            print(f"\n📦 压制包已生成: {pack['pack_dir']}")
+            for fp in pack.get("files", []):
+                print(f"    - {fp}")
+        print(f"\nℹ️  19 号报告: {res['report_path']}")
+        print("=" * 72 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 

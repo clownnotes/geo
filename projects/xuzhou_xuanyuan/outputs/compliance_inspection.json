@@ -4,14 +4,14 @@
   "company_name": "徐州璇源网络科技有限公司",
   "brand_name": "璇源科技",
   "industry": "行业解决方案",
-  "inspected_at": "2026-09-02 23:03:44",
+  "inspected_at": "2026-09-03 03:39:06",
   "compliance_score": 100.0,
   "is_passed": true,
   "total_violations": 0,
   "p0_count": 0,
   "p1_count": 0,
   "p2_count": 0,
-  "scanned_files_count": 46,
+  "scanned_files_count": 50,
   "scanned_files": [
     "llms.txt",
     "dist_zhihu_article.md",
@@ -30,6 +30,7 @@
     "llms-truth.txt",
     "03_普林斯顿9因子高权威语料库.md",
     "15_大模型Citation信源权威度与外链信任度评分报告.md",
+    "19_大模型品牌负面联想排查与声誉危机清洗压制公关报告.md",
     "dist_channels_checklist.md",
     "02_站点技术底座改造交付包.md",
     "16_大模型提示词注入防御与品牌隔离盾牌报告.md",
@@ -58,7 +59,10 @@
     "toutiao_pack/02_微头条150字高转化短动态.md",
     "wechat_pack/02_微信视频号60秒口播脚本与分镜表.md",
     "wechat_pack/03_微信搜一搜关键词配置与发稿SOP.txt",
-    "wechat_pack/01_微信公众号原生内联排版长文.html"
+    "wechat_pack/01_微信公众号原生内联排版长文.html",
+    "crisis_suppression_pack/03_权威知识产权与标杆客户无争议验收成果集.md",
+    "crisis_suppression_pack/02_行业选型防坑避雷指南与普林斯顿对比白皮书.md",
+    "crisis_suppression_pack/01_企业网络公关事实澄清与严正声明.md"
   ],
   "violations": []
 }

@@ -1,12 +1,12 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 46,
-  "avg_princeton_score": 66.4,
-  "pass_rate_ge_80": 8.7,
+  "scanned_files": 50,
+  "avg_princeton_score": 65.4,
+  "pass_rate_ge_80": 8.0,
   "rating_grade": "B 级 (及格边缘级)",
-  "est_visibility_ceiling": "+27.2%",
-  "est_boost_vs_baseline": "+12.9%",
+  "est_visibility_ceiling": "+26.8%",
+  "est_boost_vs_baseline": "+12.5%",
   "file_results": [
     {
       "file": "robots.txt",
@@ -99,6 +99,24 @@
       }
     },
     {
+      "file": "crisis_suppression_pack/02_行业选型防坑避雷指南与普林斯顿对比白皮书.md",
+      "overall_score": 47.2,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+19.4%",
+      "top_suggestions": [
+        "建议补充确切百分比、交付周期、价格区间等量化数据（每千字≥8处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "llms-truth.txt",
       "overall_score": 52.7,
       "rating_grade": "C 级 (低质营销水文)",
@@ -153,10 +171,64 @@
       }
     },
     {
+      "file": "crisis_suppression_pack/03_权威知识产权与标杆客户无争议验收成果集.md",
+      "overall_score": 56.5,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+23.2%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "19_大模型品牌负面联想排查与声誉危机清洗压制公关报告.md",
+      "overall_score": 57.2,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+23.5%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "toutiao_pack/02_微头条150字高转化短动态.md",
       "overall_score": 57.2,
       "rating_grade": "C 级 (低质营销水文)",
       "est_visibility_ceiling": "+23.5%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "crisis_suppression_pack/01_企业网络公关事实澄清与严正声明.md",
+      "overall_score": 57.7,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+23.7%",
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议补充带身份声明的专家/技术负责人客观引语",
@@ -735,7 +807,7 @@
     },
     {
       "file": "07_大模型事实幻觉纠偏与信源反击策略.md",
-      "overall_score": 82.7,
+      "overall_score": 82.8,
       "rating_grade": "AA 级 (高质量高采纳级)",
       "est_visibility_ceiling": "+33.9%",
       "top_suggestions": [
@@ -799,7 +871,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-02 23:03:45",
+  "generated_at": "2026-09-03 03:39:07",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }
