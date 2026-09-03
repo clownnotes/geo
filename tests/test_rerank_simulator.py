@@ -231,8 +231,8 @@ class TestRerankSimulator(unittest.TestCase):
         self.assertFalse(res_sandbox["is_live_judged"])
         c1_score_sandbox = res_sandbox["top3"][0]["rerank_score"]
 
-        # 3. 验证 live 模式下 Mock 大模型裁判给出高分 95 分，精排得分被成功融合修正
-        with patch("tools.geo.rerank_simulator.call_model_raw", return_value="评分结果: 95 分"):
+        # 3. 验证 live 模式下 Mock 大模型裁判给出字典返回 {"content": "评分结果: 95 分"}，精排得分被成功融合修正
+        with patch("tools.geo.rerank_simulator.call_model_raw", return_value={"content": "评分结果: 95 分", "model": "doubao"}):
             res_live = RerankSandboxSimulator.simulate_query_rerank(
                 q, candidates, use_live=True, live_model="doubao"
             )

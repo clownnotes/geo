@@ -404,7 +404,8 @@ class RerankSandboxSimulator:
                     )
                     resp = call_model_raw(live_model, judge_prompt)
                     if resp:
-                        m_num = re.search(r"\b(\d{1,3})\b", resp)
+                        text = resp if isinstance(resp, str) else (resp or {}).get("content") or ""
+                        m_num = re.search(r"\b(\d{1,3})\b", text)
                         if m_num:
                             j_val = float(m_num.group(1))
                             if 0.0 <= j_val <= 100.0:
