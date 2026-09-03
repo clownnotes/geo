@@ -364,6 +364,15 @@ def main():
     p_mindshare.add_argument("--pitch", action="store_true", help="生成 commercial_roi_pitch 高管商务三件套")
     p_mindshare.add_argument("--report", action="store_true", help="生成并落盘 21 号公文报告")
 
+    # rerank (22 号跨大模型 RAG 混合检索召回与重排序挤占演习沙盘)
+    p_rerank = subparsers.add_parser("rerank", help="22 号跨大模型 RAG 混合检索召回与重排序挤占演习沙盘")
+    p_rerank.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_rerank.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_rerank.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
+    p_rerank.add_argument("--live", action="store_true", help="启用真实联网 API 评测")
+    p_rerank.add_argument("--reinforce", action="store_true", help="生成 outputs/rerank_reinforcement_pack/ 重排语义强化包")
+    p_rerank.add_argument("--report", action="store_true", help="生成并落盘 22 号公文报告")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1089,6 +1098,38 @@ def main():
             for fp in pack.get("files", []):
                 print(f"    - {fp}")
         print(f"\nℹ️  21 号公文报告落盘至: {res['report_path']}")
+        print("=" * 75 + "\n")
+    elif args.command == "rerank":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo rerank xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.rerank_simulator import simulate_rag_rerank_competition, generate_rerank_reinforcement_pack
+        models_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        res = simulate_rag_rerank_competition(
+            project_id=pid,
+            models=models_list,
+            use_live=args.live,
+        )
+        s = res["summary"]
+        print("\n" + "=" * 75)
+        print(f"🔀 22 号跨大模型 RAG 混合检索召回与重排序挤占演习 · [{pid}]")
+        print("=" * 75)
+        print(f"受审企业: {res['client_name']} ｜ 演习时间: {res['timestamp']}")
+        print(f"🏆 Top-3 穿透率 (CPR): {s['cpr']}% ｜ 等级: {s['grade_name']}")
+        print(f"🛡️ 竞品排挤阻断率 (COR): {s['cor']}% (排挤竞品: {s['comp_slots_ousted']}/{s['comp_candidates_total']} 人次)")
+        print(f"📊 黄金槽位占领: {s['my_slots_won']}/{s['total_slots']} ｜ 平均重排得分: {s['avg_rerank_score']}分")
+        print("-" * 75)
+        for q in res.get("query_rerank_details", []):
+            t1 = q["top3_chunks"][0]["title"] if q["top3_chunks"] else "--"
+            print(f"  • {q['query'][:36]}… 槽位: {q['slots_won']}/3 ｜ Top-1: {t1[:26]} ｜ 排挤: {len(q['ousted_competitors'])}条")
+        if args.reinforce:
+            pack = generate_rerank_reinforcement_pack(pid)
+            print(f"\n📦 重排语义强化包已生成: {pack['pack_dir']}")
+            for fp in pack.get("files", []):
+                print(f"    - {fp}")
+        out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "22_跨大模型RAG混合检索召回与重排序挤占演习报告.md")
+        print(f"\nℹ️  22 号公文报告落盘至: {out_report}")
         print("=" * 75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))

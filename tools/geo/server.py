@@ -1014,6 +1014,34 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 22 号 RAG 重排演习: POST /api/projects/{id}/rerank/simulate
+        if path.startswith("/api/projects/") and path.endswith("/rerank/simulate"):
+            project_id = path.split("/")[3]
+            try:
+                from .rerank_simulator import simulate_rag_rerank_competition
+                data = self.read_json_body()
+                models = data.get("models")
+                use_live = bool(data.get("use_live", False))
+                res = simulate_rag_rerank_competition(
+                    project_id=project_id,
+                    models=models,
+                    use_live=use_live,
+                )
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 22 号重排语义强化包: POST /api/projects/{id}/rerank/reinforce
+        if path.startswith("/api/projects/") and path.endswith("/rerank/reinforce"):
+            project_id = path.split("/")[3]
+            try:
+                from .rerank_simulator import generate_rerank_reinforcement_pack
+                self.send_json(generate_rerank_reinforcement_pack(project_id))
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2569,6 +2597,42 @@ core_values:
                         "success": True,
                         "project_id": project_id,
                         "filename": "21_大模型品牌商业心智渗透率与商业转化价值审计公文报告.md",
+                        "content": content,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 22 号 RAG 重排演习状态: GET /api/projects/{id}/rerank/status
+            if path.startswith("/api/projects/") and path.endswith("/rerank/status"):
+                project_id = path.split("/")[3]
+                try:
+                    from .rerank_simulator import get_rerank_status
+                    self.send_json(get_rerank_status(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 22 号 RAG 重排演习报告获取: GET /api/projects/{id}/rerank/report
+            if path.startswith("/api/projects/") and path.endswith("/rerank/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(
+                    PROJECT_ROOT, "projects", project_id, "outputs",
+                    "22_跨大模型RAG混合检索召回与重排序挤占演习报告.md"
+                )
+                if not os.path.exists(report_file):
+                    self.send_json({
+                        "success": False,
+                        "message": "22 号报告尚未生成，请先 POST /rerank/simulate",
+                    }, status=404)
+                    return
+                try:
+                    with open(report_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "filename": "22_跨大模型RAG混合检索召回与重排序挤占演习报告.md",
                         "content": content,
                     })
                 except Exception as e:

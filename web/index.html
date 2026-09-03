@@ -93,6 +93,10 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <button onclick="openRerankSimModal()" class="text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-blue-200 shadow-sm" title="22 号跨大模型 RAG 混合检索召回与重排序挤占演习沙盘">
+          <i data-lucide="shuffle" class="w-3.5 h-3.5 text-blue-600"></i>
+          <span>🔀 RAG 重排 (22)</span>
+        </button>
         <button onclick="openMindshareAuditModal()" class="text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-purple-200 shadow-sm" title="21 号大模型品牌商业心智渗透与商业转化价值量化审计">
           <i data-lucide="gem" class="w-3.5 h-3.5 text-purple-600"></i>
           <span>💎 心智价值 (21)</span>
@@ -929,6 +933,10 @@
             <button onclick="openMindshareAuditModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 transition flex items-center gap-1.5 shadow-sm" title="21 号大模型商业心智渗透率与商业转化价值量化审计中枢">
               <i data-lucide="gem" class="w-4 h-4 text-purple-600"></i>
               <span>💎 商业心智与价值审计 (21)</span>
+            </button>
+            <button onclick="openRerankSimModal()" class="py-2.5 px-3.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition flex items-center gap-1.5 shadow-sm" title="22 号跨大模型 RAG 混合检索召回与重排序挤占演习沙盘">
+              <i data-lucide="shuffle" class="w-4 h-4 text-blue-600"></i>
+              <span>🔀 RAG 重排演习沙盘 (22)</span>
             </button>
             <button onclick="openGuardModal()" class="py-2.5 px-3.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
@@ -3169,6 +3177,83 @@ GitHub 开源仓库：https://github.com/company/repo
           <div class="flex justify-between mb-2"><span class="text-xs font-bold" id="ma-report-name">21 号公文报告</span>
             <button onclick="copyMindshareReport()" class="text-xs px-2 py-1 bg-slate-100 rounded">复制</button></div>
           <div id="ma-report-content" class="markdown-body text-xs max-h-64 overflow-y-auto p-3 bg-slate-50 rounded border"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 22 号跨大模型 RAG 混合检索召回与重排序挤占演习模态 ================= -->
+  <div id="rerank-sim-modal" onclick="if(event.target === this) closeRerankSimModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 text-white shrink-0">
+        <div>
+          <h3 class="text-sm font-bold flex items-center gap-2">
+            <span>🔀 跨大模型 RAG 混合检索召回与重排序挤占演习</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">22 号沙盘</span>
+          </h3>
+          <p class="text-[11px] text-slate-300 mt-0.5">两阶段检索 (Dense+BM25 -> RRF 截断 -> Cross-Encoder 精排) · Top-3 黄金上下文穿透 · 竞品排挤防御</p>
+        </div>
+        <button onclick="closeRerankSimModal()" class="p-1 text-slate-400 hover:text-white rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-4 overflow-y-auto flex-1 bg-slate-50/50">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+              <input type="checkbox" id="rs-use-live" class="rounded border-slate-300 text-blue-600">
+              <span class="font-semibold text-blue-700">🌐 真实联网 API</span>
+            </label>
+            <span class="text-xs text-slate-500">两阶段: RRF 粗排截断 Top-10 ➔ Cross-Encoder 精排 Top-3</span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="triggerRerankSimulate()" id="btn-rs-sim" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow">开始重排演习</button>
+            <button onclick="triggerRerankReinforce()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow">生成强化三件套</button>
+            <button onclick="viewRerankReport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow">22 号公文报告</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">Top-3 黄金穿透率 (CPR)</div><div id="rs-cpr" class="text-2xl font-black text-blue-600 mt-1">--%</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">演习穿透等级</div><div id="rs-grade" class="text-sm font-black text-slate-800 mt-2">--</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">竞品排挤阻断率 (COR)</div><div id="rs-cor" class="text-2xl font-black text-emerald-600 mt-1">--%</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">黄金槽位占领</div><div id="rs-slots" class="text-2xl font-black text-indigo-600 mt-1">--/--</div></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-2.5 bg-slate-50 border-b text-xs font-bold text-slate-800 flex justify-between">
+              <span>RAG 多路召回与重排因子拆解</span>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>密集向量召回表现 (Dense Recall)</span><span id="rs-dense-val" class="font-bold text-blue-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="rs-dense-bar" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>稀疏词频覆盖率 (BM25 Coverage)</span><span id="rs-sparse-val" class="font-bold text-indigo-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="rs-sparse-bar" class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>权威存活台账加权得分 (AuthBonus)</span><span id="rs-auth-val" class="font-bold text-emerald-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="rs-auth-bar" class="bg-emerald-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>Top-3 黄金窗口留存率 (Top3 Retention)</span><span id="rs-top3-val" class="font-bold text-amber-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="rs-top3-bar" class="bg-amber-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-2.5 bg-slate-50 border-b text-xs font-bold text-slate-800">各意图 Top-3 挤占与竞品排挤明细</div>
+            <div class="overflow-y-auto max-h-56">
+              <table class="w-full text-xs">
+                <thead><tr class="bg-slate-100 text-slate-600"><th class="px-3 py-2 text-left">商业决策 Query</th><th class="px-2 py-2 text-center">槽位</th><th class="px-2 py-2 text-left">Top-1 黄金切片</th><th class="px-2 py-2 text-center">排挤竞品</th></tr></thead>
+                <tbody id="rs-query-body"><tr><td colspan="4" class="text-center py-6 text-slate-400">点击【开始重排演习】刷新</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="rs-report-box" class="hidden bg-white rounded-xl border p-4">
+          <div class="flex justify-between mb-2"><span class="text-xs font-bold" id="rs-report-name">22 号公文报告</span>
+            <button onclick="copyRerankReport()" class="text-xs px-2 py-1 bg-slate-100 rounded">复制</button></div>
+          <div id="rs-report-content" class="markdown-body text-xs max-h-64 overflow-y-auto p-3 bg-slate-50 rounded border"></div>
         </div>
       </div>
     </div>
@@ -8208,6 +8293,148 @@ GitHub 开源仓库：https://github.com/company/repo
     function copyMindshareReport() {
       if (!cachedMindshareReport) { showToast('暂无报告', 'warning'); return; }
       navigator.clipboard.writeText(cachedMindshareReport).then(() => showToast('已复制 21 号报告'));
+    }
+
+    // ================= 22 号跨大模型 RAG 混合检索召回与重排序挤占演习 =================
+    let cachedRerankReport = '';
+
+    async function openRerankSimModal() {
+      if (!currentProjectId) { showToast('请先选择项目', 'warning'); return; }
+      document.getElementById('rerank-sim-modal').classList.remove('hidden');
+      lucide.createIcons();
+      await fetchRerankStatus();
+    }
+
+    function closeRerankSimModal() {
+      document.getElementById('rerank-sim-modal').classList.add('hidden');
+    }
+
+    async function fetchRerankStatus() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/rerank/status`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.has_simulation) {
+          renderRerankData(d);
+        }
+      } catch (e) {
+        console.error('fetchRerankStatus error:', e);
+      }
+    }
+
+    function renderRerankData(d) {
+      const s = d.summary || {};
+      const r = d.radar_metrics || {};
+      document.getElementById('rs-cpr').textContent = `${s.cpr || 0}%`;
+      document.getElementById('rs-grade').textContent = s.grade_name || '--';
+      document.getElementById('rs-cor').textContent = `${s.cor || 0}%`;
+      document.getElementById('rs-slots').textContent = `${s.my_slots_won || 0}/${s.total_slots || 0}`;
+
+      // 雷达
+      const dense = r.dense_semantic_recall || 0;
+      const sparse = r.sparse_bm25_coverage || 0;
+      const auth = r.authority_bonus_rate || 0;
+      const top3 = r.top3_retention_rate || 0;
+
+      document.getElementById('rs-dense-val').textContent = `${dense}%`;
+      document.getElementById('rs-dense-bar').style.width = `${dense}%`;
+      document.getElementById('rs-sparse-val').textContent = `${sparse}%`;
+      document.getElementById('rs-sparse-bar').style.width = `${sparse}%`;
+      document.getElementById('rs-auth-val').textContent = `${auth}%`;
+      document.getElementById('rs-auth-bar').style.width = `${auth}%`;
+      document.getElementById('rs-top3-val').textContent = `${top3}%`;
+      document.getElementById('rs-top3-bar').style.width = `${top3}%`;
+
+      // 意图列表 (防御 XSS)
+      const qBody = document.getElementById('rs-query-body');
+      if (d.query_rerank_details && d.query_rerank_details.length) {
+        qBody.innerHTML = d.query_rerank_details.map(q => {
+          const t1 = (q.top3_chunks && q.top3_chunks[0]) ? q.top3_chunks[0].title : '--';
+          const oustedCount = (q.ousted_competitors || []).length;
+          return `
+            <tr class="border-b hover:bg-slate-50">
+              <td class="px-3 py-1.5 text-left text-slate-800 font-medium">${escapeHtmlSafe(q.query || '')}</td>
+              <td class="px-2 py-1.5 text-center font-bold text-blue-600">${Number(q.slots_won || 0)}/3</td>
+              <td class="px-2 py-1.5 text-left text-slate-700 text-[11px]">${escapeHtmlSafe(t1)}</td>
+              <td class="px-2 py-1.5 text-center text-emerald-600 font-medium">${oustedCount}条</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    async function triggerRerankSimulate() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-rs-sim');
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '演习中…';
+
+      const useLive = document.getElementById('rs-use-live').checked;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/rerank/simulate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAuthToken}` },
+          body: JSON.stringify({ use_live: useLive })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast(`RAG 重排演习完成！CPR: ${d.summary?.cpr}%`, 'success');
+          renderRerankData(d);
+        } else {
+          showToast(d.message || '演习失败', 'error');
+        }
+      } catch (e) {
+        showToast(`请求异常: ${e.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    }
+
+    async function triggerRerankReinforce() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/rerank/reinforce`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('已生成重排语义强化包三件套！', 'success');
+        } else {
+          showToast(d.message || '生成失败', 'error');
+        }
+      } catch (e) {
+        showToast(`请求异常: ${e.message}`, 'error');
+      }
+    }
+
+    async function viewRerankReport() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/rerank/report`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          cachedRerankReport = d.content || '';
+          document.getElementById('rs-report-box').classList.remove('hidden');
+          document.getElementById('rs-report-name').textContent = d.filename || '22 号公文报告';
+          document.getElementById('rs-report-content').innerHTML = marked.parse(cachedRerankReport);
+        } else {
+          showToast(d.message || '报告未生成', 'warning');
+        }
+      } catch (e) {
+        showToast(`获取报告失败: ${e.message}`, 'error');
+      }
+    }
+
+    function copyRerankReport() {
+      if (!cachedRerankReport) { showToast('暂无报告', 'warning'); return; }
+      navigator.clipboard.writeText(cachedRerankReport).then(() => showToast('已复制 22 号报告'));
     }
 
     async function handlePrincetonAudit() {
