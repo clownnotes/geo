@@ -904,6 +904,26 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 多大模型实时联网探测与 Citation 溯源触发 API: POST /api/projects/{id}/probing/run
+        if path.startswith("/api/projects/") and path.endswith("/probing/run"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            models = body.get("models")
+            query_sample_size = body.get("sample_size", 5)
+            use_live = body.get("use_live", False)
+            try:
+                from .probing import run_live_probing
+                res = run_live_probing(
+                    project_id=project_id,
+                    models=models,
+                    query_sample_size=int(query_sample_size),
+                    use_live=bool(use_live)
+                )
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2302,6 +2322,57 @@ core_values:
                         from .princeton import audit_project_deliverables_princeton
                         res = audit_project_deliverables_princeton(project_id)
                         self.send_json(res)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取实时探测状态与摘要: /api/projects/{id}/probing/status (GET)
+            if path.startswith("/api/projects/") and path.endswith("/probing/status"):
+                project_id = path.split("/")[3]
+                trace_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "live_probing_trace.json")
+                if os.path.exists(trace_file):
+                    try:
+                        with open(trace_file, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "has_probed": False,
+                        "message": "尚未执行实时探测，点击【立即启动探测】开始"
+                    })
+                return
+
+            # 获取 18 号 Citation 对账公文报告: /api/projects/{id}/probing/report (GET)
+            if path.startswith("/api/projects/") and path.endswith("/probing/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "18_大模型实时联网探测与Citation信源溯源对账报告.md")
+                if os.path.exists(report_file):
+                    try:
+                        with open(report_file, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        self.send_json({
+                            "success": True,
+                            "project_id": project_id,
+                            "filename": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
+                            "content": content
+                        })
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .probing import run_live_probing
+                        r = run_live_probing(project_id, query_sample_size=3, use_live=False)
+                        with open(r["report_path"], "r", encoding="utf-8") as f:
+                            content = f.read()
+                        self.send_json({
+                            "success": True,
+                            "project_id": project_id,
+                            "filename": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
+                            "content": content
+                        })
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)
                 return

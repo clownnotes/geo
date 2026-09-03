@@ -1,12 +1,12 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 45,
-  "avg_princeton_score": 66.2,
-  "pass_rate_ge_80": 8.9,
+  "scanned_files": 46,
+  "avg_princeton_score": 66.4,
+  "pass_rate_ge_80": 8.7,
   "rating_grade": "B 级 (及格边缘级)",
-  "est_visibility_ceiling": "+27.1%",
-  "est_boost_vs_baseline": "+12.8%",
+  "est_visibility_ceiling": "+27.2%",
+  "est_boost_vs_baseline": "+12.9%",
   "file_results": [
     {
       "file": "robots.txt",
@@ -487,6 +487,23 @@
       }
     },
     {
+      "file": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
+      "overall_score": 73.9,
+      "rating_grade": "A 级 (基本合格级)",
+      "est_visibility_ceiling": "+30.3%",
+      "top_suggestions": [
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "16_大模型提示词注入防御与品牌隔离盾牌报告.md",
       "overall_score": 74.0,
       "rating_grade": "A 级 (基本合格级)",
@@ -782,7 +799,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-02 21:57:47",
+  "generated_at": "2026-09-02 23:03:45",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

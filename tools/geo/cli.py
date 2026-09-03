@@ -327,6 +327,15 @@ def main():
     p_score.add_argument("--project", "-p", default=None, help="客户项目 ID（全案审计或绑定事实锚点重写）")
     p_score.add_argument("--audit", action="store_true", help="对 --project 指定项目执行全案 17 号质检审计")
 
+    # probe (多大模型实时联网探测与 Citation 信源溯源对账)
+    p_probe = subparsers.add_parser("probe", help="多大模型实时联网探测与 Citation 信源角标闭环对账")
+    p_probe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_probe.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_probe.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="待探测大模型列表 (英文逗号分隔)")
+    p_probe.add_argument("--sample", "-s", type=int, default=5, help="意图 Query 采样条数 (默认 5)")
+    p_probe.add_argument("--live", action="store_true", help="启用真实 API 联网调用 (未配置 Key 则自动降级沙箱)")
+    p_probe.add_argument("--report", action="store_true", help="生成并落盘 18 号公文 Markdown 报告")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -928,7 +937,44 @@ def main():
             for idx, c in enumerate(s["project_cards"], 1):
                 st = "🔴 高危" if c["risk_level"] == "danger" else ("🟡 预警" if c["risk_level"] == "warning" else "🟢 正常")
                 print(f"{idx:<4} {c['client_name'][:16]:<18} {c['industry'][:12]:<14} {c['fulfillment_score']:<8.1f} {c['effective_sov_pct']:<7.1f}% ¥{int(c['total_business_value']):<11,} {st}")
-            print("="*75 + "\n")
+    elif args.command == "probe":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定要探测的目标项目 ID，例如: python3 -m tools.geo probe xuzhou_xuanyuan")
+            sys.exit(1)
+
+        from tools.geo.probing import run_live_probing
+        models_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        res = run_live_probing(
+            project_id=pid,
+            models=models_list,
+            query_sample_size=args.sample,
+            use_live=args.live
+        )
+        summary = res["summary"]
+        breakdown = res["model_breakdown"]
+        queries = res["probed_queries"]
+
+        print("\n" + "="*75)
+        print(f"🤖 多大模型实时联网探测与 Citation 信源溯源对账 · [{pid}]")
+        print("="*75)
+        print(f"🏛️ 客户名称: {res['client_name']} ｜ 探测时间: {res['timestamp']}")
+        print(f"📊 探测规模: {summary['total_probes']} 次 ({len(summary['models_probed'])} 模型 × {summary['sample_queries_count']} 组 Query) ｜ 运行模式: {'真实联网 API' if summary['use_live'] else '确定性高保真沙箱'}")
+        print(f"📈 实测提及率 (Real SOV): {summary['real_sov_pct']}% ｜ 首位推荐率 (Top-1): {summary['top1_recommendation_rate']}%")
+        print(f"🎯 Citation 信源角标占有率: {summary['citation_share_pct']}% (总捕获 {summary['total_citations_captured']} 条角标中命中我方 04 台账资产 {summary['my_ledger_assets_hit_count']} 处)")
+        print("-"*75)
+        print(f"{'模型':<12} {'探测':<6} {'实测SOV':<10} {'首推率':<10} {'角标总数':<10} {'命中台账':<10} {'平均延时'}")
+        print("-"*75)
+        for m, st in breakdown.items():
+            print(f"{m:<12} {st['probes']:<6} {st['sov_pct']:<9.1f}% {st['top1_pct']:<9.1f}% {st['total_citations']:<10} {st['citation_hits']:<10} {st['avg_latency_ms']}ms")
+        print("-"*75)
+        print("🔍 意图 Query Citation 溯源采样流水:")
+        for idx, q in enumerate(queries[:6], 1):
+            ment = f"✅ 首位推荐" if q["is_top1"] else ("🟢 提及" if q["is_mentioned"] else "⚪ 未提")
+            hits_str = f"命中台账 {q['hits_count']} 处" if q['hits_count'] > 0 else "未命中台账"
+            print(f"  [{idx}] {q['model']} ➔ {q['query'][:26]}... | {ment} | {hits_str}")
+        print(f"\nℹ️  全案第 18 维公文 Markdown 报告已生成并落盘至:\n    {res['report_path']}")
+        print("="*75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 

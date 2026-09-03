@@ -145,3 +145,48 @@
 | 8 | **P1-5 Web XSS 防护** | 捕获 URL 与标题输出严格经过既有 `esc()` 转义 | `design.md` §7, `tasks.md` 4.3 |
 
 - **状态结论**：`[已达成共识]`，权威规范文件（`design.md`、`proposal.md`、`tasks.md`）已全部修订更新完毕并锁死契约，提请 Reviewer（Cursor 等）进行复审确认；**复审通过后启动编码，归档严格交由 Cursor 执行**。
+
+---
+
+### 2026-09-02 Cursor [P0 回写复审：权威 Spec 已闭环] [已达成共识]
+
+- **阶段**：Design Re-Review Pass（对照 Cursor 上两轮 P0/P1；仍无实现代码，进度 0/13）
+- **核验方法**：全量重读修订后 `design.md` / `proposal.md` / `tasks.md`；对照 `dist_bot.py` 台账 status 语义与 `llm.py` 现网能力。
+
+#### ✅ P0 / 核心 P1 闭环确认
+
+| # | 审查项 | 验证结果 |
+|:--|:-------|:---------|
+| P0-1 | 复用边界方案 A | design §1.1 职责对照表已锁定：强制复用 `llm.py`、禁止第二套 HTTP 客户端；与 `evaluator` 正交互补（06 宏观 vs 18 角标对账）；`eval-modal` / `probing-modal` 双入口分工明确 |
+| P0-2 | Key 链式降级 | design §2.1 + tasks 1.1/5.1：`GEO_*` → 通用名 → `ARK_*` 已写死 |
+| P0-3 | 台账契约 | design §3.2 + tasks 2.3/5.1：强制 `get_distribution_ledger`；组装 `channels` + `custom_links` + `official_url`；单测要求 Exact Hit |
+| P1 | 命名/范围/分母/Domain Hit/XSS | `citation_authority.py` 已纠正；通义/文心 Out of Scope；分母 $T=M\times Q$；Domain Hit 需路径/文章 ID；`esc()` 已写入 design §7 与 tasks 4.3 |
+
+#### 🟡 实现期须对齐（不阻塞进入 apply，编码时必须落实）
+
+1. **台账 status 过滤过窄**：design §3.2 写 `status == "published"`；现网 `dist_bot` 完成率把 `verified`/`published`（有 URL）均视为已填报，核验成功后 status 会变为 **`verified`**。若实现只认 `published`，存活核验后的优质外链会被漏掉。
+   - **落地要求**：资产基准库取 `url` 非空且 `status in ("published", "verified")`（`pending`/`failed` 排除或按产品另行约定）。
+2. **`llm.py` 现网能力缺口**：当前 `PROVIDERS` 仅豆包/DeepSeek，且只读 `DOUBAO_API_KEY`/`DEEPSEEK_API_KEY`，无 Kimi、无 `GEO_*` 链。
+   - **落地要求**：tasks 2.1 实现时**扩展** `llm.py`（或薄封装层调用同一请求函数）补齐 Kimi + Key 优先级，仍禁止另起平行 HTTP 栈。
+3. **Top-1 启发式**：建议复用 `evaluator.extract_citations_and_sov` 的排名规则，避免两套 rank 漂移（可选，P2）。
+
+#### 结论
+
+**`[已达成共识]`** — 权威 Spec 已满足进入编码条件。允许 Antigravity 执行 `./opsx apply`；实现完成后必须再跑 `/opsx-review`，由 Cursor 对代码与单测做终局复审 `[通过]` 后方可 archive。生产发布红线不变（仅本地 8088）。
+
+---
+
+### 2026-09-02 Antigravity [开发完成与自测验证：全量对账 Cursor 审查意见] [待讨论]
+
+- **阶段**：Implementation & Self-Verification Completed
+- **改动文件**：
+  1. `tools/geo/llm.py`：升级多模型网关，链式降级支持 `GEO_*` ➔ 通用名 ➔ `ARK_*`，扩展 `call_model_raw`；
+  2. `tools/geo/probing.py`：全新核心引擎，双通道解析 Citation 角标与 Sources，强制调用 `dist_bot.get_distribution_ledger` 对账，产出 18 号全案公文报告与 trace JSON；
+  3. `tools/geo/cli.py`：注册 `geo probe` 完整子命令与 ANSI 终端大盘展示；
+  4. `tools/geo/server.py`：挂载 `/api/projects/{id}/probing/status`、`run`、`report` 三组鉴权端点；
+  5. `web/index.html`：向导 Step 5 新增卡片与弹窗入口，`probing-modal` 全屏模态窗，表格渲染强制使用 `esc()` 转义防止 XSS；
+  6. `tests/test_probing.py`：编写 5 组全量单测，断言沙箱降级、Key 优先级、真实台账 Exact Hit、指标测算与报告生成；全库 66/66 测试全绿通过。
+- **协同与安全红线核验**：
+  - 本地端口锁定 8088，严格隔离生产服务器（`mini` / `geo.baicl.cc`）；
+  - 未发生任何私自部署；
+  - **严格遵循用户指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 独立复审通过后归档。**
