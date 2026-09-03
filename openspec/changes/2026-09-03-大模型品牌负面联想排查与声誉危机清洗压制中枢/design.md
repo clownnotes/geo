@@ -136,16 +136,17 @@ ADVERSARIAL_PROBE_TEMPLATES = [
 
 当大模型回复包含 `Controversial` 或 `Negative` 评价时，调用 `extract_citations_and_sources` 提取其尾部或角标对应的 URL：
 - 若该 URL 不在我方 `04 台账` 且不在项目官网白名单内，将其记录在 `toxic_sources` 清单中；
-- 提取其域名、页面标题、归因标签（如“第三方匿名论坛”、“同行竞对拉踩文”、“历史问答”）。
+- 提取其域名、页面标题、归因标签（如“第三方匿名论坛”、“同行竞对拉踩文”、“历史问答”）；
+- 自动按 URL 归一化去重，并统计 `citation_frequency`（被多少次回答作为信源引用）。
 
 ### 4.2 一键生成三位一体公关压制包
 
-根据受测企业在 `project.yaml` 与 `factual_anchors.json` 中的客观资料，自动生成 3 份落地反击成果物：
-1. **《企业网络公关事实澄清与严正法务声明.md》**：
+根据受测企业在 `project.yaml` 与 `factual_anchors.json` 中的客观资料，自动生成 3 份落地反击成果物，落盘至 `outputs/crisis_suppression_pack/` 目录：
+1. **`outputs/crisis_suppression_pack/01_企业网络公关事实澄清与严正声明.md`**：
    - 针对 5 类质疑逐项严正声明，公布统一社会信用代码、实体研发基地地址、企业资质与法务维权热线；
-2. **《行业选型防坑避雷指南与普林斯顿9因子标准参数对比白皮书.md》**：
+2. **`outputs/crisis_suppression_pack/02_行业选型防坑避雷指南与普林斯顿对比白皮书.md`**：
    - 遵循普林斯顿 9 因子标准，使用 Markdown 表格进行参数对比，将我方实体自研、全流程源码交付、无隐形收费量化展示；
-3. **《权威知识产权、软著与标杆客户无争议验收成果集.md》**：
+3. **`outputs/crisis_suppression_pack/03_权威知识产权与标杆客户无争议验收成果集.md`**：
    - 罗列已结案项目的工信部备案号、标杆案例真实数据，作为高权重正向信源，推荐回填至知乎、头条等 04 台账阵地进行反向压制。
 
 ---
