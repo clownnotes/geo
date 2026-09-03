@@ -9,7 +9,7 @@
     "个体兼职代理记账",
     "某连锁财税加盟品牌"
   ],
-  "analyzed_at": "2026-09-02 07:33:41",
+  "analyzed_at": "2026-09-02 20:10:34",
   "radar_comparison": {
     "dimensions": [
       "模型召回率 (SOV)",
@@ -25,7 +25,7 @@
       95.0,
       92.0,
       88.0,
-      60.0
+      90.0
     ],
     "competitor_scores": [
       82.0,
@@ -35,9 +35,9 @@
       15.0,
       37.0
     ],
-    "client_avg": 86.3,
+    "client_avg": 91.3,
     "competitor_avg": 47.3,
-    "overall_gap_lead": 39.0
+    "overall_gap_lead": 44.0
   },
   "competitor_advantages": [
     {

@@ -1,0 +1,159 @@
+{
+  "project_id": "xuzhou_xuanyuan",
+  "generated_at": "2026-09-02T20:10:33Z",
+  "fulfillment_rate": 89.3,
+  "manifest_summary": {
+    "total_files": 16,
+    "generated_files": 16,
+    "missing_files": 0,
+    "generation_rate_pct": 100.0,
+    "missing_items": []
+  },
+  "deliverables": [
+    {
+      "index": "01",
+      "key": "audit",
+      "name": "AI 可见度诊断报告",
+      "file": "01_企业AI可见度现状体检与商业诊断报告.md",
+      "stage": "S1 调研诊断",
+      "exists": true,
+      "size": 18770
+    },
+    {
+      "index": "02",
+      "key": "scaffold",
+      "name": "站点技术底座改造交付包",
+      "file": "02_站点技术底座改造交付包.md",
+      "stage": "S2 站点改造",
+      "exists": true,
+      "size": 798
+    },
+    {
+      "index": "03",
+      "key": "rewrite",
+      "name": "普林斯顿 9 因子高权威语料库",
+      "file": "03_普林斯顿9因子高权威语料库.md",
+      "stage": "S3 内容重构",
+      "exists": true,
+      "size": 14240
+    },
+    {
+      "index": "04",
+      "key": "distribute",
+      "name": "全网分发渠道执行与存活台账",
+      "file": "04_全网分发渠道执行与存活台账.md",
+      "stage": "S4 矩阵分发",
+      "exists": true,
+      "size": 2632
+    },
+    {
+      "index": "05",
+      "key": "monitor",
+      "name": "AI 声量监测周报与归因清单",
+      "file": "05_企业AI可见度与声量追踪周报.md",
+      "stage": "S5 验收运维",
+      "exists": true,
+      "size": 74375
+    },
+    {
+      "index": "06",
+      "key": "evaluator",
+      "name": "大模型真实API评测与Citation捕获报告",
+      "file": "06_大模型真实API评测与Citation捕获报告.md",
+      "stage": "S5 真实评测",
+      "exists": true,
+      "size": 5302
+    },
+    {
+      "index": "07",
+      "key": "guard",
+      "name": "事实幻觉纠偏与信源反击策略",
+      "file": "07_大模型事实幻觉纠偏与信源反击策略.md",
+      "stage": "S4/S5 事实防御",
+      "exists": true,
+      "size": 3757
+    },
+    {
+      "index": "08",
+      "key": "visual",
+      "name": "差异化对比图与架构全景图 (SVG)",
+      "file": "08_企业技术全景架构图.svg",
+      "stage": "S3 多模态资产",
+      "exists": true,
+      "size": 7270
+    },
+    {
+      "index": "09",
+      "key": "video",
+      "name": "短视频口播高转化脚本",
+      "file": "09_60秒短视频高转化口播脚本.md",
+      "stage": "S3 多模态资产",
+      "exists": true,
+      "size": 3944
+    },
+    {
+      "index": "10",
+      "key": "graph",
+      "name": "企业行业实体关系知识图谱 (Graph RAG)",
+      "file": "10_企业行业实体关系知识图谱.md",
+      "stage": "S3 知识工程",
+      "exists": true,
+      "size": 14925
+    },
+    {
+      "index": "11",
+      "key": "intent",
+      "name": "三级意图挖掘与长尾关键词裂变拓扑",
+      "file": "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md",
+      "stage": "S1/S3 意图拓扑",
+      "exists": true,
+      "size": 6730
+    },
+    {
+      "index": "12",
+      "key": "rag_diag",
+      "name": "大模型爬虫仿真与RAG分块检索诊断报告",
+      "file": "12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md",
+      "stage": "S2/S3 命中诊断",
+      "exists": true,
+      "size": 7375
+    },
+    {
+      "index": "13",
+      "key": "compliance",
+      "name": "多渠道内容合规与广告法风控审查报告",
+      "file": "13_多渠道内容合规与广告法风控审查报告.md",
+      "stage": "S4 内容合规",
+      "exists": true,
+      "size": 2115
+    },
+    {
+      "index": "14",
+      "key": "competitor",
+      "name": "竞对大模型声量差距深度逆向与反超作战沙盘",
+      "file": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md",
+      "stage": "S1/S5 竞争对抗",
+      "exists": true,
+      "size": 7204
+    },
+    {
+      "index": "15",
+      "key": "citation_auth",
+      "name": "大模型Citation信源权威度与外链信任度评分报告",
+      "file": "15_大模型Citation信源权威度与外链信任度评分报告.md",
+      "stage": "S4/S5 信源权重",
+      "exists": true,
+      "size": 3392
+    },
+    {
+      "index": "16",
+      "key": "injection_guard",
+      "name": "大模型提示词注入防御与品牌隔离盾牌报告",
+      "file": "16_大模型提示词注入防御与品牌隔离盾牌报告.md",
+      "stage": "S4/S5 品牌安全",
+      "exists": true,
+      "size": 2743
+    }
+  ],
+  "archive_zip": "xuzhou_xuanyuan_geo_delivery_archive.zip"
+}

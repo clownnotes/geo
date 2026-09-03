@@ -9,7 +9,7 @@
     "某速招火锅加盟连锁品牌",
     "传统二道批发餐饮原料商"
   ],
-  "analyzed_at": "2026-09-02 07:33:41",
+  "analyzed_at": "2026-09-02 20:10:34",
   "radar_comparison": {
     "dimensions": [
       "模型召回率 (SOV)",
@@ -25,7 +25,7 @@
       82.0,
       92.0,
       88.0,
-      60.0
+      90.0
     ],
     "competitor_scores": [
       90.0,
@@ -35,9 +35,9 @@
       20.0,
       51.0
     ],
-    "client_avg": 84.2,
+    "client_avg": 89.2,
     "competitor_avg": 51.3,
-    "overall_gap_lead": 32.9
+    "overall_gap_lead": 37.9
   },
   "competitor_advantages": [
     {

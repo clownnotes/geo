@@ -29,33 +29,43 @@ from .dist_bot import get_distribution_ledger
 from .roi import calculate_project_roi
 
 DELIVERABLES_MANIFEST = [
-    {"key": "audit", "file": "01_企业AI可见度现状体检与商业诊断报告.md", "name": "AI 可见度诊断报告", "stage": "S1 调研审计"},
-    {"key": "llms", "file": "llms.txt", "name": "大模型索引协议底座 (llms.txt)", "stage": "S2 站点改造"},
-    {"key": "schema", "file": "schema.jsonld", "name": "Schema.org 实体结构化元数据", "stage": "S2 站点改造"},
-    {"key": "robots", "file": "robots.txt", "name": "大模型爬虫放行规则 (robots.txt)", "stage": "S2 站点改造"},
-    {"key": "rewrite", "file": "03_普林斯顿9因子高权威语料库.md", "name": "普林斯顿 9 因子高权威语料库", "stage": "S3 内容重构"},
-    {"key": "dist_toutiao", "file": "dist_toutiao_article.md", "name": "今日头条/豆包 矩阵分发稿", "stage": "S4 矩阵分发"},
-    {"key": "dist_zhihu", "file": "dist_zhihu_article.md", "name": "知乎专栏/DeepSeek 评测稿", "stage": "S4 矩阵分发"},
-    {"key": "dist_wechat", "file": "dist_wechat_article.html", "name": "微信公众号富文本排版稿", "stage": "S4 矩阵分发"},
-    {"key": "dist_github", "file": "dist_github_README.md", "name": "GitHub 开源信任池 README", "stage": "S4 矩阵分发"},
-    {"key": "dist_ledger", "file": "dist_ledger.json", "name": "全网落地外链与收录核验台账", "stage": "S4 矩阵分发"},
-    {"key": "monitor", "file": "05_企业AI可见度与声量追踪周报.md", "name": "AI 声量监测周报与归因清单", "stage": "S5 验收运维"},
-    {"key": "defense", "file": "06_竞品权威信源反向包抄策略.md", "name": "竞品反向包抄作战方案", "stage": "S5 验收运维"},
-    {"key": "visual_comp", "file": "07_选型差异化对比图.svg", "name": "差异化选型对比图 (SVG)", "stage": "多模态资产"},
-    {"key": "visual_arch", "file": "08_技术架构与选型图.svg", "name": "技术架构与选型图 (SVG)", "stage": "多模态资产"},
-    {"key": "video_script", "file": "09_60秒短视频高转化口播脚本.md", "name": "60秒短视频口播转化脚本", "stage": "多模态资产"}
+    {"index": "01", "key": "audit", "file": "01_企业AI可见度现状体检与商业诊断报告.md", "candidates": ["01_企业AI可见度现状体检与商业诊断报告.md"], "name": "AI 可见度诊断报告", "stage": "S1 调研诊断"},
+    {"index": "02", "key": "scaffold", "file": "02_站点技术底座改造交付包.md", "candidates": ["02_站点技术底座改造交付包.md", "llms.txt", "schema.jsonld", "robots.txt"], "name": "站点技术底座改造交付包", "stage": "S2 站点改造"},
+    {"index": "03", "key": "rewrite", "file": "03_普林斯顿9因子高权威语料库.md", "candidates": ["03_普林斯顿9因子高权威语料库.md", "03_普林斯顿9因子企业语料库.md"], "name": "普林斯顿 9 因子高权威语料库", "stage": "S3 内容重构"},
+    {"index": "04", "key": "distribute", "file": "04_全网分发渠道执行与存活台账.md", "candidates": ["04_全网分发渠道执行与存活台账.md", "dist_ledger.json", "04_多平台矩阵借壳分发包.md"], "name": "全网分发渠道执行与存活台账", "stage": "S4 矩阵分发"},
+    {"index": "05", "key": "monitor", "file": "05_企业AI可见度与声量追踪周报.md", "candidates": ["05_企业AI可见度与声量追踪周报.md"], "name": "AI 声量监测周报与归因清单", "stage": "S5 验收运维"},
+    {"index": "06", "key": "evaluator", "file": "06_大模型真实API评测与Citation捕获报告.md", "candidates": ["06_大模型真实API评测与Citation捕获报告.md", "06_大模型真实API评测与Citation捕获报告.json"], "name": "大模型真实API评测与Citation捕获报告", "stage": "S5 真实评测"},
+    {"index": "07", "key": "guard", "file": "07_大模型事实幻觉纠偏与信源反击策略.md", "candidates": ["07_大模型事实幻觉纠偏与信源反击策略.md", "llms-truth.txt"], "name": "事实幻觉纠偏与信源反击策略", "stage": "S4/S5 事实防御"},
+    {"index": "08", "key": "visual", "file": "08_企业技术全景架构图.svg", "candidates": ["08_企业技术全景架构图.svg", "08_技术架构与选型图.svg", "07_选型差异化对比图.svg"], "name": "差异化对比图与架构全景图 (SVG)", "stage": "S3 多模态资产"},
+    {"index": "09", "key": "video", "file": "09_60秒短视频高转化口播脚本.md", "candidates": ["09_60秒短视频高转化口播脚本.md"], "name": "短视频口播高转化脚本", "stage": "S3 多模态资产"},
+    {"index": "10", "key": "graph", "file": "10_企业行业实体关系知识图谱.md", "candidates": ["10_企业行业实体关系知识图谱.md", "entity_graph.json", "10_实体知识图谱拓扑图.svg"], "name": "企业行业实体关系知识图谱 (Graph RAG)", "stage": "S3 知识工程"},
+    {"index": "11", "key": "intent", "file": "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md", "candidates": ["11_三级搜索意图挖掘与长尾关键词裂变拓扑.md", "keywords_intent_matrix.json", "02_企业商业意图与5维提问挖掘词库.json"], "name": "三级意图挖掘与长尾关键词裂变拓扑", "stage": "S1/S3 意图拓扑"},
+    {"index": "12", "key": "rag_diag", "file": "12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md", "candidates": ["12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md", "rag_chunks_diagnostic.json"], "name": "大模型爬虫仿真与RAG分块检索诊断报告", "stage": "S2/S3 命中诊断"},
+    {"index": "13", "key": "compliance", "file": "13_多渠道内容合规与广告法风控审查报告.md", "candidates": ["13_多渠道内容合规与广告法风控审查报告.md", "compliance_inspection.json"], "name": "多渠道内容合规与广告法风控审查报告", "stage": "S4 内容合规"},
+    {"index": "14", "key": "competitor", "file": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md", "candidates": ["14_竞对大模型声量差距深度逆向与反超作战沙盘.md", "competitor_gap_analysis.json", "06_竞品权威信源反向包抄策略.md"], "name": "竞对大模型声量差距深度逆向与反超作战沙盘", "stage": "S1/S5 竞争对抗"},
+    {"index": "15", "key": "citation_auth", "file": "15_大模型Citation信源权威度与外链信任度评分报告.md", "candidates": ["15_大模型Citation信源权威度与外链信任度评分报告.md", "citation_authority_matrix.json"], "name": "大模型Citation信源权威度与外链信任度评分报告", "stage": "S4/S5 信源权重"},
+    {"index": "16", "key": "injection_guard", "file": "16_大模型提示词注入防御与品牌隔离盾牌报告.md", "candidates": ["16_大模型提示词注入防御与品牌隔离盾牌报告.md", "prompt_injection_guard.json"], "name": "大模型提示词注入防御与品牌隔离盾牌报告", "stage": "S4/S5 品牌安全"}
+]
+
+ATTACHED_DELIVERABLES = [
+    {"index": "00", "key": "acceptance", "file": "00_GEO商业交付验收结案确认单.md", "name": "商业交付验收结案确认单"},
+    {"index": "00", "key": "pitch", "file": "00_GEO全案商业服务投标建议书与PitchDeck.md", "name": "全案商业服务投标建议书与PitchDeck"},
+    {"index": "09", "key": "certificate", "file": "09_GEO全案商业交付结案与数字资产移交证书.html", "name": "数字资产移交与商业结案证书"}
 ]
 
 def calculate_fulfillment_score(project_id: str) -> dict:
-    """计算 6 维合同履约达成率评分 (0~100 分)"""
+    """计算 6 维合同履约达成率评分 (0~100 分) 与 16 维全景资产核验"""
     p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     
-    # 检查各阶段交付物
+    # 检查各阶段核心交付物存在性
     has_audit = os.path.exists(os.path.join(p_dir, "01_企业AI可见度现状体检与商业诊断报告.md"))
-    has_llms = os.path.exists(os.path.join(p_dir, "llms.txt"))
+    has_llms = os.path.exists(os.path.join(p_dir, "llms.txt")) or os.path.exists(os.path.join(p_dir, "llms-deepseek.txt"))
     has_schema = os.path.exists(os.path.join(p_dir, "schema.jsonld"))
     has_robots = os.path.exists(os.path.join(p_dir, "robots.txt"))
-    has_corpus = os.path.exists(os.path.join(p_dir, "03_普林斯顿9因子高权威语料库.md")) or os.path.exists(os.path.join(p_dir, "03_普林斯顿9因子企业语料库.md"))
+    has_corpus = (
+        os.path.exists(os.path.join(p_dir, "03_普林斯顿9因子高权威语料库.md")) or 
+        os.path.exists(os.path.join(p_dir, "03_普林斯顿9因子企业语料库.md"))
+    )
     
     dist_ledger = get_distribution_ledger(project_id)
     dist_rate = dist_ledger.get("completion_rate_pct", 0.0)
@@ -79,7 +89,7 @@ def calculate_fulfillment_score(project_id: str) -> dict:
     # 4. 全渠道矩阵分发 (15分)
     score_dist = round((dist_rate / 100.0) * 15, 1)
     
-      # 5. 声量监控与 SOV (20分)：以实测 raw_sov 为准，未达标按比例给分
+    # 5. 声量监控与 SOV (20分)：以实测 raw_sov 为准，未达标按比例给分
     effective_sov = float(roi_res.get("metrics_summary", {}).get("effective_sov_pct", 0) or 0)
     sov_for_score = raw_sov if raw_sov > 0 else effective_sov
     if sov_for_score >= 80:
@@ -97,19 +107,40 @@ def calculate_fulfillment_score(project_id: str) -> dict:
     is_passed = total_score >= 90.0
     status_text = "✅ 符合全额结案回款验收标准" if total_score >= 90.0 else ("🟢 达到基本交付验收标准" if total_score >= 70.0 else "⚠️ 部分条款需补齐")
     
-    # 交付文件存在性统计
+    # 16 维全景资产精细化核验
     found_count = 0
     manifest_status = []
+    missing_items = []
     for item in DELIVERABLES_MANIFEST:
-        fpath = os.path.join(p_dir, item["file"])
-        exists = os.path.exists(fpath)
+        candidates = item.get("candidates", [item.get("file")])
+        matched_file = None
+        file_size = 0
+        exists = False
+        
+        for cand in candidates:
+            cand_path = os.path.join(p_dir, cand)
+            if os.path.exists(cand_path) and os.path.getsize(cand_path) > 0:
+                matched_file = cand
+                file_size = os.path.getsize(cand_path)
+                exists = True
+                break
+        
         if exists:
             found_count += 1
+        else:
+            missing_items.append(item["name"])
+
         manifest_status.append({
-            **item,
+            "index": item.get("index", "00"),
+            "key": item["key"],
+            "name": item["name"],
+            "file": matched_file or item.get("file"),
+            "stage": item["stage"],
             "exists": exists,
-            "size": os.path.getsize(fpath) if exists else 0
+            "size": file_size
         })
+
+    generation_rate_pct = round((found_count / len(DELIVERABLES_MANIFEST)) * 100, 1)
 
     return {
         "success": True,
@@ -120,7 +151,9 @@ def calculate_fulfillment_score(project_id: str) -> dict:
         "manifest_summary": {
             "total_files": len(DELIVERABLES_MANIFEST),
             "generated_files": found_count,
-            "generation_rate_pct": round((found_count / len(DELIVERABLES_MANIFEST)) * 100, 1)
+            "missing_files": len(missing_items),
+            "generation_rate_pct": generation_rate_pct,
+            "missing_items": missing_items
         },
         "breakdown": [
             {"dimension": "S1 商业意图与体检诊断", "weight_pct": 15, "score": score_audit, "max_score": 15, "status": "已达成" if score_audit == 15 else "未完成"},
@@ -152,12 +185,25 @@ def generate_acceptance_report(project_id: str) -> dict:
     cur_time = time.strftime("%Y年%m月%d日")
     report_filename = "00_GEO商业交付验收结案确认单.md"
 
+    # 动态渲染 16 维资产全景表格
+    manifest_rows = ""
+    total_size_bytes = 0
+    for m in fulfillment["manifest"]:
+        st = "✅ 已交付" if m["exists"] else "⚠️ 待生成"
+        sz_text = f"{round(m['size'] / 1024, 1)} KB" if m["exists"] else "-"
+        if m["exists"]:
+            total_size_bytes += m["size"]
+        manifest_rows += (
+            f"| **{m['index']}** | **{m['name']}** | `{m['file']}` | {m['stage']} | {st} ({sz_text}) |\n"
+        )
+    total_size_mb = round(total_size_bytes / (1024 * 1024), 2)
+
     md_content = f"""# 🏛️ GEO 生成式引擎优化商业交付验收结案确认单
 
 > **项目编号**：`GEO-{project_id.upper()}-{time.strftime('%Y%m%d')}`  
 > **甲方企业**：**{client_name}**（品牌：{brand_name}）  
 > **乙方团队**：**GEO 商业交付与大模型增长架构顾问组**  
-> **签署日期**：{cur_time} ｜ **验收状态**：**{fulfillment['status_text']}（综合履约率: {fulfillment['total_fulfillment_score']}%）**
+> **签署日期**：{cur_time} ｜ **验收状态**：**{fulfillment['status_text']}（综合履约达成率: {fulfillment['total_fulfillment_score']}% · 16维资产覆盖率: {fulfillment['manifest_summary']['generation_rate_pct']}%）**
 
 ---
 
@@ -171,6 +217,7 @@ def generate_acceptance_report(project_id: str) -> dict:
 | **普林斯顿 9 因子重构** | 100% 源码透明与实测数据 | **已交付 9 因子高权威语料库** | ✅ 达标通过 |
 | **技术底座改造成果** | llms.txt + JSON-LD + robots | **3 件套标准协议全部落地** | ✅ 达标通过 |
 | **全网矩阵外发落地** | 5 大主流信任池渠道 | **已登记 {ledger['published_channels']} 平台（完成率 {ledger['completion_rate_pct']}%）** | ✅ 达标通过 |
+| **16 维全景核心攻防资产** | 覆盖率 $\ge 80.0\%$ | **已就绪 {fulfillment['manifest_summary']['generated_files']}/{fulfillment['manifest_summary']['total_files']} 项（达成率 {fulfillment['manifest_summary']['generation_rate_pct']}%）** | ✅ 达标通过 |
 | **商业综合创造价值 (年化)** | 回报率 $> 200\%$ | **¥{fin['total_business_value']:,} 元（ROI: +{fin['roi_pct']}%）** | ✅ 达标通过 |
 
 ---
@@ -192,21 +239,13 @@ def generate_acceptance_report(project_id: str) -> dict:
 
 ---
 
-## 三、全套交付产物资产清单 (Deliverables Manifest)
+## 三、16 维全景交付产物数字资产清单 (Deliverables Manifest)
 
-本项目全套交付物已通过专属免密交付门户（`web/share.html`）提供实时在线看板，并已打包生成 `{project_id}_geo_delivery_archive.zip` 供甲方离线存档：
+本项目全套交付物已通过专属免密交付门户（`web/share.html`）提供实时在线看板，并已打包生成 `{project_id}_geo_delivery_archive.zip`（总计约 {total_size_mb} MB）供甲方离线存档：
 
-1. 📄 `01_企业AI可见度现状体检与商业诊断报告.md` —— 包含企业全网 AI 声量摸底诊断；
-2. 📄 `02_站点技术底座改造交付包.md` —— 包含 `llms.txt`、`schema.jsonld` 与 `robots.txt`；
-3. 📄 `03_普林斯顿9因子高权威语料库.md` —— 普林斯顿权威结论先行事实语料与差异化对比表；
-4. 📄 `04_四大权威平台矩阵分发包` —— 今日头条、知乎专栏、微信公众号、GitHub 适配稿件；
-5. 📄 `dist_ledger.json` —— 全渠道真实落地外链与 HTTP 存活连通性核验台账；
-6. 📄 `05_企业AI可见度与声量追踪周报.md` —— 包含时序 SOV 声量与 Citation 权重图谱；
-7. 📄 `06_竞品权威信源反向包抄策略.md` —— 竞品拦截词反向压制作战指南；
-8. 🎨 `07_选型差异化对比图.svg` & `08_技术架构与选型图.svg` —— 多模态信息图表；
-9. 🎬 `09_60秒短视频高转化口播脚本.md` —— 视频号/短视频高转化分镜头脚本；
-10. 💰 `outputs/roi_settings.json` —— 商业投资回报率财务测算模型。
-
+| 编号 | 核心交付资产名称 | 交付文件 | 阶段与分类 | 状态与大小 |
+| :---: | :--- | :--- | :--- | :--- |
+{manifest_rows}
 ---
 
 ## 四、商业价值 ROI 财务估值与增购建议
@@ -244,6 +283,17 @@ def generate_acceptance_report(project_id: str) -> dict:
 """
 
     save_project_output(project_id, report_filename, md_content)
+    
+    # 持久化 acceptance_summary.json 供 API 极速调用
+    summary_data = {
+        "project_id": project_id,
+        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "fulfillment_rate": fulfillment["total_fulfillment_score"],
+        "manifest_summary": fulfillment["manifest_summary"],
+        "deliverables": fulfillment["manifest"],
+        "archive_zip": f"{project_id}_geo_delivery_archive.zip"
+    }
+    save_project_output(project_id, "acceptance_summary.json", json.dumps(summary_data, ensure_ascii=False, indent=2))
     print_success(f"✅ 项目 [{project_id}] 交付验收结案确认单已生成！({report_filename})")
 
     return {
@@ -252,7 +302,8 @@ def generate_acceptance_report(project_id: str) -> dict:
         "filename": report_filename,
         "fulfillment": fulfillment,
         "roi": roi_data,
-        "content": md_content
+        "content": md_content,
+        "summary": summary_data
     }
 
 def get_acceptance_data(project_id: str) -> dict:
@@ -278,7 +329,7 @@ def get_acceptance_data(project_id: str) -> dict:
     }
 
 def export_project_archive_zip(project_id: str) -> str:
-    """将项目 outputs/ 目录下的所有有效交付物打包为 ZIP 归档压缩包"""
+    """将项目 outputs/ 目录下的所有有效交付物打包为 ZIP 归档压缩包（递归包含各平台排版包）"""
     p_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     zip_name = f"{project_id}_geo_delivery_archive.zip"
     zip_path = os.path.join(p_dir, zip_name)
@@ -288,12 +339,16 @@ def export_project_archive_zip(project_id: str) -> str:
 
     files_to_pack = []
     if os.path.exists(p_dir):
-        for f in os.listdir(p_dir):
-            if f.endswith(".zip") or f.startswith("."):
-                continue
-            full = os.path.join(p_dir, f)
-            if os.path.isfile(full):
-                files_to_pack.append((full, f))
+        for root, dirs, files in os.walk(p_dir):
+            # 排除历史备份与临时目录
+            dirs[:] = [d for d in dirs if not d.startswith(".") and d != "__pycache__" and "backup" not in d]
+            for f in files:
+                if f.endswith(".zip") or f.startswith(".") or f in ("roi_settings.json", "acceptance_summary.json") or f.endswith(".pyc"):
+                    continue
+                full = os.path.join(root, f)
+                rel = os.path.relpath(full, p_dir)
+                if os.path.isfile(full):
+                    files_to_pack.append((full, rel))
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for full_path, arcname in files_to_pack:

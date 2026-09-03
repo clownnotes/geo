@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="archHeader" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="layerTop" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="layerMid" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="layerBot" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景 -->
+  <rect x="0" y="0" width="1000" height="600" rx="16" fill="#F8FAFC"/>
+
+  <!-- 顶部标题 -->
+  <rect x="0" y="0" width="1000" height="90" rx="16" fill="url(#archHeader)"/>
+  <rect x="0" y="70" width="1000" height="20" fill="url(#archHeader)"/>
+  <text x="50" y="45" font-family="-apple-system, sans-serif" font-size="20" font-weight="900" fill="#FFFFFF">
+    【蜀味鲜】企业级全链路 GEO 技术与服务架构全景图
+  </text>
+  <text x="50" y="70" font-family="-apple-system, sans-serif" font-size="12" fill="#94A3B8">
+    所属领域：餐饮连锁与特许加盟 ｜ 架构标准：普林斯顿 9 因子 + 大模型 RAG 多模态直连规范
+  </text>
+
+  <!-- 第三层：应用与交付生态层 -->
+  <rect x="40" y="110" width="920" height="125" rx="12" fill="#EEF2FF" stroke="#C7D2FE" stroke-width="1.5"/>
+  <rect x="40" y="110" width="920" height="30" rx="12" fill="url(#layerTop)"/>
+  <rect x="40" y="125" width="920" height="15" fill="url(#layerTop)"/>
+  <text x="60" y="130" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">
+    LAYER 3 · 全渠道分发与甲方交付生态层 (Distribution &amp; Delivery)
+  </text>
+  
+  <g transform="translate(60, 155)">
+    <rect x="0" y="0" width="200" height="65" rx="8" fill="#FFFFFF" stroke="#E0E7FF" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#312E81">📱 字节/豆包生态</text>
+    <text x="15" y="48" font-size="10" fill="#6B7280">今日头条 ｜ 掘金 ｜ 抖音图文</text>
+
+    <rect x="225" y="0" width="200" height="65" rx="8" fill="#FFFFFF" stroke="#E0E7FF" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#312E81">🧠 DeepSeek/通用池</text>
+    <text x="15" y="48" font-size="10" fill="#6B7280">知乎专栏 ｜ 微信长文 ｜ GitHub</text>
+
+    <rect x="450" y="0" width="200" height="65" rx="8" fill="#FFFFFF" stroke="#E0E7FF" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#312E81">🔗 专属交付门户</text>
+    <text x="15" y="48" font-size="10" fill="#6B7280">免密 Token ｜ 4 级防泄密体系</text>
+
+    <rect x="675" y="0" width="200" height="65" rx="8" fill="#FFFFFF" stroke="#E0E7FF" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#312E81">📊 集团矩阵大盘</text>
+    <text x="15" y="48" font-size="10" fill="#6B7280">母子协同 SOV ｜ 联合防御</text>
+  </g>
+
+  <!-- 第二层：核心引擎与策略层 -->
+  <rect x="40" y="255" width="920" height="135" rx="12" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="1.5"/>
+  <rect x="40" y="255" width="920" height="30" rx="12" fill="url(#layerMid)"/>
+  <rect x="40" y="270" width="920" height="15" fill="url(#layerMid)"/>
+  <text x="60" y="275" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">
+    LAYER 2 · 普林斯顿 9 因子内容提纯与攻防引擎层 (Core GEO Engine)
+  </text>
+
+  <g transform="translate(60, 300)">
+    <rect x="0" y="0" width="200" height="75" rx="8" fill="#FFFFFF" stroke="#E0F2FE" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#0369A1">🎯 商业意图逆向</text>
+    <text x="15" y="48" font-size="10" fill="#64748B">5 维角色模拟 ｜ 50 组高转化 Prompt</text>
+    <text x="15" y="65" font-size="10" fill="#0EA5E9">动态长尾词裂变</text>
+
+    <rect x="225" y="0" width="200" height="75" rx="8" fill="#FFFFFF" stroke="#E0F2FE" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#0369A1">📄 9 因子事实清洗</text>
+    <text x="15" y="48" font-size="10" fill="#64748B">量化数据注入 ｜ 对比表格矩阵</text>
+    <text x="15" y="65" font-size="10" fill="#0EA5E9">Q&amp;A 问答对齐</text>
+
+    <rect x="450" y="0" width="200" height="75" rx="8" fill="#FFFFFF" stroke="#E0F2FE" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#0369A1">🛡️ 竞品反向压制</text>
+    <text x="15" y="48" font-size="10" fill="#64748B">Citation 外链反解 ｜ 拦截盲区捕获</text>
+    <text x="15" y="65" font-size="10" fill="#0EA5E9">同位语白皮书包抄</text>
+
+    <rect x="675" y="0" width="200" height="75" rx="8" fill="#FFFFFF" stroke="#E0F2FE" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#0369A1">⏰ 自动化巡检中心</text>
+    <text x="15" y="48" font-size="10" fill="#64748B">SQLite 时序追踪 ｜ 飞书/企微告警</text>
+    <text x="15" y="65" font-size="10" fill="#0EA5E9">多行业 Benchmark 对标</text>
+  </g>
+
+  <!-- 第一层：技术底座与数据层 -->
+  <rect x="40" y="410" width="920" height="135" rx="12" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1.5"/>
+  <rect x="40" y="410" width="920" height="30" rx="12" fill="url(#layerBot)"/>
+  <rect x="40" y="425" width="920" height="15" fill="url(#layerBot)"/>
+  <text x="60" y="430" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">
+    LAYER 1 · 站点底座技术改造与实体元数据层 (Technical Infrastructure)
+  </text>
+
+  <g transform="translate(60, 455)">
+    <rect x="0" y="0" width="275" height="70" rx="8" fill="#FFFFFF" stroke="#D1FAE5" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#065F46">🤖 /llms.txt AI 快速索引</text>
+    <text x="15" y="48" font-size="10" fill="#6B7280">标准化 Markdown 清单 ｜ 秒级爬取</text>
+
+    <rect x="320" y="0" width="275" height="70" rx="8" fill="#FFFFFF" stroke="#D1FAE5" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#065F46">🏷️ Schema.org (JSON-LD)</text>
+    <text x="15" y="48" font-size="10" fill="#6B7280">LocalBusiness / Organization 实体显式注入</text>
+
+    <rect x="640" y="0" width="235" height="70" rx="8" fill="#FFFFFF" stroke="#D1FAE5" stroke-width="1"/>
+    <text x="15" y="25" font-size="12" font-weight="bold" fill="#065F46">⚡ SSR 渲染与爬虫放行</text>
+    <text x="15" y="48" font-size="10" fill="#6B7280">robots.txt 放行主流大模型 Bot</text>
+  </g>
+
+  <!-- 底部微标 -->
+  <text x="500" y="580" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#94A3B8">
+    📐 普林斯顿大学 GEO 论文框架实现 · 标准企业架构蓝图
+  </text>
+</svg>

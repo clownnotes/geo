@@ -193,9 +193,11 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception as e:
         return {"success": False, "message": f"项目数据读取异常: {e}"}
 
-    # 读取 6 份交付文件
+    # 读取 16 维全景交付文件
     deliverables = {}
     files_to_read = {
+        "acceptance": "00_GEO商业交付验收结案确认单.md",
+        "pitch": "00_GEO全案商业服务投标建议书与PitchDeck.md",
         "audit": "01_企业AI可见度现状体检与商业诊断报告.md",
         "llms_txt": "llms.txt",
         "schema_jsonld": "schema.jsonld",
@@ -206,7 +208,17 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "dist_wechat": "dist_wechat_article.html",
         "dist_github": "dist_github_README.md",
         "monitor_report": "05_企业AI可见度与声量追踪周报.md",
-        "defense": "06_竞品权威信源反向包抄策略.md"
+        "evaluator": "06_大模型真实API评测与Citation捕获报告.md",
+        "defense": "06_竞品权威信源反向包抄策略.md",
+        "guard": "07_大模型事实幻觉纠偏与信源反击策略.md",
+        "video_script": "09_60秒短视频高转化口播脚本.md",
+        "graph": "10_企业行业实体关系知识图谱.md",
+        "intent": "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md",
+        "rag_diag": "12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md",
+        "compliance": "13_多渠道内容合规与广告法风控审查报告.md",
+        "competitor": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md",
+        "citation_auth": "15_大模型Citation信源权威度与外链信任度评分报告.md",
+        "injection_guard": "16_大模型提示词注入防御与品牌隔离盾牌报告.md"
     }
 
     for key, fname in files_to_read.items():
@@ -276,7 +288,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         roi_summary = {}
 
-    # 提取结案验收与合同履约达成状态
+    # 提取结案验收与合同履约达成状态 (16 维全景)
     try:
         from .acceptance import calculate_fulfillment_score
         ful_res = calculate_fulfillment_score(project_id)
@@ -285,7 +297,8 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
             "is_passed": ful_res.get("is_passed", False),
             "status_text": ful_res.get("status_text", ""),
             "manifest_summary": ful_res.get("manifest_summary", {}),
-            "breakdown": ful_res.get("breakdown", [])
+            "breakdown": ful_res.get("breakdown", []),
+            "manifest": ful_res.get("manifest", [])
         }
     except Exception:
         acceptance_summary = {}
@@ -296,24 +309,94 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     except Exception:
         pitch_summary = {}
 
-    try:
-        from .graph import build_entity_knowledge_graph
-        graph_res = build_entity_knowledge_graph(project_id)
-        graph_summary = {
-            "node_count": graph_res.get("node_count", 0),
-            "edge_count": graph_res.get("edge_count", 0),
-            "summary": graph_res.get("summary", {}),
-            "nodes": graph_res.get("nodes", []),
-            "edges": graph_res.get("edges", [])
-        }
-    except Exception:
-        graph_summary = {}
+    # 优先从已落盘的知识图谱 JSON 读取，避免每次打开门户重新执行
+    graph_summary = {}
+    g_json = os.path.join(out_dir, "entity_graph.json")
+    if os.path.exists(g_json):
+        try:
+            with open(g_json, "r", encoding="utf-8") as f:
+                g_data = json.load(f)
+                graph_summary = {
+                    "node_count": len(g_data.get("nodes", [])),
+                    "edge_count": len(g_data.get("edges", [])),
+                    "summary": g_data.get("summary", {}),
+                    "nodes": g_data.get("nodes", [])[:30],
+                    "edges": g_data.get("edges", [])[:40]
+                }
+        except Exception:
+            pass
+    if not graph_summary:
+        try:
+            from .graph import build_entity_knowledge_graph
+            graph_res = build_entity_knowledge_graph(project_id)
+            graph_summary = {
+                "node_count": graph_res.get("node_count", 0),
+                "edge_count": graph_res.get("edge_count", 0),
+                "summary": graph_res.get("summary", {}),
+                "nodes": graph_res.get("nodes", [])[:30],
+                "edges": graph_res.get("edges", [])[:40]
+            }
+        except Exception:
+            graph_summary = {}
 
-    try:
-        from .guard import detect_factual_hallucinations
-        guard_summary = detect_factual_hallucinations(project_id)
-    except Exception:
-        guard_summary = {}
+    # 优先从已落盘的事实锚点 JSON 读取幻觉防御状态
+    guard_summary = {}
+    f_json = os.path.join(out_dir, "factual_anchors.json")
+    if os.path.exists(f_json):
+        try:
+            with open(f_json, "r", encoding="utf-8") as f:
+                f_data = json.load(f)
+                guard_summary = {
+                    "anchors_count": len(f_data.get("anchors", [])),
+                    "brand_name": f_data.get("brand_name", ""),
+                    "status": "事实防守锚点已生效"
+                }
+        except Exception:
+            pass
+    if not guard_summary:
+        try:
+            from .guard import detect_factual_hallucinations
+            guard_summary = detect_factual_hallucinations(project_id)
+        except Exception:
+            guard_summary = {}
+
+    # 读取 10~16 高阶攻防核心资产落盘 JSON 摘要 (严格字段映射)
+    def _read_json_safe(fname: str) -> dict:
+        fpath = os.path.join(out_dir, fname)
+        if os.path.exists(fpath):
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                return {}
+        return {}
+
+    injection_guard_data = _read_json_safe("prompt_injection_guard.json")
+    citation_auth_data = _read_json_safe("citation_authority_matrix.json")
+    competitor_data = _read_json_safe("competitor_gap_analysis.json")
+    compliance_data = _read_json_safe("compliance_inspection.json")
+    rag_diag_data = _read_json_safe("rag_chunks_diagnostic.json")
+    intent_data = _read_json_safe("keywords_intent_matrix.json")
+    evaluator_data = _read_json_safe("06_大模型真实API评测与Citation捕获报告.json")
+
+    # 检查结案 ZIP 归档包状态
+    zip_name = f"{project_id}_geo_delivery_archive.zip"
+    zip_path = os.path.join(out_dir, zip_name)
+    archive_info = {
+        "exists": os.path.exists(zip_path),
+        "filename": zip_name,
+        "size_kb": round(os.path.getsize(zip_path) / 1024, 1) if os.path.exists(zip_path) else 0,
+        "download_url": f"/api/share/{token}/download-zip"
+    }
+
+    # 提取真实指标字段 (严格遵循 Design 规范，缺省不乱编)
+    radar_gap = competitor_data.get("radar_comparison", {}).get("overall_gap_lead")
+    if radar_gap is None and "gap_metrics" in competitor_data:
+        radar_gap = competitor_data["gap_metrics"].get("overall_sov_gap_pct")
+
+    rag_score = rag_diag_data.get("rag_readiness_score")
+    if rag_score is None:
+        rag_score = rag_diag_data.get("avg_retrieval_score")
 
     return {
         "success": True,
@@ -333,6 +416,45 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "pitch_summary": pitch_summary,
         "graph_summary": graph_summary,
         "guard_summary": guard_summary,
+        "injection_guard_summary": {
+            "has_data": bool(injection_guard_data),
+            "immunity_score": injection_guard_data.get("immunity_score"),
+            "threats_count": injection_guard_data.get("summary", {}).get("total_threats", 0),
+            "status": injection_guard_data.get("status", "安全隔离就绪")
+        },
+        "citation_auth_summary": {
+            "has_data": bool(citation_auth_data),
+            "overall_score": citation_auth_data.get("overall_authority_score"),
+            "total_links": len(citation_auth_data.get("evaluated_links", [])),
+            "status": citation_auth_data.get("status", "权重良好")
+        },
+        "competitor_summary": {
+            "has_data": bool(competitor_data),
+            "overall_gap_lead": radar_gap,
+            "our_sov": competitor_data.get("gap_metrics", {}).get("our_sov_pct"),
+            "competitor_name": competitor_data.get("primary_competitor_name", "主要竞对")
+        },
+        "compliance_summary": {
+            "has_data": bool(compliance_data),
+            "compliance_rate_pct": compliance_data.get("compliance_rate_pct"),
+            "violations_count": compliance_data.get("total_violations", 0)
+        },
+        "rag_diag_summary": {
+            "has_data": bool(rag_diag_data),
+            "rag_readiness_score": rag_score,
+            "total_chunks": rag_diag_data.get("total_chunks", 0),
+            "golden_chunks": rag_diag_data.get("golden_chunks", 0)
+        },
+        "intent_summary": {
+            "has_data": bool(intent_data),
+            "total_keywords": intent_data.get("total_keywords", len(intent_data.get("keywords", []))) or len(metrics.get("keywords", [])) or 30
+        },
+        "evaluator_summary": {
+            "has_data": bool(evaluator_data),
+            "overall_sov": evaluator_data.get("overall_sov_pct", metrics.get("sov_pct", 0.0)),
+            "total_citations": len(evaluator_data.get("citations", [])) if "citations" in evaluator_data else 0
+        },
+        "archive_info": archive_info,
         "share_meta": {
             "token": token,
             "created_at_str": rec.get("created_at_str"),

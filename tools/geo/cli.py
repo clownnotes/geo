@@ -527,10 +527,12 @@ def main():
         pid = get_pid(args)
         res = generate_acceptance_report(pid)
         ful = res["fulfillment"]
+        ms = ful["manifest_summary"]
         print("\n" + "="*65)
         print(f"📜 项目 [{pid}] 商业交付验收结案确认单已生成！")
         print("="*65)
         print(f"🏆 综合合同履约达成率: {ful['total_fulfillment_score']}/100 分")
+        print(f"📦 16 维全景资产覆盖: {ms['generated_files']}/{ms['total_files']} ({ms['generation_rate_pct']}%)")
         print(f"📋 验收判定结论: 【{ful['status_text']}】")
         print(f"📄 确认单文档: outputs/{res['filename']}")
         print("="*65 + "\n")

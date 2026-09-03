@@ -9,7 +9,7 @@
     "华东重工机械贸易中介",
     "某某液压件代加工小作坊"
   ],
-  "analyzed_at": "2026-09-02 07:33:40",
+  "analyzed_at": "2026-09-02 20:10:34",
   "radar_comparison": {
     "dimensions": [
       "模型召回率 (SOV)",
@@ -25,7 +25,7 @@
       82.0,
       92.0,
       88.0,
-      60.0
+      90.0
     ],
     "competitor_scores": [
       59.0,
@@ -35,9 +35,9 @@
       15.0,
       38.0
     ],
-    "client_avg": 84.2,
+    "client_avg": 89.2,
     "competitor_avg": 40.5,
-    "overall_gap_lead": 43.7
+    "overall_gap_lead": 48.7
   },
   "competitor_advantages": [
     {
