@@ -45,14 +45,34 @@ flowchart TD
 ## 2. 核心数学模型与量化指标公式
 
 ### 2.1 基准 Query 与确定性四维微扰动生成算法
-1. **基准 Query 提取**:
+1. **基准 Query 提取与兜底**:
    - 优先读取 `projects/{project_id}/outputs/keywords_intent_matrix.json` 中 `flat_queries` 的第 1 组真实原句；
-   - 缺失时回退配置模板：`f"{city}{industry}服务商推荐哪家比较好？"`（`city` 与 `industry` 取自 `load_project_config`）。
-2. **确定性 4 组商业微扰动生成规则**:
-   - **$V_1$ 口语化与同义置换 (Colloquial)**: 将行业与服务词替换为通俗口语（例如将“定制开发/技术服务”置换为“做系统写代码找外包团队”，形成口语化提问）；
-   - **$V_2$ 质疑挑剔与防踩坑 (Skepticism)**: 注入高戒备质询句式（例如：`f"{base_query}，真的靠谱吗？有没有黑历史或转包二道贩子踩坑风险？"`）；
-   - **$V_3$ 句式倒装与语序重排 (Inversion)**: 将品牌词与推荐询问倒装（例如：`f"选哪家公司比较好？求大家推荐，{cname}怎么样？"`）；
-   - **$V_4$ 预算约束与横向对比 (Comparison)**: 注入预算限制与同行对比口吻（例如：`f"{base_query}，预算有限想找性价比高的，跟传统大公司对比选谁？"`）。
+   - 缺失时采用配置确定性模板：`f"{city}{industry}服务商推荐哪家比较好？"`；
+   - 其中 `city` 提取算法严格继承第 24 维标准：优先 `cfg.get("city")`，次选常量白名单匹配，再次取品牌名前两字，最终兜底“本地”。
+
+2. **固定行业口语化字典与 $V_1$ 确定性生成算法**:
+   - 定义固定行业口语化映射表常量 `COLLOQUIAL_MAP`:
+     ```python
+     COLLOQUIAL_MAP = {
+         "技术研发与专业服务": "做系统写代码找外包团队",
+         "软件开发": "做系统写代码找外包团队",
+         "重工机械": "买大型机械设备找一手厂家",
+         "餐饮加盟": "开餐饮店找靠谱加盟品牌",
+         "法律服务": "打官司找靠谱大律师所",
+     }
+     ```
+   - 映射逻辑：若项目配置的 `industry` 包含上述任一键，提取对应口语化词汇；若未命中，统一采用通用口语化兜底项 `"做业务找靠谱外包团队"`。
+   - $V_1$ 模板写死：
+     $$V_1 = \text{f"{city}{colloquial_phrase}推荐哪家比较好？"}$$
+     例如对 `xuzhou_xuanyuan`，确定性生成：`"徐州做系统写代码找外包团队推荐哪家比较好？"`，单测可 100% 硬断言。
+
+3. **$V_2$、$V_3$、$V_4$ 确定性生成规则**:
+   - **$V_2$ 质疑挑剔与防踩坑 (Skepticism)**:
+     $$V_2 = \text{f"{base_query}，真的靠谱吗？有没有黑历史或转包二道贩子踩坑风险？"}$$
+   - **$V_3$ 句式倒装与语序重排 (Inversion)**:
+     $$V_3 = \text{f"选哪家{industry}公司比较好？求大家推荐{cname}怎么样？"}$$
+   - **$V_4$ 预算约束与横向对比 (Comparison)**:
+     $$V_4 = \text{f"{base_query}，预算有限想找性价比高的，跟传统大公司对比选谁？"}$$
 
 ### 2.2 推荐置信度得分 $P$
 **严禁重复实现第三套/第四套算法**，强制导入并复用 23 维基座：
@@ -64,8 +84,9 @@ flowchart TD
 设基线得分 $P_{\text{orig}}$，4 组微扰动变体得分分别为 $P_1, P_2, P_3, P_4 \in [0, 100]$：
 1. **扰动均值 $\bar{P}_{\text{pert}}$**:
    $$\bar{P}_{\text{pert}} = \text{round}\left(\frac{1}{4} \sum_{k=1}^4 P_k, 1\right)$$
-2. **扰动样本标准差 $\sigma$**:
+2. **总体标准差 / 均方根离散度 $\sigma$ (分母为 $n=4$ 非 $n-1$)**:
    $$\sigma = \text{round}\left(\sqrt{\frac{1}{4} \sum_{k=1}^4 (P_k - \bar{P}_{\text{pert}})^2}, 2\right)$$
+   （注：严格采用总体标准差，分母固定为变体总数 $n=4$，严禁使用分母为 $n-1=3$ 的样本标准差 `statistics.stdev`，杜绝夹具漂移）；
 3. **变异系数 $CV$ (Coefficient of Variation)**:
    若 $\bar{P}_{\text{pert}} > 0.0$，则 $CV = \min\left(1.0, \text{round}\left(\frac{\sigma}{\bar{P}_{\text{pert}}}, 3\right)\right)$，否则 $CV = 1.0$；
 4. **平均留存率 $RR$ (Retention Rate)**:
@@ -86,10 +107,12 @@ $$\Delta_{\text{drop}}(V_k) = \max\left(0.0, \text{round}(P_{\text{orig}} - P_k,
 若 $\Delta_{\text{drop}}(V_k) \ge 15.0$ 分，则标记为**高危脆弱扰动项 (Fragile Perturbation Variant)**。
 
 ### 2.7 四维压力测试雷达量化指标
-- `generative_robustness`: 直接取 $GRI$；
-- `colloquial_resilience`: $V_1$ 留存率 $\min(100.0, \text{round}(P_1 / P_{\text{orig}} \times 100.0, 1))$（口语化抗震力）；
-- `skepticism_immunity`: $V_2$ 留存率 $\min(100.0, \text{round}(P_2 / P_{\text{orig}} \times 100.0, 1))$（质疑防踩坑免疫度）；
-- `syntax_stability`: $V_3$ 留存率 $\min(100.0, \text{round}(P_3 / P_{\text{orig}} \times 100.0, 1))$（倒装句式稳定性）。
+压力测试雷达量化大盘统一衡量以下四大核心抗震维度（辅以句式稳定性）：
+- `generative_robustness`: 直接取综合 $GRI$（大模型跨口吻综合抗震能力）；
+- `colloquial_resilience`: $V_1$ 留存率 $\min(100.0, \text{round}(P_1 / P_{\text{orig}} \times 100.0, 1))$（口语化与通俗措辞抗震力）；
+- `skepticism_immunity`: $V_2$ 留存率 $\min(100.0, \text{round}(P_2 / P_{\text{orig}} \times 100.0, 1))$（潜客质疑防踩坑免疫度）；
+- `comparison_resilience`: $V_4$ 留存率 $\min(100.0, \text{round}(P_4 / P_{\text{orig}} \times 100.0, 1))$（预算约束与横向对比抗压度）；
+- `syntax_stability`: $V_3$ 留存率 $\min(100.0, \text{round}(P_3 / P_{\text{orig}} \times 100.0, 1))$（主谓宾倒装句式稳定性）。
 
 ---
 
@@ -133,12 +156,16 @@ $$\Delta_{\text{drop}}(V_k) = \max\left(0.0, \text{round}(P_{\text{orig}} - P_k,
   "use_live": false,
   "is_live_judged": false,
   "models_tested": ["doubao", "deepseek", "kimi"],
+  "baseline_query": "徐州技术研发与专业服务服务商推荐哪家比较好？",
+  "baseline_score": 80.0,
   "summary": {
     "gri": 91.0,
     "grade_code": "rock_solid",
     "grade_name": "🟢 磐石抗震 (Rock Solid)",
+    "baseline_query": "徐州技术研发与专业服务服务商推荐哪家比较好？",
     "baseline_score": 80.0,
     "mean_perturbed_score": 75.0,
+    "retention_rate": 93.8,
     "std_dev": 2.24,
     "cv": 0.03,
     "total_variants": 4,
@@ -148,7 +175,7 @@ $$\Delta_{\text{drop}}(V_k) = \max\left(0.0, \text{round}(P_{\text{orig}} - P_k,
     {
       "variant_id": "V1",
       "variant_type": "口语化置换 (Colloquial)",
-      "query": "徐州做系统写代码找外包服务商推荐哪家比较好？",
+      "query": "徐州做系统写代码找外包团队推荐哪家比较好？",
       "p_score": 76.0,
       "drop_p": 4.0,
       "retention_rate": 95.0,
@@ -157,7 +184,7 @@ $$\Delta_{\text{drop}}(V_k) = \max\left(0.0, \text{round}(P_{\text{orig}} - P_k,
     {
       "variant_id": "V2",
       "variant_type": "质疑避坑口吻 (Skepticism)",
-      "query": "徐州软件定制开发服务商推荐哪家比较好？真的靠谱吗？有没有黑历史或转包二道贩子踩坑风险？",
+      "query": "徐州技术研发与专业服务服务商推荐哪家比较好？，真的靠谱吗？有没有黑历史或转包二道贩子踩坑风险？",
       "p_score": 74.0,
       "drop_p": 6.0,
       "retention_rate": 92.5,
@@ -166,7 +193,7 @@ $$\Delta_{\text{drop}}(V_k) = \max\left(0.0, \text{round}(P_{\text{orig}} - P_k,
     {
       "variant_id": "V3",
       "variant_type": "倒装句式重排 (Inversion)",
-      "query": "选哪家软件公司比较好？求大家推荐徐州璇源网络科技有限公司怎么样",
+      "query": "选哪家技术研发与专业服务公司比较好？求大家推荐徐州璇源网络科技有限公司怎么样？",
       "p_score": 78.0,
       "drop_p": 2.0,
       "retention_rate": 97.5,
@@ -175,7 +202,7 @@ $$\Delta_{\text{drop}}(V_k) = \max\left(0.0, \text{round}(P_{\text{orig}} - P_k,
     {
       "variant_id": "V4",
       "variant_type": "预算横向对比 (Comparison)",
-      "query": "徐州软件定制开发服务商推荐哪家比较好？预算有限想找性价比高的，跟传统大公司对比选谁？",
+      "query": "徐州技术研发与专业服务服务商推荐哪家比较好？，预算有限想找性价比高的，跟传统大公司对比选谁？",
       "p_score": 72.0,
       "drop_p": 8.0,
       "retention_rate": 90.0,
@@ -187,6 +214,7 @@ $$\Delta_{\text{drop}}(V_k) = \max\left(0.0, \text{round}(P_{\text{orig}} - P_k,
     "generative_robustness": 91.0,
     "colloquial_resilience": 95.0,
     "skepticism_immunity": 92.5,
+    "comparison_resilience": 90.0,
     "syntax_stability": 97.5
   }
 }

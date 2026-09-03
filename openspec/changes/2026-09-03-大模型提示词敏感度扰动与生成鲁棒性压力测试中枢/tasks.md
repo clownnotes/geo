@@ -29,14 +29,16 @@
   - 固定数值夹具 2：$P_{\text{orig}}=80.0, P_1=60.0, P_2=50.0, P_3=70.0, P_4=60.0 \implies \bar{P}=60.0, \sigma=7.07, CV=0.118, RR=75.0\% \implies GRI = 66.2\%$ (`moderate_fluctuation` 🟡 中度波动)；
   - 固定数值夹具 3：$P_{\text{orig}}=80.0, P_1=40.0, P_2=20.0, P_3=50.0, P_4=30.0 \implies \bar{P}=35.0, \sigma=11.18, CV=0.319, RR=43.8\% \implies GRI = 29.8\%$ (`fragile_sensitive` 🔴 脆弱敏感)；
   - 固定数值夹具 4：$P_{\text{orig}}=80.0, P_2=60.0 \implies \Delta_{\text{drop}} = 20.0 \ge 15.0 \implies$ 命中高危脆弱变体；
-  - 固定数值夹具 5：$P_{\text{orig}}=80.0, P_1=76.0, P_2=74.0, P_3=78.0 \implies \text{Colloquial}=95.0\%, \text{Skepticism}=92.5\%, \text{Syntax}=97.5\%$；
+  - 固定数值夹具 5：$P_{\text{orig}}=80.0, P_1=76.0, P_2=74.0, P_3=78.0, P_4=72.0 \implies \text{Colloquial}=95.0\%, \text{Skepticism}=92.5\%, \text{Syntax}=97.5\%, \text{Comparison}=90.0\%$；
   - 固定数值夹具 6：$v_{(1)}=1.0, v_{(2)}=0.8, v_{(3)}=0.6 \implies P = 89.0$ 分；
-  - 断言确定性四维微扰动生成算法输出内容；
-  - 断言四维雷达数学计算公式；
-  - 断言 `outputs/robustness_hardening_pack/` 下 3 份加固文件物理存在；
-  - 断言自适应报告话术（沙箱推演声明 / live 实盘推演声明 / 免责声明）；
-  - 断言 live 模式下调用预算严格 $\le 5$ 次，Mock 生产字典返回安全提取并融合，融合后 GRI 随新 $P$ 联动全量重算；
-  - 断言 live 模式中途异常时 100% 完整回滚纯沙箱快照；
-  - 断言 API 鉴权拦截（未授权 401）与 `/report` 无文件返回 404。
+  - 硬断言总体标准差分母为 $n=4$（严禁 $n-1$）；
+  - 硬断言四维微扰动确定性生成输出内容（$V_1$ 严格为 `"徐州做系统写代码找外包团队推荐哪家比较好？"`）；
+  - 硬断言五维雷达数学计算公式；
+  - 硬断言 JSON 顶层 Schema 字段（`baseline_query`、`summary.retention_rate` 等）；
+  - 硬断言 `outputs/robustness_hardening_pack/` 下 3 份加固文件物理存在；
+  - 硬断言自适应报告话术（沙箱推演声明 / live 实盘推演声明 / 免责声明）；
+  - 硬断言 live 模式下调用预算严格 $\le 5$ 次，Mock 生产字典返回安全提取并融合，融合后 GRI 随新 $P$ 联动全量重算；
+  - 硬断言 live 模式中途异常时 100% 完整回滚纯沙箱快照；
+  - 硬断言 API 鉴权拦截（未授权 401）与 `/report` 无文件返回 404。
 - [ ] 5.2 运行全库单元测试，确保 100% 通过（当前已有 108 组，新增后预期 $\ge 115$ 组全绿）。
 - [ ] 5.3 在 `review-log.md` 记录提案自评，提请另一个 IDE（Cursor）进行独立初审签署 `[已达成共识]`。

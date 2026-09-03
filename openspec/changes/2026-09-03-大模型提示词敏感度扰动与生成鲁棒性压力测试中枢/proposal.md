@@ -21,13 +21,13 @@
 - **$V_4$ 预算与横向对比口吻 (Comparison & Budget Constraint)**：注入预算约束与同行对比口吻。
 
 ### 2.2 核心量化指标与话术规范
-- **扰动均值 $\bar{P}_{\text{pert}}$**、**扰动标准差 $\sigma$** 与 **变异系数 $CV$**（波动率量化）；
+- **扰动均值 $\bar{P}_{\text{pert}}$**、**总体标准差 $\sigma$**（分母为 $n=4$）与 **变异系数 $CV$**（波动率量化）；
 - **生成鲁棒性指数 ($GRI$, Generative Robustness Index)**：
-  $$GRI = \text{round}\big(RR \times (1.0 - CV), 1\big)$$
+  $$GRI = \max\left(0.0, \min\left(100.0, \text{round}\big(RR \times (1.0 - CV), 1\big)\right)\right)$$
   其中 $RR = \min(100.0, \text{round}(\bar{P}_{\text{pert}} / P_{\text{orig}} \times 100.0, 1))$；
 - **三档鲁棒性评级**：`rock_solid` (🟢 磐石抗震) / `moderate_fluctuation` (🟡 中度波动) / `fragile_sensitive` (🔴 脆弱敏感)；
 - **高危脆弱扰动项识别**：单项跌幅 $P_{\text{orig}} - P_k \ge 15.0$ 分；
-- **四维压力测试雷达指标**：生成鲁棒性、口语抗震力、抗质疑免疫度、句式稳定性；
+- **四维压力测试雷达指标**：生成鲁棒性、口语抗震力、抗质疑免疫度、预算对比抗压度（辅以句式稳定性）；
 - **话术规范与免责界定**：微扰动压力测试模拟口吻与句式敏感度，推演数据 $\neq$ 真实线上全量提问日志。
 
 ### 2.3 严禁编写重复算法，复用 23 维基座
