@@ -202,6 +202,38 @@ class TestMindshareAuditor(unittest.TestCase):
         self.assertEqual(captured.get("status"), 404)
         self.assertIn("21 号报告尚未生成", captured.get("payload", {}).get("message", ""))
 
+    def test_07_query_sampling_from_flat_queries(self):
+        """测试 Query 采样优先读取 keywords_intent_matrix.json 的 flat_queries 真实字段 (闭环 Cursor 审查)"""
+        from tools.geo.mindshare_auditor import _sample_business_queries
+
+        # 1. 真实项目读取测试
+        qs = _sample_business_queries(self.test_pid, limit=5)
+        self.assertEqual(len(qs), 5)
+        matrix_file = os.path.join(self.out_dir, "keywords_intent_matrix.json")
+        with open(matrix_file, "r", encoding="utf-8") as f:
+            mat = json.load(f)
+            flat_set = set(mat.get("flat_queries", []))
+        for q in qs:
+            self.assertIn(q, flat_set, f"采样 Query 不属于 flat_queries 原句: {q}")
+
+        # 2. 独立沙箱测试：验证当仅有 flat_queries 时精准采纳，绝不退化为 keywords 拼接
+        dummy_pid = "temp_flat_queries_test"
+        dummy_dir = os.path.join(PROJECTS_DIR, dummy_pid)
+        dummy_out = os.path.join(dummy_dir, "outputs")
+        os.makedirs(dummy_out, exist_ok=True)
+        try:
+            with open(os.path.join(dummy_dir, "project.yaml"), "w", encoding="utf-8") as f:
+                f.write("keywords: ['应当被忽略的备用词项']\n")
+            with open(os.path.join(dummy_out, "keywords_intent_matrix.json"), "w", encoding="utf-8") as f:
+                json.dump({"flat_queries": ["专有商业意图Q1", "专有商业意图Q2", "专有商业意图Q3"]}, f)
+
+            sampled = _sample_business_queries(dummy_pid, limit=3)
+            self.assertEqual(sampled, ["专有商业意图Q1", "专有商业意图Q2", "专有商业意图Q3"])
+            self.assertNotIn("应当被忽略的备用词项 哪家实力强选型推荐", sampled)
+        finally:
+            if os.path.exists(dummy_dir):
+                shutil.rmtree(dummy_dir)
+
 
 if __name__ == "__main__":
     unittest.main()

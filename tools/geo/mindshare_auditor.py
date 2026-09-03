@@ -137,7 +137,7 @@ def _collect_eligible_ledger_urls(project_id: str) -> set:
 
 
 def _sample_business_queries(project_id: str, limit: int = 5) -> List[str]:
-    """从项目意图拓扑库或配置中动态采样商业意图词 (严禁写死徐州或特定品牌)"""
+    """从项目意图拓扑库或配置中动态采样商业意图词 (优先读取 flat_queries 真实意图词)"""
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     matrix_path = os.path.join(out_dir, "keywords_intent_matrix.json")
     sampled = []
@@ -146,22 +146,45 @@ def _sample_business_queries(project_id: str, limit: int = 5) -> List[str]:
         try:
             with open(matrix_path, "r", encoding="utf-8") as f:
                 mat = json.load(f)
-                for item in mat.get("matrix", []):
-                    q = item.get("prompt") or item.get("keyword")
-                    if q and q not in sampled:
-                        sampled.append(q)
-                    if len(sampled) >= limit:
-                        break
+                # 1. 优先读取主字段 flat_queries (字符串列表，对齐 intent.py / evaluator.py)
+                f_queries = mat.get("flat_queries", [])
+                if isinstance(f_queries, list):
+                    for q in f_queries:
+                        if isinstance(q, str) and q.strip() and q.strip() not in sampled:
+                            sampled.append(q.strip())
+                        if len(sampled) >= limit:
+                            break
+
+                # 2. 次选 tiers[...].queries
+                if len(sampled) < limit:
+                    tiers = mat.get("tiers", {})
+                    if isinstance(tiers, dict):
+                        for t_val in tiers.values():
+                            if isinstance(t_val, dict):
+                                for q in t_val.get("queries", []):
+                                    if isinstance(q, str) and q.strip() and q.strip() not in sampled:
+                                        sampled.append(q.strip())
+                                    if len(sampled) >= limit:
+                                        break
+
+                # 3. 兼容旧字段 generated_queries / queries
+                if len(sampled) < limit:
+                    for alt_key in ("generated_queries", "queries", "matrix"):
+                        for item in mat.get(alt_key, []):
+                            q_str = item if isinstance(item, str) else (item.get("prompt") or item.get("keyword"))
+                            if q_str and isinstance(q_str, str) and q_str.strip() not in sampled:
+                                sampled.append(q_str.strip())
+                            if len(sampled) >= limit:
+                                break
         except Exception:
             pass
 
     if len(sampled) < limit:
         cfg = load_project_config(project_id)
         kws = cfg.get("target_keywords") or cfg.get("keywords") or []
-        client_name = cfg.get("client_name") or cfg.get("company_name") or project_id
         for kw in kws:
-            if kw and kw not in sampled:
-                sampled.append(f"{kw} 哪家实力强选型推荐")
+            if kw and isinstance(kw, str) and kw.strip() not in sampled:
+                sampled.append(f"{kw.strip()} 哪家实力强选型推荐")
             if len(sampled) >= limit:
                 break
 
