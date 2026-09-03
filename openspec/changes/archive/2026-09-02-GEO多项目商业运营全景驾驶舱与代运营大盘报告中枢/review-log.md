@@ -138,3 +138,46 @@
    - `web/index.html` 顶部导航栏「📊 全域大盘驾驶舱」模态弹窗与项目跳转闭环。
 
 - **状态结论**：`[已达成共识]`，提请 Reviewer（Cursor 等）进行代码独立复审；**终审通过后由 Cursor 执行 `./opsx archive` 归档**。
+
+---
+
+### 2026-09-02 Cursor [独立复审：多项目商业运营全景驾驶舱 — 实现阶段] [通过]
+
+- **阶段**：Implementation Cross-IDE Review（对照上轮 P0-A/B/C + P1-D/E/F 独立核验，不采信 Antigravity 自评）
+- **审查范围**：`tools/geo/portfolio.py` · `tests/test_portfolio.py` · `cli.py` portfolio 子命令 · `server.py` `/api/portfolio/*` · `web/index.html` 指标卡与模态 · 修订后 `design.md` · 本地实跑
+- **本地证据**：
+  - `python3 -m unittest tests.test_portfolio` → **5/5 OK**
+  - `python3 -m unittest discover -s tests -p "test_*.py"` → **54/54 OK (0.739s)**
+  - 实盘聚合：5 项目（含 `demo_corp`）；徐州/`demo_corp`=`warning`，三大母版=`normal`；组合价值 **¥1,115,450** / 服务费 **¥84,000** / Portfolio ROI **+1227.9%**（公式可复算）
+  - 巡检 counts：`{danger:0, warning:2, healthy:3}`；报告落盘 `reports/GEO代运营全域多项目执行与商业回报大盘报告.md`
+  - `/api/portfolio/{summary,patrol,report}` 均在管理端鉴权闸门之后（未登录 401）
+
+#### 上轮阻断项闭环
+
+| 项 | 状态 | 核验 |
+|:---|:-----|:-----|
+| P0-A 财务读源 | ✅ 运行时闭环 | 实盘 `roi_settings.json` 无 `financial_valuation`，走 `calculate_project_roi()` 分支；组合 ROI 公式正确 |
+| P0-B 投影 SOV | ✅ 已闭环 | `is_projected_sov` 仅附加 normal 附注，不单独 warning；三母版 `normal`、徐州 `warning` 断言成立 |
+| P0-C raw_sov | ✅ 已闭环 | 取自 ROI `metrics_summary.raw_sov_pct` |
+| P1-D 7 卡布局 | ✅ 已闭环 | 第 3 卡单卡双行（总价值 + 组合 ROI），`2xl:grid-cols-7` 保持 |
+| P1-E 死链主源 | ✅ 已闭环 | 优先 `citation_authority_matrix.json.dead_backlinks` |
+| 巡检边界 | ✅ 已闭环 | `run_portfolio_health_patrol` 只读聚合，不调 `run_monitor` / Webhook |
+
+#### 🟡 P1 — 不阻断归档，建议下轮或归档前顺手清理
+
+| # | 问题 | 建议 |
+|:--|:-----|:-----|
+| 1 | `get_portfolio_summary` 仍先探测 `roi_settings.json["financial_valuation"]`（死分支），与 design「统一走 `calculate_project_roi`」文案不完全一致 | 删除该 if，直接调用 `calculate_project_roi`；`annual_service_fee` 仍由 ROI 内部读 settings |
+| 2 | 缺 JSON 时默认 `immunity=100` / `citation=90` / `channels=5`，略偏乐观 | 缺文件用 `null`/0 并在 UI 显示「—」 |
+| 3 | design/自评写三大母版「续约 95」；实盘续约分为 **70**（仍 ≥70 故为 normal） | 修正叙事数字，避免公关口径漂移 |
+| 4 | `test_portfolio.py` 文档声称覆盖 API 鉴权，但未实现；并空 import `is_authenticated` | 补 401 冒烟或删死 import |
+| 5 | 报告硬编码「徐州外发 28.6%」等个案文案，易过时 | 尽量改为从 card/ledger 动态渲染 |
+
+#### 🟢 P2
+- 单项目 `except: continue` 静默丢弃失败项目，建议至少 `print_warning` 便于排障。
+
+#### 结论
+
+- **状态结论**：`[通过]`
+- 核心契约（只读巡检、组合 ROI、风险分级、鉴权 API、7 卡双行、reports 落盘、单测全绿）已满足 OpenSpec 要求，**允许进入 `./opsx archive` 归档**。
+- P1 为质量债，不阻断本轮归档；若归档前有 10 分钟，优先删掉 ROI settings 死分支与测试死 import。
