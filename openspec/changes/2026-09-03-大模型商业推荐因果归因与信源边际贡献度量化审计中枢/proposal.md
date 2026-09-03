@@ -9,16 +9,16 @@
 2. **预算分配盲目**：“如果某些渠道内容对大模型的最终推荐毫无因果贡献（边际价值为 0），我们为什么还要持续投入成本维护？哪些信源是绝对不能丢的‘核心基石’？”
 3. **单点故障风险**：“若当前推荐高度依赖单一信源（如某篇高权重专栏），一旦该文章被下架、降权或被竞品针对性反超，大模型推荐是否会瞬间雪崩（单点脆弱性）？”
 
-传统广告归因（Multi-Touch Attribution）依赖 Cookie 与点击流，在大模型生成式时代完全失效。本项目需要研发**基于反事实因果推断（Counterfactual Intervention）与 Shapley 边际贡献度理论**的“大模型商业推荐因果归因与信源边际贡献度量化审计中枢”，为企业建立首个**生成式 AI 信源因果贡献审计大盘**。
+传统广告归因（Multi-Touch Attribution）依赖 Cookie 与点击流，在大模型生成式时代完全失效。本项目需要研发**基于反事实因果推断（Counterfactual Intervention）与 Shapley 近似代理边际贡献度理论（Shapley Proxy / Leave-One-Out Ablation）**的“大模型商业推荐因果归因与信源边际贡献度量化审计中枢”，为企业建立首个**生成式 AI 信源因果贡献审计大盘**。
 
 ---
 
 ## 2. 改动范围与对外能力 (What & Capabilities)
 
 ### 核心能力 1：信源反事实消融实验引擎 (Counterfactual Ablation Engine)
-- 构建信源全集 $S$，测算基线商业意图推荐得分 $P(Brand|Query, S)$；
+- 构建可观测我方信源切片全集 $S$（竞品切片消融属于 Out of Scope），测算基线商业意图推荐得分 $P_{\text{base}}(Q, S)$；
 - 逐一执行反事实抽离（Leave-One-Out Ablation），量化切片抽离前后的决策跌幅 $\Delta P(q, s_i)$；
-- 聚合推导各信源切片的边际因果贡献率 $MCR(s_i)$。
+- 聚合推导各信源切片的边际因果贡献率 $MCR(s_i)$（反事实 LOO 边际贡献代理，严禁夸大为全联盟理论 Shapley 值）。
 
 ### 核心能力 2：品牌因果鲁棒性与单点故障预警 (CRI & SPOF Auditor)
 - 计算最坏情况留存率，输出品牌因果鲁棒性指数（Causal Robustness Index, CRI）；
@@ -45,6 +45,7 @@
 
 ## 3. 边界与 Out of Scope 说明
 
-1. **算力与运行边界**：绝不下载或在本地部署运行参数量达数十 GB 的因果神经网络，不进行模型内参梯度反向推导。沙箱基于可观测切片池与相关性概率分布进行确定性因果反事实推演；
-2. **`--live` 语义界定**：仅通过 `tools.geo.llm.call_model_raw` 在线调用真实大模型，对反事实消融前后 Prompt 进行真实采样裁决，提取 `content` 字典，按 70/30 融合精排得分，并在报告中自适应切换实盘与沙箱审计声明；
-3. **资产隔离**：落盘文件严格为 `causal_attribution_audit.json`，与 12 号 `rag_chunks_diagnostic.json` 及 22 号 `rag_rerank_simulation.json` 物理隔离，杜绝覆盖冲突。
+1. **算力与算法边界**：绝不下载或在本地部署运行参数量达数十 GB 的因果神经网络，不进行模型内参梯度反向推导。沙箱基于可观测切片池与 Top-3 留存加权推荐概率模型进行确定性因果反事实推演；
+2. **理论话术边界**：算法定位为**反事实 LOO 边际贡献度（Shapley 近似代理，Shapley Proxy）**，报告与对外文案严格以此为准，不宣传全联盟 $2^{|S|}$ 指数级全量 Shapley 值；竞品切片反事实消融属于 Out of Scope；
+3. **`--live` 语义与预算界定**：仅通过 `tools.geo.llm.call_model_raw` 在线调用真实大模型，对全量基线及 MCR 最高的前 2 篇核心切片抽离状态进行在线真实采样裁决（API 调用上限严格锁死为 3 次），安全提取 `content` 字典内容，按 70% 沙箱因果分 + 30% 在线 Judge 裁决分融合更新，异常时平滑回退沙箱打分并置 `is_live_judged = False`；
+4. **资产隔离**：落盘文件严格为 `causal_attribution_audit.json`，与 12 号 `rag_chunks_diagnostic.json` 及 22 号 `rag_rerank_simulation.json` 物理隔离，杜绝覆盖冲突。
