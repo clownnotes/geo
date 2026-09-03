@@ -12,9 +12,11 @@ from tools.geo.probing import (
     extract_citations_and_sources,
     trace_citations_against_ledger,
     run_live_probing,
-    SandboxSimulator
+    SandboxSimulator,
+    is_ledger_asset_eligible,
 )
 from tools.geo.dist_bot import get_distribution_ledger
+from tools.geo.server import GeoWebHandler
 
 
 class TestProbingTracer(unittest.TestCase):
@@ -122,8 +124,8 @@ class TestProbingTracer(unittest.TestCase):
 
         # 如果台账中有已发布的头条/知乎文章，抽取一个放入比对
         pub_articles = [
-            ch["url"] for ch in ledger.get("channels", {}).values() 
-            if ch.get("url") and ch.get("status") == "published"
+            ch["url"] for ch in ledger.get("channels", {}).values()
+            if is_ledger_asset_eligible(ch.get("url", ""), ch.get("status", ""))
         ]
         if pub_articles:
             cits.append({
@@ -148,6 +150,37 @@ class TestProbingTracer(unittest.TestCase):
         if pub_articles:
             self.assertTrue(enriched[2]["is_ledger_hit"])
             self.assertEqual(enriched[2]["hit_type"], "exact_hit")
+
+        # P1: verified 渠道必须计入 Exact Hit；pending 不得计入
+        fake_ledger = {
+            "success": True,
+            "channels": {
+                "zhihu": {
+                    "url": "https://zhuanlan.zhihu.com/p/verified-hit-999",
+                    "status": "verified",
+                    "name": "知乎专栏",
+                },
+                "toutiao": {
+                    "url": "https://www.toutiao.com/article/pending-skip/",
+                    "status": "pending",
+                    "name": "今日头条",
+                },
+            },
+            "custom_links": [],
+        }
+        with patch("tools.geo.probing.get_distribution_ledger", return_value=fake_ledger):
+            with patch("tools.geo.probing.load_project_config", return_value={"official_url": "https://www.example-official.test"}):
+                verified_enriched = trace_citations_against_ledger(
+                    [
+                        {"index": 1, "url": "https://zhuanlan.zhihu.com/p/verified-hit-999", "title": "verified"},
+                        {"index": 2, "url": "https://www.toutiao.com/article/pending-skip/", "title": "pending"},
+                    ],
+                    self.project_id,
+                )
+        self.assertTrue(verified_enriched[0]["is_ledger_hit"])
+        self.assertEqual(verified_enriched[0]["hit_type"], "exact_hit")
+        self.assertFalse(verified_enriched[1]["is_ledger_hit"])
+        self.assertEqual(verified_enriched[1]["hit_type"], "third_party_or_competitor")
 
     def test_05_probing_run_and_metrics_calculation(self):
         """测试沙箱探测流程、分母口径指标测算与 18 号报告落盘"""
@@ -184,10 +217,34 @@ class TestProbingTracer(unittest.TestCase):
         self.assertIn("实测 AI 声量 (Real SOV)", content)
         self.assertIn("Citation 信源角标占有率", content)
         self.assertIn("电子签章", content)
+        self.assertIn("不可替代真机 API 审计", content)
+        self.assertNotIn("各维度 Citation 对账数据真实可复核", content)
 
         # 验证 JSON 落盘
         json_path = res["json_path"]
         self.assertTrue(os.path.exists(json_path))
+
+    def test_06_probing_api_auth_gate(self):
+        """design §8：未鉴权访问 probing API 必须 401"""
+        captured = {}
+
+        def capture_json(payload, status=200, headers=None):
+            captured["payload"] = payload
+            captured["status"] = status
+
+        handler = GeoWebHandler.__new__(GeoWebHandler)
+        handler.path = "/api/projects/xuzhou_xuanyuan/probing/status"
+        handler.headers = {}
+        handler.send_json = capture_json
+        GeoWebHandler.do_GET(handler)
+        self.assertEqual(captured.get("status"), 401)
+        self.assertFalse(captured.get("payload", {}).get("success", True))
+
+        captured.clear()
+        handler.path = "/api/projects/xuzhou_xuanyuan/probing/run"
+        handler.headers = {}
+        GeoWebHandler.do_POST(handler)
+        self.assertEqual(captured.get("status"), 401)
 
 
 if __name__ == "__main__":

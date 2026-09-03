@@ -32,6 +32,16 @@ from tools.geo.llm import (
 )
 from tools.geo.dist_bot import get_distribution_ledger
 
+# 与 dist_bot 完成率口径对齐：已填报待测 + 存活核验通过均计入我方资产
+LEDGER_ASSET_STATUSES = ("published", "verified")
+
+
+def is_ledger_asset_eligible(url: str, status: str) -> bool:
+    """url 非空且 status 为 published 或 verified 时纳入对账基准库。"""
+    if not (url or "").strip():
+        return False
+    return (status or "").strip().lower() in LEDGER_ASSET_STATUSES
+
 
 def normalize_url(url: str) -> str:
     """归一化 URL，去除协议前缀、www、末尾斜杠及查询参数"""
@@ -164,7 +174,7 @@ class SandboxSimulator:
         ledger = get_distribution_ledger(project_id)
         pub_channels = []
         for ck, cv in ledger.get("channels", {}).items():
-            if cv.get("url") and cv.get("status") == "published":
+            if is_ledger_asset_eligible(cv.get("url", ""), cv.get("status", "")):
                 pub_channels.append(cv)
 
         # 模拟模型生成客观回复
@@ -243,7 +253,7 @@ def trace_citations_against_ledger(citations: List[Dict[str, Any]], project_id: 
 
     for ch_key, ch_data in ledger.get("channels", {}).items():
         ch_url = ch_data.get("url", "")
-        if ch_url and ch_data.get("status") == "published":
+        if is_ledger_asset_eligible(ch_url, ch_data.get("status", "")):
             my_assets.append({
                 "type": "channel_article",
                 "channel": ch_key,
@@ -255,7 +265,8 @@ def trace_citations_against_ledger(citations: List[Dict[str, Any]], project_id: 
 
     for cl in ledger.get("custom_links", []):
         cl_url = cl.get("url", "")
-        if cl_url:
+        cl_status = cl.get("status") or "published"
+        if is_ledger_asset_eligible(cl_url, cl_status):
             my_assets.append({
                 "type": "custom_link",
                 "url": cl_url,
@@ -600,7 +611,11 @@ def generate_probing_report_markdown(data: Dict[str, Any]) -> str:
     md.append("遵循普林斯顿 9 因子标准：正文嵌入原生 Markdown 参数对比表、权威白皮书引语及高权威度外链，提升大模型爬虫仿真评分与切片黄金块占比。\n")
 
     md.append("## 5. 公文对账签署与归档确认\n")
-    md.append("本报告经由 GEO 工业化自动化流水线与大模型实时探测网关执行，各维度 Citation 对账数据真实可复核。\n")
+    live_any = any((st.get("live_calls_count") or 0) > 0 for st in breakdown.values())
+    if summary.get("use_live") and live_any:
+        md.append("本报告含真实联网 API 探测样本，Citation 与 04 台账对账结果可交叉复核。沙箱降级批次已在「运行模式」列单独标注。\n")
+    else:
+        md.append("**数据保真说明**：本报告为确定性沙箱推演数据，仅供演示、联调与 CI 验收，**不可替代真机 API 审计**。\n")
     md.append("```")
     md.append("【GEO 商业运营与大模型 Citation 自动化对账中枢 · 电子签章】")
     md.append(f"项目标识: {project_id}")

@@ -82,7 +82,7 @@
 ### 3.2 外发资产台账严格对账契约 (`trace_citations_against_ledger`)
 * **台账加载契约**：必须通过 `dist_bot.get_distribution_ledger(project_id)` 获取完整台账；
 * **我方资产基准库组装**：
-  1. `ledger["channels"]` 中所有 `url` 非空且 `status == "published"` 的渠道发布外链；
+  1. `ledger["channels"]` 中所有 `url` 非空且 `status in ("published", "verified")` 的渠道发布外链（与 `dist_bot` 完成率口径对齐，避免核验通过后资产掉出 Hit 池）；
   2. `ledger.get("custom_links", [])` 中登记的额外发布链接；
   3. `project.yaml` 中登记的企业官方网站 `official_url`；
 * **严密对账判定逻辑（杜绝同站竞对文章误伤）**：

@@ -190,3 +190,87 @@
   - 本地端口锁定 8088，严格隔离生产服务器（`mini` / `geo.baicl.cc`）；
   - 未发生任何私自部署；
   - **严格遵循用户指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 独立复审通过后归档。**
+
+---
+
+### 2026-09-02 Cursor [实现终局复审：代码与契约对账] [需修正]
+
+- **阶段**：Implementation Review（对照 `design.md` / 上轮实现期对齐项；不采信自评「66/66」）
+- **审查范围**：`tools/geo/llm.py`、`tools/geo/probing.py`、`tools/geo/cli.py`、`tools/geo/server.py`、`web/index.html` probing 段、`tests/test_probing.py`
+- **本地验证**：`python3 -m unittest tests.test_probing -v` → **5/5 通过**（0.02s）
+
+#### ✅ 已达标项
+
+| 项 | 验证结果 |
+|:---|:---|
+| 复用边界 A | 真机走 `llm.call_model_raw`，未另起平行 HTTP 客户端；沙箱在 `probing.SandboxSimulator` |
+| Key 链 | `GEO_*` → 通用名 → `ARK_*`；Kimi 已进 `PROVIDERS`；`test_01` 覆盖三级降级 |
+| 台账入口 | `trace_citations_against_ledger` / 沙箱均调用 `get_distribution_ledger` |
+| 指标分母 | `total_probes = M×Q`；Citation Share 分母为捕获角标总数，0 兜底 0.0 |
+| CLI / API | `geo probe` 已注册；`POST/GET /probing/run|status|report` 落在管理端 401 拦截之后 |
+| Web 分工 | Step 5：06「宏观 AI 评测沙盘」与 18「Citation 信源溯源对账」双入口清晰 |
+| XSS（流水表） | Query / snippet / model / URL / title 使用 `escapeHtmlSafe`，等效 `esc()` |
+| 生产红线 | 未见部署脚本或生产重启 |
+
+#### 🔴 P0 / 必须修正（阻塞归档）
+
+无 AGENTS 生产红线、无鉴权绕过。**无 P0。**
+
+#### 🟡 P1 — 建议本轮修复后再归档
+
+1. **台账 status 仍只认 `published`（上轮 Cursor 落地要求未落实）**
+   - `probing.py` 沙箱采样与 `trace_citations_against_ledger` 渠道入库均为 `status == "published"`。
+   - `dist_bot` 存活核验成功后 status 变为 **`verified`**；按现逻辑，核验越充分、我方资产越容易从 Hit 池消失。
+   - **修复**：`url` 非空且 `status in ("published", "verified")`；单测夹具覆盖 `verified` URL 的 Exact Hit。
+
+2. **design §8 `test_probing_api_auth_gate` 未落地**
+   - 现网 GET/POST 确实有 401 闸门，但 `tests/test_probing.py` 无未鉴权断言，无法回归。
+   - **修复**：补一条 401 单测（可参考既有 server 测试夹具）。
+
+3. **沙箱报告话术仍偏「真机审计」**
+   - `generate_probing_report_markdown` §5：「各维度 Citation 对账数据真实可复核」未按 `use_live` / 沙箱占比区分。
+   - 与 design §2.2「严禁沙箱输出法律效力类公关文案」及 eval 归档教训同类。
+   - **修复**：沙箱或 `live_calls==0` 时写明「演示/推演数据，不可替代真机 API 审计」。
+
+#### 🟢 P2 — 可选
+
+- `GET /probing/report` 无文件时自动 `run_live_probing(sample=3)`，会阻塞请求并改写产物；建议 404 + 引导 POST `/run`。
+- UI 写「并发探测」，实现为模型×Query 双层串行循环。
+- `DEEPSEEK_BASE_URL` 未实现（design §2.1）。
+- 报告预览 `marked.parse` 未消毒；流水表已转义，预览路径依赖 Markdown 渲染器。
+- 错误信息 `innerHTML` 拼接 `d.message` / `err.message`（低风险）。
+- Top-1 用「品牌名出现在前 150 字符」启发式，未复用 `evaluator.extract_citations_and_sov`。
+
+#### 结论
+
+**`[需修正]`** — 主链路（沙箱探测、角标解析、官网 Exact Hit、CLI/鉴权 API、双入口 UI、5 项单测）可用，但 **上轮明确要求的 `verified` 台账纳入未实现**，且沙箱报告话术与 API 鉴权单测缺口仍在。请修复 P1 #1–#3 后复审；通过后再由 Cursor 执行 `./opsx archive`。
+
+**下一步**：开发端修 P1 → `/opsx-review` → `[通过]` → Cursor 归档（禁私自推生产）。
+
+---
+
+### 2026-09-03 Cursor [P1 闭环修复与终局复审] [通过]
+
+- **阶段**：Fix Verification & Final Review Pass
+- **修复范围**：`tools/geo/probing.py`、`tests/test_probing.py`、`design.md` §3.2
+- **本地验证**：`python3 -m unittest tests.test_probing -v` → **6/6 通过**；`python3 -m unittest discover -s tests -q` → **全库通过**
+
+#### ✅ P1 闭环对照
+
+| # | 上轮要求 | 验证结果 |
+|:--|:---------|:---------|
+| 1 | `status in ("published", "verified")` | `is_ledger_asset_eligible()` 用于沙箱采样、渠道入库与 custom_links；夹具断言 verified Exact Hit、pending 不计入 |
+| 2 | `test_probing_api_auth_gate` | `test_06`：未鉴权 GET `/probing/status` 与 POST `/probing/run` 均为 401 |
+| 3 | 沙箱报告话术 | 非真机路径写明「不可替代真机 API 审计」；单测断言旧「真实可复核」文案已移除 |
+
+#### 🟢 残留 P2（不阻塞归档）
+
+- `GET /probing/report` 无文件时仍自动跑沙箱探测
+- 探测循环仍为串行；`DEEPSEEK_BASE_URL` 未接
+
+#### 结论
+
+**`[通过]`** — P1 #1–#3 已闭环，主链路与单测可归档。生产发布红线不变（仅本地 8088）。
+
+**下一步**：用户确认后执行 `./opsx archive`（Cursor 归档），再按需 Git 推送。**不自动部署生产。**
+
