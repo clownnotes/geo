@@ -2,7 +2,7 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "timestamp": "2026-09-03 04:04:41",
+  "timestamp": "2026-09-03 04:10:00",
   "summary": {
     "krr": 80.0,
     "half_life_days": 43.5,
@@ -58,6 +58,46 @@
     },
     {
       "timestamp": "2026-09-03 04:04:41",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:06:18",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:06:18",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:09:39",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:09:56",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-03 04:10:00",
       "krr": 80.0,
       "half_life_days": 43.5,
       "status": "safe",

@@ -155,6 +155,46 @@ class TestDecayMonitor(unittest.TestCase):
         self.assertEqual(captured.get("status"), 404)
         self.assertIn("20 号报告尚未生成", captured.get("payload", {}).get("message", ""))
 
+    def test_06_p1_closing_assertions(self):
+        """测试 Cursor P1 审查意见硬闭环断言 (首发基线固化 / delta_days兜底 / live话术自适应)"""
+        from tools.geo.decay_monitor import (
+            calculate_delta_days_from_ledger,
+            generate_decay_report_markdown,
+        )
+
+        # 1. dt <= 0 严格兜底为 14.0 天 (P1-2)
+        hl_zero, _ = estimate_half_life(75.0, delta_days=0)
+        hl_neg, _ = estimate_half_life(75.0, delta_days=-5.0)
+        self.assertEqual(hl_zero, 33.7)
+        self.assertEqual(hl_neg, 33.7)
+
+        # 2. 台账 delta_days 推算 (P1-2)
+        dt_ledger = calculate_delta_days_from_ledger(self.test_pid)
+        self.assertGreater(dt_ledger, 0.0)
+
+        # 3. 全 Live 报告自适应话术声明 (P1-3)
+        mock_live_data = {
+            "client_name": "测试企业",
+            "project_id": "test_live_prj",
+            "timestamp": "2026-09-03 04:10:00",
+            "summary": {
+                "krr": 90.0,
+                "half_life_days": 65.0,
+                "decay_rate_lambda": 0.010,
+                "risk_level": "safe",
+                "use_live": True,
+            },
+            "probe_records": [
+                {"is_live": True, "model": "doubao", "query": "q1", "score": 1.0},
+                {"is_live": True, "model": "deepseek", "query": "q2", "score": 1.0},
+            ],
+            "time_series_records": [],
+            "query_decay_breakdown": [],
+        }
+        live_report = generate_decay_report_markdown(mock_live_data)
+        self.assertIn("数据说明与实盘审计声明", live_report)
+        self.assertNotIn("沙箱仿真不可替代真实大模型联网 API 实盘审计", live_report)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -45,8 +45,14 @@ def estimate_half_life(krr: float, delta_days: float = 14.0) -> Tuple[float, flo
     """
     根据一级指数衰减模型预测半衰期天数与衰减系数 lambda:
     R(t) = R0 * e^(-lambda * dt) => lambda = -ln(KRR/100) / dt, t_1/2 = ln(2) / lambda.
+    若 delta_days <= 0，严格兜底为 14.0 天。
     """
-    dt = max(1.0, float(delta_days))
+    try:
+        raw_dt = float(delta_days)
+        dt = raw_dt if raw_dt > 0.0 else 14.0
+    except (ValueError, TypeError):
+        dt = 14.0
+
     if krr >= 98.0:
         return 90.0, 0.001
     krr_ratio = max(0.01, min(0.99, krr / 100.0))
@@ -56,6 +62,53 @@ def estimate_half_life(krr: float, delta_days: float = 14.0) -> Tuple[float, flo
     half_life = math.log(2.0) / decay_rate_lambda
     half_life_clamped = round(max(3.0, min(90.0, half_life)), 1)
     return half_life_clamped, round(decay_rate_lambda, 4)
+
+
+def calculate_delta_days_from_ledger(project_id: str) -> float:
+    """从 04 台账 eligible 渠道的最早发布时间戳计算距今 delta_days，失败或 <=0 兜底 14.0 天 (P1-2)"""
+    try:
+        ledger = get_distribution_ledger(project_id)
+        timestamps: List[float] = []
+
+        def try_parse_ts(ts_str: Any) -> Optional[float]:
+            if not ts_str or not isinstance(ts_str, str):
+                return None
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+                try:
+                    return time.mktime(time.strptime(ts_str.strip(), fmt))
+                except Exception:
+                    pass
+            return None
+
+        for ch in ledger.get("channels", {}).values():
+            url = ch.get("url", "")
+            status = ch.get("status", "")
+            if is_ledger_asset_eligible(url, status):
+                t1 = try_parse_ts(ch.get("verified_at"))
+                t2 = try_parse_ts(ch.get("updated_at"))
+                if t1: timestamps.append(t1)
+                if t2: timestamps.append(t2)
+
+        for cl in ledger.get("custom_links", []):
+            url = cl.get("url", "")
+            status = cl.get("status") or "published"
+            if is_ledger_asset_eligible(url, status):
+                t1 = try_parse_ts(cl.get("verified_at"))
+                t2 = try_parse_ts(cl.get("created_at"))
+                if t1: timestamps.append(t1)
+                if t2: timestamps.append(t2)
+
+        if not timestamps:
+            return 14.0
+
+        earliest = min(timestamps)
+        diff_days = (time.time() - earliest) / 86400.0
+        # 若发布间隔不足 1 天（例如当天刚发布或更新），按标准首发 14.0 天周期兜底
+        if diff_days < 1.0:
+            return 14.0
+        return round(diff_days, 1)
+    except Exception:
+        return 14.0
 
 
 def decay_risk_level(krr: float) -> str:
@@ -267,15 +320,21 @@ def track_knowledge_decay(
 
     total_probes = len(models) * len(sample_queries)
     
-    # 确定基线分
-    if saved_baseline and saved_baseline > 0:
+    # P1-2: 动态从台账最早外链时间戳推算 delta_days（若 <=0 或未传则兜底 14 天）
+    if delta_days is None or float(delta_days) <= 0.0:
+        actual_delta_days = calculate_delta_days_from_ledger(project_id)
+    else:
+        actual_delta_days = float(delta_days)
+
+    # P1-1 / P0-4: 确定基线分契约：首次以实测分固化，杜绝最大值漂移
+    if saved_baseline is not None and float(saved_baseline) > 0.0:
         initial_baseline_score = float(saved_baseline)
     else:
-        # 首次测定，以满分或当前分为初始基线
-        initial_baseline_score = float(total_probes * 1.0) if current_score > 0 else 1.0
+        # 首次测定，以当期实测分固化为初始基线（首测 KRR = 100.0%）
+        initial_baseline_score = max(1.0, float(current_score))
 
     krr = calculate_krr(current_score, initial_baseline_score)
-    half_life_days, decay_lambda = estimate_half_life(krr, delta_days=delta_days)
+    half_life_days, decay_lambda = estimate_half_life(krr, delta_days=actual_delta_days)
     risk_level = decay_risk_level(krr)
 
     # 汇总每个 Query 的衰减明细
@@ -323,7 +382,7 @@ def track_knowledge_decay(
         "current_score": round(current_score, 1),
         "total_probes": total_probes,
         "decayed_queries_count": decayed_queries_count,
-        "delta_days": delta_days,
+        "delta_days": actual_delta_days,
         "use_live": use_live
     }
 
@@ -479,11 +538,18 @@ def generate_decay_report_markdown(data: Dict[str, Any]) -> str:
     md.append(f"> **受测企业**：{client_name} (`{project_id}`)")
     md.append(f"> **生成时间**：{ts} ｜ **标准遵循**：普林斯顿 9 因子时间序列记忆审计准则\n")
 
-    # 强制写入 P0-5 要求的沙箱免责与实盘真机审计话术声明
-    md.append(
-        f"> ⚠️ **数据说明与免责声明**：本报告当前在确定性沙箱仿真环境下生成，用于衰减趋势推演与自愈补量演练。"
-        f"沙箱仿真不可替代真实大模型联网 API 实盘审计。上线实盘交付时，请配置真实 API Key 执行 live 模式探测。\n"
-    )
+    # 区分 live 与 sandbox 模式话术声明 (闭环 P1-3 / P0-5)
+    probe_records = data.get("probe_records", [])
+    is_fully_live = bool(summary.get("use_live")) and len(probe_records) > 0 and all(r.get("is_live") for r in probe_records)
+    if is_fully_live:
+        md.append(
+            "> 🌐 **数据说明与实盘审计声明**：本报告基于实时联网大模型 API 真机联网实测生成，真实反映当前知识召回与台账引用留存状态。\n"
+        )
+    else:
+        md.append(
+            "> ⚠️ **数据说明与免责声明**：本报告当前在确定性沙箱仿真环境下生成，用于衰减趋势推演与自愈补量演练。"
+            "沙箱仿真不可替代真实大模型联网 API 实盘审计。上线实盘交付时，请配置真实 API Key 执行 live 模式探测。\n"
+        )
 
     md.append("## 1. 核心衰减指标与结论先行 (Executive Summary)\n")
     md.append(f"针对 **{client_name}** 在主流大模型（豆包、DeepSeek、Kimi）上的多轮搜索召回表现，通过时间序列对账模型对比首发基线，精准测算当前知识留存率与记忆半衰期。\n")

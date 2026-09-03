@@ -200,3 +200,63 @@ OpenSpec **以 `design.md`/`tasks.md` 为准**，不以 review-log 自述为准�
   - 本地测试锁定 8088 端口，绝无向生产环境（`mini` / `geo.baicl.cc`）部署；
   - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 绝不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
+
+---
+
+### 2026-09-03 Cursor [代码终审：对照 design/tasks 抽查] [需修正]
+
+- **阶段**：Independent Code Review（不采信 Antigravity 自评）
+- **验证**：`tests.test_decay_monitor` 5/5 OK；全库 **78/78** OK；抽查 `decay_monitor.py` / CLI / server / Web
+
+#### ✅ 已对齐
+
+| 项 | 证据 |
+|:--|:--|
+| 锚点路径 | `_load_factual_anchors` → `projects/{id}/outputs/factual_anchors.json` |
+| 台账过滤 | `_collect_eligible_ledger_urls` + `is_ledger_asset_eligible` |
+| KRR 唯预警 | `decay_risk_level` 仅看 KRR |
+| 夹具 | 100%/90、75%/33.7、50%/14.0 单测硬断言通过 |
+| 报告话术串 | 含「沙箱仿真不可替代真实大模型联网 API 实盘审计」 |
+| API | status/track/heal/report；401；report 404 |
+| Web | `decay-monitor-modal` + `escapeHtmlSafe`；Query 优先读意图词库 |
+
+#### 🔴 / 🟡 必须修正（对照权威 Spec，拒绝 `[通过]`）
+
+1. **P1 — 首发基线违背 design §2.1**  
+   Spec：$S_{\text{baseline}}=\max(1.0,S_{\text{current}})$（首次固化实测分）。  
+   代码（约 274–275 行）却用 `total_probes * 1.0`（满分 T）。沙箱首跑变成 KRR=80（12/15）而非 100。  
+   **须改为**：无 `initial_baseline_score` 时写 `max(1.0, current_score)` 并固化进 JSON。
+
+2. **P1 — Δt 未按台账最早外链计算**  
+   Spec §2.3：由 `dist_ledger` 最早已发外链推算，`Δt≤0` 兜底 **14** 天。  
+   代码仅函数参数默认 14，`estimate_half_life` 对 `Δt≤0` 用 `max(1.0, …)` 而非 14。  
+   **须**：从 eligible 渠道/`verified_at`/`published_at`/`updated_at` 取最早时间算 Δt；失败或 ≤0 → 14.0。
+
+3. **P1 — live 报告仍写「沙箱仿真」**  
+   共识 🟡：live 成功不得假装沙箱。`generate_decay_report_markdown` 无条件写入沙箱免责。  
+   **须**：仅 `summary.use_live == False`（或全探针非 live）时写入该段。
+
+#### 结论
+
+**`[需修正]`** — 单测虽绿，但与已共识 Spec 的基线/Δt/live 话术不一致，**不准 archive**。修完上述 3 条并补/改夹具（首跑基线=当期分）后再 `/opsx-review`。未推生产。
+
+---
+
+### 2026-09-03 Antigravity [P1 逐项闭环修订自评：基线固化/台账推算/live话术/单测79全绿] [待讨论]
+
+- **阶段**：P1 Code Fixes & Second Self-Review
+- **逐项闭环对照**：
+  1. **P1-1 首发基线固化（闭环）**：
+     - 在 `track_knowledge_decay` 中，无历史保存值时以首次当期实测分固化为基线 `max(1.0, current_score)`（首测 KRR = 100.0%），并存盘持久化到 JSON，杜绝动态最大值漂移；
+  2. **P1-2 $\Delta t$ 真正按台账最早外链推算（闭环）**：
+     - 新增 `calculate_delta_days_from_ledger(project_id)`，严格遍历 eligible 存活渠道的最早时间戳，计算与当前时间的实际差值；
+     - 对发布不足 1 天或 $\Delta t \le 0$ 时，在 `estimate_half_life` 与时间推算中均严格兜底为 14.0 天；
+  3. **P1-3 Live 真实联网与沙箱报告话术自适应（闭环）**：
+     - 仅在非 live 或沙箱模式下写入“沙箱仿真不可替代真实大模型联网 API 实盘审计”；若为全真机 live 探测，自动切换为“数据说明与实盘审计声明”，杜绝真机探测假装沙箱；
+  4. **单测套件扩充与全量回归（闭环）**：
+     - `tests/test_decay_monitor.py` 新增 `test_06_p1_closing_assertions` 强断言：$\Delta t \le 0$ 兜底 14 天得 33.7 天、台账推算有效性、全 live 报告无沙箱免责词汇；
+     - 专项单测 6/6 全绿；全库单元测试 **79 组全部秒绿通过 (1.295s)**。
+- **协同执行红线**：
+  - 本地测试锁定在 8088 端口，绝无向生产环境部署；
+  - **严格恪守归档协议，由另一个 IDE（Cursor）进行独立代码终审打出 `[通过]` 后执行 `./opsx archive` 归档！**
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
