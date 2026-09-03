@@ -1042,6 +1042,34 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 23 号因果归因审计: POST /api/projects/{id}/attribution/audit
+        if path.startswith("/api/projects/") and path.endswith("/attribution/audit"):
+            project_id = path.split("/")[3]
+            try:
+                from .causal_auditor import CausalAttributionSimulator
+                data = self.read_json_body()
+                models = data.get("models")
+                use_live = bool(data.get("use_live", False))
+                res = CausalAttributionSimulator.audit_causal_attribution(
+                    project_id=project_id,
+                    models=models,
+                    use_live=use_live,
+                )
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 23 号因果归因优化包: POST /api/projects/{id}/attribution/optimize
+        if path.startswith("/api/projects/") and path.endswith("/attribution/optimize"):
+            project_id = path.split("/")[3]
+            try:
+                from .causal_auditor import generate_attribution_optimization_pack
+                self.send_json(generate_attribution_optimization_pack(project_id))
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2633,6 +2661,42 @@ core_values:
                         "success": True,
                         "project_id": project_id,
                         "filename": "22_跨大模型RAG混合检索召回与重排序挤占演习报告.md",
+                        "content": content,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 23 号因果归因审计状态: GET /api/projects/{id}/attribution/status
+            if path.startswith("/api/projects/") and path.endswith("/attribution/status"):
+                project_id = path.split("/")[3]
+                try:
+                    from .causal_auditor import get_attribution_status
+                    self.send_json(get_attribution_status(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 23 号因果归因审计报告获取: GET /api/projects/{id}/attribution/report
+            if path.startswith("/api/projects/") and path.endswith("/attribution/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(
+                    PROJECT_ROOT, "projects", project_id, "outputs",
+                    "23_大模型商业推荐因果归因与信源边际贡献度量化审计报告.md"
+                )
+                if not os.path.exists(report_file):
+                    self.send_json({
+                        "success": False,
+                        "message": "23 号报告尚未生成，请先 POST /attribution/audit",
+                    }, status=404)
+                    return
+                try:
+                    with open(report_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "filename": "23_大模型商业推荐因果归因与信源边际贡献度量化审计报告.md",
                         "content": content,
                     })
                 except Exception as e:

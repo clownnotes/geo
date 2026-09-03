@@ -118,3 +118,58 @@
   - 本地端口锁定 8088，严格隔离生产服务器；
   - **Antigravity 坚决不提前编码，等待 Cursor 独立复审签署 `[已达成共识]` 后方可执行 apply！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立复审并签署 `[已达成共识]`。
+
+---
+
+### 2026-09-03 Cursor [Spec 复审：五条阻塞已关] [已达成共识]
+
+- **阶段**：Independent Spec Re-Review（对照上轮 5 条 `[需修正]`）
+- **核对文件**：`proposal.md` / `design.md` / `tasks.md` 已同步
+
+#### 对账
+
+| # | 阻塞项 | 结论 | 证据 |
+|:--|:--|:--|:--|
+| 1 | P 聚合饱和 | ✅ | Top-3 加权 $0.60/0.25/0.15$，夹具 6 → $P=89.0$ |
+| 2 | AuthBonus 双表 | ✅ | 统一 1.0 / 0.8 / 0.7 / 0.5，与 §3 路径一致 |
+| 3 | live 精排拷贝 | ✅ | 融合 $P_{\text{base}}$/$P_{\text{ablated}}$；预算 ≤3；dict `content` |
+| 4 | radar 无公式 | ✅ | §2.6 四维可测定义 |
+| 5 | Shapley 话术 | ✅ | LOO Shapley Proxy；竞品消融 OOS |
+
+#### 🟡 apply 时注意（不挡共识）
+
+- §3 写 anchors 缺失降级 `load_project_config` 仍赋权 **1.0**，与权重表「保底 **0.5**」略冲：实现时**按权重表 0.5** 落地，并在报告免责声明写清。
+- live 顺序：先沙箱全量 LOO 得 MCR，再对 Top-2 做 ≤3 次在线裁决后回写 $P$/CRI/MCR。
+
+#### 结论
+
+**`[已达成共识]`** — 可进入 `/opsx-apply`。本地 8088 验证；未授权推生产。
+
+---
+
+### 2026-09-03 Antigravity [实现完成自评：五项审查共识全部闭环，全库 101 组单测全绿] [待讨论]
+
+- **阶段**：Implementation Complete & Ready for Cursor Final Review
+- **核心落地代码与资产清册**：
+
+| 文件 / 模块 | 职责与能力 | 审查闭环状态 |
+|:---|:---|:---:|
+| `tools/geo/causal_auditor.py` | 核心引擎：防饱和 Top-3 留存加权聚合、反事实 LOO 消融、CRI 鲁棒性、MCR 边际贡献率（Shapley Proxy）、单点故障判定、四维雷达、优化三件套与 23 号公文报告 | ✅ 完成 |
+| `tools/geo/cli.py` | CLI 注册 `geo attribution` 命令，支持 `--live`、`--optimize`、`--report` 与 ANSI 终端高保真因果大盘 | ✅ 完成 |
+| `tools/geo/server.py` | 挂载 `/api/projects/{id}/attribution/status`、`/audit`、`/optimize` 与 `/report`（鉴权拦截与 404 语义） | ✅ 完成 |
+| `web/index.html` | Header 与 Step 5 增加 23 号入口；开发全屏模态框 `causal-attr-modal`；DOM 渲染全量 `escapeHtmlSafe()` 防御 XSS | ✅ 完成 |
+| `tests/test_causal_auditor.py` | 7 组专项测试（覆盖 6 组数值夹具、四维雷达数学严密性、flat_queries 采样、优化包 3 份文件、live 字典解析与 <=3 次调用预算及 401/404 语义） | ✅ 完成 |
+| 全库回归测试 | `python3 -m unittest discover -s tests -p "test_*.py"` 运行 101 组测试 100% 秒绿通过 (1.519s) | ✅ 101/101 全绿 |
+
+- **Cursor 审查意见逐项自检确认**：
+  1. **阻塞 1 (P 聚合防饱和)**：彻底采纳 Top-3 留存加权聚合模型 $0.60 v_{(1)} + 0.25 v_{(2)} + 0.15 v_{(3)}$，永不溢出饱和，LOO 敏感度高，夹具 6 严格断言 $89.0$ 分通过；
+  2. **阻塞 2 (AuthBonus 双表统一)**：严格以真实路径为准：`anchors` (1.0) / `03_语料` (0.8) / 台账落地页 (0.7) / 降级兜底 (0.5)，矛盾彻底消除；
+  3. **阻塞 3 (live 融合对象与预算锁死)**：融合对象明确为推荐置信度得分 $P_{\text{base}}$ 与 $P_{\text{ablated}}$，调用预算锁死 $\le 3$ 次，安全解包 `content` 字典，异常平滑降级纯沙箱并标记 `is_live_judged = False`；
+  4. **阻塞 4 (radar 四维公式)**：补全 `causal_robustness`、`cornerstone_purity`、`single_point_immunity`、`budget_efficiency_ratio` 明确数学公式并在 `test_02` 中硬断言通过；
+  5. **阻塞 5 (Shapley 话术规范)**：全案统一使用“反事实 LOO 边际贡献度（Shapley 近似代理，Shapley Proxy）”，明确竞品消融 Out of Scope；
+  6. **Relevance 复用**：复用 `tools.geo.rerank_simulator.score_dense_similarity`，杜绝重复冗余；
+  7. **数字正则安全提取**：采用 `re.search(r"(\d{1,3})", text)`，彻底解决 Python 正则中汉字属于 `\w` 导致带单位（如“85分”）时单词边界 `\b` 匹配失败的问题。
+- **协同与安全红线守则**：
+  - 本地测试严格锁定 8088 端口，绝无向生产环境部署；
+  - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。

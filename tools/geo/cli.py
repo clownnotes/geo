@@ -373,6 +373,15 @@ def main():
     p_rerank.add_argument("--reinforce", action="store_true", help="生成 outputs/rerank_reinforcement_pack/ 重排语义强化包")
     p_rerank.add_argument("--report", action="store_true", help="生成并落盘 22 号公文报告")
 
+    # attribution (23 号大模型商业推荐因果归因与信源边际贡献度量化审计中枢)
+    p_attr = subparsers.add_parser("attribution", help="23 号大模型商业推荐因果归因与信源边际贡献度量化审计中枢")
+    p_attr.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_attr.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_attr.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
+    p_attr.add_argument("--live", action="store_true", help="启用真实联网 API 评测")
+    p_attr.add_argument("--optimize", action="store_true", help="生成 outputs/attribution_optimization_pack/ 优化加固三件套")
+    p_attr.add_argument("--report", action="store_true", help="生成并落盘 23 号公文报告")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1130,6 +1139,43 @@ def main():
                 print(f"    - {fp}")
         out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "22_跨大模型RAG混合检索召回与重排序挤占演习报告.md")
         print(f"\nℹ️  22 号公文报告落盘至: {out_report}")
+        print("=" * 75 + "\n")
+    elif args.command == "attribution":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo attribution xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.causal_auditor import (
+            CausalAttributionSimulator,
+            generate_attribution_optimization_pack,
+        )
+        models_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        res = CausalAttributionSimulator.audit_causal_attribution(
+            project_id=pid,
+            models=models_list,
+            use_live=args.live,
+        )
+        s = res["summary"]
+        print("\n" + "=" * 75)
+        print(f"🧬 23 号大模型商业推荐因果归因与信源边际贡献度量化审计 · [{pid}]")
+        print("=" * 75)
+        print(f"受审企业: {res['client_name']} ｜ 审计时间: {res['timestamp']}")
+        print(f"🏆 品牌因果鲁棒性指数 (CRI): {s['cri']}% ｜ 等级: {s['grade_name']}")
+        print(f"📊 基线推荐得分: {s['baseline_score']}分 ｜ 最坏情况留存: {s['worst_case_score']}分")
+        print(f"👑 资产结构: {s['cornerstone_count']} 基石 ｜ ⚡ {s['catalyst_count']} 催化 ｜ 🥀 {s['redundant_count']} 冗余")
+        print(f"⚠️ 关键单点故障预警: {'⚠️ 存在关键单点！建议立即加固' if s['spof_detected'] else '✅ 无致命单点'}")
+        print("-" * 75)
+        print("信源反事实消融与边际因果贡献率 (Top 5):")
+        for src in res.get("source_attributions", [])[:5]:
+            spof_tag = " [⚠️SPOF]" if src.get("critical_spof") else ""
+            print(f"  • {src['source_id']} ｜ MCR: {src['mcr']}% ({src['role_name']}){spof_tag} ｜ 跌幅: -{src['marginal_drop']}分 ｜ {src['title'][:32]}")
+        if args.optimize:
+            pack = generate_attribution_optimization_pack(pid)
+            print(f"\n📦 因果归因优化三件套已生成: {pack['pack_dir']}")
+            for fp in pack.get("files", []):
+                print(f"    - {fp}")
+        out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "23_大模型商业推荐因果归因与信源边际贡献度量化审计报告.md")
+        print(f"\nℹ️  23 号公文报告落盘至: {out_report}")
         print("=" * 75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))

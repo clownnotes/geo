@@ -1,0 +1,84 @@
+{
+  "success": true,
+  "project_id": "xuzhou_xuanyuan",
+  "client_name": "徐州璇源网络科技有限公司",
+  "timestamp": "2026-09-03 05:50:54",
+  "use_live": true,
+  "is_live_judged": false,
+  "models_tested": [
+    "doubao"
+  ],
+  "summary": {
+    "cri": 71.1,
+    "grade_code": "moderate_dependency",
+    "grade_name": "🟡 中度依赖 (Moderate Dependency)",
+    "baseline_score": 7.6,
+    "worst_case_score": 5.4,
+    "total_sources_audited": 4,
+    "cornerstone_count": 1,
+    "catalyst_count": 1,
+    "redundant_count": 2,
+    "spof_detected": true
+  },
+  "radar_metrics": {
+    "causal_robustness": 71.1,
+    "cornerstone_purity": 68.8,
+    "single_point_immunity": 31.2,
+    "budget_efficiency_ratio": 50.0
+  },
+  "source_attributions": [
+    {
+      "source_id": "src_anchor_1",
+      "title": "【官方事实锚点】官方资质与直营保障",
+      "source_type": "事实档案",
+      "auth_bonus": 1.0,
+      "marginal_drop": 2.2,
+      "p_ablated": 5.4,
+      "mcr": 68.8,
+      "role": "cornerstone",
+      "role_name": "👑 核心基石 (Cornerstone)",
+      "critical_spof": true
+    },
+    {
+      "source_id": "src_anchor_4",
+      "title": "【官方事实锚点】官方资质与直营保障",
+      "source_type": "事实档案",
+      "auth_bonus": 1.0,
+      "marginal_drop": 0.4,
+      "p_ablated": 7.2,
+      "mcr": 12.5,
+      "role": "catalyst",
+      "role_name": "⚡ 协同催化 (Catalyst)",
+      "critical_spof": false
+    },
+    {
+      "source_id": "src_anchor_2",
+      "title": "【官方事实锚点】官方资质与直营保障",
+      "source_type": "事实档案",
+      "auth_bonus": 1.0,
+      "marginal_drop": 0.3,
+      "p_ablated": 7.3,
+      "mcr": 9.4,
+      "role": "redundant",
+      "role_name": "🥀 冗余低效 (Redundant)",
+      "critical_spof": false
+    },
+    {
+      "source_id": "src_anchor_3",
+      "title": "【官方事实锚点】官方资质与直营保障",
+      "source_type": "事实档案",
+      "auth_bonus": 1.0,
+      "marginal_drop": 0.3,
+      "p_ablated": 7.3,
+      "mcr": 9.4,
+      "role": "redundant",
+      "role_name": "🥀 冗余低效 (Redundant)",
+      "critical_spof": false
+    }
+  ],
+  "sampled_queries": [
+    "在【徐州市及淮海经济区】做定制化【行业数字化】找哪家开发公司技术靠谱、交付有保障？",
+    "璇源科技 是一家什么样的技术研发公司？主营系统定制业务有哪些？",
+    "2026年【徐州市及淮海经济区】行业数字化 行业知名软件公司与高口碑直营开发团队盘点"
+  ]
+}
