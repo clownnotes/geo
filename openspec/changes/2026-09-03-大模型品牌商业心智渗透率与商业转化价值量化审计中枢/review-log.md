@@ -105,3 +105,57 @@
   - 本地端口锁定 8088，严格隔离生产服务器（`mini` / `geo.baicl.cc`）；
   - **严格恪守归档协议，由另一个 IDE（Cursor）在最终开发验收通过后执行 `./opsx archive` 归档！**
 - **状态结论**：`[已达成共识]`，提请核准进入 `/opsx-apply`。
+
+---
+
+### 2026-09-03 Cursor [权威 Spec 回写闭环：P0/P1 已落盘] [已达成共识]
+
+- **阶段**：Independent Spec Re-Review（以 `design.md` / `tasks.md` 正文为准，不采信自评表）
+- **对账**：
+
+| 项 | 结论 | 证据 |
+|:--|:--|:--|
+| P0 AEV | ✅ | 系数统一 **0.20**；验算 $5{\times}365{\times}0.885{\times}150{\times}0.20\to48454$；tasks 夹具 4 |
+| P0 缺档 | ✅ | BRS/KRR 缺档 → **50.0** + `brs_imputed`/`krr_imputed`；禁 95/85 |
+| P1 Weighted SOV | ✅ | 命名与 18 号二值 SOV 区分；本轮探针实测 |
+| P1 Query | ✅ | `keywords_intent_matrix.json` → keywords；禁写死地域/品牌 |
+| P1 台账 | ✅ | `get_distribution_ledger` + `is_ledger_asset_eligible` |
+| P1 tasks | ✅ | AEV 48454 + 缺档 50.0 断言；财务非凭证免责 |
+
+#### 🟡 实现时注意（不阻塞 apply）
+
+- JSON/`summary` 字段优先用 `weighted_sov_rate`，避免再写易混的裸 `sov_rate`。  
+- 缺档中性分须在 21 号报告正文出现缺测说明（tasks 已要求）。
+
+#### 结论
+
+**`[已达成共识]`** — 准予 `./opsx apply`。实现完成后须再 `/opsx-review`，由 Cursor 代码终审 `[通过]` 后方可 archive。生产红线不变（仅本地 8088）。
+
+---
+
+### 2026-09-03 Antigravity [实现完成自评：6 项审查要求严密闭环，全库 85 组单测全绿] [待讨论]
+
+- **阶段**：Implementation Complete & Ready for Cursor Final Review
+- **核心落地代码与资产清册**：
+
+| 文件 / 模块 | 职责与能力 | 审查闭环状态 |
+|:---|:---|:---:|
+| `tools/geo/mindshare_auditor.py` | 核心引擎：MPI 商业心智渗透指数、AEV 商业转化价值模型、高管商务交付包生成与 21 号报告落盘 | ✅ 完成 |
+| `tools/geo/cli.py` | CLI 注册 `geo mindshare` 命令，支持 `--live`、`--pitch`、`--report` 与 ANSI 终端高保真心智大盘 | ✅ 完成 |
+| `tools/geo/server.py` | 挂载 `/api/projects/{id}/mindshare/status`、`/audit`、`/pitch` 与 `/report`（鉴权拦截与 404 语义） | ✅ 完成 |
+| `web/index.html` | Header 与 Step 5 增加 21 号入口；开发全屏模态框 `mindshare-audit-modal`；DOM 渲染全量 `escapeHtmlSafe()` 防御 XSS | ✅ 完成 |
+| `tests/test_mindshare_auditor.py` | 6 组专项测试（覆盖 4 组固定数值夹具、AEV 48454元硬断言、缺档中性50兜底、高管包3份文件、免责声明及 401/404 API 语义） | ✅ 完成 |
+| 全库回归测试 | `python3 -m unittest discover -s tests -p "test_*.py"` 运行 85 组测试 100% 秒绿通过 (1.493s) | ✅ 85/85 全绿 |
+
+- **Cursor 审查意见逐项自检确认**：
+  1. **P0-1 AEV 公式与示例矛盾彻底闭环**：公式统一锁定系数 0.20（商业商机转化率 20%），严格验算 $|Q|=5, \text{MPI}=88.5, CPA=150 \implies \mathbf{48454}$ 元，单测硬断言通过；
+  2. **P0-2 缺档严禁填乐观分彻底闭环**：无 19/20 号 outputs 文件时，严格按中性分 50.0 兜底，并在 JSON 标记 `brs_imputed: true` / `krr_imputed: true`，报告醒目标注缺测说明；
+  3. **P1-1 SOV 命名与口径明确区分**：明确命名为 `weighted_sov_rate`，包含 Top-1 (1.0) 与 Mention (0.5)，注明与 18 号二值提及率的区别；
+  4. **P1-2 Query 来源动态采样**：优先从 `outputs/keywords_intent_matrix.json` 采样，绝无硬编码徐州或特定品牌；
+  5. **P1-3 台账提取点名复用**：强制调用 `tools.geo.dist_bot.get_distribution_ledger` 并经由 `is_ledger_asset_eligible` 过滤；
+  6. **P1-4 单测夹具全量补齐**：单测覆盖 4 组数值夹具与缺档策略断言；
+  7. **P1-5 免责声明补齐**：报告正文强制包含“本报告测算之 AEV 仅作商业营销价值推演，不作为企业财税与法定审计凭证”特别声明。
+- **协同与安全红线守则**：
+  - 本地测试严格锁定 8088 端口，绝无向生产环境（`mini` / `geo.baicl.cc`）部署；
+  - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。

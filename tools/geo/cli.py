@@ -355,6 +355,15 @@ def main():
     p_decay.add_argument("--delta-days", type=float, default=None, help="手动指定间隔天数（默认从台账外链推算）")
     p_decay.add_argument("--report", action="store_true", help="生成并落盘 20 号公文报告")
 
+    # mindshare (21 号大模型商业心智渗透与商业转化价值量化审计)
+    p_mindshare = subparsers.add_parser("mindshare", help="21 号大模型商业心智渗透率与商业转化价值审计")
+    p_mindshare.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_mindshare.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_mindshare.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
+    p_mindshare.add_argument("--live", action="store_true", help="启用真实联网 API")
+    p_mindshare.add_argument("--pitch", action="store_true", help="生成 commercial_roi_pitch 高管商务三件套")
+    p_mindshare.add_argument("--report", action="store_true", help="生成并落盘 21 号公文报告")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1050,6 +1059,36 @@ def main():
             for fp in pack.get("files", []):
                 print(f"    - {fp}")
         print(f"\nℹ️  20 号公文报告落盘至: {res['report_path']}")
+        print("=" * 75 + "\n")
+    elif args.command == "mindshare":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo mindshare xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.mindshare_auditor import audit_mindshare_penetration, generate_commercial_pitch_pack
+        models_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        res = audit_mindshare_penetration(
+            project_id=pid,
+            models=models_list,
+            use_live=args.live,
+        )
+        s = res["summary"]
+        print("\n" + "=" * 75)
+        print(f"💎 21 号大模型商业心智渗透与商业转化价值审计 · [{pid}]")
+        print("=" * 75)
+        print(f"受审企业: {res['client_name']} ｜ 审计时间: {res['timestamp']}")
+        print(f"🏆 商业心智渗透指数 (MPI): {s['mpi']} 分 ｜ 等级: {s['grade_name']}")
+        print(f"💰 年化等效广告价值 (AEV): ¥{s['annual_aev_yuan']:,} 元 (商机转化率 20%)")
+        print(f"📊 加权推荐度: {s['weighted_sov_rate']}% ｜ 台账背书率: {s['citation_rate']}% ｜ BRS 声誉: {s['brs_score']}分 ｜ KRR 留存: {s['krr_rate']}%")
+        print("-" * 75)
+        for q in res.get("query_audits", []):
+            print(f"  • {q['query'][:38]}… 推荐度: {q['weighted_sov']}% (首推: {q['top1_count']}次, 提及: {q['mention_count']}次, 外链: {q['ledger_hits']}条)")
+        if args.pitch:
+            pack = generate_commercial_pitch_pack(pid)
+            print(f"\n📦 高管商务汇报包已生成: {pack['pack_dir']}")
+            for fp in pack.get("files", []):
+                print(f"    - {fp}")
+        print(f"\nℹ️  21 号公文报告落盘至: {res['report_path']}")
         print("=" * 75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))

@@ -1,12 +1,12 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 54,
-  "avg_princeton_score": 65.3,
-  "pass_rate_ge_80": 7.4,
+  "scanned_files": 58,
+  "avg_princeton_score": 65.0,
+  "pass_rate_ge_80": 6.9,
   "rating_grade": "B 级 (及格边缘级)",
-  "est_visibility_ceiling": "+26.8%",
-  "est_boost_vs_baseline": "+12.5%",
+  "est_visibility_ceiling": "+26.7%",
+  "est_boost_vs_baseline": "+12.4%",
   "file_results": [
     {
       "file": "robots.txt",
@@ -153,6 +153,24 @@
       }
     },
     {
+      "file": "commercial_roi_pitch/02_GEO全案代运营商业回报率ROI与等效广告价值测算书.md",
+      "overall_score": 53.9,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+22.1%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "decay_healing_pack/03_全渠道增量补量分发推荐计划表.md",
       "overall_score": 54.8,
       "rating_grade": "C 级 (低质营销水文)",
@@ -193,6 +211,24 @@
       "overall_score": 56.5,
       "rating_grade": "C 级 (低质营销水文)",
       "est_visibility_ceiling": "+23.2%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "commercial_roi_pitch/01_企业大模型商业心智渗透率与竞对对标董事会简报.md",
+      "overall_score": 56.8,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+23.3%",
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议补充带身份声明的专家/技术负责人客观引语",
@@ -438,6 +474,24 @@
       }
     },
     {
+      "file": "commercial_roi_pitch/03_下一阶段大模型商业心智护城河强化与续约规划建议书.md",
+      "overall_score": 62.5,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+25.6%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "llms.txt",
       "overall_score": 63.3,
       "rating_grade": "B 级 (及格边缘级)",
@@ -498,6 +552,24 @@
       "est_visibility_ceiling": "+27.3%",
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "21_大模型品牌商业心智渗透率与商业转化价值审计公文报告.md",
+      "overall_score": 66.5,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+27.3%",
+      "top_suggestions": [
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议清除广告法极限词与主观浮夸表述，改用客观陈述",
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
       ],
       "penalties": {
@@ -942,7 +1014,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-03 04:15:14",
+  "generated_at": "2026-09-03 04:34:24",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

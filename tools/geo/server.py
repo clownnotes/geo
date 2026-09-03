@@ -982,6 +982,38 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 21 号商业心智审计: POST /api/projects/{id}/mindshare/audit
+        if path.startswith("/api/projects/") and path.endswith("/mindshare/audit"):
+            project_id = path.split("/")[3]
+            try:
+                from .mindshare_auditor import audit_mindshare_penetration
+                data = self.read_json_body()
+                models = data.get("models")
+                use_live = bool(data.get("use_live", False))
+                cpa_override = data.get("cpa_override")
+                if cpa_override is not None:
+                    cpa_override = int(cpa_override)
+                res = audit_mindshare_penetration(
+                    project_id=project_id,
+                    models=models,
+                    use_live=use_live,
+                    cpa_override=cpa_override,
+                )
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 21 号高管汇报包: POST /api/projects/{id}/mindshare/pitch
+        if path.startswith("/api/projects/") and path.endswith("/mindshare/pitch"):
+            project_id = path.split("/")[3]
+            try:
+                from .mindshare_auditor import generate_commercial_pitch_pack
+                self.send_json(generate_commercial_pitch_pack(project_id))
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2501,6 +2533,42 @@ core_values:
                         "success": True,
                         "project_id": project_id,
                         "filename": "20_大模型知识半衰期衰减监测与长效留存自愈报告.md",
+                        "content": content,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 21 号商业心智渗透审计状态: GET /api/projects/{id}/mindshare/status
+            if path.startswith("/api/projects/") and path.endswith("/mindshare/status"):
+                project_id = path.split("/")[3]
+                try:
+                    from .mindshare_auditor import get_mindshare_status
+                    self.send_json(get_mindshare_status(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 21 号商业心智报告获取: GET /api/projects/{id}/mindshare/report
+            if path.startswith("/api/projects/") and path.endswith("/mindshare/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(
+                    PROJECT_ROOT, "projects", project_id, "outputs",
+                    "21_大模型品牌商业心智渗透率与商业转化价值审计公文报告.md"
+                )
+                if not os.path.exists(report_file):
+                    self.send_json({
+                        "success": False,
+                        "message": "21 号报告尚未生成，请先 POST /mindshare/audit",
+                    }, status=404)
+                    return
+                try:
+                    with open(report_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "filename": "21_大模型品牌商业心智渗透率与商业转化价值审计公文报告.md",
                         "content": content,
                     })
                 except Exception as e:
