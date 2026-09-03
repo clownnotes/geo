@@ -1196,24 +1196,12 @@ core_values:
             pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
             req_key = parse_qs(parsed.query).get("key", ["acceptance"])[0]
 
-            # 严格白名单约束：仅允许读取 16 维资产与结案标书，严禁读取内部设置或私密凭证
-            allowed_keys = {
-                "acceptance", "pitch", "audit", "scaffold", "rewrite", "distribute",
-                "monitor", "evaluator", "defense", "guard", "visual", "video",
-                "graph", "intent", "rag_diag", "compliance", "competitor",
-                "citation_auth", "injection_guard"
-            }
-            if req_key not in allowed_keys:
-                self.send_json({"success": False, "message": f"非法或未授权的资产 Key: {req_key}"}, status=400)
+            from .share import get_share_single_file_content
+            file_res = get_share_single_file_content(share_token, req_key, client_pin=pin)
+            if not file_res.get("success"):
+                self.send_json(file_res, status=file_res.get("status", 400))
                 return
-
-            from .share import get_share_portal_data
-            portal_data = get_share_portal_data(share_token, client_pin=pin)
-            if not portal_data.get("success"):
-                self.send_json(portal_data, status=403)
-                return
-            content = portal_data.get("deliverables", {}).get(req_key, "")
-            self.send_json({"success": True, "key": req_key, "content": content})
+            self.send_json(file_res)
             return
 
         # 11. 专属甲方全屏放映商业 Pitch Deck 幻灯片公开 API: /api/share/{token}/pitch/slides

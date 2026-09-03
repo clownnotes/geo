@@ -106,21 +106,71 @@ class TestAcceptanceAndDeliveryHub(unittest.TestCase):
         self.assertIn("acceptance", data["deliverables"])
         self.assertIn("injection_guard", data["deliverables"])
 
+    def test_generate_acceptance_report_honesty(self):
+        """测试公文诚信：未达全额回款时（徐州89.3分）严禁捏造全额结案回款"""
+        rep = generate_acceptance_report("xuzhou_xuanyuan")
+        self.assertTrue(rep["success"])
+        ful = rep["fulfillment"]
+        self.assertFalse(ful["is_passed"], "徐州项目得分 89.3 应为未过全额回款线")
+        
+        # 核心断言：未过线时绝不可声称达到全额验收回款
+        self.assertNotIn("达到合同约定的全额验收与结案回款要求", rep["content"])
+        self.assertIn("达到基本技术交付与阶段验收标准", rep["content"])
+        self.assertIn("全额回款条款待补齐优化", rep["content"])
+        
+        # 核心断言：第一节不是全篇硬编码通过
+        self.assertIn("分发补充中", rep["content"])
+
+    def test_share_single_file_security(self):
+        """测试 /api/share/file 真·realpath 单文件安全读取与浏览计数不自增"""
+        from tools.geo.share import get_share_single_file_content, verify_share_access
+        lnk = create_share_link("xuzhou_xuanyuan", expire_days=7)
+        token = lnk["token"]
+        
+        # 记录初始浏览次数
+        _, _, rec_before = verify_share_access(token, increment_view=False)
+        v_before = rec_before.get("view_count", 0)
+
+        # 1. 正常读取合法资产
+        res = get_share_single_file_content(token, "injection_guard")
+        self.assertTrue(res["success"])
+        self.assertEqual(res["key"], "injection_guard")
+        self.assertIn("提示词注入防御", res["content"])
+        self.assertEqual(res["filename"], "16_大模型提示词注入防御与品牌隔离盾牌报告.md")
+
+        # 验证读取单文件时不自增 view_count
+        _, _, rec_after = verify_share_access(token, increment_view=False)
+        self.assertEqual(rec_after.get("view_count", 0), v_before)
+
+        # 2. 尝试读取未授权或非法 key（防目录穿透）
+        res_bad = get_share_single_file_content(token, "../roi_settings.json")
+        self.assertFalse(res_bad["success"])
+        self.assertEqual(res_bad["status"], 400)
+
+        res_illegal = get_share_single_file_content(token, "project_yaml")
+        self.assertFalse(res_illegal["success"])
+        self.assertEqual(res_illegal["status"], 400)
+
     def test_print_acceptance_html(self):
         """测试 A4 打印版结案单 HTML 渲染"""
         html = generate_print_acceptance_html("xuzhou_xuanyuan")
         self.assertIn("GEO商业交付验收结案确认单", html)
         self.assertIn("甲方（客户企业）", html)
         self.assertIn("乙方（交付服务商）", html)
+        self.assertIn("验收结案法定确认声明", html)
 
     def test_four_industry_templates_full_coverage(self):
-        """测试四大垂直行业母版 16 维全景资产 100% 齐套覆盖"""
+        """测试四大垂直行业母版 16 维全景资产 100% 齐套覆盖与真实主报告存在性"""
         for pid in ["xuzhou_xuanyuan", "b2b_machinery", "local_legal", "retail_catering"]:
             ful = calculate_fulfillment_score(pid)
             self.assertTrue(ful["success"], f"{pid} 履约计算失败")
             ms = ful["manifest_summary"]
             self.assertEqual(ms["generation_rate_pct"], 100.0, f"{pid} 齐套率未达 100%: 缺失 {ms.get('missing_items')}")
             self.assertEqual(ms["generated_files"], 16, f"{pid} 生成数量不符合 16 项标准")
+            
+            # 必须存在真实的 10 号知识图谱主报告 md 文件
+            p_out = os.path.join(PROJECTS_DIR, pid, "outputs")
+            self.assertTrue(os.path.exists(os.path.join(p_out, "10_企业行业实体关系知识图谱.md")), f"{pid} 缺失 10 号主报告 md")
 
 
 if __name__ == "__main__":

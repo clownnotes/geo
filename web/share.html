@@ -622,9 +622,9 @@
           <div class="text-[10px] text-emerald-500">极限词脱敏审查通过</div>
         </div>
         <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-xl">
-          <div class="text-[10px] text-blue-600 font-medium">RAG 检索分块命中评分</div>
-          <div id="sec-metric-rag" class="text-lg font-black text-blue-800 mt-0.5">90.0 分</div>
-          <div class="text-[10px] text-blue-500">大模型爬虫抓取仿真</div>
+          <div class="text-[10px] text-blue-600 font-medium">RAG 向量就绪度评分</div>
+          <div id="sec-metric-rag" class="text-lg font-black text-blue-800 mt-0.5">—</div>
+          <div class="text-[10px] text-blue-500">大模型爬虫抓取与切片仿真</div>
         </div>
       </div>
 
@@ -634,7 +634,7 @@
         <button onclick="switchSecuritySubTab('citation_auth')" id="subtab-citation_auth" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">15 Citation权威度</button>
         <button onclick="switchSecuritySubTab('competitor')" id="subtab-competitor" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">14 竞对反超沙盘</button>
         <button onclick="switchSecuritySubTab('compliance')" id="subtab-compliance" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">13 广告合规脱敏</button>
-        <button onclick="switchSecuritySubTab('rag_diag')" id="subtab-rag_diag" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">12 RAG命中诊断</button>
+        <button onclick="switchSecuritySubTab('rag_diag')" id="subtab-rag_diag" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">12 RAG分块诊断</button>
         <button onclick="switchSecuritySubTab('intent')" id="subtab-intent" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">11 意图裂变拓扑</button>
         <button onclick="switchSecuritySubTab('graph')" id="subtab-graph" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">10 实体知识图谱</button>
         <button onclick="switchSecuritySubTab('evaluator')" id="subtab-evaluator" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">06 真实API评测</button>
@@ -812,39 +812,38 @@
       document.getElementById('preview-monitor').innerHTML = marked.parse(del.monitor_report || '*声量周报生成中...*');
       document.getElementById('preview-defense').innerHTML = marked.parse(del.defense || '*竞品反向包抄策略生成中...*');
 
-      // 渲染 16 维资产达成率指标与结案单
-      const fulRate = d.acceptance_summary?.manifest_summary?.generation_rate_pct || 100;
-      const genFiles = d.acceptance_summary?.manifest_summary?.generated_files || 18;
-      const totFiles = d.acceptance_summary?.manifest_summary?.total_files || 18;
+      // 渲染 16 维资产达成率指标与结案单 (严格 16 项口径，杜绝虚假默认值)
+      const ms = d.acceptance_summary?.manifest_summary;
       const fulEl = document.getElementById('portal-metric-fulfillment');
-      if (fulEl) fulEl.innerText = `${genFiles}/${totFiles} (${fulRate}%)`;
+      if (fulEl) {
+        if (ms && ms.generation_rate_pct !== undefined) {
+          fulEl.innerText = `${ms.generated_files}/${ms.total_files} (${ms.generation_rate_pct}%)`;
+        } else {
+          fulEl.innerText = '— / 待核验';
+        }
+      }
 
       const acceptEl = document.getElementById('preview-acceptance');
       if (acceptEl) acceptEl.innerHTML = marked.parse(del.acceptance || '*商业交付验收结案确认单生成中...*');
 
-      // 渲染核心攻防安全指标与子标签
-      if (d.injection_guard_summary) {
-        const imm = d.injection_guard_summary.immunity_score ?? 100.0;
-        const immEl = document.getElementById('sec-metric-immunity');
-        if (immEl) immEl.innerText = `${imm} 分`;
-        const badgeEl = document.getElementById('security-immunity-badge');
-        if (badgeEl) badgeEl.innerText = `注入免疫度: ${imm} 分`;
-      }
-      if (d.citation_auth_summary) {
-        const authScore = d.citation_auth_summary.overall_score ?? 90.0;
-        const cEl = document.getElementById('sec-metric-citation');
-        if (cEl) cEl.innerText = `${authScore} 分`;
-      }
-      if (d.compliance_summary) {
-        const compRate = d.compliance_summary.compliance_rate_pct ?? 100.0;
-        const compEl = document.getElementById('sec-metric-compliance');
-        if (compEl) compEl.innerText = `${compRate}%`;
-      }
-      if (d.rag_diag_summary) {
-        const ragScore = d.rag_diag_summary.avg_score ?? 90.0;
-        const rEl = document.getElementById('sec-metric-rag');
-        if (rEl) rEl.innerText = `${ragScore} 分`;
-      }
+      // 渲染核心攻防安全指标与子标签 (严格绑定真实数据，缺省不捏造高分)
+      const imm = d.injection_guard_summary?.immunity_score;
+      const immEl = document.getElementById('sec-metric-immunity');
+      const badgeEl = document.getElementById('security-immunity-badge');
+      if (immEl) immEl.innerText = (imm !== undefined && imm !== null) ? `${imm} 分` : '—';
+      if (badgeEl) badgeEl.innerText = (imm !== undefined && imm !== null) ? `注入免疫度: ${imm} 分` : '安全防守待审计';
+
+      const authScore = d.citation_auth_summary?.overall_score;
+      const cEl = document.getElementById('sec-metric-citation');
+      if (cEl) cEl.innerText = (authScore !== undefined && authScore !== null) ? `${authScore} 分` : '—';
+
+      const compRate = d.compliance_summary?.compliance_rate_pct;
+      const compEl = document.getElementById('sec-metric-compliance');
+      if (compEl) compEl.innerText = (compRate !== undefined && compRate !== null) ? `${compRate}%` : '—';
+
+      const ragScore = d.rag_diag_summary?.rag_readiness_score ?? d.rag_diag_summary?.avg_score;
+      const rEl = document.getElementById('sec-metric-rag');
+      if (rEl) rEl.innerText = (ragScore !== undefined && ragScore !== null) ? `${ragScore} 分` : '—';
 
       currentSecurityData = del;
       switchSecuritySubTab('injection_guard');
@@ -1073,9 +1072,27 @@
         }
       });
       const el = document.getElementById('preview-security-content');
-      if (el) {
-        const raw = currentSecurityData[subKey] || `*资产报告 [${subKey}] 生成中...*`;
-        el.innerHTML = marked.parse(raw);
+      if (!el) return;
+
+      if (currentSecurityData[subKey]) {
+        el.innerHTML = marked.parse(currentSecurityData[subKey]);
+      } else {
+        el.innerHTML = '<div class="text-slate-400 text-xs py-4 text-center">⏳ 正在安全调阅交付文件...</div>';
+        const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
+        const query = pin ? `&pin=${encodeURIComponent(pin)}` : '';
+        fetch(`/api/share/${shareToken}/file?key=${encodeURIComponent(subKey)}${query}`)
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && res.content) {
+              currentSecurityData[subKey] = res.content;
+              el.innerHTML = marked.parse(res.content);
+            } else {
+              el.innerHTML = `<div class="text-slate-400 text-xs py-4 text-center">*${res.message || '资产报告暂未生成'}*</div>`;
+            }
+          })
+          .catch(() => {
+            el.innerHTML = '*读取资产报告失败，请稍后重试*';
+          });
       }
     }
 

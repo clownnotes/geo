@@ -38,11 +38,11 @@ DELIVERABLES_MANIFEST = [
     {"index": "07", "key": "guard", "file": "07_大模型事实幻觉纠偏与信源反击策略.md", "candidates": ["07_大模型事实幻觉纠偏与信源反击策略.md", "llms-truth.txt"], "name": "事实幻觉纠偏与信源反击策略", "stage": "S4/S5 事实防御"},
     {"index": "08", "key": "visual", "file": "08_企业技术全景架构图.svg", "candidates": ["08_企业技术全景架构图.svg", "08_技术架构与选型图.svg", "07_选型差异化对比图.svg"], "name": "差异化对比图与架构全景图 (SVG)", "stage": "S3 多模态资产"},
     {"index": "09", "key": "video", "file": "09_60秒短视频高转化口播脚本.md", "candidates": ["09_60秒短视频高转化口播脚本.md"], "name": "短视频口播高转化脚本", "stage": "S3 多模态资产"},
-    {"index": "10", "key": "graph", "file": "10_企业行业实体关系知识图谱.md", "candidates": ["10_企业行业实体关系知识图谱.md", "entity_graph.json", "10_实体知识图谱拓扑图.svg"], "name": "企业行业实体关系知识图谱 (Graph RAG)", "stage": "S3 知识工程"},
+    {"index": "10", "key": "graph", "file": "10_企业行业实体关系知识图谱.md", "candidates": ["10_企业行业实体关系知识图谱.md"], "name": "企业行业实体关系知识图谱 (Graph RAG)", "stage": "S3 知识工程"},
     {"index": "11", "key": "intent", "file": "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md", "candidates": ["11_三级搜索意图挖掘与长尾关键词裂变拓扑.md", "keywords_intent_matrix.json", "02_企业商业意图与5维提问挖掘词库.json"], "name": "三级意图挖掘与长尾关键词裂变拓扑", "stage": "S1/S3 意图拓扑"},
     {"index": "12", "key": "rag_diag", "file": "12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md", "candidates": ["12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md", "rag_chunks_diagnostic.json"], "name": "大模型爬虫仿真与RAG分块检索诊断报告", "stage": "S2/S3 命中诊断"},
     {"index": "13", "key": "compliance", "file": "13_多渠道内容合规与广告法风控审查报告.md", "candidates": ["13_多渠道内容合规与广告法风控审查报告.md", "compliance_inspection.json"], "name": "多渠道内容合规与广告法风控审查报告", "stage": "S4 内容合规"},
-    {"index": "14", "key": "competitor", "file": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md", "candidates": ["14_竞对大模型声量差距深度逆向与反超作战沙盘.md", "competitor_gap_analysis.json", "06_竞品权威信源反向包抄策略.md"], "name": "竞对大模型声量差距深度逆向与反超作战沙盘", "stage": "S1/S5 竞争对抗"},
+    {"index": "14", "key": "competitor", "file": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md", "candidates": ["14_竞对大模型声量差距深度逆向与反超作战沙盘.md", "competitor_gap_analysis.json"], "name": "竞对大模型声量差距深度逆向与反超作战沙盘", "stage": "S1/S5 竞争对抗"},
     {"index": "15", "key": "citation_auth", "file": "15_大模型Citation信源权威度与外链信任度评分报告.md", "candidates": ["15_大模型Citation信源权威度与外链信任度评分报告.md", "citation_authority_matrix.json"], "name": "大模型Citation信源权威度与外链信任度评分报告", "stage": "S4/S5 信源权重"},
     {"index": "16", "key": "injection_guard", "file": "16_大模型提示词注入防御与品牌隔离盾牌报告.md", "candidates": ["16_大模型提示词注入防御与品牌隔离盾牌报告.md", "prompt_injection_guard.json"], "name": "大模型提示词注入防御与品牌隔离盾牌报告", "stage": "S4/S5 品牌安全"}
 ]
@@ -198,6 +198,31 @@ def generate_acceptance_report(project_id: str) -> dict:
         )
     total_size_mb = round(total_size_bytes / (1024 * 1024), 2)
 
+    # 动态评估第一节交付核验项判定
+    eff_sov = float(roi_data['metrics_summary'].get('effective_sov_pct', 0.0))
+    sov_st = "✅ 达标通过" if eff_sov >= 60.0 else f"⚠️ 爬坡培育期 (当前 {eff_sov}%)"
+    
+    dist_rate = float(ledger.get('completion_rate_pct', 0.0))
+    dist_st = "✅ 达标通过" if dist_rate >= 80.0 else f"⚠️ 分发补充中 ({dist_rate}%)"
+
+    manifest_pct = float(fulfillment['manifest_summary'].get('generation_rate_pct', 0.0))
+    manifest_st = "✅ 达标通过" if manifest_pct >= 80.0 else f"⚠️ 补充生成中 ({manifest_pct}%)"
+
+    roi_val = float(fin.get('roi_pct', 0.0))
+    roi_st = "✅ 达标通过" if roi_val >= 100.0 else f"⚠️ 培育观察期 (+{roi_val}%)"
+
+    # 动态渲染第二节六维履约状态行
+    breakdown_md_rows = ""
+    for b in fulfillment["breakdown"]:
+        st_icon = "✅" if b["score"] >= b["max_score"] else ("🟢" if b["score"] > 0 else "⚠️")
+        breakdown_md_rows += f"| {b['dimension']} | {b['weight_pct']}% | **{b['score']}** | {b['max_score']} | {st_icon} {b['status']} |\n"
+
+    # 动态渲染第五节签署声明（严守公文诚信红线）
+    if fulfillment["is_passed"]:
+        signoff_statement = f"甲乙双方经共同审阅与实测核对，确认上述所有交付成果真实有效，**达到合同约定的全额验收与结案回款要求（综合得分 {fulfillment['total_fulfillment_score']} 分 ≥ 90.0 分）**。"
+    else:
+        signoff_statement = f"甲乙双方经共同审阅与实测核对，确认本项目**已达到基本技术交付与阶段验收标准（当前综合得分 {fulfillment['total_fulfillment_score']} 分）**；全额回款条款待补齐优化至 90.0 分标准后另行结算。"
+
     md_content = f"""# 🏛️ GEO 生成式引擎优化商业交付验收结案确认单
 
 > **项目编号**：`GEO-{project_id.upper()}-{time.strftime('%Y%m%d')}`  
@@ -213,12 +238,12 @@ def generate_acceptance_report(project_id: str) -> dict:
 
 | 交付核验项 | 合同约定指标 | 实际验收达成 | 履约判定 |
 | :--- | :--- | :--- | :---: |
-| **全网 AI 声量占有率 (SOV)** | $\ge 60.0\%$ | **{roi_data['metrics_summary']['effective_sov_pct']}%** | ✅ 完美超额达成 |
+| **全网 AI 声量占有率 (SOV)** | $\ge 60.0\%$ | **{eff_sov}%** | {sov_st} |
 | **普林斯顿 9 因子重构** | 100% 源码透明与实测数据 | **已交付 9 因子高权威语料库** | ✅ 达标通过 |
 | **技术底座改造成果** | llms.txt + JSON-LD + robots | **3 件套标准协议全部落地** | ✅ 达标通过 |
-| **全网矩阵外发落地** | 5 大主流信任池渠道 | **已登记 {ledger['published_channels']} 平台（完成率 {ledger['completion_rate_pct']}%）** | ✅ 达标通过 |
-| **16 维全景核心攻防资产** | 覆盖率 $\ge 80.0\%$ | **已就绪 {fulfillment['manifest_summary']['generated_files']}/{fulfillment['manifest_summary']['total_files']} 项（达成率 {fulfillment['manifest_summary']['generation_rate_pct']}%）** | ✅ 达标通过 |
-| **商业综合创造价值 (年化)** | 回报率 $> 200\%$ | **¥{fin['total_business_value']:,} 元（ROI: +{fin['roi_pct']}%）** | ✅ 达标通过 |
+| **全网矩阵外发落地** | 5 大主流信任池渠道 | **已登记 {ledger['published_channels']} 平台（完成率 {dist_rate}%）** | {dist_st} |
+| **16 维全景核心攻防资产** | 覆盖率 $\ge 80.0\%$ | **已就绪 {fulfillment['manifest_summary']['generated_files']}/{fulfillment['manifest_summary']['total_files']} 项（达成率 {manifest_pct}%）** | {manifest_st} |
+| **商业综合创造价值 (年化)** | 回报率 $> 100\%$ | **¥{fin['total_business_value']:,} 元（ROI: +{fin['roi_pct']}%）** | {roi_st} |
 
 ---
 
@@ -230,13 +255,7 @@ def generate_acceptance_report(project_id: str) -> dict:
 
 | 履约阶段与模块 | 权重 | 实际得分 | 满分 | 履约状态 |
 | :--- | :---: | :---: | :---: | :---: |
-| 1. S1 商业意图与体检诊断报告 | 15% | **{fulfillment['breakdown'][0]['score']}** | 15 | ✅ 已达成 |
-| 2. S2 站点技术底座改造交付包 | 15% | **{fulfillment['breakdown'][1]['score']}** | 15 | ✅ 已达成 |
-| 3. S3 普林斯顿 9 因子语料重构 | 20% | **{fulfillment['breakdown'][2]['score']}** | 20 | ✅ 已达成 |
-| 4. S4 全渠道矩阵分发与收录台账 | 15% | **{fulfillment['breakdown'][3]['score']}** | 15 | ✅ 已达成 |
-| 5. S5 声量监测与首推占有率 (SOV) | 20% | **{fulfillment['breakdown'][4]['score']}** | 20 | ✅ 已达成 |
-| 6. S6 商业 ROI 与企业数字资产估值 | 15% | **{fulfillment['breakdown'][5]['score']}** | 15 | ✅ 已达成 |
-
+{breakdown_md_rows}
 ---
 
 ## 三、16 维全景交付产物数字资产清单 (Deliverables Manifest)
@@ -265,7 +284,7 @@ def generate_acceptance_report(project_id: str) -> dict:
 
 ## 五、双方验收签章与确认
 
-甲乙双方经共同审阅与实测核对，确认上述所有交付成果真实有效，达到合同约定的全额验收与结案回款要求。
+{signoff_statement}
 
 ```
 ┌───────────────────────────────────────┬───────────────────────────────────────┐
@@ -386,6 +405,11 @@ def generate_print_acceptance_html(project_id: str) -> str:
             f"<td>{item['score']} / {item['max_score']}</td><td>{_row_status(item)}</td></tr>"
         )
     cur_date = time.strftime("%Y年%m月%d日")
+
+    if ful.get("is_passed", False):
+        signoff_statement = f"甲乙双方经共同审阅与实测核对，确认上述所有交付成果真实有效，<strong>达到合同约定的全额验收与结案回款要求（综合得分 {ful['total_fulfillment_score']} 分 ≥ 90.0 分）</strong>。"
+    else:
+        signoff_statement = f"甲乙双方经共同审阅与实测核对，确认本项目<strong>已达到基本技术交付与阶段验收标准（当前综合得分 {ful['total_fulfillment_score']} 分）</strong>；全额回款条款待补齐优化至 90.0 分标准后另行结算。"
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -590,6 +614,9 @@ def generate_print_acceptance_html(project_id: str) -> str:
       <tr class="highlight-row"><td>商业综合创造净收益 (Net Profit)</td><td style="color: #059669; font-size: 14px;">+¥{roi['net_profit_value']:,} 元 (ROI: +{roi['roi_pct']}%)</td></tr>
     </tbody>
   </table>
+  <div style="margin-top: 15px; padding: 10px 14px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11.5px; line-height: 1.5;">
+    <strong>验收结案法定确认声明：</strong>{signoff_statement}
+  </div>
 
   <div class="sign-box">
     <div class="sign-grid">

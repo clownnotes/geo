@@ -142,7 +142,7 @@ def revoke_share_link(token: str) -> bool:
 # 提取码校验与只读沙箱数据提取
 # ==========================================
 
-def verify_share_access(token: str, client_pin: str = None) -> tuple:
+def verify_share_access(token: str, client_pin: str = None, increment_view: bool = True) -> tuple:
     """
     校验分享链接访问合法性
     返回: (ok, status_code_or_msg, share_record)
@@ -166,12 +166,66 @@ def verify_share_access(token: str, client_pin: str = None) -> tuple:
         if test_hash != rec.get("pin_hash"):
             return False, "invalid_pin", rec
 
-    # 递增浏览计数
-    rec["view_count"] = rec.get("view_count", 0) + 1
-    rec["last_view_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    save_shares_data(data)
+    # 递增浏览计数（仅在整页查看时自增，单文件读取不计入）
+    if increment_view:
+        rec["view_count"] = rec.get("view_count", 0) + 1
+        rec["last_view_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        save_shares_data(data)
 
     return True, "ok", rec
+
+def get_share_single_file_content(token: str, req_key: str, client_pin: str = None) -> dict:
+    """
+    按需安全读取单个交付物文件内容（严格白名单与 realpath 防目录穿透）
+    """
+    from .acceptance import DELIVERABLES_MANIFEST, ATTACHED_DELIVERABLES
+    
+    # 查找匹配的资产声明
+    target_item = None
+    for item in DELIVERABLES_MANIFEST + ATTACHED_DELIVERABLES:
+        if item.get("key") == req_key:
+            target_item = item
+            break
+            
+    if not target_item:
+        return {"success": False, "status": 400, "message": f"非法或未授权的资产 Key: {req_key}"}
+
+    ok, status, rec = verify_share_access(token, client_pin, increment_view=False)
+    if not ok:
+        return {"success": False, "status": 403, "message": "无权访问该资源或提取码未验证"}
+
+    project_id = rec["project_id"]
+    cfg = load_project_config(project_id)
+    out_dir = os.path.realpath(cfg["_outputs_dir"])
+
+    # 按 candidates 候选依次寻找存在的文件
+    candidates = target_item.get("candidates", [target_item.get("file")])
+    found_path = None
+    for cand in candidates:
+        cand_path = os.path.join(out_dir, cand)
+        if os.path.exists(cand_path) and os.path.isfile(cand_path):
+            found_path = cand_path
+            break
+
+    if not found_path:
+        return {"success": True, "key": req_key, "content": f"*{target_item.get('name', req_key)} 暂未生成*", "filename": ""}
+
+    # 严格 realpath 物理防目录穿透
+    real_target = os.path.realpath(found_path)
+    if not (real_target == out_dir or real_target.startswith(out_dir + os.sep)):
+        return {"success": False, "status": 403, "message": "非法跨目录越界访问"}
+
+    try:
+        with open(real_target, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+        return {
+            "success": True,
+            "key": req_key,
+            "content": content,
+            "filename": os.path.basename(real_target)
+        }
+    except Exception as e:
+        return {"success": False, "status": 500, "message": f"读取文件异常: {e}"}
 
 def get_share_portal_data(token: str, client_pin: str = None) -> dict:
     """获取专属甲方门户只读沙箱数据"""
@@ -419,7 +473,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         "injection_guard_summary": {
             "has_data": bool(injection_guard_data),
             "immunity_score": injection_guard_data.get("immunity_score"),
-            "threats_count": injection_guard_data.get("summary", {}).get("total_threats", 0),
+            "threats_count": injection_guard_data.get("total_threats", injection_guard_data.get("summary", {}).get("total_threats", 0)),
             "status": injection_guard_data.get("status", "安全隔离就绪")
         },
         "citation_auth_summary": {
@@ -447,7 +501,7 @@ def get_share_portal_data(token: str, client_pin: str = None) -> dict:
         },
         "intent_summary": {
             "has_data": bool(intent_data),
-            "total_keywords": intent_data.get("total_keywords", len(intent_data.get("keywords", []))) or len(metrics.get("keywords", [])) or 30
+            "total_keywords": intent_data.get("total_keywords") or (len(intent_data.get("keywords", [])) if intent_data.get("keywords") else None) or len(metrics.get("keywords", [])) or 0
         },
         "evaluator_summary": {
             "has_data": bool(evaluator_data),
