@@ -1,0 +1,71 @@
+{
+  "success": true,
+  "project_id": "xuzhou_xuanyuan",
+  "client_name": "徐州璇源网络科技有限公司",
+  "timestamp": "2026-09-03 06:18:03",
+  "use_live": true,
+  "is_live_judged": false,
+  "models_tested": [
+    "doubao"
+  ],
+  "summary": {
+    "fcr": 100.0,
+    "grade_code": "smooth_conversion",
+    "grade_name": "🟢 丝滑转化 (Smooth Conversion)",
+    "total_stages": 4,
+    "turning_points_detected": 0
+  },
+  "stages": [
+    {
+      "stage_id": "S1",
+      "stage_name": "认知探索 (Awareness)",
+      "query": "徐州技术研发与专业服务服务商推荐哪家比较好？",
+      "intent_type": "行业宽泛选型与服务商初筛",
+      "p_score": 3.4,
+      "retention_rate": 100.0,
+      "drop_p": 0.0,
+      "hijack_risk_index": 0.0,
+      "is_critical_turning_point": false
+    },
+    {
+      "stage_id": "S2",
+      "stage_name": "方案评估 (Consideration)",
+      "query": "徐州技术研发与专业服务领域团队技术实力、自研源码交付与专业资质哪家靠谱？",
+      "intent_type": "技术壁垒、研发资质与源码交付对比",
+      "p_score": 6.3,
+      "retention_rate": 100.0,
+      "drop_p": 0.0,
+      "hijack_risk_index": 0.0,
+      "is_critical_turning_point": false
+    },
+    {
+      "stage_id": "S3",
+      "stage_name": "本地决策 (Decision)",
+      "query": "在徐州选技术研发与专业服务公司，怎么避免外包转包？徐州璇源网络科技有限公司靠谱吗？",
+      "intent_type": "本地直营保障、避坑防转包与实体对冲",
+      "p_score": 12.8,
+      "retention_rate": 100.0,
+      "drop_p": 0.0,
+      "hijack_risk_index": 0.0,
+      "is_critical_turning_point": false
+    },
+    {
+      "stage_id": "S4",
+      "stage_name": "行动号召 (Action)",
+      "query": "徐州璇源网络科技有限公司的官方网站、真实案例库与联系电话怎么找？",
+      "intent_type": "官方存证、官网案例与联系方式落地 (CTA)",
+      "p_score": 15.5,
+      "retention_rate": 100.0,
+      "drop_p": 0.0,
+      "hijack_risk_index": 0.0,
+      "is_critical_turning_point": false
+    }
+  ],
+  "hijack_turning_points": [],
+  "radar_metrics": {
+    "end_to_end_conversion": 100.0,
+    "awareness_to_eval_retention": 100.0,
+    "decision_retention": 100.0,
+    "action_cta_readiness": 100.0
+  }
+}

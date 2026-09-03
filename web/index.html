@@ -93,6 +93,10 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <button onclick="openFunnelSimModal()" class="text-xs text-orange-700 bg-orange-50 hover:bg-orange-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-orange-200 shadow-sm" title="24 号大模型商业多轮追问决策漏斗与意图转化路径推演">
+          <i data-lucide="filter" class="w-3.5 h-3.5 text-orange-600"></i>
+          <span>🌪️ 决策漏斗 (24)</span>
+        </button>
         <button onclick="openCausalAttrModal()" class="text-xs text-teal-700 bg-teal-50 hover:bg-teal-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-teal-200 shadow-sm" title="23 号大模型商业推荐因果归因与信源边际贡献度量化审计">
           <i data-lucide="git-fork" class="w-3.5 h-3.5 text-teal-600"></i>
           <span>🧬 因果归因 (23)</span>
@@ -945,6 +949,10 @@
             <button onclick="openCausalAttrModal()" class="py-2.5 px-3.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg border border-teal-200 transition flex items-center gap-1.5 shadow-sm" title="23 号大模型商业推荐因果归因与信源边际贡献度量化审计中枢">
               <i data-lucide="git-fork" class="w-4 h-4 text-teal-600"></i>
               <span>🧬 因果归因与信源审计 (23)</span>
+            </button>
+            <button onclick="openFunnelSimModal()" class="py-2.5 px-3.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-semibold rounded-lg border border-orange-200 transition flex items-center gap-1.5 shadow-sm" title="24 号大模型商业多轮追问决策漏斗与意图转化路径推演中枢">
+              <i data-lucide="filter" class="w-4 h-4 text-orange-600"></i>
+              <span>🌪️ 多轮决策漏斗推演 (24)</span>
             </button>
             <button onclick="openGuardModal()" class="py-2.5 px-3.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
@@ -3339,6 +3347,83 @@ GitHub 开源仓库：https://github.com/company/repo
           <div class="flex justify-between mb-2"><span class="text-xs font-bold" id="ca-report-name">23 号公文报告</span>
             <button onclick="copyCausalReport()" class="text-xs px-2 py-1 bg-slate-100 rounded">复制</button></div>
           <div id="ca-report-content" class="markdown-body text-xs max-h-64 overflow-y-auto p-3 bg-slate-50 rounded border"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 24 号大模型商业多轮追问决策漏斗推演模态 ================= -->
+  <div id="funnel-sim-modal" onclick="if(event.target === this) closeFunnelSimModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-orange-950 via-slate-900 to-orange-950 text-white shrink-0">
+        <div>
+          <h3 class="text-sm font-bold flex items-center gap-2">
+            <span>🌪️ 大模型商业多轮追问决策漏斗与意图转化推演</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-200 border border-orange-400/30">24 号中枢</span>
+          </h3>
+          <p class="text-[11px] text-slate-300 mt-0.5">S1认知 ➔ S2评估 ➔ S3决策 ➔ S4行动 · 漏斗转化率 (FCR) · 截流风险指数 (HRI) · 高危断点拦截</p>
+        </div>
+        <button onclick="closeFunnelSimModal()" class="p-1 text-slate-400 hover:text-white rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-4 overflow-y-auto flex-1 bg-slate-50/50">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+              <input type="checkbox" id="fs-use-live" class="rounded border-slate-300 text-orange-600">
+              <span class="font-semibold text-orange-700">🌐 真实联网 API (≤4次)</span>
+            </label>
+            <span class="text-xs text-slate-500">模型: 确定性四阶决策链 ➔ Top-3 加权置信度聚合推演</span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="triggerFunnelSimulate()" id="btn-fs-sim" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-semibold shadow">执行决策漏斗推演</button>
+            <button onclick="triggerFunnelDefend()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow">生成防截流加固包</button>
+            <button onclick="viewFunnelReport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow">24 号公文报告</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">端到端转化率 (FCR)</div><div id="fs-fcr" class="text-2xl font-black text-orange-600 mt-1">--%</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">漏斗健康度评级</div><div id="fs-grade" class="text-sm font-black text-slate-800 mt-2">--</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">首轮认知推荐得分</div><div id="fs-s1-score" class="text-2xl font-black text-blue-600 mt-1">--分</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">高危截流脆弱断点</div><div id="fs-tp-status" class="text-sm font-black text-emerald-600 mt-2">0 处断流</div></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-2.5 bg-slate-50 border-b text-xs font-bold text-slate-800 flex justify-between">
+              <span>四维决策漏斗雷达量化指标</span>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>端到端转化率 (End-to-End Conversion)</span><span id="fs-radar-e2e" class="font-bold text-orange-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="fs-bar-e2e" class="bg-orange-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>认知到评估留存率 (Awareness to Eval)</span><span id="fs-radar-a2e" class="font-bold text-blue-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="fs-bar-a2e" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>本地决策留存率 (Decision Retention)</span><span id="fs-radar-dec" class="font-bold text-indigo-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="fs-bar-dec" class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>行动号召引导率 (Action CTA Readiness)</span><span id="fs-radar-cta" class="font-bold text-emerald-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="fs-bar-cta" class="bg-emerald-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-2.5 bg-slate-50 border-b text-xs font-bold text-slate-800">四阶意图递进与状态留存矩阵</div>
+            <div class="overflow-y-auto max-h-56">
+              <table class="w-full text-xs">
+                <thead><tr class="bg-slate-100 text-slate-600"><th class="px-3 py-2 text-left">阶段</th><th class="px-2 py-2 text-center">得分</th><th class="px-2 py-2 text-center">留存率</th><th class="px-2 py-2 text-center">截流风险</th><th class="px-2 py-2 text-center">状态</th></tr></thead>
+                <tbody id="fs-stage-body"><tr><td colspan="5" class="text-center py-6 text-slate-400">点击【执行决策漏斗推演】刷新</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="fs-report-box" class="hidden bg-white rounded-xl border p-4">
+          <div class="flex justify-between mb-2"><span class="text-xs font-bold" id="fs-report-name">24 号公文报告</span>
+            <button onclick="copyFunnelReport()" class="text-xs px-2 py-1 bg-slate-100 rounded">复制</button></div>
+          <div id="fs-report-content" class="markdown-body text-xs max-h-64 overflow-y-auto p-3 bg-slate-50 rounded border"></div>
         </div>
       </div>
     </div>
@@ -8669,6 +8754,162 @@ GitHub 开源仓库：https://github.com/company/repo
     function copyCausalReport() {
       if (!cachedCausalReport) { showToast('暂无报告', 'warning'); return; }
       navigator.clipboard.writeText(cachedCausalReport).then(() => showToast('已复制 23 号报告'));
+    }
+
+    // ================= 24 号大模型商业多轮追问决策漏斗与意图转化推演 =================
+    let cachedFunnelReport = '';
+
+    async function openFunnelSimModal() {
+      if (!currentProjectId) { showToast('请先选择项目', 'warning'); return; }
+      document.getElementById('funnel-sim-modal').classList.remove('hidden');
+      lucide.createIcons();
+      await fetchFunnelStatus();
+    }
+
+    function closeFunnelSimModal() {
+      document.getElementById('funnel-sim-modal').classList.add('hidden');
+    }
+
+    async function fetchFunnelStatus() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/funnel/status`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.has_sim) {
+          renderFunnelData(d);
+        }
+      } catch (e) {
+        console.error('fetchFunnelStatus error:', e);
+      }
+    }
+
+    function renderFunnelData(d) {
+      const s = d.summary || {};
+      const r = d.radar_metrics || {};
+      document.getElementById('fs-fcr').textContent = `${s.fcr || 0}%`;
+      document.getElementById('fs-grade').textContent = s.grade_name || '--';
+      const s1Score = d.stages && d.stages[0] ? d.stages[0].p_score : 0;
+      document.getElementById('fs-s1-score').textContent = `${s1Score}分`;
+
+      const tpEl = document.getElementById('fs-tp-status');
+      if (s.turning_points_detected > 0) {
+        tpEl.textContent = `⚠️ ${s.turning_points_detected} 处高危断点！`;
+        tpEl.className = 'text-sm font-black text-rose-600 mt-2';
+      } else {
+        tpEl.textContent = '0 处高危断点';
+        tpEl.className = 'text-sm font-black text-emerald-600 mt-2';
+      }
+
+      // 雷达
+      const e2e = r.end_to_end_conversion || 0;
+      const a2e = r.awareness_to_eval_retention || 0;
+      const dec = r.decision_retention || 0;
+      const cta = r.action_cta_readiness || 0;
+
+      document.getElementById('fs-radar-e2e').textContent = `${e2e}%`;
+      document.getElementById('fs-bar-e2e').style.width = `${e2e}%`;
+      document.getElementById('fs-radar-a2e').textContent = `${a2e}%`;
+      document.getElementById('fs-bar-a2e').style.width = `${a2e}%`;
+      document.getElementById('fs-radar-dec').textContent = `${dec}%`;
+      document.getElementById('fs-bar-dec').style.width = `${dec}%`;
+      document.getElementById('fs-radar-cta').textContent = `${cta}%`;
+      document.getElementById('fs-bar-cta').style.width = `${cta}%`;
+
+      // 阶段列表 (XSS 防御)
+      const sBody = document.getElementById('fs-stage-body');
+      if (d.stages && d.stages.length) {
+        sBody.innerHTML = d.stages.map(st => {
+          const tpBadge = st.is_critical_turning_point 
+            ? '<span class="text-rose-600 font-bold ml-1">[⚠️断流拐点]</span>' 
+            : '<span class="text-emerald-600 font-medium">平稳留存</span>';
+          return `
+            <tr class="border-b hover:bg-slate-50">
+              <td class="px-3 py-1.5 text-left text-slate-800 font-medium text-[11px]">
+                <div class="font-bold text-slate-900">${escapeHtmlSafe(st.stage_id)} ｜ ${escapeHtmlSafe(st.stage_name)}</div>
+                <div class="text-[10px] text-slate-500 italic mt-0.5">${escapeHtmlSafe(st.query || '')}</div>
+              </td>
+              <td class="px-2 py-1.5 text-center font-bold text-blue-600">${Number(st.p_score || 0)}分</td>
+              <td class="px-2 py-1.5 text-center font-bold text-orange-600">${Number(st.retention_rate || 0)}%</td>
+              <td class="px-2 py-1.5 text-center text-rose-600 font-semibold">${Number(st.hijack_risk_index || 0)}%</td>
+              <td class="px-2 py-1.5 text-center text-[11px]">${tpBadge}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    async function triggerFunnelSimulate() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-fs-sim');
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '漏斗推演中…';
+
+      const useLive = document.getElementById('fs-use-live').checked;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/funnel/simulate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAuthToken}` },
+          body: JSON.stringify({ use_live: useLive })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast(`多轮漏斗推演完成！FCR: ${d.summary?.fcr}%`, 'success');
+          renderFunnelData(d);
+        } else {
+          showToast(d.message || '推演失败', 'error');
+        }
+      } catch (e) {
+        showToast(`请求异常: ${e.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    }
+
+    async function triggerFunnelDefend() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/funnel/defend`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('已生成决策漏斗防截流加固包！', 'success');
+        } else {
+          showToast(d.message || '生成失败', 'error');
+        }
+      } catch (e) {
+        showToast(`请求异常: ${e.message}`, 'error');
+      }
+    }
+
+    async function viewFunnelReport() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/funnel/report`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          cachedFunnelReport = d.content || '';
+          document.getElementById('fs-report-box').classList.remove('hidden');
+          document.getElementById('fs-report-name').textContent = d.filename || '24 号公文报告';
+          document.getElementById('fs-report-content').innerHTML = marked.parse(cachedFunnelReport);
+        } else {
+          showToast(d.message || '报告未生成', 'warning');
+        }
+      } catch (e) {
+        showToast(`获取报告失败: ${e.message}`, 'error');
+      }
+    }
+
+    function copyFunnelReport() {
+      if (!cachedFunnelReport) { showToast('暂无报告', 'warning'); return; }
+      navigator.clipboard.writeText(cachedFunnelReport).then(() => showToast('已复制 24 号报告'));
     }
 
     async function handlePrincetonAudit() {

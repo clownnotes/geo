@@ -382,6 +382,15 @@ def main():
     p_attr.add_argument("--optimize", action="store_true", help="生成 outputs/attribution_optimization_pack/ 优化加固三件套")
     p_attr.add_argument("--report", action="store_true", help="生成并落盘 23 号公文报告")
 
+    # funnel (24 号大模型商业多轮追问决策漏斗与意图转化路径推演中枢)
+    p_funnel = subparsers.add_parser("funnel", help="24 号大模型商业多轮追问决策漏斗与意图转化路径推演中枢")
+    p_funnel.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_funnel.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_funnel.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
+    p_funnel.add_argument("--live", action="store_true", help="启用真实联网 API 评测")
+    p_funnel.add_argument("--defend", action="store_true", help="生成 outputs/funnel_defense_pack/ 决策漏斗防截流加固包")
+    p_funnel.add_argument("--report", action="store_true", help="生成并落盘 24 号公文报告")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1176,6 +1185,42 @@ def main():
                 print(f"    - {fp}")
         out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "23_大模型商业推荐因果归因与信源边际贡献度量化审计报告.md")
         print(f"\nℹ️  23 号公文报告落盘至: {out_report}")
+        print("=" * 75 + "\n")
+    elif args.command == "funnel":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo funnel xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.funnel_simulator import (
+            ConversationalFunnelSimulator,
+            generate_funnel_defense_pack,
+        )
+        models_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        res = ConversationalFunnelSimulator.simulate_funnel(
+            project_id=pid,
+            models=models_list,
+            use_live=args.live,
+        )
+        s = res["summary"]
+        print("\n" + "=" * 75)
+        print(f"🌪️ 24 号大模型商业多轮追问决策漏斗与意图转化推演 · [{pid}]")
+        print("=" * 75)
+        print(f"受审企业: {res['client_name']} ｜ 推演时间: {res['timestamp']}")
+        print(f"🏆 端到端漏斗转化率 (FCR): {s['fcr']}% ｜ 评级: {s['grade_name']}")
+        print(f"📊 阶段总数: {s['total_stages']} 阶 ｜ 高危截流脆弱断点: {s['turning_points_detected']} 处")
+        print("-" * 75)
+        print("四阶多轮意图递进状态转移与留存矩阵:")
+        for st in res.get("stages", []):
+            tp_mark = " [⚠️高危断流拐点]" if st.get("is_critical_turning_point") else ""
+            print(f"  • {st['stage_id']} {st['stage_name']}: {st['p_score']}分 ｜ 留存率: {st['retention_rate']}% ｜ 跌幅: -{st['drop_p']}分{tp_mark}")
+            print(f"    追问: \"{st['query']}\"")
+        if args.defend:
+            pack = generate_funnel_defense_pack(pid)
+            print(f"\n📦 决策漏斗防截流加固包已生成: {pack['pack_dir']}")
+            for fp in pack.get("files", []):
+                print(f"    - {fp}")
+        out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "24_大模型商业多轮追问决策漏斗与意图转化路径推演报告.md")
+        print(f"\nℹ️  24 号公文报告落盘至: {out_report}")
         print("=" * 75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))

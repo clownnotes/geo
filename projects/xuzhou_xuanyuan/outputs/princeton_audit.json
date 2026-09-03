@@ -1,12 +1,12 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 66,
-  "avg_princeton_score": 64.7,
-  "pass_rate_ge_80": 6.1,
+  "scanned_files": 70,
+  "avg_princeton_score": 65.0,
+  "pass_rate_ge_80": 5.7,
   "rating_grade": "B 级 (及格边缘级)",
-  "est_visibility_ceiling": "+26.5%",
-  "est_boost_vs_baseline": "+12.2%",
+  "est_visibility_ceiling": "+26.7%",
+  "est_boost_vs_baseline": "+12.4%",
   "file_results": [
     {
       "file": "robots.txt",
@@ -546,6 +546,24 @@
       }
     },
     {
+      "file": "funnel_defense_pack/03_高转化行动号召落地页外链回填方案.md",
+      "overall_score": 62.5,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+25.6%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "commercial_roi_pitch/03_下一阶段大模型商业心智护城河强化与续约规划建议书.md",
       "overall_score": 62.5,
       "rating_grade": "B 级 (及格边缘级)",
@@ -677,6 +695,23 @@
       "top_suggestions": [
         "建议补充带身份声明的专家/技术负责人客观引语",
         "建议清除广告法极限词与主观浮夸表述，改用客观陈述",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "24_大模型商业多轮追问决策漏斗与意图转化路径推演报告.md",
+      "overall_score": 67.5,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+27.7%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
       ],
       "penalties": {
@@ -894,6 +929,23 @@
       }
     },
     {
+      "file": "funnel_defense_pack/02_防竞对二轮截流技术壁垒语料补充包.md",
+      "overall_score": 74.1,
+      "rating_grade": "A 级 (基本合格级)",
+      "est_visibility_ceiling": "+30.4%",
+      "top_suggestions": [
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
+        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "20_大模型知识半衰期衰减监测与长效留存自愈报告.md",
       "overall_score": 74.5,
       "rating_grade": "A 级 (基本合格级)",
@@ -983,6 +1035,23 @@
       "est_visibility_ceiling": "+31.0%",
       "top_suggestions": [
         "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "funnel_defense_pack/01_多轮追问意图锚定与心智收敛话术库.md",
+      "overall_score": 75.7,
+      "rating_grade": "A 级 (基本合格级)",
+      "est_visibility_ceiling": "+31.0%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
       ],
       "penalties": {
@@ -1156,7 +1225,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-03 05:58:19",
+  "generated_at": "2026-09-03 06:18:04",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

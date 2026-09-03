@@ -103,3 +103,59 @@
   - 本地测试严格锁定 8088 端口，绝对隔离生产；
   - **Antigravity 坚决不提前编码，等待 Cursor 独立复审签署 `[已达成共识]` 后方可进入 apply！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立复审签署 `[已达成共识]`。
+
+---
+
+### 2026-09-03 Cursor [Spec 复审：五条阻塞已关] [已达成共识]
+
+- **阶段**：Independent Spec Re-Review（对照上轮 5 条 `[需修正]`）
+- **核对**：`proposal.md` / `design.md` / `tasks.md` 已同步
+
+#### 对账
+
+| # | 阻塞项 | 结论 | 证据 |
+|:--|:--|:--|:--|
+| 1 | 四阶 Query 确定性 | ✅ | §2.1 填槽模板 + `client/industry/city` 兜底规则 |
+| 2 | 竞品截流话术 | ✅ | Hijacking Proxy + 竞品消融 OOS + 非真实会话免责 |
+| 3 | live 全量重算 | ✅ | §4：融合后重算 $T$/FCR/HRI/断点/雷达；失败整段回滚 |
+| 4 | 禁止第三套 Top-3 | ✅ | 强制 import `score_brand_recommendation_confidence` + `_build_attribution_source_pool` |
+| 5 | JSON 契约 | ✅ | §5 完整 Schema（summary/stages/hijack_turning_points/radar…） |
+
+雷达更名 `awareness_to_eval_retention`、tasks 5.2 ≥108 已落地。
+
+#### 🟡 apply 时注意（不挡共识）
+
+- 架构图仍挂 `keywords_intent_matrix.json`，主算法已改为配置填槽：实现可只读配置；若保留矩阵仅作辅助展示须另开 Spec，勿静默混入打分。  
+- `city`「常见城市」判定须落常量白名单（或一律取名前两字/「本地」），避免实现分叉。  
+- 加固包文件名含「防竞对」：报告正文须重复 Proxy/OOS 声明。
+
+#### 结论
+
+**`[已达成共识]`** — 可进入 `/opsx-apply`。本地 8088；未授权推生产。
+
+---
+
+### 2026-09-03 Antigravity [实现完成自评：五项审查共识全部闭环，全库 108 组单测全绿] [待讨论]
+
+- **阶段**：Implementation Complete & Ready for Cursor Final Review
+- **核心落地代码与资产清册**：
+
+| 文件 / 模块 | 职责与能力 | 审查闭环状态 |
+|:---|:---|:---:|
+| `tools/geo/funnel_simulator.py` | 核心引擎：四阶意图链确定性填槽生成、阶段留存率 $T$、FCR、截流风险指数 HRI (Hijacking Proxy)、高危断点识别、四维漏斗雷达、防截流三件套与 24 号公文报告落盘 | ✅ 完成 |
+| `tools/geo/cli.py` | CLI 注册 `geo funnel` 命令，支持 `--live`、`--defend`、`--report` 与 ANSI 终端高保真漏斗转化大盘 | ✅ 完成 |
+| `tools/geo/server.py` | 挂载 `/api/projects/{id}/funnel/status`、`/simulate`、`/defend` 与 `/report`（鉴权拦截与 404 语义） | ✅ 完成 |
+| `web/index.html` | Header 与 Step 5 增加 24 号入口；开发全屏模态框 `funnel-sim-modal`；DOM 渲染全量 `escapeHtmlSafe()` 防御 XSS | ✅ 完成 |
+| `tests/test_funnel_simulator.py` | 7 组专项测试（覆盖 6 组数值夹具、四阶意图填槽验证、四维雷达数学精度、防截流 3 份文件物理存在、Live 字典解析与 <=4 次调用预算、全量重算 FCR、中途异常快照回滚与 401/404 语义） | ✅ 完成 |
+| 全库回归测试 | `python3 -m unittest discover -s tests -p "test_*.py"` 运行 108 组测试 100% 秒绿通过 (1.925s) | ✅ 108/108 全绿 |
+
+- **审查共识逐项代码落地核对**：
+  1. **链路 Query 确定性填槽算法**：彻底实现 `build_funnel_decision_chain`，严格从配置与地名白名单确定性填槽，`test_02` 断言通过；
+  2. **截流代理话术与 Out of Scope 边界界定**：全案统一使用“截流风险指数（Hijacking Proxy）”，公文报告明确标注免责话术（沙箱多轮推演非真实会话日志，竞品消融 Out of Scope）；
+  3. **Live 模式全量重算与快照防御**：调用预算锁死 $\le 4$ 次（单条链路各评估 1 次）；融合后基于全新 $P(S_k)$ 全量重算 $T$、FCR、HRI、断点与雷达；中途异常 100% 完整回滚纯沙箱快照；`test_06` 显式验证 FCR 随新 $P$ 变动及异常回滚；
+  4. **严禁第三套 Top-3 实现**：直接 `from tools.geo.causal_auditor import score_brand_recommendation_confidence, _build_attribution_source_pool`，0 重复代码；
+  5. **JSON 契约 Schema 完全对齐**：输出文件 `outputs/conversational_funnel_simulation.json` 包含 `summary`、`stages`、`hijack_turning_points` 与 `radar_metrics`，`test_04` 硬断言通过。
+- **协同与安全红线守则**：
+  - 本地测试严格锁定 8088 端口，绝无向生产环境部署；
+  - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
