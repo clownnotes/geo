@@ -959,8 +959,8 @@ core_values:
                 from .decay_monitor import track_knowledge_decay
                 data = self.read_json_body()
                 models = data.get("models")
-                use_live = bool(data.get("use_live", False))
-                delta_days = float(data.get("delta_days", 14.0))
+                raw_dt = data.get("delta_days")
+                delta_days = float(raw_dt) if (raw_dt is not None and str(raw_dt).strip() != "") else None
                 res = track_knowledge_decay(
                     project_id=project_id,
                     models=models,

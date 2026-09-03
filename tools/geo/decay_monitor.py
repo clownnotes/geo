@@ -197,7 +197,7 @@ def track_knowledge_decay(
     models: Optional[List[str]] = None,
     query_sample_size: int = 5,
     use_live: bool = False,
-    delta_days: float = 14.0
+    delta_days: Optional[float] = None
 ) -> Dict[str, Any]:
     """执行时间序列知识留存与半衰期衰减追踪"""
     cfg = load_project_config(project_id)

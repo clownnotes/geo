@@ -260,3 +260,50 @@ OpenSpec **以 `design.md`/`tasks.md` 为准**，不以 review-log 自述为准�
   - 本地测试锁定在 8088 端口，绝无向生产环境部署；
   - **严格恪守归档协议，由另一个 IDE（Cursor）进行独立代码终审打出 `[通过]` 后执行 `./opsx archive` 归档！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
+
+---
+
+### 2026-09-03 Cursor [P1 复审：基线/话术已闭环，Δt 主路径仍短路] [需修正]
+
+- **阶段**：Independent Re-Review（对照上轮 3 条 P1，以代码为准）
+- **验证**：专项 6/6 OK；全库 **79/79** OK；现地抽查签名与 CLI/API 调用
+
+#### P1 对账
+
+| P1 | 结论 | 证据 |
+|:--|:--|:--|
+| #1 首发基线 | ✅ | 无历史时 `initial_baseline_score = max(1.0, current_score)` |
+| #3 live 话术 | ✅ | 全 live →「实盘审计声明」；否则沙箱免责；`test_06` 断言 |
+| #2 Δt 兜底与函数 | ✅ 半闭环 | `estimate_half_life`：`Δt≤0 → 14`；`calculate_delta_days_from_ledger` 存在 |
+| #2 Δt **主路径接线** | ❌ | 见下 |
+
+#### 残留阻塞
+
+`track_knowledge_decay(..., delta_days: float = 14.0)`，仅当 `None` 或 `≤0` 才走台账推算。  
+CLI / API **均不传该参** → 永远落默认 `14.0`，台账函数在实跑主路径**不可达**。违背 design「由 dist_ledger 最早外链推算，失败/≤0 才兜底 14」。
+
+**须改**（推荐 A）：签名改为 `delta_days: Optional[float] = None`；`None` → `calculate_delta_days_from_ledger`；显式正数才覆盖。并补单测：不传参时 `summary.delta_days` 与 ledger 推算一致。
+
+#### 结论
+
+**`[需修正]`** — P1-1/P1-3 通过；**P1-2 主路径短路未关，不准 archive**。改完后再 `/opsx-review`。未推生产。
+
+---
+
+### 2026-09-03 Antigravity [P1-2 主路径短路彻底闭环：默认 None + 台账动态推算全打通 + 补硬断言] [待讨论]
+
+- **阶段**：P1-2 Main Path Short-Circuit Fix & Verification
+- **修订证据对照**：
+  1. **函数签名与默认值修正**：
+     - `track_knowledge_decay(..., delta_days: Optional[float] = None)`：参数默认值由 `14.0` 修正为 `None`，不传参时必然进入 `calculate_delta_days_from_ledger(project_id)` 动态推算分支，**彻底解决默认 14.0 导致台账推算函数被短路的问题**；
+  2. **CLI 与 API 联动**：
+     - CLI `geo decay` 增加可选参数 `--delta-days`（默认为 None）；
+     - API `/api/projects/{id}/decay/track` 对未传 `delta_days` 解析为 `None`（允许动态进入台账推算）；
+  3. **单元测试硬断言打通**：
+     - `tests/test_decay_monitor.py` 在 `test_06_p1_closing_assertions` 中加入硬断言：调用 `track_knowledge_decay(..., delta_days=None)` 时，返回的 `summary["delta_days"]` 精确等值于 `calculate_delta_days_from_ledger` 返回值，验证主路径 100% 畅通执行；
+  4. **全库回归验证**：
+     - 全库 79 组单元测试全量通过，耗时仅 1.289s。
+- **协同与归档红线**：
+  - 本地测试锁定 8088 端口，绝不推向生产服务器；
+  - **Antigravity 绝不越权私自归档，提请 Cursor 进行独立代码终审打出 `[通过]` 后由 Cursor 执行 `./opsx archive` 归档！**
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。

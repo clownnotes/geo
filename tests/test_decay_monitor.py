@@ -195,6 +195,11 @@ class TestDecayMonitor(unittest.TestCase):
         self.assertIn("数据说明与实盘审计声明", live_report)
         self.assertNotIn("沙箱仿真不可替代真实大模型联网 API 实盘审计", live_report)
 
+        # 4. 验证默认主路径未被短路：delta_days=None 时优先走台账动态推算 (闭环 P1-2 主路径短路)
+        res_default = track_knowledge_decay(self.test_pid, delta_days=None)
+        expected_dt = calculate_delta_days_from_ledger(self.test_pid)
+        self.assertEqual(res_default["summary"]["delta_days"], expected_dt)
+
 
 if __name__ == "__main__":
     unittest.main()

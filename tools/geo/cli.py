@@ -352,6 +352,7 @@ def main():
     p_decay.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
     p_decay.add_argument("--live", action="store_true", help="启用真实联网 API")
     p_decay.add_argument("--heal", action="store_true", help="生成 decay_healing_pack 自愈三件套")
+    p_decay.add_argument("--delta-days", type=float, default=None, help="手动指定间隔天数（默认从台账外链推算）")
     p_decay.add_argument("--report", action="store_true", help="生成并落盘 20 号公文报告")
 
     # pipeline
@@ -1025,7 +1026,12 @@ def main():
             sys.exit(1)
         from tools.geo.decay_monitor import track_knowledge_decay, generate_decay_healing_pack
         models_list = [m.strip() for m in args.models.split(",") if m.strip()]
-        res = track_knowledge_decay(project_id=pid, models=models_list, use_live=args.live)
+        res = track_knowledge_decay(
+            project_id=pid,
+            models=models_list,
+            use_live=args.live,
+            delta_days=args.delta_days,
+        )
         s = res["summary"]
         level_icon = {"safe": "🟢", "warning": "🟡", "danger": "🔴"}.get(s["risk_level"], "⚪")
         print("\n" + "=" * 75)
