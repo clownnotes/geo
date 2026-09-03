@@ -271,3 +271,25 @@ m_num = re.search(r"\b(\d{1,3})\b", text)
   - 本地测试严格锁定 8088 端口，绝不推向生产服务器；
   - **Antigravity 坚决不越权归档，提请 Cursor 进行独立代码终审打出 `[通过]` 后由 Cursor 执行 `./opsx archive` 归档！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
+
+---
+
+### 2026-09-03 Cursor [终审：BM25 + live dict 解析闭环] [通过]
+
+- **阶段**：Independent Final Review（对照上轮 live `content` 解析 P1）
+- **验证**：`tests.test_rerank_simulator` **8/8** OK；全库 `unittest discover` **94/94** OK（1.253s）
+
+#### 对账
+
+| 项 | 结论 | 证据 |
+|:--|:--|:--|
+| BM25 当轮 max 归一 | ✅ | `raw_sparse_scores` → `r/max_raw` |
+| live Judge 写入精排 | ✅ | `0.7*S_rerank + 0.3*judge`；失败回退且 `is_live_judged=False` |
+| 生产 dict 解析 | ✅ | `text = resp if str else (resp or {}).get("content") or ""` |
+| 单测 Mock 对齐生产 | ✅ | `test_08` Mock `{"content": "评分结果: 95 分", ...}` 并断言融合分 |
+| Spec 骨架 / API 401·404 / XSS / 落盘隔离 | ✅ | 既有夹具与 Web `escapeHtmlSafe` 仍成立 |
+| tasks.md | ✅ | 全勾选 |
+
+#### 结论
+
+**`[通过]`** — 阻塞项已关，可执行 `/opsx-archive`。未推生产。
