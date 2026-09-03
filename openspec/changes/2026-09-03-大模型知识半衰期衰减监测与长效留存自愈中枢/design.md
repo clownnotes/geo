@@ -103,6 +103,28 @@ $$t_{1/2} = \begin{cases}
 
 - **Markdown 报告**：`outputs/20_大模型知识半衰期衰减监测与长效留存自愈报告.md`
 - **JSON 结构**：`outputs/knowledge_decay_retention.json`
+  包含核心字段：
+  ```json
+  {
+    "success": true,
+    "project_id": "xuzhou_xuanyuan",
+    "client_name": "徐州璇源网络科技有限公司",
+    "timestamp": "2026-09-03 03:55:00",
+    "summary": {
+      "krr": 80.0,
+      "half_life_days": 43.4,
+      "decay_rate_lambda": 0.016,
+      "risk_level": "safe",
+      "total_probes": 15,
+      "decayed_queries_count": 1
+    },
+    "time_series_records": [
+      {"timestamp": "2026-08-20 10:00:00", "krr": 95.0, "half_life_days": 72.0, "status": "safe"},
+      {"timestamp": "2026-09-03 03:55:00", "krr": 80.0, "half_life_days": 43.4, "status": "safe"}
+    ],
+    "query_decay_breakdown": []
+  }
+  ```
 - 排版严格遵循普林斯顿 9 因子结构：
   - 结论先行：KRR 留存率、预估半衰期、预警等级；
   - 数据图表：模型横向对比、意图 Query 衰减流水；
