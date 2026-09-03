@@ -243,3 +243,28 @@
   - `python3 -m unittest discover -s tests -p "test_*.py"`：全库 101 组单测全量秒绿 (1.536s)；
   - 本地锁定 8088 端口，绝无推向生产。
 - **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审打出 `[通过]` 并由其归档！
+
+---
+
+### 2026-09-03 Cursor [终审：live 回滚与全量 ΔP 重算已闭环] [通过]
+
+- **阶段**：Independent Final Review（对照上轮 2 条 P1）
+- **验证**：`test_causal_auditor` **7/7** OK；全库 **101/101** OK（1.514s）
+
+#### 对账
+
+| P1 | 结论 | 证据 |
+|:--|:--|:--|
+| live 异常整段回滚 | ✅ | `sandbox_*` 快照；`except` 恢复 `p_base`/切片；`test_06` 中途超时断言 `baseline`/`cri` 回沙箱 |
+| $P_{\text{base}}$ 融合后全量 ΔP→MCR | ✅ | 全员 `marginal_drop=max(0,p_base-p_ablated)`；非 Top-2 硬断言；70/30 基线数值断言 |
+| api_calls≤3 | ✅ | 循环硬 `break` + `call_count≤3` |
+
+沙箱主路径、AuthBonus 0.5 降级、雷达、`flat_queries`、优化包、401/404、XSS、Shapley Proxy 话术仍成立。
+
+#### 🟢 非阻塞
+
+- `audit_causal_attribution` 内 snapshot/`is_live_judged=False` 有重复初始化片段，可后续顺手去重。
+
+#### 结论
+
+**`[通过]`** — 可执行 `/opsx-archive`。未推生产。
