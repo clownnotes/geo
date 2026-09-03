@@ -1,0 +1,40 @@
+## 1. 准备工作与规范对齐
+
+- [ ] 1.1 核对 `AGENTS.md` 生产隔离与 8088 端口规范，锁定 `tools/geo/llm.py` 底座复用、`tools/geo/dist_bot.py` 的 `get_distribution_ledger`、`tools/geo/probing.py` 的 `is_ledger_asset_eligible`、`projects/{id}/outputs/factual_anchors.json` 真实档案读取规则，以及复用 `tools.geo.rerank_simulator.score_dense_similarity`（锁定 Query 采样自 `keywords_intent_matrix.json` 的 `flat_queries` 真实字段；严格隔离 12、22、23 号与 24 号输出文件）。
+
+## 2. 研发多轮决策漏斗与意图转化推演引擎 (`tools/geo/funnel_simulator.py`)
+
+- [ ] 2.1 构建四阶商业决策链条生成器（$S_1$ 认知 ➔ $S_2$ 评估 ➔ $S_3$ 决策 ➔ $S_4$ 行动），复用防饱和 Top-3 推荐概率模型计算各阶段得分 $P(S_k)$。
+- [ ] 2.2 实现漏斗状态转移留存率 $T(S_k \to S_{k+1})$、端到端转化率 $FCR$ 与截流风险指数 $HRI_k$ 计算公式。
+- [ ] 2.3 实现关键断流脆弱拐点 (Hijacking Turning Point) 判定逻辑与漏斗健康度三档评级（`smooth_conversion` / `mid_funnel_leakage` / `severe_dropoff`）。
+- [ ] 2.4 实现四维漏斗雷达指标计算与拦截加固包生成器 `generate_funnel_defense_pack`（在 `outputs/funnel_defense_pack/` 下物理落盘 3 份加固文件）。
+- [ ] 2.5 实现公文报告生成与独立落盘：落盘 `outputs/24_大模型商业多轮追问决策漏斗与意图转化路径推演报告.md`（含沙箱推演与 live 实盘多轮声明）与 `outputs/conversational_funnel_simulation.json`。
+- [ ] 2.6 实现有限预算 Live 模式（至多 4 次 API 调用，深拷贝快照防御，中途异常 100% 完整回滚纯沙箱，正则安全提取数字）。
+
+## 3. CLI 命令行与后端 API 扩展 (`tools/geo/cli.py`, `tools/geo/server.py`)
+
+- [ ] 3.1 在 `tools/geo/cli.py` 中注册 `geo funnel <project_id> [--models M] [--live] [--defend] [--report]` 子命令并输出 ANSI 终端漏斗转化大盘。
+- [ ] 3.2 在 `tools/geo/server.py` 中挂载 `/api/projects/{id}/funnel/status`、`/api/projects/{id}/funnel/simulate`、`/api/projects/{id}/funnel/defend` 与 `/api/projects/{id}/funnel/report`（管理端鉴权拦截；`/report` 无文件时严格返回 404）。
+
+## 4. Web 控制台决策漏斗推演升级 (`web/index.html`)
+
+- [ ] 4.1 在向导第五阶段新增「🌪️ 多轮决策漏斗与意图转化推演 (24)」独立卡片与操作入口，顶部 Header 增加入口。
+- [ ] 4.2 开发全屏模态窗口 `funnel-sim-modal`，展示 FCR 仪表盘、四阶漏斗转化流失图、断流拐点预警、四维漏斗雷达与报告在线 Markdown 预览。
+- [ ] 4.3 渲染表格时强制经过 `escapeHtmlSafe()` 进行 XSS 防御。
+
+## 5. 自动化测试与跨 IDE 联合审查
+
+- [ ] 5.1 编写 `tests/test_funnel_simulator.py`，全量覆盖：
+  - 固定数值夹具 1：$P(S_1)=80.0, P(S_2)=72.0, P(S_3)=64.0, P(S_4)=60.0 \implies FCR = 75.0\%$ (`smooth_conversion` 🟢 丝滑转化)；
+  - 固定数值夹具 2：$P(S_1)=80.0, P(S_2)=56.0, P(S_3)=48.0, P(S_4)=44.0 \implies FCR = 55.0\%$ (`mid_funnel_leakage` 🟡 中段泄漏)；
+  - 固定数值夹具 3：$P(S_1)=80.0, P(S_2)=40.0, P(S_3)=32.0, P(S_4)=24.0 \implies FCR = 30.0\%$ (`severe_dropoff` 🔴 严重断流)；
+  - 固定数值夹具 4：$P(S_1)=80.0, P(S_2)=48.0 \implies T(S_1 \to S_2) = 60.0\%, HRI_2 = 40.0\%$；
+  - 固定数值夹具 5：$P(S_3)=60.0, P(S_4)=15.0 \implies \Delta_{\text{drop}} = 45.0 \ge 20.0 \implies$ 命中高危断点；
+  - 固定数值夹具 6：$v_{(1)}=1.0, v_{(2)}=0.8, v_{(3)}=0.6 \implies P = 89.0$ 分；
+  - 断言四维雷达数学计算公式；
+  - 断言 `outputs/funnel_defense_pack/` 下 3 份拦截文案物理存在；
+  - 断言自适应报告话术（沙箱推演声明 / live 实盘推演声明）；
+  - 断言 live 模式下调用预算严格 $\le 4$ 次，Mock 生产字典返回安全提取并融合，调用异常时 100% 完整回滚沙箱快照；
+  - 断言 API 鉴权拦截（未授权 401）与 `/report` 无文件返回 404。
+- [ ] 5.2 运行全库单元测试，确保 100% 通过（当前 101 组单测全部保持秒绿）。
+- [ ] 5.3 在 `review-log.md` 记录提案说明，提请另一个 IDE（Cursor）进行独立复审，由其签署 `[已达成共识]` 后方可进入 apply 开发。
