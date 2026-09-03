@@ -93,6 +93,10 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <button onclick="openPortfolioModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-indigo-600"></i>
+          <span>📊 全域大盘驾驶舱</span>
+        </button>
         <button onclick="showBenchmarkModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm">
           <i data-lucide="scale" class="w-3.5 h-3.5 text-indigo-600"></i>
           <span>工业化对标透视</span>
@@ -136,13 +140,14 @@
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+        <div onclick="openPortfolioModal()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-emerald-300 hover:shadow-md transition">
+          <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center shrink-0">
             <i data-lucide="trending-up" class="w-6 h-6"></i>
           </div>
-          <div>
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">平均 AI 声量提升</div>
-            <div class="text-2xl font-bold text-emerald-600 mt-0.5">+100.0%</div>
+          <div class="overflow-hidden">
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">全域商业总价值</div>
+            <div id="stat-portfolio-total-value" class="text-xl font-bold text-emerald-600 mt-0.5">¥0</div>
+            <div id="stat-portfolio-roi" class="text-[11px] font-semibold text-slate-500 mt-0.5">组合 ROI: +0.0%</div>
           </div>
         </div>
 
@@ -1657,6 +1662,115 @@
             <i data-lucide="play" class="w-4 h-4"></i>
             <span>立即并发启动批量生产</span>
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 全域多项目商业代运营大盘驾驶舱模态弹窗 ================= -->
+  <div id="portfolio-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <!-- 头部 -->
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-indigo-600/80 border border-indigo-400/30 rounded-xl flex items-center justify-center text-white shadow-md">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>GEO 商业代运营全域多项目驾驶舱</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">组合 ROI 决策中枢</span>
+            </h3>
+            <p class="text-xs text-slate-300">横向贯通四大垂直行业标杆与商业客户资产大盘，支持一键健康巡检与导出高管月报</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="triggerPortfolioPatrol()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow">
+            <i data-lucide="radar" class="w-3.5 h-3.5"></i>
+            <span>一键只读健康巡检</span>
+          </button>
+          <button onclick="previewPortfolioReport()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>大盘执行月报</span>
+          </button>
+          <button onclick="closePortfolioModal()" class="text-slate-400 hover:text-white p-1 rounded-lg transition ml-2">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 滚动内容区 -->
+      <div class="p-6 space-y-6 overflow-y-auto flex-1 bg-slate-50/50">
+        <!-- 4 维宏观 KPI 卡片 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">全盘商业创造总价值</div>
+            <div id="pf-stat-total-val" class="text-2xl font-bold text-emerald-600 mt-1">¥0</div>
+            <div id="pf-stat-net-val" class="text-[11px] text-slate-500 mt-0.5">净增收益: ¥0 元</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">组合投资回报率 (ROI)</div>
+            <div id="pf-stat-roi" class="text-2xl font-bold text-indigo-600 mt-1">+0.0%</div>
+            <div id="pf-stat-multiplier" class="text-[11px] text-slate-500 mt-0.5">资产放大倍数: 0.0x</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">托管项目与齐套率</div>
+            <div id="pf-stat-scale" class="text-2xl font-bold text-slate-900 mt-1">0 家</div>
+            <div id="pf-stat-manifest" class="text-[11px] text-slate-500 mt-0.5">16 维资产齐套率: 0.0%</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">全盘安全风控与合规</div>
+            <div id="pf-stat-security" class="text-2xl font-bold text-emerald-600 mt-1">100 分</div>
+            <div id="pf-stat-risk-tag" class="text-[11px] text-slate-500 mt-0.5">广告违规: 0 处 ｜ 死链: 0 条</div>
+          </div>
+        </div>
+
+        <!-- 巡检红黑榜提示区 (动态显示) -->
+        <div id="pf-patrol-alert-box" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 space-y-2"></div>
+
+        <!-- 多项目横向对比矩阵 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div class="font-bold text-slate-800 text-xs flex items-center gap-2">
+              <i data-lucide="table" class="w-4 h-4 text-indigo-600"></i>
+              <span>各垂直行业母版与客户项目多维对标矩阵</span>
+            </div>
+            <div class="text-[11px] text-slate-400">数据源优先从各项目 outputs 落盘文件实时秒级聚合</div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-100/75 text-slate-600 font-semibold border-b border-slate-200">
+                  <th class="px-4 py-3">企业客户</th>
+                  <th class="px-4 py-3">垂直行业</th>
+                  <th class="px-4 py-3 text-center">合同履约分</th>
+                  <th class="px-4 py-3 text-center">AI声量 (SOV)</th>
+                  <th class="px-4 py-3 text-right">年化总商业价值</th>
+                  <th class="px-4 py-3 text-right">单项 ROI</th>
+                  <th class="px-4 py-3 text-center">健康状态</th>
+                  <th class="px-4 py-3 text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody id="pf-projects-table-body" class="divide-y divide-slate-100 text-slate-700">
+                <tr><td colspan="8" class="text-center py-8 text-slate-400">正在聚合各项目数据...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 大盘月报在线预览区 (点击报告按钮后展示) -->
+        <div id="pf-report-preview-box" class="hidden bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h4 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+              <i data-lucide="file-check" class="w-4 h-4 text-emerald-600"></i>
+              <span id="pf-report-filename">大盘月报预览</span>
+            </h4>
+            <div class="flex items-center gap-2">
+              <button onclick="copyPortfolioReportContent()" class="text-xs px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition font-medium">复制 Markdown</button>
+              <button onclick="hidePortfolioReportPreview()" class="text-xs text-slate-400 hover:text-slate-600">收起预览</button>
+            </div>
+          </div>
+          <div id="pf-report-markdown-content" class="markdown-body text-xs max-h-96 overflow-y-auto p-4 bg-slate-50 rounded-lg border border-slate-200"></div>
         </div>
       </div>
     </div>
@@ -3378,6 +3492,7 @@ GitHub 开源仓库：https://github.com/company/repo
           const list = data.projects || [];
           document.getElementById('stat-total-projects').innerText = list.length;
           document.getElementById('stat-completed-projects').innerText = list.filter(p => p.steps_done === 5).length;
+          loadPortfolioSummaryForDashboard();
           
           const tbody = document.getElementById('projects-table-body');
           if (list.length === 0) {
@@ -4314,6 +4429,211 @@ GitHub 开源仓库：https://github.com/company/repo
       } catch (e) {
         box.innerHTML = `<div class="text-center py-6 text-slate-400">行业大盘数据加载失败</div>`;
       }
+    }
+
+    // ==========================================
+    // 全域多项目商业代运营驾驶舱 (Portfolio)
+    // ==========================================
+    let cachedPortfolioReportContent = '';
+
+    async function loadPortfolioSummaryForDashboard() {
+      try {
+        const res = await fetch('/api/portfolio/summary', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data && data.success && data.financial_valuation) {
+          const fin = data.financial_valuation;
+          const valEl = document.getElementById('stat-portfolio-total-value');
+          const roiEl = document.getElementById('stat-portfolio-roi');
+          if (valEl) valEl.innerText = `¥${Number(fin.total_business_value).toLocaleString()} 元`;
+          if (roiEl) roiEl.innerText = `组合 ROI: +${fin.portfolio_roi_pct}% (${fin.portfolio_roi_multiplier}x)`;
+        }
+      } catch (e) {
+        console.error('加载全域大盘概览失败:', e);
+      }
+    }
+
+    async function openPortfolioModal() {
+      document.getElementById('portfolio-modal').classList.remove('hidden');
+      document.getElementById('pf-report-preview-box').classList.add('hidden');
+      document.getElementById('pf-patrol-alert-box').classList.add('hidden');
+      await refreshPortfolioData();
+      lucide.createIcons();
+    }
+
+    function closePortfolioModal() {
+      document.getElementById('portfolio-modal').classList.add('hidden');
+    }
+
+    async function refreshPortfolioData() {
+      const tbody = document.getElementById('pf-projects-table-body');
+      try {
+        const res = await fetch('/api/portfolio/summary', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success) {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">加载大盘失败: ${data.message || '未知错误'}</td></tr>`;
+          return;
+        }
+
+        const fin = data.financial_valuation;
+        const scale = data.scale;
+        const sec = data.security_and_compliance;
+        const cards = data.project_cards || [];
+
+        // 填充四大 KPI
+        document.getElementById('pf-stat-total-val').innerText = `¥${Number(fin.total_business_value).toLocaleString()} 元`;
+        document.getElementById('pf-stat-net-val').innerText = `净增收益: ¥${Number(fin.total_business_value - fin.total_annual_service_fee).toLocaleString()} 元 (服务费: ¥${Number(fin.total_annual_service_fee).toLocaleString()})`;
+        document.getElementById('pf-stat-roi').innerText = `+${fin.portfolio_roi_pct}%`;
+        document.getElementById('pf-stat-multiplier').innerText = `整体资产放大倍数: ${fin.portfolio_roi_multiplier} 倍 ｜ 均值: +${fin.avg_project_roi_pct}%`;
+        document.getElementById('pf-stat-scale').innerText = `${scale.total_projects} 家企业`;
+        document.getElementById('pf-stat-manifest').innerText = `16 维齐套率: ${scale.avg_manifest_generation_pct}% ｜ 全额结案: ${scale.passed_acceptance_projects}/${scale.total_projects}`;
+        document.getElementById('pf-stat-security').innerText = `${sec.avg_injection_immunity} 分`;
+        document.getElementById('pf-stat-risk-tag').innerText = `广告违规: ${sec.total_compliance_violations} 处 ｜ 死链: ${sec.total_dead_links} 条`;
+
+        // 首页小卡片也同步更新
+        const valEl = document.getElementById('stat-portfolio-total-value');
+        const roiEl = document.getElementById('stat-portfolio-roi');
+        if (valEl) valEl.innerText = `¥${Number(fin.total_business_value).toLocaleString()} 元`;
+        if (roiEl) roiEl.innerText = `组合 ROI: +${fin.portfolio_roi_pct}% (${fin.portfolio_roi_multiplier}x)`;
+
+        // 渲染对比表格
+        if (cards.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">暂无托管商业项目</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = cards.map((p, idx) => {
+          let riskBadge = '<span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">🟢 正常</span>';
+          if (p.risk_level === 'danger') {
+            riskBadge = '<span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-red-50 text-red-700 font-semibold border border-red-200">🔴 高危</span>';
+          } else if (p.risk_level === 'warning') {
+            riskBadge = '<span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold border border-amber-200">🟡 预警</span>';
+          }
+
+          const sovText = `${p.effective_sov_pct}%` + (p.is_projected_sov ? '<span class="text-[9px] text-slate-400 block">(投影培育)</span>' : '');
+          const fulStatus = p.is_passed ? '<span class="text-emerald-600 font-bold">✅ 90+结案</span>' : '<span class="text-amber-600 font-semibold">🟢 阶段交付</span>';
+
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="px-4 py-3">
+                <div class="font-bold text-slate-900">${p.client_name}</div>
+                <div class="text-[10px] text-slate-400 font-mono">${p.project_id}</div>
+              </td>
+              <td class="px-4 py-3 text-slate-600 font-medium">${p.industry}</td>
+              <td class="px-4 py-3 text-center">
+                <div class="font-bold text-slate-800">${p.fulfillment_score} 分</div>
+                <div class="text-[10px]">${fulStatus}</div>
+              </td>
+              <td class="px-4 py-3 text-center font-bold text-indigo-600">${sovText}</td>
+              <td class="px-4 py-3 text-right font-mono font-bold text-slate-900">¥${Number(p.total_business_value).toLocaleString()}</td>
+              <td class="px-4 py-3 text-right font-mono font-semibold text-emerald-600">+${p.roi_pct}%</td>
+              <td class="px-4 py-3 text-center" title="${(p.risk_reasons || []).join('；')}">
+                ${riskBadge}
+                <div class="text-[9px] text-slate-400 mt-0.5 max-w-[120px] truncate mx-auto">${(p.risk_reasons || [])[0] || ''}</div>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <button onclick="selectProjectFromPortfolio('${p.project_id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-[11px] font-semibold transition">
+                  进入流水线 ➔
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+        lucide.createIcons();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">拉取大盘失败: ${err.message}</td></tr>`;
+      }
+    }
+
+    function selectProjectFromPortfolio(projectId) {
+      closePortfolioModal();
+      enterWizard(projectId);
+    }
+
+    async function triggerPortfolioPatrol() {
+      const box = document.getElementById('pf-patrol-alert-box');
+      box.classList.remove('hidden');
+      box.innerHTML = '<div class="flex items-center gap-2"><div class="animate-spin w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full"></div><span>正在并发执行全域多项目健康巡检...</span></div>';
+      try {
+        const res = await fetch('/api/portfolio/patrol', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          const counts = d.counts;
+          const board = d.red_black_board;
+          let html = `
+            <div class="flex items-center justify-between font-bold pb-2 border-b border-amber-200">
+              <span class="flex items-center gap-1.5"><i data-lucide="shield-alert" class="w-4 h-4 text-amber-700"></i> 全域健康巡检完成 (耗时 ${d.elapsed_ms}ms · 扫描 ${d.total_scanned} 个项目)</span>
+              <span>🔴 高危 ${counts.danger} ｜ 🟡 预警 ${counts.warning} ｜ 🟢 优良 ${counts.healthy}</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          `;
+
+          if (board.warning.length > 0) {
+            html += `<div><div class="font-semibold text-amber-800 mb-1">🟡 黄色关注项目:</div><ul class="list-disc pl-4 space-y-1">` +
+              board.warning.map(w => `<li><strong>${w.client_name}</strong>: ${w.risk_reasons.join('；')}</li>`).join('') + `</ul></div>`;
+          } else {
+            html += `<div><div class="text-emerald-700 font-semibold">✅ 暂无关注预警项目</div></div>`;
+          }
+
+          if (board.healthy.length > 0) {
+            html += `<div><div class="font-semibold text-emerald-800 mb-1">🟢 运行良好标杆:</div><ul class="list-disc pl-4 space-y-1">` +
+              board.healthy.map(h => `<li><strong>${h.client_name}</strong> (履约 ${h.fulfillment_score}分)</li>`).join('') + `</ul></div>`;
+          }
+
+          html += `</div>`;
+          box.innerHTML = html;
+          lucide.createIcons();
+          await refreshPortfolioData();
+        } else {
+          box.innerHTML = `<span class="text-red-600">巡检失败: ${d.message}</span>`;
+        }
+      } catch (err) {
+        box.innerHTML = `<span class="text-red-600">巡检请求异常: ${err.message}</span>`;
+      }
+    }
+
+    async function previewPortfolioReport() {
+      const box = document.getElementById('pf-report-preview-box');
+      const contentEl = document.getElementById('pf-report-markdown-content');
+      box.classList.remove('hidden');
+      contentEl.innerHTML = '<div class="text-slate-400 py-4 text-center">正在自动生成并提取高管大盘月报 Markdown...</div>';
+      try {
+        const res = await fetch('/api/portfolio/report', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          cachedPortfolioReportContent = d.content;
+          document.getElementById('pf-report-filename').innerText = d.filename;
+          contentEl.innerHTML = marked.parse(d.content);
+        } else {
+          contentEl.innerHTML = `<div class="text-red-500 py-4 text-center">生成报告失败: ${d.message}</div>`;
+        }
+      } catch (e) {
+        contentEl.innerHTML = `<div class="text-red-500 py-4 text-center">网络异常: ${e.message}</div>`;
+      }
+    }
+
+    function hidePortfolioReportPreview() {
+      document.getElementById('pf-report-preview-box').classList.add('hidden');
+    }
+
+    function copyPortfolioReportContent() {
+      if (!cachedPortfolioReportContent) {
+        showToast('暂无报告内容可复制', 'warning');
+        return;
+      }
+      navigator.clipboard.writeText(cachedPortfolioReportContent).then(() => {
+        showToast('已复制大盘月报 Markdown 内容到剪贴板！', 'success');
+      }).catch(e => {
+        showToast('复制失败: ' + e.message, 'error');
+      });
     }
 
     // ==========================================

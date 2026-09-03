@@ -201,6 +201,16 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
             return
 
+        # 全域多项目健康巡检 API: /api/portfolio/patrol
+        if path == "/api/portfolio/patrol":
+            try:
+                from .portfolio import run_portfolio_health_patrol
+                res = run_portfolio_health_patrol()
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 3. AI 商业意图与用户提问逆向挖掘 API: /api/intent/generate
         if path == "/api/intent/generate":
             body = self.read_json_body()
@@ -1362,6 +1372,26 @@ core_values:
             token = self.get_auth_token()
             if not is_authenticated(token):
                 self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+                return
+
+            # 全域多项目商业大盘概览: /api/portfolio/summary
+            if path == "/api/portfolio/summary":
+                try:
+                    from .portfolio import get_portfolio_summary
+                    summary = get_portfolio_summary()
+                    self.send_json(summary)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 全域多项目大盘执行报告: /api/portfolio/report
+            if path == "/api/portfolio/report":
+                try:
+                    from .portfolio import generate_portfolio_executive_report
+                    rep = generate_portfolio_executive_report()
+                    self.send_json(rep)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
             # 查询项目分享链接列表: /api/projects/{id}/share/info

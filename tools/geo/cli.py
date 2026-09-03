@@ -314,6 +314,11 @@ def main():
     p_inj.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_inj.add_argument("--file", "-f", default=None, help="指定待扫描的文件路径 (可选)")
 
+    # portfolio (全域多项目商业运营大盘与月报)
+    p_port = subparsers.add_parser("portfolio", help="全域多项目商业运营全景大盘、健康巡检与商业回报月报")
+    p_port.add_argument("--patrol", action="store_true", help="执行全域轻量只读健康巡检并输出风险红黑榜")
+    p_port.add_argument("--report", action="store_true", help="生成并落盘《GEO代运营全域多项目执行与商业回报大盘报告.md》")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -800,6 +805,62 @@ def main():
                     print(f"  {idx}. [{t['risk_level']}] `{t['file']}:L{t['line']}` 命中: 【{t['matched_text']}】")
                     print(f"     上下文: {t['context']}")
             print("="*65 + "\n")
+    elif args.command == "portfolio":
+        from .portfolio import get_portfolio_summary, run_portfolio_health_patrol, generate_portfolio_executive_report
+        if getattr(args, "patrol", False):
+            res = run_portfolio_health_patrol()
+            print("\n" + "="*70)
+            print("🚨 GEO 全域多项目健康巡检与风险红黑榜")
+            print("="*70)
+            print(f"⏱️ 扫描耗时: {res['elapsed_ms']}ms ｜ 扫描项目: {res['total_scanned']} 个")
+            print(f"📊 风险概览: 🔴 高危 {res['counts']['danger']} ｜ 🟡 预警 {res['counts']['warning']} ｜ 🟢 优良 {res['counts']['healthy']}")
+            print("="*70)
+            print("【🔴 红色高危清单】")
+            if res['red_black_board']['danger']:
+                for d in res['red_black_board']['danger']:
+                    print(f"  · {d['client_name']} ({d['industry']}): {'；'.join(d['risk_reasons'])}")
+            else:
+                print("  · 暂无高危项目，全盘安全隔离良好。")
+            print("\n【🟡 黄色预警清单】")
+            if res['red_black_board']['warning']:
+                for w in res['red_black_board']['warning']:
+                    print(f"  · {w['client_name']} ({w['industry']}): {'；'.join(w['risk_reasons'])}")
+            else:
+                print("  · 暂无黄色预警项目。")
+            print("\n【🟢 绿色优良清单】")
+            for h in res['red_black_board']['healthy']:
+                print(f"  · {h['client_name']} ({h['industry']}): 履约 {h['fulfillment_score']}分 · {'；'.join(h['risk_reasons'])}")
+            print("="*70 + "\n")
+        elif getattr(args, "report", False):
+            rep = generate_portfolio_executive_report()
+            print("\n" + "="*70)
+            print("📊 GEO 代运营全域多项目商业大盘报告已生成！")
+            print("="*70)
+            print(f"📁 报告路径: {rep['filepath']}")
+            print(f"📄 报告规模: {len(rep['content'])} 字符 ｜ 涵盖企业: {rep['summary']['scale']['total_projects']} 家")
+            print(f"💰 全盘商业总价值: ¥{rep['summary']['financial_valuation']['total_business_value']:,} 元")
+            print(f"📈 组合投资回报率 (ROI): +{rep['summary']['financial_valuation']['portfolio_roi_pct']}%")
+            print("="*70 + "\n")
+        else:
+            s = get_portfolio_summary()
+            scale = s["scale"]
+            fin = s["financial_valuation"]
+            sec = s["security_and_compliance"]
+            print("\n" + "="*75)
+            print("📊 GEO 全域多项目商业代运营大盘驾驶舱")
+            print("="*75)
+            print(f"🏛️ 托管客户总数: {scale['total_projects']} 家 ｜ 16维平均齐套率: {scale['avg_manifest_generation_pct']}% ｜ 全额结案数: {scale['passed_acceptance_projects']}/{scale['total_projects']}")
+            print(f"🛡️ 注入安全免疫: {sec['avg_injection_immunity']}/100 ｜ 广告合规违规: {sec['total_compliance_violations']} 处 ｜ 全盘死链: {sec['total_dead_links']} 条")
+            print(f"💵 年度总服务费: ¥{fin['total_annual_service_fee']:,} 元 ｜ 等效 SEM 节省: ¥{fin['total_sem_replacement_value']:,} 元/年")
+            print(f"🚀 全盘年化总产出: ¥{fin['total_business_value']:,} 元 ｜ 净商业增值: ¥{fin['total_business_value'] - fin['total_annual_service_fee']:,} 元")
+            print(f"📈 全盘组合投资回报率 (Portfolio ROI): +{fin['portfolio_roi_pct']}% (整体资产放大: {fin['portfolio_roi_multiplier']} 倍)")
+            print("-"*75)
+            print(f"{'序号':<4} {'企业客户名称':<18} {'行业':<14} {'履约':<8} {'SOV':<8} {'年化价值':<12} {'状态':<6}")
+            print("-"*75)
+            for idx, c in enumerate(s["project_cards"], 1):
+                st = "🔴 高危" if c["risk_level"] == "danger" else ("🟡 预警" if c["risk_level"] == "warning" else "🟢 正常")
+                print(f"{idx:<4} {c['client_name'][:16]:<18} {c['industry'][:12]:<14} {c['fulfillment_score']:<8.1f} {c['effective_sov_pct']:<7.1f}% ¥{int(c['total_business_value']):<11,} {st}")
+            print("="*75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 
