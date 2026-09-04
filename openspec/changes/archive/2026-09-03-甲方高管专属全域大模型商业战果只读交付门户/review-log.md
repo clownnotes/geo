@@ -240,5 +240,41 @@
 - 本地全部 138 组单元测试全绿，代码已符合 OpenSpec 规范与 AGENTS 生产防线约束；
 - 结论评定为 **`[通过]`**，正式达成跨 IDE 终审共识，同意放行执行归档（`./opsx archive`）！
 
+---
+
+## 跨端评审记录 7: Cursor 修复复审终审 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Fix Verification Review（对照记录 5 的 P0/P1；独立核验 commit `f1ab9cd`，不采信自评）
+- **审查结论**：`[通过]`
+- **本地验证**：
+  - `python3 -m unittest tests.test_delivery_portal -v` → **5 tests OK**
+  - `python3 -m unittest discover -s tests -p "test_*.py"` → **Ran 138 tests … OK**
+  - 空项目：`delivery_grade == "待验收"`（✅）
+  - 离线导出：无 CDN；含 `header {` / `#hero-mpi-score` / `.bg-slate-900` / `.grid` / `.max-w-7xl` / `.executive-card`（✅）
+  - 微信代理空 URL：文案为「待填报…」（✅）
+  - 知乎保真：`package_zhihu_assets` → `fidelity_report_zhihu.json`；缺文件时标记 `source=deepseek_fallback`（✅）
+
+#### P0 / P1 闭环复核
+
+| # | 原问题 | 复核结果 |
+|:--|:-------|:---------|
+| P0-1 | 离线导出塌布局 | ✅ 内联关键 utility/骨架 CSS + 单测断言关键选择器 |
+| P0-2 | 空项目假 AA | ✅ 无证书且 MPI 缺失/`<60` →「待验收」+ 单测锁定 |
+| P1-3 | 微信文案恒就绪 | ✅ 按 URL/探活分支文案 |
+| P1-4 | 知乎/DeepSeek 串包 | ✅ 独立 `fidelity_report_zhihu.json` + fallback 显式标记 |
+
+#### 🟢 可选后续（不阻断通过/归档）
+
+- 现网 `xuzhou` 尚未重跑 `geo publish --channel zhihu`，故暂无物理 `fidelity_report_zhihu.json`、走 fallback；归档后日常发稿即会落独立文件。
+- 在线 `share.html` 仍依赖 CDN（记录 5 已标明不阻断）。
+
+#### 已确认可归档
+
+- ✅ 真实字段映射、3 模型无假分、单文件门户、Token 单活、证书/ZIP 复用均保持
+- ✅ 138 组单测秒绿；未触达生产部署
+
+- **状态结论**：`[通过]` — 允许执行 `./opsx archive` 归档本变更。
+
 
 

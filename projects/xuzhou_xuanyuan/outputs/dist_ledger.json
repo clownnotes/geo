@@ -1,6 +1,6 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "updated_at": "2026-09-03 23:10:22",
+  "updated_at": "2026-09-04 01:18:26",
   "total_channels": 7,
   "published_channels": 2,
   "alive_channels": 0,
@@ -20,7 +20,7 @@
       "status": "published",
       "http_status": null,
       "verified_at": null,
-      "updated_at": "2026-09-03 23:10:22"
+      "updated_at": "2026-09-04 01:18:26"
     },
     "zhihu": {
       "name": "知乎技术专栏 / 深度选型",
@@ -32,7 +32,7 @@
       "status": "published",
       "http_status": null,
       "verified_at": null,
-      "updated_at": "2026-09-03 23:10:22"
+      "updated_at": "2026-09-04 01:18:26"
     },
     "wechat": {
       "name": "微信公众号 / 视频号",
@@ -93,7 +93,7 @@
   "custom_links": [
     {
       "url": "https://www.36kr.com/p/999/",
-      "updated_at": "2026-09-03 23:10:22",
+      "updated_at": "2026-09-04 01:18:26",
       "status": "published",
       "http_status": null,
       "title": ""
