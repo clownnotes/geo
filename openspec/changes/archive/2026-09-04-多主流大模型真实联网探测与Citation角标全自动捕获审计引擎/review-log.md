@@ -270,3 +270,43 @@
 - 提醒：严格遵循《AGENTS.md》，未经用户明确指令，绝不擅自执行 `./opsx archive` 或向生产环境推送。
 
 
+
+---
+
+## 跨端评审记录 7: Cursor 对记录 6 修复的独立终审核验 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Fix Verification Review（对照记录 5 的 P0/P1；独立核验代码与单测，**不采信**记录 6 自评）
+- **审查结论**：`[通过]`
+- **总判**：P0-1 字段映射已闭环，命中外链样例实机非空；P1 测试与 `--portal-sync` 消费已落地；探测 **11** + 全库 **154 tests OK**。第 30 维达到可归档基线。
+
+### 1. 记录 5 闭环复核
+
+| # | 原问题 | 复核结果 | 证据 |
+|:--|:-------|:---------|:-----|
+| **P0-1** | `citations` vs `citations_captured` / `match_type` vs `hit_type` | ✅ | `share.py` 优先读 `citations_captured`，`hit_type` 回传；实机 `hits=12`、`samples=10`，样例含 `https://www.toutiao.com/article/111/` + `exact_hit` |
+| **P1-2** | `--portal-sync` 半实现 | ✅ | CLI 注册 flag；`reconcile_existing_trace` 内调用 `compile_portal_data` 并返回 `portal_synced`；test_11 |
+| **P1-3** | test_10 未锁样例 | ✅ | `hit_count>0` → `samples` 非空且含 `url`/`hit_type` |
+| **P1-4** | reconcile 零模型调用 | ✅ | `patch(call_model_raw).assert_not_called()` |
+
+### 2. 本地验证（本机复跑）
+
+| 命令 | 结果 |
+|:---|:---|
+| `python3 -m unittest tests.test_probing` | **OK**（含 test_07~11） |
+| `python3 -m unittest discover -s tests -p "test_*.py"` | **Ran 154 … OK** |
+| `compile_portal_data("xuzhou_xuanyuan")` | `audited`；`hit_assets_samples` 非空 |
+
+### 3. 既有主能力保持
+
+- ✅ 无平行烟囱；复用 `probing`/`llm`/`dist_bot`；裸域名不计命中；30 号同源公文；鉴权；`never_run`
+
+### 4. 🟢 可选后续（不阻断通过/归档）
+
+- CLI：`portal_sync_flag = bool(getattr(args, "portal_sync", False) or True)` 恒为 `True`，无法用「不加 flag」关闭同步；与 design 默认 `portal_sync=True` 行为一致，但 flag 语义失效。归档后可改成 `getattr(args, "portal_sync", True)`（默认开）或显式 `bool(getattr(args, "portal_sync", False))`（默认关）。
+
+### 5. 放行结论
+
+- **状态结论**：`[通过]` — 允许执行 `./opsx archive` 归档本变更。
+- 仅本地验证；**未**、也**不得**在未获用户明示前向 `mini` / `geo.baicl.cc` 推生产。
+
