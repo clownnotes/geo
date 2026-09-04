@@ -44,3 +44,32 @@
      - VitePress 静态门户文档构建（`npm run build`）在 5.34s 内零报错通过；
   5. **生产红线合规**：开发与测试全程锁定在本地端口 `http://127.0.0.1:8088`，零外部公网变更，严守生产发布红线；
   6. **审查终审结论**：第 34 维功能完整度 100%，工程质量与事实红线严格达标，一致准予通过并执行规范归档与 Git 提交同步！
+
+---
+
+## 跨端评审记录: 待其他 IDE (Cursor / Windsurf 等) 独立终审 (2026-09-04)
+
+- **评审角色**：Reviewer / 联合架构师 (Cursor / Windsurf 等)
+- **阶段**：Code Implementation & Cross-IDE Joint Review（对照 `proposal.md` / `design.md` / `tasks.md` / `AGENTS.md`）
+- **当前审查状态**：`[待讨论]`
+- **独立复核建议项与验证入口**：
+  1. **单元测试与离线确定性验证**：
+     ```bash
+     python3 -m unittest tests.test_doubao_indexer -v
+     python3 -m unittest discover -s tests -p "test_*.py"
+     ```
+  2. **CLI 命令行沙箱验证**：
+     ```bash
+     python3 -m tools.geo doubao-index xuzhou_xuanyuan --dry-run
+     python3 -m tools.geo doubao-index _template --dry-run
+     ```
+  3. **事实红线核对**：
+     - 核对 `_template` 项目中 DRS 分数是否严格为 `None`，评级是否为 `pending`，状态是否为 `待实测`，严禁捏造虚假指标；
+     - 核对 `DoubaoBoosterPackGenerator` 输出的快照 HTML 是否为 100% 纯语义无 JS；
+  4. **REST API 与鉴权核对**：
+     - 核对 `server.py` 中 `/doubao-index/audit`、`/boost`、`/report` 是否强制 Bearer Token 鉴权（未授权返回 401）；
+  5. **门户卡片与优雅降级核对**：
+     - 核对 `web/share.html` 与 `tools/geo/share.py` 在 `never_run` 状态下的降级展示契约；
+  6. **评审结论填写规范**：
+     - 请审查者在下方填写核验结果、发现的问题或优化建议，并将结论更新为 `[已达成共识]`、`[需修正]` 或 `[通过]`。
+
