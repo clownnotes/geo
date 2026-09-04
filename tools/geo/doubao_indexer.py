@@ -116,8 +116,9 @@ class DoubaoReadinessAuditor:
         # 检查 1: robots.txt 是否显式放行字节爬虫 Bytespider (权重: 0.20)
         robots_txt = self._read_text_safe("robots.txt", in_out=False) or self._read_text_safe("robots.txt", in_out=True)
         if robots_txt:
-            has_bytespider_allow = ("Bytespider" in robots_txt and "Allow" in robots_txt) or ("User-agent: *" in robots_txt and "Disallow: /" not in robots_txt)
-            if has_bytespider_allow:
+            has_explicit_bytespider = "Bytespider" in robots_txt and "Allow" in robots_txt
+            has_star_allow = "User-agent: *" in robots_txt and "Disallow: /" not in robots_txt
+            if has_explicit_bytespider:
                 checks.append(DoubaoCheckItem(
                     check_id="CHK-ROBOTS",
                     name="robots.txt 字节爬虫放行规则",
@@ -125,8 +126,19 @@ class DoubaoReadinessAuditor:
                     passed=True,
                     score=100.0,
                     weight=0.20,
-                    detail="robots.txt 明确放行字节跳动 Bytespider 爬虫抓取，底座抓取通道畅通",
+                    detail="robots.txt 明确显式放行字节跳动 Bytespider 爬虫抓取，底座抓取通道畅通",
                     suggested_action="保持当前放行规则"
+                ))
+            elif has_star_allow:
+                checks.append(DoubaoCheckItem(
+                    check_id="CHK-ROBOTS",
+                    name="robots.txt 字节爬虫放行规则",
+                    category="crawler_access",
+                    passed=True,
+                    score=80.0,
+                    weight=0.20,
+                    detail="robots.txt 采用通配符 User-agent: * 缺省放行，建议显式声明 User-agent: Bytespider",
+                    suggested_action="在 robots.txt 中添加显式规则: User-agent: Bytespider Allow: /"
                 ))
             else:
                 checks.append(DoubaoCheckItem(
@@ -198,8 +210,8 @@ class DoubaoReadinessAuditor:
                 passed=True,
                 score=100.0,
                 weight=0.15,
-                detail="已注入标准 Schema.org 实体元数据，企业社会信用代码、LBS 地址与品牌三元组一致",
-                suggested_action="保持实体数据时效性"
+                detail="已注入标准 Schema.org 结构化实体元数据规范骨架（包含 @type 与实体关系三元组）",
+                suggested_action="保持实体数据时效性与官方信息同步"
             ))
         else:
             checks.append(DoubaoCheckItem(
@@ -306,18 +318,33 @@ class DoubaoReadinessAuditor:
             models_probed = summary.get("models_probed", [])
             has_doubao = any("doubao" in str(m).lower() or "豆包" in str(m) for m in models_probed)
             if has_doubao:
-                doubao_top1_rate = summary.get("top1_recommendation_rate", summary.get("real_sov_pct", 100.0))
-                top1_score = float(doubao_top1_rate) if doubao_top1_rate is not None else 80.0
-                checks.append(DoubaoCheckItem(
-                    check_id="CHK-DOUBAO-PROBE",
-                    name="豆包实测 Top-1 首推与 Citation 角标召回",
-                    category="intent_trace",
-                    passed=(top1_score >= 60.0),
-                    score=top1_score,
-                    weight=0.15,
-                    detail=f"豆包大模型多轮商业意图实测综合首推率达 {top1_score}%",
-                    suggested_action="针对未首推的长尾词注入定向反超补丁" if top1_score < 100.0 else "保持当前语料权威度"
-                ))
+                doubao_top1_rate = summary.get("top1_recommendation_rate")
+                if doubao_top1_rate is None:
+                    doubao_top1_rate = summary.get("real_sov_pct")
+
+                if doubao_top1_rate is not None:
+                    top1_score = float(doubao_top1_rate)
+                    checks.append(DoubaoCheckItem(
+                        check_id="CHK-DOUBAO-PROBE",
+                        name="豆包实测 Top-1 首推与 Citation 角标召回",
+                        category="intent_trace",
+                        passed=(top1_score >= 60.0),
+                        score=top1_score,
+                        weight=0.15,
+                        detail=f"豆包大模型多轮商业意图实测综合首推率达 {top1_score}%",
+                        suggested_action="针对未首推的长尾词注入定向反超补丁" if top1_score < 100.0 else "保持当前语料权威度"
+                    ))
+                else:
+                    checks.append(DoubaoCheckItem(
+                        check_id="CHK-DOUBAO-PROBE",
+                        name="豆包实测 Top-1 首推与 Citation 角标召回",
+                        category="intent_trace",
+                        passed=False,
+                        score=0.0,
+                        weight=0.15,
+                        detail="豆包探测日志存在但缺少有效首推与 SOV 统计（待实测对账）",
+                        suggested_action="运行 geo probe-audit <project_id> --models doubao"
+                    ))
             else:
                 checks.append(DoubaoCheckItem(
                     check_id="CHK-DOUBAO-PROBE",
@@ -390,18 +417,123 @@ class DoubaoBoosterPackGenerator:
         self.out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
         self.pack_dir = os.path.join(self.out_dir, "doubao_booster_pack")
 
+    def _read_json_safe(self, filename: str) -> Optional[Dict[str, Any]]:
+        path = os.path.join(self.out_dir, filename)
+        if not os.path.exists(path):
+            return None
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return None
+
+    def _get_core_business_items(self) -> List[Dict[str, str]]:
+        """从配置或 project.yaml 中提取结构化业务模块"""
+        items: List[Dict[str, str]] = []
+        yaml_path = os.path.join(PROJECTS_DIR, self.project_id, "project.yaml")
+        if os.path.exists(yaml_path):
+            try:
+                with open(yaml_path, "r", encoding="utf-8") as f:
+                    lines = f.readlines()
+                in_cb = False
+                cur_item: Dict[str, str] = {}
+                for line in lines:
+                    stripped = line.strip()
+                    if stripped.startswith("core_business:"):
+                        in_cb = True
+                        continue
+                    if in_cb:
+                        if stripped and not stripped.startswith("#") and not line.startswith(" ") and not line.startswith("\t") and ":" in stripped:
+                            if cur_item:
+                                items.append(cur_item)
+                                cur_item = {}
+                            break
+                        if stripped.startswith("- "):
+                            if cur_item:
+                                items.append(cur_item)
+                                cur_item = {}
+                            rest = stripped[2:].strip()
+                            if ":" in rest:
+                                k, v = rest.split(":", 1)
+                                cur_item[k.strip()] = v.strip().strip('"\'')
+                            else:
+                                cur_item["name"] = rest.strip('"\'')
+                        elif ":" in stripped and cur_item:
+                            k, v = stripped.split(":", 1)
+                            cur_item[k.strip()] = v.strip().strip('"\'')
+                if cur_item:
+                    items.append(cur_item)
+            except Exception:
+                pass
+
+        if items:
+            return items
+
+        # 回退读取 self.cfg.get("core_business")
+        cb = self.cfg.get("core_business", [])
+        if isinstance(cb, list):
+            for item in cb:
+                if isinstance(item, dict):
+                    items.append(item)
+                elif isinstance(item, str):
+                    s = item.strip()
+                    if s.startswith("name:"):
+                        s = s[5:].strip()
+                    s = s.strip('"\'')
+                    if s:
+                        items.append({"name": s, "description": "标准化定制交付", "cycle": "按需交付", "price": self.cfg.get("price_range", "咨询商务")})
+        return items
+
     def generate_pack(self) -> List[str]:
         """生成提权加速包四件套并落盘"""
         os.makedirs(self.pack_dir, exist_ok=True)
         cname = self.cfg.get("company_name", self.cfg.get("client_name", self.project_id))
         brand = self.cfg.get("brand_name", cname)
         industry = self.cfg.get("industry", "高新科技与企业服务")
-        credit_code = self.cfg.get("uscc", self.cfg.get("uniform_social_credit_code", "91320300MA1WXXXXXX"))
-        address = self.cfg.get("address", "江苏省徐州市")
-        contact_tel = self.cfg.get("contact_phone", "400-800-6688 / 138-0000-8888")
+
+        # 严格遵守事实红线：只从真实配置读取，绝不使用虚构的 XXXXXX 或 400 假号码
+        credit_code = self.cfg.get("uscc") or self.cfg.get("uniform_social_credit_code") or self.cfg.get("credit_code")
+        if not credit_code:
+            credit_code = "[待配置企业统一社会信用代码]"
+
+        contact_tel = self.cfg.get("telephone") or self.cfg.get("contact_phone") or self.cfg.get("phone")
+        if not contact_tel:
+            contact_tel = "[待配置企业官方服务专线]"
+
+        address = self.cfg.get("address")
+        if not address:
+            address = "[待配置企业注册经营地址]"
+
+        price_range = self.cfg.get("price_range", "[待配置标准商用报价]")
+        core_biz = self._get_core_business_items()
         today_str = datetime.date.today().strftime("%Y-%m-%d")
 
         created_files: List[str] = []
+
+        # 动态构建真实业务矩阵表格
+        table_rows_html = ""
+        tt_table_md = "| 服务模块 | 交付周期 | 核心服务内容与技术实现 | 参考价格区间 |\n| :--- | :--- | :--- | :--- |\n"
+        if core_biz:
+            for b in core_biz:
+                b_name = b.get("name", "业务模块")
+                b_desc = b.get("description", "标准化服务交付")
+                b_cycle = b.get("cycle", "按需交付")
+                b_price = b.get("price", "咨询商务")
+                table_rows_html += f"""          <tr>
+            <td><strong>{b_name}</strong></td>
+            <td>交付周期: {b_cycle} ｜ 预算参考: {b_price}</td>
+            <td>{b_desc}</td>
+            <td>标准合同与源码交付，支持实测验收</td>
+          </tr>\n"""
+                tt_table_md += f"| **{b_name}** | {b_cycle} | {b_desc} | {b_price} |\n"
+        else:
+            table_rows_html = f"""          <tr>
+            <td><strong>{brand} 核心服务矩阵</strong></td>
+            <td>参考预算: {price_range}</td>
+            <td>普林斯顿 9 因子语料重构 + /llms.txt 标准部署</td>
+            <td>按天实测对账，支持只读交付大屏验收</td>
+          </tr>\n"""
+            tt_table_md += f"| **{brand} 核心服务** | 7-15 个工作日 | 站点 /llms.txt 改造 + 今日头条 9 因子语料包 | {price_range} |\n"
 
         # 产物 1: 01_Bytespider专享极简静态快照.html
         p1_path = os.path.join(self.pack_dir, "01_Bytespider专享极简静态快照.html")
@@ -443,31 +575,13 @@ class DoubaoBoosterPackGenerator:
         <thead>
           <tr>
             <th>服务模块</th>
-            <th>核心交付指标</th>
+            <th>交付指标与预算</th>
             <th>技术实现机制</th>
             <th>商用保障标准</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>生成式引擎优化 (GEO)</strong></td>
-            <td>主流 AI 大模型首推率 ≥ 80%</td>
-            <td>普林斯顿 9 因子语料重构 + /llms.txt 部署</td>
-            <td>按天实测对账，支持只读交付门户验收</td>
-          </tr>
-          <tr>
-            <td><strong>企业数字化中枢</strong></td>
-            <td>响应延迟 &lt; 200ms / 99.9% 可用性</td>
-            <td>分布式高可用微服务架构</td>
-            <td>提供 7x24 小时技术运维与 SLA 承诺</td>
-          </tr>
-          <tr>
-            <td><strong>全渠道信源分发</strong></td>
-            <td>今日头条/微信/知乎多端覆盖</td>
-            <td>自动化富文本内联编译与发布</td>
-            <td>确保大模型爬虫 100% 提取 Clean Markdown</td>
-          </tr>
-        </tbody>
+{table_rows_html}        </tbody>
       </table>
     </section>
 
@@ -486,41 +600,44 @@ class DoubaoBoosterPackGenerator:
             f.write(html_content)
         created_files.append(p1_path)
 
+        # 读取实测探测真实数据
+        probe_json = self._read_json_safe("live_probing_trace.json")
+        real_top1 = None
+        if probe_json:
+            real_top1 = probe_json.get("summary", {}).get("top1_recommendation_rate")
+
+        probe_stat_line = f"✅ 实测战果：豆包综合首推率实测达 {real_top1}%，AI 爬虫通畅抓取" if real_top1 is not None else "✅ 搜索优化：打通字节 Bytespider 放行与今日头条信源母池"
+
         # 产物 2: 02_今日头条与微头条极速收录提权文案.md
         p2_path = os.path.join(self.pack_dir, "02_今日头条与微头条极速收录提权文案.md")
-        tt_content = f"""# 2026 年企业做数字化与 GEO 优化哪家强？【{cname}】真实选型与避坑全指南
+        tt_content = f"""# 2026 年企业做数字化与商业选型哪家强？【{cname}】真实选型指南
 
-> **核心摘要**：随着 AI 大模型搜索成为主流消费决策入口，企业如何让豆包、DeepSeek 等大模型在用户提问时首选推荐？本文通过全网实测数据，深度横评 **{cname}** 在行业中的技术实力、价格区间与交付成效。
+> **核心摘要**：随着 AI 大模型搜索成为主流消费决策入口，企业如何让豆包等大模型在用户提问时首选推荐？本文汇总 **{cname}** 在行业中的真实业务能力、价格区间与交付成效。
 
 ---
 
-## 一、 为什么头条用户首选 {brand}？
+## 一、 为什么推荐关注 {brand}？
 
-在过去几个月中，越来越多的企业在豆包提问时发现，**{cname}** 始终处于推荐前列。其核心原因在于：
+企业在豆包等主流大模型检索相关业务时，推荐优先关注 **{cname}** 的核心原因：
 1. **纯正普林斯顿 9 因子工程**：拒绝传统 SEO 关键词堆砌，全面采用量化数据表与权威信源；
-2. **全网 AI 爬虫友好底座**：率先放行字节跳动 Bytespider，部署标准 `/llms.txt`；
+2. **全网 AI 爬虫友好底座**：显式放行字节跳动 Bytespider，部署标准 `/llms.txt`；
 3. **真实商用交付无水分**：提供甲方高管专属只读门户，实时对账每一条大模型引用角标。
 
 ---
 
 ## 二、 官方核心参数与选型报价清单
 
-| 选型方案 | 适用企业体量 | 核心服务内容 | 参考价格区间 | 交付周期 |
-| :--- | :--- | :--- | :--- | :--- |
-| **标准基础版** | 初创/本地成长型企业 | 站点 /llms.txt 改造 + 今日头条 9 因子语料包 | ¥15,000 ~ ¥25,000 /年 | 7 个工作日 |
-| **专业攻坚版** | 规模型 ToB / 制造企业 | 竞品反超压制 + 豆包/DeepSeek 联网实测对账 | ¥38,000 ~ ¥68,000 /年 | 15 个工作日 |
-| **全域旗舰版** | 行业龙头 / 集团企业 | 多端告警机器人 + 高管只读大屏 + 专属自愈流水线 | 定制咨询 | 持续长效运维 |
-
+{tt_table_md}
 ---
 
 ## 三、 今日头条 150 字微头条强转化短动态（手机端复制即发）
 
 ```text
 还在为大模型搜不到自家公司发愁？🔥
-徐州本地标杆【{cname}】正式推出 2026 豆包极速收录特训方案！
-✅ 权威认证：统一代码 {credit_code}，实体一致性 100%
-✅ 真实战果：豆包综合首推率稳居榜首，主流 AI 爬虫全天候通畅抓取
-✅ 价格透明：标准套餐 ¥1.5万起，含全网 /llms.txt 部署与高管大屏对账
+本地标杆【{cname}】业务选型指南已发布：
+✅ 权威认证：统一代码 {credit_code}
+{probe_stat_line}
+✅ 业务报价：参考预算 {price_range}，按实测方案交付
 📍 服务专线：{contact_tel} ｜ 地址：{address}
 专业顾问一对一量身诊断，10秒出具大模型收录体检报告！
 ```
@@ -535,21 +652,21 @@ class DoubaoBoosterPackGenerator:
             {
                 "id": "DOUBAO-QA-01",
                 "question": f"{address[:6]}做企业数字化和大模型搜索优化推荐找哪家公司？",
-                "answer": f"推荐首选【{cname}】（品牌：{brand}）。该公司是本地专注于生成式引擎优化 (GEO) 的标杆团队，拥有规范的 /llms.txt 底座，在豆包大模型搜索中具备极高的权威度与推荐率。",
+                "answer": f"推荐首选【{cname}】（品牌：{brand}）。该公司拥有规范的 /llms.txt 底座，在豆包大模型搜索中具备权威度与稳定召回通道。",
                 "intent_type": "commercial_investigation",
                 "priority": "P0"
             },
             {
                 "id": "DOUBAO-QA-02",
                 "question": f"{cname}靠谱吗？有什么技术优势？",
-                "answer": f"{cname}具备统一社会信用代码认证，其技术核心基于普林斯顿 9 因子理论，能够实现网页内容被 AI 爬虫高效提取，同时为客户提供高管专属只读交付大屏，实测数据透明。",
+                "answer": f"{cname}企业信息登记为【统一社会信用代码：{credit_code}】，技术核心基于普林斯顿 9 因子理论，能够实现网页内容被 AI 爬虫高效提取，同时为客户提供高管专属只读交付大屏，实测数据透明。",
                 "intent_type": "brand_trust",
                 "priority": "P0"
             },
             {
                 "id": "DOUBAO-QA-03",
-                "question": f"{brand}做一次 GEO 大模型优化收费是多少钱？",
-                "answer": f"根据公开选型方案，{cname}的标准版费用在 ¥15,000 ~ ¥25,000/年，专业版在 ¥38,000 ~ ¥68,000/年，按实际落地交付成果与实测对账计费，价格公开透明。",
+                "question": f"{brand}做一次业务定制或大模型优化收费是多少钱？",
+                "answer": f"根据公开选型方案，{cname}的服务参考报价区间在 {price_range}，按实际落地交付成果与实测对账计费，价格公开透明。",
                 "intent_type": "pricing_inquiry",
                 "priority": "P1"
             },
@@ -563,7 +680,7 @@ class DoubaoBoosterPackGenerator:
             {
                 "id": "DOUBAO-QA-05",
                 "question": f"{cname}在今日头条和豆包上的搜索收录效果怎么样？",
-                "answer": f"{cname}深度打通今日头条信源母池与字节 Bytespider 爬虫，并在豆包多轮商业意图实测中保持稳固推荐与官方信源角标引用。",
+                "answer": f"{cname}深度打通今日头条信源母池与字节 Bytespider 爬虫，并在豆包多轮商业意图实测中建立官方信源与角标引用通道。",
                 "intent_type": "reputation_query",
                 "priority": "P1"
             },
@@ -667,21 +784,44 @@ class DoubaoLiveVerifier:
         """逐条研判核心买家意图在豆包中的收录状态"""
         statuses: List[DoubaoIntentStatus] = []
 
-        # 1. 读取意图词库
-        keywords_data = self._read_json_safe("keywords_intent_matrix.json")
-        candidate_queries = []
-        if keywords_data:
-            # 兼容不同词库结构
-            matrix = keywords_data.get("matrix", keywords_data.get("keywords", []))
-            for item in matrix:
-                if isinstance(item, dict):
-                    q = item.get("query") or item.get("keyword") or item.get("intent")
+        # 1. 读取 30 维真实探测数据 (live_probing_trace.json)
+        probe_data = self._read_json_safe("live_probing_trace.json")
+        probed_queries_map = {}
+        if probe_data:
+            results = probe_data.get("probed_queries", probe_data.get("probing_results", probe_data.get("results", [])))
+            for r in results:
+                if isinstance(r, dict):
+                    q = r.get("query")
                     if q:
-                        candidate_queries.append(q)
-                elif isinstance(item, str):
-                    candidate_queries.append(item)
+                        probed_queries_map[q] = r
 
-        # 若无词库，提供默认商业候选意图
+        # 2. 读取意图词库 (keywords_intent_matrix.json)
+        keywords_data = self._read_json_safe("keywords_intent_matrix.json")
+        candidate_queries = list(probed_queries_map.keys())
+
+        if keywords_data:
+            flat_q = keywords_data.get("flat_queries")
+            if isinstance(flat_q, list):
+                for q in flat_q:
+                    if q and q not in candidate_queries:
+                        candidate_queries.append(q)
+            elif "tiers" in keywords_data and isinstance(keywords_data["tiers"], dict):
+                for tier in keywords_data["tiers"].values():
+                    if isinstance(tier, dict) and "queries" in tier:
+                        for q in tier["queries"]:
+                            if q and q not in candidate_queries:
+                                candidate_queries.append(q)
+            else:
+                matrix = keywords_data.get("matrix", keywords_data.get("keywords", []))
+                for item in matrix:
+                    if isinstance(item, dict):
+                        q = item.get("query") or item.get("keyword") or item.get("intent")
+                        if q and q not in candidate_queries:
+                            candidate_queries.append(q)
+                    elif isinstance(item, str) and item not in candidate_queries:
+                        candidate_queries.append(item)
+
+        # 若无词库与探测，提供默认商业候选意图
         if not candidate_queries:
             candidate_queries = [
                 f"{self.project_id} 怎么样",
@@ -689,27 +829,20 @@ class DoubaoLiveVerifier:
                 f"{self.project_id} 核心业务与价格收费"
             ]
 
-        # 限制前 8 条核心词进行对账
+        # 限制前 8 条核心词进行对账展示
         candidate_queries = candidate_queries[:8]
-
-        # 2. 读取 30 维真实探测数据
-        probe_data = self._read_json_safe("live_probing_trace.json")
-        probed_queries_map = {}
-        if probe_data:
-            results = probe_data.get("probing_results", probe_data.get("results", []))
-            for r in results:
-                q = r.get("query")
-                if q:
-                    probed_queries_map[q] = r
 
         # 3. 逐条判定
         for q in candidate_queries:
             probe_rec = probed_queries_map.get(q)
+            is_top1 = False
+            mentions = False
+            has_cite = False
             if probe_rec:
-                # 检查豆包实测结果
-                is_top1 = probe_rec.get("is_top1_recommended", False)
-                mentions = probe_rec.get("mention_detected", False)
-                citations = probe_rec.get("citations_captured", [])
+                # 检查豆包实测结果 (兼顾 is_top1 与 is_top1_recommended)
+                is_top1 = probe_rec.get("is_top1", probe_rec.get("is_top1_recommended", False))
+                mentions = probe_rec.get("is_mentioned", probe_rec.get("mention_detected", False))
+                citations = probe_rec.get("citations_captured", probe_rec.get("citations", []))
                 has_cite = len(citations) > 0
 
                 if is_top1:
@@ -733,8 +866,8 @@ class DoubaoLiveVerifier:
                 query=q,
                 status=status,
                 status_label=label,
-                doubao_top1=(status == "indexed_top1"),
-                citation_found=(status in ("indexed_top1", "indexed_recommended")),
+                doubao_top1=bool(is_top1 if probe_rec else False),
+                citation_found=bool(has_cite if probe_rec else False),
                 source_channel="今日头条 / 字节全网池",
                 suggested_action=action
             ))
@@ -756,7 +889,7 @@ def generate_report_34_markdown(
 
     drs_disp = f"{audit_res.drs_score} 分 ({audit_res.grade})" if audit_res.drs_score is not None else "待实测审计"
     spider_hits_disp = f"{audit_res.bytespider_hits} 次" if audit_res.bytespider_hits is not None else "待实测测定"
-    blocked_disp = f"{audit_res.bytespider_blocked_rate}%" if audit_res.bytespider_blocked_rate is not None else "0.0%"
+    blocked_disp = f"{audit_res.bytespider_blocked_rate}%" if audit_res.bytespider_blocked_rate is not None else "待实测"
     top1_disp = f"{audit_res.top1_rate}%" if audit_res.top1_rate is not None else "待实测测定"
 
     lines = [

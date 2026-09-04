@@ -83,6 +83,11 @@ class TestDoubaoIndexerPipeline(unittest.TestCase):
         self.assertIn("Bytespider", html_content)
         self.assertNotIn("<script", html_content, "极简快照严禁包含前端 JS，确保爬虫提取保真度 100%")
         self.assertIn("统一社会信用代码", html_content)
+        # 事实红线核对：严禁虚假占位符 91320300MA1WXXXXXX 与 400-800-6688，必须使用真实电话 13150568888 与真实业务
+        self.assertNotIn("91320300MA1WXXXXXX", html_content, "严禁将假统一信用代码写入对外快照")
+        self.assertNotIn("400-800-6688", html_content, "严禁将假客服电话写入对外快照")
+        self.assertIn("13150568888", html_content, "必须正确读取 project.yaml 真实电话 telephone")
+        self.assertIn("微信/抖音小程序与移动端定制", html_content, "必须正确提取真实核心业务矩阵")
 
         # 2. 今日头条与微头条提权文案
         f_toutiao = os.path.join(pack_dir, "02_今日头条与微头条极速收录提权文案.md")
@@ -90,6 +95,9 @@ class TestDoubaoIndexerPipeline(unittest.TestCase):
         with open(f_toutiao, "r", encoding="utf-8") as f:
             tt_content = f.read()
         self.assertIn("150 字微头条", tt_content)
+        self.assertNotIn("91320300MA1WXXXXXX", tt_content)
+        self.assertNotIn("400-800-6688", tt_content)
+        self.assertIn("13150568888", tt_content)
 
         # 3. 豆包高意向 Q&A JSON
         f_qa = os.path.join(pack_dir, "03_豆包高意向Q&A微问答对.json")
@@ -115,6 +123,13 @@ class TestDoubaoIndexerPipeline(unittest.TestCase):
             self.assertTrue(bool(it.query))
             self.assertTrue(bool(it.status_label))
             self.assertTrue(bool(it.suggested_action))
+
+        # 验证真实探测首推对账（消费 live_probing_trace.json 真实字段）
+        self.assertEqual(intents[0].query, "徐州市及淮海经济区做行业数字化找哪家团队靠谱？")
+        self.assertEqual(intents[0].status, "indexed_top1")
+        self.assertTrue(intents[0].doubao_top1)
+        self.assertTrue(intents[0].citation_found)
+        self.assertIn("🟢", intents[0].status_label)
 
     def test_04_report_34_and_hash_anti_counterfeit(self):
         """测试 4: 34 号公文结案报告落盘、防伪水印与 DOUBAO-INDEX- 校验"""

@@ -2,11 +2,11 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "scanned_files": 88,
-  "avg_princeton_score": 65.4,
-  "pass_rate_ge_80": 8.0,
+  "avg_princeton_score": 65.2,
+  "pass_rate_ge_80": 6.8,
   "rating_grade": "B 级 (及格边缘级)",
-  "est_visibility_ceiling": "+26.8%",
-  "est_boost_vs_baseline": "+12.5%",
+  "est_visibility_ceiling": "+26.7%",
+  "est_boost_vs_baseline": "+12.4%",
   "file_results": [
     {
       "file": "robots.txt",
@@ -388,9 +388,9 @@
     },
     {
       "file": "34_豆包大模型搜索极速收录与全链路索引保障报告.md",
-      "overall_score": 59.0,
+      "overall_score": 58.9,
       "rating_grade": "C 级 (低质营销水文)",
-      "est_visibility_ceiling": "+24.2%",
+      "est_visibility_ceiling": "+24.1%",
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议补充带身份声明的专家/技术负责人客观引语",
@@ -546,6 +546,24 @@
       }
     },
     {
+      "file": "doubao_booster_pack/02_今日头条与微头条极速收录提权文案.md",
+      "overall_score": 61.0,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+25.0%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议清除广告法极限词与主观浮夸表述，改用客观陈述"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md",
       "overall_score": 61.2,
       "rating_grade": "B 级 (及格边缘级)",
@@ -662,24 +680,6 @@
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议补充带身份声明的专家/技术负责人客观引语",
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
-      ],
-      "penalties": {
-        "keyword_stuffing": {
-          "penalty": 0.0,
-          "reason": "无关键词恶意堆砌",
-          "term": null
-        }
-      }
-    },
-    {
-      "file": "doubao_booster_pack/02_今日头条与微头条极速收录提权文案.md",
-      "overall_score": 62.5,
-      "rating_grade": "B 级 (及格边缘级)",
-      "est_visibility_ceiling": "+25.6%",
-      "top_suggestions": [
-        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
-        "建议补充带身份声明的专家/技术负责人客观引语",
-        "建议清除广告法极限词与主观浮夸表述，改用客观陈述"
       ],
       "penalties": {
         "keyword_stuffing": {
@@ -1052,6 +1052,24 @@
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "doubao_booster_pack/01_Bytespider专享极简静态快照.html",
+      "overall_score": 71.0,
+      "rating_grade": "A 级 (基本合格级)",
+      "est_visibility_ceiling": "+29.1%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
+        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
       ],
       "penalties": {
         "keyword_stuffing": {
@@ -1493,23 +1511,6 @@
       }
     },
     {
-      "file": "doubao_booster_pack/01_Bytespider专享极简静态快照.html",
-      "overall_score": 83.5,
-      "rating_grade": "AA 级 (高质量高采纳级)",
-      "est_visibility_ceiling": "+34.2%",
-      "top_suggestions": [
-        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
-        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
-      ],
-      "penalties": {
-        "keyword_stuffing": {
-          "penalty": 0.0,
-          "reason": "无关键词恶意堆砌",
-          "term": null
-        }
-      }
-    },
-    {
       "file": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md",
       "overall_score": 83.8,
       "rating_grade": "AA 级 (高质量高采纳级)",
@@ -1542,7 +1543,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-04 05:42:26",
+  "generated_at": "2026-09-04 05:57:07",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

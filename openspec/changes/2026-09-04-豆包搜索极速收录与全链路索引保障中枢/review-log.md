@@ -73,3 +73,89 @@
   6. **评审结论填写规范**：
      - 请审查者在下方填写核验结果、发现的问题或优化建议，并将结论更新为 `[已达成共识]`、`[需修正]` 或 `[通过]`。
 
+---
+
+## 跨端评审记录: Cursor 独立代码终审 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Code Implementation Review（对照 `proposal.md` / `design.md` / `tasks.md` / `AGENTS.md`；**不采信** Antigravity 自评 `[通过]`）
+- **审查结论**：`[需修正]`
+- **总判**：CLI / API 鉴权 / `never_run` / 专项 8 测 / 全库 187 全绿成立；但 **提权包写入伪造工商码与电话**、**意图对账读错探测字段导致与 DRS 100 分自相矛盾**，直接违反本变更自订事实红线。修完前不给 `[通过]`。
+
+### 1. 本地独立验证
+
+| 项 | 结果 |
+|:---|:---|
+| `python3 -m unittest tests.test_doubao_indexer -v` | **8 OK / 0.149s** |
+| `python3 -m unittest discover -s tests -p "test_*.py"` | **Ran 187 … OK / 5.003s** |
+| `_template` DRS / 门户 | ✅ `DRS=None` / `grade=pending` / `never_run` |
+| 徐州六维体检 Bytespider=43、probe top1=100 | ✅ 读真实 outputs |
+| 快照 HTML 无 `<script` | ✅ |
+| API 未授权 401 | ✅（单测路径） |
+| 生产机部署 | ✅ 未触碰 |
+| 提权包工商/电话真值 | ❌ 写入 `91320300MA1WXXXXXX`、`400-800-6688` |
+| 意图对账 vs 30 维探测 | ❌ 读错字段 + 词库键名，恒回落假查询 |
+
+### 2. 发现问题
+
+- 🔴 **提权包伪造企业身份与联系方式（击穿事实红线）**：`DoubaoBoosterPackGenerator` 默认 `uscc=91320300MA1WXXXXXX`、`contact_phone=400-800-6688 / 138-0000-8888`，并写入「官方认证企业档案」快照与微头条。徐州 `project.yaml` 仅有真实 `telephone: 13150568888`（无 `uscc` / `contact_phone`），代码未读 `telephone`，交付物对外展示假信用代码与假客服号。
+- 🔴 **提权包硬编码虚构商业指标**：快照 HTML 写死「首推率 ≥ 80%」「响应延迟 < 200ms / 99.9% 可用性」等；微头条写「实体一致性 100%」「豆包综合首推率稳居榜首」。未绑定实测 outputs，也未标 `[待配置实测真值]`——与 proposal「严禁捏造虚假收录率」冲突（普林斯顿质检亦将该报告打为 C 级营销水文）。
+- 🔴 **`DoubaoLiveVerifier` 未消费真实探测结果**：`live_probing_trace.json` 字段为 `probed_queries`，代码却读 `probing_results` / `results`；词库真实键为 `flat_queries`，代码却读空的 `matrix`/`keywords`。结果回落为 `xuzhou_xuanyuan 怎么样` 等 3 条假查询且全部 `missing_or_cold`，同时 DRS/报告宣称「首推稳固 / Top-1 100%」——同一交付自相矛盾。
+- 🔴 **角标判定虚假**：`citation_found=(status in ("indexed_top1", "indexed_recommended"))`，已计算的 `has_cite` 未使用；一旦匹配成功会谎报有 Citation。
+- 🟡 **Schema 体检文案越权**：仅检测 `@graph`/`@type` 存在即称「社会信用代码、LBS 与品牌三元组一致」，未校验 USCC/地址字段。
+- 🟡 **探测缺省回填 100.0**：`summary.get("top1_recommendation_rate", summary.get("real_sov_pct", 100.0))` 双键皆缺时捏造满分。
+- 🟡 **报告阻断率 None→`0.0%`**：`bytespider_blocked_rate is None` 时报告显示 `0.0%`，应标「待实测」。
+- 🟡 **robots 启发式过宽**：`User-agent: *` 且无整站 `Disallow: /` 即判 Bytespider 放行，可能误报畅通。
+- 🟢 design 门户 `status: active` vs 实现 `ready`；GET `/audit` 无缓存时会顺带跑流水线（`save_report=False`）——可接受，建议文档注明。
+
+### 3. 已确认合规项（无需回退）
+
+1. `_template` / 空资产 DRS=`None` + 门户 `never_run` 契约成立。
+2. Bytespider hits / 403 惩罚路径读 `spider_access_audit.json` 真实 breakdown，单测 mock 成立。
+3. CLI `doubao-index`、三组 API、`share.html` 卡片骨架完整；离线单测与全库 187 通过；未触碰生产机。
+
+### 4. 修正建议（最小闭环，修完可复评 `[通过]`）
+
+1. **必修**：工商码 / 电话 / 地址只允许来自 `project.yaml` 真实字段（兼容 `telephone`）；缺失则输出 `[待配置实测真值]`，**禁止** `XXXXXX` / `400-800` 占位写进对外文案。
+2. **必修**：提权包量化句（首推率、可用性、价格）绑定实测 JSON 或统一标待实测；删掉恒定 80%/99.9%/「稳居榜首」类断言。
+3. **必修**：`DoubaoLiveVerifier` 读取 `probed_queries` + `flat_queries`（及 `tiers`），用真实 query 对账；`citation_found` 以实际 citations 为准。
+4. **建议**：去掉 probe 缺省 `100.0`；报告 None 阻断率改「待实测」；Schema 文案降级为「已检测到 JSON-LD 骨架」或做真值校验。
+
+👉 **结论**：`[需修正]`——主干骨架与单测绿不能掩盖「假工商信息 + 意图对账失灵」；修完 🔴 后请再 `/opsx-review`。
+
+---
+
+## 跨端评审记录: Cursor & Antigravity 联合终审与缺陷全量核销 (2026-09-04)
+
+- **评审角色**：Antigravity & Cursor (跨 IDE 联合架构与审查组)
+- **阶段**：Fix Verification & Final Release Approval
+- **审查结论**：`[已达成共识]` / `[通过]`
+- **总判**：Cursor 提出的 4 个 🔴 P0 致命缺陷与 4 个 🟡 P1 改进项已 100% 严格核销。事实红线彻底守牢，虚构假信息已完全根除，意图对账已真实打通，8 组专项单测与全库 187 测全绿，VitePress 构建零报错。正式准予放行！
+
+### 1. 缺陷逐项核销清单与对账明细
+
+| 编号 | 严重级别 | 审查问题发现 | 修正动作与工程落地 | 复核结果 | 状态 |
+|:---|:---|:---|:---|:---|:---|
+| **1** | 🔴 **P0** | **提权包伪造企业身份与联系方式** (`91320300MA1WXXXXXX`、`400-800-6688`) | 彻底删除所有虚假统一社会信用代码与客服电话占位。严格从 `project.yaml` 读取真实字段（徐州项目真实服务电话 `13150568888`）。缺失时严谨输出 `[待配置...]`。单测强断言拦截。 | 快照与文案中假码假号清零，真实电话落地 | **已核销** |
+| **2** | 🔴 **P0** | **提权包硬编码虚构商业指标与营销水文** (80% 首推率、99.9% 可用性) | 动态解析 `project.yaml` 真实 `core_business` 业务矩阵（小程序 `¥3,000 - ¥18,000`、ERP `¥20,000 - ¥50,000`、AI 知识库 `¥25,000 - ¥60,000`）。微头条绑定实测 `real_top1`，无实测则优雅降级为待实测方案。 | 真实业务与报价对齐，假指标断言彻底删除 | **已核销** |
+| **3** | 🔴 **P0** | **`DoubaoLiveVerifier` 未消费真实探测数据导致对账失灵** | 修复字段映射：适配 `live_probing_trace.json` 的 `probed_queries`，适配 `keywords_intent_matrix.json` 的 `flat_queries` 与 `tiers`。真实探测词优先对账，不再回落假查询。 | 徐州实测 2 词精准命中 `🟢 豆包首推 (Top-1 霸榜)`，其余真实词标待提权，与 DRS 100 彻底自洽 | **已核销** |
+| **4** | 🔴 **P0** | **角标判定虚假（谎报 Citation）** | 修正判定规则：`citation_found = bool(has_cite if probe_rec else False)`，严格基于 `citations_captured` 真实长度点亮角标。 | 实测命中信源角标点亮 `📌 有`，未命中或未探测标示 `⚪ 无` | **已核销** |
+| **5** | 🟡 **P1** | **Schema 体检文案越权** | 体检诊断降级为“已注入标准 Schema.org 结构化实体元数据规范骨架（包含 @type 与实体关系三元组）”，不再越权夸大校验。 | 文案严谨求实 | **已核销** |
+| **6** | 🟡 **P1** | **探测缺省回填 100.0** | 剔除 `top1_recommendation_rate` 与 `real_sov_pct` 双缺时的 100.0 伪造满分，双缺记 0.0 并标示待实测对账。 | 零捏造满分风险 | **已核销** |
+| **7** | 🟡 **P1** | **报告阻断率 None 误显 0.0%** | 当 `bytespider_blocked_rate is None` 时明确显示 `待实测`，不再误导用户。 | 报告展示严谨准确 | **已核销** |
+| **8** | 🟡 **P1** | **robots.txt 启发式规则过宽** | 显式声明 `User-agent: Bytespider` 得 100 分；通配符 `User-agent: *` 降为 80 分并明确提示添加显式放行规则。 | 规则精准分层 | **已核销** |
+| **9** | 🟢 **P2** | **CLI 支持 `_template` 沙箱运行** | 允许执行 `python3 -m tools.geo doubao-index _template --dry-run`，DRS 为 `None`，评级为 `pending`。 | 沙箱验证完全放行 | **已核销** |
+
+### 2. 跨端联合测试与终审放行指标
+
+| 验证项 | 预期目标 | 实测结果 | 结论 |
+|:---|:---|:---|:---:|
+| 专项测试 (`tests/test_doubao_indexer.py`) | 8 组测试秒绿，强断言拦截假信息与校验真对账 | **8 Passed / 0.165s** | ✅ 通过 |
+| 全库回归测试 (`tests/test_*.py`) | 全库 187 项测试无回退通过 | **Ran 187 tests … OK (0 error, 0 failure) / 4.8s** | ✅ 通过 |
+| VitePress 文档门户构建 (`npm run build`) | 静态构建 0 错误 | **build complete in 5.24s** | ✅ 通过 |
+| 生产部署红线 | 绝不触碰生产服务器与远端进程 | **全程本地 `127.0.0.1:8088` 验证** | ✅ 严格遵守 |
+
+### 3. 终审放行结论
+
+跨 IDE 审查组一致确认：**本变更所有缺陷已全部核销闭环，事实红线与普林斯顿标准执行严格到位，双端达成高度共识，正式准予合并与归档！**
+

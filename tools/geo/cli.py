@@ -1387,10 +1387,11 @@ def main():
             print("🌐 高管只读交付门户已联动同步刷新 (含机器人推送态势卡片)")
         print("=" * 78 + "\n")
     elif args.command == "doubao-index":
-        pid = get_pid(args)
-        if not pid or pid == "_template":
+        raw_pid = getattr(args, "project_pos", None) or getattr(args, "project", None)
+        if not raw_pid:
             print("❌ 请指定目标项目 ID，例如: python3 -m tools.geo doubao-index xuzhou_xuanyuan")
             sys.exit(1)
+        pid = raw_pid
 
         from tools.geo.doubao_indexer import run_doubao_indexer
         is_audit = getattr(args, "audit", False)
