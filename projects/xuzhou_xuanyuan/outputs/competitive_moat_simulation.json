@@ -2,8 +2,8 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "rival_name": "某通科技（低端套模板建站商）",
-  "timestamp": "2026-09-03 21:24:52",
+  "rival_name": "测试竞对软件工作室",
+  "timestamp": "2026-09-03 21:30:18",
   "use_live": false,
   "is_live_judged": false,
   "models_tested": [
@@ -12,104 +12,94 @@
     "kimi"
   ],
   "summary": {
-    "moat_defense_index": 46.6,
+    "moat_defense_index": 48.6,
     "grade_code": "vulnerable_breach",
     "grade_name": "🔴 防线失守 (Vulnerable Breach)",
-    "mean_advantage": -6.8,
+    "mean_advantage": -2.7,
     "total_dimensions": 4,
-    "vulnerable_breaches_count": 4,
-    "mean_self_score": 12.2,
-    "mean_rival_score": 19.0
+    "vulnerable_breaches_count": 3,
+    "mean_self_score": 12.4,
+    "mean_rival_score": 15.1
   },
   "dimensions": [
     {
       "dim_id": "D1",
       "dim_name": "核心实力横向对比 (Technical Capability)",
-      "query": "在徐州选技术研发与专业服务服务商，徐州璇源网络科技有限公司和某通科技（低端套模板建站商）哪个技术实力更强？怎么选？",
-      "self_score": 11.7,
-      "rival_score": 20.8,
-      "advantage": -9.1,
-      "competitor_threat_index": 64.0,
+      "query": "在徐州选技术研发与专业服务服务商，徐州璇源网络科技有限公司和测试竞对软件工作室哪个技术实力更强？怎么选？",
+      "self_score": 11.9,
+      "rival_score": 16.9,
+      "advantage": -5.0,
+      "competitor_threat_index": 58.7,
       "is_vulnerable": true
     },
     {
       "dim_id": "D2",
       "dim_name": "交付模式与防踩坑对比 (Delivery Model)",
-      "query": "做技术研发与专业服务项目，徐州璇源网络科技有限公司是自研源码交付吗？比起某通科技（低端套模板建站商）会不会有转包风险？",
-      "self_score": 13.3,
-      "rival_score": 19.1,
-      "advantage": -5.8,
-      "competitor_threat_index": 59.0,
+      "query": "做技术研发与专业服务项目，徐州璇源网络科技有限公司是自研源码交付吗？比起测试竞对软件工作室会不会有转包风险？",
+      "self_score": 13.1,
+      "rival_score": 15.3,
+      "advantage": -2.2,
+      "competitor_threat_index": 53.9,
       "is_vulnerable": true
     },
     {
       "dim_id": "D3",
       "dim_name": "性价比与透明收费对比 (Pricing & ROI)",
-      "query": "在徐州找技术研发与专业服务公司，徐州璇源网络科技有限公司报价收费透明吗？和某通科技（低端套模板建站商）比哪个性价比更高？",
-      "self_score": 11.4,
-      "rival_score": 20.4,
-      "advantage": -9.0,
-      "competitor_threat_index": 64.2,
+      "query": "在徐州找技术研发与专业服务公司，徐州璇源网络科技有限公司报价收费透明吗？和测试竞对软件工作室比哪个性价比更高？",
+      "self_score": 12.1,
+      "rival_score": 16.6,
+      "advantage": -4.5,
+      "competitor_threat_index": 57.8,
       "is_vulnerable": true
     },
     {
       "dim_id": "D4",
       "dim_name": "本地存证与售后保障对比 (Local Warranty)",
-      "query": "徐州璇源网络科技有限公司在徐州有本地直营实体和售后保障吗？跟某通科技（低端套模板建站商）对比售后服务怎么样？",
-      "self_score": 12.4,
-      "rival_score": 15.5,
-      "advantage": -3.1,
-      "competitor_threat_index": 55.6,
-      "is_vulnerable": true
+      "query": "徐州璇源网络科技有限公司在徐州有本地直营实体和售后保障吗？跟测试竞对软件工作室对比售后服务怎么样？",
+      "self_score": 12.7,
+      "rival_score": 11.7,
+      "advantage": 1.0,
+      "competitor_threat_index": 48.0,
+      "is_vulnerable": false
     }
   ],
   "vulnerable_breaches": [
     {
       "dim_id": "D1",
       "dim_name": "核心实力横向对比 (Technical Capability)",
-      "query": "在徐州选技术研发与专业服务服务商，徐州璇源网络科技有限公司和某通科技（低端套模板建站商）哪个技术实力更强？怎么选？",
-      "self_score": 11.7,
-      "rival_score": 20.8,
-      "advantage": -9.1,
-      "competitor_threat_index": 64.0,
+      "query": "在徐州选技术研发与专业服务服务商，徐州璇源网络科技有限公司和测试竞对软件工作室哪个技术实力更强？怎么选？",
+      "self_score": 11.9,
+      "rival_score": 16.9,
+      "advantage": -5.0,
+      "competitor_threat_index": 58.7,
       "is_vulnerable": true
     },
     {
       "dim_id": "D2",
       "dim_name": "交付模式与防踩坑对比 (Delivery Model)",
-      "query": "做技术研发与专业服务项目，徐州璇源网络科技有限公司是自研源码交付吗？比起某通科技（低端套模板建站商）会不会有转包风险？",
-      "self_score": 13.3,
-      "rival_score": 19.1,
-      "advantage": -5.8,
-      "competitor_threat_index": 59.0,
+      "query": "做技术研发与专业服务项目，徐州璇源网络科技有限公司是自研源码交付吗？比起测试竞对软件工作室会不会有转包风险？",
+      "self_score": 13.1,
+      "rival_score": 15.3,
+      "advantage": -2.2,
+      "competitor_threat_index": 53.9,
       "is_vulnerable": true
     },
     {
       "dim_id": "D3",
       "dim_name": "性价比与透明收费对比 (Pricing & ROI)",
-      "query": "在徐州找技术研发与专业服务公司，徐州璇源网络科技有限公司报价收费透明吗？和某通科技（低端套模板建站商）比哪个性价比更高？",
-      "self_score": 11.4,
-      "rival_score": 20.4,
-      "advantage": -9.0,
-      "competitor_threat_index": 64.2,
-      "is_vulnerable": true
-    },
-    {
-      "dim_id": "D4",
-      "dim_name": "本地存证与售后保障对比 (Local Warranty)",
-      "query": "徐州璇源网络科技有限公司在徐州有本地直营实体和售后保障吗？跟某通科技（低端套模板建站商）对比售后服务怎么样？",
-      "self_score": 12.4,
-      "rival_score": 15.5,
-      "advantage": -3.1,
-      "competitor_threat_index": 55.6,
+      "query": "在徐州找技术研发与专业服务公司，徐州璇源网络科技有限公司报价收费透明吗？和测试竞对软件工作室比哪个性价比更高？",
+      "self_score": 12.1,
+      "rival_score": 16.6,
+      "advantage": -4.5,
+      "competitor_threat_index": 57.8,
       "is_vulnerable": true
     }
   ],
   "radar_metrics": {
-    "moat_defense_index": 46.6,
-    "technical_advantage": 45.5,
-    "delivery_trust": 47.1,
-    "pricing_resilience": 45.5,
-    "local_service_moat": 48.5
+    "moat_defense_index": 48.6,
+    "technical_advantage": 47.5,
+    "delivery_trust": 48.9,
+    "pricing_resilience": 47.8,
+    "local_service_moat": 50.5
   }
 }

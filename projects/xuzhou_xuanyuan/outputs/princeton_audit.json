@@ -1,12 +1,12 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 74,
-  "avg_princeton_score": 64.9,
-  "pass_rate_ge_80": 5.4,
+  "scanned_files": 78,
+  "avg_princeton_score": 65.0,
+  "pass_rate_ge_80": 6.4,
   "rating_grade": "B 级 (及格边缘级)",
-  "est_visibility_ceiling": "+26.6%",
-  "est_boost_vs_baseline": "+12.3%",
+  "est_visibility_ceiling": "+26.7%",
+  "est_boost_vs_baseline": "+12.4%",
   "file_results": [
     {
       "file": "robots.txt",
@@ -369,6 +369,24 @@
       }
     },
     {
+      "file": "26_大模型商业推荐博弈对抗与竞品截流动态护城河推演报告.md",
+      "overall_score": 59.2,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+24.3%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "llms-deepseek.txt",
       "overall_score": 60.2,
       "rating_grade": "B 级 (及格边缘级)",
@@ -546,6 +564,24 @@
       }
     },
     {
+      "file": "counter_interception_pack/01_竞品对比长尾截流反制话术库.md",
+      "overall_score": 62.2,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+25.5%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
+        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "wechat_pack/03_微信搜一搜关键词配置与发稿SOP.txt",
       "overall_score": 62.2,
       "rating_grade": "B 级 (及格边缘级)",
@@ -660,6 +696,24 @@
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "counter_interception_pack/03_大模型横向对比首推挤占方案.md",
+      "overall_score": 64.9,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+26.6%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议清除广告法极限词与主观浮夸表述，改用客观陈述",
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
       ],
       "penalties": {
@@ -1231,6 +1285,22 @@
       }
     },
     {
+      "file": "counter_interception_pack/02_独占性壁垒与差异化护城河语料包.md",
+      "overall_score": 82.0,
+      "rating_grade": "AA 级 (高质量高采纳级)",
+      "est_visibility_ceiling": "+33.6%",
+      "top_suggestions": [
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "07_大模型事实幻觉纠偏与信源反击策略.md",
       "overall_score": 82.8,
       "rating_grade": "AA 级 (高质量高采纳级)",
@@ -1296,7 +1366,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-03 20:21:03",
+  "generated_at": "2026-09-03 21:30:18",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

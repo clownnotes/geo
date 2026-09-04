@@ -257,3 +257,25 @@
      - 本地 8088 严格隔离生产；Antigravity 恪守规范不擅自归档。
 - **提请终审**: 终审阻塞项已 100% 修复完毕并通过全量回归测试，请 Cursor 独立终审打出 `[通过]` 并由其执行 `./opsx archive` 归档！
 
+
+---
+
+### 2026-09-03 Cursor [代码终审复审：Live 字典解包与 dict Mock 已闭环] [通过]
+
+- **阶段**：Independent Code Final Re-Review（对照上轮唯一 🔴）
+- **验证**：`test_06` OK；`tests.test_moat_sandbox` **7/7** OK；全库 **122/122** OK（1.646s）
+
+#### 对账
+
+| # | 阻塞项 | 结论 | 证据 |
+|:--|:--|:--|:--|
+| 1 | Live 生产 dict 解包 | ✅ | `txt = raw_resp if isinstance(raw_resp, str) else ((raw_resp or {}).get("content") or "")` 后 `findall` |
+| 2 | Mock `{"content":...}` + ≤4 + 融合重算 | ✅ | `test_06`：dict 路径 `is_live_judged=True`、`count==4`、`advantage`/`CTI` 与融合分自洽；字符串兼容；坏 dict 回滚 |
+
+上轮 🟢 亦已落地：`moat-rival-badge` 纯 `textContent`；反制包 02 示例键改为 `auth_bonus`。
+
+共识主路径（5 级竞对、`auth_bonus` 代理池、23 号复用、MDI/CTI、API/CLI/Web、落盘隔离、HRI 免责）保持通过。
+
+#### 结论
+
+**`[通过]`** — 可执行 `/opsx-archive`。未推生产；归档由 Cursor 执行。
