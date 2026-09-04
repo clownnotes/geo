@@ -346,6 +346,14 @@ def main():
         p_probe.add_argument("--reconcile-only", action="store_true", help="免大模型调用，直接基于最新台账对已有探测记录执行极速离线重对账并刷新 30 号报告")
         p_probe.add_argument("--portal-sync", action="store_true", help="探测或离线对账后，联动刷新高管交付门户聚合缓存与战果数据大屏")
 
+    # spider-audit (全网主流 AI 爬虫真实访问捕获与真机抓取日志审计，第 31 维中枢)
+    p_spider = subparsers.add_parser("spider-audit", help="第 31 维全网主流 AI 爬虫真实访问捕获与真机抓取日志审计")
+    p_spider.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_spider.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_spider.add_argument("--log-file", "-l", default=None, help="生产环境 Web access.log 文件路径 (可选，未指定时自适应探测或运行确定性沙箱)")
+    p_spider.add_argument("--report", action="store_true", help="输出并打印第 31 号公文完整审计明细")
+    p_spider.add_argument("--portal-sync", action="store_true", help="审计完成后联动刷新高管交付门户聚合缓存与爬虫心跳大屏")
+
     # guard-clean (19 号品牌声誉排查与危机清洗，与 geo guard 幻觉防御区分)
     p_gclean = subparsers.add_parser("guard-clean", help="19 号品牌声誉负面联想排查与危机清洗压制")
     p_gclean.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1170,6 +1178,49 @@ def main():
             if res.get("report_30_path"):
                 print(f"ℹ️  全案第 30 维高管 Citation 审计公文已落盘至:\n    {res.get('report_30_path')}")
             print("="*75 + "\n")
+    elif args.command == "spider-audit":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print(f"❌ 请指定要审计的目标项目 ID，例如: python3 -m tools.geo spider-audit xuzhou_xuanyuan")
+            sys.exit(1)
+
+        from tools.geo.spider_auditor import audit_spider_access
+        log_file = getattr(args, "log_file", None)
+        audit_res = audit_spider_access(pid, log_file=log_file, save_report=True)
+        summary = audit_res.get("summary", {})
+        breakdown = audit_res.get("spider_breakdown", {})
+        assets = audit_res.get("core_assets_audit", [])
+
+        if getattr(args, "portal_sync", False):
+            from tools.geo.share import compile_portal_data
+            compile_portal_data(pid)
+
+        print("\n" + "="*78)
+        print(f"🕷️ 全网主流 AI 爬虫真实访问捕获与真机抓取日志审计 · [{pid}] (第 31 维)")
+        print("="*78)
+        print(f"🏛️ 客户名称: {audit_res.get('client_name')} ｜ 审计时间: {audit_res.get('audited_at')}")
+        print(f"📁 数据源模式: {audit_res.get('source_description')}")
+        print(f"🎯 审计结论: {summary.get('health_status_label')}")
+        print(f"📊 捕获规模: {summary.get('total_ai_hits', 0)} 次 AI 爬虫请求 ｜ 独立厂商: {summary.get('unique_spiders_count', 0)} 家")
+        print(f"📈 抓取成功率: {summary.get('success_rate_pct', 0.0)}% (200/304) ｜ WAF 阻断率: {summary.get('blocked_rate_pct', 0.0)}% (403)")
+        print(f"📄 /llms.txt 命中: {summary.get('llms_txt_hit_count', 0)} 次 ｜ 核心事实资产覆盖率: {summary.get('core_assets_coverage_pct', 0.0)}%")
+        print("-"*78)
+        print(f"{'爬虫厂商 / 生态':<22} {'代号':<14} {'命中数':<8} {'占比':<8} {'200/304':<10} {'403阻断':<8} {'最近到访'}")
+        print("-"*78)
+        sorted_spiders = sorted(breakdown.items(), key=lambda x: x[1].get("hits", 0), reverse=True)
+        for skey, sinfo in sorted_spiders:
+            s200 = sinfo.get("status_200", 0) + sinfo.get("status_304", 0)
+            s403 = sinfo.get("status_403", 0)
+            print(f"{sinfo.get('name', skey):<22} {skey:<14} {sinfo.get('hits', 0):<8} {sinfo.get('pct', 0.0):<7.1f}% {s200:<10} {s403:<8} {sinfo.get('last_seen', '-')}")
+        print("-"*78)
+        print("🏛️ 核心事实资产抓取健康度:")
+        for a in assets:
+            status_symbol = "🟢 畅通" if a.get("is_healthy") else "🔴 异常"
+            print(f"  {a.get('path'):<18} {a.get('name'):<26} {a.get('hits', 0):<5}次 ｜ {a.get('status'):<16} [{status_symbol}]")
+        print(f"\nℹ️  第 31 维真机日志审计公文报告已落盘至:\n    {audit_res.get('report_path')}")
+        if getattr(args, "portal_sync", False):
+            print("🌐 高管只读交付门户战果大屏已联动同步刷新 (含实时爬虫心跳流)")
+        print("="*78 + "\n")
     elif args.command == "guard-clean":
         pid = get_pid(args)
         if not pid or pid == "_template":

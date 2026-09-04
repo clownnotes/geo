@@ -511,7 +511,8 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "citation_auth": "15_大模型Citation信源权威度与外链信任度评分报告.md",
         "injection_guard": "16_大模型提示词注入防御与品牌隔离盾牌报告.md",
         "probing": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
-        "live_citation_audit": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md"
+        "live_citation_audit": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
+        "spider_access_audit": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md"
     }
     for key, fname in files_to_read.items():
         fpath = os.path.join(out_dir, fname)
@@ -746,6 +747,79 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             "hit_assets_samples": []
         }
 
+    # -------------------------------------------------------------
+    # 13. 第 31 维全网主流 AI 爬虫真实访问捕获与真机日志审计数据
+    # -------------------------------------------------------------
+    spider_audit_path = os.path.join(out_dir, "spider_access_audit.json")
+    if os.path.exists(spider_audit_path):
+        try:
+            with open(spider_audit_path, "r", encoding="utf-8") as fp:
+                s_data = json.load(fp)
+            s_sum = s_data.get("summary", {})
+            spider_access_summary = {
+                "has_data": True,
+                "status": "audited",
+                "status_label": s_sum.get("health_status_label", "🟢 大模型爬虫真实访问畅通（已审计）"),
+                "audited_at": s_data.get("audited_at", ""),
+                "is_sandbox": s_data.get("is_sandbox", False),
+                "source_description": s_data.get("source_description", ""),
+                "total_ai_hits": s_sum.get("total_ai_hits", 0),
+                "unique_spiders_count": s_sum.get("unique_spiders_count", 0),
+                "success_rate_pct": s_sum.get("success_rate_pct", 0.0),
+                "blocked_rate_pct": s_sum.get("blocked_rate_pct", 0.0),
+                "core_assets_coverage_pct": s_sum.get("core_assets_coverage_pct", 0.0),
+                "health_grade": s_sum.get("health_grade", "safe"),
+                "llms_txt_hit_count": s_sum.get("llms_txt_hit_count", 0),
+                "last_crawled_at": s_sum.get("last_crawled_at", ""),
+                "spider_breakdown": s_data.get("spider_breakdown", {}),
+                "core_assets_audit": s_data.get("core_assets_audit", []),
+                "recent_crawl_stream": s_data.get("recent_crawl_stream", [])[:10],
+                "audit_doc": s_data.get("report_path", "outputs/31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md")
+            }
+        except Exception:
+            spider_access_summary = {
+                "has_data": False,
+                "status": "never_run",
+                "status_label": "⚪️ 待执行爬虫真机访问日志审计",
+                "audited_at": None,
+                "is_sandbox": False,
+                "source_description": "",
+                "total_ai_hits": 0,
+                "unique_spiders_count": 0,
+                "success_rate_pct": 0.0,
+                "blocked_rate_pct": 0.0,
+                "core_assets_coverage_pct": 0.0,
+                "health_grade": "unknown",
+                "llms_txt_hit_count": 0,
+                "last_crawled_at": None,
+                "spider_breakdown": {},
+                "core_assets_audit": [],
+                "recent_crawl_stream": [],
+                "audit_doc": ""
+            }
+    else:
+        # 严格遵守 never_run 优雅降级
+        spider_access_summary = {
+            "has_data": False,
+            "status": "never_run",
+            "status_label": "⚪️ 待执行爬虫真机访问日志审计",
+            "audited_at": None,
+            "is_sandbox": False,
+            "source_description": "",
+            "total_ai_hits": 0,
+            "unique_spiders_count": 0,
+            "success_rate_pct": 0.0,
+            "blocked_rate_pct": 0.0,
+            "core_assets_coverage_pct": 0.0,
+            "health_grade": "unknown",
+            "llms_txt_hit_count": 0,
+            "last_crawled_at": None,
+            "spider_breakdown": {},
+            "core_assets_audit": [],
+            "recent_crawl_stream": [],
+            "audit_doc": ""
+        }
+
     # 最终组合完整数据载荷
     return {
         "success": True,
@@ -755,10 +829,11 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "website": cfg.get("website", ""),
         "brand_name": cfg.get("brand_name", cfg.get("client_name", "")),
 
-        # 高管专属新增战果模块 (第 28/29/30 维)
+        # 高管专属新增战果模块 (第 28/29/30/31 维)
         "executive_summary": executive_summary,
         "self_healing_summary": self_healing_summary,
         "live_citation_summary": live_citation_summary,
+        "spider_access_summary": spider_access_summary,
         "models_mindshare": models_mindshare,
         "wechat_yuanbao_channel": wechat_yuanbao_channel,
         "competitor_interception": competitor_interception,

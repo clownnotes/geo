@@ -350,6 +350,51 @@
       </div>
     </div>
 
+    <!-- 6.2 全网主流 AI 爬虫真实到访心跳流与资产抓取大屏 (第 31 维) -->
+    <div class="executive-card rounded-2xl p-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="bot" class="w-4 h-4 text-cyan-400"></i>
+            <span>全网主流 AI 爬虫真实到访心跳流与资产抓取大屏 (第 31 维)</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">反向解析真实 Web 访问日志，量化主流 AI 爬虫到访热力、HTTP 200 成功率与 /llms.txt 核心事实资产抓取率</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="spider-audit-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待启动审计</span>
+        </div>
+      </div>
+
+      <!-- 核心指标 4 宫格 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">AI 爬虫总抓取频次</div>
+          <div id="spider-hits-val" class="text-xl font-extrabold text-cyan-400">-- 次</div>
+          <div id="spider-hits-desc" class="text-[10px] text-slate-500">主流模型真机请求</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">独立爬虫厂商数</div>
+          <div id="spider-spiders-val" class="text-xl font-extrabold text-blue-400">-- 家</div>
+          <div class="text-[10px] text-slate-500">跨主流生态覆盖</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">HTTP 抓取成功率</div>
+          <div id="spider-success-rate-val" class="text-xl font-extrabold text-emerald-400">--%</div>
+          <div id="spider-blocked-desc" class="text-[10px] text-slate-500">WAF 阻断率: 0.0%</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">/llms.txt 抓取命中</div>
+          <div id="spider-llms-hits-val" class="text-xl font-extrabold text-amber-400">-- 次</div>
+          <div id="spider-core-cov-desc" class="text-[10px] text-slate-500">核心资产覆盖: --%</div>
+        </div>
+      </div>
+
+      <!-- 爬虫特征分布与核心资产对账流水 -->
+      <div id="spider-audit-details-container" class="space-y-2 text-xs">
+        <!-- 动态渲染爬虫份额与最近到访心跳流 -->
+      </div>
+    </div>
+
     <!-- 6. 第五部分：16 维技术交付物完整抽屉 (按需展开，向后兼容) -->
     <div class="executive-card rounded-2xl p-5 space-y-3">
       <div class="flex items-center justify-between">
@@ -388,6 +433,9 @@
           <button onclick="switchShareTab('probing')" id="tab-probing" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
             <span>⑥ 真实探测对账</span>
           </button>
+          <button onclick="switchShareTab('spider')" id="tab-spider" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+            <span>⑦ 爬虫日志审计</span>
+          </button>
           <button onclick="switchShareTab('acceptance')" id="tab-acceptance" class="py-1.5 px-3 rounded-lg bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 whitespace-nowrap transition">
             <span>🏛️ 商业交付结案单</span>
           </button>
@@ -414,6 +462,9 @@
         </div>
         <div id="content-probing" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
           <div id="preview-probing" class="markdown-body"></div>
+        </div>
+        <div id="content-spider" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+          <div id="preview-spider" class="markdown-body"></div>
         </div>
         <div id="content-acceptance" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
           <div id="preview-acceptance" class="markdown-body"></div>
@@ -785,7 +836,126 @@
         `;
       }
 
-      // 7. 渲染旧版 16 维交付物 Markdown 与第 30 维公文
+      // 6.2 全网主流 AI 爬虫真实到访心跳流与资产抓取大屏 (第 31 维)
+      const spiderAudit = data.spider_access_summary || {};
+      const spiderBadge = document.getElementById('spider-audit-status-badge');
+      const spiderHitsVal = document.getElementById('spider-hits-val');
+      const spiderSpidersVal = document.getElementById('spider-spiders-val');
+      const spiderSuccessVal = document.getElementById('spider-success-rate-val');
+      const spiderBlockedDesc = document.getElementById('spider-blocked-desc');
+      const spiderLlmsHitsVal = document.getElementById('spider-llms-hits-val');
+      const spiderCoreCovDesc = document.getElementById('spider-core-cov-desc');
+      const spiderDetailsContainer = document.getElementById('spider-audit-details-container');
+
+      if (spiderBadge && spiderAudit.has_data && spiderAudit.status === 'audited') {
+        const isDanger = (spiderAudit.blocked_rate_pct || 0) > 0;
+        spiderBadge.className = isDanger
+          ? 'text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20'
+          : 'text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20';
+        spiderBadge.textContent = isDanger ? '🔴 存在 WAF 403 阻断' : '🟢 大模型抓取畅通 (真实访问已捕获)';
+
+        spiderHitsVal.textContent = `${spiderAudit.total_ai_hits || 0} 次`;
+        spiderSpidersVal.textContent = `${spiderAudit.unique_spiders_count || 0} 家`;
+        spiderSuccessVal.textContent = `${spiderAudit.success_rate_pct || 0.0}%`;
+        spiderBlockedDesc.textContent = `WAF 阻断率: ${spiderAudit.blocked_rate_pct || 0.0}% (403)`;
+        spiderLlmsHitsVal.textContent = `${spiderAudit.llms_txt_hit_count || 0} 次`;
+        spiderCoreCovDesc.textContent = `核心事实资产覆盖: ${spiderAudit.core_assets_coverage_pct || 0.0}%`;
+
+        // 渲染各厂商分布与心跳流
+        const breakdown = spiderAudit.spider_breakdown || {};
+        const stream = spiderAudit.recent_crawl_stream || [];
+        const assets = spiderAudit.core_assets_audit || [];
+
+        let html = `<div class="space-y-3 pt-2">`;
+
+        // 1. 各爬虫份额条
+        const spiderEntries = Object.entries(breakdown);
+        if (spiderEntries.length > 0) {
+          html += `
+            <div>
+              <div class="text-[11px] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
+                <span>🤖 主流模型爬虫抓取份额分布:</span>
+                <span class="text-cyan-400 font-normal">最近捕获: ${spiderAudit.last_crawled_at || '-'}</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          `;
+          spiderEntries.forEach(([k, info]) => {
+            html += `
+              <div class="p-2 bg-slate-900/60 rounded-lg border border-slate-800 space-y-0.5">
+                <div class="text-slate-300 font-bold truncate text-[11px]">${info.name || k}</div>
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="text-cyan-400 font-extrabold">${info.hits || 0} 次 (${info.pct || 0}%)</span>
+                  <span class="text-slate-500">200: ${info.status_200 || 0}</span>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div></div>`;
+        }
+
+        // 2. 核心资产状态
+        if (assets.length > 0) {
+          html += `
+            <div>
+              <div class="text-[11px] font-bold text-slate-400 mb-1.5">🏛️ 核心事实资产抓取对账:</div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          `;
+          assets.forEach(a => {
+            const isOk = a.is_healthy;
+            html += `
+              <div class="p-2 bg-slate-900/60 rounded-lg border border-slate-800 flex items-center justify-between gap-1 text-[11px]">
+                <span class="font-mono text-slate-300 truncate">${a.path}</span>
+                <span class="${isOk ? 'text-emerald-400' : 'text-amber-400'} font-bold shrink-0">${a.hits}次 (${isOk ? '畅通' : '排查'})</span>
+              </div>
+            `;
+          });
+          html += `</div></div>`;
+        }
+
+        // 3. 最新心跳流
+        if (stream.length > 0) {
+          html += `
+            <div>
+              <div class="text-[11px] font-bold text-slate-400 mb-1.5">⚡ 最新 AI 爬虫真实抓取心跳流 (采样最近 ${stream.length} 条):</div>
+              <div class="space-y-1">
+          `;
+          stream.slice(0, 6).forEach(s => {
+            html += `
+              <div class="p-1.5 px-2 bg-slate-900/50 rounded border border-slate-800/80 flex items-center justify-between gap-2 text-[11px]">
+                <div class="flex items-center gap-2 truncate">
+                  <span class="text-cyan-400 font-bold shrink-0">[${s.spider_name || s.spider_family}]</span>
+                  <span class="text-slate-300 font-mono truncate">${s.path}</span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 text-slate-400 text-[10px]">
+                  <span class="text-emerald-400 font-mono font-bold">${s.status}</span>
+                  <span class="text-slate-500">${s.time}</span>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div></div>`;
+        }
+
+        html += `</div>`;
+        spiderDetailsContainer.innerHTML = html;
+      } else if (spiderBadge) {
+        spiderBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
+        spiderBadge.textContent = '⚪️ 待执行爬虫日志审计';
+        spiderHitsVal.textContent = '-- 次';
+        spiderSpidersVal.textContent = '-- 家';
+        spiderSuccessVal.textContent = '--%';
+        spiderBlockedDesc.textContent = '待触发日志审计';
+        spiderLlmsHitsVal.textContent = '-- 次';
+        spiderCoreCovDesc.textContent = '核心资产待对账';
+        spiderDetailsContainer.innerHTML = `
+          <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+            <div class="text-slate-400 text-xs font-medium">尚未执行全网主流 AI 爬虫真实访问与抓取日志审计</div>
+            <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo spider-audit &lt;项目ID&gt; --report</code> 启动</div>
+          </div>
+        `;
+      }
+
+      // 7. 渲染旧版 16 维交付物 Markdown 与第 30/31 维公文
       const deliv = data.deliverables || {};
       const renderMd = (elemId, md) => {
         const el = document.getElementById(elemId);
@@ -798,6 +968,7 @@
       renderMd('preview-distribute', deliv.dist_toutiao || deliv.dist_zhihu);
       renderMd('preview-monitor', deliv.monitor_report);
       renderMd('preview-probing', deliv.live_citation_audit || deliv.probing);
+      renderMd('preview-spider', deliv.spider_access_audit);
       renderMd('preview-acceptance', deliv.acceptance);
 
       if (document.getElementById('preview-llms')) {

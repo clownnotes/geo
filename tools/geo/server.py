@@ -964,6 +964,19 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 第 31 维 全网主流AI爬虫真实访问捕获与真机抓取日志审计中枢: POST /api/projects/{id}/spider-audit/run
+        if path.startswith("/api/projects/") and path.endswith("/spider-audit/run"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            log_file = body.get("log_file")
+            try:
+                from .spider_auditor import audit_spider_access
+                res = audit_spider_access(project_id=project_id, log_file=log_file, save_report=True)
+                self.send_json({"success": True, "data": res})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 19 号声誉排查扫描: POST /api/projects/{id}/sentiment/scan
         if path.startswith("/api/projects/") and path.endswith("/sentiment/scan"):
             project_id = path.split("/")[3]
@@ -2759,6 +2772,62 @@ core_values:
                             })
                         else:
                             self.send_json({"success": False, "message": "尚未生成 30 号审计报告，请先执行探测或对账"}, status=404)
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取 31 维爬虫访问审计状态: /api/projects/{id}/spider-audit/status (GET)
+            if path.startswith("/api/projects/") and path.endswith("/spider-audit/status"):
+                project_id = path.split("/")[3]
+                audit_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "spider_access_audit.json")
+                if os.path.exists(audit_file):
+                    try:
+                        with open(audit_file, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                        self.send_json({"success": True, "has_data": True, "data": data})
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    self.send_json({
+                        "success": True,
+                        "has_data": False,
+                        "message": "尚未执行爬虫真机访问审计",
+                        "data": None
+                    })
+                return
+
+            # 获取 31 号爬虫访问审计公文报告: /api/projects/{id}/spider-audit/report (GET)
+            if path.startswith("/api/projects/") and path.endswith("/spider-audit/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md")
+                if os.path.exists(report_file):
+                    try:
+                        with open(report_file, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        self.send_json({
+                            "success": True,
+                            "project_id": project_id,
+                            "filename": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md",
+                            "content": content
+                        })
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .spider_auditor import audit_spider_access
+                        r = audit_spider_access(project_id, save_report=True)
+                        r_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md")
+                        if os.path.exists(r_path):
+                            with open(r_path, "r", encoding="utf-8") as f:
+                                content = f.read()
+                            self.send_json({
+                                "success": True,
+                                "project_id": project_id,
+                                "filename": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md",
+                                "content": content
+                            })
+                        else:
+                            self.send_json({"success": False, "message": "尚未生成 31 号审计报告"}, status=404)
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)
                 return
