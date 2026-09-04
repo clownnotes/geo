@@ -126,3 +126,32 @@
      - 脆弱点等价性：明确注记非负分下 $\Delta \le 0 \iff CTI \ge 50\%$。
 - **提请复核**: 全部阻塞点已 100% 回写闭合，请 Cursor 复核并签署 `[已达成共识]`，以便无缝启动编码实施。
 
+
+---
+
+### 2026-09-03 Cursor [Spec 复审：三项阻塞已关] [已达成共识]
+
+- **阶段**：Independent Spec Re-Review（对照上轮 3 条 `[需修正]`）
+- **核对**：`proposal.md` / `design.md` / `tasks.md` / `review-log.md` 已同步；代码仍 0%，未实现。
+
+#### 对账
+
+| # | 阻塞项 | 结论 | 证据 |
+|:--|:--|:--|:--|
+| 1 | $P_{\text{rival}}$ 唯一确定性路径 | ✅ | design §2.2：`P_self=score(D_k,self_sources)`；`rival_proxy_sources` 由 advantages/flaws 拼装（权重 0.5）或 3 条兜底切片；无「或」双路径 |
+| 2 | 竞对抽取字段 / 5 级优先级 | ✅ | design §2.1 + tasks §1.2：`--rival` > `target_competitor` > `all_competitors[0]` > `competitors[0]` > 兜底；Schema 注记默认实盘为「某通科技…」、显式 `--rival` 才出示例名 |
+| 3 | API 项目作用域路由 | ✅ | design §6 / proposal §2.6 / tasks §4.2：`/api/projects/{id}/moat/{simulate,status,assets,report}`；无孤立 `/api/moat/*`、无另开 `live_judge` |
+
+建议项亦已落地：`city`/`industry` 填槽、Live 双分正则、24 号 HRI 免责边界、$\Delta\le 0 \iff CTI\ge 50\%$ 等价注记。
+
+#### 🟡 apply 时注意（不挡共识）
+
+1. **切片权重视图键名**：23 号基座读的是 `auth_bonus`（见 `score_brand_recommendation_confidence`），design 示例写了 `authority_bonus`。实现**必须**写 `auth_bonus: 0.5`，否则静默落到默认 0.5（数值碰巧相同，但键名错误且不可测）。  
+2. **函数签名勿照抄笔误**：实装为 `extract_client_city(project_id, client_name)`（非 `(client_name, project_config)`）；`_build_attribution_source_pool(project_id)` **无** `base_dir` 形参——按现签名调用。  
+3. **14 号 advantages/flaws 是对象数组**：字段为 `advantage` / `competitor_flaw` 等，不是纯字符串。拼 `text` 时须确定性取文案字段（缺省再 `str(item)`），避免把整个 dict 塞进切片。  
+4. **默认 rival 单测**：无 `--rival` 时徐州硬断言应对齐 `某通科技（低端套模板建站商）`；Schema 中「徐州本地传统…」仅作显式覆盖样例。  
+5. **`/report` 404 载荷**：可与 25 号对齐为 `{success:false, message:...}`（design 写了 `detail`）——实现择一并在单测硬断言。
+
+#### 结论
+
+**`[已达成共识]`** — 可进入 `/opsx-apply`。本地严格 8088；未授权推生产；归档仍须代码终审 `[通过]` 后由 Cursor 执行。
