@@ -734,6 +734,7 @@ def main():
             package_toutiao_assets,
             package_wechat_assets,
             package_deepseek_assets,
+            package_zhihu_assets,
             package_kimi_baidu_assets,
             package_all_channels,
             print_warning,
@@ -743,13 +744,15 @@ def main():
         verify = getattr(args, "verify", False)
         res = None
         if ch == "toutiao":
-            res = package_toutiao_assets(pid)
+            res = package_toutiao_assets(pid, verify=verify)
         elif ch == "wechat":
-            res = package_wechat_assets(pid)
-        elif ch in ("deepseek", "zhihu"):
-            res = package_deepseek_assets(pid)
+            res = package_wechat_assets(pid, verify=verify)
+        elif ch == "deepseek":
+            res = package_deepseek_assets(pid, verify=verify)
+        elif ch == "zhihu":
+            res = package_zhihu_assets(pid, verify=verify)
         elif ch == "kimi_baidu":
-            res = package_kimi_baidu_assets(pid)
+            res = package_kimi_baidu_assets(pid, verify=verify)
         else:
             res = package_all_channels(pid, verify=verify)
 
@@ -757,9 +760,13 @@ def main():
             print("\n" + "=" * 60)
             print(" 🧪 大模型爬虫保真度逆向检验看板 (Crawler Fidelity)")
             print("=" * 60)
-            if "fidelity" in res:
+            has_failure = False
+            if "fidelity" in res and res["fidelity"]:
                 fid = res["fidelity"]
-                status = "✅ 黄金高保真" if fid.get("passed") else "⚠️ 需优化"
+                is_passed = fid.get("passed", False)
+                if not is_passed:
+                    has_failure = True
+                status = "✅ 黄金高保真" if is_passed else "⚠️ 需优化"
                 print(f" 渠道: {fid.get('channel', ch)} ｜ 状态: {status} ｜ 综合保真分: {fid.get('overall_score', 0)}分")
                 print(f" • 表格完整性 (40%): {fid.get('table_integrity_score', 0)}分")
                 print(f" • 引用留存率 (35%): {fid.get('citation_retention_rate', 0)}分")
@@ -767,14 +774,21 @@ def main():
                 if fid.get("warnings"):
                     for w in fid["warnings"]:
                         print_warning(f"  [告警] {w}")
-            elif "fidelities" in res:
+            elif "fidelities" in res and res["fidelities"]:
                 avg = res.get("average_fidelity_score", 0)
-                all_p = "✅ 全渠道通过" if res.get("all_passed") else "⚠️ 部分渠道需优化"
+                all_passed = res.get("all_passed", False)
+                if not all_passed:
+                    has_failure = True
+                all_p = "✅ 全渠道通过" if all_passed else "⚠️ 部分渠道需优化"
                 print(f" 全渠道平均保真分: {avg}分 ｜ 判定: {all_p}")
                 for c_name, fid in res.get("fidelities", {}).items():
                     c_status = "✅" if fid.get("passed") else "⚠️"
                     print(f"  {c_status} [{c_name:10s}] 综合: {fid.get('overall_score', 0)}分 ｜ 表格: {fid.get('table_integrity_score', 0)}分 ｜ 引用: {fid.get('citation_retention_rate', 0)}分")
             print("=" * 60 + "\n")
+
+            if has_failure:
+                print_error("❌ 大模型爬虫保真度核验未达 90.0 分门槛，发稿被拦截！")
+                sys.exit(1)
     elif args.command == "eval":
         from .evaluator import run_live_llm_evaluation
         m_list = [m.strip() for m in args.models.split(",") if m.strip()]

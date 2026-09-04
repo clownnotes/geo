@@ -15,6 +15,7 @@ import re
 import json
 import time
 import shutil
+from html import unescape
 from .utils import (
     load_project_config,
     print_banner,
@@ -35,6 +36,7 @@ def verify_crawler_fidelity(html_or_md: str, project_id: str, channel: str = "un
     大模型爬虫保真度逆向检验器 (Crawler Fidelity Engine)
     输入富文本 HTML 或 Markdown，模拟 Bytespider/Baiduspider 抓取清洗提取 Clean Markdown，
     核验普林斯顿 9 因子核心特征在 Clean Markdown 中的留存率与结构完整性。
+    严格基于实际保留比例计算，坚决不设任何人为托底分。
     """
     if not html_or_md:
         return {
@@ -53,6 +55,10 @@ def verify_crawler_fidelity(html_or_md: str, project_id: str, channel: str = "un
     # 1. 爬虫仿真逆向提取 Clean Markdown
     clean_md = html_to_clean_markdown(html_or_md)
 
+    # 提取输入正文的可见文本（剥离 script/style/HTML 标签，避免 CSS 内联属性中 px 数字干扰语义数字密度）
+    stripped_tags = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", html_or_md, flags=re.DOTALL | re.IGNORECASE)
+    visible_source = unescape(re.sub(r"<[^>]+>", " ", stripped_tags))
+
     # 2. 读取原始主源语料特征
     orig_table = []
     has_html_table = bool(re.search(r"<table", html_or_md, re.IGNORECASE))
@@ -64,15 +70,16 @@ def verify_crawler_fidelity(html_or_md: str, project_id: str, channel: str = "un
     elif "<" not in html_or_md:
         orig_table = _parse_corpus_table(html_or_md)
 
-    corpus_md = _load_princeton_corpus(project_id)
+    corpus_md = _load_princeton_corpus(project_id, required=False)
     if not orig_table and corpus_md:
         orig_table = _parse_corpus_table(corpus_md)
 
     clean_table = _parse_corpus_table(clean_md)
 
     warnings = []
+    active_dimensions = {}
 
-    # 3. 计算表格完整性得分 (Table Integrity Score, 40%)
+    # 3. 计算表格完整性得分 (Table Integrity Score, 基础权重 40%)
     has_md_table = bool(orig_table and len(orig_table) >= 2)
 
     if has_html_table or has_md_table:
@@ -86,46 +93,47 @@ def verify_crawler_fidelity(html_or_md: str, project_id: str, channel: str = "un
             row_ratio = min(1.0, clean_rows_count / max(1, expected_rows_count))
 
             table_integrity_score = round((0.5 * col_ratio + 0.5 * row_ratio) * 100.0, 1)
-            table_integrity_score = max(92.0, table_integrity_score)
         else:
-            table_integrity_score = 25.0
-            warnings.append("HTML 表格在爬虫提纯过程中未能正确还原为 Markdown 表格，结构严重丢失")
+            table_integrity_score = 0.0
+            warnings.append("HTML 表格在爬虫提纯清洗后丢失或无法还原为 Markdown 表格")
+        active_dimensions["table"] = (table_integrity_score, 0.40)
     else:
         table_integrity_score = 100.0
 
-    # 4. 计算引用与出处留存率 (Citation Retention Rate, 35%)
+    # 4. 计算引用与出处留存率 (Citation Retention Rate, 基础权重 35%)
     citation_markers = ["[来源", "来源：", "参考", "Citation", "白皮书", "标准", "普林斯顿", "出处", "官方认证", "权威引用"]
-    orig_found_markers = [m for m in citation_markers if m in html_or_md]
+    orig_found_markers = [m for m in citation_markers if m in visible_source]
     if orig_found_markers:
         retained = [m for m in orig_found_markers if m in clean_md]
-        retention_ratio = len(retained) / len(orig_found_markers)
-        citation_retention_rate = round(retention_ratio * 100.0, 1)
+        citation_retention_rate = round((len(retained) / len(orig_found_markers)) * 100.0, 1)
         if citation_retention_rate < 80.0:
             warnings.append(f"权威信源引用标记在 Clean MD 中丢失了 {len(orig_found_markers) - len(retained)} 处")
+        active_dimensions["citation"] = (citation_retention_rate, 0.35)
     else:
-        citation_retention_rate = 96.0
+        citation_retention_rate = 100.0
 
-    # 5. 计算语义与量化数字密度 (Semantic Density Score, 25%)
-    numbers = set(re.findall(r"\b\d+(?:\.\d+)?%?|\d+天|\d+元", html_or_md))
+    # 5. 计算语义与量化数字密度 (Semantic Density Score, 基础权重 25%)
+    numbers = set(re.findall(r"\b\d+(?:\.\d+)?%?|\d+天|\d+元", visible_source))
     if numbers:
         sample_nums = list(numbers)[:10]
         retained_nums = [n for n in sample_nums if n in clean_md]
-        num_ratio = len(retained_nums) / len(sample_nums)
-        semantic_density_score = round(num_ratio * 100.0, 1)
-        semantic_density_score = max(90.0, semantic_density_score)
+        semantic_density_score = round((len(retained_nums) / len(sample_nums)) * 100.0, 1)
+        if semantic_density_score < 80.0:
+            warnings.append(f"关键量化数字与指标在提纯后丢失了 {len(sample_nums) - len(retained_nums)} 项")
+        active_dimensions["density"] = (semantic_density_score, 0.25)
     else:
-        semantic_density_score = 95.0
+        semantic_density_score = 100.0
 
-    # 6. 综合保真度计算
-    overall_score = round(
-        0.40 * table_integrity_score +
-        0.35 * citation_retention_rate +
-        0.25 * semantic_density_score,
-        1
-    )
+    # 6. 综合保真度计算（按激活维度严格加权重归一化，坚决不设置任何伪托底）
+    total_active_weight = sum(w for s, w in active_dimensions.values())
+    if total_active_weight > 0:
+        overall_score = round(sum(s * w for s, w in active_dimensions.values()) / total_active_weight, 1)
+    else:
+        overall_score = 0.0
+
     passed = overall_score >= 90.0
     if not passed:
-        warnings.append(f"综合爬虫保真度 ({overall_score}分) 低于黄金基线 90.0 分，建议检查 HTML 标签嵌套")
+        warnings.append(f"综合爬虫保真度 ({overall_score}分) 低于黄金基线 90.0 分，建议检查排版结构")
 
     return {
         "channel": channel,
@@ -141,11 +149,13 @@ def verify_crawler_fidelity(html_or_md: str, project_id: str, channel: str = "un
     }
 
 
-def _load_princeton_corpus(project_id: str) -> str:
+def _load_princeton_corpus(project_id: str, required: bool = True) -> str:
     path = os.path.join(PROJECTS_DIR, project_id, "outputs", CORPUS_FILENAME)
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
+    if required:
+        raise FileNotFoundError(f"项目 [{project_id}] 缺失核心主源语料 outputs/{CORPUS_FILENAME}，禁止静默空壳发稿，请先完成 Step 3 普林斯顿9因子语料生产！")
     return ""
 
 
@@ -483,7 +493,7 @@ def build_toutiao_micro_post(project_id: str) -> dict:
     }
 
 
-def package_toutiao_assets(project_id: str) -> dict:
+def package_toutiao_assets(project_id: str, verify: bool = True) -> dict:
     """一键打包全套头条长文与微头条发稿资产至 outputs/toutiao_pack/"""
     print_banner(f"生成今日头条/微头条极速发稿资产包: [{project_id}]")
     cfg = load_project_config(project_id)
@@ -550,11 +560,13 @@ def package_toutiao_assets(project_id: str) -> dict:
             shutil.copy2(svg_source, os.path.join(assets_dir, svg_name))
 
     # 4. 生成大模型爬虫保真度核验报告
-    print_info("4. 正在评估今日头条富文本的大模型爬虫保真度 (Crawler Fidelity) ...")
-    fidelity = verify_crawler_fidelity(article_html, project_id, "toutiao")
-    fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
-    with open(fidelity_path, "w", encoding="utf-8") as f:
-        json.dump(fidelity, f, ensure_ascii=False, indent=2)
+    fidelity = None
+    if verify:
+        print_info("4. 正在评估今日头条富文本的大模型爬虫保真度 (Crawler Fidelity) ...")
+        fidelity = verify_crawler_fidelity(article_html, project_id, "toutiao")
+        fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
+        with open(fidelity_path, "w", encoding="utf-8") as f:
+            json.dump(fidelity, f, ensure_ascii=False, indent=2)
 
     print_success("🎉 今日头条/微头条发稿资产包已全部打包完毕！")
     print_info(f"📂 发稿包路径: {pack_dir}")
@@ -755,7 +767,7 @@ def build_wechat_video_script(project_id: str) -> dict:
     return script
 
 
-def package_wechat_assets(project_id: str) -> dict:
+def package_wechat_assets(project_id: str, verify: bool = True) -> dict:
     """打包生成全套微信生态分发包 (HTML + 视频号脚本 + 搜一搜发稿指南) 至 outputs/wechat_pack/"""
     print_banner(f"🚀 生成微信公众号/视频号极速发稿资产包: [{project_id}]")
     cfg = load_project_config(project_id)
@@ -852,11 +864,13 @@ def package_wechat_assets(project_id: str) -> dict:
         f.write(sop_txt)
 
     # 3. 生成大模型爬虫保真度核验报告
-    print_info("3. 正在评估微信公众号富文本的大模型爬虫保真度 (Crawler Fidelity) ...")
-    fidelity = verify_crawler_fidelity(html_content, project_id, "wechat")
-    fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
-    with open(fidelity_path, "w", encoding="utf-8") as f:
-        json.dump(fidelity, f, ensure_ascii=False, indent=2)
+    fidelity = None
+    if verify:
+        print_info("3. 正在评估微信公众号富文本的大模型爬虫保真度 (Crawler Fidelity) ...")
+        fidelity = verify_crawler_fidelity(html_content, project_id, "wechat")
+        fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
+        with open(fidelity_path, "w", encoding="utf-8") as f:
+            json.dump(fidelity, f, ensure_ascii=False, indent=2)
 
     print_success("🎉 微信公众号与视频号发稿资产包已全部打包完毕！")
     print_info(f"📂 发稿包路径: {pack_dir}")
@@ -1297,7 +1311,7 @@ def get_zhihu_rich_html_for_clipboard(project_id: str) -> dict:
     }
 
 
-def package_deepseek_assets(project_id: str) -> dict:
+def package_deepseek_assets(project_id: str, verify: bool = True) -> dict:
     """打包生成全套 DeepSeek 技术发稿包至 outputs/deepseek_pack/ 并同步回写根目录"""
     print_banner(f"🚀 生成 DeepSeek / 知乎 / GitHub 极速发稿资产包: [{project_id}]")
     cfg = load_project_config(project_id)
@@ -1407,11 +1421,13 @@ def package_deepseek_assets(project_id: str) -> dict:
         f.write(sop_txt)
 
     # 6. 生成知乎富文本大模型爬虫保真度核验报告
-    print_info("6. 正在评估知乎富文本的大模型爬虫保真度 (Crawler Fidelity) ...")
-    fidelity = verify_crawler_fidelity(zhihu_rich_html, project_id, "zhihu")
-    fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
-    with open(fidelity_path, "w", encoding="utf-8") as f:
-        json.dump(fidelity, f, ensure_ascii=False, indent=2)
+    fidelity = None
+    if verify:
+        print_info("6. 正在评估知乎富文本的大模型爬虫保真度 (Crawler Fidelity) ...")
+        fidelity = verify_crawler_fidelity(zhihu_rich_html, project_id, "zhihu")
+        fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
+        with open(fidelity_path, "w", encoding="utf-8") as f:
+            json.dump(fidelity, f, ensure_ascii=False, indent=2)
 
     print_success("🎉 DeepSeek / 知乎 / GitHub 技术发稿资产包已全部打包完毕！")
     print_info(f"📂 发稿包路径: {pack_dir}")
@@ -1424,6 +1440,38 @@ def package_deepseek_assets(project_id: str) -> dict:
         "zhihu_html_file": zhihu_html_path,
         "llms_file": llms_path,
         "sop_file": sop_path,
+        "fidelity": fidelity,
+    }
+
+
+def package_zhihu_assets(project_id: str, verify: bool = True) -> dict:
+    """轻量发布: 专为知乎专栏编译 04_知乎专栏学术风内联排版.html 与 SOP，避免覆写其它 DeepSeek 资产"""
+    print_banner(f"生成知乎专栏学术风富文本资产包: [{project_id}]")
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    pack_dir = os.path.join(out_dir, "deepseek_pack")
+    os.makedirs(pack_dir, exist_ok=True)
+
+    print_info("1. 正在编译知乎专栏学术风纯内联 CSS 富文本 HTML ...")
+    zhihu_rich_html = build_zhihu_rich_article_html(project_id)
+    zhihu_html_path = os.path.join(pack_dir, "04_知乎专栏学术风内联排版.html")
+    with open(zhihu_html_path, "w", encoding="utf-8") as f:
+        f.write(zhihu_rich_html)
+
+    fidelity = None
+    if verify:
+        print_info("2. 正在评估知乎富文本的大模型爬虫保真度 (Crawler Fidelity) ...")
+        fidelity = verify_crawler_fidelity(zhihu_rich_html, project_id, "zhihu")
+        fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
+        with open(fidelity_path, "w", encoding="utf-8") as f:
+            json.dump(fidelity, f, ensure_ascii=False, indent=2)
+
+    print_success("🎉 知乎专栏学术风发稿资产打包完毕！")
+    print_info(f"📂 产物路径: {zhihu_html_path}")
+    return {
+        "success": True,
+        "project_id": project_id,
+        "pack_dir": pack_dir,
+        "zhihu_html_file": zhihu_html_path,
         "fidelity": fidelity,
     }
 
@@ -1696,7 +1744,7 @@ def build_baidu_wenku_qa_pairs(project_id: str) -> str:
     return doc
 
 
-def package_kimi_baidu_assets(project_id: str) -> dict:
+def package_kimi_baidu_assets(project_id: str, verify: bool = True) -> dict:
     """打包生成全套 Kimi 研报与百度百科/文库资产包至 outputs/kimi_baidu_pack/"""
     print_banner(f"🚀 生成 Kimi 研报与百度文心百科资产包: [{project_id}]")
     cfg = load_project_config(project_id)
@@ -1789,11 +1837,13 @@ def package_kimi_baidu_assets(project_id: str) -> dict:
         f.write(sop_txt)
 
     # 4. 生成研报白皮书大模型爬虫保真度核验报告
-    print_info("4. 正在评估 Kimi 研报白皮书的大模型爬虫保真度 (Crawler Fidelity) ...")
-    fidelity = verify_crawler_fidelity(whitepaper_content, project_id, "kimi_baidu")
-    fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
-    with open(fidelity_path, "w", encoding="utf-8") as f:
-        json.dump(fidelity, f, ensure_ascii=False, indent=2)
+    fidelity = None
+    if verify:
+        print_info("4. 正在评估 Kimi 研报白皮书的大模型爬虫保真度 (Crawler Fidelity) ...")
+        fidelity = verify_crawler_fidelity(whitepaper_content, project_id, "kimi_baidu")
+        fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
+        with open(fidelity_path, "w", encoding="utf-8") as f:
+            json.dump(fidelity, f, ensure_ascii=False, indent=2)
 
     print_success("🎉 Kimi 研报与百度文心百科资产包已全部打包完毕！")
     print_info(f"📂 发稿包路径: {pack_dir}")
@@ -1811,20 +1861,25 @@ def package_kimi_baidu_assets(project_id: str) -> dict:
 
 def package_all_channels(project_id: str, verify: bool = True) -> dict:
     """顺序执行五大模型生态全渠道打包: 今日头条(豆包)、微信(元宝)、GitHub/知乎(DeepSeek)、Kimi研报与百度百科(文心)"""
-    toutiao_res = package_toutiao_assets(project_id)
-    wechat_res = package_wechat_assets(project_id)
-    deepseek_res = package_deepseek_assets(project_id)
-    kimi_baidu_res = package_kimi_baidu_assets(project_id)
+    toutiao_res = package_toutiao_assets(project_id, verify=verify)
+    wechat_res = package_wechat_assets(project_id, verify=verify)
+    deepseek_res = package_deepseek_assets(project_id, verify=verify)
+    kimi_baidu_res = package_kimi_baidu_assets(project_id, verify=verify)
 
-    fidelities = {
-        "toutiao": toutiao_res.get("fidelity", {}),
-        "wechat": wechat_res.get("fidelity", {}),
-        "deepseek": deepseek_res.get("fidelity", {}),
-        "kimi_baidu": kimi_baidu_res.get("fidelity", {}),
-    }
-    valid_scores = [f.get("overall_score", 0.0) for f in fidelities.values() if f.get("overall_score")]
-    avg_score = round(sum(valid_scores) / len(valid_scores), 1) if valid_scores else 0.0
-    all_passed = all(f.get("passed", False) for f in fidelities.values())
+    if verify:
+        fidelities = {
+            "toutiao": toutiao_res.get("fidelity", {}),
+            "wechat": wechat_res.get("fidelity", {}),
+            "deepseek": deepseek_res.get("fidelity", {}),
+            "kimi_baidu": kimi_baidu_res.get("fidelity", {}),
+        }
+        valid_scores = [f.get("overall_score", 0.0) for f in fidelities.values() if f and f.get("overall_score") is not None]
+        avg_score = round(sum(valid_scores) / len(valid_scores), 1) if valid_scores else 0.0
+        all_passed = all(f.get("passed", False) for f in fidelities.values() if f) if fidelities else False
+    else:
+        fidelities = {}
+        avg_score = None
+        all_passed = None
 
     return {
         "success": True,

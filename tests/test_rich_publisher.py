@@ -16,8 +16,10 @@ from tools.geo.publisher import (
     package_toutiao_assets,
     package_wechat_assets,
     package_deepseek_assets,
+    package_zhihu_assets,
     package_kimi_baidu_assets,
-    package_all_channels
+    package_all_channels,
+    _load_princeton_corpus,
 )
 
 
@@ -171,6 +173,51 @@ class TestRichPublisher(unittest.TestCase):
         self.assertTrue(res["all_passed"])
         self.assertEqual(len(res["fidelities"]), 4)
 
+    def test_adversarial_corrupted_table_fails(self):
+        """对抗性测试：断裂/损坏的 HTML 表格在提纯后丢失导致保真度未达标"""
+        html_broken = "<div><table>broken</table><p>普通正文，无数字无引用</p></div>"
+        res = verify_crawler_fidelity(html_broken, self.project_id, "test")
+        self.assertEqual(res["table_integrity_score"], 0.0)
+        self.assertFalse(res["passed"])
+        self.assertLess(res["overall_score"], 90.0)
+        self.assertTrue(any("表格" in w for w in res["warnings"]))
+
+    def test_adversarial_missing_citations_fails(self):
+        """对抗性测试：置于被过滤标签 (footer) 内的学术信源被爬虫剔除后判定失败"""
+        html_missing_cite = "<div><p>普通正文内容</p><footer>来源：普林斯顿大学权威引用标准出处</footer></div>"
+        res = verify_crawler_fidelity(html_missing_cite, self.project_id, "test")
+        self.assertEqual(res["citation_retention_rate"], 0.0)
+        self.assertFalse(res["passed"])
+        self.assertLess(res["overall_score"], 90.0)
+        self.assertTrue(any("引用" in w for w in res["warnings"]))
+
+    def test_missing_princeton_corpus_raises_error(self):
+        """测试核心主源语料缺失时严格抛出 FileNotFoundError，禁止静默空壳发稿"""
+        with self.assertRaises(FileNotFoundError):
+            _load_princeton_corpus("non_existent_project_xyz", required=True)
+
+    def test_package_with_verify_disabled(self):
+        """测试 verify=False 参数全链路生效，跳过核验计算并不输出保真度报告"""
+        zh_res = package_zhihu_assets(self.project_id, verify=False)
+        self.assertTrue(zh_res["success"])
+        self.assertIsNone(zh_res["fidelity"])
+
+        all_res = package_all_channels(self.project_id, verify=False)
+        self.assertTrue(all_res["success"])
+        self.assertEqual(all_res["fidelities"], {})
+        self.assertIsNone(all_res["average_fidelity_score"])
+        self.assertIsNone(all_res["all_passed"])
+
+    def test_package_zhihu_assets_independent(self):
+        """测试知乎专栏独立轻量发布路径 package_zhihu_assets"""
+        zh_res = package_zhihu_assets(self.project_id, verify=True)
+        self.assertTrue(zh_res["success"])
+        self.assertTrue(os.path.exists(zh_res["zhihu_html_file"]))
+        self.assertIsNotNone(zh_res["fidelity"])
+        self.assertTrue(zh_res["fidelity"]["passed"])
+        self.assertGreaterEqual(zh_res["fidelity"]["overall_score"], 90.0)
+
 
 if __name__ == "__main__":
     unittest.main()
+

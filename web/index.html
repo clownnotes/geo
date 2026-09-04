@@ -7849,18 +7849,23 @@ GitHub 开源仓库：https://github.com/company/repo
         });
         const data = await res.json();
         if (data.success && data.channels) {
-          const tt = data.channels.toutiao?.fidelity?.overall_score;
-          const zh = data.channels.zhihu?.fidelity?.overall_score;
-          const wx = data.channels.wechat?.fidelity?.overall_score;
-          if (tt && document.getElementById('toutiao-fidelity-badge')) {
-            document.getElementById('toutiao-fidelity-badge').textContent = `🟢 爬虫保真度: ${tt}分`;
-          }
-          if (zh && document.getElementById('zhihu-fidelity-badge')) {
-            document.getElementById('zhihu-fidelity-badge').textContent = `🟢 爬虫保真度: ${zh}分`;
-          }
-          if (wx && document.getElementById('wechat-fidelity-badge')) {
-            document.getElementById('wechat-fidelity-badge').textContent = `🟢 爬虫保真度: ${wx}分`;
-          }
+          const updateBadge = (id, fid, defaultPassedClass) => {
+            const el = document.getElementById(id);
+            if (!el || !fid) return;
+            const score = fid.overall_score !== undefined ? fid.overall_score : 0;
+            const passed = fid.passed !== false && score >= 90.0;
+            if (passed) {
+              el.className = `text-[10px] font-bold px-2 py-0.5 rounded-full ${defaultPassedClass}`;
+              el.textContent = `🟢 爬虫保真度: ${score}分`;
+            } else {
+              el.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200';
+              el.textContent = `⚠️ 保真度待优化: ${score}分`;
+            }
+          };
+
+          updateBadge('toutiao-fidelity-badge', data.channels.toutiao?.fidelity, 'bg-emerald-50 text-emerald-700 border border-emerald-200');
+          updateBadge('zhihu-fidelity-badge', data.channels.zhihu?.fidelity, 'bg-blue-50 text-blue-700 border border-blue-200');
+          updateBadge('wechat-fidelity-badge', data.channels.wechat?.fidelity, 'bg-emerald-50 text-emerald-700 border border-emerald-200');
         }
       } catch (e) {
         // 静默降级
