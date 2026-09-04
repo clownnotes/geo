@@ -60,11 +60,19 @@ class TestSpiderAuditor(unittest.TestCase):
             self.assertIn("name", s_info)
             self.assertIn("family", s_info)
 
-        # 非 AI 爬虫应返回 (None, None)
+        # 非 AI 爬虫或传统搜索引擎爬虫应返回 (None, None)
         normal_browser = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36"
         s_key, s_info = identify_ai_spider(normal_browser)
         self.assertIsNone(s_key)
         self.assertIsNone(s_info)
+
+        # 传统 Google 搜索引擎爬虫不得误判为 Gemini AI 爬虫 (P0-2)
+        s_key, s_info = identify_ai_spider("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
+        self.assertIsNone(s_key, "传统 Googlebot/2.1 不得误判为 Gemini AI 爬虫")
+
+        # 传统微信 mp_spider 不得误判为混元 AI 爬虫 (P0-3)
+        s_key, s_info = identify_ai_spider("Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 mp_spider")
+        self.assertIsNone(s_key, "微信 mp_spider 不得误判为混元 AI 爬虫")
 
         # 空或异常 UA
         self.assertEqual(identify_ai_spider(""), (None, None))
@@ -133,21 +141,45 @@ class TestSpiderAuditor(unittest.TestCase):
         self.assertIn("/schema.jsonld", paths)
 
     def test_04_audit_spider_access_pipeline_and_metrics(self):
-        """测试第 31 维核心审计算法、指标聚合与公文落盘"""
+        """测试第 31 维核心审计算法、指标聚合与公文落盘（验证沙箱模式与真实日志模式隔离）"""
+        # 1. 沙箱模式审计验证 (P0-1)
         res = audit_spider_access(self.project_id, save_report=True)
 
         self.assertEqual(res["project_id"], self.project_id)
+        self.assertTrue(res["is_sandbox"])
+        self.assertEqual(res["status"], "audited_sandbox")
         self.assertIn("summary", res)
         summary = res["summary"]
 
-        # 检查指标量化字段
+        # 检查指标量化字段与沙箱标签隔离
         self.assertGreater(summary["total_ai_hits"], 0)
         self.assertGreaterEqual(summary["unique_spiders_count"], 4)
         self.assertGreaterEqual(summary["success_rate_pct"], 90.0)
         self.assertEqual(summary["blocked_rate_pct"], 0.0)
         self.assertGreater(summary["llms_txt_hit_count"], 0)
         self.assertEqual(summary["health_grade"], "safe")
-        self.assertIn("🟢", summary["health_status_label"])
+        self.assertIn("🔬", summary["health_status_label"])
+        self.assertIn("沙箱", summary["health_status_label"])
+        self.assertNotIn("真实捕获", summary["health_status_label"])
+        self.assertNotIn("真实访问已捕获", summary["health_status_label"])
+
+        # 2. 真实生产日志模式审计验证 (P0-1)
+        with tempfile.NamedTemporaryFile("w+", delete=False, encoding="utf-8") as tmp_live:
+            for _ in range(12):
+                tmp_live.write('111.225.148.12 - - [04/Sep/2026:10:00:00 +0800] "GET /llms.txt HTTP/1.1" 200 4096 "-" "Mozilla/5.0 (compatible; Bytespider; https://zhanzhang.toutiao.com/)"\n')
+                tmp_live.write('110.242.68.3 - - [04/Sep/2026:10:01:00 +0800] "GET /schema.jsonld HTTP/1.1" 200 2048 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"\n')
+            live_path = tmp_live.name
+
+        try:
+            live_res = audit_spider_access(self.project_id, log_file=live_path, save_report=False)
+            self.assertFalse(live_res["is_sandbox"])
+            self.assertEqual(live_res["status"], "audited_live")
+            live_sum = live_res["summary"]
+            self.assertIn("🟢", live_sum["health_status_label"])
+            self.assertIn("真实捕获", live_sum["health_status_label"])
+        finally:
+            if os.path.exists(live_path):
+                os.remove(live_path)
 
         # 检查核心资产覆盖清单
         core_assets = res["core_assets_audit"]
@@ -200,12 +232,16 @@ class TestSpiderAuditor(unittest.TestCase):
 
     def test_06_portal_integration_and_never_run_contract(self):
         """测试 P0-1: 高管只读交付门户数据反哺与 never_run 优雅降级契约"""
-        # 1. 存在审计账本时的正常加载
+        # 1. 存在沙箱审计账本时的加载 (必须带有沙箱标记，严禁伪造真实访问)
         portal_data = compile_portal_data(self.project_id)
         self.assertIn("spider_access_summary", portal_data)
         s_sum = portal_data["spider_access_summary"]
         self.assertTrue(s_sum["has_data"])
-        self.assertEqual(s_sum["status"], "audited")
+        self.assertEqual(s_sum["status"], "audited_sandbox")
+        self.assertTrue(s_sum["is_sandbox"])
+        self.assertIn("沙箱", s_sum["status_label"])
+        self.assertNotIn("真实捕获", s_sum["status_label"])
+        self.assertNotIn("真实访问已捕获", s_sum["status_label"])
         self.assertGreater(s_sum["total_ai_hits"], 0)
         self.assertIn("spider_breakdown", s_sum)
         self.assertIn("core_assets_audit", s_sum)
@@ -221,7 +257,7 @@ class TestSpiderAuditor(unittest.TestCase):
         self.assertIn("待执行", f_sum["status_label"])
 
     def test_07_api_auth_gate_and_routes(self):
-        """测试 P0-2: Web 端 API 路由挂载与 Bearer Token 鉴权保护"""
+        """测试 P0-2 & P1-5: Web 端 API 路由挂载、Bearer 鉴权与只读幂等性"""
         captured = {}
 
         def capture_json(payload, status=200, headers=None):
@@ -271,6 +307,14 @@ class TestSpiderAuditor(unittest.TestCase):
         self.assertEqual(captured.get("status", 200), 200)
         self.assertTrue(captured.get("payload", {}).get("success"))
         self.assertIn("31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md", captured["payload"]["filename"])
+
+        # 6. P1-5: 授权请求访问未生成报告的项目必须只读返回 404，禁止旁路生成或写盘
+        captured.clear()
+        handler.path = "/api/projects/retail_catering/spider-audit/report"
+        GeoWebHandler.do_GET(handler)
+        self.assertEqual(captured.get("status"), 404)
+        self.assertFalse(captured.get("payload", {}).get("success"))
+        self.assertIn("尚未生成", captured.get("payload", {}).get("message", ""))
 
 
 if __name__ == "__main__":

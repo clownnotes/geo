@@ -2,7 +2,7 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "timestamp": "2026-09-04 01:18:26",
+  "timestamp": "2026-09-04 04:04:17",
   "summary": {
     "krr": 80.0,
     "half_life_days": 43.5,
@@ -17,54 +17,6 @@
   },
   "time_series_records": [
     {
-      "timestamp": "2026-09-03 06:18:02",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 06:18:03",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 06:20:05",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 06:20:05",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 06:26:45",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 06:26:45",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
       "timestamp": "2026-09-03 20:14:51",
       "krr": 80.0,
       "half_life_days": 43.5,
@@ -250,6 +202,54 @@
     },
     {
       "timestamp": "2026-09-04 01:18:26",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 03:58:46",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 03:58:46",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:04:11",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:04:11",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:04:17",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:04:17",
       "krr": 80.0,
       "half_life_days": 43.5,
       "status": "safe",
@@ -314,7 +314,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -322,7 +322,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -343,7 +343,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -351,7 +351,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -372,7 +372,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -380,7 +380,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -401,7 +401,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -409,7 +409,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -430,7 +430,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -438,7 +438,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -459,7 +459,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -467,7 +467,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -488,7 +488,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -496,7 +496,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -517,7 +517,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -525,7 +525,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -546,7 +546,7 @@
         {
           "index": 1,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司官方认证平台",
+          "title": "1] [徐州璇源网络科技有限公司官方认证平台",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -554,7 +554,7 @@
         {
           "index": 2,
           "url": "https://zhuanlan.zhihu.com/p/888999",
-          "title": "行业数字化交付标准与选型白皮书",
+          "title": "2] [行业数字化交付标准与选型白皮书",
           "domain": "zhuanlan.zhihu.com",
           "channel_name": "zhuanlan.zhihu.com",
           "has_inline_footnote": true
@@ -575,7 +575,7 @@
         {
           "index": 1,
           "url": "https://info.competitor-aggregator.example/news/102",
-          "title": "第三方企业选型资讯网",
+          "title": "1] [第三方企业选型资讯网",
           "domain": "info.competitor-aggregator.example",
           "channel_name": "info.competitor-aggregator.example",
           "has_inline_footnote": true
@@ -583,7 +583,7 @@
         {
           "index": 2,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司服务介绍",
+          "title": "2] [徐州璇源网络科技有限公司服务介绍",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -604,7 +604,7 @@
         {
           "index": 1,
           "url": "https://info.competitor-aggregator.example/news/102",
-          "title": "第三方企业选型资讯网",
+          "title": "1] [第三方企业选型资讯网",
           "domain": "info.competitor-aggregator.example",
           "channel_name": "info.competitor-aggregator.example",
           "has_inline_footnote": true
@@ -612,7 +612,7 @@
         {
           "index": 2,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司服务介绍",
+          "title": "2] [徐州璇源网络科技有限公司服务介绍",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -633,7 +633,7 @@
         {
           "index": 1,
           "url": "https://info.competitor-aggregator.example/news/102",
-          "title": "第三方企业选型资讯网",
+          "title": "1] [第三方企业选型资讯网",
           "domain": "info.competitor-aggregator.example",
           "channel_name": "info.competitor-aggregator.example",
           "has_inline_footnote": true
@@ -641,7 +641,7 @@
         {
           "index": 2,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司服务介绍",
+          "title": "2] [徐州璇源网络科技有限公司服务介绍",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -662,7 +662,7 @@
         {
           "index": 1,
           "url": "https://info.competitor-aggregator.example/news/102",
-          "title": "第三方企业选型资讯网",
+          "title": "1] [第三方企业选型资讯网",
           "domain": "info.competitor-aggregator.example",
           "channel_name": "info.competitor-aggregator.example",
           "has_inline_footnote": true
@@ -670,7 +670,7 @@
         {
           "index": 2,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司服务介绍",
+          "title": "2] [徐州璇源网络科技有限公司服务介绍",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -691,7 +691,7 @@
         {
           "index": 1,
           "url": "https://info.competitor-aggregator.example/news/102",
-          "title": "第三方企业选型资讯网",
+          "title": "1] [第三方企业选型资讯网",
           "domain": "info.competitor-aggregator.example",
           "channel_name": "info.competitor-aggregator.example",
           "has_inline_footnote": true
@@ -699,7 +699,7 @@
         {
           "index": 2,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司服务介绍",
+          "title": "2] [徐州璇源网络科技有限公司服务介绍",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true
@@ -720,7 +720,7 @@
         {
           "index": 1,
           "url": "https://info.competitor-aggregator.example/news/102",
-          "title": "第三方企业选型资讯网",
+          "title": "1] [第三方企业选型资讯网",
           "domain": "info.competitor-aggregator.example",
           "channel_name": "info.competitor-aggregator.example",
           "has_inline_footnote": true
@@ -728,7 +728,7 @@
         {
           "index": 2,
           "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司服务介绍",
+          "title": "2] [徐州璇源网络科技有限公司服务介绍",
           "domain": "geo.baicl.cc",
           "channel_name": "geo.baicl.cc",
           "has_inline_footnote": true

@@ -69,10 +69,10 @@ AI_SPIDER_REGISTRY = {
     "hunyuan": {
         "name": "腾讯·混元 / 元宝爬虫",
         "family": "yuanbao",
-        "patterns": [r"TencentHunyuanBot", r"HunyuanBot", r"mp_spider"],
+        "patterns": [r"TencentHunyuanBot", r"HunyuanBot"],
         "category": "domestic_primary",
         "weight": 0.05,
-        "description": "腾讯微信搜一搜独占阵营，抓取公众号图文与企鹅号资产"
+        "description": "腾讯混元大模型与元宝 AI 搜索爬虫，抓取全网知识语料"
     },
     "qwen": {
         "name": "阿里·通义千问 / 夸克爬虫",
@@ -109,7 +109,7 @@ AI_SPIDER_REGISTRY = {
     "google": {
         "name": "Google Gemini·扩展爬虫",
         "family": "google",
-        "patterns": [r"Google-Extended", r"GoogleOther", r"Googlebot"],
+        "patterns": [r"Google-Extended", r"GoogleOther"],
         "category": "international",
         "weight": 0.01,
         "description": "Google Gemini 训练语料与 AI Overview 专用抓取爬虫"
@@ -231,13 +231,18 @@ class SandboxLogGenerator:
         seed_int = int(hashlib.md5(project_id.encode("utf-8")).hexdigest()[:8], 16)
         rng = random.Random(seed_int)
 
-        # 预制主流大模型真机 User-Agent 库
+        # 真实复用 tools.geo.crawler 基座中的官方标准 User-Agent 指纹
+        base_bytespider = SPIDER_USER_AGENTS.get("bytespider", "Mozilla/5.0 (compatible; Bytespider; https://zhanzhang.toutiao.com/)")
+        base_baidu = SPIDER_USER_AGENTS.get("baidu", "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)")
+        base_deepseek = SPIDER_USER_AGENTS.get("deepseek", "Mozilla/5.0 (compatible; DeepSeek-Crawler/1.0; +https://www.deepseek.com)")
+
+        # 预制主流大模型真机 User-Agent 库 (基座复用 + 增量主流 AI 爬虫拓展)
         ua_pool = [
-            ("bytespider", "Mozilla/5.0 (compatible; Bytespider; https://zhanzhang.toutiao.com/)", "111.225.148.12"),
+            ("bytespider", base_bytespider, "111.225.148.12"),
             ("bytespider", "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 Bytespider", "111.225.148.18"),
-            ("baidu", "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)", "110.242.68.3"),
+            ("baidu", base_baidu, "110.242.68.3"),
             ("baidu", "Mozilla/5.0 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)", "110.242.68.4"),
-            ("deepseek", "Mozilla/5.0 (compatible; DeepSeek-Crawler/1.0; +https://www.deepseek.com)", "124.239.243.10"),
+            ("deepseek", base_deepseek, "124.239.243.10"),
             ("deepseek", "Mozilla/5.0 (compatible; DeepSeekBot/1.0; +https://www.deepseek.com)", "124.239.243.12"),
             ("gptbot", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)", "20.171.206.15"),
             ("moonshot", "Mozilla/5.0 (compatible; MoonshotBot/1.0; +https://www.moonshot.cn)", "114.249.231.8"),
@@ -480,16 +485,22 @@ def audit_spider_access(
     success_rate_pct = round(success_hits / total_ai_hits * 100, 1) if total_ai_hits > 0 else 0.0
     blocked_rate_pct = round(blocked_hits / total_ai_hits * 100, 1) if total_ai_hits > 0 else 0.0
 
-    # 综合健康度评级 (Health Grade)
+    # 综合健康度评级 (Health Grade) 与沙箱/生产真实性隔离
     if blocked_rate_pct > 0:
         health_grade = "danger"
         health_status_label = "🔴 高危阻断：检测到大模型爬虫遭遇 403 WAF 拦截"
     elif success_rate_pct >= 90.0 and llms_txt_hit_count > 0 and total_ai_hits >= 10:
         health_grade = "safe"
-        health_status_label = "🟢 畅通无阻：主流 AI 爬虫真实抓取活跃且核心资产已全面入库"
+        if is_sandbox:
+            health_status_label = "🔬 沙箱仿真：大模型爬虫抓取链路通畅（离线环境演练，非生产真实日志）"
+        else:
+            health_status_label = "🟢 真实捕获：生产环境主流 AI 爬虫真实抓取活跃且核心资产已全面入库"
     else:
         health_grade = "warning"
-        health_status_label = "🟡 存在隐患：爬虫访问频次偏低或核心 /llms.txt 尚未被充分抓取"
+        if is_sandbox:
+            health_status_label = "🔬 沙箱演练：模拟爬虫访问频次偏低或核心 /llms.txt 尚未被充分抓取"
+        else:
+            health_status_label = "🟡 存在隐患：真实爬虫访问频次偏低或核心 /llms.txt 尚未被充分抓取"
 
     # 最近 20 条到访心跳流
     sorted_entries = sorted(ai_entries, key=lambda x: x.get("time", ""), reverse=True)
@@ -504,15 +515,17 @@ def audit_spider_access(
             "ip": item["ip"]
         })
 
-    # 5. 组装数据结构
+    # 5. 组装数据结构 (区分 audited_sandbox 与 audited_live 状态)
     audited_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     report_rel_path = f"projects/{project_id}/outputs/31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md"
+    audit_status = "audited_sandbox" if is_sandbox else "audited_live"
 
     audit_data = {
         "project_id": project_id,
         "client_name": client_name,
         "audited_at": audited_at,
         "is_sandbox": is_sandbox,
+        "status": audit_status,
         "source_description": source_desc,
         "summary": {
             "total_ai_hits": total_ai_hits,
@@ -522,6 +535,7 @@ def audit_spider_access(
             "core_assets_coverage_pct": core_assets_coverage_pct,
             "health_grade": health_grade,
             "health_status_label": health_status_label,
+            "is_sandbox": is_sandbox,
             "llms_txt_hit_count": llms_txt_hit_count,
             "last_crawled_at": last_crawled_at or audited_at
         },
@@ -532,13 +546,13 @@ def audit_spider_access(
         "report_path": report_rel_path
     }
 
-    # 6. 持久化保存 JSON 账本
-    json_path = os.path.join(out_dir, "spider_access_audit.json")
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(audit_data, f, ensure_ascii=False, indent=2)
-
-    # 7. 生成并保存 Markdown 31 号报告
+    # 6. 持久化保存产物 (仅在 save_report=True 时落盘)
     if save_report:
+        json_path = os.path.join(out_dir, "spider_access_audit.json")
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(audit_data, f, ensure_ascii=False, indent=2)
+
+        # 7. 生成并保存 Markdown 31 号报告
         md_content = generate_report_31_markdown(audit_data)
         report_abs_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md")
         with open(report_abs_path, "w", encoding="utf-8") as f:

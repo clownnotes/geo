@@ -755,13 +755,17 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         try:
             with open(spider_audit_path, "r", encoding="utf-8") as fp:
                 s_data = json.load(fp)
+            is_sb = bool(s_data.get("is_sandbox", False))
             s_sum = s_data.get("summary", {})
             spider_access_summary = {
                 "has_data": True,
-                "status": "audited",
-                "status_label": s_sum.get("health_status_label", "🟢 大模型爬虫真实访问畅通（已审计）"),
+                "is_sandbox": is_sb,
+                "status": "audited_sandbox" if is_sb else "audited_live",
+                "status_label": s_sum.get("health_status_label") or (
+                    "🔬 沙箱仿真：大模型爬虫抓取链路通畅（非生产真实日志）" if is_sb
+                    else "🟢 真实捕获：生产环境主流 AI 爬虫真实抓取活跃且核心资产已全面入库"
+                ),
                 "audited_at": s_data.get("audited_at", ""),
-                "is_sandbox": s_data.get("is_sandbox", False),
                 "source_description": s_data.get("source_description", ""),
                 "total_ai_hits": s_sum.get("total_ai_hits", 0),
                 "unique_spiders_count": s_sum.get("unique_spiders_count", 0),

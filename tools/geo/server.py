@@ -2796,7 +2796,7 @@ core_values:
                     })
                 return
 
-            # 获取 31 号爬虫访问审计公文报告: /api/projects/{id}/spider-audit/report (GET)
+            # 获取 31 号爬虫访问审计公文报告: /api/projects/{id}/spider-audit/report (GET, 幂等只读)
             if path.startswith("/api/projects/") and path.endswith("/spider-audit/report"):
                 project_id = path.split("/")[3]
                 report_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md")
@@ -2813,23 +2813,10 @@ core_values:
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)
                 else:
-                    try:
-                        from .spider_auditor import audit_spider_access
-                        r = audit_spider_access(project_id, save_report=True)
-                        r_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md")
-                        if os.path.exists(r_path):
-                            with open(r_path, "r", encoding="utf-8") as f:
-                                content = f.read()
-                            self.send_json({
-                                "success": True,
-                                "project_id": project_id,
-                                "filename": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md",
-                                "content": content
-                            })
-                        else:
-                            self.send_json({"success": False, "message": "尚未生成 31 号审计报告"}, status=404)
-                    except Exception as e:
-                        self.send_json({"success": False, "message": str(e)}, status=500)
+                    self.send_json({
+                        "success": False,
+                        "message": "尚未生成 31 号审计报告，请先通过 POST /spider-audit/run 或 CLI 执行审计"
+                    }, status=404)
                 return
 
             # 19 号声誉状态: GET /api/projects/{id}/sentiment/status

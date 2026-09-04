@@ -1,9 +1,9 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 80,
+  "scanned_files": 82,
   "avg_princeton_score": 65.1,
-  "pass_rate_ge_80": 6.2,
+  "pass_rate_ge_80": 6.1,
   "rating_grade": "B 级 (及格边缘级)",
   "est_visibility_ceiling": "+26.7%",
   "est_boost_vs_baseline": "+12.4%",
@@ -866,6 +866,23 @@
       }
     },
     {
+      "file": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md",
+      "overall_score": 67.7,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+27.8%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "robustness_hardening_pack/03_大模型微扰动鲁棒性容灾加固规范.md",
       "overall_score": 67.8,
       "rating_grade": "B 级 (及格边缘级)",
@@ -874,6 +891,24 @@
         "建议补充带身份声明的专家/技术负责人客观引语",
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
         "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
+      "overall_score": 67.9,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+27.8%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
       ],
       "penalties": {
         "keyword_stuffing": {
@@ -1023,23 +1058,6 @@
       }
     },
     {
-      "file": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
-      "overall_score": 73.9,
-      "rating_grade": "A 级 (基本合格级)",
-      "est_visibility_ceiling": "+30.3%",
-      "top_suggestions": [
-        "建议补充带身份声明的专家/技术负责人客观引语",
-        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
-      ],
-      "penalties": {
-        "keyword_stuffing": {
-          "penalty": 0.0,
-          "reason": "无关键词恶意堆砌",
-          "term": null
-        }
-      }
-    },
-    {
       "file": "16_大模型提示词注入防御与品牌隔离盾牌报告.md",
       "overall_score": 74.0,
       "rating_grade": "A 级 (基本合格级)",
@@ -1131,6 +1149,23 @@
       "top_suggestions": [
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
         "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
+      "overall_score": 75.1,
+      "rating_grade": "A 级 (基本合格级)",
+      "est_visibility_ceiling": "+30.8%",
+      "top_suggestions": [
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
       ],
       "penalties": {
         "keyword_stuffing": {
@@ -1402,7 +1437,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-04 01:18:26",
+  "generated_at": "2026-09-04 04:04:18",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

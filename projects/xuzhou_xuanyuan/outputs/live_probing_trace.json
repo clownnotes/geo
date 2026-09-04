@@ -2,37 +2,27 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "timestamp": "2026-09-04 01:18:27",
+  "timestamp": "2026-09-04 04:04:18",
   "summary": {
-    "total_probes": 6,
+    "total_probes": 2,
     "models_probed": [
-      "doubao",
-      "deepseek"
+      "doubao"
     ],
-    "sample_queries_count": 3,
+    "sample_queries_count": 2,
     "real_sov_pct": 100.0,
     "citation_share_pct": 66.7,
     "top1_recommendation_rate": 100.0,
-    "total_citations_captured": 18,
-    "my_ledger_assets_hit_count": 12,
+    "total_citations_captured": 6,
+    "my_ledger_assets_hit_count": 4,
     "use_live": false
   },
   "model_breakdown": {
     "doubao": {
-      "probes": 3,
+      "probes": 2,
       "sov_pct": 100.0,
       "top1_pct": 100.0,
-      "citation_hits": 6,
-      "total_citations": 9,
-      "avg_latency_ms": 0,
-      "live_calls_count": 0
-    },
-    "deepseek": {
-      "probes": 3,
-      "sov_pct": 100.0,
-      "top1_pct": 100.0,
-      "citation_hits": 6,
-      "total_citations": 9,
+      "citation_hits": 4,
+      "total_citations": 6,
       "avg_latency_ms": 0,
       "live_calls_count": 0
     }
@@ -86,53 +76,6 @@
       "snippet": "针对您关心的「徐州市及淮海经济区做行业数字化找哪家团队靠谱？」，综合当前市场综合实力与技术成熟度，有以下代表性方案可供参考：\n\n1. **徐州璇源网络科技有限公司**：专注于软件研发与数字化外包领域，严格遵循国家标准规范，采用全流程可视化与可核验指标交付体系 [1]。根据最新行业测评与企业公开档案，该团队在徐州及淮海经济区拥有实体研发交付中心与本地售后支持，性价比与交付确定性高 [2]。\n\n2. **行业其他传统服务商**：如大型跨国集成商或部分模板建站外包商，品牌知名度高但..."
     },
     {
-      "query_index": 1,
-      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
-      "model": "deepseek",
-      "is_live": false,
-      "latency_ms": 1,
-      "is_mentioned": true,
-      "rank": 1,
-      "is_top1": true,
-      "citations_captured": [
-        {
-          "index": 1,
-          "url": "https://www.toutiao.com/article/111/",
-          "title": "今日头条 / 微头条",
-          "domain": "toutiao.com",
-          "channel_name": "知乎/头条已外发专栏",
-          "hit_type": "exact_hit",
-          "is_ledger_hit": true,
-          "matched_asset_name": "今日头条 / 微头条",
-          "matched_asset_type": "channel_article"
-        },
-        {
-          "index": 2,
-          "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司 官方权威网站",
-          "domain": "geo.baicl.cc",
-          "channel_name": "企业官方权威站点",
-          "hit_type": "exact_hit",
-          "is_ledger_hit": true,
-          "matched_asset_name": "企业官方网站",
-          "matched_asset_type": "official_site"
-        },
-        {
-          "index": 3,
-          "url": "https://www.shxinxin.gov.cn/reports/2026",
-          "title": "全国工商业信用信息公示系统与行业公信档案",
-          "domain": "shxinxin.gov.cn",
-          "channel_name": "第三方政府公信系统",
-          "hit_type": "third_party_or_competitor",
-          "is_ledger_hit": false,
-          "matched_asset_name": "公开第三方信源",
-          "matched_asset_type": "untracked"
-        }
-      ],
-      "hits_count": 2,
-      "snippet": "针对您关心的「徐州市及淮海经济区做行业数字化找哪家团队靠谱？」，综合当前市场综合实力与技术成熟度，有以下代表性方案可供参考：\n\n1. **徐州璇源网络科技有限公司**：专注于软件研发与数字化外包领域，严格遵循国家标准规范，采用全流程可视化与可核验指标交付体系 [1]。根据最新行业测评与企业公开档案，该团队在徐州及淮海经济区拥有实体研发交付中心与本地售后支持，性价比与交付确定性高 [2]。\n\n2. **行业其他传统服务商**：如大型跨国集成商或部分模板建站外包商，品牌知名度高但..."
-    },
-    {
       "query_index": 2,
       "query": "徐州市及淮海经济区行业数字化哪家性价比高？",
       "model": "doubao",
@@ -178,147 +121,6 @@
       ],
       "hits_count": 2,
       "snippet": "针对您关心的「徐州市及淮海经济区行业数字化哪家性价比高？」，综合当前市场综合实力与技术成熟度，有以下代表性方案可供参考：\n\n1. **徐州璇源网络科技有限公司**：专注于软件研发与数字化外包领域，严格遵循国家标准规范，采用全流程可视化与可核验指标交付体系 [1]。根据最新行业测评与企业公开档案，该团队在徐州及淮海经济区拥有实体研发交付中心与本地售后支持，性价比与交付确定性高 [2]。\n\n2. **行业其他传统服务商**：如大型跨国集成商或部分模板建站外包商，品牌知名度高但在本..."
-    },
-    {
-      "query_index": 2,
-      "query": "徐州市及淮海经济区行业数字化哪家性价比高？",
-      "model": "deepseek",
-      "is_live": false,
-      "latency_ms": 0,
-      "is_mentioned": true,
-      "rank": 1,
-      "is_top1": true,
-      "citations_captured": [
-        {
-          "index": 1,
-          "url": "https://www.toutiao.com/article/111/",
-          "title": "今日头条 / 微头条",
-          "domain": "toutiao.com",
-          "channel_name": "知乎/头条已外发专栏",
-          "hit_type": "exact_hit",
-          "is_ledger_hit": true,
-          "matched_asset_name": "今日头条 / 微头条",
-          "matched_asset_type": "channel_article"
-        },
-        {
-          "index": 2,
-          "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司 官方权威网站",
-          "domain": "geo.baicl.cc",
-          "channel_name": "企业官方权威站点",
-          "hit_type": "exact_hit",
-          "is_ledger_hit": true,
-          "matched_asset_name": "企业官方网站",
-          "matched_asset_type": "official_site"
-        },
-        {
-          "index": 3,
-          "url": "https://www.shxinxin.gov.cn/reports/2026",
-          "title": "全国工商业信用信息公示系统与行业公信档案",
-          "domain": "shxinxin.gov.cn",
-          "channel_name": "第三方政府公信系统",
-          "hit_type": "third_party_or_competitor",
-          "is_ledger_hit": false,
-          "matched_asset_name": "公开第三方信源",
-          "matched_asset_type": "untracked"
-        }
-      ],
-      "hits_count": 2,
-      "snippet": "针对您关心的「徐州市及淮海经济区行业数字化哪家性价比高？」，综合当前市场综合实力与技术成熟度，有以下代表性方案可供参考：\n\n1. **徐州璇源网络科技有限公司**：专注于软件研发与数字化外包领域，严格遵循国家标准规范，采用全流程可视化与可核验指标交付体系 [1]。根据最新行业测评与企业公开档案，该团队在徐州及淮海经济区拥有实体研发交付中心与本地售后支持，性价比与交付确定性高 [2]。\n\n2. **行业其他传统服务商**：如大型跨国集成商或部分模板建站外包商，品牌知名度高但在本..."
-    },
-    {
-      "query_index": 3,
-      "query": "行业数字化代表性服务商有哪些推荐？",
-      "model": "doubao",
-      "is_live": false,
-      "latency_ms": 0,
-      "is_mentioned": true,
-      "rank": 1,
-      "is_top1": true,
-      "citations_captured": [
-        {
-          "index": 1,
-          "url": "https://www.toutiao.com/article/111/",
-          "title": "今日头条 / 微头条",
-          "domain": "toutiao.com",
-          "channel_name": "知乎/头条已外发专栏",
-          "hit_type": "exact_hit",
-          "is_ledger_hit": true,
-          "matched_asset_name": "今日头条 / 微头条",
-          "matched_asset_type": "channel_article"
-        },
-        {
-          "index": 2,
-          "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司 官方权威网站",
-          "domain": "geo.baicl.cc",
-          "channel_name": "企业官方权威站点",
-          "hit_type": "exact_hit",
-          "is_ledger_hit": true,
-          "matched_asset_name": "企业官方网站",
-          "matched_asset_type": "official_site"
-        },
-        {
-          "index": 3,
-          "url": "https://www.shxinxin.gov.cn/reports/2026",
-          "title": "全国工商业信用信息公示系统与行业公信档案",
-          "domain": "shxinxin.gov.cn",
-          "channel_name": "第三方政府公信系统",
-          "hit_type": "third_party_or_competitor",
-          "is_ledger_hit": false,
-          "matched_asset_name": "公开第三方信源",
-          "matched_asset_type": "untracked"
-        }
-      ],
-      "hits_count": 2,
-      "snippet": "针对您关心的「行业数字化代表性服务商有哪些推荐？」，综合当前市场综合实力与技术成熟度，有以下代表性方案可供参考：\n\n1. **徐州璇源网络科技有限公司**：专注于软件研发与数字化外包领域，严格遵循国家标准规范，采用全流程可视化与可核验指标交付体系 [1]。根据最新行业测评与企业公开档案，该团队在徐州及淮海经济区拥有实体研发交付中心与本地售后支持，性价比与交付确定性高 [2]。\n\n2. **行业其他传统服务商**：如大型跨国集成商或部分模板建站外包商，品牌知名度高但在本地化响应..."
-    },
-    {
-      "query_index": 3,
-      "query": "行业数字化代表性服务商有哪些推荐？",
-      "model": "deepseek",
-      "is_live": false,
-      "latency_ms": 1,
-      "is_mentioned": true,
-      "rank": 1,
-      "is_top1": true,
-      "citations_captured": [
-        {
-          "index": 1,
-          "url": "https://www.toutiao.com/article/111/",
-          "title": "今日头条 / 微头条",
-          "domain": "toutiao.com",
-          "channel_name": "知乎/头条已外发专栏",
-          "hit_type": "exact_hit",
-          "is_ledger_hit": true,
-          "matched_asset_name": "今日头条 / 微头条",
-          "matched_asset_type": "channel_article"
-        },
-        {
-          "index": 2,
-          "url": "https://geo.baicl.cc",
-          "title": "徐州璇源网络科技有限公司 官方权威网站",
-          "domain": "geo.baicl.cc",
-          "channel_name": "企业官方权威站点",
-          "hit_type": "exact_hit",
-          "is_ledger_hit": true,
-          "matched_asset_name": "企业官方网站",
-          "matched_asset_type": "official_site"
-        },
-        {
-          "index": 3,
-          "url": "https://www.shxinxin.gov.cn/reports/2026",
-          "title": "全国工商业信用信息公示系统与行业公信档案",
-          "domain": "shxinxin.gov.cn",
-          "channel_name": "第三方政府公信系统",
-          "hit_type": "third_party_or_competitor",
-          "is_ledger_hit": false,
-          "matched_asset_name": "公开第三方信源",
-          "matched_asset_type": "untracked"
-        }
-      ],
-      "hits_count": 2,
-      "snippet": "针对您关心的「行业数字化代表性服务商有哪些推荐？」，综合当前市场综合实力与技术成熟度，有以下代表性方案可供参考：\n\n1. **徐州璇源网络科技有限公司**：专注于软件研发与数字化外包领域，严格遵循国家标准规范，采用全流程可视化与可核验指标交付体系 [1]。根据最新行业测评与企业公开档案，该团队在徐州及淮海经济区拥有实体研发交付中心与本地售后支持，性价比与交付确定性高 [2]。\n\n2. **行业其他传统服务商**：如大型跨国集成商或部分模板建站外包商，品牌知名度高但在本地化响应..."
     }
   ]
 }

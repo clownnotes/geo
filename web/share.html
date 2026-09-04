@@ -847,19 +847,29 @@
       const spiderCoreCovDesc = document.getElementById('spider-core-cov-desc');
       const spiderDetailsContainer = document.getElementById('spider-audit-details-container');
 
-      if (spiderBadge && spiderAudit.has_data && spiderAudit.status === 'audited') {
+      if (spiderBadge && spiderAudit.has_data && (spiderAudit.status === 'audited' || spiderAudit.status === 'audited_live' || spiderAudit.status === 'audited_sandbox')) {
+        const isSandbox = Boolean(spiderAudit.is_sandbox || spiderAudit.status === 'audited_sandbox');
         const isDanger = (spiderAudit.blocked_rate_pct || 0) > 0;
-        spiderBadge.className = isDanger
-          ? 'text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20'
-          : 'text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20';
-        spiderBadge.textContent = isDanger ? '🔴 存在 WAF 403 阻断' : '🟢 大模型抓取畅通 (真实访问已捕获)';
+
+        if (isDanger) {
+          spiderBadge.className = 'text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20';
+          spiderBadge.textContent = '🔴 存在 WAF 403 阻断';
+        } else if (isSandbox) {
+          spiderBadge.className = 'text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20';
+          spiderBadge.textContent = '🔬 沙箱仿真演练 (非生产真实日志)';
+        } else {
+          spiderBadge.className = 'text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20';
+          spiderBadge.textContent = '🟢 大模型真实抓取畅通 (生产日志已捕获)';
+        }
 
         spiderHitsVal.textContent = `${spiderAudit.total_ai_hits || 0} 次`;
         spiderSpidersVal.textContent = `${spiderAudit.unique_spiders_count || 0} 家`;
         spiderSuccessVal.textContent = `${spiderAudit.success_rate_pct || 0.0}%`;
         spiderBlockedDesc.textContent = `WAF 阻断率: ${spiderAudit.blocked_rate_pct || 0.0}% (403)`;
         spiderLlmsHitsVal.textContent = `${spiderAudit.llms_txt_hit_count || 0} 次`;
-        spiderCoreCovDesc.textContent = `核心事实资产覆盖: ${spiderAudit.core_assets_coverage_pct || 0.0}%`;
+        spiderCoreCovDesc.textContent = isSandbox
+          ? `模拟资产覆盖: ${spiderAudit.core_assets_coverage_pct || 0.0}% (沙箱)`
+          : `核心事实资产覆盖: ${spiderAudit.core_assets_coverage_pct || 0.0}%`;
 
         // 渲染各厂商分布与心跳流
         const breakdown = spiderAudit.spider_breakdown || {};
@@ -867,6 +877,19 @@
         const assets = spiderAudit.core_assets_audit || [];
 
         let html = `<div class="space-y-3 pt-2">`;
+
+        // 若为沙箱模式，顶部显式展示声明横幅
+        if (isSandbox) {
+          html += `
+            <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between text-[11px] text-amber-300">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="flask-conical" class="w-3.5 h-3.5 shrink-0"></i>
+                <span><strong>沙箱离线演练模式</strong>：当前为确定性高保真沙箱模拟数据，非客户生产服务器真实 Web 日志。接入生产日志请使用 <code>geo spider-audit --log-file</code>。</span>
+              </span>
+              <span class="text-slate-400 shrink-0 ml-2">待接入真实 access.log</span>
+            </div>
+          `;
+        }
 
         // 1. 各爬虫份额条
         const spiderEntries = Object.entries(breakdown);

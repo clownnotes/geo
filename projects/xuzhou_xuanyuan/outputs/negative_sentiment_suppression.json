@@ -2,7 +2,7 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "timestamp": "2026-09-04 01:18:27",
+  "timestamp": "2026-09-04 04:04:19",
   "summary": {
     "total_probes": 10,
     "models_probed": [
@@ -57,7 +57,7 @@
         {
           "index": 1,
           "url": "https://forum.anonymous-complaints.example/thread/fake-999",
-          "title": "匿名论坛吐槽帖",
+          "title": "1] [匿名论坛吐槽帖",
           "domain": "forum.anonymous-complaints.example",
           "channel_name": "forum.anonymous-complaints.example",
           "has_inline_footnote": true
@@ -67,7 +67,7 @@
         {
           "index": 1,
           "url": "https://forum.anonymous-complaints.example/thread/fake-999",
-          "title": "匿名论坛吐槽帖",
+          "title": "1] [匿名论坛吐槽帖",
           "domain": "forum.anonymous-complaints.example",
           "channel_name": "forum.anonymous-complaints.example",
           "has_inline_footnote": true
@@ -86,7 +86,7 @@
         {
           "index": 1,
           "url": "https://forum.anonymous-complaints.example/thread/fake-999",
-          "title": "匿名论坛吐槽帖",
+          "title": "1] [匿名论坛吐槽帖",
           "domain": "forum.anonymous-complaints.example",
           "channel_name": "forum.anonymous-complaints.example",
           "has_inline_footnote": true
@@ -96,7 +96,7 @@
         {
           "index": 1,
           "url": "https://forum.anonymous-complaints.example/thread/fake-999",
-          "title": "匿名论坛吐槽帖",
+          "title": "1] [匿名论坛吐槽帖",
           "domain": "forum.anonymous-complaints.example",
           "channel_name": "forum.anonymous-complaints.example",
           "has_inline_footnote": true
@@ -137,7 +137,7 @@
         {
           "index": 1,
           "url": "https://ad.competitor-soft.example/compare",
-          "title": "竞品推广软文",
+          "title": "1] [竞品推广软文",
           "domain": "ad.competitor-soft.example",
           "channel_name": "ad.competitor-soft.example",
           "has_inline_footnote": true
@@ -157,7 +157,7 @@
         {
           "index": 1,
           "url": "https://ad.competitor-soft.example/compare",
-          "title": "竞品推广软文",
+          "title": "1] [竞品推广软文",
           "domain": "ad.competitor-soft.example",
           "channel_name": "ad.competitor-soft.example",
           "has_inline_footnote": true
@@ -191,7 +191,7 @@
   "toxic_sources": [
     {
       "url": "https://forum.anonymous-complaints.example/thread/fake-999",
-      "title": "匿名论坛吐槽帖",
+      "title": "1] [匿名论坛吐槽帖",
       "domain": "forum.anonymous-complaints.example",
       "attribution": "第三方/非台账信源",
       "citation_frequency": 2,
