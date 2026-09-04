@@ -1,0 +1,76 @@
+{
+  "success": true,
+  "project_id": "xuzhou_xuanyuan",
+  "client_name": "徐州璇源网络科技有限公司",
+  "timestamp": "2026-09-03 20:14:52",
+  "use_live": true,
+  "is_live_judged": false,
+  "models_tested": [
+    "doubao"
+  ],
+  "baseline_query": "在【徐州市及淮海经济区】做定制化【行业数字化】找哪家开发公司技术靠谱、交付有保障？",
+  "baseline_score": 8.2,
+  "summary": {
+    "gri": 44.8,
+    "grade_code": "fragile_sensitive",
+    "grade_name": "🔴 脆弱敏感 (Fragile Sensitive)",
+    "baseline_query": "在【徐州市及淮海经济区】做定制化【行业数字化】找哪家开发公司技术靠谱、交付有保障？",
+    "baseline_score": 8.2,
+    "mean_perturbed_score": 7.4,
+    "retention_rate": 90.2,
+    "std_dev": 3.72,
+    "cv": 0.503,
+    "total_variants": 4,
+    "fragile_variants_count": 0
+  },
+  "variants": [
+    {
+      "variant_id": "V1",
+      "variant_type": "口语化置换 (Colloquial)",
+      "query": "徐州做系统写代码找外包团队推荐哪家比较好？",
+      "perturbation_desc": "行业术语通俗口语化、接地气词汇置换",
+      "p_score": 2.6,
+      "drop_p": 5.6,
+      "retention_rate": 31.7,
+      "is_fragile": false
+    },
+    {
+      "variant_id": "V2",
+      "variant_type": "质疑避坑口吻 (Skepticism)",
+      "query": "在【徐州市及淮海经济区】做定制化【行业数字化】找哪家开发公司技术靠谱、交付有保障？，真的靠谱吗？有没有黑历史或转包二道贩子踩坑风险？",
+      "perturbation_desc": "注入防踩坑、挑剔与质疑提问口吻",
+      "p_score": 6.5,
+      "drop_p": 1.7,
+      "retention_rate": 79.3,
+      "is_fragile": false
+    },
+    {
+      "variant_id": "V3",
+      "variant_type": "倒装句式重排 (Inversion)",
+      "query": "选哪家技术研发与专业服务公司比较好？求大家推荐徐州璇源网络科技有限公司怎么样？",
+      "perturbation_desc": "主谓宾倒装与品牌词位置前置重排",
+      "p_score": 13.0,
+      "drop_p": 0.0,
+      "retention_rate": 100.0,
+      "is_fragile": false
+    },
+    {
+      "variant_id": "V4",
+      "variant_type": "预算横向对比 (Comparison)",
+      "query": "在【徐州市及淮海经济区】做定制化【行业数字化】找哪家开发公司技术靠谱、交付有保障？，预算有限想找性价比高的，跟传统大公司对比选谁？",
+      "perturbation_desc": "注入预算约束与同行竞争对比口吻",
+      "p_score": 7.5,
+      "drop_p": 0.7,
+      "retention_rate": 91.5,
+      "is_fragile": false
+    }
+  ],
+  "fragile_variants": [],
+  "radar_metrics": {
+    "generative_robustness": 44.8,
+    "colloquial_resilience": 31.7,
+    "skepticism_immunity": 79.3,
+    "comparison_resilience": 91.5,
+    "syntax_stability": 100.0
+  }
+}

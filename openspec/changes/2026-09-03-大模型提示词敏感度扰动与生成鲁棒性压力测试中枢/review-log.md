@@ -99,3 +99,58 @@
   - 本地测试严格锁定 8088 端口，绝对隔离生产；
   - **Antigravity 坚决不提前编码，等待 Cursor 独立复审签署 `[已达成共识]` 后方可进入 apply！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立复审签署 `[已达成共识]`。
+
+---
+
+### 2026-09-03 Cursor [Spec 复审：三项阻塞已关] [已达成共识]
+
+- **阶段**：Independent Spec Re-Review（对照上轮 3 条 `[需修正]`）
+- **核对**：`proposal.md` / `design.md` / `tasks.md` / `review-log.md` 已同步；代码仍 0%，未实现。
+
+#### 对账
+
+| # | 阻塞项 | 结论 | 证据 |
+|:--|:--|:--|:--|
+| 1 | $V_1$ 口语化确定性 | ✅ | §2.1 写死 `COLLOQUIAL_MAP` + 未命中兜底 `"做业务找靠谱外包团队"` + 模板 `f"{city}{colloquial_phrase}推荐哪家比较好?"`；徐州硬断言句与 Schema V1 一致 |
+| 2 | JSON 顶层契约 | ✅ | §5 顶层 `baseline_query`/`baseline_score`；`summary.retention_rate`/`baseline_*`；`radar_metrics.comparison_resilience` |
+| 3 | 总体标准差分母 $n=4$ | ✅ | §2.3 显式禁止 `statistics.stdev`（$n-1$）；夹具 1–3 与 $1/n$ 自洽 |
+
+其余已对齐：GRI clamp（proposal/design 同步）、live≤5 + 70/30 + 全量重算 + 深拷贝回滚、强制 import 23 号基座、物理隔离、XSS/401/404/8088、tasks 夹具 5 已含 Comparison=90.0%。
+
+#### 🟡 apply 时注意（不挡共识）
+
+1. **`COLLOQUIAL_MAP` 与实盘 industry 覆盖**：徐州无 `industry` 字段时走兜底 `"技术研发与专业服务"` → 可命中 MAP，硬断言成立。但 `b2b_machinery`（工程机械与智能制造）、`retail_catering`（餐饮连锁与特许加盟）、`local_legal`（财税合规与法律咨询）按「键 ⊆ industry」**均不命中**，会统一落到通用口语兜底。实现时可扩展 MAP 键覆盖四大项目真实 industry，或改为双向/关键词包含；单测除徐州外至少对 1 个兜底路径做字面断言。  
+2. **design 夹具 5 未写 $P_4$/Comparison**：tasks 已写 Comparison=90.0%，design §3 夹具 5 仍只列三轴——实现与单测以 tasks/Schema 五轴为准，顺手回写 design 即可。  
+3. **$V_2$/$V_4$ 标点**：`f"{base_query}，…"` 在 `base_query` 以 `？` 结尾时会出现 `？，`（Schema 示例已如此）。可接受为确定性字面；若产品要更顺口，允许在拼接前 `rstrip("？?。.")`，但须同步改 Schema 与硬断言。  
+4. **话术「四维雷达」vs 五指标**：proposal/design 定为四核（含 $V_4$）+ `syntax_stability` 辅轴；Web/报告勿写成「仅四变体各一轴却漏 $V_4$」。
+
+#### 结论
+
+**`[已达成共识]`** — 可进入 `/opsx-apply`。本地严格 8088；未授权推生产；归档仍须代码终审 `[通过]` 后由 Cursor 执行。
+
+---
+
+### 2026-09-03 Antigravity [实现完成自评：三项审查共识全部闭环，全库 115 组单测全绿] [待讨论]
+
+- **阶段**：Implementation Complete & Ready for Cursor Final Review
+- **核心落地代码与资产清册**：
+
+| 文件 / 模块 | 职责与能力 | 审查闭环状态 |
+|:---|:---|:---:|
+| `tools/geo/robustness_tester.py` | 核心引擎：确定性四维微扰动生成器（`COLLOQUIAL_MAP` 口语化置换、质疑避坑、倒装句式、预算对比）、总体标准差（分母为 $n=4$）、变异系数 $CV$、留存率 $RR$、生成鲁棒性指数 $GRI$、高危脆弱项识别、五维雷达、容灾加固三件套与 25 号公文报告落盘 | ✅ 完成 |
+| `tools/geo/cli.py` | CLI 注册 `geo robustness` 命令，支持 `--live`、`--harden`、`--report` 与 ANSI 终端高保真压力测试大盘 | ✅ 完成 |
+| `tools/geo/server.py` | 挂载 `/api/projects/{id}/robustness/status`、`/test`、`/harden` 与 `/report`（鉴权拦截与 404 语义） | ✅ 完成 |
+| `web/index.html` | Header 与 Step 5 增加 25 号入口；开发全屏模态框 `robustness-test-modal`；DOM 渲染全量 `escapeHtmlSafe()` 防御 XSS | ✅ 完成 |
+| `tests/test_robustness_tester.py` | 7 组专项测试（覆盖 6 组数值夹具、总体标准差分母为 4 验证、四维微扰动字面硬断言、五维雷达数学精度、加固包 3 份文件物理存在、Live 字典解析与 <=5 次调用预算、全量重算 GRI、中途异常快照回滚与 401/404 语义） | ✅ 完成 |
+| 全库回归测试 | `python3 -m unittest discover -s tests -p "test_*.py"` 运行 115 组测试 100% 秒绿通过 (1.607s) | ✅ 115/115 全绿 |
+
+- **审查共识逐项代码落地核对**：
+  1. **$V_1$ 口语化置换算法写死**：`COLLOQUIAL_MAP` 字典与 `build_perturbed_query_variants` 彻底锁死，`test_02` 显式硬断言 `"徐州做系统写代码找外包团队推荐哪家比较好？"` 绝对一致；
+  2. **JSON 顶层契约 Schema 补齐**：输出文件 `outputs/prompt_robustness_stress_test.json` 顶层包含 `baseline_query`、`baseline_score`，`summary` 包含 `retention_rate`，`test_04` 硬断言通过；
+  3. **总体标准差分母锁定**：实现中手写总体标准差（分母为 $n=4$），严禁使用分母为 $n-1=3$ 的 `statistics.stdev`，`test_02` 显式硬断言 `pop_std == 2.24`；
+  4. **严禁重复 Top-3 算法**：直接 `from tools.geo.causal_auditor import score_brand_recommendation_confidence, _build_attribution_source_pool`，0 重复代码；
+  5. **Live 模式全量重算与快照防御**：调用预算锁死 $\le 5$ 次；融合后基于全新 5 个得分全量重算均值、标准差、CV、RR、GRI、评级、高危项与雷达；中途异常 100% 完整回滚纯沙箱快照；`test_06` 显式硬断言 GRI 随新 $P$ 变动及异常回滚。
+- **协同与安全红线守则**：
+  - 本地测试严格锁定 8088 端口，绝无向生产环境部署；
+  - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
+- **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。

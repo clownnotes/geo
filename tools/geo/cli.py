@@ -391,6 +391,15 @@ def main():
     p_funnel.add_argument("--defend", action="store_true", help="生成 outputs/funnel_defense_pack/ 决策漏斗防截流加固包")
     p_funnel.add_argument("--report", action="store_true", help="生成并落盘 24 号公文报告")
 
+    # robustness (25 号大模型提示词敏感度扰动与生成鲁棒性压力测试中枢)
+    p_rob = subparsers.add_parser("robustness", help="25 号大模型提示词敏感度扰动与生成鲁棒性压力测试中枢")
+    p_rob.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_rob.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_rob.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
+    p_rob.add_argument("--live", action="store_true", help="启用真实联网 API 评测")
+    p_rob.add_argument("--harden", action="store_true", help="生成 outputs/robustness_hardening_pack/ 鲁棒性加固包")
+    p_rob.add_argument("--report", action="store_true", help="生成并落盘 25 号公文报告")
+
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1221,6 +1230,44 @@ def main():
                 print(f"    - {fp}")
         out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "24_大模型商业多轮追问决策漏斗与意图转化路径推演报告.md")
         print(f"\nℹ️  24 号公文报告落盘至: {out_report}")
+        print("=" * 75 + "\n")
+    elif args.command == "robustness":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo robustness xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.robustness_tester import (
+            PromptRobustnessTester,
+            generate_robustness_hardening_pack,
+        )
+        models_list = [m.strip() for m in args.models.split(",") if m.strip()]
+        res = PromptRobustnessTester.run_stress_test(
+            project_id=pid,
+            models=models_list,
+            use_live=args.live,
+        )
+        s = res["summary"]
+        print("\n" + "=" * 75)
+        print(f"🛡️ 25 号大模型提示词敏感度扰动与生成鲁棒性压力测试 · [{pid}]")
+        print("=" * 75)
+        print(f"受审企业: {res['client_name']} ｜ 测试时间: {res['timestamp']}")
+        print(f"🏆 生成鲁棒性指数 (GRI): {s['gri']}% ｜ 评级: {s['grade_name']}")
+        print(f"🎯 基准 Query 得分: {s['baseline_score']}分 ｜ 扰动均分: {s['mean_perturbed_score']}分 (留存率: {s['retention_rate']}%)")
+        print(f"📊 总体标准差 (σ): {s['std_dev']} ｜ 变异系数 (CV): {s['cv']} ｜ 高危脆弱变体: {s['fragile_variants_count']} 项")
+        print("-" * 75)
+        print(f"基准 Query: \"{res['baseline_query']}\"")
+        print("四维商业微扰动变体置信度承压明细:")
+        for v in res.get("variants", []):
+            fr_mark = " [⚠️高危脆弱项]" if v.get("is_fragile") else ""
+            print(f"  • {v['variant_id']} {v['variant_type']}: {v['p_score']}分 ｜ 留存率: {v['retention_rate']}% ｜ 跌幅: -{v['drop_p']}分{fr_mark}")
+            print(f"    扰动: \"{v['query']}\"")
+        if args.harden:
+            pack = generate_robustness_hardening_pack(pid)
+            print(f"\n📦 鲁棒性容灾加固包已生成: {pack['pack_dir']}")
+            for fp in pack.get("files", []):
+                print(f"    - {fp}")
+        out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "25_大模型提示词敏感度扰动与生成鲁棒性压力测试报告.md")
+        print(f"\nℹ️  25 号公文报告落盘至: {out_report}")
         print("=" * 75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))

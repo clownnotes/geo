@@ -1098,6 +1098,34 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 25 号提示词鲁棒性压力测试: POST /api/projects/{id}/robustness/test
+        if path.startswith("/api/projects/") and path.endswith("/robustness/test"):
+            project_id = path.split("/")[3]
+            try:
+                from .robustness_tester import PromptRobustnessTester
+                data = self.read_json_body()
+                models = data.get("models")
+                use_live = bool(data.get("use_live", False))
+                res = PromptRobustnessTester.run_stress_test(
+                    project_id=project_id,
+                    models=models,
+                    use_live=use_live,
+                )
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 25 号提示词鲁棒性加固包: POST /api/projects/{id}/robustness/harden
+        if path.startswith("/api/projects/") and path.endswith("/robustness/harden"):
+            project_id = path.split("/")[3]
+            try:
+                from .robustness_tester import generate_robustness_hardening_pack
+                self.send_json(generate_robustness_hardening_pack(project_id))
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2761,6 +2789,42 @@ core_values:
                         "success": True,
                         "project_id": project_id,
                         "filename": "24_大模型商业多轮追问决策漏斗与意图转化路径推演报告.md",
+                        "content": content,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 25 号提示词鲁棒性测试状态: GET /api/projects/{id}/robustness/status
+            if path.startswith("/api/projects/") and path.endswith("/robustness/status"):
+                project_id = path.split("/")[3]
+                try:
+                    from .robustness_tester import get_robustness_status
+                    self.send_json(get_robustness_status(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 25 号提示词鲁棒性报告获取: GET /api/projects/{id}/robustness/report
+            if path.startswith("/api/projects/") and path.endswith("/robustness/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(
+                    PROJECT_ROOT, "projects", project_id, "outputs",
+                    "25_大模型提示词敏感度扰动与生成鲁棒性压力测试报告.md"
+                )
+                if not os.path.exists(report_file):
+                    self.send_json({
+                        "success": False,
+                        "message": "25 号报告尚未生成，请先 POST /robustness/test",
+                    }, status=404)
+                    return
+                try:
+                    with open(report_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "filename": "25_大模型提示词敏感度扰动与生成鲁棒性压力测试报告.md",
                         "content": content,
                     })
                 except Exception as e:
