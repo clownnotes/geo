@@ -1,0 +1,23 @@
+# Tasks: 全渠道 9 因子富文本极速排版与爬虫友好发布引擎
+
+- [ ] 1. 核心排版引擎实现 (`tools/geo/rich_publisher.py`)
+  - [ ] 1.1 实现 Markdown 解析与普林斯顿 9 因子元素（量化数据、权威信源、三元组表格、专家金句）智能提取增强
+  - [ ] 1.2 实现 `wechat`、`zhihu`、`toutiao` 跨渠道纯内联 CSS 样式编译矩阵
+  - [ ] 1.3 实现大模型爬虫保真度逆向检验器（模拟 Bytespider/Readability 清洗，评估 Clean Markdown 还原度与得分）
+  - [ ] 1.4 实现全渠道排版包资产导出（生成 `projects/<id>/outputs/rich_publish_pack/` 目录及各端 HTML/MD）
+- [ ] 2. 命令行与工具链集成 (`tools/geo/cli.py` & `tools/geo/__init__.py`)
+  - [ ] 2.1 注册 `geo rich-pub` 子命令与参数解析 (`--project`, `--channel`, `--verify`)
+  - [ ] 2.2 实现 CLI 格式化输出、高保真得分汇总与资产落盘提示
+- [ ] 3. Web 后端 API 与控制台扩展 (`tools/geo/server.py`)
+  - [ ] 3.1 增加 `GET /api/project/:id/rich-publish-preview` 路由（支持按渠道获取带内联样式 HTML 与保真度数据）
+  - [ ] 3.2 增加 `POST /api/project/:id/rich-publish-compile` 路由（支持一键编译落盘）
+- [ ] 4. Web 控制台前端工作台与极速剪贴板交互 (`web/index.html`)
+  - [ ] 4.1 在项目卡片/大屏中新增【极速排版发布】快捷入口按钮
+  - [ ] 4.2 实现【全渠道 9 因子富文本极速发布工作台】模态弹窗（三端 Tab 切换、移动端/桌面双模预览容器）
+  - [ ] 4.3 实现基于原生浏览器 Clipboard API 的一键富文本（`text/html`）写入剪贴板功能
+  - [ ] 4.4 接入爬虫保真度实时评分徽标与逆向 Clean Markdown 结构透视
+- [ ] 5. 单元测试与质量验证 (`tests/test_rich_publisher.py`)
+  - [ ] 5.1 编写渠道内联样式编译单测（微信、知乎、头条内联样式属性断言）
+  - [ ] 5.2 编写 9 因子语义增强与表格自适应测试
+  - [ ] 5.3 编写爬虫仿真逆向还原与保真度评分断言测试
+  - [ ] 5.4 确保全库单测秒绿通过（原有 122 组 + 新增 6+ 组）
