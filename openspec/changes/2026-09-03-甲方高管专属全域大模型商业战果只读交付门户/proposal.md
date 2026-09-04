@@ -1,4 +1,4 @@
-# Proposal: 甲方高管专属全域大模型商业战果只读交付门户 (第 28 维)
+# Proposal: 甲方高管专属全域大模型商业战果只读交付门户 (第 28 维·修订版)
 
 ## Why (背景与业务痛点)
 
@@ -15,33 +15,27 @@
 
 ## What (核心改动与交付功能)
 
-本变更遵循“三大价值过滤铁律”中**【铁律 3: 商业交付更具代差】**与**【铁律 2: SOP 生产大幅提效】**，在现有架构上进行纵向升级，坚决不搞平行烟囱：
+本变更遵循“三大价值过滤铁律”中**【铁律 3: 商业交付更具代差】**与**【铁律 2: SOP 生产大幅提效】**，在现有架构上进行纵向升级，**坚决不搞平行烟囱**：
 
-1. **高管商业交付数据聚合引擎 (`tools/geo/share.py` 升级)**：
-   - 彻底打破 16 维历史局限，打通 17~27 维高阶商业资产：
-     - **商业心智渗透率 (MPI)**：综合渗透分、四大主流模型（豆包、DeepSeek、腾讯元宝、Kimi）首推率、商业意图漏斗；
-     - **ROI 商业财务估值**：年化等效商业广告价值节省曲线与 ROI 归因；
-     - **竞对截流攻防实战**：拦截竞品词清单、首推差异化卖点挤占率；
-     - **普林斯顿 9 因子 & 爬虫保真度**：全渠道 Clean Markdown 爬虫逆向高保真 100 分背书；
-     - **全网分发存活台账**：头条、微信、知乎专栏、Kimi 研报、百度文库等存活状态与原文直达链接；
-     - **商业结案数字证书**：SHA256 哈希防伪印章、履约 AAA 评级。
-2. **专属高管沉浸式只读大屏 (`web/share.html` 升级为 `web/portal.html`)**：
-   - 采用高端深邃科技暗黑/极光配色（Dark Executive Theme），支持移动端微信、iPad、桌面全屏投影极致自适应；
-   - 包含 6 大专属高管商业战略板块：
-     - **Hero 核心战果大盘**：MPI 渗透指数、主流模型首推率、广告年化节省金额、长尾覆盖数；
-     - **大模型推荐心智雷达图**：四大国产主力模型对品牌的认知深度与首推倾向分布；
-     - **竞对截流攻防透视表**：我方拦截了竞品的哪些核心提问，以及大模型采纳我方的硬核理由；
-     - **普林斯顿 9 因子 & 爬虫保真度背书**：呈现 9 因子质检雷达与爬虫逆向清洗 100 分看板；
-     - **全域信源存活台账证据链**：多平台分发落地真实 URL 探活与原文跳转；
-     - **商业结案证书在线查验与 A4 打印**：一键调起防伪证书与打印视图。
-3. **高熵安全鉴权与只读隔离**：
-   - 延续密码学 `secrets` 模块生成 192-bit 高熵 Token（`sh_...`）；
-   - 支持可选 4 位加盐哈希提取码保护（PIN Code）；
-   - 严格物理防越权，仅暴露无状态只读聚合接口，杜绝任何写操作与内部路径穿透。
-4. **CLI 一键调度与商务文案生成 (`tools/geo/cli.py`)**：
-   - 挂载 `geo portal <project_id>` 子命令（兼容既有 `geo share`）；
-   - 支持 `--days 30`、`--pin 1234`、`--refresh`、`--export <file.html>`（离线单文件导出）；
-   - 终端打印专属商务分享文案模版（包含访问链接、提取码、MPI 战报摘要），一键复制即发微信。
+1. **高管商业交付数据聚合引擎 (`tools/geo/share.py` 纵向升级)**：
+   - 打破 16 维历史局限，打通 17~27 维高阶商业资产，严格对齐真实 JSON 字段，坚决杜绝假数据：
+     - **商业心智渗透率 (MPI)**：基于 `mindshare_conversion_audit.json` 读取真实的 `summary.mpi`、年化广告节省 `summary.annual_aev_yuan`、实测模型探针的首推率（基于 `probe_records.is_top1` 真实统计）；
+     - **实测模型推荐心智雷达**：对齐实测探针（豆包、DeepSeek、Kimi），杜绝无探针模型的假打分；对微信/元宝生态在分发台账中真实标注「渠道覆盖代理·微信搜一搜独占」；
+     - **竞对攻防实战**：基于 `competitor_gap_analysis.json` 真实提取对手列表、声量领先差距与反制突破点；
+     - **普林斯顿 9 因子 & 爬虫保真度**：呈现 `princeton_audit.json` 的实测均分，并聚合 `outputs/*_pack/fidelity_report.json` 的真实无托底保真度评分；
+     - **全网分发存活台账**：真实提取 `dist_ledger.json` 中各渠道 URL、收录状态与探活结果，区分「已收录·探活正常」、「已填报·待探活」与「待分发」；
+     - **商业结案数字证书**：复用既有 `tools/geo/certificate.py` 编译的 A4 打印证书，呈现 SHA256 密码学防伪指纹。
+2. **专属高管沉浸式只读大屏 (原地升级 `web/share.html`)**：
+   - **单文件收敛原则**：坚决不新建平行 `portal.html`，原地重构升级 `web/share.html`，确保历史 `/share/{token}` 与新别名 `/portal/{token}` 统一享受现代高管大屏；
+   - 采用深邃科技暗黑商务风格（Deep Navy / Slate Dark Theme），移动端微信与 iPad 极致自适应；
+   - 向后兼容：保留旧版交付物查看能力（通过折叠抽屉优雅嵌入），新增 Hero KPI 四宫格、模型首推雷达、竞对攻防表、信源证据链与证书查验 Modal。
+3. **高熵安全鉴权与生命周期管理**：
+   - 密码学高熵安全 Token（$2^{192}$ 穷举空间），支持可选 4 位加盐哈希提取码保护（PIN Code）；
+   - 提供 `--refresh` 强制重置生命周期功能：作废当前项目所有历史活跃 Token，生成唯一单活新链接。
+4. **CLI 一键调度与离线单文件导出 (`tools/geo/cli.py`)**：
+   - 挂载 `geo portal <project_id>` 子命令（兼容保留 `geo share`）；
+   - 支持 `--days`、`--pin`、`--refresh`、`--export <file.html>`（离线导出单文件 HTML，内联全部关键 CSS/JS 资源，保证内网断网零 CDN 依赖打开）；
+   - 终端彩色打印高管交付专享卡片与一键发送给甲方老板的微信格式文案模板。
 
 ---
 
@@ -49,36 +43,36 @@
 
 ### 1. 命令行 CLI 接口
 ```bash
-# 生成 30 天免密高管专属交付大屏
+# 生成 30 天免密高管专属交付大屏链接与微信战报模版
 ./geo portal xuzhou_xuanyuan
 
 # 生成带 4 位访问提取码的专属门户（有效期 90 天）
 ./geo portal xuzhou_xuanyuan --days 90 --pin 8888
 
-# 强制刷新/重置该项目的访问安全 Token
+# 强制作废历史链接并生成全新专属 Token (单活轮转)
 ./geo portal xuzhou_xuanyuan --refresh
 
-# 导出离线单文件 HTML 交付大屏（适合内网邮件归档或离线汇报）
+# 导出离线独立单文件 HTML 交付大屏 (无外部 CDN 依赖，内网即开即用)
 ./geo portal xuzhou_xuanyuan --export ./executive_portal_xuzhou.html
 ```
 
 ### 2. HTTP Web API 接口
-- `GET /share/{token}` 或 `GET /portal/{token}`：渲染高管专属战果只读大屏；
-- `GET /api/share/{token}/data`：只读沙箱数据聚合 API（含 MPI、9 因子、保真度、存活台账、ROI）；
-- `GET /api/share/{token}/certificate`：专属在线查验 A4 打印级交付结案证书；
-- `GET /api/share/{token}/download-zip`：安全下载全套数字交付物压缩包。
+- `GET /portal/{token}` 与 `GET /share/{token}`：统一指向升级后的 `web/share.html`；
+- `GET /api/share/{token}/data`：只读沙箱数据聚合 API（向后兼容既有键，追加高管战报键）；
+- `GET /api/share/{token}/certificate`：复用既有接口，直取 A4 打印级交付结案证书；
+- `GET /api/share/{token}/download-zip`：复用既有接口，安全下载数字资产全包。
 
 ---
 
 ## Impact (影响范围分析)
 
 1. **改动模块**：
-   - `tools/geo/share.py`：升级数据聚合器，无损吸纳 17~27 维高阶商业指标；
-   - `tools/geo/cli.py`：新增 `geo portal` 子命令及参数解析；
-   - `tools/geo/server.py`：路由层支持 `/portal/` 别名与证书直读；
-   - `web/share.html`（或 `web/portal.html`）：高管交互界面全面重构升级为现代 Executive Dashboard；
-   - `tests/test_delivery_portal.py`：新增全套单元测试。
-2. **兼容性承诺**：
-   - 100% 兼容既有 `/share/{token}` 历史链接与 `data/shares.json` 持久化格式；
-   - 严格物理只读，绝不污染项目工程源文件；
+   - `tools/geo/share.py`：升级数据聚合器，增补字段映射与 `--refresh`、`--export` 逻辑；
+   - `tools/geo/cli.py`：挂载 `geo portal` 子命令及参数解析；
+   - `tools/geo/server.py`：复用既有 handler，仅增设 `/portal/{token}` 别名路由；
+   - `web/share.html`：原地升级为高管沉浸式深色大屏，不创建平行文件；
+   - `tests/test_delivery_portal.py`：新增全套覆盖与断言单测。
+2. **兼容性与安全红线**：
+   - 100% 兼容历史 `/share/{token}` 链接与 `data/shares.json`；
+   - 强制保持 `X-Robots-Tag: noindex, nofollow, noarchive` 防爬虫索引；
    - 全库现有 133 组单元测试必须 100% 保持秒绿通过。

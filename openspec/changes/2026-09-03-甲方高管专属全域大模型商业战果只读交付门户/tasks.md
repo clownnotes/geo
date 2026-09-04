@@ -1,24 +1,24 @@
-# Tasks: 甲方高管专属全域大模型商业战果只读交付门户 (第 28 维)
+# Tasks: 甲方高管专属全域大模型商业战果只读交付门户 (第 28 维·修订版)
 
 - [ ] 1. 数据中枢升级与高阶商业资产聚合 (`tools/geo/share.py`)
-  - [ ] 1.1 升级 `get_share_portal_data()` 函数，全面打通 17~27 维落盘数据（MPI 商业心智、年化广告节省、9 因子质检、全渠道爬虫保真度、竞对截流攻防、存活台账与证书）
-  - [ ] 1.2 增强安全鉴权体系，实现 Token 强制刷新重置功能 `refresh_share_token()`
-  - [ ] 1.3 实现离线高管单文件 HTML 交付大屏导出器 `export_offline_portal_html()`
-- [ ] 2. Web 后端路由与证书直读扩展 (`tools/geo/server.py`)
-  - [ ] 2.1 增加 `/portal/{token}` 页面路由别名，自动分发至高管专属交付大屏
-  - [ ] 2.2 增加 `/api/share/{token}/certificate` 接口，支持安全调取 A4 结案证书内容
-  - [ ] 2.3 确保对所有门户相关路由注入 `X-Robots-Tag: noindex, nofollow, noarchive` 防爬虫泄露头
+  - [ ] 1.1 升级 `get_share_portal_data()` 函数，严格按照字段映射表聚合真实落盘 JSON（真实 MPI、元换算万元广告节省、实测 3 模型探针首推率、9 因子质检均分、全渠道真实爬虫保真度、竞对攻防差距、台账状态推导），同时保留旧版字段向后兼容
+  - [ ] 1.2 增强安全生命周期管理，实现 Token 单活轮转重置功能 `refresh_share_token()`，作废该项目所有历史 Token 并生成新 Token
+  - [ ] 1.3 实现离线高管单文件 HTML 交付大屏导出器 `export_offline_portal_html()`，内联全部关键 CSS 与初始 JSON，完全消除外部 CDN 运行时网络依赖
+- [ ] 2. Web 后端路由别名与既有 API 挂载 (`tools/geo/server.py`)
+  - [ ] 2.1 增加 `/portal/{token}` 页面路由别名，与 `/share/{token}` 统一映射至 `web/share.html`
+  - [ ] 2.2 复用既有 `/api/share/{token}/certificate` 与 `/api/share/{token}/download-zip` 接口，挂载至大屏操作，严禁注册冗余重复 handler
+  - [ ] 2.3 确保对所有相关路由严格注入 `X-Robots-Tag: noindex, nofollow, noarchive` 防爬虫泄露头
 - [ ] 3. CLI 命令与商务文案生成器 (`tools/geo/cli.py`)
-  - [ ] 3.1 挂载 `geo portal` 子命令，支持 `--days`、`--pin`、`--refresh`、`--export`、`--base-url` 完整参数
+  - [ ] 3.1 挂载 `geo portal` 子命令，完整支持 `--days`、`--pin`、`--refresh`、`--export`、`--base-url` 参数
   - [ ] 3.2 优化终端输出彩色看板与一键发给甲方高管的微信格式文案模板
-- [ ] 4. 前端高管沉浸式战果大屏重构 (`web/share.html`)
-  - [ ] 4.1 全面升级为现代科技暗色商务主题（Deep Navy / Slate Dark），移动端微信与 iPad 极致自适应
-  - [ ] 4.2 构建 Hero 核心商业战果四宫格（MPI 渗透率、首推占比、广告节省、意图覆盖）
-  - [ ] 4.3 构建四大主流大模型推荐心智雷达图与首推进度看板
-  - [ ] 4.4 构建竞对截流攻防透视表、普林斯顿 9 因子质检看板与爬虫保真度徽标
-  - [ ] 4.5 构建全网分发存活台账证据链列表与 A4 结案证书沉浸式查验弹窗
+- [ ] 4. 原地升级前端高管沉浸式战果大屏 (`web/share.html`)
+  - [ ] 4.1 原地重构 `web/share.html` 为现代科技暗色商务主题（Deep Navy / Slate Dark），移动端微信与 iPad 极致自适应，不新建平行文件
+  - [ ] 4.2 构建 Hero 核心商业战果四宫格（真实 MPI 渗透率、实测首推率、年化广告节省、长尾意图覆盖，缺数时展示优雅占位，严禁硬编码默认分）
+  - [ ] 4.3 构建实测 3 大模型（豆包、DeepSeek、Kimi）推荐心智雷达图与首推进度，将微信搜一搜独占生态真实展示为渠道覆盖代理
+  - [ ] 4.4 构建竞对攻防实战对比表、普林斯顿 9 因子质检看板与全渠道真实爬虫保真度徽标
+  - [ ] 4.5 构建全网分发存活台账证据链列表与 A4 结案证书沉浸式查验弹窗，保留历史交付物抽屉
 - [ ] 5. 单元测试与端到端回归 (`tests/test_delivery_portal.py`)
-  - [ ] 5.1 编写高管门户数据聚合结构与字段校验测试（断言 MPI、9 因子、保真度、存活台账）
-  - [ ] 5.2 编写 Token 生成、鉴权校验、PIN 码提取码与防越权测试
-  - [ ] 5.3 编写离线 HTML 单文件导出与离线渲染测试
+  - [ ] 5.1 编写高管门户数据聚合结构与真实字段映射单测（断言 MPI、9 因子、保真度、存活台账）
+  - [ ] 5.2 编写 Token 单活刷新、鉴权校验、PIN 码提取码与防越权测试
+  - [ ] 5.3 编写离线 HTML 单文件导出测试，严格断言无 `cdn.tailwindcss.com` 或 `unpkg.com` 外部依赖
   - [ ] 5.4 运行全库单元测试，确保全库测试秒绿（138+ 组全部通过）

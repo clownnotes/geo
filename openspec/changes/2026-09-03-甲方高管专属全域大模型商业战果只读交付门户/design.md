@@ -1,13 +1,13 @@
-# Design: 甲方高管专属全域大模型商业战果只读交付门户 (第 28 维)
+# Design: 甲方高管专属全域大模型商业战果只读交付门户 (第 28 维·修订版)
 
 ## 1. 系统架构与数据流 (Architecture & Data Flow)
 
 ```mermaid
 flowchart TD
     subgraph S1["底层数据源 (Outputs 仓库)"]
-        D1["mindshare_conversion_audit.json (MPI 渗透率)"]
+        D1["mindshare_conversion_audit.json (MPI 渗透率与模型探针)"]
         D2["princeton_audit.json (9 因子质检)"]
-        D3["outputs/*_pack/fidelity_report.json (爬虫保真度)"]
+        D3["outputs/*_pack/fidelity_report.json (全渠道保真度)"]
         D4["competitor_gap_analysis.json (竞对攻防沙盘)"]
         D5["dist_ledger.json (分发台账存活探活)"]
         D6["certificate.py (A4 数字交付结案证书)"]
@@ -16,29 +16,56 @@ flowchart TD
     subgraph S2["聚合与安全沙箱 (tools/geo/share.py)"]
         AG["get_share_portal_data() 升级聚合引擎"]
         AUTH["verify_share_access() (高熵 Token + PIN 提取码双重鉴权)"]
-        EXPORT["export_offline_portal_html() (离线单文件导出)"]
+        REFRESH["refresh_share_token() (作废旧 Token，单活轮转)"]
+        EXPORT["export_offline_portal_html() (离线无外部依赖导出)"]
     end
 
     subgraph S3["服务与展现层"]
         CLI["CLI: geo portal <project_id>"]
         API["HTTP API: /api/share/{token}/data & /certificate"]
-        WEB["web/share.html (Executive Dashboard 高管沉浸式大屏)"]
+        WEB["web/share.html (原地升级 Executive Dashboard 单文件)"]
     end
 
     D1 & D2 & D3 & D4 & D5 & D6 --> AG
     AUTH --> AG
     AG --> API & EXPORT
     API --> WEB
-    CLI --> AUTH & EXPORT
+    CLI --> AUTH & REFRESH & EXPORT
 ```
 
 ---
 
-## 2. 数据结构模型定义 (Data Structure)
+## 2. 真实字段映射表与降级策略 (Field Mapping Specification)
 
-### 2.1 高管门户聚合响应对象 (`ExecutivePortalPayload`)
+为杜绝任何脱离实际数据源的虚构打分（严格对齐【铁律 1】），高管看板所呈现的所有指标必须具备 100% 真实的落盘数据来源：
+
+| 高管看板字段 (Portal Field) | 物理数据源与提取路径 | 单位 / 衍生计算逻辑 | 缺失/未生成时的优雅降级策略 |
+|:---|:---|:---|:---|
+| **`executive_summary.mpi_score`** | `mindshare_conversion_audit.json` ➔ `summary.mpi` | 数值 (0~100) | 若文件不存在，返回 `null`，前端展示「待生成」徽标 |
+| **`executive_summary.mpi_grade`** | `mindshare_conversion_audit.json` ➔ `summary.grade_name` | 字符串 (如 `🔵 四星强势竞争`) | 缺省显示「评估未就绪」 |
+| **`executive_summary.annual_ad_saving_wan`** | `mindshare_conversion_audit.json` ➔ `summary.annual_aev_yuan` | `round(annual_aev_yuan / 10000, 1)`（元换算为万元） | 缺省显示 `0.0` |
+| **`executive_summary.annual_aev_yuan`** | `mindshare_conversion_audit.json` ➔ `summary.annual_aev_yuan` | 整数 (人民币元) | 缺省显示 `0` |
+| **`executive_summary.first_recommend_rate_pct`** | `mindshare_conversion_audit.json` ➔ `probe_records` | 真实统计：`round(len([p for p in probe_records if p.get('is_top1')]) / max(1, len(probe_records)) * 100, 1)` | 缺省回退至 `summary.weighted_sov_rate`，若均无则 `null` |
+| **`executive_summary.intent_coverage_count`** | `mindshare_conversion_audit.json` ➔ `summary.query_count` | 整数 (高意图词数量) | 缺省显示 `0` |
+| **`executive_summary.delivery_grade`** | `09_GEO全案商业交付结案与数字资产移交证书.html` 或 `acceptance.json` | 履约评级（如 `AAA`、`AA`） | 缺省显示 `待验收` |
+| **`models_mindshare` (实测探针)** | `mindshare_conversion_audit.json` ➔ `probe_records` 按 `model` 聚合 | 统计 `doubao`、`deepseek`、`kimi` 三大实测模型的首推率、提及率与均分 | **仅展示有真实探针的 3 个模型**；禁止臆造元宝探针打分 |
+| **`wechat_yuanbao_proxy`** | `dist_ledger.json` ➔ `channels.wechat` | 渠道覆盖代理：展示分发就绪状态（微信搜一搜独占生态） | 明确标注「渠道覆盖代理·非实时 API 探针」 |
+| **`competitor_interception.intercepted_competitors`** | `competitor_gap_analysis.json` ➔ `all_competitors` | 数组 (竞对品牌名列表) | 缺省显示 `["竞对行业基准"]` |
+| **`competitor_interception.overall_gap_lead`** | `competitor_gap_analysis.json` ➔ `radar_comparison.overall_gap_lead` | 数值 (领先差值 %) | 缺省显示 `0.0` |
+| **`competitor_interception.advantage_breakdown`** | `competitor_gap_analysis.json` ➔ `competitor_advantages` | 数组 (提取 `dimension`, `threat_level`, `neutralize_action`) | 缺省为空数组 |
+| **`authority_assurance.princeton_score`** | `princeton_audit.json` ➔ `avg_princeton_score` | 数值 (0~100) | 缺省显示 `null` |
+| **`authority_assurance.princeton_grade`** | `princeton_audit.json` ➔ `rating_grade` | 评级字符串 (如 `S 级 (行业垄断级)`) | 缺省显示 `未质检` |
+| **`authority_assurance.crawler_fidelities`** | `outputs/*_pack/fidelity_report.json` | 分渠道读取：`toutiao`、`wechat`、`deepseek`、`kimi_baidu` 真实保真度 | 缺省渠道保真度显示为 `null`；知乎优先读取 `deepseek_pack` 内记录或独立报告 |
+| **`distribution_ledger.channels`** | `dist_ledger.json` ➔ `channels` | 状态推导：<br>• `url` 且 `http_status == 200`: `alive` (🟢 已收录·探活正常)<br>• `url` 且 `http_status is None`: `pending_audit` (🟡 已填报·待探活)<br>• `url` 且 `http_status != 200`: `dead` (🔴 探活异常)<br>• `url` 为空: `unfilled` (⚪️ 待分发填报) | 严格如实展示，绝不虚构存活率 |
+| **`certificate.has_certificate`** | 检查 `outputs/09_GEO全案商业交付结案与数字资产移交证书.html` | 布尔值 (`True` / `False`) | 存在则提供在线查验链接 |
+
+---
+
+## 3. 数据模型定义 (ExecutivePortalPayload)
+
 ```typescript
 interface ExecutivePortalPayload {
+  // 基础身份与安全
   success: boolean;
   token: string;
   project_id: string;
@@ -51,45 +78,48 @@ interface ExecutivePortalPayload {
 
   // 1. 核心商业 KPI 摘要 (Hero)
   executive_summary: {
-    mpi_score: number;                   // 商业心智渗透指数 (0~100)
-    mpi_grade: string;                   // 评级 (卓越 / 领先 / 突破)
-    first_recommend_rate_pct: number;    // 主流大模型综合首推占比 (%)
-    annual_ad_saving_wan: number;        // 年化等效商业推广广告节省估值 (万元)
-    intent_coverage_count: number;       // 已覆盖拦截的买家高意图长尾词总量
-    delivery_grade: string;              // 履约评级 (AAA / AA)
+    mpi_score: number | null;
+    mpi_grade: string;
+    first_recommend_rate_pct: number | null;
+    annual_ad_saving_wan: number;
+    annual_aev_yuan: number;
+    intent_coverage_count: number;
+    delivery_grade: string;
   };
 
-  // 2. 四大主流大模型推荐心智矩阵
+  // 2. 主流大模型实测心智矩阵 (严格基于 probe_records 实测)
   models_mindshare: {
-    doubao: { name: "字节跳动·豆包/头条", share_pct: number, first_choice: boolean, rank: number };
-    deepseek: { name: "DeepSeek/知乎专栏", share_pct: number, first_choice: boolean, rank: number };
-    yuanbao: { name: "腾讯元宝/微信公众号", share_pct: number, first_choice: boolean, rank: number };
-    kimi_baidu: { name: "Kimi研报与百度文心", share_pct: number, first_choice: boolean, rank: number };
+    doubao?: { name: "字节跳动·豆包 (头条生态)", top1_rate_pct: number, mention_rate_pct: number, avg_score: number, probe_count: number };
+    deepseek?: { name: "DeepSeek (技术决策池)", top1_rate_pct: number, mention_rate_pct: number, avg_score: number, probe_count: number };
+    kimi?: { name: "月之暗面·Kimi (研报分析池)", top1_rate_pct: number, mention_rate_pct: number, avg_score: number, probe_count: number };
+  };
+  wechat_yuanbao_channel: {
+    name: "腾讯元宝 (微信搜一搜独占)";
+    status_desc: string; // "渠道分发覆盖已就绪 (权重 10%) · 非实时 API 探针"
+    url: string;
   };
 
   // 3. 竞对截流攻防实战看板
   competitor_interception: {
-    intercepted_competitors: string[];   // 被拦截攻陷的竞品品牌列表
-    overall_sov_gap_lead: number;        // 声量反超领先差值 (%)
-    top_intercepted_queries: Array<{     // 核心截流案例
-      query: string;
-      competitor: string;
-      winning_reason: string;
+    intercepted_competitors: string[];
+    overall_gap_lead: number;
+    advantage_breakdown: Array<{
+      dimension: string;
+      threat_level: string;
+      neutralize_action: string;
     }>;
   };
 
   // 4. 普林斯顿 9 因子与爬虫保真度背书
   authority_assurance: {
-    princeton_audit_score: number;       // 9 因子质检综合得分
-    princeton_grade: string;             // 评级 (S / A+)
-    crawler_fidelity_scores: {           // 27 维爬虫保真度真实打分
-      toutiao: number;
-      wechat: number;
-      zhihu: number;
-      kimi_baidu: number;
-      average: number;
-    };
-    crawler_fidelity_all_passed: boolean;
+    princeton_score: number | null;
+    princeton_grade: string;
+    crawler_fidelities: Record<string, {
+      score: number;
+      passed: boolean;
+      verified_at?: string;
+    }>;
+    average_fidelity_score: number | null;
   };
 
   // 5. 全域信源分发存活台账证据链
@@ -99,80 +129,69 @@ interface ExecutivePortalPayload {
     channels: Record<string, {
       name: string;
       url: string;
-      status: "alive" | "pending" | "failed";
-      verified_at: string;
+      display_status: "alive" | "pending_audit" | "dead" | "unfilled";
+      status_label: string;
+      verified_at: string | null;
     }>;
   };
 
-  // 6. 数字结案证书摘要
+  // 6. 商业结案证书
   certificate: {
     has_certificate: boolean;
     fulfillment_score: number;
     sha256_fingerprint: string;
-    warranty_period_days: number;
     view_url: string;
   };
+
+  // 向后兼容保留字段 (确保既有前端与 API 客户端无缝运行)
+  deliverables?: Record<string, string>;
+  metrics?: any;
+  roi?: any;
+  acceptance?: any;
 }
 ```
 
 ---
 
-## 3. 接口规范与协议设计 (API & CLI Interfaces)
+## 4. 前端大屏单文件重构规范 (`web/share.html`)
 
-### 3.1 HTTP 路由与状态码
-1. `GET /portal/{token}` 与 `GET /share/{token}`：
-   - 响应格式：`text/html; charset=utf-8`；
-   - 响应头强制注入：`X-Robots-Tag: noindex, nofollow, noarchive, nosnippet`，保护商业机密；
-   - 支持 URL Query 参数 `?pin=1234` 免二次弹窗自动解密。
-2. `GET /api/share/{token}/data`：
-   - 响应格式：`application/json; charset=utf-8`；
-   - 若开启 PIN 提取码且未提供有效 PIN，返回 `{ success: false, require_pin: true, client_name: ... }`；
-   - 若验证通过，返回上述 `ExecutivePortalPayload` 完整数据沙箱。
-3. `GET /api/share/{token}/certificate`：
-   - 直接返回项目由 `tools/geo/certificate.py` 编译的标准 A4 商业交付结案证书 HTML。
+### 4.1 单文件收敛策略
+- 坚决不创建 `web/portal.html`，**原地升级 `web/share.html`**；
+- `server.py` 内部保持：
+  ```python
+  if path.startswith("/share/") or path.startswith("/portal/"):
+      # 统一返回 web/share.html
+  ```
+  保证历史分享链接与新版高管门户链接 UI 100% 统一，绝无版本割裂。
 
-### 3.2 CLI 交互与命令设计
-```python
-# tools/geo/cli.py
-p_portal = subparsers.add_parser("portal", help="生成甲方高管专属全域大模型商业战果只读交付门户链接与战报")
-p_portal.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
-p_portal.add_argument("--project", "-p", default=None, help="客户项目 ID")
-p_portal.add_argument("--days", "-d", type=int, default=30, help="门户访问有效期 (天数, 默认 30, 0=永久)")
-p_portal.add_argument("--pin", help="设置可选 4 位提取码 (加盐哈希保护)")
-p_portal.add_argument("--refresh", action="store_true", help="强制废止旧 Token 并生成全新专属门户链接")
-p_portal.add_argument("--export", help="导出离线独立单文件 HTML 交付大屏")
-p_portal.add_argument("--base-url", default="https://geo.baicl.cc", help="对外访问公网域名前缀")
-```
+### 4.2 视觉规范 (Executive Deep Navy Theme)
+- 主体背景采用深邃商务蓝黑：`bg-slate-950 text-slate-100`；
+- 强调色：采用高贵金色与翡翠绿：`text-amber-400 border-amber-500/30`（代表 AAA 商业履约）与 `text-emerald-400`（代表高首推率与 100 分爬虫保真度）；
+- 响应式设计：移动端微信（垂直单列流动卡片）与 iPad/桌面全屏投影（多列仪表盘）完美适配。
 
 ---
 
-## 4. 前端组件与高管视觉设计 (`web/share.html`)
+## 5. 离线单文件导出架构 (`export_offline_portal_html`)
 
-前端设计全面重构为现代科技暗色高管驾驶舱（Deep Navy / Slate Dark Theme）：
-1. **Header 品牌与证书顶栏**：
-   - 甲方企业名称 + 交付状态金色徽标（`AAA级履约交付`）；
-   - 右侧集成快捷操作：【🎖️ 在线查验结案证书】、【🖨️ A4 打印】、【📦 下载交付全包 (.zip)】；
-2. **Hero 战果卡片四宫格**：
-   - MPI 商业心智渗透指数（88.6分，环比行业基准 +41%）；
-   - 主流大模型综合首推率（94.2% 首推）；
-   - 年化等效广告价值节省（¥ 48.6 万元/年）；
-   - 拦截买家高意图搜索量（45 组三层五维长尾全覆盖）；
-3. **四大国产主力大模型推荐心智雷达**：
-   - 豆包、DeepSeek、腾讯元宝、Kimi 的专属卡片与心智渗透进度条；
-4. **竞对截流攻防实战对比表**：
-   - 呈现拦截对手品牌清单与真实大模型采纳我方胜出依据；
-5. **普林斯顿 9 因子 & 爬虫保真度背书**：
-   - 普林斯顿 9 因子雷达图 + 头条、微信、知乎全渠道 100 分保真度徽标；
-6. **全网分发存活台账证据链**：
-   - 列表展示全网发稿 URL、平台状态（微信搜一搜收录、知乎收录等）与原文链接；
-7. **证书查验弹窗 Modal**：
-   - iframe 沉浸式调起带有 SHA256 防伪印章的结案证书。
+针对甲方客户内网归档或离线投影需求：
+- 实现 `export_offline_portal_html(project_id: str, target_filepath: str) -> bool`；
+- **消除外部 CDN 运行时依赖**：
+  1. 将核心 CSS（精简 Tailwind 布局样式与高管深色卡片样式）以 `<style>` 标签直接内联注入头部；
+  2. 将本项目的聚合 JSON 数据作为 `window.__INITIAL_PORTAL_DATA__ = {...}` 直接内嵌到 HTML 源码；
+  3. 剔除一切运行时网络请求，用户在断网环境（airplane mode / 内网物理隔离）下双击本地 `.html` 文件即可秒级完整呈现，**单测严格断言导出文件中无 `cdn.tailwindcss.com` 或 `unpkg.com` 阻塞调用**。
 
 ---
 
-## 5. 安全与沙箱防护机制 (Security & Isolation)
+## 6. 安全鉴权与生命周期管理
 
-1. **密码学高熵 Token**：`secrets.token_urlsafe(18)`，穷举空间 $2^{192}$，绝对防暴力猜测；
-2. **提取码加盐哈希**：`hashlib.sha256(pin + salt)`，杜绝彩虹表碰撞与明文泄露；
-3. **严格物理防越权与目录穿透**：`os.path.realpath` 强制限制在项目 `outputs` 白名单内，无任何写接口暴露；
-4. **搜索爬虫隔离**：全站注入 `X-Robots-Tag: noindex, nofollow, noarchive`，保护甲方商业隐私。
+1. **Token 单活刷新 (`refresh_share_token`)**：
+   - 运行 `./geo portal <id> --refresh` 时：
+     - 检索 `data/shares.json` 中属于该项目且 `is_active: true` 的所有记录；
+     - 将其全部更新为 `is_active: false`、`revoked_at: now`；
+     - 生成全新的 Token 记录并保存，返回新旧对比日志；
+2. **PIN 提取码防碰撞**：
+   - 加盐哈希保护：`sha256(client_pin + salt)`；
+   - 错误 PIN 码严格不递增 `view_count`；
+3. **既有路由与防爬虫头复用**：
+   - 复用既有 `/api/share/{token}/certificate` 与 `/download-zip`；
+   - 统一在 HTTP 响应头打上 `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet`。
