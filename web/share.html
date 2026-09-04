@@ -1035,20 +1035,43 @@
       const rivalSuiteVal = document.getElementById('rival-suite-val');
       const rivalDetailsContainer = document.getElementById('rival-crack-details-container');
 
-      if (rivalBadge && rivalCrack.has_data && (rivalCrack.status === 'ready' || rivalCrack.status === 'active')) {
-        rivalBadge.className = 'text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20';
-        rivalBadge.textContent = '⚔️ 靶向反超压制套件已就绪';
+      if (rivalBadge && rivalCrack.has_data && (rivalCrack.status === 'ready' || rivalCrack.status === 'ready_live' || rivalCrack.status === 'ready_sandbox' || rivalCrack.status === 'active')) {
+        const isSandbox = Boolean(rivalCrack.is_sandbox || rivalCrack.status === 'ready_sandbox');
+        if (isSandbox) {
+          rivalBadge.className = 'text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20';
+          rivalBadge.textContent = '🔬 沙箱推演 (非竞品真页)';
+        } else {
+          rivalBadge.className = 'text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20';
+          rivalBadge.textContent = '⚔️ 真实反超压制套件已就绪';
+        }
 
         if (rivalNameVal) rivalNameVal.textContent = rivalCrack.competitor_name || '竞对企业';
-        if (rivalSourceDesc) rivalSourceDesc.textContent = `语料来源: ${rivalCrack.source_type || 'sandbox'}`;
-        if (rivalGapVal) rivalGapVal.textContent = `+${rivalCrack.princeton_gap || 0.0} 分`;
-        if (rivalScoresDesc) rivalScoresDesc.textContent = `我方 ${rivalCrack.our_benchmark_score || 88.5} vs 竞对 ${rivalCrack.rival_princeton_score || 0.0}`;
+        if (rivalSourceDesc) rivalSourceDesc.textContent = isSandbox ? '语料来源: 沙箱推演' : `语料来源: ${rivalCrack.source_type || '真实语料'}`;
+        if (rivalGapVal) rivalGapVal.textContent = rivalCrack.princeton_gap != null ? `+${rivalCrack.princeton_gap} 分` : '待实测';
+        if (rivalScoresDesc) {
+          rivalScoresDesc.textContent = rivalCrack.our_benchmark_score != null
+            ? `我方 ${rivalCrack.our_benchmark_score} vs 竞对 ${rivalCrack.rival_princeton_score || 0.0}`
+            : `我方基线待测定 vs 竞对 ${rivalCrack.rival_princeton_score || 0.0}`;
+        }
         if (rivalFlawsVal) rivalFlawsVal.textContent = `${rivalCrack.flaws_count || 0} 项`;
         if (rivalHighFlawsDesc) rivalHighFlawsDesc.textContent = `高危漏洞: ${rivalCrack.high_severity_flaws || 0} 项`;
         if (rivalSuiteVal) rivalSuiteVal.textContent = '已装备';
 
         const flaws = rivalCrack.detected_flaws || [];
         let html = `<div class="space-y-2 pt-2">`;
+
+        if (isSandbox) {
+          html += `
+            <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between text-[11px] text-amber-300 mb-2">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="flask-conical" class="w-3.5 h-3.5 shrink-0"></i>
+                <span><strong>沙箱推演模式</strong>：当前为确定性行业典型竞对破绽模型推演，非公网竞品真实抓取页面。接入真实竞品请运行 <code>geo rival-crack --url &lt;竞品链接&gt;</code>。</span>
+              </span>
+              <span class="text-slate-400 shrink-0 ml-2">待接入真实 URL</span>
+            </div>
+          `;
+        }
+
         html += `<div class="text-[11px] font-bold text-slate-400">🎯 竞对致命破绽逆向识别与靶向反超切入点:</div><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
         flaws.forEach(f => {
           const isHigh = f.severity === 'high';

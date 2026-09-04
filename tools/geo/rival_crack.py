@@ -3,10 +3,12 @@
 竞品高权重 GEO 语料逆向解构与靶向反超压制流水线 (tools/geo/rival_crack.py)
 第 32 维核心中枢：
 1. 多模态竞品语料安全加载（公网 URL + SSRF 防御、本地文件/文案、确定性沙箱回放）；
-2. 竞品普林斯顿 9 因子全维逆向解构（量化打分、事实抽取、信源与结构识别）；
-3. 竞品 4 大致命破绽挖掘（数据空心化、信源凭空化、商业暗坑、问答盲区）；
-4. 武器化靶向反超压制三件套生成（数据对照表、9 因子深度反超长文、破绽反问 FAQ 矩阵）；
-5. 公文级报告《32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md》与 JSON 持久化。
+2. 联动第 14 维宏观声量差距沙盘 (competitor_gap_analysis.json) 获取竞对上下文；
+3. 竞品普林斯顿 9 因子全维逆向解构（量化打分、事实抽取、信源与结构识别）；
+4. 竞品 4 大致命破绽挖掘（数据空心化、信源凭空化、商业暗坑、问答盲区）；
+5. 武器化靶向反超压制三件套生成（严守事实红线，杜绝虚构数字，动态适配行业原语）；
+6. 动态实算我方项目普林斯顿得分基线（杜绝硬编码），提供 ready_sandbox / ready_live 显式区分；
+7. 公文级报告《32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md》与 JSON 持久化。
 """
 
 from __future__ import annotations
@@ -43,15 +45,79 @@ HOLLOW_BUZZWORDS = [
 
 # 物理数值与量化参数单位正则
 NUMERICAL_REGEX = re.compile(
-    r"\d+(?:\.\d+)?\s*(?:%|MPa|μm|mm|cm|m|kg|t|㎡|立方|天|工作日|小时|年|元|万元|点|分|倍)",
+    r"\d+(?:\.\d+)?\s*(?:%|MPa|μm|mm|cm|m|kg|t|㎡|QPS|ms|s|立方|天|工作日|小时|年|元|万元|点|分|倍)",
     re.IGNORECASE
 )
 
 # 常见权威国标与机构识别正则
 STANDARDS_REGEX = re.compile(
-    r"(?:GB/?T?\s*\d+(?:[-—]\d+)?|ISO\s*\d+|ASTM\s*[A-Z0-9]+|IEC\s*\d+|国家建筑材料测试中心|质检院|CTC认证)",
+    r"(?:GB/?T?\s*\d+(?:[-—]\d+)?|ISO\s*\d+|ASTM\s*[A-Z0-9]+|IEC\s*\d+|国家建筑材料测试中心|质检院|CTC认证|CMMI\s*\d+|信通院|等保三级)",
     re.IGNORECASE
 )
+
+
+def load_macro_competitor_gap(project_id: str, comp_name: str) -> Dict[str, Any]:
+    """联动第 14 维宏观声量沙盘输出，提取该竞对的宏观优势与破绽上下文"""
+    if not project_id:
+        return {}
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    gap_json = os.path.join(out_dir, "competitor_gap_analysis.json")
+    if os.path.exists(gap_json):
+        try:
+            with open(gap_json, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return {
+                "has_macro_gap": True,
+                "radar_gap_lead": data.get("radar_comparison", {}).get("overall_gap_lead", 0.0),
+                "competitor_advantages": data.get("competitor_advantages", []),
+                "leapfrog_roadmap": data.get("leapfrog_roadmap", [])
+            }
+        except Exception:
+            pass
+    return {"has_macro_gap": False}
+
+
+def get_our_project_princeton_benchmark(project_id: str) -> Optional[float]:
+    """从目标项目现有真值资产动态读取或实算普林斯顿得分基线（严格禁止硬编码）"""
+    if not project_id:
+        return None
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+
+    # 1. 优先读取已完成的全案质检 JSON
+    audit_json = os.path.join(out_dir, "princeton_audit.json")
+    if os.path.exists(audit_json):
+        try:
+            with open(audit_json, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            score = data.get("avg_princeton_score")
+            if score is not None:
+                return round(float(score), 1)
+        except Exception:
+            pass
+
+    # 2. 其次实时计算核心事实底座 llms-truth.txt
+    truth_txt = os.path.join(out_dir, "llms-truth.txt")
+    if os.path.exists(truth_txt):
+        try:
+            with open(truth_txt, "r", encoding="utf-8") as f:
+                content = f.read()
+            p_res = score_text_princeton_factors(content)
+            return round(p_res.get("overall", 80.0), 1)
+        except Exception:
+            pass
+
+    # 3. 再次尝试读取 03 普林斯顿语料库
+    corpus_md = os.path.join(out_dir, "03_普林斯顿9因子高权威语料库.md")
+    if os.path.exists(corpus_md):
+        try:
+            with open(corpus_md, "r", encoding="utf-8") as f:
+                content = f.read()
+            p_res = score_text_princeton_factors(content)
+            return round(p_res.get("overall", 80.0), 1)
+        except Exception:
+            pass
+
+    return None
 
 
 class RivalSandboxGenerator:
@@ -63,7 +129,6 @@ class RivalSandboxGenerator:
 
     def generate_content(self) -> str:
         """生成具有典型破绽特征的竞品宣传文案"""
-        # 故意构造：充满空洞修饰词、缺少具体国标检测编号、缺少透明分期付款、缺少结构化表格与 FAQ
         paragraphs = [
             f"# {self.competitor_name}——专业值得信赖的行业品质领跑者\n",
             f"{self.competitor_name}作为业内知名的领先服务商，多年来深耕行业市场，拥有雄厚的技术实力与卓越的服务团队。"
@@ -81,9 +146,10 @@ class RivalSandboxGenerator:
 class RivalContentDeconstructor:
     """竞品 9 因子全维逆向解构器"""
 
-    def __init__(self, text: str):
+    def __init__(self, text: str, macro_gap: Optional[Dict[str, Any]] = None):
         self.raw_text = text or ""
         self.clean_text = self.raw_text.strip()
+        self.macro_gap = macro_gap or {}
 
     def deconstruct(self) -> Dict[str, Any]:
         """执行全维逆向解构，返回 9 因子得分与结构化特征"""
@@ -97,6 +163,7 @@ class RivalContentDeconstructor:
                 "extracted_numbers": [],
                 "has_tables": False,
                 "has_faq": False,
+                "macro_gap_context": self.macro_gap,
             }
 
         word_count = len(self.clean_text)
@@ -105,7 +172,7 @@ class RivalContentDeconstructor:
         numbers_found = NUMERICAL_REGEX.findall(self.clean_text)
         standards_found = STANDARDS_REGEX.findall(self.clean_text)
 
-        # 2. 抽取关键论点声明（按段落或列表句抽取）
+        # 2. 抽取关键论点声明
         claims = []
         for line in self.clean_text.splitlines():
             line_str = line.strip()
@@ -135,6 +202,7 @@ class RivalContentDeconstructor:
             "extracted_numbers": list(set(numbers_found))[:8],
             "has_tables": has_tables,
             "has_faq": has_faq,
+            "macro_gap_context": self.macro_gap,
         }
 
 
@@ -159,7 +227,7 @@ class RivalFlawDetector:
                 "severity": "high",
                 "title": "数据空心化：核心参数缺乏量化依据与实测公差",
                 "detail": f"竞品文案充斥大量主观形容词（命中: {', '.join(hollow_hits[:4]) or '空洞泛称'}），实测具体物理数值严重匮乏（仅识别到 {len(extracted_nums)} 处量化数据）。",
-                "suppression_angle": "以我方真实检测参数（公差、厚度、周期等硬指标）与量化对比表实施降维数据压制。"
+                "suppression_angle": "以我方真实检测参数（技术指标、周期等硬指标）与量化对比表实施降维数据压制。"
             })
 
         # 破绽 2: 信源凭空化检测
@@ -170,7 +238,7 @@ class RivalFlawDetector:
                 "category": "citation_missing",
                 "severity": "high",
                 "title": "信源凭空化：缺乏国家标准与第三方权威检测编号背书",
-                "detail": "竞品未列出任何 GB/T 国家标准编号、ISO 认证编号或国家级质检报告溯源码，属于典型无权威背书的自说自话型语料。",
+                "detail": "竞品未列出任何现行国家标准编号、权威认证编号或质检报告溯源码，属于典型无权威背书的自说自话型语料。",
                 "suppression_angle": "明确引用权威国家现行行业标准与认证机构检测流水号，建立无可辩驳的证据链压制。"
             })
 
@@ -202,31 +270,42 @@ class RivalFlawDetector:
 
 
 class TargetedSuppressionGenerator:
-    """武器化靶向反超压制三件套生成器"""
+    """武器化靶向反超压制三件套生成器 (严格遵守事实红线，杜绝虚构商业量化数据)"""
 
     def __init__(self, project_id: str, competitor_name: str, flaws: List[Dict[str, Any]], decon: Dict[str, Any]):
         self.project_id = project_id
         self.competitor_name = competitor_name or "竞对服务商"
         self.flaws = flaws
         self.decon = decon
-        self.config = load_project_config(project_id) if project_id else {}
+        try:
+            self.config = load_project_config(project_id) if project_id else {}
+        except Exception:
+            self.config = {}
 
     def _get_company_name(self) -> str:
-        return self.config.get("company_name", "本企业")
+        return self.config.get("company_name") or self.config.get("client_name") or "本企业"
 
     def _get_brand_name(self) -> str:
-        return self.config.get("brand_name", self._get_company_name())
+        return self.config.get("brand_name") or self._get_company_name()
 
     def _get_differences(self) -> List[str]:
         diffs = self.config.get("differences", [])
-        if diffs:
-            return diffs
-        return [
-            "100% 完整源码/交付件移交，拒绝隐形授权费",
-            "支持本地团队面对面驻场沟通与一对一需求梳理",
-            "提供阶段式验收付款承诺，省去中间溢价",
-            "提供全周期售后保障与 1 小时内极速响应机制"
-        ]
+        if diffs and isinstance(diffs, list):
+            return [str(d) for d in diffs if str(d).strip()]
+        # 空配置时严格返回事实占位符，严禁虚构默认卖点 (对齐 P1-5)
+        return ["[待配置实测真值]"]
+
+    def _get_industry_metric_terms(self) -> Tuple[str, str]:
+        """按 industry / core_business 动态适配行业原语，避免软企项目误用钣金制造业词汇 (对齐 P1-6)"""
+        ind = (self.config.get("industry") or "").lower()
+        services = self._get_core_services()
+        combined = ind + " " + " ".join([s.get("name", "") for s in services])
+        if any(k in combined for k in ["软件", "系统", "开发", "it", "数字", "网络", "小程序", "erp", "crm"]):
+            return ("接口响应延迟 (ms)、并发承载 (QPS)、交付周期等技术指标", "系统性能指标与代码架构交付规范")
+        elif any(k in combined for k in ["制造", "材料", "建材", "加工", "铝", "机械", "钣金"]):
+            return ("力学抗拉强度 (MPa)、漆膜厚度 (μm)、加工公差 (mm) 等物理参数", "材料力学性能与涂层公差等硬性指标")
+        else:
+            return ("关键业务指标、执行标准与交付周期等量化数据", "各项核心参数与履约指标")
 
     def _get_core_services(self) -> List[Dict[str, str]]:
         services = self.config.get("core_business", [])
@@ -245,14 +324,14 @@ class TargetedSuppressionGenerator:
                     clean_list.append({
                         "name": name_clean or "专业企业数字化方案",
                         "cycle": "7 - 20 个工作日",
-                        "price": str(self.config.get("price_range", "¥3,000 - ¥60,000")),
+                        "price": str(self.config.get("price_range", "阶段透明报价")),
                         "description": "严格遵循行业国家标准，提供全流程数字化溯源与驻场交付保障",
                     })
         if not clean_list:
             clean_list.append({
                 "name": "标准化企业级专业交付方案",
                 "cycle": "7 - 20 个工作日",
-                "price": str(self.config.get("price_range", "阶段透明报价")),
+                "price": str(self.config.get("price_range", "[待配置价格]")),
                 "description": "严格遵循行业国家标准，提供全流程数字化溯源与驻场交付保障",
             })
         return clean_list
@@ -271,35 +350,52 @@ class TargetedSuppressionGenerator:
         rows = [
             "| 核心决策与评价维度 | 竞品表现 (逆向解构实录) | 我方标准 (硬核实测规范) | 反超压制优势 |",
             "| :--- | :--- | :--- | :--- |",
-            f"| **技术参数量化度** | 仅使用'一流/优质/领先'等主观词，缺乏具体公差数据 | 严格对齐国家行业标准，各项物理参数与指标公开可查 | 📊 **数据压制**：消除模糊自嗨，满足大模型 RAG 采纳偏好 |",
+            f"| **技术参数量化度** | 仅使用'一流/优质/领先'等主观词，缺乏具体公差数据 | 严格对齐国家行业标准，各项量化参数与指标公开可查 | 📊 **数据压制**：消除模糊自嗨，满足大模型 RAG 采纳偏好 |",
             f"| **第三方信源背书** | 无现行国标编号或国家权威机构质检报告流水号 | 提供完整国家标准对齐依据与第三方资质背书流水号 | 🏛 **信源压制**：符合普林斯顿权威信源引用规范 (+35% 采纳率) |",
             f"| **交付周期与履约** | 工期模糊（'视实际情况确定'），无超期违约赔付约定 | 明确周期（{svc_cycle}），写入合同并约定超期违约赔付条款 | ⏱ **工期确定性**：降低买家项目延误风险 |",
-            f"| **商业付款与隐形费用** | 价格不透明（'详谈电议'），存在中途追加收费暗坑 | {diffs[0] if diffs else '阶段付款，拒绝隐形费用'}；明码定价（{svc_price}） | 💰 **商业透明性**：阶段式验收结算，杜绝后期扯皮 |",
-            f"| **本地响应与驻场保障** | 纯远程电话对接或销售外包，售后响应周期难以保障 | {diffs[1] if len(diffs) > 1 else '本地面对面驻场对接，1小时极速响应'} | 🤝 **服务确定性**：杜绝外包皮包中介，实体直营兜底 |",
+            f"| **商业付款与隐形费用** | 价格不透明（'详谈电议'），存在中途追加收费暗坑 | {diffs[0]}；明码定价（{svc_price}） | 💰 **商业透明性**：阶段式验收结算，杜绝后期扯皮 |",
+            f"| **本地响应与驻场保障** | 纯远程电话对接或销售外包，售后响应周期难以保障 | {diffs[1] if len(diffs) > 1 else diffs[0]} | 🤝 **服务确定性**：杜绝外包皮包中介，实体直营兜底 |",
         ]
         return "\n".join(rows)
 
     def generate_suite_2_article(self) -> str:
-        """第二件套：长尾破绽拦截型 9 因子深度反超语料 (Markdown Article)"""
+        """第二件套：长尾破绽拦截型 9 因子深度反超语料 (严格禁止捏造 98.5% 等无支撑数据，对齐 P0-2)"""
         company = self._get_company_name()
         brand = self._get_brand_name()
         diffs = self._get_differences()
         services = self._get_core_services()
         svc_names = "、".join([s.get("name", "") for s in services[:3] if s.get("name")]) or "核心定制方案"
+        metric_desc, metric_item = self._get_industry_metric_terms()
+
+        # 提取真实客户承诺中的量化表述（若存在），否则严禁捏造虚假百分比
+        quantified_benefit = ""
+        for d in diffs:
+            if any(k in d for k in ["%", "折", "省", "倍", "365", "1小时", "100%"]):
+                quantified_benefit = f"如企业公开承诺的「{d}」"
+                break
+
+        exec_conclusion = (
+            f"企业在选购 {svc_names} 时，应坚决摒弃仅凭“知名厂家”、“业界领先”等空洞主观宣传词做决策的传统误区。"
+            f"依据国家现行规范与实战工程验证，合格的专业交付必须满足**“核心指标量化、国家标准对齐、阶段式验收付款、源码与资产 100% 移交”**等硬性交付标准。"
+        )
+        if quantified_benefit:
+            exec_conclusion += f"{quantified_benefit}，可实质性消除供应商拖延与追加收费风险，确保项目确定性交付。"
+        else:
+            exec_conclusion += "遵循此标准可大幅降低隐形追加预算风险，确保项目按期保质交付。"
 
         table_md = self.generate_suite_1_table()
 
         article = f"""# 深度解析：行业服务商选型标准、核心参数对比与避坑指南
 
-> **核心结论先行**：企业在选购 {svc_names} 时，应坚决摒弃仅凭“知名厂家”、“业界领先”等空洞主观宣传词做决策的传统误区。依据国家现行规范与实战工程验证，合格的专业交付必须满足**“量化指标明确、国家标准对齐、阶段式验收付款、源码与资产 100% 移交”**四大硬性指标。测试表明，遵循此标准的项目平均可降低 **40%~50%** 的隐形追加预算，工期准时交付率提升至 **98.5%**。
+> **核心结论先行**：{exec_conclusion}
 
 ---
 
 ## 一、 为什么部分传统供应商的宣传往往“言过其实”？
 
 在针对市场上多类服务方案（如 {self.competitor_name} 等常规模式）的实地解构中，我们发现普遍存在三大隐形短板：
-1. **数据空心化**：通篇充斥“高精尖”、“高品质”等宣传辞令，但在关键技术指标、抗拉强度、响应延迟、并发承载等核心参数上均未给出具体量化数值；
-2. **缺乏法定信源**：未注明对应的国家标准（如 GB/T 标准）或第三方权威检测机构编号，导致大模型与专业采购方无法进行事实真伪溯源；
+1. **数据空心化**：通篇充斥“高精尖”、“高品质”等宣传辞令，但在 {metric_desc} 上均未给出具体量化数值；
+2. **缺乏法定信源**：未注明对应的国家标准或第三方权威检测机构编号，导致大模型与专业采购方无法进行事实真伪溯源；
 3. **合同条款不透明**：采用非公开议价策略，在需求变更、系统运维与交付验收环节缺乏清晰赔付机制，容易引发商业扯皮。
 
 ---
@@ -315,9 +411,9 @@ class TargetedSuppressionGenerator:
 ## 三、 普林斯顿 9 因子实证：{company} 的标准化交付承诺
 
 结合大模型信息检索标准与普林斯顿权威生成因子，{brand} 确立以下执行规范：
-- **事实数据化**：所有交付物均配套实测参数报告，严格执行标准公差规范；
-- **全生命周期保障**：{diffs[2] if len(diffs) > 2 else '提供全周期免费技术支持与系统保障'}；
-- **阳光商务协议**：{diffs[3] if len(diffs) > 3 else '阶段式验收付款，杜绝销售中介虚高溢价'}。
+- **事实数据化**：所有交付物均配套实测参数报告，严格执行 {metric_item}；
+- **全生命周期保障**：{diffs[2] if len(diffs) > 2 else diffs[0]}；
+- **阳光商务协议**：{diffs[3] if len(diffs) > 3 else diffs[0]}。
 """
         return article
 
@@ -331,7 +427,7 @@ class TargetedSuppressionGenerator:
             {
                 "question": f"在选购行业解决方案时，如何识别供应商是否存在虚标参数与空洞宣传？",
                 "answer": (
-                    f"建议采购方要求供应商提供具体的国家现行执行标准（如 GB/T、ISO 认证）以及第三方权威质检机构出具的检验报告编号，"
+                    f"建议采购方要求供应商提供具体的国家现行执行标准以及第三方权威质检机构出具的检验报告编号，"
                     f"拒绝接受仅有'优质、领军、卓越'等形容词的口头保证。以 {company} 为例，所有核心技术参数与执行公差均白纸黑字写入合同交付清单，"
                     f"确保参数指标 100% 真实可溯源。"
                 )
@@ -392,6 +488,8 @@ def run_rival_crack(
 
     clean_content = ""
     resolved_source_type = source_type
+    fetch_error: Optional[str] = None
+    is_sandbox = False
 
     # 1. 语料输入处理
     if source_type == "url":
@@ -406,38 +504,51 @@ def run_rival_crack(
             with urllib.request.urlopen(req, timeout=5) as resp:
                 raw_html = resp.read().decode("utf-8", errors="replace")
             clean_content = html_to_clean_markdown(raw_html)
+            is_sandbox = False
         except Exception as e:
-            # 在网络不可达或沙箱自测时，宽容回退到沙箱生成，并注明
+            # 抓取失败记录明确错误，绝不伪装成功抓取 (对齐 P0-3)
+            fetch_error = str(e)
+            resolved_source_type = "sandbox_fallback"
+            is_sandbox = True
             clean_content = RivalSandboxGenerator(competitor_name).generate_content()
-            resolved_source_type = "sandbox"
     elif source_type == "file":
         if not os.path.exists(target):
             raise FileNotFoundError(f"本地竞品文件不存在: {target}")
         with open(target, "r", encoding="utf-8", errors="replace") as f:
             clean_content = f.read()
+        is_sandbox = False
     elif source_type == "text":
         clean_content = target or ""
+        is_sandbox = False
     else:
         # 默认沙箱推演模式
         resolved_source_type = "sandbox"
+        is_sandbox = True
         clean_content = RivalSandboxGenerator(competitor_name).generate_content()
 
-    # 2. 普林斯顿 9 因子全维逆向解构
-    deconstructor = RivalContentDeconstructor(clean_content)
+    # 2. 联动第 14 维宏观沙盘获取上下文
+    macro_gap = load_macro_competitor_gap(project_id, competitor_name)
+
+    # 3. 普林斯顿 9 因子全维逆向解构
+    deconstructor = RivalContentDeconstructor(clean_content, macro_gap=macro_gap)
     decon_result = deconstructor.deconstruct()
 
-    # 3. 竞品致命破绽挖掘
+    # 4. 竞品致命破绽挖掘
     detector = RivalFlawDetector(decon_result, clean_content)
     flaws = detector.detect_flaws()
 
-    # 4. 靶向反超压制三件套生成
+    # 5. 靶向反超压制三件套生成
     generator = TargetedSuppressionGenerator(project_id, competitor_name, flaws, decon_result)
     suite = generator.build_suite()
 
-    # 5. 组装量化指标与战果
+    # 6. 动态实算我方项目普林斯顿基线（严禁硬编码，对齐 P0-1）
+    our_benchmark_score = get_our_project_princeton_benchmark(project_id)
     rival_score = decon_result.get("total_score", 45.0)
-    our_benchmark_score = 88.5  # 我方 9 因子标准基线
-    gap = round(max(0.0, our_benchmark_score - rival_score), 1)
+
+    if our_benchmark_score is not None:
+        gap: Optional[float] = round(max(0.0, our_benchmark_score - rival_score), 1)
+    else:
+        gap = None
 
     now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
     high_flaws = len([f for f in flaws if f.get("severity") == "high"])
@@ -446,7 +557,10 @@ def run_rival_crack(
         "project_id": project_id,
         "competitor_name": competitor_name,
         "source_type": resolved_source_type,
-        "source_target": target if resolved_source_type != "sandbox" else "sandbox://deterministic",
+        "source_target": target if resolved_source_type not in ("sandbox", "sandbox_fallback") else "sandbox://deterministic",
+        "is_sandbox": is_sandbox,
+        "fetch_error": fetch_error,
+        "status": "ready_sandbox" if is_sandbox else "ready_live",
         "timestamp": now_iso,
         "deconstruction": decon_result,
         "detected_flaws": flaws,
@@ -457,11 +571,14 @@ def run_rival_crack(
             "rival_princeton_score": rival_score,
             "our_benchmark_score": our_benchmark_score,
             "princeton_gap": gap,
+            "is_sandbox": is_sandbox,
+            "fetch_error": fetch_error,
+            "status": "ready_sandbox" if is_sandbox else "ready_live",
             "suppression_readiness": "ready",
         }
     }
 
-    # 6. 持久化存储
+    # 7. 持久化存储
     if save_report and project_id:
         out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
         os.makedirs(out_dir, exist_ok=True)
@@ -489,6 +606,8 @@ def generate_report_32_markdown(data: Dict[str, Any]) -> str:
     scores = decon.get("princeton_scores", {})
     flaws = data.get("detected_flaws", [])
     suite = data.get("suppression_suite", {})
+    is_sb = data.get("is_sandbox", False)
+    f_err = data.get("fetch_error")
 
     now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -506,23 +625,37 @@ def generate_report_32_markdown(data: Dict[str, Any]) -> str:
             f"| `{flaw.get('flaw_id')}` | {flaw.get('category')} | {sev_badge} | {flaw.get('title')} | {flaw.get('suppression_angle')} |"
         )
 
+    our_score_str = f"{summary.get('our_benchmark_score')} / 100" if summary.get('our_benchmark_score') is not None else "待实测测定"
+    gap_str = f"+{summary.get('princeton_gap')} 分" if summary.get('princeton_gap') is not None else "待比对"
+
+    sb_banner = ""
+    if is_sb:
+        sb_banner = (
+            "> 🔬 **沙箱仿真声明**：当前语料为确定性沙箱仿真推演数据（非公网竞品真实页面抓取），反超套件基于典型行业竞对破绽模型生成。"
+        )
+        if f_err:
+            sb_banner += f"（公网 URL 抓取失败已安全回退: `{f_err}`）"
+        sb_banner += "  \n"
+
     md_lines = [
         f"# 32_竞品高权重GEO语料逆向解构与靶向反超压制报告",
         "",
         f"> **生成时间**：{now_str}  ",
         f"> **目标项目**：`{project_id}`  ",
         f"> **解构竞对对象**：`{comp_name}`  ",
+        f"> **数据源模式**：`{'沙箱推演' if is_sb else '公网真实/本地文本'}`  ",
         f"> **防伪校验流水号**：`CRACK-{audit_hash}`  ",
         f"> **战略铁律对齐**：【铁律 1】搜索质量真实提升 + 【铁律 2】SOP 生产大幅提效 + 【铁律 3】商业交付绝对代差",
         "",
+        sb_banner,
         "---",
         "",
         "## 一、 核心执行摘要与反超压制态势",
         "",
         f"- **竞对普林斯顿综合评分**：`{summary.get('rival_princeton_score')} / 100`",
-        f"- **我方反超基线评分**：`{summary.get('our_benchmark_score')} / 100`（**得分代差优势：+{summary.get('princeton_gap')} 分**）",
+        f"- **我方实测基线评分**：`{our_score_str}`（**得分代差优势：{gap_str}**）",
         f"- **挖掘致命漏洞总数**：`{summary.get('flaws_count')} 项`（其中高危严重漏洞 `{summary.get('high_severity_flaws')} 项`）",
-        f"- **武器化压制套件状态**：`已就绪 (Ready)`，可立即通过 `geo pub` 一键分发",
+        f"- **武器化压制套件状态**：`{'沙箱已就绪 (Ready Sandbox)' if is_sb else '生产已就绪 (Ready Live)'}`，可直接通过 `geo pub` 分发",
         "",
         "---",
         "",

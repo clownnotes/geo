@@ -834,18 +834,25 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             with open(rival_crack_path, "r", encoding="utf-8") as fp:
                 r_data = json.load(fp)
             r_sum = r_data.get("summary_metrics", {})
+            is_sb = bool(r_data.get("is_sandbox", False) or r_sum.get("is_sandbox", False))
+            f_err = r_data.get("fetch_error") or r_sum.get("fetch_error")
             rival_crack_summary = {
                 "has_data": True,
-                "status": "ready",
-                "status_label": "⚔️ 已就绪：竞对高权重语料逆向解构与靶向反超压制三件套已就绪",
+                "is_sandbox": is_sb,
+                "fetch_error": f_err,
+                "status": "ready_sandbox" if is_sb else "ready_live",
+                "status_label": (
+                    "🔬 沙箱推演：竞对破绽反超套件已就绪（沙箱模拟，非竞品真页）" if is_sb
+                    else "⚔️ 真实反超：已逆向竞对真实语料并部署靶向反超压制套件"
+                ),
                 "competitor_name": r_data.get("competitor_name", ""),
                 "source_type": r_data.get("source_type", "sandbox"),
                 "timestamp": r_data.get("timestamp", ""),
                 "flaws_count": r_sum.get("flaws_count", 0),
                 "high_severity_flaws": r_sum.get("high_severity_flaws", 0),
                 "rival_princeton_score": r_sum.get("rival_princeton_score", 0.0),
-                "our_benchmark_score": r_sum.get("our_benchmark_score", 88.5),
-                "princeton_gap": r_sum.get("princeton_gap", 0.0),
+                "our_benchmark_score": r_sum.get("our_benchmark_score"),
+                "princeton_gap": r_sum.get("princeton_gap"),
                 "detected_flaws": r_data.get("detected_flaws", []),
                 "suppression_suite": r_data.get("suppression_suite", {}),
                 "audit_doc": os.path.join("outputs", "32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md")
@@ -853,6 +860,8 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         except Exception:
             rival_crack_summary = {
                 "has_data": False,
+                "is_sandbox": False,
+                "fetch_error": None,
                 "status": "never_run",
                 "status_label": "⚪️ 待执行竞对语料逆向反超流水线",
                 "competitor_name": "",
@@ -861,8 +870,8 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
                 "flaws_count": 0,
                 "high_severity_flaws": 0,
                 "rival_princeton_score": 0.0,
-                "our_benchmark_score": 88.5,
-                "princeton_gap": 0.0,
+                "our_benchmark_score": None,
+                "princeton_gap": None,
                 "detected_flaws": [],
                 "suppression_suite": {},
                 "audit_doc": ""
@@ -871,6 +880,8 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         # 严格遵守 never_run 优雅降级
         rival_crack_summary = {
             "has_data": False,
+            "is_sandbox": False,
+            "fetch_error": None,
             "status": "never_run",
             "status_label": "⚪️ 待执行竞对语料逆向反超流水线",
             "competitor_name": "",
@@ -879,8 +890,8 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             "flaws_count": 0,
             "high_severity_flaws": 0,
             "rival_princeton_score": 0.0,
-            "our_benchmark_score": 88.5,
-            "princeton_gap": 0.0,
+            "our_benchmark_score": None,
+            "princeton_gap": None,
             "detected_flaws": [],
             "suppression_suite": {},
             "audit_doc": ""

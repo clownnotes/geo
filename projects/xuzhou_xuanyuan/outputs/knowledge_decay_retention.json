@@ -2,7 +2,7 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "timestamp": "2026-09-04 04:24:43",
+  "timestamp": "2026-09-04 04:33:03",
   "summary": {
     "krr": 80.0,
     "half_life_days": 43.5,
@@ -17,86 +17,6 @@
   },
   "time_series_records": [
     {
-      "timestamp": "2026-09-03 22:09:04",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 22:09:04",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 22:09:28",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 22:09:28",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 22:19:14",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 22:19:14",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 23:10:22",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-03 23:10:22",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-04 01:18:26",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
-      "timestamp": "2026-09-04 01:18:26",
-      "krr": 80.0,
-      "half_life_days": 43.5,
-      "status": "safe",
-      "current_score": 12.0,
-      "baseline_score": 15.0
-    },
-    {
       "timestamp": "2026-09-04 03:58:46",
       "krr": 80.0,
       "half_life_days": 43.5,
@@ -250,6 +170,86 @@
     },
     {
       "timestamp": "2026-09-04 04:24:43",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:27:38",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:27:38",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:32:12",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:32:12",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:32:51",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:32:51",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:32:57",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:32:57",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:33:03",
+      "krr": 80.0,
+      "half_life_days": 43.5,
+      "status": "safe",
+      "current_score": 12.0,
+      "baseline_score": 15.0
+    },
+    {
+      "timestamp": "2026-09-04 04:33:03",
       "krr": 80.0,
       "half_life_days": 43.5,
       "status": "safe",

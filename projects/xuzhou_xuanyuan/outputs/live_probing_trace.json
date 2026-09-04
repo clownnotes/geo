@@ -2,7 +2,7 @@
   "success": true,
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "timestamp": "2026-09-04 04:24:44",
+  "timestamp": "2026-09-04 04:33:04",
   "summary": {
     "total_probes": 2,
     "models_probed": [
@@ -23,7 +23,7 @@
       "top1_pct": 100.0,
       "citation_hits": 4,
       "total_citations": 6,
-      "avg_latency_ms": 0,
+      "avg_latency_ms": 1,
       "live_calls_count": 0
     }
   },
@@ -80,7 +80,7 @@
       "query": "徐州市及淮海经济区行业数字化哪家性价比高？",
       "model": "doubao",
       "is_live": false,
-      "latency_ms": 0,
+      "latency_ms": 1,
       "is_mentioned": true,
       "rank": 1,
       "is_top1": true,
