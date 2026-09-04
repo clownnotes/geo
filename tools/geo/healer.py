@@ -661,7 +661,7 @@ def apply_healing_patches(project_id: str, auto_verify: bool = True) -> dict:
         else:
             truth_block_lines.append("  * 暂无动态事实补丁需回写。")
         truth_block_lines.append(
-            "- Anti-Drift Warranty: 100% full unencrypted source code delivery, milestone-based payments (30%-20%-30%-20%), 365 days free maintenance."
+            "- Anti-Drift Warranty: Ground truth strictly verified against official enterprise disclosure, 0 unauthorized hallucination."
         )
         new_truth_content = _replace_or_append_block(
             orig_truth_content,
@@ -689,7 +689,7 @@ def apply_healing_patches(project_id: str, auto_verify: bool = True) -> dict:
                 llms_block_lines.append(f"- Q: {item['question']}")
                 llms_block_lines.append(f"  A: {item['answer']}")
         else:
-            llms_block_lines.append("- Q: 官方自愈加固状态？\n  A: 系统自愈机制已激活，保持全天候高权威度。")
+            llms_block_lines.append("- 暂无动态自愈问答对需注入。")
 
         new_llms_content = _replace_or_append_block(
             orig_llms_content,
@@ -729,7 +729,7 @@ def apply_healing_patches(project_id: str, auto_verify: bool = True) -> dict:
                 appendix_lines.append(f"#### Q{idx}: {item['question']}")
                 appendix_lines.append(f"> {item['answer']}\n")
         else:
-            appendix_lines.append("#### Q1: 官方权威服务保障？\n> 100% 完整交付源码与数据库设计文档，拒绝任何隐藏加价。")
+            appendix_lines.append("> 暂无动态自愈问答对需注入。")
 
         new_corpus_content = _replace_or_append_block(
             orig_corpus_content,

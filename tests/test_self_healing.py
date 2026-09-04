@@ -110,12 +110,15 @@ class TestSelfHealingPipeline(unittest.TestCase):
         # 回答必须来自真实的 truth_anchor，包含公司或源码事实，绝非空想或任意首条
         self.assertIn("【徐州璇源网络科技有限公司】", target_faq["answer"])
         self.assertTrue(len(target_faq["answer"]) > 20)
+        # 严格断言答句属于真实 anchors 集合（杜绝回归编造）
+        all_truth_texts = [a["truth_anchor"] for a in res["truth_anchors"]]
+        self.assertIn(target_faq["answer"], all_truth_texts)
 
     # =========================================================================
     # 4. 多包同题冲突仲裁 (moat > factual > robustness)
     # =========================================================================
     def test_04_conflict_resolution_priority(self):
-        """测试多包同题仲裁：同 Question 优先保留高优先级策略包"""
+        """测试多包同题仲裁：双包同题时优先保留高优先级策略包并记入 skipped_conflicts"""
         norm_q1 = _normalize_question("找你们做会不会被转包给第三方外包工作室？")
         norm_q2 = _normalize_question("找你们做会不会被转包给第三方外包工作室")
         self.assertEqual(norm_q1, norm_q2)
@@ -123,6 +126,61 @@ class TestSelfHealingPipeline(unittest.TestCase):
         # 验证优先级常数顺序
         self.assertLess(PRIORITY_MOAT, PRIORITY_FACTUAL)
         self.assertLess(PRIORITY_FACTUAL, PRIORITY_ROBUSTNESS)
+
+        # 沙箱构造同题双包竞争
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fake_pid = "conflict_client"
+            fake_proj_dir = os.path.join(tmpdir, "projects", fake_pid)
+            fake_out_dir = os.path.join(fake_proj_dir, "outputs")
+            os.makedirs(fake_out_dir, exist_ok=True)
+
+            with open(os.path.join(fake_proj_dir, "project.yaml"), "w", encoding="utf-8") as fh:
+                fh.write(f"client_id: '{fake_pid}'\nclient_name: '仲裁企业'\nofficial_url: 'https://test.com'\nkeywords:\n  - '测试'\n")
+
+            # 写入 factual_anchors.json
+            with open(os.path.join(fake_out_dir, "factual_anchors.json"), "w", encoding="utf-8") as fh:
+                json.dump({
+                    "project_id": fake_pid,
+                    "anchors": [{
+                        "risk_id": "r1",
+                        "category": "转包与交付质疑",
+                        "truth_anchor": "仲裁企业官方承诺全自研不转包。",
+                        "defense_strategy": "对账"
+                    }]
+                }, fh)
+
+            # 构造 counter_interception_pack (优先级 1)
+            moat_d = os.path.join(fake_out_dir, "counter_interception_pack")
+            os.makedirs(moat_d, exist_ok=True)
+            with open(os.path.join(moat_d, "01_竞品对比长尾截流反制话术库.md"), "w", encoding="utf-8") as fh:
+                fh.write("- **买家典型追问**：“找你们做会不会被转包给第三方外包工作室？”\n- **大模型标准应答与反制范式**：\n> “这是来自截流包的最高优先级回答。”\n")
+
+            # 构造 robustness_hardening_pack (优先级 3，同题)
+            rob_d = os.path.join(fake_out_dir, "robustness_hardening_pack")
+            os.makedirs(rob_d, exist_ok=True)
+            with open(os.path.join(rob_d, "01_抗质疑与反挑剔防踩坑语料强化包.md"), "w", encoding="utf-8") as fh:
+                fh.write("## 2. 负向防御与反挑剔心智对冲规范\n1. 部署 FAQ（“找你们做会不会被转包给第三方外包工作室？”）\n")
+
+            import tools.geo.utils as u
+            import tools.geo.healer as h
+            old_pdir = u.PROJECTS_DIR
+            u.PROJECTS_DIR = os.path.join(tmpdir, "projects")
+            try:
+                c_res = h.compile_healing_patches(fake_pid)
+                # 同题应只有 1 个胜出条目
+                matched_faqs = [f for f in c_res["faq_pairs"] if "转包给第三方外包工作室" in f["question"]]
+                self.assertEqual(len(matched_faqs), 1)
+                # 胜出者必须为 counter_interception_pack
+                self.assertEqual(matched_faqs[0]["source"], "counter_interception_pack")
+                self.assertEqual(matched_faqs[0]["answer"], "这是来自截流包的最高优先级回答。")
+
+                # skipped_conflicts 必须记录被淘汰的次级包
+                self.assertEqual(len(c_res["skipped_conflicts"]), 1)
+                sc = c_res["skipped_conflicts"][0]
+                self.assertEqual(sc["winning_source"], "counter_interception_pack")
+                self.assertEqual(sc["discarded_source"], "robustness_hardening_pack")
+            finally:
+                u.PROJECTS_DIR = old_pdir
 
     # =========================================================================
     # 5. 缺失策略包优雅降级
@@ -384,6 +442,77 @@ class TestSelfHealingPipeline(unittest.TestCase):
         self.assertIn(heal_sum["status"], ["applied", "never_run", "failed_rolled_back"])
         self.assertIn("health_grade", heal_sum)
 
+    # =========================================================================
+    # 11. 空 FAQ 策略包防伪造与行业中立断言
+    # =========================================================================
+    def test_11_no_fabricated_faq_when_empty(self):
+        """测试策略包中无 FAQ 时，严禁捏造虚假问答条目及源码特定话术"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fake_pid = "empty_faq_client"
+            fake_proj_dir = os.path.join(tmpdir, "projects", fake_pid)
+            fake_out_dir = os.path.join(fake_proj_dir, "outputs")
+            os.makedirs(fake_out_dir, exist_ok=True)
+
+            with open(os.path.join(fake_proj_dir, "project.yaml"), "w", encoding="utf-8") as fh:
+                fh.write(f"client_id: '{fake_pid}'\nclient_name: '空问答测试企业'\nofficial_url: 'https://empty-faq.com'\nkeywords:\n  - '空问答'\n")
+
+            # 拷贝基础文件
+            for fn in ALL_TARGETS:
+                src_f = os.path.join(self.outputs_dir, fn)
+                if os.path.isfile(src_f):
+                    shutil.copy2(src_f, os.path.join(fake_out_dir, fn))
+
+            # 写入仅有事实锚点的 factual_anchors.json，绝无 FAQ 策略包
+            with open(os.path.join(fake_out_dir, "factual_anchors.json"), "w", encoding="utf-8") as fh:
+                json.dump({
+                    "project_id": fake_pid,
+                    "anchors": [{
+                        "risk_id": "r1",
+                        "category": "真实性",
+                        "truth_anchor": "空问答企业官方声明合规运营。",
+                        "defense_strategy": "对账"
+                    }]
+                }, fh)
+
+            import tools.geo.utils as u
+            import tools.geo.healer as h
+            old_pdir = u.PROJECTS_DIR
+            u.PROJECTS_DIR = os.path.join(tmpdir, "projects")
+
+            try:
+                apply_res = h.apply_healing_patches(fake_pid, auto_verify=True)
+                self.assertEqual(apply_res["status"], "applied")
+
+                # 读取落盘后的 llms.txt 自愈注入区间
+                with open(os.path.join(fake_out_dir, "llms.txt"), "r", encoding="utf-8") as fh:
+                    llms_txt = fh.read()
+                self.assertIn("<!-- GEO_HEAL_LLMS_BEGIN -->", llms_txt)
+                heal_llms = llms_txt.split("<!-- GEO_HEAL_LLMS_BEGIN -->")[1].split("<!-- GEO_HEAL_LLMS_END -->")[0]
+                self.assertIn("暂无动态自愈问答对需注入", heal_llms)
+                self.assertNotIn("- Q:", heal_llms)
+                self.assertNotIn("完整交付源码", heal_llms)
+
+                # 读取落盘后的 03 语料库自愈附录区间
+                with open(os.path.join(fake_out_dir, "03_普林斯顿9因子高权威语料库.md"), "r", encoding="utf-8") as fh:
+                    corpus_md = fh.read()
+                self.assertIn("<!-- GEO_HEAL_APPENDIX_BEGIN -->", corpus_md)
+                heal_corpus = corpus_md.split("<!-- GEO_HEAL_APPENDIX_BEGIN -->")[1].split("<!-- GEO_HEAL_APPENDIX_END -->")[0]
+                self.assertIn("> 暂无动态自愈问答对需注入。", heal_corpus)
+                self.assertNotIn("#### Q", heal_corpus)
+                self.assertNotIn("完整交付源码", heal_corpus)
+
+                # 读取落盘后的 llms-truth.txt 自愈区间
+                with open(os.path.join(fake_out_dir, "llms-truth.txt"), "r", encoding="utf-8") as fh:
+                    truth_txt = fh.read()
+                self.assertIn("<!-- GEO_HEAL_TRUTH_BEGIN -->", truth_txt)
+                heal_truth = truth_txt.split("<!-- GEO_HEAL_TRUTH_BEGIN -->")[1].split("<!-- GEO_HEAL_TRUTH_END -->")[0]
+                self.assertNotIn("source code delivery", heal_truth)
+                self.assertIn("Ground truth strictly verified", heal_truth)
+
+            finally:
+                u.PROJECTS_DIR = old_pdir
+
 
 if __name__ == "__main__":
     unittest.main()
+

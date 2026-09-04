@@ -647,7 +647,7 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             "faq_pairs_count": h_sum.get("faq_count", 0),
             "dense_keywords_count": h_sum.get("dense_count", 0),
             "audit_doc": heal_data.get("audit_doc", "outputs/29_全域动态知识自愈热补丁审计与回写台账.md"),
-            "health_grade": "动态闭环防御 (100%)"
+            "health_grade": f"动态自愈已生效 ({h_sum.get('total_patches', 0)} 处加固)"
         }
     elif heal_data and heal_data.get("status") == "failed_rolled_back":
         self_healing_summary = {
