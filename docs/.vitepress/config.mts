@@ -126,6 +126,7 @@ export default defineConfig({
     // 顶部导航栏
     nav: [
       { text: '🧭 战略全景', link: '/strategy/overview' },
+      { text: '🗺️ 2026 战略路线图', link: '/strategy/roadmap-2026' },
       { text: '💰 商业定价与行业打法', link: '/strategy/pricing-and-industry-playbook' },
       { text: '🎯 徐州标杆实战', link: '/pilot/xuzhou-dev' },
       { text: '📋 客户交付 SOP', link: '/sop/delivery-sop' },
@@ -157,8 +158,9 @@ export default defineConfig({
           text: '🧭 理论体系与战略',
           items: [
             { text: '01. GEO 战略全景与全链路框架', link: '/strategy/overview' },
-            { text: '02. 工业化流水线 vs 手工代运营对标白皮书', link: '/strategy/industrial-vs-manual' },
-            { text: '03. 商业化定价分级与垂直行业打法白皮书', link: '/strategy/pricing-and-industry-playbook' }
+            { text: '02. 2026 战略演进与落地路线图', link: '/strategy/roadmap-2026' },
+            { text: '03. 工业化流水线 vs 手工代运营对标白皮书', link: '/strategy/industrial-vs-manual' },
+            { text: '04. 商业化定价分级与垂直行业打法白皮书', link: '/strategy/pricing-and-industry-playbook' }
           ]
         }
       ],
