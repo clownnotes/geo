@@ -509,7 +509,9 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "compliance": "13_多渠道内容合规与广告法风控审查报告.md",
         "competitor": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md",
         "citation_auth": "15_大模型Citation信源权威度与外链信任度评分报告.md",
-        "injection_guard": "16_大模型提示词注入防御与品牌隔离盾牌报告.md"
+        "injection_guard": "16_大模型提示词注入防御与品牌隔离盾牌报告.md",
+        "probing": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
+        "live_citation_audit": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md"
     }
     for key, fname in files_to_read.items():
         fpath = os.path.join(out_dir, fname)
@@ -677,6 +679,70 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             "health_grade": "待触发自愈"
         }
 
+    # 30 维 多主流大模型真实联网探测与 Citation 信源对账
+    probing_trace = _read_json_safe("live_probing_trace.json")
+    if probing_trace and probing_trace.get("summary"):
+        p_sum = probing_trace.get("summary", {})
+        hit_assets = []
+        for q in probing_trace.get("probed_queries", []):
+            for c in q.get("citations", []):
+                if c.get("is_ledger_hit"):
+                    hit_assets.append({
+                        "url": c.get("url"),
+                        "title": c.get("title", ""),
+                        "model": q.get("model", ""),
+                        "query": q.get("query", ""),
+                        "match_type": c.get("match_type", "exact_hit")
+                    })
+        live_citation_summary = {
+            "has_data": True,
+            "status": "audited",
+            "status_label": "🟢 真实联网探测与角标对账已闭环",
+            "last_audited_at": probing_trace.get("reconciled_at") or probing_trace.get("timestamp") or "",
+            "total_prompts": p_sum.get("total_probes", 0),
+            "total_probes": p_sum.get("total_probes", 0),
+            "avg_sov": p_sum.get("real_sov_pct", 0.0),
+            "real_sov_pct": p_sum.get("real_sov_pct", 0.0),
+            "top1_rate": p_sum.get("top1_recommendation_rate", 0.0),
+            "top1_recommendation_rate": p_sum.get("top1_recommendation_rate", 0.0),
+            "total_citations": p_sum.get("total_citations_captured", 0),
+            "total_citations_captured": p_sum.get("total_citations_captured", 0),
+            "dist_matched_count": p_sum.get("my_ledger_assets_hit_count", 0),
+            "my_ledger_assets_hit_count": p_sum.get("my_ledger_assets_hit_count", 0),
+            "citation_hit_rate": p_sum.get("citation_share_pct", 0.0),
+            "citation_share_pct": p_sum.get("citation_share_pct", 0.0),
+            "models_covered": p_sum.get("models_probed", []),
+            "models_probed": p_sum.get("models_probed", []),
+            "audit_doc": probing_trace.get("report_30_path") or "outputs/30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
+            "model_breakdown": probing_trace.get("model_breakdown", {}),
+            "hit_assets_samples": hit_assets[:10]
+        }
+    else:
+        # 严格对齐 Spec §3.1 优雅降级，未探测时绝不伪造虚假数据
+        live_citation_summary = {
+            "has_data": False,
+            "status": "never_run",
+            "status_label": "⚪️ 待启动真实联网探测",
+            "last_audited_at": None,
+            "total_prompts": 0,
+            "total_probes": 0,
+            "avg_sov": 0.0,
+            "real_sov_pct": 0.0,
+            "top1_rate": 0.0,
+            "top1_recommendation_rate": 0.0,
+            "total_citations": 0,
+            "total_citations_captured": 0,
+            "dist_matched_count": 0,
+            "my_ledger_assets_hit_count": 0,
+            "citation_hit_rate": 0.0,
+            "citation_share_pct": 0.0,
+            "models_covered": [],
+            "models_probed": [],
+            "audit_doc": "",
+            "model_breakdown": {},
+            "hit_assets_samples": []
+        }
+
     # 最终组合完整数据载荷
     return {
         "success": True,
@@ -686,9 +752,10 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "website": cfg.get("website", ""),
         "brand_name": cfg.get("brand_name", cfg.get("client_name", "")),
 
-        # 高管专属新增战果模块 (第 28/29 维)
+        # 高管专属新增战果模块 (第 28/29/30 维)
         "executive_summary": executive_summary,
         "self_healing_summary": self_healing_summary,
+        "live_citation_summary": live_citation_summary,
         "models_mindshare": models_mindshare,
         "wechat_yuanbao_channel": wechat_yuanbao_channel,
         "competitor_interception": competitor_interception,

@@ -31,6 +31,12 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
         "api_key_envs": ["GEO_KIMI_API_KEY", "MOONSHOT_API_KEY"],
         "model_envs": ["KIMI_MODEL", "MOONSHOT_MODEL"],
     },
+    "yuanbao": {
+        "base_url": "https://api.hunyuan.cloud.tencent.com/v1",
+        "default_model": "hunyuan-standard",
+        "api_key_envs": ["GEO_YUANBAO_API_KEY", "YUANBAO_API_KEY", "HUNYUAN_API_KEY"],
+        "model_envs": ["YUANBAO_MODEL", "HUNYUAN_MODEL"],
+    },
 }
 
 

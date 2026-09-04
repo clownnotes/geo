@@ -246,6 +246,100 @@ class TestProbingTracer(unittest.TestCase):
         GeoWebHandler.do_POST(handler)
         self.assertEqual(captured.get("status"), 401)
 
+        captured.clear()
+        handler.path = "/api/projects/xuzhou_xuanyuan/probing/reconcile"
+        handler.headers = {}
+        GeoWebHandler.do_POST(handler)
+        self.assertEqual(captured.get("status"), 401)
+
+    def test_07_yuanbao_provider_and_key_resolution(self):
+        """测试第 30 维: 腾讯元宝(Hunyuan)提供商配置与 Key 链式降级"""
+        from tools.geo.llm import PROVIDERS
+        self.assertIn("yuanbao", PROVIDERS)
+        yb_cfg = PROVIDERS["yuanbao"]
+        self.assertEqual(yb_cfg["default_model"], "hunyuan-standard")
+
+        with patch.dict(os.environ, {
+            "GEO_YUANBAO_API_KEY": "key_geo_yb",
+            "YUANBAO_API_KEY": "key_yb",
+            "HUNYUAN_API_KEY": "key_hy"
+        }, clear=True):
+            self.assertEqual(resolve_api_key("yuanbao"), "key_geo_yb")
+
+        with patch.dict(os.environ, {
+            "YUANBAO_API_KEY": "key_yb",
+            "HUNYUAN_API_KEY": "key_hy"
+        }, clear=True):
+            self.assertEqual(resolve_api_key("yuanbao"), "key_yb")
+
+        with patch.dict(os.environ, {
+            "HUNYUAN_API_KEY": "key_hy"
+        }, clear=True):
+            self.assertEqual(resolve_api_key("yuanbao"), "key_hy")
+
+    def test_08_chinese_and_inline_citation_extraction(self):
+        """测试第 30 维: 中文方头括号【1】、[注1]及内联 Markdown 链接解析"""
+        text = (
+            "璇源科技在工业互联网领域具备深厚技术底蕴【1】。其分布式架构稳定性卓越[注2]。\n"
+            "同时其最新案例可见[璇源智造白皮书](https://www.xuan-yuan.net/cases/2026)。\n\n"
+            "参考资料：\n"
+            "【1】https://zhuanlan.zhihu.com/p/888999\n"
+            "[注2] https://www.gov.cn/reports/2026\n"
+        )
+        cits = extract_citations_and_sources(text)
+        self.assertGreaterEqual(len(cits), 2)
+        urls = [c["url"] for c in cits]
+        self.assertIn("https://zhuanlan.zhihu.com/p/888999", urls)
+        self.assertIn("https://www.gov.cn/reports/2026", urls)
+        has_footnote = [c["has_inline_footnote"] for c in cits]
+        self.assertTrue(any(has_footnote))
+
+    def test_09_reconcile_existing_trace_and_report30(self):
+        """测试第 30 维: 离线重对账 reconcile_existing_trace 与 30 号公文自动落盘"""
+        from tools.geo.probing import reconcile_existing_trace
+        # 先确保执行过一次沙箱探测以产生 live_probing_trace.json
+        run_live_probing(self.project_id, models=["doubao", "kimi"], query_sample_size=2, use_live=False)
+
+        res = reconcile_existing_trace(self.project_id)
+        self.assertTrue(res["success"])
+        self.assertEqual(res["project_id"], self.project_id)
+        summary = res["summary"]
+        self.assertIn("citation_share_pct", summary)
+        self.assertIn("my_ledger_assets_hit_count", summary)
+
+        # 验证 30 号公文物理存在并符合 9 因子格式
+        report_30 = res.get("report_30_path")
+        self.assertTrue(os.path.exists(report_30))
+        with open(report_30, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("30_多主流大模型真实联网探测与Citation角标反查审计报告", report_30)
+        self.assertIn("普林斯顿 9 因子", content)
+        self.assertIn("技术对账准则", content)
+        self.assertIn("电子签章", content)
+
+    def test_10_share_portal_live_citation_summary_and_fallback(self):
+        """测试第 30 维: 高管门户 live_citation_summary 挂载与 never_run 降级契约"""
+        from tools.geo.share import compile_portal_data
+        # 1. 正常已探测场景
+        run_live_probing(self.project_id, models=["doubao"], query_sample_size=2, use_live=False)
+        portal_data = compile_portal_data(self.project_id, token="test_token")
+        self.assertIn("live_citation_summary", portal_data)
+        lcs = portal_data["live_citation_summary"]
+        self.assertTrue(lcs["has_data"])
+        self.assertEqual(lcs["status"], "audited")
+        self.assertGreaterEqual(lcs["real_sov_pct"], 0.0)
+
+        # 2. 模拟无 trace 文件的全新项目优雅降级
+        orig_exists = os.path.exists
+        with patch("tools.geo.share._calc_file_sha256", return_value="dummy_hash"):
+            with patch("os.path.exists", side_effect=lambda p: False if "live_probing_trace.json" in str(p) else orig_exists(p)):
+                fallback_data = compile_portal_data(self.project_id, token="test_token")
+                fb_lcs = fallback_data["live_citation_summary"]
+                self.assertFalse(fb_lcs["has_data"])
+                self.assertEqual(fb_lcs["status"], "never_run")
+                self.assertEqual(fb_lcs["avg_sov"], 0.0)
+                self.assertEqual(fb_lcs["citation_hit_rate"], 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

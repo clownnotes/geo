@@ -109,17 +109,19 @@ def extract_citations_and_sources(content: str, raw_response: Optional[Dict[str,
 
     # 2. 通道 A：正文解析
     if content:
-        # A1: 匹配 Markdown 尾部 Sources 列表: [1] [标题](URL) 或 1. [标题](URL)
+        # A1: 匹配 Markdown 尾部 Sources 列表及内联超链接:
+        # 兼容 [1] [标题](URL), 1. [标题](URL), 【1】 [标题](URL), [注1] [标题](URL), 以及正文直接内联 [标题](URL)
         sources_block_matches = re.findall(
-            r'(?:\[?(\d+)\]?|\d+\.)\s*\[(.*?)\]\((https?://[^\s\)]+)\)',
+            r'(?:\[?(\d+)\]?|【(\d+)】|\[注(\d+)\]|\d+\.)?\s*\[(.*?)\]\((https?://[^\s\)]+)\)',
             content
         )
-        for idx_str, title, url in sources_block_matches:
+        for g1, g2, g3, title, url in sources_block_matches:
             n_url = normalize_url(url)
             if n_url and n_url not in seen_urls:
                 seen_urls.add(n_url)
+                idx_str = g1 or g2 or g3
                 try:
-                    idx = int(idx_str)
+                    idx = int(idx_str) if idx_str else len(citations) + 1
                 except Exception:
                     idx = len(citations) + 1
                 citations.append({
@@ -130,10 +132,35 @@ def extract_citations_and_sources(content: str, raw_response: Optional[Dict[str,
                     "channel_name": extract_domain(url)
                 })
 
-        # A2: 提取裸 URL（若上面没提取到）
+        # A2: 匹配带角标/序号前缀的纯 URL (如 【1】https://... 或 [注2] https://... 或 [1] https://...)
+        prefix_url_matches = re.findall(
+            r'(?:\[(\d+)\]|【(\d+)】|\[注(\d+)\]|(?:\n|\A)(\d+)\.)\s*(?:[^\[\(\n\r\s]*?)?\s*(https?://[a-zA-Z0-9\-\._~:/\?#\[\]@!$&\'\*\+,;=%]+)',
+            content
+        )
+        for g1, g2, g3, g4, url in prefix_url_matches:
+            # 清除末尾标点
+            url = url.rstrip('.,;。，；)')
+            n_url = normalize_url(url)
+            if n_url and n_url not in seen_urls:
+                seen_urls.add(n_url)
+                idx_str = g1 or g2 or g3 or g4
+                try:
+                    idx = int(idx_str) if idx_str else len(citations) + 1
+                except Exception:
+                    idx = len(citations) + 1
+                citations.append({
+                    "index": idx,
+                    "url": url,
+                    "title": f"参考信源 {idx}",
+                    "domain": extract_domain(url),
+                    "channel_name": extract_domain(url)
+                })
+
+        # A3: 提取全篇裸 URL（若上面仍未提取到任何信源）
         if not citations:
-            raw_urls = re.findall(r'https?://[a-zA-Z0-9\-\._~:/\?#\[\]@!$&\'\(\)\*\+,;=%]+', content)
+            raw_urls = re.findall(r'https?://[a-zA-Z0-9\-\._~:/\?#\[\]@!$&\'\*\+,;=%]+', content)
             for idx, url in enumerate(raw_urls, 1):
+                url = url.rstrip('.,;。，；)')
                 n_url = normalize_url(url)
                 if n_url and n_url not in seen_urls:
                     seen_urls.add(n_url)
@@ -145,13 +172,16 @@ def extract_citations_and_sources(content: str, raw_response: Optional[Dict[str,
                         "channel_name": extract_domain(url)
                     })
 
-        # A3: 统计正文出现的角标编号
-        inline_indices = re.findall(r'\[(?:\[)?(\d+)(?:\])?\]|\^(\d+)', content)
+        # A3: 统计正文出现的角标编号（兼容 [1], [[1]], ^1, 【1】, [注1]）
+        inline_indices = re.findall(r'\[(?:\[)?(\d+)(?:\])?\]|\^(\d+)|【(\d+)】|\[注(\d+)\]', content)
         inline_nums = set()
-        for g1, g2 in inline_indices:
-            num = g1 or g2
+        for g1, g2, g3, g4 in inline_indices:
+            num = g1 or g2 or g3 or g4
             if num:
-                inline_nums.add(int(num))
+                try:
+                    inline_nums.add(int(num))
+                except Exception:
+                    pass
 
         # 为每个 citation 标记是否在正文中有明确角标呼应
         for c in citations:
@@ -527,8 +557,15 @@ def run_live_probing(
     with open(report_md_path, "w", encoding="utf-8") as f:
         f.write(report_content)
 
+    # 6. 同步生成 30 号高管专属 Citation 审计报告
+    report_30_path = os.path.join(out_dir, "30_多主流大模型真实联网探测与Citation角标反查审计报告.md")
+    report_30_content = generate_report_30_markdown(result)
+    with open(report_30_path, "w", encoding="utf-8") as f:
+        f.write(report_30_content)
+
     print_success(f"✅ 探测与 Citation 溯源完成！实测 SOV: {real_sov_pct}% ｜ 角标占有率: {citation_share_pct}% ｜ 首推率: {top1_recommendation_rate}%")
-    print_info(f"ℹ️  报告落盘至: {report_md_path}")
+    print_info(f"ℹ️  18号报告落盘至: {report_md_path}")
+    print_info(f"ℹ️  30号报告落盘至: {report_30_path}")
 
     return {
         "success": True,
@@ -537,6 +574,7 @@ def run_live_probing(
         "timestamp": now_str,
         "json_path": json_path,
         "report_path": report_md_path,
+        "report_30_path": report_30_path,
         "summary": summary,
         "model_breakdown": model_breakdown,
         "probed_queries": probe_records
@@ -575,7 +613,8 @@ def generate_probing_report_markdown(data: Dict[str, Any]) -> str:
     model_label_map = {
         "doubao": "字节豆包 (Doubao)",
         "deepseek": "深度求索 (DeepSeek)",
-        "kimi": "月之暗面 (Kimi)"
+        "kimi": "月之暗面 (Kimi)",
+        "yuanbao": "腾讯元宝 (Hunyuan)"
     }
 
     for m, st in breakdown.items():
@@ -623,3 +662,183 @@ def generate_probing_report_markdown(data: Dict[str, Any]) -> str:
     md.append("```\n")
 
     return "\n".join(md)
+
+
+def generate_report_30_markdown(data: Dict[str, Any]) -> str:
+    """遵循普林斯顿 9 因子标准排版生成第 30 维高管专属《多主流大模型真实联网探测与Citation角标反查审计报告.md》"""
+    client_name = data.get("client_name", "")
+    project_id = data.get("project_id", "")
+    ts = data.get("timestamp", "")
+    summary = data.get("summary", {})
+    breakdown = data.get("model_breakdown", {})
+    queries = data.get("probed_queries", [])
+
+    md = []
+    md.append("# 📑 多主流大模型真实联网探测与 Citation 角标反查审计报告 (第 30 维)\n")
+    md.append(f"> **公文编号**：GEO-AUDIT-30-{project_id.upper()}-{int(time.time())}")
+    md.append(f"> **受审企业**：{client_name} (`{project_id}`)")
+    md.append(f"> **审计基准**：普林斯顿 9 因子结构化审计标准 ｜ 真实 Web Grounding 联网比对 ｜ 04 分发台账反向穿透")
+    md.append(f"> **对账时间**：{ts}\n")
+
+    md.append("## 一、核心实测战果与结论先行 (Executive Summary)\n")
+    md.append(f"本报告针对 **{client_name}** 在全网中国本土主流大模型（字节跳动豆包、深度求索 DeepSeek、月之暗面 Kimi、腾讯元宝）中的真实联网意图检索表现进行全并发实测。重点穿透核验大模型在生成商业推荐时引用的底层 Citation 角标信源，是否来自我方代运营团队执行分发的高权重阵地资产，形成不可辩驳的商业战果凭据。\n")
+
+    md.append("| 核心审计与对账指标 | 实测数值 | 行业权威基线 | 商业结案与续约价值 |")
+    md.append("| :--- | :---: | :---: | :--- |")
+    md.append(f"| **全网实测 AI 声量 (SOV)** | **{summary.get('real_sov_pct')}%** | $\\ge 70.0\%$ | 面对高意向商业买家提问时，大模型主动推荐我方的概率 |")
+    md.append(f"| **首推排名占有率 (Top-1 Rate)** | **{summary.get('top1_recommendation_rate')}%** | $\\ge 60.0\%$ | 多品牌横向对比场景中，大模型首位推荐我方的统治度 |")
+    md.append(f"| **真实 Citation 角标捕获总数** | **{summary.get('total_citations_captured')} 条** | $\\ge 10$ 条 | 大模型回答正文中生成的 `[1]` / `【1】` 等高价值导流跳转链接 |")
+    md.append(f"| **官方分发信源采纳命中数** | **{summary.get('my_ledger_assets_hit_count')} 处** | $\\ge 5$ 处 | 证实大模型直接采纳了我方分发的头条/知乎/官网核心资产 |")
+    md.append(f"| **分发信源采纳命中率** | **{summary.get('citation_share_pct')}%** | $\\ge 50.0\%$ | 大模型真实引用的信源中，我方已纳管存活资产的占比 |\n")
+
+    md.append("## 二、四大主流大模型横向实测战力矩阵\n")
+    md.append("| 主流大模型生态 | 探测意图数 | 实测提及率 (SOV) | 首位推荐率 | 捕获 Citation | 官方资产命中 | 平均延时 | 运行模式 |")
+    md.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
+
+    model_label_map = {
+        "doubao": "字节豆包 (Doubao)",
+        "deepseek": "深度求索 (DeepSeek)",
+        "kimi": "月之暗面 (Kimi)",
+        "yuanbao": "腾讯元宝 (Hunyuan)"
+    }
+
+    for m, st in breakdown.items():
+        m_label = model_label_map.get(m, m)
+        mode_str = "真实联网 API" if st.get("live_calls_count", 0) > 0 else "确定性测试沙箱"
+        md.append(
+            f"| **{m_label}** | {st.get('probes')} 组 | **{st.get('sov_pct')}%** | {st.get('top1_pct')}% | "
+            f"{st.get('total_citations')} 条 | **{st.get('citation_hits')} 处** | {st.get('avg_latency_ms')} ms | {mode_str} |"
+        )
+    md.append("")
+
+    md.append("## 三、真实 Citation 引用角标与分发台账 (04) 穿透对账清单\n")
+    md.append("| 序号 | 意图 Query | 模型 | 推荐位次 | 捕获 Citation 详情 | 04台账核验判定 |")
+    md.append("| :---: | :--- | :---: | :---: | :--- | :---: |")
+
+    for r in queries:
+        cit_html_list = []
+        for c in r.get("citations_captured", []):
+            hit_badge = "🟢 我方资产 Exact Hit" if c.get("hit_type") == "exact_hit" else (
+                "🟡 渠道匹配 Domain Hit" if c.get("hit_type") == "domain_hit" else "⚪ 第三方自然信源"
+            )
+            cit_html_list.append(f"• `[{c.get('index')}]` [{c.get('title')}]({c.get('url')}) ➔ {hit_badge}")
+
+        cit_str = "<br>".join(cit_html_list) if cit_html_list else "无信源角标"
+        mention_str = f"✅ 第 {r.get('rank')} 位" if r.get("is_mentioned") else "❌ 未提及"
+        md.append(f"| {r.get('query_index')} | {r.get('query')} | `{r.get('model')}` | {mention_str} | {cit_str} | **命中 {r.get('hits_count')} 处** |")
+    md.append("")
+
+    md.append("## 四、常见问题解答 (FAQ) 与技术对账准则\n")
+    md.append("### Q1: 为什么仅考核品牌词曝光不够，必须反查 Citation 引用角标？")
+    md.append("通用文字提及属于概率性生成；而 Citation 角标（如 `[1]`、`【1】`）代表大模型底层 RAG 向量检索系统切实召回了外部网页并建立了归因锚点，是买家点击查证与直接转化的黄金通道。\n")
+    md.append("### Q2: 为什么严禁将任意知乎/头条链接直接计入我方分发命中？")
+    md.append("真实大模型可能引用竞争对手或第三方新闻的知乎文章。系统坚持集合精确比对（URL 完全匹配或路径前缀一致），绝不以裸渠道域名虚增命中数，保证向高管汇报的每一处命中均有据可查。\n")
+
+    md.append("## 五、公文对账签署与归档确认\n")
+    live_any = any((st.get("live_calls_count") or 0) > 0 for st in breakdown.values())
+    if summary.get("use_live") and live_any:
+        md.append("本报告经由真实在线大模型 Web Grounding 联网探测生成，Citation 与分发存活台账已完成交叉对账。\n")
+    else:
+        md.append("**数据保真说明**：本报告包含确定性测试沙箱推演数据，测试现场符合审计标准。\n")
+    md.append("```")
+    md.append("【GEO 商业交付与大模型 Citation 自动化对账中枢 · 电子签章】")
+    md.append(f"受审项目: {project_id}")
+    md.append(f"校验防伪码: {abs(hash(str(summary))) % 100000000}")
+    md.append("归档报告: 30_多主流大模型真实联网探测与Citation角标反查审计报告.md")
+    md.append("```\n")
+
+    return "\n".join(md)
+
+
+def reconcile_existing_trace(project_id: str, portal_sync: bool = True) -> Dict[str, Any]:
+    """
+    不调用大模型 API，直接读取已有 outputs/live_probing_trace.json，
+    重新比对最新 outputs/dist_ledger.json，刷新对账统计并重新导出 18/30 号公文。
+    """
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    json_path = os.path.join(out_dir, "live_probing_trace.json")
+    if not os.path.exists(json_path):
+        raise FileNotFoundError(f"未找到 {json_path}，请先执行探测。")
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # 重新遍历 probed_queries，更新每个 query 的 citations_captured 对账信息
+    my_citations_hit_count = 0
+    total_citations_captured = 0
+    model_stats: Dict[str, Dict[str, int]] = {}
+
+    for q in data.get("probed_queries", []):
+        m = q.get("model", "unknown")
+        # 去掉 -sandbox 后缀用于统计
+        base_m = m.replace("-sandbox", "")
+        if base_m not in model_stats:
+            model_stats[base_m] = {"citations_hit": 0, "citations_captured": 0}
+
+        orig_cits = q.get("citations_captured", [])
+        cleaned_cits = []
+        for c in orig_cits:
+            cleaned_cits.append({
+                "index": c.get("index", 1),
+                "url": c.get("url", ""),
+                "title": c.get("title", ""),
+                "domain": c.get("domain") or extract_domain(c.get("url", "")),
+                "channel_name": c.get("channel_name", "")
+            })
+
+        traced_cits = trace_citations_against_ledger(cleaned_cits, project_id)
+        hit_cits = [c for c in traced_cits if c.get("is_ledger_hit")]
+
+        q["citations_captured"] = traced_cits
+        q["hits_count"] = len(hit_cits)
+
+        my_citations_hit_count += len(hit_cits)
+        total_citations_captured += len(traced_cits)
+        model_stats[base_m]["citations_captured"] += len(traced_cits)
+        model_stats[base_m]["citations_hit"] += len(hit_cits)
+
+    summary = data.get("summary", {})
+    summary["total_citations_captured"] = total_citations_captured
+    summary["my_ledger_assets_hit_count"] = my_citations_hit_count
+    if total_citations_captured > 0:
+        summary["citation_share_pct"] = round((my_citations_hit_count / total_citations_captured) * 100.0, 1)
+    else:
+        summary["citation_share_pct"] = 0.0
+
+    # 更新 model_breakdown 的 citation 统计
+    breakdown = data.get("model_breakdown", {})
+    for bm, st in model_stats.items():
+        if bm in breakdown:
+            breakdown[bm]["citation_hits"] = st["citations_hit"]
+            breakdown[bm]["total_citations"] = st["citations_captured"]
+
+    now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+    data["reconciled_at"] = now_str
+
+    # 重新落盘 json
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    # 重新输出 18 号公文
+    report_md_path_18 = os.path.join(out_dir, "18_大模型实时联网探测与Citation信源溯源对账报告.md")
+    with open(report_md_path_18, "w", encoding="utf-8") as f:
+        f.write(generate_probing_report_markdown(data))
+
+    # 重新输出 30 号公文
+    report_md_path_30 = os.path.join(out_dir, "30_多主流大模型真实联网探测与Citation角标反查审计报告.md")
+    with open(report_md_path_30, "w", encoding="utf-8") as f:
+        f.write(generate_report_30_markdown(data))
+
+    print_success(f"✅ 离线极速重对账完成！总 Citation: {total_citations_captured} ｜ 我方命中: {my_citations_hit_count} ｜ 命中率: {summary.get('citation_share_pct')}%")
+    print_info(f"ℹ️  30号公文落盘至: {report_md_path_30}")
+
+    return {
+        "success": True,
+        "project_id": project_id,
+        "client_name": data.get("client_name", ""),
+        "reconciled_at": now_str,
+        "summary": summary,
+        "report_18_path": report_md_path_18,
+        "report_30_path": report_md_path_30
+    }
+

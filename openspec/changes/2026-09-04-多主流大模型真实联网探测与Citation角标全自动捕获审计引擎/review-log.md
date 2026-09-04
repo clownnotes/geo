@@ -141,3 +141,44 @@
 3. **共识结论**：P0 #1~#4 及 P1 建议已在 `proposal.md`、`design.md` 与 `tasks.md` 中 100% 闭环修正，当前 Spec 已达到可开工标准，状态推进至 **`[已达成共识]`**，提请审阅助手复核放行！
 
 
+
+---
+
+## 跨端评审记录 4: Cursor 对记录 3 修订的独立复验 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Spec Revision Re-Verification（代码未开工，tasks 0/15；对照修订后 proposal/design/tasks + 现网 `probing.py` / `live_probing_trace.json` / `llm.py`；**不采信**记录 3 自评）
+- **审查结论**：`[已达成共识]`
+- **总判**：记录 2 的 **P0-1~P0-4 主诉已闭环**——废除平行 `live_auditor`、禁裸域名命中、台账走 `get_distribution_ledger`、元宝并入 `llm.PROVIDERS`。允许进入 `./opsx apply`。仍有 **🟡 现网字段映射**须在实现期写死，否则门户会读空/造假。
+
+### 1. 记录 2 / 3 闭环复核
+
+| 编号 | 项 | 复核结果 | 证据 |
+|:---|:---|:---|:---|
+| **P0-1** | 平行烟囱 `live_auditor` | ✅ | proposal/design/tasks 全文改为增量扩展 `probing.py`；Impact 明确不新建孤立引擎；§1.1 强制复用函数清单齐全 |
+| **P0-2** | 裸渠道域名虚增命中 | ✅ | design §2.3 铁律禁令 + tasks 2.2；口径对齐 exact/路径级 domain_hit |
+| **P0-3** | 台账字段空想 | ✅ | 改为 `channels.*.url` / `custom_links[].url` + `get_distribution_ledger` + `is_ledger_asset_eligible` |
+| **P0-4** | 绕过 `llm.py` | ✅ | yuanbao 进 PROVIDERS；`call_model_raw`/`resolve_api_key`；无独立 HTTP 客户端 |
+| **P1-5/6** | CLI / reconcile-only | ✅ | 主令 `geo probe --reconcile-only`；`probe-audit` 为别名且标明复用 probing |
+| **P1-7** | 门户 summary | ✅ | 读 `live_probing_trace.json`；缺则 `never_run`；含 `web/share.html` 卡片 |
+| **P1-9** | `【n】`/`[注n]` | ✅ | design §2.2 + tasks 1.2 |
+
+### 2. 🟡 Apply 期必须落地的硬约束（不阻断共识，代码审查会卡）
+
+| # | 风险 | 现网证据 | 实现要求 |
+|:--|:-----|:---------|:---------|
+| **M1** | design §3.1 示例字段与现网 `live_probing_trace.json` **不一致** | 现网 summary：`real_sov_pct`、`top1_recommendation_rate`、`total_citations_captured`、`my_ledger_assets_hit_count`、`citation_share_pct`、`sample_queries_count`、`models_probed`；顶层时间为 `timestamp`（非 `probed_at`/`avg_sov`/`dist_matched_count` 等） | 门户输出契约可用友好别名，但**读取侧必须映射现网真实键**；单测用真实 trace 样例断言 SOV/命中数非 0 时能读出；禁止在 trace 里找不存在的 `avg_sov` 导致静默变 0 |
+| **M2** | tasks 写 `export_probing_report()` | 现网函数为 `generate_probing_report_markdown` | 在既有导出路径上增量写 `30_*.md`，勿另起无名函数造成分叉 |
+| **M3** | proposal 提 `--portal-sync`，tasks 3.1 未列 | 参数边界不清 | apply 时：要么落地该 flag，要么从 proposal 删除，避免半实现 |
+
+### 3. 🟢 可选（不卡）
+
+- yuanbao `base_url`/`default_model` 以实现时腾讯官方 OpenAI 兼容文档为准，单测覆盖「无 Key → LlmUnavailable → 探测层沙箱降级」。
+- `organic_same_channel` 可作审计标签；计入命中集合仍禁止。
+
+### 4. 放行结论
+
+- **状态结论**：`[已达成共识]` — Spec 达到可开发基线。
+- **下一步**：用户确认后执行 `./opsx apply`；本地 `127.0.0.1:8088` 验证；**严禁**私自推生产。
+- **代码门禁**：首版须覆盖 yuanbao PROVIDERS、中文角标、`reconcile_existing_trace` 不调模型、裸域名不计命中、门户 `never_run` + **M1 真实字段映射**单测。
+

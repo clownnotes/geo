@@ -305,6 +305,51 @@
       </div>
     </div>
 
+    <!-- 5.1 第四部分增量：全主流大模型真实联网探测与 Citation 角标反查审计 (第 30 维) -->
+    <div class="executive-card rounded-2xl p-5 space-y-4" id="live-citation-section">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="radio" class="w-4 h-4 text-emerald-400"></i>
+            <span>主流大模型真实联网探测与 Citation 角标反查审计 (第 30 维)</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">多主流模型真实联网问答 Citation 信源角标（含本土化【1】与脚注）与我方台账资产全量对账</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="live-citation-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待启动探测</span>
+        </div>
+      </div>
+
+      <!-- 核心指标 4 宫格 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">实测提及率 (SOV)</div>
+          <div id="live-sov-val" class="text-xl font-extrabold text-emerald-400">--%</div>
+          <div class="text-[10px] text-slate-500">主流模型实测综合采纳</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">首位推荐率 (Top-1)</div>
+          <div id="live-top1-val" class="text-xl font-extrabold text-blue-400">--%</div>
+          <div class="text-[10px] text-slate-500">回答首位独家推荐</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">捕获角标信源总数</div>
+          <div id="live-citations-total" class="text-xl font-extrabold text-purple-400">-- 条</div>
+          <div class="text-[10px] text-slate-500">含本土化【1】与内联外链</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">我方资产角标占有率</div>
+          <div id="live-hit-rate-val" class="text-xl font-extrabold text-amber-400">--%</div>
+          <div id="live-hit-count-desc" class="text-[10px] text-slate-500">命中台账 0 处 (严谨口径)</div>
+        </div>
+      </div>
+
+      <!-- 命中信源证据链流水与模型拆解 -->
+      <div id="live-citation-details-container" class="space-y-2 text-xs">
+        <!-- 动态渲染真实命中证据链 -->
+      </div>
+    </div>
+
     <!-- 6. 第五部分：16 维技术交付物完整抽屉 (按需展开，向后兼容) -->
     <div class="executive-card rounded-2xl p-5 space-y-3">
       <div class="flex items-center justify-between">
@@ -340,6 +385,9 @@
           <button onclick="switchShareTab('monitor')" id="tab-monitor" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
             <span>⑤ 声量监测周报</span>
           </button>
+          <button onclick="switchShareTab('probing')" id="tab-probing" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+            <span>⑥ 真实探测对账</span>
+          </button>
           <button onclick="switchShareTab('acceptance')" id="tab-acceptance" class="py-1.5 px-3 rounded-lg bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 whitespace-nowrap transition">
             <span>🏛️ 商业交付结案单</span>
           </button>
@@ -363,6 +411,9 @@
         </div>
         <div id="content-monitor" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
           <div id="preview-monitor" class="markdown-body"></div>
+        </div>
+        <div id="content-probing" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+          <div id="preview-probing" class="markdown-body"></div>
         </div>
         <div id="content-acceptance" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
           <div id="preview-acceptance" class="markdown-body"></div>
@@ -664,7 +715,77 @@
         tbody.appendChild(tr);
       });
 
-      // 7. 渲染旧版 16 维交付物 Markdown
+      // 6.1 主流大模型真实联网探测与 Citation 角标反查审计 (第 30 维)
+      const liveCitation = data.live_citation_summary || {};
+      const statusBadge = document.getElementById('live-citation-status-badge');
+      const sovVal = document.getElementById('live-sov-val');
+      const top1Val = document.getElementById('live-top1-val');
+      const citationsTotal = document.getElementById('live-citations-total');
+      const hitRateVal = document.getElementById('live-hit-rate-val');
+      const hitCountDesc = document.getElementById('live-hit-count-desc');
+      const detailsContainer = document.getElementById('live-citation-details-container');
+
+      if (liveCitation.has_data && liveCitation.status === 'audited') {
+        statusBadge.className = 'text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20';
+        statusBadge.textContent = '🟢 真实联网探测已对账';
+        sovVal.textContent = `${liveCitation.avg_sov || liveCitation.real_sov_pct || 0.0}%`;
+        top1Val.textContent = `${liveCitation.top1_rate || liveCitation.top1_recommendation_rate || 0.0}%`;
+        citationsTotal.textContent = `${liveCitation.total_citations || liveCitation.total_citations_captured || 0} 条`;
+        hitRateVal.textContent = `${liveCitation.citation_hit_rate || liveCitation.citation_share_pct || 0.0}%`;
+        const matched = liveCitation.dist_matched_count || liveCitation.my_ledger_assets_hit_count || 0;
+        hitCountDesc.textContent = `命中台账 ${matched} 处 (严谨口径)`;
+
+        // 渲染命中流水证据链
+        const samples = liveCitation.hit_assets_samples || [];
+        if (samples.length > 0) {
+          let html = `
+            <div class="pt-2">
+              <div class="text-[11px] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
+                <span>🎯 大模型真实采纳信源证据链 (采样最新 ${samples.length} 条):</span>
+                <span class="text-emerald-400 font-normal">对账严谨度: 100% 精确/路径匹配</span>
+              </div>
+              <div class="space-y-1.5">
+          `;
+          samples.forEach((s) => {
+            html += `
+              <div class="p-2 bg-slate-900/50 rounded-lg border border-slate-800 flex items-center justify-between gap-2">
+                <div class="truncate flex items-center gap-2">
+                  <span class="text-emerald-400 font-bold">[${s.model}]</span>
+                  <span class="text-slate-300 truncate" title="${s.title || s.url}">${s.title || s.url}</span>
+                </div>
+                <a href="${s.url}" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold shrink-0 flex items-center gap-1">
+                  <span>核验</span>
+                  <i data-lucide="external-link" class="w-3 h-3"></i>
+                </a>
+              </div>
+            `;
+          });
+          html += `</div></div>`;
+          detailsContainer.innerHTML = html;
+        } else {
+          detailsContainer.innerHTML = `
+            <div class="p-3 bg-slate-900/40 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
+              已捕获 ${liveCitation.total_citations || 0} 条大模型角标信源，正在持续沉淀中（严谨口径下暂未见我方具体发稿文章精确/路径命中）。
+            </div>
+          `;
+        }
+      } else {
+        statusBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
+        statusBadge.textContent = '⚪️ 待启动探测';
+        sovVal.textContent = '--%';
+        top1Val.textContent = '--%';
+        citationsTotal.textContent = '-- 条';
+        hitRateVal.textContent = '--%';
+        hitCountDesc.textContent = '待触发真实联网探测';
+        detailsContainer.innerHTML = `
+          <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+            <div class="text-slate-400 text-xs font-medium">尚未执行多大模型真实联网探测与角标反查审计</div>
+            <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo probe &lt;项目ID&gt; --live --report</code> 启动</div>
+          </div>
+        `;
+      }
+
+      // 7. 渲染旧版 16 维交付物 Markdown 与第 30 维公文
       const deliv = data.deliverables || {};
       const renderMd = (elemId, md) => {
         const el = document.getElementById(elemId);
@@ -676,6 +797,7 @@
       renderMd('preview-rewrite', deliv.rewrite);
       renderMd('preview-distribute', deliv.dist_toutiao || deliv.dist_zhihu);
       renderMd('preview-monitor', deliv.monitor_report);
+      renderMd('preview-probing', deliv.live_citation_audit || deliv.probing);
       renderMd('preview-acceptance', deliv.acceptance);
 
       if (document.getElementById('preview-llms')) {

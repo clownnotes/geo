@@ -953,6 +953,17 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 第 30 维 Citation 信源离线极速重对账 API: POST /api/projects/{id}/probing/reconcile
+        if path.startswith("/api/projects/") and path.endswith("/probing/reconcile"):
+            project_id = path.split("/")[3]
+            try:
+                from .probing import reconcile_existing_trace
+                res = reconcile_existing_trace(project_id=project_id)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 19 号声誉排查扫描: POST /api/projects/{id}/sentiment/scan
         if path.startswith("/api/projects/") and path.endswith("/sentiment/scan"):
             project_id = path.split("/")[3]
@@ -2666,8 +2677,8 @@ core_values:
                         self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
-            # 获取实时探测状态与摘要: /api/projects/{id}/probing/status (GET)
-            if path.startswith("/api/projects/") and path.endswith("/probing/status"):
+            # 获取实时探测状态与摘要: /api/projects/{id}/probing/status 或 /trace (GET)
+            if path.startswith("/api/projects/") and (path.endswith("/probing/status") or path.endswith("/probing/trace")):
                 project_id = path.split("/")[3]
                 trace_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "live_probing_trace.json")
                 if os.path.exists(trace_file):
@@ -2713,6 +2724,41 @@ core_values:
                             "filename": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
                             "content": content
                         })
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取 30 号 Citation 反查审计公文报告: /api/projects/{id}/probing/report30 (GET)
+            if path.startswith("/api/projects/") and path.endswith("/probing/report30"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "30_多主流大模型真实联网探测与Citation角标反查审计报告.md")
+                if os.path.exists(report_file):
+                    try:
+                        with open(report_file, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        self.send_json({
+                            "success": True,
+                            "project_id": project_id,
+                            "filename": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
+                            "content": content
+                        })
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    try:
+                        from .probing import reconcile_existing_trace
+                        r = reconcile_existing_trace(project_id)
+                        if r.get("success") and r.get("report_30_path") and os.path.exists(r["report_30_path"]):
+                            with open(r["report_30_path"], "r", encoding="utf-8") as f:
+                                content = f.read()
+                            self.send_json({
+                                "success": True,
+                                "project_id": project_id,
+                                "filename": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
+                                "content": content
+                            })
+                        else:
+                            self.send_json({"success": False, "message": "尚未生成 30 号审计报告，请先执行探测或对账"}, status=404)
                     except Exception as e:
                         self.send_json({"success": False, "message": str(e)}, status=500)
                 return
