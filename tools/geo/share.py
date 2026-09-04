@@ -685,14 +685,17 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         p_sum = probing_trace.get("summary", {})
         hit_assets = []
         for q in probing_trace.get("probed_queries", []):
-            for c in q.get("citations", []):
+            cits = q.get("citations_captured") or q.get("citations", [])
+            for c in cits:
                 if c.get("is_ledger_hit"):
+                    h_type = c.get("hit_type") or c.get("match_type", "exact_hit")
                     hit_assets.append({
                         "url": c.get("url"),
                         "title": c.get("title", ""),
                         "model": q.get("model", ""),
                         "query": q.get("query", ""),
-                        "match_type": c.get("match_type", "exact_hit")
+                        "hit_type": h_type,
+                        "match_type": h_type
                     })
         live_citation_summary = {
             "has_data": True,

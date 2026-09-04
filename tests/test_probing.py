@@ -295,14 +295,18 @@ class TestProbingTracer(unittest.TestCase):
         self.assertTrue(any(has_footnote))
 
     def test_09_reconcile_existing_trace_and_report30(self):
-        """测试第 30 维: 离线重对账 reconcile_existing_trace 与 30 号公文自动落盘"""
+        """测试第 30 维: 离线重对账 reconcile_existing_trace 与 30 号公文自动落盘（严格断言零大模型调用）"""
         from tools.geo.probing import reconcile_existing_trace
         # 先确保执行过一次沙箱探测以产生 live_probing_trace.json
         run_live_probing(self.project_id, models=["doubao", "kimi"], query_sample_size=2, use_live=False)
 
-        res = reconcile_existing_trace(self.project_id)
+        with patch("tools.geo.probing.call_model_raw") as mock_call:
+            res = reconcile_existing_trace(self.project_id, portal_sync=True)
+            mock_call.assert_not_called()  # 严格铁律：离线对账绝不消耗模型 API 调用
+
         self.assertTrue(res["success"])
         self.assertEqual(res["project_id"], self.project_id)
+        self.assertTrue(res.get("portal_synced"))
         summary = res["summary"]
         self.assertIn("citation_share_pct", summary)
         self.assertIn("my_ledger_assets_hit_count", summary)
@@ -318,7 +322,7 @@ class TestProbingTracer(unittest.TestCase):
         self.assertIn("电子签章", content)
 
     def test_10_share_portal_live_citation_summary_and_fallback(self):
-        """测试第 30 维: 高管门户 live_citation_summary 挂载与 never_run 降级契约"""
+        """测试第 30 维: 高管门户 live_citation_summary 挂载、命中外链样例及 never_run 降级契约"""
         from tools.geo.share import compile_portal_data
         # 1. 正常已探测场景
         run_live_probing(self.project_id, models=["doubao"], query_sample_size=2, use_live=False)
@@ -328,6 +332,15 @@ class TestProbingTracer(unittest.TestCase):
         self.assertTrue(lcs["has_data"])
         self.assertEqual(lcs["status"], "audited")
         self.assertGreaterEqual(lcs["real_sov_pct"], 0.0)
+
+        # 验证 P0-1 闭环：命中样本外链非空且字段完整
+        if lcs.get("my_ledger_assets_hit_count", 0) > 0:
+            samples = lcs.get("hit_assets_samples", [])
+            self.assertGreater(len(samples), 0)
+            sample = samples[0]
+            self.assertIn("url", sample)
+            self.assertIn("hit_type", sample)
+            self.assertTrue(sample["url"].startswith("http"))
 
         # 2. 模拟无 trace 文件的全新项目优雅降级
         orig_exists = os.path.exists
@@ -339,6 +352,28 @@ class TestProbingTracer(unittest.TestCase):
                 self.assertEqual(fb_lcs["status"], "never_run")
                 self.assertEqual(fb_lcs["avg_sov"], 0.0)
                 self.assertEqual(fb_lcs["citation_hit_rate"], 0.0)
+                self.assertEqual(fb_lcs["hit_assets_samples"], [])
+
+    def test_11_cli_portal_sync_argument(self):
+        """测试第 30 维: CLI --portal-sync 参数解析与命令别名"""
+        from tools.geo.cli import main
+        import sys
+        # 验证 --portal-sync 参数能正常被 probe 和 probe-audit 解析
+        test_args = ["geo", "probe-audit", self.project_id, "--reconcile-only", "--portal-sync"]
+        with patch.object(sys, "argv", test_args):
+            with patch("tools.geo.probing.reconcile_existing_trace", return_value={
+                "success": True,
+                "client_name": "测试客户",
+                "reconciled_at": "2026-09-04 03:00:00",
+                "summary": {"total_citations_captured": 5, "my_ledger_assets_hit_count": 3, "citation_share_pct": 60.0, "real_sov_pct": 80.0},
+                "report_30_path": "outputs/30_test.md",
+                "portal_synced": True
+            }) as mock_recon:
+                try:
+                    main()
+                except SystemExit:
+                    pass
+                mock_recon.assert_called_once_with(self.project_id, portal_sync=True)
 
 
 if __name__ == "__main__":

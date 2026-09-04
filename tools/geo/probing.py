@@ -832,6 +832,15 @@ def reconcile_existing_trace(project_id: str, portal_sync: bool = True) -> Dict[
     print_success(f"✅ 离线极速重对账完成！总 Citation: {total_citations_captured} ｜ 我方命中: {my_citations_hit_count} ｜ 命中率: {summary.get('citation_share_pct')}%")
     print_info(f"ℹ️  30号公文落盘至: {report_md_path_30}")
 
+    portal_synced = False
+    if portal_sync:
+        try:
+            from .share import compile_portal_data
+            compile_portal_data(project_id)
+            portal_synced = True
+        except Exception:
+            pass
+
     return {
         "success": True,
         "project_id": project_id,
@@ -839,6 +848,7 @@ def reconcile_existing_trace(project_id: str, portal_sync: bool = True) -> Dict[
         "reconciled_at": now_str,
         "summary": summary,
         "report_18_path": report_md_path_18,
-        "report_30_path": report_md_path_30
+        "report_30_path": report_md_path_30,
+        "portal_synced": portal_synced
     }
 

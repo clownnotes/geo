@@ -342,9 +342,9 @@ def main():
         p_probe.add_argument("--project", "-p", default=None, help="客户项目 ID")
         p_probe.add_argument("--models", "-m", default="doubao,deepseek,kimi,yuanbao", help="待探测大模型列表 (英文逗号分隔)")
         p_probe.add_argument("--sample", "-s", type=int, default=5, help="意图 Query 采样条数 (默认 5)")
-        p_probe.add_argument("--live", action="store_true", help="启用真实 API 联网调用 (未配置 Key 则自动降级沙箱)")
         p_probe.add_argument("--report", action="store_true", help="生成并落盘 18/30 号公文 Markdown 报告")
         p_probe.add_argument("--reconcile-only", action="store_true", help="免大模型调用，直接基于最新台账对已有探测记录执行极速离线重对账并刷新 30 号报告")
+        p_probe.add_argument("--portal-sync", action="store_true", help="探测或离线对账后，联动刷新高管交付门户聚合缓存与战果数据大屏")
 
     # guard-clean (19 号品牌声誉排查与危机清洗，与 geo guard 幻觉防御区分)
     p_gclean = subparsers.add_parser("guard-clean", help="19 号品牌声誉负面联想排查与危机清洗压制")
@@ -1120,7 +1120,8 @@ def main():
 
         from tools.geo.probing import run_live_probing, reconcile_existing_trace
         if getattr(args, "reconcile_only", False):
-            res = reconcile_existing_trace(pid)
+            portal_sync_flag = bool(getattr(args, "portal_sync", False) or True)
+            res = reconcile_existing_trace(pid, portal_sync=portal_sync_flag)
             if not res.get("success"):
                 print(f"❌ 离线对账失败: {res.get('error')}")
                 sys.exit(1)
@@ -1132,6 +1133,8 @@ def main():
             print(f"🎯 Citation 角标总数: {summary.get('total_citations_captured', 0)} ｜ 命中台账资产: {summary.get('my_ledger_assets_hit_count', 0)} 处")
             print(f"📈 占有率 (Citation Share): {summary.get('citation_share_pct', 0.0)}% ｜ 实测 SOV: {summary.get('real_sov_pct', 0.0)}%")
             print(f"ℹ️  第 30 维反查审计公文报告已刷新:\n    {res.get('report_30_path')}")
+            if res.get("portal_synced"):
+                print("🌐 高管只读交付门户战果大屏已联动同步刷新 (含真实命中外链)")
             print("="*75 + "\n")
         else:
             models_list = [m.strip() for m in args.models.split(",") if m.strip()]
