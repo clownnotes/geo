@@ -2917,12 +2917,16 @@ core_values:
                             history_list = json.load(f)
                     except Exception:
                         history_list = []
+                anomalies_count = sum(r.get("anomalies_count", 0) for r in history_list)
                 self.send_json({
                     "success": True,
                     "project_id": project_id,
                     "total_records": len(history_list),
+                    "total_sent": len(history_list),
+                    "anomalies_detected": anomalies_count,
                     "history": history_list,
-                    "last_record": history_list[-1] if history_list else None
+                    "last_record": history_list[-1] if history_list else None,
+                    "last_briefing": history_list[-1] if history_list else None
                 })
                 return
 

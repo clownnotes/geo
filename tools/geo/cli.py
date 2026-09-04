@@ -1341,13 +1341,21 @@ def main():
             compile_portal_data(pid)
 
         mode_desc = "纯本地离线仿真 (Dry-Run)" if disp.get("dry_run") else "公网真实 Webhook 推送"
+        if disp.get("status") == "skipped_no_anomalies":
+            mode_desc += " [自动短路跳过: 无异动风险]"
+
+        top1_disp = f"{briefing.get('top1_rate')}%" if briefing.get('top1_rate') is not None else "[待实测]"
+        cite_disp = f"{briefing.get('citation_count')} 条" if briefing.get('citation_count') is not None else "[待实测]"
+        spider_disp = f"{briefing.get('spider_requests_count')} 次" if briefing.get('spider_requests_count') is not None else "[待实测]"
+        brs_disp = f"{briefing.get('reputation_score')} 分" if briefing.get('reputation_score') is not None else "[待实测]"
+
         print("\n" + "=" * 78)
         print(f"🤖 企微/飞书多端大模型战果晨报与异常声量即时告警机器人 · [{pid}] (第 33 维)")
         print("=" * 78)
         print(f"🏛️ 目标项目: {briefing.get('project_name')} ｜ 推送类型: {m_type.upper()}")
         print(f"📡 触达渠道: {disp.get('channel')} ｜ 执行模式: {mode_desc}")
-        print(f"📊 Top-1 综合首推率: {briefing.get('top1_rate') or '[待实测]'}% ｜ Citation 权威角标: {briefing.get('citation_count') or '[待实测]'} 条")
-        print(f"🕷️ AI 爬虫真实抓取: {briefing.get('spider_requests_count') or '[待实测]'} 次 ｜ 声誉指数 (BRS): {briefing.get('reputation_score') or '[待实测]'} 分")
+        print(f"📊 Top-1 综合首推率: {top1_disp} ｜ Citation 权威角标: {cite_disp}")
+        print(f"🕷️ AI 爬虫真实抓取: {spider_disp} ｜ 声誉指数 (BRS): {brs_disp}")
         print(f"⚔️ 竞品反超防御态势: {briefing.get('rival_crack_status')} ｜ 识别异常风险: {len(alerts)} 项")
         print("-" * 78)
         if alerts:
@@ -1357,6 +1365,8 @@ def main():
                 print(f"  [{badge}] {a.get('alert_id')}: {a.get('title')}")
                 print(f"      └─ 事实: {a.get('description')}")
                 print(f"      └─ 建议: {a.get('suggested_action')}")
+        elif disp.get("status") == "skipped_no_anomalies":
+            print("✅ 当前大模型全网声量与指标平稳健康，未触发任何异动，系统已自动跳过推送 (无风险打扰)。")
         else:
             print("✅ 大模型全网声量与爬虫访问正常，各项核心指标平稳处于健康区间。")
         print("-" * 78)

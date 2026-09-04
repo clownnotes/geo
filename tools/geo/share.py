@@ -899,6 +899,13 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         }
 
     # 第 33 维 战果晨报与即时告警机器人态势
+    try:
+        from tools.geo.patrol import load_notification_settings
+        notif_cfg = load_notification_settings()
+        webhook_configured = bool(notif_cfg.get("webhook_url"))
+    except Exception:
+        webhook_configured = False
+
     alert_history_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "alert_bot_history.json")
     if os.path.exists(alert_history_path):
         try:
@@ -906,17 +913,23 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
                 bot_history = json.load(fp)
             last_record = bot_history[-1] if bot_history else {}
             anomalies_count = sum(r.get("anomalies_count", 0) for r in bot_history)
+            recent_alerts = [r for r in bot_history if r.get("anomalies_count", 0) > 0][-5:]
             alert_bot_summary = {
                 "has_data": True,
                 "status": "active",
                 "status_label": "🤖 战果机器人已接入：已建立多端晨报与声量异动主动触达机制",
                 "total_dispatched": len(bot_history),
+                "total_sent": len(bot_history),  # 对齐 design §4
                 "last_dispatch_time": last_record.get("timestamp"),
+                "last_briefing_time": last_record.get("timestamp"),  # 对齐 design §4
                 "last_channel": last_record.get("channel", "feishu"),
                 "last_msg_type": last_record.get("msg_type", "briefing"),
                 "is_dry_run": last_record.get("dry_run", True),
                 "total_anomalies_intercepted": anomalies_count,
+                "anomalies_detected_count": anomalies_count,  # 对齐 design §4
+                "webhook_configured": webhook_configured,
                 "recent_history": bot_history[-5:],
+                "recent_alerts": recent_alerts,
                 "audit_doc": os.path.join("outputs", "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md")
             }
         except Exception:
@@ -925,12 +938,17 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
                 "status": "never_run",
                 "status_label": "⚪️ 待配置企微/飞书战果晨报与异动告警机器人",
                 "total_dispatched": 0,
+                "total_sent": 0,
                 "last_dispatch_time": None,
+                "last_briefing_time": None,
                 "last_channel": "none",
                 "last_msg_type": "none",
                 "is_dry_run": True,
                 "total_anomalies_intercepted": 0,
+                "anomalies_detected_count": 0,
+                "webhook_configured": webhook_configured,
                 "recent_history": [],
+                "recent_alerts": [],
                 "audit_doc": ""
             }
     else:
@@ -939,12 +957,17 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             "status": "never_run",
             "status_label": "⚪️ 待配置企微/飞书战果晨报与异动告警机器人",
             "total_dispatched": 0,
+            "total_sent": 0,
             "last_dispatch_time": None,
+            "last_briefing_time": None,
             "last_channel": "none",
             "last_msg_type": "none",
             "is_dry_run": True,
             "total_anomalies_intercepted": 0,
+            "anomalies_detected_count": 0,
+            "webhook_configured": webhook_configured,
             "recent_history": [],
+            "recent_alerts": [],
             "audit_doc": ""
         }
 

@@ -27,7 +27,7 @@ from .utils import (
     PROJECTS_DIR,
 )
 from .crawler import is_ssrf_safe_url
-from .patrol import load_notification_settings, save_notification_settings
+from .patrol import load_notification_settings
 
 # ==============================================================================
 # 数据模型定义 (Data Models)
@@ -44,6 +44,9 @@ class BriefingData:
     citation_count: Optional[int] = None           # Citation 权威角标命中条数
     spider_requests_count: Optional[int] = None    # 真实 AI 爬虫请求总数
     spider_top_agent: Optional[str] = None         # 最活跃 AI 爬虫
+    spider_blocked_count: int = 0                  # 403 / WAF 阻断抓取次数
+    spider_blocked_rate: Optional[float] = None    # 爬虫阻断率百分比 (0~100)
+    spider_drop_pct: Optional[float] = None        # 爬虫抓取环比/周环比暴跌跌幅 (0~100)
     rival_crack_status: str = "none"               # 竞对反超状态: ready_live / ready_sandbox / none
     flaws_intercepted: int = 0                     # 已截流挖掘竞对破绽数
     reputation_score: Optional[float] = None       # BRS 品牌声誉评分
@@ -93,20 +96,27 @@ class MorningBriefingAggregator:
             return None
 
     def _get_portal_url(self) -> str:
-        """获取项目高管大屏专属免密访问链接"""
-        token = ""
+        """获取项目高管大屏专属免密访问链接（必须严格查询 data/shares.json 活跃分享，禁止伪造 token）"""
         shares_path = os.path.join(self.data_dir, "shares.json")
-        if os.path.exists(shares_path):
-            try:
-                with open(shares_path, "r", encoding="utf-8") as f:
-                    shares = json.load(f)
-                    rec = shares.get(self.project_id, {})
-                    token = rec.get("token", "")
-            except Exception:
-                pass
-        if not token:
-            token = f"auto_{hashlib.md5(self.project_id.encode('utf-8')).hexdigest()[:8]}"
-        return f"http://127.0.0.1:8088/share.html?token={token}"
+        if not os.path.exists(shares_path):
+            return ""
+        try:
+            with open(shares_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                shares = data.get("shares", {})
+                active_shares = [
+                    s for s in shares.values()
+                    if s.get("project_id") == self.project_id and s.get("is_active") is True
+                ]
+                if active_shares:
+                    # 取最新创建的有效分享
+                    active_shares.sort(key=lambda x: x.get("created_at", 0), reverse=True)
+                    token = active_shares[0].get("token")
+                    if token:
+                        return f"http://127.0.0.1:8088/share.html?token={token}"
+        except Exception:
+            pass
+        return ""
 
     def aggregate(self) -> BriefingData:
         project_name = self.cfg.get("company_name", self.cfg.get("client_name", self.project_id))
@@ -138,6 +148,38 @@ class MorningBriefingAggregator:
         if spider_data:
             sp_summary = spider_data.get("summary", {})
             briefing.spider_requests_count = sp_summary.get("total_ai_hits", sp_summary.get("total_ai_requests"))
+            status_dist = spider_data.get("status_distribution", {})
+            briefing.spider_blocked_count = int(status_dist.get("403", 0))
+            blocked_rate = sp_summary.get("blocked_rate_pct")
+            if blocked_rate is not None:
+                briefing.spider_blocked_rate = float(blocked_rate)
+            elif briefing.spider_requests_count and briefing.spider_requests_count > 0:
+                briefing.spider_blocked_rate = round(briefing.spider_blocked_count / briefing.spider_requests_count * 100.0, 1)
+            else:
+                briefing.spider_blocked_rate = 0.0
+
+            # 抓取频次周环比 / 历史对比计算
+            prev_hits = sp_summary.get("prior_period_hits") or sp_summary.get("last_week_hits")
+            if prev_hits is None:
+                history_path = os.path.join(self.out_dir, "alert_bot_history.json")
+                if os.path.exists(history_path):
+                    try:
+                        with open(history_path, "r", encoding="utf-8") as f:
+                            hist = json.load(f)
+                            for rec in reversed(hist):
+                                snap = rec.get("metrics_snapshot", {})
+                                if "spider_requests" in snap and snap["spider_requests"] is not None:
+                                    prev_hits = snap["spider_requests"]
+                                    break
+                    except Exception:
+                        pass
+
+            if prev_hits is not None and prev_hits > 0 and briefing.spider_requests_count is not None:
+                if briefing.spider_requests_count < prev_hits:
+                    briefing.spider_drop_pct = round((prev_hits - briefing.spider_requests_count) / prev_hits * 100.0, 1)
+                else:
+                    briefing.spider_drop_pct = 0.0
+
             most_active = sp_summary.get("most_active_spider")
             if not most_active:
                 breakdown = spider_data.get("spider_breakdown", {})
@@ -148,6 +190,9 @@ class MorningBriefingAggregator:
         else:
             briefing.spider_requests_count = None
             briefing.spider_top_agent = None
+            briefing.spider_blocked_count = 0
+            briefing.spider_blocked_rate = None
+            briefing.spider_drop_pct = None
             briefing.data_state["spider_31"] = "pending"
 
         # 3. 聚合第 32 维竞品反超套件态势
@@ -240,10 +285,33 @@ class InstantAnomalyDetector:
                 timestamp=self.now_str
             ))
 
-        # 3. 🟡 P1 爬虫抓取异常或访问骤降
-        if self.briefing.spider_requests_count is not None and self.briefing.spider_requests_count == 0:
+        # 3. 🟡 P1 爬虫抓取异常（403 阻断、周环比暴跌 > 50% 或访问归零）
+        if self.briefing.spider_blocked_count > 0 or (self.briefing.spider_blocked_rate is not None and self.briefing.spider_blocked_rate > 0.0):
+            rate_disp = f"{self.briefing.spider_blocked_rate}%" if self.briefing.spider_blocked_rate is not None else f"{self.briefing.spider_blocked_count} 次"
             alerts.append(AnomalyAlert(
-                alert_id=f"ALT-P1-{int(time.time())}-4",
+                alert_id=f"ALT-P1-{int(time.time())}-4A",
+                level="P1",
+                category="spider_blocked",
+                title="AI 爬虫访问遭遇服务器 403 拦截或 WAF 阻断",
+                description=f"主流大模型爬虫抓取时遭遇 403 状态码阻断（拦截率: {rate_disp}），导致新知识无法被大模型有效索引",
+                suggested_action=f"建议运行: geo spider-audit {self.project_id} 排查 Nginx 防火墙与 robots.txt 白名单配置",
+                metric_val=f"403阻断: {rate_disp}",
+                timestamp=self.now_str
+            ))
+        elif self.briefing.spider_drop_pct is not None and self.briefing.spider_drop_pct > 50.0:
+            alerts.append(AnomalyAlert(
+                alert_id=f"ALT-P1-{int(time.time())}-4B",
+                level="P1",
+                category="spider_blocked",
+                title="AI 爬虫抓取频次周环比暴跌超过 50%",
+                description=f"昨日大模型真实爬虫访问量较上一周期骤降 {self.briefing.spider_drop_pct}%，可能存在全站 CDN 或域名解析故障",
+                suggested_action=f"建议运行: geo spider-audit {self.project_id} 审计服务器访问日志并排查可用性",
+                metric_val=f"周环比跌幅: {self.briefing.spider_drop_pct}%",
+                timestamp=self.now_str
+            ))
+        elif self.briefing.spider_requests_count is not None and self.briefing.spider_requests_count == 0:
+            alerts.append(AnomalyAlert(
+                alert_id=f"ALT-P1-{int(time.time())}-4C",
                 level="P1",
                 category="spider_blocked",
                 title="昨日 AI 爬虫真实访问量归零 (可能遭 WAF/403 阻断)",
@@ -282,9 +350,12 @@ class WebhookCardFormatter:
         has_p0 = any(a.level == "P0" for a in alerts)
         has_p1 = any(a.level == "P1" for a in alerts)
 
-        if is_alert_only or alerts:
+        if alerts:
             header_color = "red" if has_p0 else ("orange" if has_p1 else "carmine")
             header_title = f"🚨 GEO 大模型声量异动告警 · [{briefing.project_name}]"
+        elif is_alert_only:
+            header_color = "green"
+            header_title = f"✅ GEO 大模型声量巡检正常 · [{briefing.project_name}]"
         else:
             header_color = "turquoise"
             header_title = f"🌤️ GEO 大模型每日战果晨报 · [{briefing.project_name}]"
@@ -329,17 +400,30 @@ class WebhookCardFormatter:
                 }
             })
 
-        # 底部操作按钮
+        # 底部操作双按钮 (对齐 design §3.1: 查看高管大屏 + 启动自愈流水线)
         elements.append({"tag": "hr"})
+        portal_btn_text = "📊 查看高管专属交付大屏" if briefing.portal_url else "📊 高管交付大屏 (待配置分享链接)"
+        portal_target_url = briefing.portal_url or "http://127.0.0.1:8088/share.html"
+        heal_target_url = f"{briefing.portal_url}#deliverables" if briefing.portal_url else "http://127.0.0.1:8088/share.html"
+
         actions: List[Dict[str, Any]] = [
             {
                 "tag": "button",
                 "text": {
                     "tag": "plain_text",
-                    "content": "📊 查看高管专属交付大屏"
+                    "content": portal_btn_text
                 },
                 "type": "primary",
-                "url": briefing.portal_url
+                "url": portal_target_url
+            },
+            {
+                "tag": "button",
+                "text": {
+                    "tag": "plain_text",
+                    "content": "⚡️ 启动一键自愈流水线"
+                },
+                "type": "default",
+                "url": heal_target_url
             }
         ]
         elements.append({
@@ -368,7 +452,7 @@ class WebhookCardFormatter:
     @staticmethod
     def format_wecom_card(briefing: BriefingData, alerts: List[AnomalyAlert], is_alert_only: bool = False) -> Dict[str, Any]:
         """企业微信富文本 Markdown 协议"""
-        tag = "🚨 声量异动告警" if (is_alert_only or alerts) else "🌤️ 大模型战果晨报"
+        tag = "🚨 声量异动告警" if alerts else ("✅ 声量巡检正常" if is_alert_only else "🌤️ 大模型战果晨报")
         top1_str = f"{briefing.top1_rate}%" if briefing.top1_rate is not None else "[待实测]"
         cite_str = f"{briefing.citation_count} 条" if briefing.citation_count is not None else "[待实测]"
         spider_str = f"{briefing.spider_requests_count} 次" if briefing.spider_requests_count is not None else "[待实测]"
@@ -381,13 +465,15 @@ class WebhookCardFormatter:
                 color = "warning" if a.level in ("P0", "P1") else "comment"
                 alert_section += f"> • <font color=\"{color}\">[{a.level}] {a.title}</font>：{a.description}\n"
 
+        portal_link_md = f"[👉 点击打开甲方高管专属全景交付大屏]({briefing.portal_url})" if briefing.portal_url else "[⚪️ 待配置高管专属分享链接 (请在控制台生成)]"
+
         md_content = f"""### {tag} · <font color="info">{briefing.project_name}</font>
 > **统计周期**：昨日全天 ｜ **监测矩阵**：{', '.join(briefing.models_tested[:4])}
 > **Top-1 综合首推率**：<font color="warning">{top1_str}</font>
 > **Citation 权威引用**：**{cite_str}** ｜ **AI 爬虫抓取**：**{spider_str}**
 > **品牌声誉指数 (BRS)**：**{brs_str}**
 {alert_section}
-[👉 点击打开甲方高管专属全景交付大屏]({briefing.portal_url})
+{portal_link_md}
 """
         return {
             "msgtype": "markdown",
@@ -399,24 +485,48 @@ class WebhookCardFormatter:
     @staticmethod
     def format_dingtalk_card(briefing: BriefingData, alerts: List[AnomalyAlert], is_alert_only: bool = False) -> Dict[str, Any]:
         """钉钉 ActionCard / Markdown 协议"""
-        title = f"GEO 战报 · {briefing.project_name}"
+        is_alert = bool(alerts)
+        if is_alert:
+            title = f"🚨 声量异动告警 · {briefing.project_name}"
+            header_tag = "🚨 GEO 大模型声量异动告警"
+        elif is_alert_only:
+            title = f"✅ 声量巡检正常 · {briefing.project_name}"
+            header_tag = "✅ GEO 大模型声量健康"
+        else:
+            title = f"🌤️ 大模型战果晨报 · {briefing.project_name}"
+            header_tag = "🌤️ GEO 大模型战果晨报"
+
         top1_str = f"{briefing.top1_rate}%" if briefing.top1_rate is not None else "[待实测]"
         cite_str = f"{briefing.citation_count} 条" if briefing.citation_count is not None else "[待实测]"
+        spider_str = f"{briefing.spider_requests_count} 次" if briefing.spider_requests_count is not None else "[待实测]"
+        brs_str = f"{briefing.reputation_score} 分" if briefing.reputation_score is not None else "[待实测]"
+
+        alert_section = ""
+        if alerts:
+            alert_section = "\n\n**⚠️ 异常预警事项**：\n"
+            for a in alerts:
+                badge = "🔴" if a.level in ("P0", "P1") else "🟡"
+                alert_section += f"- {badge} **[{a.level}] {a.title}**\n  - 事实: {a.description}\n  - 建议: {a.suggested_action}\n"
+
+        portal_link = f"[👉 点击查看高管交付大屏]({briefing.portal_url})" if briefing.portal_url else "*(待配置分享链接)*"
 
         text = (
-            f"### 🌤️ GEO 大模型战果晨报 · {briefing.project_name}\n\n"
+            f"### {header_tag} · {briefing.project_name}\n\n"
             f"- **Top-1 首推率**：{top1_str}\n"
             f"- **Citation 权威引用**：{cite_str}\n"
-            f"- **竞品反超套件**：{'已就绪' if briefing.rival_crack_status != 'none' else '待逆向'}\n\n"
-            f"[点击查看高管交付大屏]({briefing.portal_url})"
+            f"- **AI 爬虫真实抓取**：{spider_str}\n"
+            f"- **品牌声誉指数 (BRS)**：{brs_str}\n"
+            f"- **竞品反超套件**：{'已就绪' if briefing.rival_crack_status != 'none' else '待逆向'}"
+            f"{alert_section}\n\n"
+            f"{portal_link}"
         )
         return {
             "msgtype": "actionCard",
             "actionCard": {
                 "title": title,
                 "text": text,
-                "singleTitle": "📊 查看交付大屏",
-                "singleURL": briefing.portal_url
+                "singleTitle": "📊 查看交付大屏" if briefing.portal_url else "⚪️ 待配置分享链接",
+                "singleURL": briefing.portal_url or "http://127.0.0.1:8088/share.html"
             }
         }
 
@@ -466,6 +576,17 @@ class AlertBotDispatcher:
     ) -> Dict[str, Any]:
         """执行发送调度"""
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        metrics_snapshot = {
+            "top1_rate": briefing.top1_rate,
+            "citation_count": briefing.citation_count,
+            "spider_requests": briefing.spider_requests_count,
+            "spider_blocked_count": briefing.spider_blocked_count,
+            "spider_blocked_rate": briefing.spider_blocked_rate,
+            "spider_drop_pct": briefing.spider_drop_pct,
+            "reputation_score": briefing.reputation_score,
+            "negative_exposure_rate": briefing.negative_exposure_rate,
+            "retention_rate": briefing.retention_rate
+        }
 
         # 1. 纯本地 Dry-Run 模式拦截
         if dry_run or not webhook_url:
@@ -479,6 +600,7 @@ class AlertBotDispatcher:
                 "delivered": False,
                 "dry_run": True,
                 "anomalies_count": len(alerts),
+                "metrics_snapshot": metrics_snapshot,
                 "payload_preview": payload,
                 "status": "success_dry_run"
             }
@@ -519,6 +641,8 @@ class AlertBotDispatcher:
             "dry_run": False,
             "error": error_msg,
             "anomalies_count": len(alerts),
+            "metrics_snapshot": metrics_snapshot,
+            "payload_preview": payload,
             "status": "delivered" if delivered else "failed"
         }
         self._save_history(record)
@@ -555,7 +679,7 @@ def generate_report_33_markdown(briefing: BriefingData, alerts: List[AnomalyAler
         f"- **Citation 权威引用角标命中数**：`{cite_str}`",
         f"- **AI 爬虫昨日真实抓取频次**：`{spider_str}`（活跃 Agent：`{briefing.spider_top_agent or '待实测'}`）",
         f"- **品牌声誉健康指数 (BRS)**：`{brs_str}`",
-        f"- **高管免密交付大屏**：[{briefing.portal_url}]({briefing.portal_url})",
+        f"- **高管免密交付大屏**：{f'[{briefing.portal_url}]({briefing.portal_url})' if briefing.portal_url else '[待配置分享链接]'}",
         "",
         "---",
         "",
@@ -650,6 +774,56 @@ def run_alert_bot(
             metric_val="Ping: OK",
             timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )]
+
+    # 若为纯告警模式 (--type alert) 且未发现任何异动，短路跳过发送，避免空报打扰
+    if msg_type == "alert" and not alerts:
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        skipped_record = {
+            "dispatch_id": f"DSP-SKIP-{hashlib.md5((project_id + now_str).encode('utf-8')).hexdigest()[:8]}",
+            "timestamp": now_str,
+            "project_id": project_id,
+            "msg_type": "alert",
+            "channel": target_channel,
+            "webhook_target": "none",
+            "delivered": False,
+            "dry_run": dry_run,
+            "anomalies_count": 0,
+            "metrics_snapshot": {
+                "top1_rate": briefing.top1_rate,
+                "citation_count": briefing.citation_count,
+                "spider_requests": briefing.spider_requests_count,
+                "spider_blocked_count": briefing.spider_blocked_count,
+                "spider_blocked_rate": briefing.spider_blocked_rate,
+                "spider_drop_pct": briefing.spider_drop_pct,
+                "reputation_score": briefing.reputation_score,
+                "negative_exposure_rate": briefing.negative_exposure_rate,
+                "retention_rate": briefing.retention_rate
+            },
+            "status": "skipped_no_anomalies",
+            "note": "全网声量与指标平稳健康，未触发任何 P0/P1/P2 异动，自动跳过公网推送"
+        }
+        dispatcher = AlertBotDispatcher(project_id)
+        dispatcher._save_history(skipped_record)
+
+        report_path = ""
+        if save_report and project_id:
+            out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+            os.makedirs(out_dir, exist_ok=True)
+            report_path = os.path.join(out_dir, "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md")
+            report_md = generate_report_33_markdown(briefing, alerts, skipped_record)
+            with open(report_path, "w", encoding="utf-8") as f:
+                f.write(report_md)
+
+        return {
+            "project_id": project_id,
+            "msg_type": msg_type,
+            "channel": target_channel,
+            "briefing": asdict(briefing),
+            "alerts": [],
+            "dispatch_result": skipped_record,
+            "card_payload": {},
+            "report_file": report_path
+        }
 
     # 4. 格式化原生卡片
     formatter = WebhookCardFormatter()

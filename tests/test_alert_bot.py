@@ -79,7 +79,9 @@ class TestAlertBotPipeline(unittest.TestCase):
         self.assertIsNotNone(briefing.citation_count)
         self.assertIsNotNone(briefing.spider_requests_count)
         self.assertIsNotNone(briefing.reputation_score)
-        self.assertTrue(briefing.portal_url.startswith("http://"))
+        # 验证必须解析真实有效 shares.json token，严禁生成伪造 auto_*
+        self.assertTrue(briefing.portal_url.startswith("http://127.0.0.1:8088/share.html?token=sh_"))
+        self.assertNotIn("auto_", briefing.portal_url, "严禁生成伪造 auto_* token")
 
         # 针对无资产空项目：严禁捏造任何假数据，指标必须恒为 None
         empty_aggregator = MorningBriefingAggregator("non_existent_dummy_project_999")
@@ -89,6 +91,7 @@ class TestAlertBotPipeline(unittest.TestCase):
         self.assertIsNone(empty_briefing.citation_count, "空项目 Citation 严禁捏造，必须为 None")
         self.assertIsNone(empty_briefing.spider_requests_count, "空项目爬虫访问严禁捏造，必须为 None")
         self.assertIsNone(empty_briefing.reputation_score, "空项目声誉评分严禁捏造，必须为 None")
+        self.assertEqual(empty_briefing.portal_url, "", "无有效分享链接的项目严禁伪造 token，必须为空字符串")
         self.assertEqual(empty_briefing.data_state.get("probe_30"), "pending")
 
     def test_03_anomaly_detector_levels(self):
@@ -117,7 +120,30 @@ class TestAlertBotPipeline(unittest.TestCase):
         p0_alert = next(a for a in alerts if a.level == "P0")
         self.assertIn("geo sentiment", p0_alert.suggested_action)
 
-        # 2. 健康项目不应触发任何异动
+        # 2. 爬虫 403 阻断告警校验
+        blocked_briefing = BriefingData(
+            project_id="blocked_client",
+            project_name="受阻企业",
+            date_str="2026-09-04",
+            spider_requests_count=100,
+            spider_blocked_count=15,
+            spider_blocked_rate=15.0
+        )
+        blocked_alerts = InstantAnomalyDetector("blocked_client", blocked_briefing).detect_anomalies()
+        self.assertTrue(any(a.category == "spider_blocked" and "403" in a.title for a in blocked_alerts))
+
+        # 3. 爬虫抓取频次周环比暴跌 > 50% 告警校验
+        drop_briefing = BriefingData(
+            project_id="drop_client",
+            project_name="暴跌企业",
+            date_str="2026-09-04",
+            spider_requests_count=50,
+            spider_drop_pct=65.0
+        )
+        drop_alerts = InstantAnomalyDetector("drop_client", drop_briefing).detect_anomalies()
+        self.assertTrue(any(a.category == "spider_blocked" and "暴跌" in a.title for a in drop_alerts))
+
+        # 4. 健康项目不应触发任何异动
         healthy_briefing = BriefingData(
             project_id="healthy_client",
             project_name="健康企业",
@@ -160,17 +186,19 @@ class TestAlertBotPipeline(unittest.TestCase):
 
         fmt = WebhookCardFormatter()
 
-        # 1. 飞书卡片校验
+        # 1. 飞书卡片校验 (双按钮: 大屏直达 + 自愈流水线)
         feishu_card = fmt.format_feishu_card(briefing, alerts)
         self.assertEqual(feishu_card["msg_type"], "interactive")
         card_content = feishu_card["card"]
         self.assertTrue(card_content["config"]["wide_screen_mode"])
         self.assertIn("徐州璇源网络科技有限公司", card_content["header"]["title"]["content"])
         self.assertEqual(card_content["header"]["template"], "orange")  # 有 P1 告警使用 orange/carmine
-        # 校验直达大屏按钮
         action_elements = [el for el in card_content["elements"] if el.get("tag") == "action"]
         self.assertTrue(len(action_elements) > 0)
-        self.assertEqual(action_elements[0]["actions"][0]["url"], briefing.portal_url)
+        actions = action_elements[0]["actions"]
+        self.assertEqual(len(actions), 2, "飞书卡片底部必须挂载查看大屏与启动自愈双按钮")
+        self.assertEqual(actions[0]["url"], briefing.portal_url)
+        self.assertIn("自愈", actions[1]["text"]["content"])
 
         # 2. 企微 Markdown 卡片校验
         wecom_card = fmt.format_wecom_card(briefing, alerts)
@@ -180,10 +208,11 @@ class TestAlertBotPipeline(unittest.TestCase):
         self.assertIn(briefing.portal_url, wecom_md)
         self.assertIn("Top-1 综合首推率", wecom_md)
 
-        # 3. 钉钉 ActionCard 校验
+        # 3. 钉钉 ActionCard 校验 (必须包含异动告警正文)
         ding_card = fmt.format_dingtalk_card(briefing, alerts)
         self.assertEqual(ding_card["msgtype"], "actionCard")
         self.assertEqual(ding_card["actionCard"]["singleURL"], briefing.portal_url)
+        self.assertIn("竞对拦截警报", ding_card["actionCard"]["text"], "钉钉卡片必须渲染异动告警列表")
 
     def test_05_dispatcher_dry_run_and_history(self):
         """测试 5: 调度器纯本地 Dry-Run 仿真与历史台账持久化"""
@@ -237,6 +266,17 @@ class TestAlertBotPipeline(unittest.TestCase):
         self.assertIn("大模型 Top-1 综合首推率", md_text)
         self.assertIn("高管免密交付大屏", md_text)
 
+        # 验证 --type alert 且无异动时的短路跳过逻辑（避免空报打扰）
+        healthy_alert_res = run_alert_bot(
+            self.project_id,
+            msg_type="alert",
+            channel="feishu",
+            dry_run=True,
+            save_report=False
+        )
+        if not healthy_alert_res["alerts"]:
+            self.assertEqual(healthy_alert_res["dispatch_result"]["status"], "skipped_no_anomalies")
+
     def test_07_portal_integration_and_never_run(self):
         """测试 7: 高管交付门户战果反哺与 never_run 优雅降级契约"""
         # 已有运行记录的项目
@@ -247,6 +287,11 @@ class TestAlertBotPipeline(unittest.TestCase):
         self.assertEqual(summary_active["status"], "active")
         self.assertIn("🤖", summary_active["status_label"])
         self.assertGreaterEqual(summary_active["total_dispatched"], 1)
+        # 验证 design §4 兼容别名字段
+        self.assertEqual(summary_active["total_sent"], summary_active["total_dispatched"])
+        self.assertEqual(summary_active["anomalies_detected_count"], summary_active["total_anomalies_intercepted"])
+        self.assertIn("webhook_configured", summary_active)
+        self.assertIn("recent_alerts", summary_active)
 
         # 检查 33 号报告映射
         self.assertIn("alert_bot_audit", portal_active["deliverables"])

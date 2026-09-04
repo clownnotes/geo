@@ -161,17 +161,22 @@ python3 -m tools.geo alert-bot xuzhou_xuanyuan --type test --channel wecom --dry
 
 ## 4. 高管交付门户反哺与优雅降级契约
 
-在 `tools/geo/share.py` 中挂载 `alert_bot_summary`：
+在 `tools/geo/share.py` 中挂载 `alert_bot_summary`，全面对齐以下规范（包含主键与跨端兼容别名）：
 ```json
 {
   "has_data": true,
   "status": "active",
-  "status_label": "🤖 战果机器人已就绪：支持企微/飞书每日晨报与异动告警",
+  "status_label": "🤖 战果机器人已接入：已建立多端晨报与声量异动主动触达机制",
+  "total_dispatched": 3,
   "total_sent": 3,
+  "last_dispatch_time": "2026-09-04 09:00:00",
   "last_briefing_time": "2026-09-04 09:00:00",
+  "total_anomalies_intercepted": 0,
   "anomalies_detected_count": 0,
+  "recent_history": [],
   "recent_alerts": [],
-  "webhook_configured": false
+  "webhook_configured": false,
+  "audit_doc": "outputs/33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md"
 }
 ```
 当项目未运行过 alert-bot 时，返回：
@@ -179,9 +184,17 @@ python3 -m tools.geo alert-bot xuzhou_xuanyuan --type test --channel wecom --dry
 {
   "has_data": false,
   "status": "never_run",
-  "status_label": "⚪️ 待配置大模型战果与异动告警机器人",
+  "status_label": "⚪️ 待配置企微/飞书战果晨报与异动告警机器人",
+  "total_dispatched": 0,
   "total_sent": 0,
-  "anomalies_detected_count": 0
+  "last_dispatch_time": null,
+  "last_briefing_time": null,
+  "total_anomalies_intercepted": 0,
+  "anomalies_detected_count": 0,
+  "webhook_configured": false,
+  "recent_history": [],
+  "recent_alerts": [],
+  "audit_doc": ""
 }
 ```
 `web/share.html` 中增设只读状态卡片，严格支持 `never_run` 优雅降级。
