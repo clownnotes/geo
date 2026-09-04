@@ -209,3 +209,50 @@
    - 状态标识更新为 **`[已达成共识]`**，提请协作审阅助手核验放行。
 
 
+
+---
+
+## 跨端评审记录 6: Cursor 对记录 5 修订的独立复验 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Spec Revision Re-Verification（代码未开工，tasks 0/17；对照修订后 design/tasks + `xuzhou_xuanyuan/outputs` 真文件；**不采信**记录 5 自评）
+- **审查结论**：`[已达成共识]`
+- **总判**：记录 4 的 **P0-A / P0-B 主诉已闭环**，P1-C/D 已写入 Spec。允许进入 `./opsx apply`。仍有 2 条 **🟡 实现硬约束**（现网样例可复现），须在首版 `healer.py` + `test_self_healing.py` 落地，建议顺手补进 design 一行，**不再为此单独阻塞 apply**。
+
+### 1. 记录 4 / 5 闭环复核
+
+| 编号 | 项 | 复核结果 | 证据 |
+|:---|:---|:---|:---|
+| **P0-A** | `factual_anchors` 字段名 | ✅ **通过** | design §2 已改为 `risk_id/category/truth_anchor/defense_strategy`；与现网 JSON 一致；tasks 1.1/4.1 强制断言 |
+| **P0-B** | robustness 提取→注入 | ✅ **主诉通过** | 采纳方案①：`01` 引号问句 + `truth_anchor` 作答；`02` 扰动原句 → `knowsAbout`/附录；禁止空想作答已写死 |
+| **P1-C** | 同题冲突优先级 | ✅ | design §2.1：`counter_interception` > `factual_anchors` > `robustness` + `skipped_conflicts` |
+| **P1-D** | `03_` 全名统一 | ✅ | design 契约表已用 `03_普林斯顿9因子高权威语料库.md` |
+| 历史 P0-1/2/4 与其余 P1 | 公文29 / truth Section5 / 五步事务 / CLI / N=10 / 鉴权 / never_run | ✅ 保持 | 无回退 |
+
+### 2. 现网样例抽检（独立复跑）
+
+| 源 | 抽检结果 |
+|:---|:---|
+| `factual_anchors.json` | 字段集合 = `{risk_id, category, truth_anchor, defense_strategy}` ✅ |
+| `robustness/.../01_*.md` §2 | 引号命中 2 条：①`全套自研源码交付、杜绝中介倒买倒卖`（**非问句**）②`如何辨别伪技术外包转包团队？…`（真问句） |
+| `robustness/.../02_*.md` §1 表 | 「扰动测试原句」列可解析出 2 条口语/倒装 Query ✅ |
+| moat / decay / rerank 正则 | 与记录 2/4 结论一致，无回退 ✅ |
+
+### 3. 🟡 Apply 期必须落地的硬约束（不阻断共识，但代码审查会卡）
+
+| # | 风险 | 现网证据 | 实现要求（写入 `healer.py` + 单测） |
+|:--|:-----|:---------|:-----------------------------------|
+| **R1** | 裸正则 `“(?P<q>[^”]+)”` 会把**承诺短语**当成 FAQ `name` | §2 第 1 条引号不是问句 | **仅保留含 `？` 或 `?` 的引号串**作为 FAQ；其余忽略。单测断言「全套自研源码…」不进入 `faq_pairs` |
+| **R2** | 「对应类别」绑定算法未写死，易默认第一条 `truth_anchor`（变相空想） | 问句讲转包；categories 为五类风险名 | 用问句关键词 ∩ `category`/`truth_anchor` 文本匹配；**无命中则跳过该 FAQ**（记 audit），**禁止** fallback 到任意/首条锚点。建议优先匹配「交付物与源码归属权质疑」类 |
+
+### 4. 🟢 可选（不卡）
+
+- design 契约表把 R1/R2 各补一句，避免跨 IDE 实现分叉。
+- `factual_anchors` 在 §2.1 优先级中主要作答源而非出题源——实现时 FAQ 出题以 moat/robustness 为准即可。
+
+### 5. 放行结论
+
+- **状态结论**：`[已达成共识]` — Spec 达到可开发基线。
+- **下一步**：用户确认后执行 `./opsx apply`；本地 `127.0.0.1:8088` 验证；**严禁**私自推生产。
+- **代码门禁**：首版 PR / 终审须覆盖 R1、R2 单测；缺测则该次代码审查判 `[需修正]`。
+
