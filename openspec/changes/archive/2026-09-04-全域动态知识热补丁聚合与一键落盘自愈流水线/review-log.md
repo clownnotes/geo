@@ -345,3 +345,42 @@
 - 状态结论：**`[通过]`**，变更允许进入归档（`./opsx archive`）。
 
 
+
+---
+
+## 跨端评审记录 9: Cursor 对记录 8 修复的独立终审核验 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Fix Verification Review（对照记录 7 的 P0/P1；独立核验代码与单测，**不采信**记录 8 自评）
+- **审查结论**：`[通过]`
+- **总判**：记录 7 阻断项 **P0-1 已关闭**，P1-2/3/4 均已落地且有单测；自愈 **11 tests OK**，全库 **149 tests OK**。第 29 维达到可归档基线。
+
+### 1. 记录 7 闭环复核
+
+| # | 原问题 | 复核结果 | 证据 |
+|:--|:-------|:---------|:-----|
+| **P0-1** | 空 FAQ 编造占位问答 / 行业话术 | ✅ | `healer.py` L692/L732 改为「暂无动态自愈问答对需注入」；无 `- Q:` / `#### Q`；Anti-Drift 已行业中立；`test_11` 沙箱断言通过 |
+| **P1-2** | 同题冲突缺端到端测 | ✅ | `test_04` 沙箱双包同题 → 胜出 `counter_interception_pack` + `skipped_conflicts` |
+| **P1-3** | R2 答句未断言 ∈ anchors | ✅ | `test_03`：`assertIn(answer, all_truth_texts)` |
+| **P1-4** | 门户假「100%」文案 | ✅ | `share.py`：`动态自愈已生效 ({total_patches} 处加固)` |
+
+### 2. 本地验证（本机复跑）
+
+| 命令 | 结果 |
+|:---|:---|
+| `python3 -m unittest tests.test_self_healing -v` | **Ran 11 … OK** |
+| `python3 -m unittest discover -s tests -p "test_*.py"` | **Ran 149 … OK** |
+
+### 3. 既有主能力保持（抽检无回退）
+
+- ✅ R1/R2、五步事务/`failed_rolled_back`、物理锚点幂等、`@graph` 合并、N=10 FIFO、CLI 边界、Bearer 鉴权、`never_run` 降级、公文 `29_`
+
+### 4. 🟢 可选后续（不阻断通过/归档）
+
+- 结案公文模板仍有「自愈健康度: 100%」修辞（`healer.py` 审计 MD），与门户已改的客观文案略不一致；归档后可顺手改成补丁计数，非本轮阻断。
+
+### 5. 放行结论
+
+- **状态结论**：`[通过]` — 允许执行 `./opsx archive` 归档本变更。
+- 仅本地验证；**未**、也**不得**在未获用户明示前向 `mini` / `geo.baicl.cc` 推生产。
+
