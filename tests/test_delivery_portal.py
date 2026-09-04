@@ -93,7 +93,7 @@ class TestDeliveryPortal(unittest.TestCase):
         self.assertIn("metrics", data)
 
     def test_compile_portal_data_graceful_fallback(self):
-        """测试缺少数据或不存在项目时的优雅降级（禁止抛出未捕获异常）"""
+        """测试缺少数据或不存在项目时的优雅降级（禁止抛出未捕获异常，且履约评级为待验收）"""
         # 对不存在的项目 ID
         data = compile_portal_data("non_existent_project_xyz", token="xyz")
         self.assertTrue(data["success"])
@@ -101,6 +101,8 @@ class TestDeliveryPortal(unittest.TestCase):
         self.assertIsNone(exec_sum["mpi_score"])
         self.assertIsNone(exec_sum["first_recommend_rate_pct"])
         self.assertEqual(exec_sum["annual_ad_saving_wan"], 0.0)
+        self.assertEqual(exec_sum["delivery_grade"], "待验收")
+        self.assertEqual(data["certificate_summary"]["delivery_grade"], "待验收")
         self.assertEqual(data["models_mindshare"], {})
         self.assertIsNone(data["authority_assurance"]["princeton_score"])
         self.assertFalse(data["certificate_summary"]["has_certificate"])
@@ -136,7 +138,7 @@ class TestDeliveryPortal(unittest.TestCase):
         self.assertEqual(status_bad, "invalid_pin")
 
     def test_export_offline_portal_html_no_cdn(self):
-        """测试导出离线单文件高管大屏：完全内联，严格断言无外部 CDN 依赖"""
+        """测试导出离线单文件高管大屏：完全内联，严格断言无外部 CDN 依赖且关键布局样式齐备"""
         with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as tf:
             target_path = tf.name
 
@@ -149,18 +151,25 @@ class TestDeliveryPortal(unittest.TestCase):
             with open(target_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            # 断言内联初始数据注入
+            # 断言内联初始数据与安全 Stub 注入
             self.assertIn("window.__INITIAL_PORTAL_DATA__", content)
             self.assertIn("window.__IS_OFFLINE_EXPORT__ = true", content)
+            self.assertIn("window.lucide", content)
             self.assertIn("徐州璇源网络科技有限公司", content)
 
-            # 严格断言：绝无外部 CDN 运行时网络依赖 (对齐 Cursor P0 #4)
+            # 严格断言：绝无外部 CDN 运行时网络依赖 (对齐 Cursor P0 #4 / P0 #1)
             self.assertNotIn("cdn.tailwindcss.com", content)
             self.assertNotIn("unpkg.com", content)
             self.assertNotIn("cdn.jsdelivr.net/npm/marked", content)
 
-            # 断言内联基础样式已注入
+            # 严格断言：离线 CSS 覆盖大屏骨架与关键选择器，杜绝 Airplane Mode 塌布局 (对齐 Cursor 记录5 P0 #1)
             self.assertIn("Offline Standalone CSS", content)
+            self.assertIn("header {", content)
+            self.assertIn("#hero-mpi-score", content)
+            self.assertIn(".bg-slate-900", content)
+            self.assertIn(".grid", content)
+            self.assertIn(".max-w-7xl", content)
+            self.assertIn(".executive-card", content)
         finally:
             if os.path.exists(target_path):
                 os.remove(target_path)

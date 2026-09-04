@@ -1461,7 +1461,7 @@ def package_zhihu_assets(project_id: str, verify: bool = True) -> dict:
     if verify:
         print_info("2. 正在评估知乎富文本的大模型爬虫保真度 (Crawler Fidelity) ...")
         fidelity = verify_crawler_fidelity(zhihu_rich_html, project_id, "zhihu")
-        fidelity_path = os.path.join(pack_dir, "fidelity_report.json")
+        fidelity_path = os.path.join(pack_dir, "fidelity_report_zhihu.json")
         with open(fidelity_path, "w", encoding="utf-8") as f:
             json.dump(fidelity, f, ensure_ascii=False, indent=2)
 
