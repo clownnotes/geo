@@ -154,3 +154,34 @@
   - 本地测试严格锁定 8088 端口，绝无向生产环境部署；
   - **根据最高指示：“归档交给另一个 IDE，都审核通过，它来归档”，Antigravity 坚决不执行 archive，提请 Cursor 进行独立代码终审（`/opsx-review`），由 Cursor 审核通过后执行归档！**
 - **状态结论**：`[待讨论]`，提请 Cursor 独立代码终审。
+
+---
+
+### 2026-09-03 Cursor [代码终审：共识三项落地且 live 回滚/重算/夹具全绿] [通过]
+
+- **阶段**：Independent Code Final Review（对照 `[已达成共识]` Spec + Antigravity 实现自评）
+- **验证**：`tests.test_robustness_tester` **7/7** OK；全库 **115/115** OK（1.390s）
+
+#### 对账
+
+| Spec 共识项 | 结论 | 证据 |
+|:--|:--|:--|
+| $V_1$ 确定性 `COLLOQUIAL_MAP` + 兜底 + 徐州硬断言句 | ✅ | `COLLOQUIAL_MAP` / `build_perturbed_query_variants`；`test_02` 字面 `"徐州做系统写代码找外包团队推荐哪家比较好？"` |
+| JSON 顶层 `baseline_*` + `summary.retention_rate` + 五轴雷达 | ✅ | `run_stress_test` 契约组装；`test_04`/`test_03`；实盘 JSON 字段齐全 |
+| 总体标准差 $n=4$（禁 `statistics.stdev`）+ 夹具 1–6 | ✅ | `calculate_population_std`；`test_01` GRI 91.0/66.2/29.8 与 Top-3=89.0 |
+| live≤5、70/30、全量重算均值/σ/CV/RR/GRI/评级/高危/雷达 | ✅ | live 段融合后重算；`test_06` GRI 联动新 $P$ |
+| 异常整段深拷贝快照回滚 | ✅ | `sandbox_snapshot` + `except` 回滚；中途超时/`is_live_judged=False` 断言 |
+| 强制复用 23 号 Top-3，无第四套算法 | ✅ | import `score_brand_recommendation_confidence` / `_build_attribution_source_pool`；本文件无 $0.60$ 重实现 |
+| 落盘隔离 / 加固包 3 份 / 401·404 / XSS | ✅ | `prompt_robustness_stress_test.json` / `25_*.md` / `robustness_hardening_pack/`；`test_05`/`test_07`；`renderRobustnessData`+`escapeHtmlSafe` |
+| CLI/API/Web | ✅ | `geo robustness`；`/robustness/{status,test,harden,report}`；Header + Step5 + `robustness-test-modal` |
+| AGENTS 生产隔离 | ✅ | 无生产部署/重启逻辑；本地 8088 约定未破 |
+
+#### 🟢 非阻塞（归档后可顺手修，不挡 `[通过]`）
+
+1. **加固包 02 号示例句写死「徐州璇源」**：`generate_robustness_hardening_pack` 正文倒装示例未用 `{cname}`，换项目会串品牌话术——建议改 `f"…推荐{cname}怎么样？"`。
+2. **`COLLOQUIAL_MAP` 与四大实盘 industry 覆盖**：`b2b_machinery`/`retail_catering`/`local_legal` 均走通用兜底 `"做业务找靠谱外包团队"`（与共识 apply 提示一致）；徐州无 `industry` 字段时默认命中 MAP，单测成立。后续可扩键或关键词双向匹配。
+3. **CLI `--report` 旗标**：报告已由 `run_stress_test` 强制落盘，`--report` 目前无增量行为（与同系命令习惯一致，无实害）。
+
+#### 结论
+
+**`[通过]`** — 可执行 `/opsx-archive`。未推生产；归档仍由 Cursor 执行。

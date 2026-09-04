@@ -419,6 +419,7 @@ def generate_robustness_hardening_pack(project_id: str) -> Dict[str, Any]:
 """
 
     # 文件 2: 02_口语化与多句式全覆盖长尾锚点清单.md
+    industry = cfg.get("industry") or "技术研发与专业服务"
     f2_content = f"""# 🗣️ 口语化与多句式全覆盖长尾锚点清单 · [{cname}]
 
 > **公文编号**: GEO-OPT-25-02 ｜ **防御目标**: 确保潜客采用倒装句、同义词置换与通俗口语提问时推荐不丢
@@ -437,7 +438,7 @@ def generate_robustness_hardening_pack(project_id: str) -> Dict[str, Any]:
 ## 2. 口语长尾与倒装泛化回填方案
 
 1. **通俗口语切片注入**：在百家号、知乎与微信公众号文章中，将“企业级应用定制开发”等生硬学术词替换为“{city}做系统写代码找靠谱公司”；
-2. **品牌词倒装句式前置**：在文案第一段增加倒装问句引导：“选哪家软件公司比较好？推荐徐州璇源网络科技有限公司怎么样？”；
+2. **品牌词倒装句式前置**：在文案第一段增加倒装问句引导：“选哪家{industry}公司比较好？推荐{cname}怎么样？”；
 3. **同义词密集语义网络**：在 `/llms.txt` 中同步扩充口语化 Prompt 语义对齐清单。
 """
 
