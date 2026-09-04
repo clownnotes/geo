@@ -14,6 +14,7 @@ GEO 商业交付工具包 CLI 总调度程序 (tools/geo/cli.py)
 
 import os
 import sys
+import json
 import shutil
 import argparse
 from .utils import (
@@ -399,6 +400,14 @@ def main():
     p_rob.add_argument("--live", action="store_true", help="启用真实联网 API 评测")
     p_rob.add_argument("--harden", action="store_true", help="生成 outputs/robustness_hardening_pack/ 鲁棒性加固包")
     p_rob.add_argument("--report", action="store_true", help="生成并落盘 25 号公文报告")
+
+    # moat
+    p_moat = subparsers.add_parser("moat", help="26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演中枢")
+    p_moat.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_moat.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_moat.add_argument("--rival", default=None, help="显式指定核心商业竞对名称 (覆盖默认)")
+    p_moat.add_argument("--live", action="store_true", help="启用真实联网 API 实盘裁决 (最多 4 次调用)")
+    p_moat.add_argument("--json", action="store_true", help="以 JSON 格式输出推演结果")
 
     # pipeline
     p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
@@ -1269,6 +1278,41 @@ def main():
         out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "25_大模型提示词敏感度扰动与生成鲁棒性压力测试报告.md")
         print(f"\nℹ️  25 号公文报告落盘至: {out_report}")
         print("=" * 75 + "\n")
+    elif args.command == "moat":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo moat xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.moat_sandbox import simulate_competitive_moat
+        res = simulate_competitive_moat(
+            project_id=pid,
+            rival_override=args.rival,
+            use_live=args.live,
+        )
+        if args.json:
+            print(json.dumps(res, ensure_ascii=False, indent=2))
+        else:
+            s = res["summary"]
+            print("\n" + "=" * 75)
+            print(f"⚔️ 26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演 · [{pid}]")
+            print("=" * 75)
+            print(f"受推品牌: {res['client_name']} ｜ 对标竞对: 【{res['rival_name']}】 ｜ 推演时间: {res['timestamp']}")
+            print(f"🏰 动态护城河防御指数 (MDI): {s['moat_defense_index']}分 ｜ 战略评级: {s['grade_name']}")
+            print(f"📈 我方平均净胜优势: {s['mean_advantage']:+0.1f}分 ｜ 均分对冲: 我方 {s['mean_self_score']}分 vs 竞对 {s['mean_rival_score']}分")
+            print(f"⚠️ 截流暴露脆弱点: {s['vulnerable_breaches_count']} 处 ｜ 对抗维度总数: {s['total_dimensions']} 个")
+            print("-" * 75)
+            print("四维商业博弈对抗纵深矩阵:")
+            for d in res.get("dimensions", []):
+                fr_mark = " [🔴脆弱点]" if d.get("is_vulnerable") else " [🟢防线稳固]"
+                print(f"  • {d['dim_id']} {d['dim_name']}: 我方 {d['self_score']}分 vs 竞对 {d['rival_score']}分 ｜ 优势差: {d['advantage']:+0.1f}分 ｜ CTI: {d['competitor_threat_index']}%{fr_mark}")
+                print(f"    对抗: \"{d['query']}\"")
+            radar = res.get("radar_metrics", {})
+            print("-" * 75)
+            print(f"五维护城河雷达: 综合={radar.get('moat_defense_index')} | 技术={radar.get('technical_advantage')} | 交付={radar.get('delivery_trust')} | 价格={radar.get('pricing_resilience')} | 本地={radar.get('local_service_moat')}")
+            out_report = os.path.join(PROJECTS_DIR, pid, "outputs", "26_大模型商业推荐博弈对抗与竞品截流动态护城河推演报告.md")
+            print(f"\nℹ️  26 号商业公文报告落盘至: {out_report}")
+            print(f"📦 截流反制资产包落盘至: {os.path.join(PROJECTS_DIR, pid, 'outputs', 'counter_interception_pack')}")
+            print("=" * 75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 

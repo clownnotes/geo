@@ -1126,6 +1126,43 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 26 号商业推荐博弈对抗与动态护城河推演: POST /api/projects/{id}/moat/simulate
+        if path.startswith("/api/projects/") and path.endswith("/moat/simulate"):
+            project_id = path.split("/")[3]
+            try:
+                from .moat_sandbox import simulate_competitive_moat
+                data = self.read_json_body()
+                rival = data.get("rival")
+                use_live = bool(data.get("use_live", False))
+                res = simulate_competitive_moat(
+                    project_id=project_id,
+                    rival_override=rival,
+                    use_live=use_live,
+                )
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 26 号生成长尾截流反制资产包: POST /api/projects/{id}/moat/assets
+        if path.startswith("/api/projects/") and path.endswith("/moat/assets"):
+            project_id = path.split("/")[3]
+            try:
+                from .moat_sandbox import simulate_competitive_moat, generate_counter_interception_pack, get_moat_status
+                cur = get_moat_status(project_id)
+                if not cur.get("success"):
+                    cur = simulate_competitive_moat(project_id)
+                fps = generate_counter_interception_pack(project_id, cur)
+                self.send_json({
+                    "success": True,
+                    "project_id": project_id,
+                    "assets": [os.path.basename(f) for f in fps],
+                    "asset_paths": fps,
+                })
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2825,6 +2862,41 @@ core_values:
                         "success": True,
                         "project_id": project_id,
                         "filename": "25_大模型提示词敏感度扰动与生成鲁棒性压力测试报告.md",
+                        "content": content,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+            # 26 号护城河推演状态: GET /api/projects/{id}/moat/status
+            if path.startswith("/api/projects/") and path.endswith("/moat/status"):
+                project_id = path.split("/")[3]
+                try:
+                    from .moat_sandbox import get_moat_status
+                    self.send_json(get_moat_status(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 26 号护城河公文报告获取: GET /api/projects/{id}/moat/report
+            if path.startswith("/api/projects/") and path.endswith("/moat/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(
+                    PROJECT_ROOT, "projects", project_id, "outputs",
+                    "26_大模型商业推荐博弈对抗与竞品截流动态护城河推演报告.md"
+                )
+                if not os.path.exists(report_file):
+                    self.send_json({
+                        "success": False,
+                        "message": "26 号推演报告尚未生成，请先 POST /moat/simulate",
+                    }, status=404)
+                    return
+                try:
+                    with open(report_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "filename": "26_大模型商业推荐博弈对抗与竞品截流动态护城河推演报告.md",
+                        "markdown": content,
                         "content": content,
                     })
                 except Exception as e:

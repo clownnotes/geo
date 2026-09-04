@@ -93,6 +93,10 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <button onclick="openMoatSandboxModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm" title="26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-indigo-600"></i>
+          <span>⚔️ 护城河推演 (26)</span>
+        </button>
         <button onclick="openRobustnessTestModal()" class="text-xs text-rose-700 bg-rose-50 hover:bg-rose-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-rose-200 shadow-sm" title="25 号大模型提示词敏感度扰动与生成鲁棒性压力测试">
           <i data-lucide="shield-check" class="w-3.5 h-3.5 text-rose-600"></i>
           <span>🛡️ 鲁棒抗震 (25)</span>
@@ -961,6 +965,10 @@
             <button onclick="openRobustnessTestModal()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg border border-rose-200 transition flex items-center gap-1.5 shadow-sm" title="25 号大模型提示词敏感度扰动与生成鲁棒性压力测试中枢">
               <i data-lucide="shield-check" class="w-4 h-4 text-rose-600"></i>
               <span>🛡️ 提示词压力测试 (25)</span>
+            </button>
+            <button onclick="openMoatSandboxModal()" class="py-2.5 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm" title="26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演中枢">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-indigo-600"></i>
+              <span>⚔️ 护城河博弈推演 (26)</span>
             </button>
             <button onclick="openGuardModal()" class="py-2.5 px-3.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
@@ -3432,6 +3440,88 @@ GitHub 开源仓库：https://github.com/company/repo
           <div class="flex justify-between mb-2"><span class="text-xs font-bold" id="fs-report-name">24 号公文报告</span>
             <button onclick="copyFunnelReport()" class="text-xs px-2 py-1 bg-slate-100 rounded">复制</button></div>
           <div id="fs-report-content" class="markdown-body text-xs max-h-64 overflow-y-auto p-3 bg-slate-50 rounded border"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演模态 ================= -->
+  <div id="moat-sandbox-modal" onclick="if(event.target === this) closeMoatSandboxModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white shrink-0">
+        <div>
+          <h3 class="text-sm font-bold flex items-center gap-2">
+            <span>⚔️ 大模型商业推荐博弈对抗与竞品截流动态护城河推演</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">26 号中枢</span>
+          </h3>
+          <p class="text-[11px] text-slate-300 mt-0.5">D1实力对比 · D2交付防转包 · D3透明性价比 · D4本地售后 · 护城河指数 (MDI) · 截流威胁 (CTI) · 反制资产包</p>
+        </div>
+        <button onclick="closeMoatSandboxModal()" class="p-1 text-slate-400 hover:text-white rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-4 overflow-y-auto flex-1 bg-slate-50/50">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <input type="text" id="moat-rival-input" placeholder="默认自动抽取，可显式输入竞对" class="text-xs px-3 py-1.5 border border-slate-300 rounded-lg w-52 text-slate-700 focus:outline-none focus:border-indigo-500">
+            <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+              <input type="checkbox" id="moat-use-live" class="rounded border-slate-300 text-indigo-600">
+              <span class="font-semibold text-indigo-700">🌐 真实联网 API (≤4次)</span>
+            </label>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="triggerMoatSimulate()" id="btn-moat-test" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow">执行护城河推演</button>
+            <button onclick="triggerMoatAssets()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow">生成长尾反制包</button>
+            <button onclick="viewMoatReport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow">26 号公文报告</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">护城河防御指数 (MDI)</div><div id="moat-mdi" class="text-2xl font-black text-indigo-600 mt-1">--分</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">抗震战略评级</div><div id="moat-grade" class="text-sm font-black text-slate-800 mt-2">--</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">我方平均净胜优势</div><div id="moat-mean-adv" class="text-2xl font-black text-blue-600 mt-1">--分</div></div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-[11px] text-slate-500 font-semibold">截流暴露脆弱点诊断</div><div id="moat-vuln-status" class="text-sm font-black text-emerald-600 mt-2">0 处脆弱点</div></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-2.5 bg-slate-50 border-b text-xs font-bold text-slate-800 flex justify-between">
+              <span>五维护城河雷达量化大盘</span>
+              <span id="moat-rival-badge" class="text-slate-500 font-normal">标的: --</span>
+            </div>
+            <div class="p-4 space-y-2.5 text-xs">
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>综合护城河指数 (MDI)</span><span id="moat-radar-mdi" class="font-bold text-indigo-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="moat-bar-mdi" class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>核心技术优势度 (Technical)</span><span id="moat-radar-tech" class="font-bold text-blue-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="moat-bar-tech" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>交付模式可信度 (Delivery)</span><span id="moat-radar-del" class="font-bold text-emerald-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="moat-bar-del" class="bg-emerald-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>透明价格抗压度 (Pricing)</span><span id="moat-radar-prc" class="font-bold text-amber-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="moat-bar-prc" class="bg-amber-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1 text-slate-600"><span>本地售后防线度 (Local)</span><span id="moat-radar-loc" class="font-bold text-purple-700">--%</span></div>
+                <div class="w-full bg-slate-100 rounded-full h-2"><div id="moat-bar-loc" class="bg-purple-600 h-2 rounded-full" style="width: 0%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-2.5 bg-slate-50 border-b text-xs font-bold text-slate-800">四维商业博弈对抗纵深矩阵</div>
+            <div class="overflow-y-auto max-h-60">
+              <table class="w-full text-xs">
+                <thead><tr class="bg-slate-100 text-slate-600"><th class="px-3 py-2 text-left">维度</th><th class="px-2 py-2 text-center">我方</th><th class="px-2 py-2 text-center">竞对</th><th class="px-2 py-2 text-center">优势差</th><th class="px-2 py-2 text-center">威胁度</th><th class="px-2 py-2 text-center">防线</th></tr></thead>
+                <tbody id="moat-matrix-body"><tr><td colspan="6" class="text-center py-6 text-slate-400">点击【执行护城河推演】刷新沙盘</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="moat-report-box" class="hidden bg-white rounded-xl border p-4">
+          <div class="flex justify-between mb-2"><span class="text-xs font-bold" id="moat-report-name">26 号公文报告</span>
+            <button onclick="copyMoatReport()" class="text-xs px-2 py-1 bg-slate-100 rounded">复制</button></div>
+          <div id="moat-report-content" class="markdown-body text-xs max-h-64 overflow-y-auto p-3 bg-slate-50 rounded border"></div>
         </div>
       </div>
     </div>
@@ -9157,6 +9247,174 @@ GitHub 开源仓库：https://github.com/company/repo
     function copyRobustnessReport() {
       if (!cachedRobustnessReport) { showToast('暂无报告', 'warning'); return; }
       navigator.clipboard.writeText(cachedRobustnessReport).then(() => showToast('已复制 25 号报告'));
+    }
+
+    // ================= 26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演 =================
+    let cachedMoatReport = '';
+
+    async function openMoatSandboxModal() {
+      if (!currentProjectId) { showToast('请先选择项目', 'warning'); return; }
+      document.getElementById('moat-sandbox-modal').classList.remove('hidden');
+      lucide.createIcons();
+      await fetchMoatStatus();
+    }
+
+    function closeMoatSandboxModal() {
+      document.getElementById('moat-sandbox-modal').classList.add('hidden');
+    }
+
+    async function fetchMoatStatus() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/moat/status`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success && d.summary) {
+          renderMoatData(d);
+        }
+      } catch (e) {
+        console.error('fetchMoatStatus error:', e);
+      }
+    }
+
+    function renderMoatData(d) {
+      const s = d.summary || {};
+      const r = d.radar_metrics || {};
+      document.getElementById('moat-mdi').textContent = `${s.moat_defense_index || 0}分`;
+      document.getElementById('moat-grade').textContent = s.grade_name || '--';
+      const mAdv = Number(s.mean_advantage || 0);
+      document.getElementById('moat-mean-adv').textContent = `${mAdv > 0 ? '+' : ''}${mAdv.toFixed(1)}分`;
+
+      const vEl = document.getElementById('moat-vuln-status');
+      if (s.vulnerable_breaches_count > 0) {
+        vEl.textContent = `⚠️ ${s.vulnerable_breaches_count} 处截流脆弱点！`;
+        vEl.className = 'text-sm font-black text-rose-600 mt-2';
+      } else {
+        vEl.textContent = '0 处脆弱点 (全面稳固)';
+        vEl.className = 'text-sm font-black text-emerald-600 mt-2';
+      }
+
+      document.getElementById('moat-rival-badge').textContent = `标的: 【${escapeHtmlSafe(d.rival_name || '--')}】`;
+
+      // 五维雷达
+      const mdiVal = r.moat_defense_index || 0;
+      const techVal = r.technical_advantage || 0;
+      const delVal = r.delivery_trust || 0;
+      const prcVal = r.pricing_resilience || 0;
+      const locVal = r.local_service_moat || 0;
+
+      document.getElementById('moat-radar-mdi').textContent = `${mdiVal}%`;
+      document.getElementById('moat-bar-mdi').style.width = `${mdiVal}%`;
+      document.getElementById('moat-radar-tech').textContent = `${techVal}%`;
+      document.getElementById('moat-bar-tech').style.width = `${techVal}%`;
+      document.getElementById('moat-radar-del').textContent = `${delVal}%`;
+      document.getElementById('moat-bar-del').style.width = `${delVal}%`;
+      document.getElementById('moat-radar-prc').textContent = `${prcVal}%`;
+      document.getElementById('moat-bar-prc').style.width = `${prcVal}%`;
+      document.getElementById('moat-radar-loc').textContent = `${locVal}%`;
+      document.getElementById('moat-bar-loc').style.width = `${locVal}%`;
+
+      // 对抗矩阵 (全量 escapeHtmlSafe XSS 防御)
+      const mBody = document.getElementById('moat-matrix-body');
+      if (d.dimensions && d.dimensions.length) {
+        mBody.innerHTML = d.dimensions.map(dim => {
+          const vulnBadge = dim.is_vulnerable 
+            ? '<span class="text-rose-600 font-bold">[🔴截流高危]</span>' 
+            : '<span class="text-emerald-600 font-medium">稳固防御</span>';
+          const adv = Number(dim.advantage || 0);
+          const advStr = `${adv > 0 ? '+' : ''}${adv.toFixed(1)}分`;
+          return `
+            <tr class="border-b hover:bg-slate-50">
+              <td class="px-3 py-1.5 text-left text-slate-800 font-medium text-[11px]">
+                <div class="font-bold text-slate-900">${escapeHtmlSafe(dim.dim_id)} ｜ ${escapeHtmlSafe(dim.dim_name)}</div>
+                <div class="text-[10px] text-slate-500 italic mt-0.5">${escapeHtmlSafe(dim.query || '')}</div>
+              </td>
+              <td class="px-2 py-1.5 text-center font-bold text-blue-600">${Number(dim.self_score || 0)}分</td>
+              <td class="px-2 py-1.5 text-center font-semibold text-slate-600">${Number(dim.rival_score || 0)}分</td>
+              <td class="px-2 py-1.5 text-center font-bold ${adv >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${advStr}</td>
+              <td class="px-2 py-1.5 text-center font-bold text-amber-600">${Number(dim.competitor_threat_index || 0)}%</td>
+              <td class="px-2 py-1.5 text-center text-[11px]">${vulnBadge}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    async function triggerMoatSimulate() {
+      if (!currentProjectId) return;
+      const btn = document.getElementById('btn-moat-test');
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '推演中…';
+
+      const useLive = document.getElementById('moat-use-live').checked;
+      const rivalVal = document.getElementById('moat-rival-input').value.trim();
+      try {
+        const payload = { use_live: useLive };
+        if (rivalVal) payload.rival = rivalVal;
+
+        const res = await fetch(`/api/projects/${currentProjectId}/moat/simulate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAuthToken}` },
+          body: JSON.stringify(payload)
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast(`护城河推演完成！MDI: ${d.summary?.moat_defense_index}分`, 'success');
+          renderMoatData(d);
+        } else {
+          showToast(d.message || '推演失败', 'error');
+        }
+      } catch (e) {
+        showToast(`请求异常: ${e.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    }
+
+    async function triggerMoatAssets() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/moat/assets`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('已生成 01/02/03 三件套截流反制资产包！', 'success');
+        } else {
+          showToast(d.message || '生成失败', 'error');
+        }
+      } catch (e) {
+        showToast(`请求异常: ${e.message}`, 'error');
+      }
+    }
+
+    async function viewMoatReport() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/moat/report`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          cachedMoatReport = d.markdown || d.content || '';
+          document.getElementById('moat-report-box').classList.remove('hidden');
+          document.getElementById('moat-report-name').textContent = d.filename || '26 号商业公文报告';
+          document.getElementById('moat-report-content').innerHTML = marked.parse(cachedMoatReport);
+        } else {
+          showToast(d.message || '报告尚未生成', 'warning');
+        }
+      } catch (e) {
+        showToast(`请求失败: ${e.message}`, 'error');
+      }
+    }
+
+    function copyMoatReport() {
+      if (!cachedMoatReport) { showToast('暂无报告', 'warning'); return; }
+      navigator.clipboard.writeText(cachedMoatReport).then(() => showToast('已复制 26 号推演报告'));
     }
 
     async function handlePrincetonAudit() {
