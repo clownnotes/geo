@@ -364,6 +364,18 @@ def main():
     p_crack.add_argument("--report", action="store_true", help="打印第 32 维公文与三件套详细报告")
     p_crack.add_argument("--portal-sync", action="store_true", help="反超完成后联动刷新高管交付门户聚合缓存")
 
+    # alert-bot (企微/飞书多端大模型战果晨报与异常声量即时告警机器人，第 33 维中枢)
+    p_bot = subparsers.add_parser("alert-bot", help="第 33 维企微/飞书多端大模型战果晨报与异常声量即时告警机器人")
+    p_bot.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_bot.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_bot.add_argument("--type", "-t", default="briefing", choices=["briefing", "alert", "test"], help="推送类型 (briefing: 战果晨报, alert: 异动告警, test: 连通性测试)")
+    p_bot.add_argument("--channel", default="auto", choices=["auto", "feishu", "wecom", "dingtalk"], help="目标渠道 (auto / feishu / wecom / dingtalk)")
+    p_bot.add_argument("--webhook", "-w", default=None, help="目标 Webhook 地址 (带 SSRF 安全校验)")
+    p_bot.add_argument("--dry-run", action="store_true", default=False, help="纯本地离线仿真模式 (不发起真实 HTTP 请求)")
+    p_bot.add_argument("--live", action="store_true", default=False, help="真实发送 Webhook (需配置有效 Webhook)")
+    p_bot.add_argument("--report", action="store_true", help="输出并打印第 33 号公文完整战果明细")
+    p_bot.add_argument("--portal-sync", action="store_true", help="推送完成后联动刷新高管交付门户聚合缓存")
+
     # guard-clean (19 号品牌声誉排查与危机清洗，与 geo guard 幻觉防御区分)
     p_gclean = subparsers.add_parser("guard-clean", help="19 号品牌声誉负面联想排查与危机清洗压制")
     p_gclean.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1293,6 +1305,65 @@ def main():
         print(f"    projects/{pid}/outputs/rival_crack_result.json")
         if getattr(args, "portal_sync", False):
             print("🌐 高管只读交付门户已联动同步刷新 (含反超压制态势卡片)")
+        print("=" * 78 + "\n")
+    elif args.command == "alert-bot":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定目标项目 ID，例如: python3 -m tools.geo alert-bot xuzhou_xuanyuan")
+            sys.exit(1)
+
+        from tools.geo.alert_bot import run_alert_bot
+        m_type = getattr(args, "type", "briefing")
+        channel = getattr(args, "channel", "auto")
+        webhook = getattr(args, "webhook", None)
+        is_live = getattr(args, "live", False)
+        is_dry = getattr(args, "dry_run", False) or (not is_live and not webhook)
+
+        try:
+            bot_res = run_alert_bot(
+                pid,
+                msg_type=m_type,
+                channel=channel,
+                webhook_url=webhook,
+                dry_run=is_dry,
+                save_report=True
+            )
+        except Exception as e:
+            print_error(f"机器人调度执行异常: {e}")
+            sys.exit(1)
+
+        briefing = bot_res.get("briefing", {})
+        alerts = bot_res.get("alerts", [])
+        disp = bot_res.get("dispatch_result", {})
+
+        if getattr(args, "portal_sync", False):
+            from tools.geo.share import compile_portal_data
+            compile_portal_data(pid)
+
+        mode_desc = "纯本地离线仿真 (Dry-Run)" if disp.get("dry_run") else "公网真实 Webhook 推送"
+        print("\n" + "=" * 78)
+        print(f"🤖 企微/飞书多端大模型战果晨报与异常声量即时告警机器人 · [{pid}] (第 33 维)")
+        print("=" * 78)
+        print(f"🏛️ 目标项目: {briefing.get('project_name')} ｜ 推送类型: {m_type.upper()}")
+        print(f"📡 触达渠道: {disp.get('channel')} ｜ 执行模式: {mode_desc}")
+        print(f"📊 Top-1 综合首推率: {briefing.get('top1_rate') or '[待实测]'}% ｜ Citation 权威角标: {briefing.get('citation_count') or '[待实测]'} 条")
+        print(f"🕷️ AI 爬虫真实抓取: {briefing.get('spider_requests_count') or '[待实测]'} 次 ｜ 声誉指数 (BRS): {briefing.get('reputation_score') or '[待实测]'} 分")
+        print(f"⚔️ 竞品反超防御态势: {briefing.get('rival_crack_status')} ｜ 识别异常风险: {len(alerts)} 项")
+        print("-" * 78)
+        if alerts:
+            print("⚠️ 扫描发现的声量异动预警清单:")
+            for a in alerts:
+                badge = "🔴 高危" if a.get("level") == "P0" else ("🔴 严重" if a.get("level") == "P1" else "🟡 提示")
+                print(f"  [{badge}] {a.get('alert_id')}: {a.get('title')}")
+                print(f"      └─ 事实: {a.get('description')}")
+                print(f"      └─ 建议: {a.get('suggested_action')}")
+        else:
+            print("✅ 大模型全网声量与爬虫访问正常，各项核心指标平稳处于健康区间。")
+        print("-" * 78)
+        print(f"ℹ️  第 33 维公文战报已落盘至:\n    {bot_res.get('report_file')}")
+        print(f"ℹ️  推送台账历史已同步记录至:\n    projects/{pid}/outputs/alert_bot_history.json")
+        if getattr(args, "portal_sync", False):
+            print("🌐 高管只读交付门户已联动同步刷新 (含机器人推送态势卡片)")
         print("=" * 78 + "\n")
     elif args.command == "guard-clean":
         pid = get_pid(args)

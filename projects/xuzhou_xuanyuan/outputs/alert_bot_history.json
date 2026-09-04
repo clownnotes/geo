@@ -1,0 +1,578 @@
+[
+  {
+    "dispatch_id": "DSP-20ac4aad",
+    "timestamp": "2026-09-04 04:54:43",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "wecom",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msgtype": "markdown",
+      "markdown": {
+        "content": "### 🌤️ 大模型战果晨报 · <font color=\"info\">徐州璇源网络科技有限公司</font>\n> **统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n> **Top-1 综合首推率**：<font color=\"warning\">[待实测]</font>\n> **Citation 权威引用**：**[待实测]** ｜ **AI 爬虫抓取**：**[待实测]**\n> **品牌声誉指数 (BRS)**：**[待实测]**\n\n[👉 点击打开甲方高管专属全景交付大屏](http://127.0.0.1:8088/share.html?token=auto_9acfeeaf)\n"
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-69d563cf",
+    "timestamp": "2026-09-04 04:54:46",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "wecom",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msgtype": "markdown",
+      "markdown": {
+        "content": "### 🌤️ 大模型战果晨报 · <font color=\"info\">徐州璇源网络科技有限公司</font>\n> **统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n> **Top-1 综合首推率**：<font color=\"warning\">[待实测]</font>\n> **Citation 权威引用**：**[待实测]** ｜ **AI 爬虫抓取**：**[待实测]**\n> **品牌声誉指数 (BRS)**：**[待实测]**\n\n[👉 点击打开甲方高管专属全景交付大屏](http://127.0.0.1:8088/share.html?token=auto_9acfeeaf)\n"
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-7ebdfcf2",
+    "timestamp": "2026-09-04 04:55:17",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "wecom",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msgtype": "markdown",
+      "markdown": {
+        "content": "### 🌤️ 大模型战果晨报 · <font color=\"info\">徐州璇源网络科技有限公司</font>\n> **统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n> **Top-1 综合首推率**：<font color=\"warning\">100.0%</font>\n> **Citation 权威引用**：**6 条** ｜ **AI 爬虫抓取**：**128 次**\n> **品牌声誉指数 (BRS)**：**98.0 分**\n\n[👉 点击打开甲方高管专属全景交付大屏](http://127.0.0.1:8088/share.html?token=auto_9acfeeaf)\n"
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-ce3581e3",
+    "timestamp": "2026-09-04 04:55:49",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-88a92e30",
+    "timestamp": "2026-09-04 04:58:41",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-88a92e30",
+    "timestamp": "2026-09-04 04:58:41",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-2e175d5d",
+    "timestamp": "2026-09-04 04:59:09",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-2e175d5d",
+    "timestamp": "2026-09-04 04:59:09",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-2b9be5c8",
+    "timestamp": "2026-09-04 04:59:23",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-2b9be5c8",
+    "timestamp": "2026-09-04 04:59:23",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-2b9be5c8",
+    "timestamp": "2026-09-04 04:59:23",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "wecom",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msgtype": "markdown",
+      "markdown": {
+        "content": "### 🌤️ 大模型战果晨报 · <font color=\"info\">徐州璇源网络科技有限公司</font>\n> **统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n> **Top-1 综合首推率**：<font color=\"warning\">100.0%</font>\n> **Citation 权威引用**：**6 条** ｜ **AI 爬虫抓取**：**128 次**\n> **品牌声誉指数 (BRS)**：**98.0 分**\n\n[👉 点击打开甲方高管专属全景交付大屏](http://127.0.0.1:8088/share.html?token=auto_9acfeeaf)\n"
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-93c900e7",
+    "timestamp": "2026-09-04 04:59:27",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-93c900e7",
+    "timestamp": "2026-09-04 04:59:27",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [徐州璇源网络科技有限公司]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n\n• **大模型综合首推率 (Top-1)**：**100.0%**\n• **Citation 权威引用命中**：**6 条**\n• **AI 爬虫活跃抓取**：**128 次 (bytespider)**\n• **竞品反超防御战备**：**⚔️ 反超套件已就绪** (拦截 4 项漏洞)\n• **品牌声誉健康指数**：**98.0 分**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=auto_9acfeeaf"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  },
+  {
+    "dispatch_id": "DSP-93c900e7",
+    "timestamp": "2026-09-04 04:59:27",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "wecom",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "payload_preview": {
+      "msgtype": "markdown",
+      "markdown": {
+        "content": "### 🌤️ 大模型战果晨报 · <font color=\"info\">徐州璇源网络科技有限公司</font>\n> **统计周期**：昨日全天 ｜ **监测矩阵**：doubao\n> **Top-1 综合首推率**：<font color=\"warning\">100.0%</font>\n> **Citation 权威引用**：**6 条** ｜ **AI 爬虫抓取**：**128 次**\n> **品牌声誉指数 (BRS)**：**98.0 分**\n\n[👉 点击打开甲方高管专属全景交付大屏](http://127.0.0.1:8088/share.html?token=auto_9acfeeaf)\n"
+      }
+    },
+    "status": "success_dry_run"
+  }
+]

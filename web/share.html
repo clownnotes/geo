@@ -440,6 +440,54 @@
       </div>
     </div>
 
+    <!-- 6.4 企微/飞书多端大模型战果晨报与异常声量即时告警机器人态势 (第 33 维中枢) -->
+    <div id="alert-bot-card" class="executive-card rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="bell-ring" class="w-4 h-4 text-emerald-400"></i>
+            <span>企微/飞书多端大模型战果晨报与异常声量即时告警机器人态势 (第 33 维)</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">早 9 点主动推送联网首推率与 Citation 战果晨报；声誉受损、竞品截流或爬虫阻断时秒级即时报警</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="alert-bot-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待配置机器人</span>
+        </div>
+      </div>
+
+      <!-- 核心指标 4 宫格 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">累计推送批次</div>
+          <div id="bot-total-val" class="text-xl font-extrabold text-slate-200">-- 次</div>
+          <div id="bot-channel-desc" class="text-[10px] text-slate-500">主触达通道: --</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">最新调度时间</div>
+          <div id="bot-time-val" class="text-sm font-bold text-emerald-400 truncate">--</div>
+          <div id="bot-mode-desc" class="text-[10px] text-slate-500">执行模式: --</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">拦截异常风险</div>
+          <div id="bot-anomalies-val" class="text-xl font-extrabold text-rose-400">-- 项</div>
+          <div class="text-[10px] text-slate-500">声誉/截流/爬虫阻断</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">高管大屏直达</div>
+          <div class="text-sm font-bold text-cyan-400 flex items-center gap-1">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>免密直达</span>
+          </div>
+          <div class="text-[10px] text-slate-500">内置专属 Token 按钮</div>
+        </div>
+      </div>
+
+      <!-- 告警与推送历史容器 -->
+      <div id="alert-bot-details-container" class="space-y-2 text-xs">
+        <!-- 动态渲染推送历史与告警明细 -->
+      </div>
+    </div>
+
     <!-- 6. 第五部分：16 维技术交付物完整抽屉 (按需展开，向后兼容) -->
     <div class="executive-card rounded-2xl p-5 space-y-3">
       <div class="flex items-center justify-between">
@@ -1117,6 +1165,78 @@
         }
       }
 
+      // 6.5 渲染第 33 维企微/飞书战果晨报与即时告警机器人态势
+      const alertBot = data.alert_bot_summary || {};
+      const botBadge = document.getElementById('alert-bot-status-badge');
+      const botTotalVal = document.getElementById('bot-total-val');
+      const botChannelDesc = document.getElementById('bot-channel-desc');
+      const botTimeVal = document.getElementById('bot-time-val');
+      const botModeDesc = document.getElementById('bot-mode-desc');
+      const botAnomaliesVal = document.getElementById('bot-anomalies-val');
+      const botDetailsContainer = document.getElementById('alert-bot-details-container');
+
+      if (botBadge && alertBot.has_data && (alertBot.status === 'active' || alertBot.status === 'ready')) {
+        botBadge.className = 'text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20';
+        botBadge.textContent = '🤖 战果机器人已在线';
+
+        if (botTotalVal) botTotalVal.textContent = `${alertBot.total_dispatched || 0} 次`;
+        if (botChannelDesc) botChannelDesc.textContent = `主触达通道: ${alertBot.last_channel || 'feishu'}`;
+        if (botTimeVal) botTimeVal.textContent = alertBot.last_dispatch_time || '今日已调度';
+        if (botModeDesc) botModeDesc.textContent = alertBot.is_dry_run ? '执行模式: 离线 Dry-Run' : '执行模式: 生产 Webhook';
+        if (botAnomaliesVal) botAnomaliesVal.textContent = `${alertBot.total_anomalies_intercepted || 0} 项`;
+
+        const history = alertBot.recent_history || [];
+        let botHtml = `<div class="space-y-2 pt-2">`;
+        botHtml += `<div class="text-[11px] font-bold text-slate-400">📡 近期战果晨报推送与异动告警台账:</div>`;
+        if (history.length > 0) {
+          botHtml += `<div class="space-y-1.5">`;
+          history.slice(-3).reverse().forEach(h => {
+            const isBriefing = h.msg_type === 'briefing';
+            botHtml += `
+              <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] px-2 py-0.5 rounded font-mono ${isBriefing ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">${h.msg_type}</span>
+                  <span class="text-slate-300 font-medium">${h.channel} · ${h.dispatch_id}</span>
+                </div>
+                <div class="flex items-center gap-3 text-slate-500 text-[11px]">
+                  <span>${h.timestamp}</span>
+                  <span class="${h.dry_run ? 'text-amber-400' : 'text-emerald-400'}">${h.dry_run ? 'Dry-Run' : 'Sent'}</span>
+                </div>
+              </div>
+            `;
+          });
+          botHtml += `</div>`;
+        } else {
+          botHtml += `<div class="text-[11px] text-slate-500 italic">暂无历史调度记录</div>`;
+        }
+        botHtml += `
+          <div class="mt-2 p-2 bg-slate-900/70 border border-slate-800 rounded-lg flex items-center justify-between text-[11px]">
+            <span class="text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="bell" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>支持每日早 9 点定时巡检推送与 P0 声誉异动 60 秒即时告警</span>
+            </span>
+            <span class="text-emerald-400 font-bold">企微 / 飞书 / 钉钉全支持</span>
+          </div>
+        </div>`;
+        if (botDetailsContainer) botDetailsContainer.innerHTML = botHtml;
+      } else if (botBadge) {
+        botBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
+        botBadge.textContent = '⚪️ 待配置机器人';
+        if (botTotalVal) botTotalVal.textContent = '-- 次';
+        if (botChannelDesc) botChannelDesc.textContent = '通道未配置';
+        if (botTimeVal) botTimeVal.textContent = '--';
+        if (botModeDesc) botModeDesc.textContent = '模式未选';
+        if (botAnomaliesVal) botAnomaliesVal.textContent = '-- 项';
+        if (botDetailsContainer) {
+          botDetailsContainer.innerHTML = `
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+              <div class="text-slate-400 text-xs font-medium">尚未配置企微/飞书多端战果晨报与异常声量即时告警机器人</div>
+              <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo alert-bot &lt;项目ID&gt; --type briefing --dry-run</code> 启动</div>
+            </div>
+          `;
+        }
+      }
+
       // 7. 渲染旧版 16 维交付物 Markdown 与第 30/31 维公文
       const deliv = data.deliverables || {};
       const renderMd = (elemId, md) => {
@@ -1130,6 +1250,9 @@
       renderMd('preview-distribute', deliv.dist_toutiao || deliv.dist_zhihu);
       renderMd('preview-monitor', deliv.monitor_report);
       renderMd('preview-probing', deliv.live_citation_audit || deliv.probing);
+      renderMd('preview-spider', deliv.spider_access_audit);
+      renderMd('preview-rival-crack', deliv.rival_crack_audit);
+      renderMd('preview-alert-bot', deliv.alert_bot_audit);
       renderMd('preview-spider', deliv.spider_access_audit);
       renderMd('preview-acceptance', deliv.acceptance);
 

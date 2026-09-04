@@ -998,6 +998,29 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 第 33 维 企微/飞书多端大模型战果晨报与异常声量即时告警机器人: POST /api/projects/{id}/alert-bot/send
+        if path.startswith("/api/projects/") and path.endswith("/alert-bot/send"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            msg_type = body.get("type", "briefing")
+            channel = body.get("channel", "auto")
+            webhook_url = body.get("webhook_url")
+            dry_run = body.get("dry_run", True)
+            try:
+                from .alert_bot import run_alert_bot
+                res = run_alert_bot(
+                    project_id=project_id,
+                    msg_type=msg_type,
+                    channel=channel,
+                    webhook_url=webhook_url,
+                    dry_run=dry_run,
+                    save_report=True
+                )
+                self.send_json({"success": True, "data": res})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 19 号声誉排查扫描: POST /api/projects/{id}/sentiment/scan
         if path.startswith("/api/projects/") and path.endswith("/sentiment/scan"):
             project_id = path.split("/")[3]
@@ -2880,6 +2903,80 @@ core_values:
                     self.send_json({
                         "success": False,
                         "message": "尚未生成 32 号反超报告，请先通过 POST /rival-crack/run 或 CLI 执行反超"
+                    }, status=404)
+                return
+
+            # 获取 33 维战果机器人历史台账: /api/projects/{id}/alert-bot/history (GET)
+            if path.startswith("/api/projects/") and path.endswith("/alert-bot/history"):
+                project_id = path.split("/")[3]
+                history_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "alert_bot_history.json")
+                history_list = []
+                if os.path.exists(history_file):
+                    try:
+                        with open(history_file, "r", encoding="utf-8") as f:
+                            history_list = json.load(f)
+                    except Exception:
+                        history_list = []
+                self.send_json({
+                    "success": True,
+                    "project_id": project_id,
+                    "total_records": len(history_list),
+                    "history": history_list,
+                    "last_record": history_list[-1] if history_list else None
+                })
+                return
+
+            # 获取 33 维多端卡片实时预览: /api/projects/{id}/alert-bot/preview (GET)
+            if path.startswith("/api/projects/") and path.endswith("/alert-bot/preview"):
+                project_id = path.split("/")[3]
+                parsed_url = urlparse(self.path)
+                params = parse_qs(parsed_url.query)
+                m_type = params.get("type", ["briefing"])[0]
+                channel = params.get("channel", ["feishu"])[0]
+                try:
+                    from .alert_bot import MorningBriefingAggregator, InstantAnomalyDetector, WebhookCardFormatter
+                    agg = MorningBriefingAggregator(project_id)
+                    briefing = agg.aggregate()
+                    det = InstantAnomalyDetector(project_id, briefing)
+                    alerts = det.detect_anomalies()
+                    fmt = WebhookCardFormatter()
+                    if channel == "wecom":
+                        payload = fmt.format_wecom_card(briefing, alerts, is_alert_only=(m_type == "alert"))
+                    elif channel == "dingtalk":
+                        payload = fmt.format_dingtalk_card(briefing, alerts, is_alert_only=(m_type == "alert"))
+                    else:
+                        payload = fmt.format_feishu_card(briefing, alerts, is_alert_only=(m_type == "alert"))
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "type": m_type,
+                        "channel": channel,
+                        "card_payload": payload
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取 33 号公文报告内容: /api/projects/{id}/alert-bot/report (GET, 幂等只读)
+            if path.startswith("/api/projects/") and path.endswith("/alert-bot/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md")
+                if os.path.exists(report_file):
+                    try:
+                        with open(report_file, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        self.send_json({
+                            "success": True,
+                            "project_id": project_id,
+                            "filename": "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md",
+                            "content": content
+                        })
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    self.send_json({
+                        "success": False,
+                        "message": "尚未生成 33 号报告，请先通过 POST /alert-bot/send 或 CLI 运行机器人"
                     }, status=404)
                 return
 

@@ -513,7 +513,8 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "probing": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
         "live_citation_audit": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
         "spider_access_audit": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md",
-        "rival_crack_audit": "32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md"
+        "rival_crack_audit": "32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md",
+        "alert_bot_audit": "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md"
     }
     for key, fname in files_to_read.items():
         fpath = os.path.join(out_dir, fname)
@@ -897,6 +898,56 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             "audit_doc": ""
         }
 
+    # 第 33 维 战果晨报与即时告警机器人态势
+    alert_history_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "alert_bot_history.json")
+    if os.path.exists(alert_history_path):
+        try:
+            with open(alert_history_path, "r", encoding="utf-8") as fp:
+                bot_history = json.load(fp)
+            last_record = bot_history[-1] if bot_history else {}
+            anomalies_count = sum(r.get("anomalies_count", 0) for r in bot_history)
+            alert_bot_summary = {
+                "has_data": True,
+                "status": "active",
+                "status_label": "🤖 战果机器人已接入：已建立多端晨报与声量异动主动触达机制",
+                "total_dispatched": len(bot_history),
+                "last_dispatch_time": last_record.get("timestamp"),
+                "last_channel": last_record.get("channel", "feishu"),
+                "last_msg_type": last_record.get("msg_type", "briefing"),
+                "is_dry_run": last_record.get("dry_run", True),
+                "total_anomalies_intercepted": anomalies_count,
+                "recent_history": bot_history[-5:],
+                "audit_doc": os.path.join("outputs", "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md")
+            }
+        except Exception:
+            alert_bot_summary = {
+                "has_data": False,
+                "status": "never_run",
+                "status_label": "⚪️ 待配置企微/飞书战果晨报与异动告警机器人",
+                "total_dispatched": 0,
+                "last_dispatch_time": None,
+                "last_channel": "none",
+                "last_msg_type": "none",
+                "is_dry_run": True,
+                "total_anomalies_intercepted": 0,
+                "recent_history": [],
+                "audit_doc": ""
+            }
+    else:
+        alert_bot_summary = {
+            "has_data": False,
+            "status": "never_run",
+            "status_label": "⚪️ 待配置企微/飞书战果晨报与异动告警机器人",
+            "total_dispatched": 0,
+            "last_dispatch_time": None,
+            "last_channel": "none",
+            "last_msg_type": "none",
+            "is_dry_run": True,
+            "total_anomalies_intercepted": 0,
+            "recent_history": [],
+            "audit_doc": ""
+        }
+
     # 最终组合完整数据载荷
     return {
         "success": True,
@@ -906,12 +957,13 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "website": cfg.get("website", ""),
         "brand_name": cfg.get("brand_name", cfg.get("client_name", "")),
 
-        # 高管专属新增战果模块 (第 28/29/30/31/32 维)
+        # 高管专属新增战果模块 (第 28/29/30/31/32/33 维)
         "executive_summary": executive_summary,
         "self_healing_summary": self_healing_summary,
         "live_citation_summary": live_citation_summary,
         "spider_access_summary": spider_access_summary,
         "rival_crack_summary": rival_crack_summary,
+        "alert_bot_summary": alert_bot_summary,
         "models_mindshare": models_mindshare,
         "wechat_yuanbao_channel": wechat_yuanbao_channel,
         "competitor_interception": competitor_interception,
