@@ -26,15 +26,17 @@
 - **动态护城河防御指数 ($MDI$, Moat Defense Index)**：
   $$MDI = \max\left(0.0, \min\left(100.0, \text{round}\left(50.0 + \frac{\bar{\Delta}_{\text{adv}}}{2.0}, 1\right)\right)\right)$$
 - **三档护城河抗震评级**：`impenetrable_moat` (🟢 坚不可摧, $MDI \ge 70.0$) / `contested_boundary` (🟡 胶着拉锯, $50.0 \le MDI < 70.0$) / `vulnerable_breach` (🔴 防线失守, $MDI < 50.0$)；
-- **截流暴露脆弱点判定**：单项维度 $\Delta_{\text{adv}} \le 0.0$ 或 $CTI \ge 50.0\%$；
+- **截流暴露脆弱点判定**：单项维度 $\Delta_{\text{adv}} \le 0.0$ 或 $CTI \ge 50.0\%$（在非负得分下两者数学等价）；
 - **五维护城河雷达大盘**：护城河指数、技术优势度、交付可信度、价格抗压度、本地防截流度；
-- **话术规范与免责声明**：博弈沙盘基于知识库信源对冲测算，推演数据 $\neq$ 真实用户实时搜索日志。
+- **话术规范与免责声明**：成对博弈沙盘采用代理信源切片对冲测算，不同于全网竞品完全消融，亦不同于 24 维决策漏斗 HRI；推演数据 $\neq$ 实时搜索日志，不构成法律意义上的不正当竞争陈述。
 
-### 2.3 严禁编写重复算法，复用 23 维基座
-- 强制直接 `from tools.geo.causal_auditor import score_brand_recommendation_confidence, _build_attribution_source_pool`，0 冗余重复代码。
+### 2.3 严禁编写重复算法，复用 23 维基座并闭合双方算法
+- 强制直接 `from tools.geo.causal_auditor import score_brand_recommendation_confidence, _build_attribution_source_pool`，0 冗余重复代码；
+- 我方得分 $P_{\text{self}}$ 基于企业信源池计算，竞对得分 $P_{\text{rival}}$ 基于 `competitor_gap_analysis.json` 的优势/瑕疵或标准兜底切片构造确定性代理信源池后打分。
 
 ### 2.4 在线 Live 实盘与快照防御 (`--live`)
 - **调用预算硬限制**：至多 **4 次** 在线模型裁决（4 个博弈维度各 1 次，硬计数器 `api_calls <= 4`）；
+- **正则双分安全提取**：`\b(\d{1,3})\b` 必须匹配出至少 2 个 $[0, 100]$ 内整数，分别作为我方与竞对得分；不符时抛错触发快照完整回滚；
 - **全量指标重算**：融合 70/30 后，基于全新得分全量重新推导 $\Delta$、$CTI$、$\bar{\Delta}$、$MDI$、评级、脆弱点与雷达；
 - **快照防御**：进入 live 前深拷贝沙箱快照，任何中途异常立即 100% 完整回滚纯沙箱，标记 `is_live_judged = False`。
 
@@ -46,6 +48,9 @@
 - 结构化数据：`outputs/competitive_moat_simulation.json`；
 - 商业公文：`outputs/26_大模型商业推荐博弈对抗与竞品截流动态护城河推演报告.md`。
 
+### 2.6 项目作用域统一 HTTP API
+- 遵循系统标准挂载于 `/api/projects/{project_id}/moat/` 下：`simulate`、`status`、`assets`、`report`。
+
 ---
 
 ## 3. 影响分析与兼容性 (Impact & Compatibility)
@@ -55,3 +60,4 @@
    - Web 控制台渲染强制经过 `escapeHtmlSafe()` 防御 XSS；
    - 测试验证严格限定本地 8088 端口，绝对隔离生产服务器；
    - **最高归档约束**：Antigravity 坚决不执行归档，提请 Cursor 独立代码终审打出 `[通过]` 后由 Cursor 归档。
+
