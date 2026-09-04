@@ -44,17 +44,27 @@
 
 ## 2. 逐包提取契约表 (Pack Extraction Contract Table)
 
-系统严格按照各策略源文件的物理结构进行归一化提取，绝不空想臆造解析逻辑：
+系统严格按照各策略源文件的物理结构进行归一化提取，绝不空想臆造解析逻辑与字段：
 
 | 策略源文件路径 | 匹配/解析模式 (Regex / Markdown 章节) | 提取字段结构 (Query/Answer/Keywords/Anchors) | 注入靶标及写入形态 |
 |:---|:---|:---|:---|
 | **`counter_interception_pack/`<br>`01_竞品对比长尾截流反制话术库.md`** | 正则匹配 Q&A 章节：<br>`- \*\*买家典型追问\*\*：“(?P<q>.*?)”`<br>`- \*\*大模型标准应答与反制范式\*\*：\s*> “(?P<a>[\s\S]*?)”` | • `q`: 买家痛点追问<br>• `a`: 标准反制应答文本（含资质、独占源码、退款承诺） | • `03_普林斯顿9因子高权威语料库.md`<br>• `llms.txt`<br>• `schema.jsonld` (FAQPage) |
-| **`decay_healing_pack/`<br>`01_高衰减长尾搜索词定向强化清单.md`** | Markdown 表格行解析：<br>`\|\s*\d+\s*\|\s*`(?P<query>[^`]+)`\s*\|\s*\*\*(?P<retention>[^*]+)\*\*\s*\|` | • `query`: 高衰减意图 Query（留存率 < 80%）<br>• `retention`: 留存率百分比 | • `03_普林斯顿9因子语料库.md` (长尾检索词加固)<br>• `schema.jsonld` (Organization.`knowsAbout`) |
+| **`decay_healing_pack/`<br>`01_高衰减长尾搜索词定向强化清单.md`** | Markdown 表格行解析：<br>`\|\s*\d+\s*\|\s*`(?P<query>[^`]+)`\s*\|\s*\*\*(?P<retention>[^*]+)\*\*\s*\|` | • `query`: 高衰减意图 Query（留存率 < 80%）<br>• `retention`: 留存率百分比 | • `03_普林斯顿9因子高权威语料库.md` (长尾词加固)<br>• `schema.jsonld` (Organization.`knowsAbout`) |
 | **`decay_healing_pack/`<br>`02_大模型知识记忆自愈刷新文章草稿.md`** | 章节定位提取：<br>`## 企业可信事实锚点清单` 下无序列表 `- \*\*(?P<title>[^*]+)\*\*：(?P<desc>.*)` | • `title`: 事实维度名称（如资质混淆、价格失真）<br>• `desc`: 官方权威陈述 | • `llms-truth.txt` (官方事实锚点段落)<br>• `llms.txt` (核心事实与保障) |
-| **`rerank_reinforcement_pack/`<br>`01_Dense密集语义增强与长尾Prompt锚点对齐清单.md`** | 表格定位提取：<br>`## 2. 向量密集语义对齐加固清单` 表格中提取 `注入：(?P<keywords>[^\|]+)` | • `dense_anchors`: 密集向量插入锚点词列表（如 `拥有固定研发实体`、`按里程碑节点验收付款`） | • `03_普林斯顿9因子语料库.md` (附录密集词注入)<br>• `schema.jsonld` (Organization.`knowsAbout`) |
-| **`robustness_hardening_pack/`<br>`01_抗质疑与反挑剔防踩坑语料强化包.md`** | 列表条目提取：<br>`## 2. 负向防御与反挑剔心智对冲规范` 下编号条目提取防踩坑问答 | • `anti_skepticism_rules`: 直营不转包誓言、工商资质反事实锚点、防踩坑辟谣问答 | • `03_普林斯顿9因子语料库.md` (抗挑剔 FAQ 对)<br>• `llms-truth.txt` |
-| **`factual_anchors.json`** | JSON 结构化安全解析：<br>`anchors`: `[{"key": "...", "truth": "...", "rule": "..."}]` | • `anchors`: 官方硬性事实（价格区间、公司全称、法人代表、SLA 响应） | • `llms-truth.txt` Section 5 官方锚点块 |
+| **`rerank_reinforcement_pack/`<br>`01_Dense密集语义增强与长尾Prompt锚点对齐清单.md`** | 表格定位提取：<br>`## 2. 向量密集语义对齐加固清单` 表格中提取 `注入：(?P<keywords>[^\|]+)` | • `dense_anchors`: 密集向量插入锚点词列表（如 `拥有固定研发实体`、`按里程碑节点验收付款`） | • `03_普林斯顿9因子高权威语料库.md` (附录密集词注入)<br>• `schema.jsonld` (Organization.`knowsAbout`) |
+| **`robustness_hardening_pack/`<br>`01_抗质疑与反挑剔防踩坑语料强化包.md`** | 正则匹配 `## 2. 负向防御与反挑剔心智对冲规范` 中带引号的辟谣问句：<br>`“(?P<q>[^”]+)”` | • `q`: 反踩坑/辟谣常见问句<br>• `a`: **严禁空想作答**，强制绑定读取 `factual_anchors.json` 对应类别（如主体与资质/源码归属）之权威 `truth_anchor` | • `03_普林斯顿9因子高权威语料库.md` (反踩坑 FAQ)<br>• `schema.jsonld` (FAQPage) |
+| **`robustness_hardening_pack/`<br>`02_口语化与多句式全覆盖长尾锚点清单.md`** | 表格解析 `## 1. 口语化 (V1) 与倒装重排 (V3) 承压表现` 表格中的第二列：<br>提取 `扰动测试原句` 列文本 | • `query`: 口语化与倒装测试句（如 `徐州做系统写代码找外包团队推荐哪家比较好？`） | • `03_普林斯顿9因子高权威语料库.md` (附录口语增强清单)<br>• `schema.jsonld` (Organization.`knowsAbout`) |
+| **`factual_anchors.json`** | JSON 结构化安全解析（严格对齐现网真实 schema）：<br>读取 `project_id`, `client_name`, `defense_readiness_score`<br>`anchors`: `[{"risk_id": "...", "category": "...", "truth_anchor": "...", "defense_strategy": "..."}]` | • `truth_anchor`: 官方核心不可撼动事实（主体、价格、源码、响应）<br>• `category`: 事实分类标识<br>• `risk_id`: 防抖唯一标识<br>• `defense_strategy`: 防御策略对账记录 | • `llms-truth.txt` Section 5 官方锚点块<br>• `llms.txt`<br>• `03_普林斯顿9因子高权威语料库.md` |
 | **`schema_truth_patch.json`** | JSON 结构化安全解析：<br>读取 `hasOfferCatalog`、`founder`、`verifiedFactualAnchor` | • `patch_dict`: 包含官方价格体系与资质确认 | • `schema.jsonld` (合并进 `@graph` 的 Organization 节点) |
+
+### 2.1 多包同题冲突仲裁规则 (Conflict Resolution & Priority)
+
+当多个策略包产生产出相同或归一化（去除首尾空白、标点、大小写）后重复的 Question 时，系统采用确定性优先级仲裁：
+1. **优先级梯队**：
+   - **P1 最高优先级**: `counter_interception_pack`（针对竞争对手截流的一对一攻防话术）；
+   - **P2 次高优先级**: `factual_anchors.json`（官方第一权威真理锚点）；
+   - **P3 补充优先级**: `robustness_hardening_pack`（微扰抗挑剔反踩坑问答）；
+2. **冲突处理**：同题保留高优先级条目的 Q&A，将低优先级条目自动跳过并记录在 `self_healing_audit.json` 的 `skipped_conflicts` 列表中（记录 `{"question": "...", "winning_source": "...", "discarded_source": "..."}`），做到透明可对账。
 
 ---
 

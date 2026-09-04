@@ -1,7 +1,12 @@
 # Tasks: 全域动态知识热补丁聚合与一键落盘自愈流水线 (第 29 维)
 
 - [ ] 1. 核心自愈中枢引擎实现 (`tools/geo/healer.py`)
-  - [ ] 1.1 实现 `compile_healing_patches()`：扫描并聚合 20 维 (decay)、22 维 (rerank)、25 维 (robustness)、26 维 (moat) 与 07/08 维 (factual/schema) 策略产物，执行逐包标准化解析、物理注释锚点识别与缺失包优雅降级
+  - [ ] 1.1 实现 `compile_healing_patches()`：
+    - 严格对齐现网真实 schema 读取 `factual_anchors.json` 真实字段（`risk_id`、`category`、`truth_anchor`、`defense_strategy`）；
+    - 实现 `robustness_hardening_pack` 真实解析：`01_*.md` 正则提取引号问句并绑定 `factual_anchors.truth_anchor` 作为辟谣 FAQ；`02_*.md` 提取口语化扰动 Query 充实 Dense 锚点；
+    - 解析 `counter_interception_pack`（Q&A 正则）、`decay_healing_pack`（表格 Query 与 02 事实清单）、`rerank_reinforcement_pack`（Dense 关键词）；
+    - 实现多包同题仲裁机制（`counter_interception` > `factual_anchors` > `robustness`）并记录 `skipped_conflicts` 审计条目；
+    - 支持缺失策略包优雅降级跳过并记入 `sources_missing`
   - [ ] 1.2 实现 `backup_state()` 与 FIFO 轮转：在 `.healer_backup/<timestamp>/` 创建原子备份，默认保留最近 N=10 份历史，超出 FIFO 清理
   - [ ] 1.3 实现五步事务型回写 `apply_healing_patches()`：
     - ① 执行 `backup_state()`；
@@ -17,7 +22,7 @@
   - [ ] 3.1 在 `server.py` 挂载 `/api/projects/{id}/heal/preview`、`/api/projects/{id}/heal/apply`、`/api/projects/{id}/heal/rollback` 接口，强制实施与既有项目接口相同的 Bearer Token 鉴权保护
   - [ ] 3.2 在 `share.py` 的 `compile_portal_data()` 中追加 `self_healing_summary` 字段，缺失审计文件时严格降级为 `status: "never_run"`、修复词数 0，绝不伪造虚假数据
 - [ ] 4. 单元测试与端到端回归 (`tests/test_self_healing.py`)
-  - [ ] 4.1 编写策略包扫描提取与缺失维度优雅降级单测
+  - [ ] 4.1 编写策略包扫描提取单测：断言 `factual_anchors.json` 真实字段读取、`robustness` 引号问句与真理锚点绑定、以及多包同题优先级仲裁与优雅降级
   - [ ] 4.2 编写事务型原子落盘与校验失败自动回滚测试（模拟校验抛错，断言现场 100% 还原且状态记录为 `failed_rolled_back`）
   - [ ] 4.3 编写 `--rollback` 一键无损恢复单测（SHA256 哈希完全一致）与 N=10 FIFO 轮转清理单测
   - [ ] 4.4 编写多次 `--apply` 幂等物理锚点替换测试（断言同一补丁不重复追加）
