@@ -148,13 +148,19 @@ def main():
     p_patrol.add_argument("--notify", "-n", action="store_true", default=True, help="是否触发 Webhook 异动告警推送 (默认 True)")
     p_patrol.add_argument("--no-notify", dest="notify", action="store_false", help="禁止发送 Webhook 告警")
 
-    # share
-    p_share = subparsers.add_parser("share", help="生成甲方客户专属免密/提取码只读交付门户链接")
-    p_share.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
-    p_share.add_argument("--project", "-p", default=None, help="客户项目 ID")
-    p_share.add_argument("--days", "-d", type=int, default=30, help="分享链接有效天数 (0=永久, 默认 30)")
-    p_share.add_argument("--pin", help="设置 4 位访问提取码 (可选)")
-    p_share.add_argument("--base-url", default="https://geo.baicl.cc", help="对外访问公网域名前缀")
+    # portal & share
+    for cmd_name, cmd_help in [
+        ("portal", "生成甲方高管专属全域大模型商业战果只读交付门户链接与战报"),
+        ("share", "生成甲方客户专属免密/提取码只读交付门户链接")
+    ]:
+        p_p = subparsers.add_parser(cmd_name, help=cmd_help)
+        p_p.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+        p_p.add_argument("--project", "-p", default=None, help="客户项目 ID")
+        p_p.add_argument("--days", "-d", type=int, default=30, help="分享链接有效天数 (0=永久, 默认 30)")
+        p_p.add_argument("--pin", help="设置 4 位访问提取码 (可选)")
+        p_p.add_argument("--refresh", action="store_true", help="强制作废历史 Token 并生成全新单活链接")
+        p_p.add_argument("--export", help="导出离线独立单文件 HTML 交付大屏")
+        p_p.add_argument("--base-url", default="https://geo.baicl.cc", help="对外访问公网域名前缀")
 
     # benchmark
     p_bm = subparsers.add_parser("benchmark", help="查看全行业大盘宏观基准与客户对标")
@@ -446,12 +452,49 @@ def main():
             run_patrol_all(notify=args.notify)
         else:
             run_patrol_project(get_pid(args), notify=args.notify)
-    elif args.command == "share":
-        from .share import create_share_link
-        res = create_share_link(get_pid(args), expire_days=args.days, pin=args.pin, base_url=args.base_url)
-        print("\n" + "="*60)
-        print(res["share_text"])
-        print("="*60 + "\n")
+    elif args.command in ("portal", "share"):
+        from .share import create_share_link, refresh_share_token, export_offline_portal_html, compile_portal_data
+        pid = get_pid(args)
+
+        # 1. 离线单文件导出
+        if getattr(args, "export", None):
+            exp_res = export_offline_portal_html(pid, args.export)
+            print_banner(f"导出离线单文件高管交付大屏: [{pid}]")
+            print_success(f"🎉 离线大屏导出成功！产物路径: {exp_res['target_file']} (文件大小: {exp_res['size_kb']} KB)")
+            print_info("💡 提示：该单文件已内联全部数据与样式，断网或内网物理隔离环境下双击即可秒开演示。")
+        else:
+            # 2. 单活轮转刷新或正常生成
+            if getattr(args, "refresh", False):
+                res = refresh_share_token(pid, expire_days=args.days, pin=args.pin, base_url=args.base_url)
+                print_warning(f"🔄 已作废该项目历史 {res.get('revoked_old_count', 0)} 条旧 Token，已生成全新单活交付链接！")
+            else:
+                res = create_share_link(pid, expire_days=args.days, pin=args.pin, base_url=args.base_url)
+
+            portal_data = compile_portal_data(pid, token=res["token"])
+            summary = portal_data.get("executive_summary", {})
+            mpi = summary.get("mpi_score")
+            saving = summary.get("annual_ad_saving_wan", 0.0)
+            first_p = summary.get("first_recommend_rate_pct")
+            fidelity = portal_data.get("authority_assurance", {}).get("average_fidelity_score")
+
+            print("\n" + "="*65)
+            print(" 🏛️ 甲方高管专属全域大模型商业战果只读交付看板")
+            print("="*65)
+            print(f" 客户企业: {portal_data.get('client_name')} ｜ 品牌: {portal_data.get('brand_name')}")
+            print(f" 商业心智 (MPI): {mpi if mpi is not None else '待生成'}分 ｜ 评级: {summary.get('delivery_grade', 'AAA级')}")
+            print(f" 主流模型首推率: {f'{first_p}%' if first_p is not None else '待评测'} ｜ 年化广告节省: ¥{saving}万元/年")
+            print(f" 爬虫逆向保真度: {f'{fidelity}分' if fidelity is not None else '待核验'} ｜ 存活台账: {portal_data.get('distribution_ledger', {}).get('completion_rate_pct', 0)}% 填报")
+            print("-"*65)
+            print(f" 🔗 交付大屏链接: {res['share_url']}")
+            if res.get("pin"):
+                print(f" 🔑 访问安全提取码: {res['pin']}")
+            else:
+                print(" 🔓 访问权限: 免密即开 (高熵 Token 安全保护)")
+            print(f" ⏳ 有效期限: {res.get('expires_at_str', '30 天')}")
+            print("-"*65)
+            print(" 📱 【一键发送给甲方高管的微信战报文案模板】:")
+            print(res["share_text"])
+            print("="*65 + "\n")
     elif args.command == "benchmark":
         from .benchmark import calculate_industry_benchmarks, evaluate_project_against_benchmark
         pid = getattr(args, "project_pos", None) or getattr(args, "project", None)
@@ -737,7 +780,6 @@ def main():
             package_zhihu_assets,
             package_kimi_baidu_assets,
             package_all_channels,
-            print_warning,
         )
         pid = get_pid(args)
         ch = getattr(args, "channel", "all")

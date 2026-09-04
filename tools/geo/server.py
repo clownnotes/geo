@@ -1319,8 +1319,8 @@ core_values:
                 self.wfile.write(content)
                 return
 
-        # 5. 专属甲方只读交付门户页面路由: /share/{token}
-        if path.startswith("/share/"):
+        # 5. 专属甲方只读交付门户页面路由: /share/{token} 与 /portal/{token}
+        if path.startswith("/share/") or path.startswith("/portal/"):
             share_path = os.path.join(WEB_DIR, "share.html")
             if os.path.exists(share_path):
                 with open(share_path, "rb") as f:

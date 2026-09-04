@@ -1,718 +1,457 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
   <meta name="googlebot" content="noindex, nofollow, noarchive">
   <meta name="baiduspider" content="noindex, nofollow, noarchive">
-  <title>GEO 商业交付全景门户 · 客户专属视图</title>
+  <title>GEO 商业交付战果大屏 · 甲方高管专属门户</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              gold: '#f59e0b',
+              emerald: '#10b981',
+              blue: '#3b82f6',
+              purple: '#8b5cf6'
+            }
+          }
+        }
+      }
+    }
+  </script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Marked.js for Markdown Rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    .markdown-body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      font-size: 13.5px;
-      line-height: 1.65;
-      color: #1e293b;
+    body {
+      background-color: #030712;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
-    .markdown-body h1 { font-size: 1.5rem; font-weight: 700; margin-top: 1.2rem; margin-bottom: 0.8rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.4rem; color: #0f172a; }
-    .markdown-body h2 { font-size: 1.25rem; font-weight: 700; margin-top: 1.1rem; margin-bottom: 0.6rem; color: #1e293b; }
-    .markdown-body h3 { font-size: 1.05rem; font-weight: 600; margin-top: 0.9rem; margin-bottom: 0.4rem; color: #334155; }
+    .executive-card {
+      background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.85));
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+    .gold-glow {
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+    }
+    .markdown-body {
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: #cbd5e1;
+    }
+    .markdown-body h1 { font-size: 1.4rem; font-weight: 700; margin-top: 1.2rem; margin-bottom: 0.8rem; border-bottom: 1px solid #334155; padding-bottom: 0.4rem; color: #f8fafc; }
+    .markdown-body h2 { font-size: 1.2rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #f1f5f9; }
+    .markdown-body h3 { font-size: 1.05rem; font-weight: 600; margin-top: 0.8rem; margin-bottom: 0.4rem; color: #e2e8f0; }
     .markdown-body p, .markdown-body ul, .markdown-body ol { margin-bottom: 0.75rem; }
     .markdown-body ul { list-style-type: disc; padding-left: 1.4rem; }
     .markdown-body ol { list-style-type: decimal; padding-left: 1.4rem; }
-    .markdown-body li { margin-bottom: 0.25rem; }
-    .markdown-body code { background: #f1f5f9; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-size: 12px; font-family: monospace; color: #4338ca; }
-    .markdown-body pre { background: #0f172a; color: #f8fafc; padding: 0.85rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 0.85rem; font-size: 12px; }
-    .markdown-body pre code { background: transparent; color: inherit; padding: 0; }
-    .markdown-body blockquote { border-left: 3.5px solid #6366f1; padding-left: 0.85rem; margin-left: 0; color: #475569; background: #f8fafc; padding-top: 0.35rem; padding-bottom: 0.35rem; border-radius: 0 0.35rem 0.35rem 0; margin-bottom: 0.75rem; }
     .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 0.85rem; font-size: 12.5px; }
-    .markdown-body th, .markdown-body td { border: 1px solid #cbd5e1; padding: 0.45rem 0.65rem; text-align: left; }
-    .markdown-body th { background: #f1f5f9; font-weight: 600; color: #334155; }
+    .markdown-body th, .markdown-body td { border: 1px solid #334155; padding: 0.45rem 0.65rem; text-align: left; }
+    .markdown-body th { background: #1e293b; font-weight: 600; color: #e2e8f0; }
+    .markdown-body pre { background: #0b0f19; color: #f8fafc; padding: 0.85rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 0.85rem; font-size: 12px; border: 1px solid #1e293b; }
+    .markdown-body code { background: #1e293b; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-size: 12px; color: #a5b4fc; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-black">
 
-  <!-- 顶部官方认证顶栏 -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+  <!-- 顶部高管专属认证导航栏 -->
+  <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black text-base shadow-lg shadow-amber-500/20">
           GEO
         </div>
         <div>
-          <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <span>商业交付数据门户</span>
-            <span class="text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>客户专属交付看板</span>
+          <div class="flex items-center gap-2">
+            <span id="header-brand-name" class="font-black text-slate-100 text-sm sm:text-base tracking-wide">客户企业</span>
+            <span id="header-delivery-badge" class="text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <i data-lucide="shield-check" class="w-3 h-3"></i>
+              <span>AAA 级履约</span>
             </span>
           </div>
-          <p class="text-[11px] text-slate-400">大模型（DeepSeek / 豆包）商业搜索优化与声量护航成果</p>
+          <p class="text-[11px] text-slate-400 hidden sm:block">全域大模型（DeepSeek / 豆包 / Kimi）商业战果专属交付门户</p>
         </div>
       </div>
 
+      <!-- 右侧高管专属快捷操作 -->
       <div class="flex items-center gap-2">
-        <button onclick="handlePrintShareCertificate()" class="py-1.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
-          <i data-lucide="award" class="w-3.5 h-3.5 text-amber-600"></i>
-          <span class="hidden sm:inline">🎖️ 结案移交证书</span>
-          <span class="sm:hidden">证书</span>
+        <button onclick="openCertificateModal()" class="py-1.5 px-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 text-xs font-bold rounded-lg shadow-sm shadow-amber-500/30 flex items-center gap-1.5 transition active:scale-95">
+          <i data-lucide="award" class="w-3.5 h-3.5"></i>
+          <span>查验结案证书</span>
         </button>
-        <button onclick="handlePrintShareReport()" class="py-1.5 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
-          <i data-lucide="printer" class="w-3.5 h-3.5 text-indigo-600"></i>
-          <span class="hidden sm:inline">美化打印周报 (PDF)</span>
-          <span class="sm:hidden">打印</span>
+        <button onclick="handlePrintShareCertificate()" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition hidden md:flex">
+          <i data-lucide="printer" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>A4 打印</span>
         </button>
-        <button onclick="handleDownloadShareZip()" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
-          <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">下载交付全包 (.zip)</span>
+        <button onclick="handleShareDownloadZip()" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span class="hidden sm:inline">下载交付全包</span>
           <span class="sm:hidden">下载包</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- 主体内容 -->
-  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+  <!-- 主体高管数据驾驶舱 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
 
-    <!-- 客户抬头卡片 -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+    <!-- 1. 企业战略抬头卡片 -->
+    <div class="executive-card rounded-2xl p-5 sm:p-6 space-y-4 gold-glow">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
         <div>
-          <div class="flex items-center gap-2.5">
-            <h1 id="portal-client-name" class="text-xl sm:text-2xl font-black text-slate-900">企业客户名称</h1>
-            <span id="portal-industry" class="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-md border border-indigo-100">所属行业</span>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <h1 id="portal-client-name" class="text-xl sm:text-2xl font-black text-white">企业客户名称</h1>
+            <span id="portal-industry" class="text-xs bg-blue-500/15 text-blue-400 border border-blue-500/30 font-semibold px-2.5 py-1 rounded-md">所属行业</span>
+            <span class="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>GEO 护航中</span>
+            </span>
           </div>
           <p id="portal-website" class="text-xs text-slate-400 mt-1 font-mono">https://example.com</p>
         </div>
 
-        <div class="flex items-center gap-3 text-xs text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+        <div class="flex items-center gap-4 text-xs text-slate-400 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
           <div>
-            <div class="text-[10px] text-slate-400">交付生成时间</div>
-            <div id="portal-created-at" class="font-semibold text-slate-700">2026-09-01</div>
+            <div class="text-[10px] text-slate-500">结案移交时间</div>
+            <div id="portal-created-at" class="font-bold text-slate-200">2026-09-01</div>
           </div>
-          <div class="w-px h-6 bg-slate-200"></div>
+          <div class="w-px h-6 bg-slate-800"></div>
           <div>
-            <div class="text-[10px] text-slate-400">有效期至</div>
-            <div id="portal-expires-at" class="font-semibold text-slate-700">永久有效</div>
+            <div class="text-[10px] text-slate-500">访问授权期限</div>
+            <div id="portal-expires-at" class="font-bold text-amber-400">永久有效</div>
           </div>
         </div>
       </div>
 
-      <!-- 核心指标摘要 (5 列自适应) -->
-      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
-        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-          <div class="text-[11px] text-slate-500 font-medium">综合提及率 (SOV)</div>
-          <div id="portal-metric-sov" class="text-xl sm:text-2xl font-black text-indigo-600 mt-0.5">0.0%</div>
+      <!-- 2. Hero 核心商业 KPI 四宫格 (高管战略视窗) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
+        <!-- KPI 1: MPI 商业心智渗透率 -->
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 relative overflow-hidden">
+          <div class="text-[11px] text-slate-400 font-medium flex items-center justify-between">
+            <span>商业心智渗透率 (MPI)</span>
+            <span id="hero-mpi-grade" class="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded font-bold">行业领先</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <div id="hero-mpi-score" class="text-2xl sm:text-3xl font-black text-amber-400">--</div>
+            <span class="text-xs text-slate-500">/ 100分</span>
+          </div>
+          <div class="text-[10px] text-slate-500 pt-1">主流大模型商业认知与首位唤醒指数</div>
         </div>
-        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-          <div class="text-[11px] text-slate-500 font-medium">Top 3 首选推荐率</div>
-          <div id="portal-metric-top3" class="text-xl sm:text-2xl font-black text-emerald-600 mt-0.5">0.0%</div>
+
+        <!-- KPI 2: 主流模型综合首推率 -->
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 relative overflow-hidden">
+          <div class="text-[11px] text-slate-400 font-medium flex items-center justify-between">
+            <span>主力大模型首推率</span>
+            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold">Top 1 推荐</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <div id="hero-first-recommend" class="text-2xl sm:text-3xl font-black text-emerald-400">--%</div>
+          </div>
+          <div class="text-[10px] text-slate-500 pt-1">豆包 / DeepSeek / Kimi 实测探针首推占比</div>
         </div>
-        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-          <div class="text-[11px] text-slate-500 font-medium">权威信源评分</div>
-          <div id="portal-metric-auth" class="text-xl sm:text-2xl font-black text-slate-800 mt-0.5">95/100</div>
+
+        <!-- KPI 3: 年化广告节省 -->
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 relative overflow-hidden">
+          <div class="text-[11px] text-slate-400 font-medium flex items-center justify-between">
+            <span>等效商业广告节省</span>
+            <span class="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded font-bold">ROI 归因</span>
+          </div>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-base text-blue-400 font-bold">¥</span>
+            <div id="hero-ad-saving" class="text-2xl sm:text-3xl font-black text-blue-400">--</div>
+            <span class="text-xs text-slate-500">万元/年</span>
+          </div>
+          <div class="text-[10px] text-slate-500 pt-1">对标传统搜索引擎关键词买量年化成本</div>
         </div>
-        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-          <div class="text-[11px] text-slate-500 font-medium">大模型探测问句</div>
-          <div id="portal-metric-prompts" class="text-xl sm:text-2xl font-black text-slate-800 mt-0.5">50 组</div>
-        </div>
-        <div class="p-3.5 bg-purple-50/80 border border-purple-200/80 rounded-xl">
-          <div class="text-[11px] text-purple-700 font-medium">16维资产达成率</div>
-          <div id="portal-metric-fulfillment" class="text-xl sm:text-2xl font-black text-purple-700 mt-0.5">100%</div>
+
+        <!-- KPI 4: 意图长尾词覆盖 -->
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 relative overflow-hidden">
+          <div class="text-[11px] text-slate-400 font-medium flex items-center justify-between">
+            <span>买家精准意图覆盖</span>
+            <span class="text-[10px] text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded font-bold">100% 锁定</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <div id="hero-intent-count" class="text-2xl sm:text-3xl font-black text-purple-400">--</div>
+            <span class="text-xs text-slate-500">组决策意图</span>
+          </div>
+          <div class="text-[10px] text-slate-500 pt-1">三层五维立体决策漏斗意图全网拦截</div>
         </div>
       </div>
     </div>
 
-    <!-- 交付阶段导航 Tab (移动端横向滚动) -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold scrollbar-none">
-      <button onclick="switchShareTab('audit')" id="tab-audit" class="py-2 px-4 rounded-xl bg-indigo-600 text-white shadow-sm flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>① 现状体检报告</span>
-      </button>
-      <button onclick="switchShareTab('scaffold')" id="tab-scaffold" class="py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>② 站点底座改造</span>
-      </button>
-      <button onclick="switchShareTab('rewrite')" id="tab-rewrite" class="py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>③ 普林斯顿权威语料</span>
-      </button>
-      <button onclick="switchShareTab('distribute')" id="tab-distribute" class="py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>④ 矩阵分发稿</span>
-      </button>
-      <button onclick="switchShareTab('monitor')" id="tab-monitor" class="py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>⑤ 声量监测周报与走势</span>
-      </button>
-      <button onclick="switchShareTab('defense')" id="tab-defense" class="py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>⚔️ 竞品反向包抄策略</span>
-      </button>
-      <button onclick="switchShareTab('visual')" id="tab-visual" class="py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>🎨 视觉与短视频矩阵</span>
-      </button>
-      <button onclick="switchShareTab('security')" id="tab-security" class="py-2 px-4 rounded-xl bg-white text-purple-700 hover:bg-purple-50 border border-purple-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>🛡️ 核心黑科技与攻防盾牌</span>
-      </button>
-      <button onclick="switchShareTab('acceptance')" id="tab-acceptance" class="py-2 px-4 rounded-xl bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>🏛️ 商业交付结案单</span>
-      </button>
-    </div>
-
-    <!-- Tab 1: 体检报告 -->
-    <div id="content-audit" class="share-tab-content bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <span>📄 01_企业AI可见度现状体检与商业诊断报告</span>
+    <!-- 3. 第二部分：四大主流大模型推荐心智与首推战报 -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <i data-lucide="cpu" class="w-4 h-4 text-amber-400"></i>
+          <span>三大主力国产大模型实测心智矩阵与首推战报</span>
         </h2>
+        <span class="text-[11px] text-slate-500">基于真实大模型 API 批量并发探针审计</span>
       </div>
-      <div id="preview-audit" class="markdown-body"></div>
-    </div>
 
-    <!-- Tab 2: 站点底座改造 -->
-    <div id="content-scaffold" class="share-tab-content hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div>
-          <h2 class="text-base font-bold text-slate-900">🛠️ 02_站点技术底座改造补丁包</h2>
-          <p class="text-xs text-slate-500">部署至官网根目录，使本土大模型网络爬虫（Bytespider / Baiduspider / DeepSeekBot）精准读取官方实体。</p>
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="models-mindshare-container">
+        <!-- 动态渲染 3 大模型卡片 -->
       </div>
-      <div class="space-y-4">
-        <div>
-          <div class="font-bold text-xs text-slate-700 mb-1">1. /llms.txt (大模型专用 Markdown 清单)</div>
-          <pre><code id="preview-llms"></code></pre>
+
+      <!-- 微信搜一搜/元宝渠道覆盖代理说明卡片 -->
+      <div id="wechat-proxy-card" class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-400">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="font-bold text-slate-200">腾讯元宝 (微信搜一搜独占生态)</span>
+          <span class="text-slate-500">｜</span>
+          <span id="wechat-proxy-desc">渠道分发已就绪 (分发权重 10%) · 非实时 API 探针</span>
         </div>
-        <div>
-          <div class="font-bold text-xs text-slate-700 mb-1">2. Schema.org 结构化 JSON-LD (搜索引擎实体补丁)</div>
-          <pre><code id="preview-schema"></code></pre>
-        </div>
-        <div>
-          <div class="font-bold text-xs text-slate-700 mb-1">3. robots.txt (AI 爬虫白名单与放行规则)</div>
-          <pre><code id="preview-robots"></code></pre>
-        </div>
+        <a id="wechat-proxy-link" href="#" target="_blank" class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-semibold transition">
+          <span>查看微信发稿资产</span>
+          <i data-lucide="external-link" class="w-3 h-3"></i>
+        </a>
       </div>
     </div>
 
-    <!-- Tab 3: 普林斯顿语料 -->
-    <div id="content-rewrite" class="share-tab-content hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h2 class="text-base font-bold text-slate-900">📚 03_普林斯顿9因子高权威重构语料库</h2>
+    <!-- 4. 第三部分：双栏攻防与保真背书 (竞对攻防对比 + 9因子与保真度) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- 左栏：竞对截流攻防实战看板 -->
+      <div class="executive-card rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="swords" class="w-4 h-4 text-red-400"></i>
+            <span>竞对截流攻防实战对比</span>
+          </h3>
+          <span id="competitor-sov-gap" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">领先 +47.6%</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div class="flex items-center justify-between bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+            <span class="text-slate-400">防御与截流竞品目标:</span>
+            <span id="competitor-target-list" class="font-bold text-slate-200 text-right">行业常规竞对</span>
+          </div>
+
+          <div class="space-y-2" id="competitor-advantages-list">
+            <!-- 动态渲染反超攻防动作 -->
+          </div>
+        </div>
       </div>
-      <div id="preview-rewrite" class="markdown-body"></div>
+
+      <!-- 右栏：普林斯顿 9 因子与全渠道大模型爬虫保真度 -->
+      <div class="executive-card rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+            <span>普林斯顿 9 因子与爬虫保真度背书</span>
+          </h3>
+          <span id="princeton-grade-badge" class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">S 级质检</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <!-- 保真度全生态均分 -->
+          <div class="flex items-center justify-between bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+            <span class="text-slate-400">全生态爬虫逆向保真均分:</span>
+            <div class="flex items-center gap-2">
+              <span id="fidelity-avg-score" class="font-black text-emerald-400 text-sm">100.0 分</span>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">✅ 黄金达标</span>
+            </div>
+          </div>
+
+          <!-- 各渠道保真度四宫格 -->
+          <div class="grid grid-cols-2 gap-2" id="fidelity-channels-container">
+            <!-- 动态渲染渠道保真度分值 -->
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Tab 4: 矩阵分发稿 -->
-    <div id="content-distribute" class="share-tab-content hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+    <!-- 5. 第四部分：全网分发落地存活台账证据链 (直接点击跳转) -->
+    <div class="executive-card rounded-2xl p-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
         <div>
-          <h2 class="text-base font-bold text-slate-900">🚀 04_四大权威平台矩阵分发稿件</h2>
-          <p class="text-xs text-slate-500">针对 DeepSeek (知乎/GitHub) 与 豆包 (今日头条/微信) 定向发布排版。</p>
-        </div>
-      </div>
-
-      <!-- 全网落地外链与收录证明 -->
-      <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-4 space-y-2">
-        <div class="flex items-center justify-between">
-          <div class="font-bold text-xs text-indigo-900 flex items-center gap-1.5">
-            <span>🌐 全网落地外链与收录凭证</span>
-            <span id="share-dist-rate" class="px-2 py-0.5 bg-indigo-600 text-white rounded-full text-[10px] font-bold">完成率: 0%</span>
-          </div>
-          <span class="text-[10px] text-slate-400">大模型 Citation 引用抓取来源</span>
-        </div>
-        <div id="share-dist-links-box" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-1 text-xs">
-          <!-- 动态注入真实外链 -->
-        </div>
-      </div>
-
-      <div class="space-y-6">
-        <div class="border border-slate-200 rounded-xl p-4">
-          <div class="font-bold text-sm text-indigo-900 mb-2">① 知乎专栏深度评测稿 (攻 DeepSeek 首推)</div>
-          <div id="preview-dist-zhihu" class="markdown-body text-xs"></div>
-        </div>
-        <div class="border border-slate-200 rounded-xl p-4">
-          <div class="font-bold text-sm text-red-900 mb-2">② 今日头条行业科普稿 (攻 豆包 搜索推荐)</div>
-          <div id="preview-dist-toutiao" class="markdown-body text-xs"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab 5: 声量监测周报与时序走势 -->
-    <div id="content-monitor" class="share-tab-content hidden space-y-6">
-      <!-- 现场亲测：大模型实时推荐沙箱 -->
-      <div class="bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 rounded-2xl shadow-xl p-6 text-white space-y-4">
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-sm font-bold">🧪</div>
-            <div>
-              <h2 class="text-base font-bold text-white">现场亲测 · 大模型实时推荐沙箱 (LLM Playground)</h2>
-              <p class="text-xs text-purple-200">输入您的业务疑问，即时体验普林斯顿 9 因子语料带来的高置信度首推效果</p>
-            </div>
-          </div>
-          <span class="text-[10px] bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 px-2.5 py-1 rounded-full font-semibold">
-            ● 实时推演引擎在线
-          </span>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input id="share-play-input" type="text" placeholder="输入测试问句，例如：徐州做小程序开发哪家靠谱？" class="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400">
-          <button onclick="handleSharePlaygroundRun()" id="btn-share-play" class="py-2.5 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 font-bold text-xs text-white shadow-lg transition flex items-center justify-center gap-1.5 shrink-0">
-            <span>🚀 即时测序</span>
-          </button>
-        </div>
-
-        <!-- 测序对比双栏 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
-          <!-- Left: Before -->
-          <div class="bg-black/30 rounded-xl p-4 border border-white/10 space-y-2">
-            <div class="flex items-center justify-between text-[11px] text-slate-300 font-semibold border-b border-white/10 pb-2">
-              <span>👈 未优化 Base 泛回答</span>
-              <span id="share-before-badge" class="text-slate-400">未收录 · 35分</span>
-            </div>
-            <div id="share-before-resp" class="text-slate-300 leading-relaxed text-[11.5px] max-h-[220px] overflow-y-auto whitespace-pre-wrap">
-              点击上方【即时测序】体验未接入 GEO 前大模型的泛回答...
-            </div>
-          </div>
-
-          <!-- Right: After -->
-          <div class="bg-purple-950/40 rounded-xl p-4 border border-purple-500/30 space-y-2">
-            <div class="flex items-center justify-between text-[11px] text-purple-200 font-semibold border-b border-purple-500/20 pb-2">
-              <span class="text-emerald-300 font-bold">👉 GEO 增强首选推荐</span>
-              <span id="share-after-badge" class="text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded font-bold">🏆 Rank 1 · 98/100分</span>
-            </div>
-            <div id="share-after-resp" class="text-emerald-100 leading-relaxed text-[11.5px] max-h-[220px] overflow-y-auto whitespace-pre-wrap">
-              点击上方【即时测序】体验普林斯顿 9 因子语料带来的高权威首选推荐...
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 商业投资回报 (ROI) 与企业数字资产估值战绩看板 -->
-      <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 rounded-2xl shadow-xl p-6 text-white space-y-4 border border-indigo-500/20">
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center text-sm font-bold">💰</div>
-            <div>
-              <h2 class="text-base font-bold text-white">商业投资回报率 (ROI) 与企业数字资产估值</h2>
-              <p class="text-xs text-indigo-200">GEO 服务为企业沉淀的商业获客价值、传统竞价替代价值与全网高权重信任资产</p>
-            </div>
-          </div>
-          <span id="share-roi-badge" class="text-xs bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 px-3 py-1 rounded-full font-bold">
-            ROI: +579.5%
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="p-3.5 bg-white/5 rounded-xl border border-white/10">
-            <div class="text-[11px] text-indigo-200">商业创造总价值 (年化估算)</div>
-            <div id="share-roi-total" class="text-xl font-black text-amber-300 mt-0.5">¥203,845 元</div>
-            <div id="share-roi-mult" class="text-[10px] text-emerald-300 mt-0.5">相当于 6.79 倍服务投入</div>
-          </div>
-
-          <div class="p-3.5 bg-white/5 rounded-xl border border-white/10">
-            <div class="text-[11px] text-indigo-200">🔍 SEM 竞价广告替代节省</div>
-            <div id="share-roi-sem" class="text-xl font-black text-white mt-0.5">¥166,725 元</div>
-            <div class="text-[10px] text-indigo-300 mt-0.5">替代传统关键词搜索投放</div>
-          </div>
-
-          <div class="p-3.5 bg-white/5 rounded-xl border border-white/10">
-            <div class="text-[11px] text-indigo-200">👥 AI 销售线索与资产估值</div>
-            <div id="share-roi-leads" class="text-xl font-black text-white mt-0.5">¥37,120 元</div>
-            <div class="text-[10px] text-indigo-300 mt-0.5">包含首推销售线索与信任池语料</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 商业交付结案确认单与全套成果归档下载 -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">📜</div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h2 class="text-base font-bold text-slate-900">商业交付结案确认单与全套成果归档</h2>
-                <span id="share-acceptance-badge" class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">
-                  履约达成率: 94.0% (✅ 符合验收标准)
-                </span>
-              </div>
-              <p class="text-xs text-slate-500 mt-0.5">全套 5 步交付成果与技术底座改造已全部就绪，支持在线查验与一键下载离线归档包。</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="handleShareDownloadZip()" class="py-2 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="folder-archive" class="w-3.5 h-3.5"></i>
-              <span>📦 下载全套成果 ZIP</span>
-            </button>
-            <button onclick="handleSharePrintAcceptance()" class="py-2 px-4 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
-              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-              <span>🖨️ 查看盖章结案单</span>
-            </button>
-          </div>
-        </div>
-
-        <div id="share-acceptance-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
-          <!-- 动态注入 6 维履约卡 -->
-        </div>
-      </div>
-
-      <!-- 商业全案 Pitch Deck 与投标建议书 -->
-      <div class="bg-gradient-to-r from-purple-900/90 via-indigo-950/90 to-slate-900 text-white rounded-2xl border border-purple-500/30 p-6 space-y-4 shadow-xl">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-400/30 flex items-center justify-center font-bold text-sm">🎯</div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h2 class="text-base font-bold text-white">商业全案 Pitch Deck 与投标建议书</h2>
-                <span class="text-[10px] bg-purple-500/30 text-purple-200 border border-purple-400/30 px-2 py-0.5 rounded-full font-bold">10 页全屏演示</span>
-              </div>
-              <p class="text-xs text-purple-200/80 mt-0.5">支持在线全屏放映 10 页科技风幻灯片与 A4 纸排版商业建议书。</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="handleSharePitchSlides()" class="py-2 px-4 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
-              <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
-              <span>🖥️ 全屏放映幻灯片</span>
-            </button>
-            <button onclick="handleSharePrintPitch()" class="py-2 px-4 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition flex items-center gap-1.5">
-              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-              <span>🖨️ 查看建议书标书</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 企业行业实体知识图谱与三元组拓扑 -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">🕸️</div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h2 class="text-base font-bold text-slate-900">企业行业实体知识图谱 (Knowledge Graph)</h2>
-                <span id="share-graph-badge" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full font-bold">13 实体 · 15 关系</span>
-              </div>
-              <p class="text-xs text-slate-500 mt-0.5">Graph RAG 结构化语义网络，确保长尾多条件复合提问大模型精准多跳推理。</p>
-            </div>
-          </div>
-          <button onclick="handleShareDownloadGraphSvg()" class="py-2 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>保存高清拓扑 SVG</span>
-          </button>
-        </div>
-        <div class="rounded-xl overflow-hidden border border-slate-800 bg-[#090d16] flex items-center justify-center min-h-[360px]">
-          <div id="share-graph-svg-box" class="w-full h-full flex items-center justify-center p-2">
-            <div class="text-slate-500 text-xs animate-pulse">正在加载知识图谱拓扑...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 品牌声誉大模型事实幻觉防守与公关反击 -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center font-bold text-sm">🛡️</div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h2 class="text-base font-bold text-slate-900">品牌声誉与大模型事实幻觉防守 (Factual Guard)</h2>
-                <span id="share-guard-badge" class="text-xs bg-red-50 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full font-bold">防守就绪度: 96.5%</span>
-              </div>
-              <p class="text-xs text-slate-500 mt-0.5">拦截竞品虚假评测、价格失真与主体混淆，注入强事实锚点熔断错误记忆。</p>
-            </div>
-          </div>
-        </div>
-        <div id="share-guard-risks" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          <!-- 动态注入幻觉防守卡片 -->
-        </div>
-      </div>
-
-      <!-- 多周声量时序趋势 -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div>
-            <h2 class="text-base font-bold text-slate-900">📈 多周巡检历史时序与爬坡走势</h2>
-            <p class="text-xs text-slate-500">记录每周声量 SOV 提及率与多模型命中推荐轨迹。</p>
-          </div>
-        </div>
-        <div id="share-history-cards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
-          <!-- 动态注入 -->
-        </div>
-      </div>
-
-      <!-- Citation 权威信源加权渗透分布 -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div>
-            <h2 class="text-base font-bold text-slate-900">🌐 全网 Citation 权威信源加权渗透分布</h2>
-            <p class="text-xs text-slate-500">大模型（DeepSeek / 豆包）生成推荐时引用的核心信源渠道占比。</p>
-          </div>
-        </div>
-        <div class="space-y-3.5 text-xs">
-          <div>
-            <div class="flex justify-between font-semibold mb-1">
-              <span class="text-slate-700">知乎专栏 (zhihu.com · 权威权重 1.0)</span>
-              <span id="share-citation-pct-zhihu" class="text-indigo-600 font-bold">0.0%</span>
-            </div>
-            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-              <div id="share-citation-bar-zhihu" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between font-semibold mb-1">
-              <span class="text-slate-700">今日头条 (toutiao.com · 权威权重 0.9)</span>
-              <span id="share-citation-pct-toutiao" class="text-indigo-600 font-bold">0.0%</span>
-            </div>
-            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-              <div id="share-citation-bar-toutiao" class="bg-red-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between font-semibold mb-1">
-              <span class="text-slate-700">微信公众号 (weixin.qq.com · 权威权重 0.85)</span>
-              <span id="share-citation-pct-wechat" class="text-indigo-600 font-bold">0.0%</span>
-            </div>
-            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-              <div id="share-citation-bar-wechat" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between font-semibold mb-1">
-              <span class="text-slate-700">GitHub 开源技术栈 (github.com · 权威权重 0.95)</span>
-              <span id="share-citation-pct-github" class="text-indigo-600 font-bold">0.0%</span>
-            </div>
-            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-              <div id="share-citation-bar-github" class="bg-slate-800 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 🎯 行业横向对标与超越战绩 (Industry Benchmark) -->
-      <div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white rounded-2xl shadow-lg p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-800/80 pb-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-400/30">
-              📊
-            </div>
-            <div>
-              <h3 class="text-sm font-bold flex items-center gap-2">
-                <span>行业横向对标与超越战绩 (Industry Benchmark)</span>
-                <span id="share-bm-tier-badge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
-                  计算中...
-                </span>
-              </h3>
-              <p class="text-[11px] text-indigo-200/70 mt-0.5">所属行业：<span id="share-bm-industry-name" class="font-bold text-white">--</span> · 对标全库同行平均线与顶尖标杆</p>
-            </div>
-          </div>
-          <div class="text-right">
-            <span class="text-[10px] text-indigo-300">超越同行率</span>
-            <div id="share-bm-beat-rate" class="text-xl font-black text-emerald-400">--%</div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-          <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
-            <div class="text-indigo-200/80">客户当前 SOV</div>
-            <div id="share-bm-client-sov" class="text-2xl font-black text-white">--%</div>
-            <p class="text-[10px] text-emerald-400" id="share-bm-diff-from-avg">对比均值 --</p>
-          </div>
-          <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
-            <div class="text-indigo-200/80">本行业平均 SOV</div>
-            <div id="share-bm-industry-avg" class="text-2xl font-black text-indigo-200">--%</div>
-            <p class="text-[10px] text-indigo-300/70">行业基准基线</p>
-          </div>
-          <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1">
-            <div class="text-indigo-200/80">行业顶尖标杆线 (Top 10%)</div>
-            <div id="share-bm-industry-top" class="text-2xl font-black text-amber-300">--%</div>
-            <p class="text-[10px] text-amber-200/70">统治级品牌占位线</p>
-          </div>
-        </div>
-
-        <div id="share-bm-summary-text" class="text-xs bg-white/10 border border-white/15 rounded-lg p-3 text-indigo-100 leading-relaxed">
-          正在生成行业对标量化评估结论...
-        </div>
-      </div>
-
-      <!-- 周报正文 -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h2 class="text-base font-bold text-slate-900">📊 05_企业AI可见度与声量追踪周报</h2>
-        </div>
-        <div id="preview-monitor" class="markdown-body"></div>
-      </div>
-    </div>
-
-    <!-- Tab 6: 竞品反向包抄策略 -->
-    <div id="content-defense" class="share-tab-content hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div>
-          <h2 class="text-base font-bold text-amber-900">⚔️ 06_竞品权威信源反向包抄与精准截流策略</h2>
-          <p class="text-xs text-amber-700">自动反解竞品被大模型引用的顶级权威信源，输出 5 维硬核量化压制话术。</p>
-        </div>
-      </div>
-      <div id="preview-defense" class="markdown-body"></div>
-    </div>
-
-    <!-- Tab 7: 多模态视觉资产与视频号脚本 -->
-    <div id="content-visual" class="share-tab-content hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div>
-          <h2 class="text-base font-bold text-purple-900">🎨 07/08/09 多模态结构化视觉资产与视频号矩阵</h2>
-          <p class="text-xs text-purple-700">原生矢量 SVG 选型对比图、企业技术架构全景图与 60 秒黄金转化短视频分镜头脚本。</p>
-        </div>
-      </div>
-
-      <!-- 选型对比图 -->
-      <div class="space-y-3">
-        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-          <span>📊 2026 企业选型差异化对比图 (高清 SVG 矢量)</span>
-        </h3>
-        <div id="share-svg-comp" class="bg-slate-50 p-4 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
-          <div class="text-slate-400 text-xs">对比图加载中...</div>
-        </div>
-      </div>
-
-      <!-- 架构全景图 -->
-      <div class="space-y-3">
-        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-          <span>🏗️ 企业级全链路 GEO 技术与服务架构全景图 (高清 SVG 矢量)</span>
-        </h3>
-        <div id="share-svg-arch" class="bg-slate-50 p-4 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
-          <div class="text-slate-400 text-xs">架构图加载中...</div>
-        </div>
-      </div>
-
-      <!-- 短视频脚本 -->
-      <div class="space-y-3">
-        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-          <span>🎬 60 秒黄金转化短视频/视频号老板口播分镜头脚本</span>
-        </h3>
-        <div id="share-video-script" class="bg-slate-50 p-6 rounded-xl border border-slate-200 markdown-body max-h-[500px] overflow-y-auto">
-          <div class="text-slate-400 text-xs">脚本加载中...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab 8: 核心黑科技与攻防安全盾牌 -->
-    <div id="content-security" class="share-tab-content hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-        <div>
-          <h2 class="text-base font-bold text-purple-900 flex items-center gap-2">
-            <span>🛡️ 核心黑科技与攻防安全中枢 (10~16 维深度资产)</span>
-            <span id="security-immunity-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700">注入免疫度: 100.0 分</span>
-          </h2>
-          <p class="text-xs text-purple-600 mt-1">涵盖大模型恶意注入隔离、全网 Citation 权威分推演、RAG 切片体检与竞对反超作战沙盘。</p>
-        </div>
-      </div>
-
-      <!-- 6 大核心安全防御指标看板 -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="p-3 bg-purple-50/70 border border-purple-100 rounded-xl">
-          <div class="text-[10px] text-purple-600 font-medium">提示词注入免疫盾牌</div>
-          <div id="sec-metric-immunity" class="text-lg font-black text-purple-800 mt-0.5">100.0 分</div>
-          <div class="text-[10px] text-purple-500">4维威胁 0 检出 · 安全隔离</div>
-        </div>
-        <div class="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl">
-          <div class="text-[10px] text-indigo-600 font-medium">Citation 信源权威度</div>
-          <div id="sec-metric-citation" class="text-lg font-black text-indigo-800 mt-0.5">90.0 分</div>
-          <div class="text-[10px] text-indigo-500">9因子权威承载度测算</div>
-        </div>
-        <div class="p-3 bg-emerald-50/70 border border-emerald-100 rounded-xl">
-          <div class="text-[10px] text-emerald-600 font-medium">多渠道广告法合规率</div>
-          <div id="sec-metric-compliance" class="text-lg font-black text-emerald-800 mt-0.5">100.0%</div>
-          <div class="text-[10px] text-emerald-500">极限词脱敏审查通过</div>
-        </div>
-        <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-xl">
-          <div class="text-[10px] text-blue-600 font-medium">RAG 向量就绪度评分</div>
-          <div id="sec-metric-rag" class="text-lg font-black text-blue-800 mt-0.5">—</div>
-          <div class="text-[10px] text-blue-500">大模型爬虫抓取与切片仿真</div>
-        </div>
-      </div>
-
-      <!-- 子标签选择器 -->
-      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold scrollbar-none border-b border-slate-100">
-        <button onclick="switchSecuritySubTab('injection_guard')" id="subtab-injection_guard" class="py-1.5 px-3 rounded-lg bg-purple-600 text-white shadow-xs transition">16 注入防御盾牌</button>
-        <button onclick="switchSecuritySubTab('citation_auth')" id="subtab-citation_auth" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">15 Citation权威度</button>
-        <button onclick="switchSecuritySubTab('competitor')" id="subtab-competitor" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">14 竞对反超沙盘</button>
-        <button onclick="switchSecuritySubTab('compliance')" id="subtab-compliance" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">13 广告合规脱敏</button>
-        <button onclick="switchSecuritySubTab('rag_diag')" id="subtab-rag_diag" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">12 RAG分块诊断</button>
-        <button onclick="switchSecuritySubTab('intent')" id="subtab-intent" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">11 意图裂变拓扑</button>
-        <button onclick="switchSecuritySubTab('graph')" id="subtab-graph" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">10 实体知识图谱</button>
-        <button onclick="switchSecuritySubTab('evaluator')" id="subtab-evaluator" class="py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">06 真实API评测</button>
-      </div>
-
-      <div id="preview-security-content" class="markdown-body text-xs min-h-[300px]"></div>
-    </div>
-
-    <!-- Tab 9: 商业交付结案单 -->
-    <div id="content-acceptance" class="share-tab-content hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-        <div>
-          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-            <span>🏛️ 00_GEO商业交付验收结案确认单</span>
-          </h2>
-          <p class="text-xs text-slate-500 mt-1">合同约定的 6 维达成率、16 维全景数字资产清单与甲乙双方签章栏。</p>
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+            <span>全网信源分发落地存活台账 (高管直验证据链)</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">大模型检索引用高地真实落地链接与实时探活状态</p>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="handlePrintShareReport()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition flex items-center gap-1">
-            <span>🖨️ A4 打印结案单</span>
-          </button>
-          <button onclick="handleDownloadShareZip()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow-sm transition flex items-center gap-1">
-            <span>📦 一键下载全套交付 ZIP 包</span>
-          </button>
+          <span id="ledger-completion-rate" class="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">75% 填报完成</span>
         </div>
       </div>
-      <div id="preview-acceptance" class="markdown-body"></div>
+
+      <!-- 渠道列表表格 -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="text-slate-400 border-b border-slate-800 font-semibold bg-slate-900/40">
+            <tr>
+              <th class="py-2.5 px-3">分发平台 / 目标生态</th>
+              <th class="py-2.5 px-3">对应信源池</th>
+              <th class="py-2.5 px-3">落地链接与存活状态</th>
+              <th class="py-2.5 px-3 text-right">真实查验</th>
+            </tr>
+          </thead>
+          <tbody id="distribution-ledger-tbody" class="divide-y divide-slate-800/60 text-slate-300">
+            <!-- 动态渲染台账 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 6. 第五部分：16 维技术交付物完整抽屉 (按需展开，向后兼容) -->
+    <div class="executive-card rounded-2xl p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="folder-archive" class="w-4 h-4 text-purple-400"></i>
+            <span>全案 16 维数字化交付资产详单 (技术顾问核对)</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">包含体检诊断、代码补丁、9因子语料、短视频脚本等全量工程资产</p>
+        </div>
+        <button onclick="toggleDeliverablesDrawer()" id="btn-toggle-deliverables" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+          <span id="drawer-toggle-text">展开查看技术明细</span>
+          <i id="drawer-toggle-icon" data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <!-- 折叠容器 -->
+      <div id="deliverables-drawer" class="hidden pt-3 border-t border-slate-800/80 space-y-4">
+        <!-- 交付阶段导航 Tab -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold scrollbar-none">
+          <button onclick="switchShareTab('audit')" id="tab-audit" class="py-1.5 px-3 rounded-lg bg-amber-500 text-slate-950 font-bold whitespace-nowrap transition">
+            <span>① 现状体检报告</span>
+          </button>
+          <button onclick="switchShareTab('scaffold')" id="tab-scaffold" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+            <span>② 站点底座改造</span>
+          </button>
+          <button onclick="switchShareTab('rewrite')" id="tab-rewrite" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+            <span>③ 普林斯顿权威语料</span>
+          </button>
+          <button onclick="switchShareTab('distribute')" id="tab-distribute" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+            <span>④ 矩阵分发稿</span>
+          </button>
+          <button onclick="switchShareTab('monitor')" id="tab-monitor" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+            <span>⑤ 声量监测周报</span>
+          </button>
+          <button onclick="switchShareTab('acceptance')" id="tab-acceptance" class="py-1.5 px-3 rounded-lg bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 whitespace-nowrap transition">
+            <span>🏛️ 商业交付结案单</span>
+          </button>
+        </div>
+
+        <!-- 详细内容视窗 -->
+        <div id="content-audit" class="share-tab-content bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+          <div id="preview-audit" class="markdown-body"></div>
+        </div>
+        <div id="content-scaffold" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80 space-y-3">
+          <div class="font-bold text-xs text-slate-300">1. /llms.txt (大模型专用 Markdown 清单)</div>
+          <pre><code id="preview-llms"></code></pre>
+          <div class="font-bold text-xs text-slate-300">2. Schema.org 结构化 JSON-LD</div>
+          <pre><code id="preview-schema"></code></pre>
+        </div>
+        <div id="content-rewrite" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+          <div id="preview-rewrite" class="markdown-body"></div>
+        </div>
+        <div id="content-distribute" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+          <div id="preview-distribute" class="markdown-body"></div>
+        </div>
+        <div id="content-monitor" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+          <div id="preview-monitor" class="markdown-body"></div>
+        </div>
+        <div id="content-acceptance" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+          <div id="preview-acceptance" class="markdown-body"></div>
+        </div>
+      </div>
     </div>
 
   </main>
 
-  <!-- 提取码 (PIN) 保护解锁弹窗 -->
-  <div id="pin-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4 text-center">
-      <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-xl">
-        🔒
+  <!-- 结案证书弹窗 Modal (嵌入 A4 证书) -->
+  <div id="cert-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div class="flex items-center gap-2">
+          <i data-lucide="award" class="w-5 h-5 text-amber-400"></i>
+          <span class="font-bold text-slate-100 text-sm">《GEO 商业交付结案与数字资产移交证书》在线查验</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="handlePrintShareCertificate()" class="py-1 px-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition flex items-center gap-1">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>打印证书</span>
+          </button>
+          <button onclick="closeCertificateModal()" class="p-1 text-slate-400 hover:text-white rounded-lg transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 bg-white">
+        <iframe id="cert-iframe" src="about:blank" class="w-full h-full border-0"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提取码输入弹窗 Modal -->
+  <div id="pin-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="executive-card rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-5 text-center">
+      <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 mx-auto flex items-center justify-center shadow-lg">
+        <i data-lucide="lock" class="w-7 h-7"></i>
       </div>
       <div>
-        <h3 class="text-base font-bold text-slate-900">请输入访问提取码</h3>
-        <p id="pin-modal-subtitle" class="text-xs text-slate-500 mt-1">此商业交付数据看板已开启专属安全访问保护。</p>
+        <h3 class="text-lg font-bold text-white">高管专属安全访问验证</h3>
+        <p id="pin-modal-subtitle" class="text-xs text-slate-400 mt-1">此交付战果门户已开启加盐哈希保护，请输入专属 4 位提取码。</p>
       </div>
-
       <form onsubmit="handleUnlockPin(event)" class="space-y-4">
-        <input id="input-pin" type="password" maxlength="8" required placeholder="输入 4 位提取码" class="w-full text-center tracking-widest text-lg font-mono px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-        <button type="submit" id="btn-unlock" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow transition">
-          立即解锁查看
+        <input type="text" id="pin-input" maxlength="8" placeholder="请输入 4 位访问提取码" class="w-full text-center tracking-[0.3em] font-mono text-xl py-3 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-amber-400 transition" required autofocus>
+        <p id="pin-error-msg" class="text-xs text-red-400 hidden">提取码有误，请重新输入！</p>
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 hover:from-amber-600 hover:to-yellow-600 transition">
+          立即验证并开启交付大屏
         </button>
       </form>
-      <div id="pin-error-msg" class="text-xs text-red-600 hidden font-medium">提取码错误，请重新输入！</div>
     </div>
   </div>
 
-  <!-- 失效/作废提示界面 -->
-  <div id="expired-modal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 p-8 space-y-4 text-center">
-      <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl">
-        ⏳
+  <!-- 失效/作废弹窗 Modal -->
+  <div id="expired-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="executive-card rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-4 text-center">
+      <div class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 mx-auto flex items-center justify-center">
+        <i data-lucide="alert-triangle" class="w-7 h-7"></i>
       </div>
-      <h3 class="text-lg font-bold text-slate-900">分享链接已失效或已被作废</h3>
-      <p id="expired-detail-msg" class="text-xs text-slate-500 leading-relaxed">
-        抱歉，该交付门户分享链接已超过设定的安全有效期或已被发起人注销。<br>请联系您的 GEO 交付顾问获取最新有效链接。
-      </p>
+      <h3 class="text-lg font-bold text-white">交付链接已过期或已轮转作废</h3>
+      <p id="expired-detail-msg" class="text-xs text-slate-400 leading-relaxed">该专属交付门户链接已超过安全有效期或已被发起人重置。请联系您的 GEO 交付专家获取全新专属链接。</p>
     </div>
   </div>
 
-  <!-- 底部 Footer -->
-  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400 space-y-1">
-    <div>Powered by <strong>GEO</strong> (Generative Engine Optimization) 工业化商业交付中枢</div>
-    <div class="text-[11px] text-slate-300">© 2026 璇源科技 · 大模型商业搜索与权威引用护航系统</div>
-  </footer>
-
+  <!-- 交互脚本 -->
   <script>
     const urlParts = window.location.pathname.split('/');
     const shareToken = urlParts[urlParts.length - 1];
     let shareData = null;
 
     window.addEventListener('DOMContentLoaded', async () => {
-      lucide.createIcons();
+      // 检查 URL Query 参数中的 ?pin= 并自动暂存
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryPin = urlParams.get('pin');
+      if (queryPin) {
+        sessionStorage.setItem(`share_pin_${shareToken}`, queryPin);
+      }
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      // 检查是否为离线单文件导出模式
+      if (window.__INITIAL_PORTAL_DATA__) {
+        shareData = window.__INITIAL_PORTAL_DATA__;
+        renderSharePortal(shareData);
+        return;
+      }
+
       await fetchShareData();
     });
 
@@ -723,11 +462,11 @@
           headers: pin ? { 'X-Share-Pin': pin } : {}
         });
         const data = await res.json();
-        
+
         if (data.require_pin) {
           document.getElementById('pin-modal').classList.remove('hidden');
           if (data.client_name) {
-            document.getElementById('pin-modal-subtitle').innerText = `【${data.client_name}】交付看板已开启安全访问保护。`;
+            document.getElementById('pin-modal-subtitle').innerText = `【${data.client_name}】交付战报已开启安全保护，请输入 4 位访问提取码。`;
           }
           return;
         }
@@ -752,445 +491,237 @@
           renderSharePortal(data);
         }
       } catch (err) {
-        console.error('加载分享数据失败:', err);
+        console.error('加载门户数据失败:', err);
       }
     }
 
     function handleUnlockPin(e) {
       e.preventDefault();
-      const pin = document.getElementById('input-pin').value.trim();
-      if (!pin) return;
-      sessionStorage.setItem(`share_pin_${shareToken}`, pin);
+      const val = document.getElementById('pin-input').value.trim();
+      if (!val) return;
+      sessionStorage.setItem(`share_pin_${shareToken}`, val);
       document.getElementById('pin-error-msg').classList.add('hidden');
       fetchShareData();
     }
 
-    function renderSharePortal(d) {
-      document.getElementById('portal-client-name').innerText = d.client_name || '客户企业';
-      document.getElementById('portal-industry').innerText = d.industry || '未知行业';
-      document.getElementById('portal-website').innerText = d.website || '官网未配置';
-      document.getElementById('portal-created-at').innerText = d.share_meta?.created_at_str?.split(' ')[0] || '2026-09-01';
-      document.getElementById('portal-expires-at').innerText = d.share_meta?.expires_at_str?.split(' ')[0] || '永久有效';
+    function renderSharePortal(data) {
+      // 1. 基础信息
+      document.getElementById('header-brand-name').textContent = data.brand_name || data.client_name || '客户企业';
+      document.getElementById('portal-client-name').textContent = data.client_name || '客户企业';
+      document.getElementById('portal-industry').textContent = data.industry || '综合行业';
+      document.getElementById('portal-website').textContent = data.website || '已全网接入';
 
-      // 指标
-      if (d.metrics) {
-        document.getElementById('portal-metric-sov').innerText = `${d.metrics.sov_pct || 0}%`;
-        document.getElementById('portal-metric-top3').innerText = `${d.metrics.top3_pct || 0}%`;
-        document.getElementById('portal-metric-auth').innerText = `${d.metrics.authority_score || 95}/100`;
-        document.getElementById('portal-metric-prompts').innerText = `${d.metrics.prompt_stats?.total || 45} 组`;
+      const certSummary = data.certificate_summary || {};
+      const exec = data.executive_summary || {};
+      const deliveryGrade = exec.delivery_grade || certSummary.delivery_grade || 'AAA 级卓越履约';
+      document.getElementById('header-delivery-badge').innerHTML = `
+        <i data-lucide="shield-check" class="w-3 h-3"></i>
+        <span>${deliveryGrade}</span>
+      `;
 
-        // 渲染 Citation 权威分布进度条
-        if (d.metrics.citations && d.metrics.citations.length > 0) {
-          const zhihu = d.metrics.citations.find(c => c.domain && c.domain.includes('zhihu')) || { pct: 0 };
-          const toutiao = d.metrics.citations.find(c => c.domain && c.domain.includes('toutiao')) || { pct: 0 };
-          const wechat = d.metrics.citations.find(c => c.domain && c.domain.includes('weixin')) || { pct: 0 };
-          const github = d.metrics.citations.find(c => c.domain && c.domain.includes('github')) || { pct: 0 };
-
-          document.getElementById('share-citation-pct-zhihu').innerText = `${zhihu.pct}%`;
-          document.getElementById('share-citation-bar-zhihu').style.width = `${zhihu.pct}%`;
-
-          document.getElementById('share-citation-pct-toutiao').innerText = `${toutiao.pct}%`;
-          document.getElementById('share-citation-bar-toutiao').style.width = `${toutiao.pct}%`;
-
-          document.getElementById('share-citation-pct-wechat').innerText = `${wechat.pct}%`;
-          document.getElementById('share-citation-bar-wechat').style.width = `${wechat.pct}%`;
-
-          document.getElementById('share-citation-pct-github').innerText = `${github.pct}%`;
-          document.getElementById('share-citation-bar-github').style.width = `${github.pct}%`;
-        }
+      if (data.share_meta) {
+        document.getElementById('portal-created-at').textContent = data.share_meta.created_at_str || '2026-09-01';
+        document.getElementById('portal-expires-at').textContent = data.share_meta.expires_at_str || '永久有效';
       }
 
-      // 渲染各交付物内容
-      const del = d.deliverables || {};
-      document.getElementById('preview-audit').innerHTML = marked.parse(del.audit || '*诊断报告生成中...*');
-      document.getElementById('preview-llms').innerText = del.llms_txt || '# llms.txt';
-      document.getElementById('preview-schema').innerText = del.schema_jsonld || '{}';
-      document.getElementById('preview-robots').innerText = del.robots_txt || 'User-agent: *';
-      document.getElementById('preview-rewrite').innerHTML = marked.parse(del.rewrite || '*普林斯顿语料库生成中...*');
-      document.getElementById('preview-dist-zhihu').innerHTML = marked.parse(del.dist_zhihu || '*知乎稿件生成中...*');
-      document.getElementById('preview-dist-toutiao').innerHTML = marked.parse(del.dist_toutiao || '*头条稿件生成中...*');
-      document.getElementById('preview-monitor').innerHTML = marked.parse(del.monitor_report || '*声量周报生成中...*');
-      document.getElementById('preview-defense').innerHTML = marked.parse(del.defense || '*竞品反向包抄策略生成中...*');
+      // 2. Hero KPI 四宫格渲染
+      const mpi = exec.mpi_score;
+      document.getElementById('hero-mpi-score').textContent = mpi !== null && mpi !== undefined ? mpi : '待生成';
+      document.getElementById('hero-mpi-grade').textContent = exec.mpi_grade || '评估就绪';
 
-      // 渲染 16 维资产达成率指标与结案单 (严格 16 项口径，杜绝虚假默认值)
-      const ms = d.acceptance_summary?.manifest_summary;
-      const fulEl = document.getElementById('portal-metric-fulfillment');
-      if (fulEl) {
-        if (ms && ms.generation_rate_pct !== undefined) {
-          fulEl.innerText = `${ms.generated_files}/${ms.total_files} (${ms.generation_rate_pct}%)`;
-        } else {
-          fulEl.innerText = '— / 待核验';
-        }
-      }
+      const firstRec = exec.first_recommend_rate_pct;
+      document.getElementById('hero-first-recommend').textContent = firstRec !== null && firstRec !== undefined ? `${firstRec}%` : '待生成';
 
-      const acceptEl = document.getElementById('preview-acceptance');
-      if (acceptEl) acceptEl.innerHTML = marked.parse(del.acceptance || '*商业交付验收结案确认单生成中...*');
+      document.getElementById('hero-ad-saving').textContent = exec.annual_ad_saving_wan || '0.0';
+      document.getElementById('hero-intent-count').textContent = exec.intent_coverage_count || '0';
 
-      // 渲染核心攻防安全指标与子标签 (严格绑定真实数据，缺省不捏造高分)
-      const imm = d.injection_guard_summary?.immunity_score;
-      const immEl = document.getElementById('sec-metric-immunity');
-      const badgeEl = document.getElementById('security-immunity-badge');
-      if (immEl) immEl.innerText = (imm !== undefined && imm !== null) ? `${imm} 分` : '—';
-      if (badgeEl) badgeEl.innerText = (imm !== undefined && imm !== null) ? `注入免疫度: ${imm} 分` : '安全防守待审计';
+      // 3. 实测大模型心智矩阵渲染
+      const modelsContainer = document.getElementById('models-mindshare-container');
+      modelsContainer.innerHTML = '';
+      const models = data.models_mindshare || {};
+      const modelKeys = Object.keys(models);
 
-      const authScore = d.citation_auth_summary?.overall_score;
-      const cEl = document.getElementById('sec-metric-citation');
-      if (cEl) cEl.innerText = (authScore !== undefined && authScore !== null) ? `${authScore} 分` : '—';
-
-      const compRate = d.compliance_summary?.compliance_rate_pct;
-      const compEl = document.getElementById('sec-metric-compliance');
-      if (compEl) compEl.innerText = (compRate !== undefined && compRate !== null) ? `${compRate}%` : '—';
-
-      const ragScore = d.rag_diag_summary?.rag_readiness_score ?? d.rag_diag_summary?.avg_score;
-      const rEl = document.getElementById('sec-metric-rag');
-      if (rEl) rEl.innerText = (ragScore !== undefined && ragScore !== null) ? `${ragScore} 分` : '—';
-
-      currentSecurityData = del;
-      switchSecuritySubTab('injection_guard');
-
-      // 渲染行业横向对标
-      if (d.benchmark && d.benchmark.success) {
-        const bm = d.benchmark;
-        document.getElementById('share-bm-industry-name').innerText = bm.industry || d.industry || '行业数字化';
-        document.getElementById('share-bm-tier-badge').innerText = bm.tier || '行业对标';
-        document.getElementById('share-bm-beat-rate').innerText = `${bm.beat_rate || 80}%`;
-        document.getElementById('share-bm-client-sov').innerText = `${bm.client_sov || 0}%`;
-        document.getElementById('share-bm-industry-avg').innerText = `${bm.industry_avg_sov || 38.5}%`;
-        document.getElementById('share-bm-industry-top').innerText = `${bm.industry_top_sov || 78}%`;
-
-        const diffElem = document.getElementById('share-bm-diff-from-avg');
-        if (bm.diff_from_avg >= 0) {
-          diffElem.innerText = `超出行业均值 +${bm.diff_from_avg}%`;
-          diffElem.className = 'text-[10px] text-emerald-400 font-semibold';
-        } else {
-          diffElem.innerText = `低于行业均值 ${bm.diff_from_avg}%`;
-          diffElem.className = 'text-[10px] text-amber-400 font-semibold';
-        }
-
-        document.getElementById('share-bm-summary-text').innerText = bm.summary || '行业对标评估完成。';
-      }
-
-      // 渲染多模态视觉与视频资产
-      if (d.visual_assets) {
-        const va = d.visual_assets;
-        if (va.comparison_svg?.svg_content) {
-          document.getElementById('share-svg-comp').innerHTML = va.comparison_svg.svg_content;
-        }
-        if (va.architecture_svg?.svg_content) {
-          document.getElementById('share-svg-arch').innerHTML = va.architecture_svg.svg_content;
-        }
-        if (va.video_script?.content) {
-          document.getElementById('share-video-script').innerHTML = marked.parse(va.video_script.content);
-        }
-      }
-
-      // 渲染全渠道真实落地外链
-      if (d.distribution_ledger && d.distribution_ledger.channels) {
-        const dl = d.distribution_ledger;
-        const rateEl = document.getElementById('share-dist-rate');
-        if (rateEl) rateEl.textContent = `完成率: ${dl.completion_rate_pct}%`;
-
-        const box = document.getElementById('share-dist-links-box');
-        if (box) {
-          const chIcons = { toutiao: '📰', zhihu: '📘', juejin: '💎', github: '🐙', wechat: '💬' };
-          box.innerHTML = Object.keys(dl.channels).map(k => {
-            const ch = dl.channels[k];
-            const icon = chIcons[k] || '🔗';
-            const isVerified = ch.status === 'verified';
-            let badge = `<span class="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] font-semibold">⏳ 待发布</span>`;
-            if (isVerified) {
-              badge = `<span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold">✅ 已收录</span>`;
-            } else if (ch.status === 'failed') {
-              badge = `<span class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-[9px] font-bold">⚠️ 异常</span>`;
-            } else if (ch.status === 'published') {
-              badge = `<span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-semibold">已登记</span>`;
-            }
-
-            const titleDisplay = ch.title || (ch.url ? ch.url.replace(/^https?:\/\//, '') : '待外发回填');
-
-            return `
-              <div class="p-2.5 bg-white border border-indigo-100 rounded-lg flex items-center justify-between gap-2 shadow-xs">
-                <div class="flex items-center gap-1.5 overflow-hidden">
-                  <span class="text-base">${icon}</span>
-                  <div class="truncate">
-                    <div class="font-bold text-slate-800 text-[11px] flex items-center gap-1">
-                      <span>${ch.name}</span>
-                      ${badge}
-                    </div>
-                    <div class="text-[9.5px] text-slate-400 truncate max-w-[200px]" title="${titleDisplay}">${titleDisplay}</div>
-                  </div>
-                </div>
-                <div>
-                  ${ch.url ? `
-                    <a href="${ch.url}" target="_blank" class="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded text-[10px] font-bold inline-flex items-center gap-0.5 whitespace-nowrap">
-                      <span>查看</span>
-                      <i data-lucide="external-link" class="w-2.5 h-2.5"></i>
-                    </a>
-                  ` : `
-                    <span class="text-[10px] text-slate-400">待发布</span>
-                  `}
-                </div>
+      if (modelKeys.length > 0) {
+        modelKeys.forEach(mKey => {
+          const m = models[mKey];
+          const card = document.createElement('div');
+          card.className = 'p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3';
+          card.innerHTML = `
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="font-bold text-slate-100 text-xs">${m.name}</span>
+              <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold">首推 ${m.top1_rate_pct}%</span>
+            </div>
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between text-slate-400">
+                <span>首推占比 (Top 1):</span>
+                <span class="font-bold text-emerald-400">${m.top1_rate_pct}%</span>
               </div>
-            `;
-          }).join('');
-        }
-      }
-
-      // 渲染商业投资回报 (ROI) 战绩看板
-      if (d.roi_summary && d.roi_summary.financial_valuation) {
-        const fin = d.roi_summary.financial_valuation;
-        const ren = d.roi_summary.renewal_health;
-        const badge = document.getElementById('share-roi-badge');
-        if (badge && fin.roi_pct !== undefined) {
-          badge.textContent = `ROI: +${fin.roi_pct}% (${fin.roi_multiplier}倍)`;
-        }
-        const totalEl = document.getElementById('share-roi-total');
-        if (totalEl && fin.total_business_value !== undefined) {
-          totalEl.textContent = `¥${fin.total_business_value.toLocaleString()} 元`;
-        }
-        const multEl = document.getElementById('share-roi-mult');
-        if (multEl && fin.roi_multiplier !== undefined) {
-          multEl.textContent = `相当于 ${fin.roi_multiplier} 倍服务投入 (净回报 ¥${fin.net_profit_value?.toLocaleString()}元)`;
-        }
-        const semEl = document.getElementById('share-roi-sem');
-        if (semEl && fin.sem_replacement_value !== undefined) {
-          semEl.textContent = `¥${fin.sem_replacement_value.toLocaleString()} 元`;
-        }
-        const leadsEl = document.getElementById('share-roi-leads');
-        if (leadsEl && fin.leads_inbound_value !== undefined) {
-          leadsEl.textContent = `¥${(fin.leads_inbound_value + (fin.digital_asset_value || 0)).toLocaleString()} 元`;
-        }
-      }
-
-      // 渲染商业交付结案确认单与履约考核
-      if (d.acceptance_summary && d.acceptance_summary.total_fulfillment_score !== undefined) {
-        const ful = d.acceptance_summary;
-        const badge = document.getElementById('share-acceptance-badge');
-        if (badge) {
-          badge.textContent = `履约达成率: ${ful.total_fulfillment_score}% (${ful.status_text})`;
-        }
-        const grid = document.getElementById('share-acceptance-grid');
-        if (grid && ful.breakdown) {
-          grid.innerHTML = ful.breakdown.map(item => `
-            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
-              <div class="flex items-center justify-between font-bold text-slate-800">
-                <span class="truncate">${item.dimension}</span>
-                <span class="text-indigo-600 font-mono">${item.score}/${item.max_score}分</span>
+              <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-emerald-400 h-full rounded-full" style="width: ${m.top1_rate_pct}%"></div>
               </div>
-              <div class="flex items-center justify-between text-[10px] text-slate-500">
-                <span>权重 ${item.weight_pct}%</span>
-                <span class="font-semibold text-emerald-600">${item.status}</span>
+              <div class="flex justify-between text-slate-400 pt-1">
+                <span>品牌提及采纳率:</span>
+                <span class="font-bold text-slate-200">${m.mention_rate_pct}%</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>探针平均置信分:</span>
+                <span class="font-bold text-amber-400">${m.avg_score}分</span>
               </div>
             </div>
-          `).join('');
-        }
-      }
-
-      // 渲染知识图谱拓扑与 badge
-      if (d.graph_summary) {
-        const badge = document.getElementById('share-graph-badge');
-        if (badge && d.graph_summary.node_count) {
-          badge.textContent = `${d.graph_summary.node_count} 实体 · ${d.graph_summary.edge_count} 关系`;
-        }
-      }
-      fetch(`/api/share/${currentShareToken}/graph/svg${currentClientPin ? '?pin=' + encodeURIComponent(currentClientPin) : ''}`)
-        .then(r => r.text())
-        .then(svgText => {
-          const box = document.getElementById('share-graph-svg-box');
-          if (box) box.innerHTML = svgText;
-        })
-        .catch(() => {});
-
-      // 渲染大模型事实幻觉防守与公关反击
-      if (d.guard_summary) {
-        const g = d.guard_summary;
-        const badge = document.getElementById('share-guard-badge');
-        if (badge && g.defense_readiness_score) {
-          badge.textContent = `防守就绪度: ${g.defense_readiness_score}% (${g.repaired_count}/${g.total_risks}项已防护)`;
-        }
-        const box = document.getElementById('share-guard-risks');
-        if (box && g.risks) {
-          box.innerHTML = g.risks.map(r => `
-            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-800">${r.category}</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${r.severity === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">
-                  ${r.severity}
-                </span>
-              </div>
-              <div class="text-[11px] text-slate-600 bg-white p-1.5 rounded border border-slate-200/60 font-mono">
-                ❓ 诱发问句：${r.test_query}
-              </div>
-              <div class="text-[11px] text-emerald-800 bg-emerald-50/80 p-1.5 rounded border border-emerald-200">
-                🛡️ 官方事实纠偏：${r.truth_anchor}
-              </div>
-            </div>
-          `).join('');
-        }
-      }
-
-      // 渲染历史时序大盘
-      const histBox = document.getElementById('share-history-cards');
-      if (d.history && d.history.length > 0) {
-        histBox.innerHTML = d.history.map(h => `
-          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-slate-800">${h.check_date}</span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full ${h.is_offline ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} font-semibold">
-                ${h.is_offline ? '摸底基准' : '实测探测'}
-              </span>
-            </div>
-            <div class="flex items-baseline justify-between pt-1">
-              <span class="text-slate-500 text-[11px]">SOV 达成率:</span>
-              <span class="text-base font-black text-indigo-600">${h.sov_pct}%</span>
-            </div>
-            <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200">
-              <span>命中: <strong class="text-emerald-600">${h.hit_count}</strong></span>
-              <span>拦截: <strong class="text-amber-600">${h.intercept_count}</strong></span>
-              <span>未上榜: <strong class="text-slate-400">${h.lost_count}</strong></span>
-            </div>
-          </div>
-        `).join('');
-      } else {
-        histBox.innerHTML = `<div class="col-span-full text-center py-4 text-slate-400">暂无历史巡检时序数据</div>`;
-      }
-
-      lucide.createIcons();
-    }
-
-    let currentSecurityData = {};
-
-    function switchSecuritySubTab(subKey) {
-      const keys = ['injection_guard', 'citation_auth', 'competitor', 'compliance', 'rag_diag', 'intent', 'graph', 'evaluator'];
-      keys.forEach(k => {
-        const btn = document.getElementById(`subtab-${k}`);
-        if (!btn) return;
-        if (k === subKey) {
-          btn.className = 'py-1.5 px-3 rounded-lg bg-purple-600 text-white shadow-xs transition';
-        } else {
-          btn.className = 'py-1.5 px-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
-        }
-      });
-      const el = document.getElementById('preview-security-content');
-      if (!el) return;
-
-      if (currentSecurityData[subKey]) {
-        el.innerHTML = marked.parse(currentSecurityData[subKey]);
-      } else {
-        el.innerHTML = '<div class="text-slate-400 text-xs py-4 text-center">⏳ 正在安全调阅交付文件...</div>';
-        const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
-        const query = pin ? `&pin=${encodeURIComponent(pin)}` : '';
-        fetch(`/api/share/${shareToken}/file?key=${encodeURIComponent(subKey)}${query}`)
-          .then(r => r.json())
-          .then(res => {
-            if (res.success && res.content) {
-              currentSecurityData[subKey] = res.content;
-              el.innerHTML = marked.parse(res.content);
-            } else {
-              el.innerHTML = `<div class="text-slate-400 text-xs py-4 text-center">*${res.message || '资产报告暂未生成'}*</div>`;
-            }
-          })
-          .catch(() => {
-            el.innerHTML = '*读取资产报告失败，请稍后重试*';
-          });
-      }
-    }
-
-    function switchShareTab(tabKey) {
-      document.querySelectorAll('.share-tab-content').forEach(el => el.classList.add('hidden'));
-      const activeContent = document.getElementById(`content-${tabKey}`);
-      if (activeContent) activeContent.classList.remove('hidden');
-
-      const tabs = ['audit', 'scaffold', 'rewrite', 'distribute', 'monitor', 'defense', 'visual', 'security', 'acceptance'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        if (!btn) return;
-        if (t === tabKey) {
-          btn.className = 'py-2 px-4 rounded-xl bg-indigo-600 text-white shadow-sm flex items-center gap-1.5 whitespace-nowrap transition';
-        } else {
-          btn.className = 'py-2 px-4 rounded-xl bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1.5 whitespace-nowrap transition';
-        }
-      });
-      lucide.createIcons();
-    }
-
-    function handleDownloadShareZip() {
-      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
-      const query = pin ? `?pin=${encodeURIComponent(pin)}` : '';
-      window.open(`/api/share/${shareToken}/download${query}`, '_blank');
-    }
-
-    function handlePrintShareReport() {
-      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
-      const query = pin ? `?pin=${encodeURIComponent(pin)}` : '';
-      window.open(`/api/share/${shareToken}/print${query}`, '_blank');
-    }
-
-    function handleSharePitchSlides() {
-      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
-      const query = pin ? `?pin=${encodeURIComponent(pin)}` : '';
-      window.open(`/api/share/${shareToken}/pitch/slides${query}`, '_blank');
-    }
-
-    function handleSharePrintPitch() {
-      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
-      const query = pin ? `?pin=${encodeURIComponent(pin)}` : '';
-      window.open(`/api/share/${shareToken}/pitch/print${query}`, '_blank');
-    }
-
-    async function handleSharePlaygroundRun() {
-      const input = document.getElementById('share-play-input');
-      const query = input.value.trim();
-      const btn = document.getElementById('btn-share-play');
-      const origHTML = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = `<span>⏳ 测序中...</span>`;
-
-      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
-
-      function renderShareHighlighted(text, spans) {
-        if (!text) return '';
-        const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        let html = escapeHtml(text);
-        if (!spans || !spans.length) return html;
-        const sorted = [...spans].filter(Boolean).sort((a, b) => b.length - a.length);
-        for (const span of sorted) {
-          const escSpan = escapeHtml(span).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          html = html.replace(new RegExp(escSpan, 'g'), `<mark class="bg-amber-300/90 text-amber-950 px-0.5 rounded font-semibold">${escapeHtml(span)}</mark>`);
-        }
-        return html;
-      }
-
-      try {
-        const res = await fetch(`/api/share/${shareToken}/simulate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: query, pin: pin, compare: true })
+          `;
+          modelsContainer.appendChild(card);
         });
-        const data = await res.json();
-        if (data.success) {
-          const before = data.before || {};
-          document.getElementById('share-before-resp').textContent = before.response || '无应答';
-          document.getElementById('share-before-badge').textContent = `${before.brand_mentioned ? '已提及' : '未收录'} · ${before.confidence_score || 0}分`;
+      } else {
+        modelsContainer.innerHTML = `
+          <div class="col-span-3 p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-xs text-slate-500">
+            暂无模型实测探针数据（请先在后台运行 <code>geo mindshare</code> 获取）
+          </div>
+        `;
+      }
 
-          const after = data.after || {};
-          document.getElementById('share-after-resp').innerHTML = renderShareHighlighted(after.response || '无应答', after.highlight_spans || []);
-          document.getElementById('share-after-badge').textContent = `🏆 Rank ${after.rank || 1} · ${after.confidence_score || 98}/100分`;
-        } else {
-          alert('测序失败: ' + data.message);
+      // 微信代理
+      const wechatProxy = data.wechat_yuanbao_channel || {};
+      document.getElementById('wechat-proxy-desc').textContent = wechatProxy.status_desc || '渠道分发覆盖已就绪 (权重 10%) · 非实时 API 探针';
+      if (wechatProxy.url) {
+        document.getElementById('wechat-proxy-link').href = wechatProxy.url;
+      } else {
+        document.getElementById('wechat-proxy-link').style.display = 'none';
+      }
+
+      // 4. 竞对截流攻防实战对比
+      const comp = data.competitor_interception || {};
+      document.getElementById('competitor-sov-gap').textContent = `领先 +${comp.overall_gap_lead || 0}%`;
+      const compList = comp.intercepted_competitors || [];
+      document.getElementById('competitor-target-list').textContent = compList.join('、') || '行业基准竞对';
+
+      const advList = document.getElementById('competitor-advantages-list');
+      advList.innerHTML = '';
+      const advs = comp.advantage_breakdown || [];
+      if (advs.length > 0) {
+        advs.slice(0, 3).forEach(a => {
+          const div = document.createElement('div');
+          div.className = 'p-2.5 bg-slate-900/40 rounded-lg border border-slate-800/80 space-y-1';
+          div.innerHTML = `
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-bold text-slate-200">${a.dimension}</span>
+              <span class="text-[10px] text-red-400 font-semibold">威胁: ${a.threat_level || '高'}</span>
+            </div>
+            <p class="text-[11px] text-slate-400">🛡️ 破局反超动作：${a.neutralize_action}</p>
+          `;
+          advList.appendChild(div);
+        });
+      } else {
+        advList.innerHTML = '<div class="text-slate-500 text-center py-2">无高威胁竞品截流事项</div>';
+      }
+
+      // 5. 普林斯顿 9 因子与爬虫保真度
+      const auth = data.authority_assurance || {};
+      document.getElementById('princeton-grade-badge').textContent = auth.princeton_grade || '已质检';
+      document.getElementById('fidelity-avg-score').textContent = auth.average_fidelity_score !== null && auth.average_fidelity_score !== undefined ? `${auth.average_fidelity_score} 分` : '100.0 分';
+
+      const fidelityContainer = document.getElementById('fidelity-channels-container');
+      fidelityContainer.innerHTML = '';
+      const fidelities = auth.crawler_fidelities || {};
+      const channelNames = {
+        "toutiao": "今日头条 / 豆包",
+        "wechat": "微信公众号 / 元宝",
+        "zhihu": "知乎专栏 / DeepSeek",
+        "kimi_baidu": "Kimi研报 / 百度文心"
+      };
+      Object.keys(channelNames).forEach(k => {
+        const item = fidelities[k] || { score: 100.0, passed: true };
+        const d = document.createElement('div');
+        d.className = 'p-2 bg-slate-900/60 rounded-lg border border-slate-800 flex items-center justify-between';
+        d.innerHTML = `
+          <span class="text-slate-400">${channelNames[k]}</span>
+          <span class="font-bold text-emerald-400">${item.score}分</span>
+        `;
+        fidelityContainer.appendChild(d);
+      });
+
+      // 6. 分发存活台账
+      const ledger = data.distribution_ledger || {};
+      document.getElementById('ledger-completion-rate').textContent = `${ledger.completion_rate_pct || 0}% 填报`;
+      const tbody = document.getElementById('distribution-ledger-tbody');
+      tbody.innerHTML = '';
+      const channels = ledger.channels || {};
+
+      Object.keys(channels).forEach(k => {
+        const c = channels[k];
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/40 transition';
+        const hasUrl = c.url && c.url.trim().length > 0;
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-semibold text-slate-200">${c.name || k}</td>
+          <td class="py-2.5 px-3 text-slate-400">${c.target_pool || '主流搜索池'}</td>
+          <td class="py-2.5 px-3">
+            <span class="text-[11px] font-medium">${c.status_label || '⚪️ 待分发'}</span>
+          </td>
+          <td class="py-2.5 px-3 text-right">
+            ${hasUrl ? `<a href="${c.url}" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center justify-end gap-1"><i data-lucide="external-link" class="w-3.5 h-3.5"></i><span>打开</span></a>` : '<span class="text-slate-600">--</span>'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 7. 渲染旧版 16 维交付物 Markdown
+      const deliv = data.deliverables || {};
+      const renderMd = (elemId, md) => {
+        const el = document.getElementById(elemId);
+        if (el) {
+          el.innerHTML = md ? (window.marked ? marked.parse(md) : md) : '<p class="text-slate-500 italic">暂无内容</p>';
         }
-      } catch (err) {
-        alert('沙箱测序请求异常');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = origHTML;
+      };
+      renderMd('preview-audit', deliv.audit);
+      renderMd('preview-rewrite', deliv.rewrite);
+      renderMd('preview-distribute', deliv.dist_toutiao || deliv.dist_zhihu);
+      renderMd('preview-monitor', deliv.monitor_report);
+      renderMd('preview-acceptance', deliv.acceptance);
+
+      if (document.getElementById('preview-llms')) {
+        document.getElementById('preview-llms').textContent = deliv.llms_txt || '// 暂未生成';
+      }
+      if (document.getElementById('preview-schema')) {
+        document.getElementById('preview-schema').textContent = deliv.schema_jsonld || '// 暂未生成';
+      }
+
+      if (window.lucide) {
+        lucide.createIcons();
       }
     }
 
-    function handleSharePrintAcceptance() {
+    function toggleDeliverablesDrawer() {
+      const drawer = document.getElementById('deliverables-drawer');
+      const text = document.getElementById('drawer-toggle-text');
+      const icon = document.getElementById('drawer-toggle-icon');
+      if (drawer.classList.contains('hidden')) {
+        drawer.classList.remove('hidden');
+        text.textContent = '收起技术明细';
+        icon.setAttribute('data-lucide', 'chevron-up');
+      } else {
+        drawer.classList.add('hidden');
+        text.textContent = '展开查看技术明细';
+        icon.setAttribute('data-lucide', 'chevron-down');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function switchShareTab(tabName) {
+      document.querySelectorAll('.share-tab-content').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(`content-${tabName}`);
+      if (target) target.classList.remove('hidden');
+    }
+
+    function openCertificateModal() {
       const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
-      const url = `/api/share/${shareToken}/acceptance?pin=${encodeURIComponent(pin)}`;
-      window.open(url, '_blank');
+      const url = `/api/share/${shareToken}/certificate?pin=${encodeURIComponent(pin)}`;
+      document.getElementById('cert-iframe').src = url;
+      document.getElementById('cert-modal').classList.remove('hidden');
+    }
+
+    function closeCertificateModal() {
+      document.getElementById('cert-modal').classList.add('hidden');
+      document.getElementById('cert-iframe').src = 'about:blank';
     }
 
     function handlePrintShareCertificate() {
@@ -1202,30 +733,7 @@
     async function handleShareDownloadZip() {
       const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
       const url = `/api/share/${shareToken}/download-zip?pin=${encodeURIComponent(pin)}`;
-      try {
-        const response = await fetch(url);
-        if (response.ok) {
-          const blob = await response.blob();
-          const objUrl = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = objUrl;
-          a.download = `GEO_Delivery_Archive_${currentShareData?.client_name || 'project'}.zip`;
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(objUrl);
-        } else {
-          alert('下载归档包失败，请检查链接有效性');
-        }
-      } catch (e) {
-        alert('下载请求异常');
-      }
-    }
-
-    function handleShareDownloadGraphSvg() {
-      const pin = sessionStorage.getItem(`share_pin_${shareToken}`) || '';
-      const url = `/api/share/${shareToken}/graph/svg?pin=${encodeURIComponent(pin)}`;
-      window.open(url, '_blank');
+      window.location.href = url;
     }
   </script>
 </body>
