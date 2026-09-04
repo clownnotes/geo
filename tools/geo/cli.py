@@ -354,14 +354,24 @@ def main():
     p_gclean.add_argument("--report", action="store_true", help="生成并落盘 19 号公关报告")
 
     # decay (20 号大模型知识半衰期衰减监测与长效自愈)
-    p_decay = subparsers.add_parser("decay", help="20 号大模型知识半衰期衰减监测与长效留存自愈")
+    p_decay = subparsers.add_parser("decay", help="20 号大模型知识半衰期衰减监测与长效留存自愈（注：--heal 仅生成衰减包草稿；全域落盘回写请使用 geo heal）")
     p_decay.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_decay.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_decay.add_argument("--models", "-m", default="doubao,deepseek,kimi", help="探测模型列表")
     p_decay.add_argument("--live", action="store_true", help="启用真实联网 API")
-    p_decay.add_argument("--heal", action="store_true", help="生成 decay_healing_pack 自愈三件套")
+    p_decay.add_argument("--heal", action="store_true", help="生成 decay_healing_pack 自愈草稿三件套（全域落盘回写请使用 geo heal）")
     p_decay.add_argument("--delta-days", type=float, default=None, help="手动指定间隔天数（默认从台账外链推算）")
     p_decay.add_argument("--report", action="store_true", help="生成并落盘 20 号公文报告")
+
+    # heal (29 号全域动态知识热补丁聚合与一键落盘自愈流水线)
+    p_heal = subparsers.add_parser("heal", help="29 号全域动态知识热补丁聚合与一键落盘自愈流水线（消费 20/22/25/26 策略包并回写语料底座）")
+    p_heal.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_heal.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_heal.add_argument("--apply", action="store_true", help="正式执行五步事务型原子落盘回写")
+    p_heal.add_argument("--rollback", action="store_true", help="一键撤销并恢复至最近一次或指定时间戳备份状态")
+    p_heal.add_argument("--backup", default="", help="配合 --rollback 指定恢复的特定时间戳目录 (如 20260904_021530)")
+    p_heal.add_argument("--verify", action="store_true", help="配合 --apply 自愈后自动联动运行 9 因子与 JSON-LD 语法质检")
+    p_heal.add_argument("--json", action="store_true", help="以 JSON 格式输出自愈对账数据")
 
     # mindshare (21 号大模型商业心智渗透与商业转化价值量化审计)
     p_mindshare = subparsers.add_parser("mindshare", help="21 号大模型商业心智渗透率与商业转化价值审计")
@@ -1403,9 +1413,89 @@ def main():
             print(f"\nℹ️  26 号商业公文报告落盘至: {out_report}")
             print(f"📦 截流反制资产包落盘至: {os.path.join(PROJECTS_DIR, pid, 'outputs', 'counter_interception_pack')}")
             print("=" * 75 + "\n")
+    elif args.command == "heal":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定项目 ID，例如: python3 -m tools.geo heal xuzhou_xuanyuan")
+            sys.exit(1)
+        from tools.geo.healer import compile_healing_patches, apply_healing_patches, rollback_healing, verify_integrity
+
+        # 回滚模式
+        if args.rollback:
+            print("\n" + "=" * 75)
+            print(f"🔄 29 号全域动态知识自愈安全回滚 · [{pid}]")
+            print("=" * 75)
+            try:
+                res = rollback_healing(pid, backup_ts=args.backup)
+                print(f"✅ 成功从历史备份恢复: {res['restored_from']}")
+                print(f"恢复时间: {res['rolled_back_at']}")
+                print(f"已恢复靶标文件 ({len(res['restored_files'])} 个):")
+                for fn in res['restored_files']:
+                    print(f"  • {fn}")
+                print("=" * 75 + "\n")
+            except Exception as e:
+                print(f"❌ 回滚失败: {e}\n" + "=" * 75 + "\n")
+                sys.exit(1)
+
+        # 正式落盘回写模式
+        elif args.apply:
+            print("\n" + "=" * 75)
+            print(f"🌿 29 号全域动态知识热补丁聚合与一键落盘自愈流水线 · [{pid}]")
+            print("=" * 75)
+            try:
+                res = apply_healing_patches(pid, auto_verify=True)
+                s = res["summary"]
+                if args.json:
+                    print(json.dumps(res, ensure_ascii=False, indent=2))
+                else:
+                    print(f"受审企业: {res['client_name']} ｜ 状态: 已成功回写落盘 (Applied)")
+                    print(f"执行时间: {res['applied_at']} ｜ 安全备份: {os.path.basename(res['backup_dir'])}")
+                    print(f"🛡️ 动态自愈总补丁数: {s['total_patches']} 个 (事实: {s['truth_count']} ｜ FAQ: {s['faq_count']} ｜ 密集词: {s['dense_count']})")
+                    if s['skipped_conflicts_count'] > 0:
+                        print(f"⚠️ 多包同题冲突仲裁已跳过: {s['skipped_conflicts_count']} 组")
+                    print("-" * 75)
+                    print("靶标受影响文件对账:")
+                    for aff in res.get("affected_files", []):
+                        print(f"  • {aff['file']} ({aff['section']}): {aff['type']}")
+                    if args.verify:
+                        print("-" * 75)
+                        v_res = verify_integrity(pid, use_tmp=False)
+                        print(f"✅ 9 因子结构与 JSON-LD 语法联动质检: 100% 校验通过！")
+                    print("-" * 75)
+                    print(f"ℹ️  29 号结案公文已落盘: {res['audit_doc']}")
+                    print(f"💡 提示：如需撤销回滚，请执行: geo heal {pid} --rollback")
+                    print("=" * 75 + "\n")
+            except Exception as e:
+                print(f"❌ 事务落盘失败并已自动回滚还原: {e}\n" + "=" * 75 + "\n")
+                sys.exit(1)
+
+        # 默认 Dry-Run 干跑预览模式
+        else:
+            comp = compile_healing_patches(pid)
+            if args.json:
+                print(json.dumps(comp, ensure_ascii=False, indent=2))
+            else:
+                s = comp["summary"]
+                print("\n" + "=" * 75)
+                print(f"🌿 全域动态知识热补丁自愈对账 (Dry-Run 预览) · [{pid}]")
+                print("=" * 75)
+                print(f"可注入核心事实锚点: {s['truth_count']} 条")
+                print(f"可注入密集语义/长尾词: {s['dense_count']} 个")
+                print(f"可注入反制与自愈问答: {s['faq_count']} 组")
+                print(f"已扫描策略源包: {len(comp['sources_found'])} 个已就绪 ｜ 缺失包: {len(comp['sources_missing'])} 个")
+                print("-" * 75)
+                print("📝 预计影响生产文件:")
+                print("  • outputs/llms.txt (+长尾问答，+权威事实保障)")
+                print("  • outputs/llms-truth.txt (追加 Section 5 动态事实锚点)")
+                print("  • outputs/03_普林斯顿9因子高权威语料库.md (追加独立自愈附录)")
+                print("  • outputs/schema.jsonld (合并 Organization.knowsAbout 与 FAQPage)")
+                print("-" * 75)
+                print(f"💡 提示：此为预览模式，执行落盘请运行: python3 -m tools.geo heal {pid} --apply")
+                print("=" * 75 + "\n")
     elif args.command == "pipeline":
         cmd_run_pipeline(get_pid(args))
 
 if __name__ == "__main__":
     main()
+
 

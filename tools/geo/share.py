@@ -633,6 +633,50 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "download_url": f"/api/share/{token}/download-zip" if token else ""
     }
 
+    # 29 维 全域知识动态自愈与落盘回写台账
+    heal_data = _read_json_safe("self_healing_audit.json")
+    if heal_data and heal_data.get("status") == "applied":
+        h_sum = heal_data.get("summary", {})
+        self_healing_summary = {
+            "has_data": True,
+            "status": "applied",
+            "status_label": "🟢 知识底座动态自愈已生效",
+            "applied_at": heal_data.get("applied_at"),
+            "total_patches_applied": h_sum.get("total_patches", 0),
+            "truth_anchors_count": h_sum.get("truth_count", 0),
+            "faq_pairs_count": h_sum.get("faq_count", 0),
+            "dense_keywords_count": h_sum.get("dense_count", 0),
+            "audit_doc": heal_data.get("audit_doc", "outputs/29_全域动态知识自愈热补丁审计与回写台账.md"),
+            "health_grade": "动态闭环防御 (100%)"
+        }
+    elif heal_data and heal_data.get("status") == "failed_rolled_back":
+        self_healing_summary = {
+            "has_data": True,
+            "status": "failed_rolled_back",
+            "status_label": "🔴 校验异常已自动全量回滚",
+            "applied_at": heal_data.get("failed_at"),
+            "total_patches_applied": 0,
+            "truth_anchors_count": 0,
+            "faq_pairs_count": 0,
+            "dense_keywords_count": 0,
+            "audit_doc": "",
+            "health_grade": "回滚保护中"
+        }
+    else:
+        # 严格对齐 Spec §5.3 优雅降级，未自愈时绝不伪造虚假数据
+        self_healing_summary = {
+            "has_data": False,
+            "status": "never_run",
+            "status_label": "⚪️ 待触发自愈流水线",
+            "applied_at": None,
+            "total_patches_applied": 0,
+            "truth_anchors_count": 0,
+            "faq_pairs_count": 0,
+            "dense_keywords_count": 0,
+            "audit_doc": "",
+            "health_grade": "待触发自愈"
+        }
+
     # 最终组合完整数据载荷
     return {
         "success": True,
@@ -642,8 +686,9 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "website": cfg.get("website", ""),
         "brand_name": cfg.get("brand_name", cfg.get("client_name", "")),
 
-        # 高管专属新增战果模块 (第 28 维)
+        # 高管专属新增战果模块 (第 28/29 维)
         "executive_summary": executive_summary,
+        "self_healing_summary": self_healing_summary,
         "models_mindshare": models_mindshare,
         "wechat_yuanbao_channel": wechat_yuanbao_channel,
         "competitor_interception": competitor_interception,

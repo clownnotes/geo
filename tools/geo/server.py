@@ -1192,6 +1192,40 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 29 号全域知识热补丁自愈预览 (POST)
+        if path.startswith("/api/projects/") and path.endswith("/heal/preview"):
+            project_id = path.split("/")[3]
+            try:
+                from .healer import compile_healing_patches
+                self.send_json(compile_healing_patches(project_id))
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 29 号全域知识热补丁一键落盘自愈 (POST)
+        if path.startswith("/api/projects/") and path.endswith("/heal/apply"):
+            project_id = path.split("/")[3]
+            try:
+                from .healer import apply_healing_patches
+                res = apply_healing_patches(project_id, auto_verify=True)
+                self.send_json({"success": True, **res})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 29 号全域知识自愈一键回滚 (POST)
+        if path.startswith("/api/projects/") and path.endswith("/heal/rollback"):
+            project_id = path.split("/")[3]
+            try:
+                data = self.read_json_body() if self.headers.get("Content-Length") else {}
+                backup_ts = data.get("backup_ts", "")
+                from .healer import rollback_healing
+                res = rollback_healing(project_id, backup_ts=backup_ts)
+                self.send_json({"success": True, **res})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         self.send_json({"error": "Not Found"}, status=404)
 
     def do_DELETE(self):
@@ -2999,6 +3033,34 @@ core_values:
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                     return
+
+            # 29 号全域知识热补丁自愈预览: GET /api/projects/{id}/heal/preview
+            if path.startswith("/api/projects/") and path.endswith("/heal/preview"):
+                project_id = path.split("/")[3]
+                try:
+                    from .healer import compile_healing_patches
+                    self.send_json(compile_healing_patches(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 29 号自愈审计数据与结案台账获取: GET /api/projects/{id}/heal/audit
+            if path.startswith("/api/projects/") and path.endswith("/heal/audit"):
+                project_id = path.split("/")[3]
+                audit_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "self_healing_audit.json")
+                if os.path.exists(audit_file):
+                    try:
+                        with open(audit_file, "r", encoding="utf-8") as f:
+                            self.send_json(json.load(f))
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    self.send_json({
+                        "success": True,
+                        "status": "never_run",
+                        "message": "项目尚未执行全域自愈落盘流水线"
+                    })
+                return
 
         # 默认静态资源兜底
         super().do_GET()
