@@ -1,6 +1,6 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "generated_at": "2026-09-03T21:30:17Z",
+  "generated_at": "2026-09-03T22:06:07Z",
   "fulfillment_rate": 89.3,
   "manifest_summary": {
     "total_files": 16,
@@ -152,7 +152,7 @@
       "file": "16_大模型提示词注入防御与品牌隔离盾牌报告.md",
       "stage": "S4/S5 品牌安全",
       "exists": true,
-      "size": 2743
+      "size": 2744
     }
   ],
   "archive_zip": "xuzhou_xuanyuan_geo_delivery_archive.zip"

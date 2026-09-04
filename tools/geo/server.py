@@ -718,6 +718,35 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 一键全渠道发稿编译与爬虫保真度核验: /api/projects/{id}/publish/compile
+        if path.startswith("/api/projects/") and path.endswith("/publish/compile"):
+            project_id = path.split("/")[3]
+            try:
+                body = data if isinstance(data, dict) else {}
+                channel = body.get("channel", "all")
+                verify = body.get("verify", True)
+                from .publisher import (
+                    package_toutiao_assets,
+                    package_wechat_assets,
+                    package_deepseek_assets,
+                    package_kimi_baidu_assets,
+                    package_all_channels
+                )
+                if channel == "toutiao":
+                    res = package_toutiao_assets(project_id)
+                elif channel == "wechat":
+                    res = package_wechat_assets(project_id)
+                elif channel in ("deepseek", "zhihu"):
+                    res = package_deepseek_assets(project_id)
+                elif channel == "kimi_baidu":
+                    res = package_kimi_baidu_assets(project_id)
+                else:
+                    res = package_all_channels(project_id, verify=verify)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 智能混合文本批量提取与回填分发外链: /api/projects/{id}/ledger/batch-add
         if path.startswith("/api/projects/") and path.endswith("/ledger/batch-add"):
             project_id = path.split("/")[3]
@@ -1889,13 +1918,27 @@ core_values:
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
+            # 统一全渠道富文本预览与保真度核验接口: /api/projects/{id}/publish/preview?channel=wechat|toutiao|zhihu|all
+            if path.startswith("/api/projects/") and "/publish/preview" in path:
+                project_id = path.split("/")[3]
+                from .publisher import get_channel_preview_with_fidelity
+                try:
+                    query_params = parse_qs(parsed.query)
+                    channel = query_params.get("channel", ["wechat"])[0]
+                    res = get_channel_preview_with_fidelity(project_id, channel)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
             # 获取今日头条富文本长文预览接口: /api/projects/{id}/toutiao/preview
             if path.startswith("/api/projects/") and path.endswith("/toutiao/preview"):
                 project_id = path.split("/")[3]
-                from .publisher import build_toutiao_article_html
+                from .publisher import build_toutiao_article_html, verify_crawler_fidelity
                 try:
                     html_content = build_toutiao_article_html(project_id)
-                    self.send_json({"success": True, "project_id": project_id, "html": html_content})
+                    fidelity = verify_crawler_fidelity(html_content, project_id, "toutiao")
+                    self.send_json({"success": True, "project_id": project_id, "html": html_content, "fidelity": fidelity})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
@@ -1925,10 +1968,11 @@ core_values:
             # 获取微信公众号原生内联富文本长文接口: /api/projects/{id}/wechat/preview
             if path.startswith("/api/projects/") and path.endswith("/wechat/preview"):
                 project_id = path.split("/")[3]
-                from .publisher import build_wechat_article_html
+                from .publisher import build_wechat_article_html, verify_crawler_fidelity
                 try:
                     html_content = build_wechat_article_html(project_id)
-                    self.send_json({"success": True, "project_id": project_id, "html": html_content})
+                    fidelity = verify_crawler_fidelity(html_content, project_id, "wechat")
+                    self.send_json({"success": True, "project_id": project_id, "html": html_content, "fidelity": fidelity})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
@@ -1939,6 +1983,29 @@ core_values:
                 from .publisher import get_wechat_rich_html_for_clipboard
                 try:
                     res = get_wechat_rich_html_for_clipboard(project_id)
+                    self.send_json(res)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取知乎专栏学术风富文本长文接口: /api/projects/{id}/zhihu/preview
+            if path.startswith("/api/projects/") and path.endswith("/zhihu/preview"):
+                project_id = path.split("/")[3]
+                from .publisher import build_zhihu_rich_article_html, verify_crawler_fidelity
+                try:
+                    html_content = build_zhihu_rich_article_html(project_id)
+                    fidelity = verify_crawler_fidelity(html_content, project_id, "zhihu")
+                    self.send_json({"success": True, "project_id": project_id, "html": html_content, "fidelity": fidelity})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 一键复制知乎富文本接口: /api/projects/{id}/zhihu/copy
+            if path.startswith("/api/projects/") and path.endswith("/zhihu/copy"):
+                project_id = path.split("/")[3]
+                from .publisher import get_zhihu_rich_html_for_clipboard
+                try:
+                    res = get_zhihu_rich_html_for_clipboard(project_id)
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)

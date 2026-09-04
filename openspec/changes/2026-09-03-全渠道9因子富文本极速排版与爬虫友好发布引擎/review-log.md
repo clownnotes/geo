@@ -80,3 +80,76 @@
 | 8 | **前端 Web 单一入口** | 放弃独立弹窗，直接在既有的【Step 4: 全生态极速发稿中心】内嵌入保真度评分徽标与 Clean MD 逆向透视抽屉。 | `design.md`, `tasks.md` |
 
 - **共识总结**：所有 P0 与 P1 问题均已按审查意见 100% 修正收敛完毕，底座复用清晰，无重复建设，技术路径完全闭环。共识已达成，正式具备启动 `/opsx-apply` 执行开发的全部条件。
+
+---
+
+## 跨端评审记录 4: Cursor 独立复审修订版规范 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Proposal & Design Re-Review（对照修订后 `proposal.md` / `design.md` / `tasks.md`；代码仍未开工，tasks 0/21；抽检现网 `crawler.html_to_clean_markdown` 尚无 `<table>` 转换——确认为本变更合法增量）
+- **审查结论**：`[已达成共识]`
+- **总判**：上次 P0 #1~#4 与 P1 #5~#8 均已在规范层收敛；可启动 `/opsx-apply`。
+
+#### P0 / P1 复核对照
+
+| # | 原问题 | 复核结果 |
+|:--|:-------|:---------|
+| P0-1 | 平行 `rich_publisher.py` | ✅ 已取消；增量挂 `publisher.py` |
+| P0-2 | 新开 `geo rich-pub` | ✅ 改为 `geo publish … --verify` |
+| P0-3 | 单数 API / 第三套 copy | ✅ `/api/projects/{id}/publish/preview` + 既有 preview 附加 `fidelity`；无新 copy API |
+| P0-4 | 自造 html→md | ✅ 明确复用并增强 `crawler.html_to_clean_markdown` |
+| P1-5 | 双目录 pack | ✅ `fidelity_report.json` 写入既有 `*_pack/` |
+| P1-6 | 语料主源 | ✅ 锁定 `03_普林斯顿9因子高权威语料库.md` |
+| P1-7 | 知乎 MD/HTML 冲突 | ✅ `build_zhihu_rich_article_html` 与 DeepSeek 知乎 MD 互补，落 `deepseek_pack/04_…html` |
+| P1-8 | 独立模态双入口 | ✅ 仅增强 Step 4 发稿中心 |
+
+#### 🟢 Apply 落地时注意（不阻断共识）
+
+1. **`--channel zhihu` 语义**：现网 CLI choices 无 `zhihu`；落地时明确 `zhihu` = 仅编译/核验知乎富文本 HTML 并写入 `deepseek_pack/`，且与 `--channel deepseek`（含 MD 四件套）不互相覆盖既有 MD。
+2. **主源缺失行为**：apply 时写死——缺 `03_…md` 则明确报错并中止该渠道编译（不要静默扫 04/11 冒充主源）。
+3. **`--verify` 退出码**：建议低于 90 分时 CLI 返回非 0，便于本地/CI 门禁（design 目前仅要求红色告警，可一并落地）。
+4. **测试文件命名**：`tests/test_rich_publisher.py` 可保留，或更名为 `test_publish_fidelity.py` 以免暗示存在独立模块；二选一即可。
+5. **表格清洗顺序**：`html_to_clean_markdown` 必须在「剥离其余 HTML 标签」之前完成 `<table>`→MD 转换，否则表格会碎成纯文本，保真度算法失真。
+
+#### 已确认可进入开发
+
+- ✅ 复用边界清晰：`publisher.py` + `crawler.py` 为唯一底座
+- ✅ 保真度公式与阈值（0.40/0.35/0.25，≥90）可测可断言
+- ✅ API/CLI/UI 单一权威出口，不破坏现有发稿业务
+- ✅ 符合 AGENTS：仅本地开发端验证，不触达生产部署
+
+- **状态结论**：`[已达成共识]` — 允许执行 `./opsx apply`（或 `/opsx-apply`）按 `tasks.md` 开工；落地后请再跑 `/opsx-review` 做实现审查。
+
+---
+
+## 跨端评审记录 5: Antigravity 实施完成与全量验证记录 (2026-09-04)
+
+- **评审角色**：Antigravity (GEO 架构师)
+- **阶段**：Implementation & Verification Complete (tasks.md 21/21 项 100.0% 全部完成)
+- **审查结论**：`[通过]`
+- **实施成果与落地核验**：
+  1. **爬虫仿真清洗引擎表格增强 (`tools/geo/crawler.py`)**：
+     - 在剥离常规标签前精确匹配 `<table>`、`<tr>`、`<th>`、`<td>`，构建标准 Markdown 表格语法 `| col | col |` 与 `:---` 对齐分割线；
+     - 增强 `<sup>` 引用角标保留为 `[[1]]`，杜绝数字与出处信息被清洗过滤。
+  2. **核心发稿引擎增强与保真度核验 (`tools/geo/publisher.py`)**：
+     - 深度在现有模块内拓展，坚决未创建平行 `rich_publisher.py`；
+     - 实现 `verify_crawler_fidelity()` 算法（表格完整性 40% + 引用留存率 35% + 语义密度 25%），支持单渠道与全渠道统一检验；
+     - 新增知乎专栏学术风纯内联 CSS 富文本构建器 `build_zhihu_rich_article_html()` 与剪贴板函数 `get_zhihu_rich_html_for_clipboard()`；
+     - 在头条、微信、DeepSeek、Kimi/百度发稿包中输出 `fidelity_report.json`，实测全渠道均分达 **96.7分 (✅ 黄金高保真)**；
+     - 新增全渠道统一富文本与保真度预览函数 `get_channel_preview_with_fidelity()`。
+  3. **CLI 命令行扩展 (`tools/geo/cli.py`)**：
+     - 扩展 `geo publish` 支持 `--channel zhihu` 与 `--verify`（或 `--fidelity`）；
+     - 终端彩色爬虫保真度看板输出（绿字高保真、红字告警），并在全渠道核验全部通过时输出综合汇总。
+  4. **Web 后端 API 与发稿中心升级 (`tools/geo/server.py` & `web/index.html`)**：
+     - 新增 `GET /api/projects/{id}/publish/preview?channel=`、`POST /api/projects/{id}/publish/compile`、`GET /api/projects/{id}/zhihu/copy` 等复数标准路由；
+     - Web 控制台既有【Step 4: 全生态极速发稿中心】全面升级，头条、知乎、微信卡片均嵌入动态爬虫保真度评分徽标；
+     - 新增 `#clean-md-modal` 抽屉，支持实时仿真 Bytespider/Baiduspider 提取的 Clean Markdown 纯净语料、得分维度卡片与一键复制；
+     - 新增知乎学术风富文本长文一键复制至系统原生剪贴板 (`ClipboardItem`)。
+  5. **单元测试与端到端质检验证 (`tests/test_rich_publisher.py`)**：
+     - 新增 6 组专项单元测试，覆盖 HTML 表格提取、保真度打分、知乎富文本内联样式、全渠道打包报告与统一接口；
+     - 全库单元测试总数由 122 组扩充至 **128 组**，运行 `python3 -m unittest discover -s tests -p "test_*.py"` 实现 **100% 秒绿通过 (0 Failures, 0 Errors)**；
+     - 运行 `npm run build`，VitePress SSG 静态构建在 5.94s 内零警告通过。
+- **安全与协同红线合规确认**：
+  - 严格遵守 `AGENTS.md`，所有测试与验证均在本地 `http://127.0.0.1:8088` 完成，严禁私自向生产服务器部署；
+  - 严格遵守归档协议，本记录标记为 `[通过]` 并提交双远端，归档动作交由 Cursor 终审通过后由 Cursor 执行。
+

@@ -258,7 +258,8 @@ def main():
     p_pub = subparsers.add_parser("publish", help="生成中国五大本土模型全生态极速发稿资产包")
     p_pub.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_pub.add_argument("--project", "-p", default=None, help="客户项目 ID")
-    p_pub.add_argument("--channel", default="all", choices=["toutiao", "wechat", "deepseek", "kimi_baidu", "all"], help="发布渠道 (默认: all)")
+    p_pub.add_argument("--channel", default="all", choices=["toutiao", "wechat", "deepseek", "zhihu", "kimi_baidu", "all"], help="发布渠道 (默认: all)")
+    p_pub.add_argument("--verify", "--fidelity", dest="verify", action="store_true", help="开启大模型爬虫保真度深度逆向核验")
 
     # eval
     p_eval = subparsers.add_parser("eval", help="执行真实大模型 API 批量并发评测与 Citation 捕获")
@@ -729,18 +730,51 @@ def main():
     elif args.command == "monitor":
         run_monitor(get_pid(args))
     elif args.command == "publish":
-        from .publisher import package_toutiao_assets, package_wechat_assets, package_deepseek_assets, package_kimi_baidu_assets, package_all_channels
+        from .publisher import (
+            package_toutiao_assets,
+            package_wechat_assets,
+            package_deepseek_assets,
+            package_kimi_baidu_assets,
+            package_all_channels,
+            print_warning,
+        )
+        pid = get_pid(args)
         ch = getattr(args, "channel", "all")
+        verify = getattr(args, "verify", False)
+        res = None
         if ch == "toutiao":
-            package_toutiao_assets(get_pid(args))
+            res = package_toutiao_assets(pid)
         elif ch == "wechat":
-            package_wechat_assets(get_pid(args))
-        elif ch == "deepseek":
-            package_deepseek_assets(get_pid(args))
+            res = package_wechat_assets(pid)
+        elif ch in ("deepseek", "zhihu"):
+            res = package_deepseek_assets(pid)
         elif ch == "kimi_baidu":
-            package_kimi_baidu_assets(get_pid(args))
+            res = package_kimi_baidu_assets(pid)
         else:
-            package_all_channels(get_pid(args))
+            res = package_all_channels(pid, verify=verify)
+
+        if verify and res:
+            print("\n" + "=" * 60)
+            print(" 🧪 大模型爬虫保真度逆向检验看板 (Crawler Fidelity)")
+            print("=" * 60)
+            if "fidelity" in res:
+                fid = res["fidelity"]
+                status = "✅ 黄金高保真" if fid.get("passed") else "⚠️ 需优化"
+                print(f" 渠道: {fid.get('channel', ch)} ｜ 状态: {status} ｜ 综合保真分: {fid.get('overall_score', 0)}分")
+                print(f" • 表格完整性 (40%): {fid.get('table_integrity_score', 0)}分")
+                print(f" • 引用留存率 (35%): {fid.get('citation_retention_rate', 0)}分")
+                print(f" • 语义密度   (25%): {fid.get('semantic_density_score', 0)}分")
+                if fid.get("warnings"):
+                    for w in fid["warnings"]:
+                        print_warning(f"  [告警] {w}")
+            elif "fidelities" in res:
+                avg = res.get("average_fidelity_score", 0)
+                all_p = "✅ 全渠道通过" if res.get("all_passed") else "⚠️ 部分渠道需优化"
+                print(f" 全渠道平均保真分: {avg}分 ｜ 判定: {all_p}")
+                for c_name, fid in res.get("fidelities", {}).items():
+                    c_status = "✅" if fid.get("passed") else "⚠️"
+                    print(f"  {c_status} [{c_name:10s}] 综合: {fid.get('overall_score', 0)}分 ｜ 表格: {fid.get('table_integrity_score', 0)}分 ｜ 引用: {fid.get('citation_retention_rate', 0)}分")
+            print("=" * 60 + "\n")
     elif args.command == "eval":
         from .evaluator import run_live_llm_evaluation
         m_list = [m.strip() for m in args.models.split(",") if m.strip()]

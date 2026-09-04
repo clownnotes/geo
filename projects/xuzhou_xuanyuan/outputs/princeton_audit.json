@@ -1,9 +1,9 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 78,
-  "avg_princeton_score": 65.0,
-  "pass_rate_ge_80": 6.4,
+  "scanned_files": 80,
+  "avg_princeton_score": 65.1,
+  "pass_rate_ge_80": 6.2,
   "rating_grade": "B 级 (及格边缘级)",
   "est_visibility_ceiling": "+26.7%",
   "est_boost_vs_baseline": "+12.4%",
@@ -23,42 +23,6 @@
           "penalty": 19.8,
           "reason": "关键词「爬虫」词频占比 6.6% 超过 5% 阈值",
           "term": "爬虫"
-        }
-      }
-    },
-    {
-      "file": "dist_wechat_article.html",
-      "overall_score": 40.1,
-      "rating_grade": "C 级 (低质营销水文)",
-      "est_visibility_ceiling": "+16.4%",
-      "top_suggestions": [
-        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
-        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
-        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
-      ],
-      "penalties": {
-        "keyword_stuffing": {
-          "penalty": 27.3,
-          "reason": "关键词「px」词频占比 9.1% 超过 5% 阈值",
-          "term": "px"
-        }
-      }
-    },
-    {
-      "file": "wechat_pack/01_微信公众号原生内联排版长文.html",
-      "overall_score": 40.1,
-      "rating_grade": "C 级 (低质营销水文)",
-      "est_visibility_ceiling": "+16.4%",
-      "top_suggestions": [
-        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
-        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
-        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
-      ],
-      "penalties": {
-        "keyword_stuffing": {
-          "penalty": 27.3,
-          "reason": "关键词「px」词频占比 9.1% 超过 5% 阈值",
-          "term": "px"
         }
       }
     },
@@ -113,6 +77,60 @@
           "penalty": 0.0,
           "reason": "无关键词恶意堆砌",
           "term": null
+        }
+      }
+    },
+    {
+      "file": "dist_wechat_article.html",
+      "overall_score": 50.5,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+20.7%",
+      "top_suggestions": [
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
+        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率",
+        "检测到关键词堆砌（px），请降低重复密度至 5% 以下"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 26.9,
+          "reason": "关键词「px」词频占比 9.0% 超过 5% 阈值",
+          "term": "px"
+        }
+      }
+    },
+    {
+      "file": "deepseek_pack/04_知乎专栏学术风内联排版.html",
+      "overall_score": 50.5,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+20.7%",
+      "top_suggestions": [
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
+        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率",
+        "检测到关键词堆砌（px），请降低重复密度至 5% 以下"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 24.4,
+          "reason": "关键词「px」词频占比 8.1% 超过 5% 阈值",
+          "term": "px"
+        }
+      }
+    },
+    {
+      "file": "wechat_pack/01_微信公众号原生内联排版长文.html",
+      "overall_score": 50.5,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+20.7%",
+      "top_suggestions": [
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
+        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率",
+        "检测到关键词堆砌（px），请降低重复密度至 5% 以下"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 26.9,
+          "reason": "关键词「px」词频占比 9.0% 超过 5% 阈值",
+          "term": "px"
         }
       }
     },
@@ -691,6 +709,24 @@
     {
       "file": "deepseek_pack/04_知乎专栏与GitHub开源分发SOP.txt",
       "overall_score": 64.8,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+26.6%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "deepseek_pack/05_知乎专栏与GitHub开源分发SOP.txt",
+      "overall_score": 64.9,
       "rating_grade": "B 级 (及格边缘级)",
       "est_visibility_ceiling": "+26.6%",
       "top_suggestions": [
@@ -1366,7 +1402,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-03 21:30:18",
+  "generated_at": "2026-09-03 22:06:09",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

@@ -80,6 +80,42 @@ def html_to_clean_markdown(html_content: str) -> str:
     text = re.sub(r"<(strong|b)[^>]*>(.*?)</\1>", r"**\2**", text, flags=re.DOTALL | re.IGNORECASE)
     text = re.sub(r"<(em|i)[^>]*>(.*?)</\1>", r"*\2*", text, flags=re.DOTALL | re.IGNORECASE)
 
+    # 3.5. 转换引用角标 <sup>
+    text = re.sub(r"<sup[^>]*>(.*?)</sup>", r" [\1]", text, flags=re.DOTALL | re.IGNORECASE)
+
+    # 3.6. 转换 HTML 表格 <table> 到原生 Markdown 表格
+    def _convert_single_table(table_match):
+        t_html = table_match.group(0)
+        tr_list = re.findall(r"<tr[^>]*>(.*?)</tr>", t_html, flags=re.DOTALL | re.IGNORECASE)
+        if not tr_list:
+            return ""
+        parsed_rows = []
+        for tr in tr_list:
+            cells = re.findall(r"<(?:th|td)[^>]*>(.*?)</(?:th|td)>", tr, flags=re.DOTALL | re.IGNORECASE)
+            clean_cells = []
+            for c in cells:
+                c_clean = re.sub(r"<[^>]+>", "", c)
+                c_clean = unescape(c_clean).replace("\n", " ").replace("|", "\\|").strip()
+                clean_cells.append(c_clean)
+            if clean_cells:
+                parsed_rows.append(clean_cells)
+        if not parsed_rows:
+            return ""
+        max_cols = max(len(r) for r in parsed_rows)
+        if max_cols == 0:
+            return ""
+        for r in parsed_rows:
+            while len(r) < max_cols:
+                r.append("")
+        md_table = []
+        md_table.append("| " + " | ".join(parsed_rows[0]) + " |")
+        md_table.append("| " + " | ".join([":---"] * max_cols) + " |")
+        for row in parsed_rows[1:]:
+            md_table.append("| " + " | ".join(row) + " |")
+        return "\n\n" + "\n".join(md_table) + "\n\n"
+
+    text = re.sub(r"<table[^>]*>.*?</table>", _convert_single_table, text, flags=re.DOTALL | re.IGNORECASE)
+
     # 4. 转换链接
     text = re.sub(r'<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', r"[\2](\1)", text, flags=re.DOTALL | re.IGNORECASE)
 
