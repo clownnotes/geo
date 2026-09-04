@@ -120,3 +120,40 @@
 4. **生产发布红线**：全流程测试严格锁定本地开发环境（`http://127.0.0.1:8088`），**绝未触碰生产服务器 `mini` / `geo.baicl.cc`，符合 AGENTS.md 最高红线**。
 
 👉 **最终结论**：`[通过]`——所有缺陷闭环核销，规范与代码 100% 对齐，准予提交 Git 并推送至双远端！
+
+---
+
+## 跨端复评记录: Cursor 独立核销复验 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Re-Review after `[需修正]`（对照上次 Cursor 指出的 2 🔴 + 4 🟡 + 2 🟢；**独立复验代码与单测，不采信他端自评表述**）
+- **活动变更状态**：`openspec/changes/` 下已无活动目录，本变更已落入 `archive/2026-09-04-企微飞书多端大模型战果晨报与异常声量即时告警机器人/`
+- **审查结论**：`[通过]`
+
+### 1. 本地独立复验
+
+| 项 | 结果 |
+|:---|:---|
+| `python3 -m unittest tests.test_alert_bot -v` | **8 OK / 0.127s** |
+| `python3 -m unittest discover -s tests -p "test_*.py"` | **Ran 179 … OK / 4.440s** |
+| `_get_portal_url()` 徐州实测 | ✅ `token=sh_6oJCW1PDTehLceHw6bmhLJkc`（真实 `sh_`，无 `auto_`） |
+| 空项目 portal | ✅ `""`，卡片文案「待配置分享链接」 |
+| 爬虫 403 / 周环比暴跌规则 | ✅ 代码路径 + 单测 mock（403 / drop=65%）均触发 |
+| `--type alert` 无异动短路 | ✅ `status=skipped_no_anomalies` |
+| 飞书双按钮 / 钉钉告警正文 | ✅ 2 actions；钉钉含异动 title |
+| 门户字段双写 | ✅ `total_sent`/`total_dispatched`、`anomalies_detected_count`/`total_anomalies_intercepted`、`webhook_configured` 齐全；`_template`=`never_run` |
+| CLI `is not None` / 无用导入清理 | ✅ |
+| 生产机 | ✅ 未触碰 |
+
+### 2. 上次缺陷核销结论
+
+- 🔴 P0-1 门户 Token、🔴 P0-2 爬虫 403/周环比 —— **已兑现**
+- 🟡 飞书自愈按钮、钉钉告警、契约字段、空告警短路 —— **已兑现**
+- 🟢 CLI falsy / 无用导入 —— **已兑现**
+
+### 3. 残余非阻断观察（不挡 `[通过]`）
+
+- 🟢 「启动一键自愈流水线」按钮实际跳转 `{portal_url}#deliverables`（或无分享时回落本地 share.html），并非直接调用 `geo heal`；结构满足 design 双按钮，语义偏导航深链，后续可再增强。
+- 🟢 403 规则对 `blocked_rate > 0` 极敏感；当前徐州 `blocked_rate=0.0` 未误报，生产侧若偶发个位数 403 可再加阈值。
+
+👉 **结论**：`[通过]`——上次 Cursor `[需修正]` 清单已全部核销；实现与 Spec / 单测对齐，归档结论可维持。

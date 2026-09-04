@@ -376,6 +376,17 @@ def main():
     p_bot.add_argument("--report", action="store_true", help="输出并打印第 33 号公文完整战果明细")
     p_bot.add_argument("--portal-sync", action="store_true", help="推送完成后联动刷新高管交付门户聚合缓存")
 
+    # doubao-index (豆包搜索极速收录与全链路索引保障中枢，第 34 维)
+    p_doubao = subparsers.add_parser("doubao-index", help="第 34 维豆包搜索极速收录与全链路索引保障中枢")
+    p_doubao.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_doubao.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_doubao.add_argument("--audit", action="store_true", default=False, help="仅执行六维要素体检并计算 DRS 指数")
+    p_doubao.add_argument("--boost", action="store_true", default=False, help="仅生成专属提权加速包 outputs/doubao_booster_pack/")
+    p_doubao.add_argument("--verify", action="store_true", default=False, help="仅执行商业意图收录与首推/角标对账")
+    p_doubao.add_argument("--report", action="store_true", help="输出并打印第 34 号公文完整战果明细")
+    p_doubao.add_argument("--portal-sync", action="store_true", help="执行完成后联动刷新高管交付门户聚合缓存")
+    p_doubao.add_argument("--dry-run", action="store_true", default=False, help="仿真模式 (不落盘文件，仅打印体检与对账结果)")
+
     # guard-clean (19 号品牌声誉排查与危机清洗，与 geo guard 幻觉防御区分)
     p_gclean = subparsers.add_parser("guard-clean", help="19 号品牌声誉负面联想排查与危机清洗压制")
     p_gclean.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1374,6 +1385,93 @@ def main():
         print(f"ℹ️  推送台账历史已同步记录至:\n    projects/{pid}/outputs/alert_bot_history.json")
         if getattr(args, "portal_sync", False):
             print("🌐 高管只读交付门户已联动同步刷新 (含机器人推送态势卡片)")
+        print("=" * 78 + "\n")
+    elif args.command == "doubao-index":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定目标项目 ID，例如: python3 -m tools.geo doubao-index xuzhou_xuanyuan")
+            sys.exit(1)
+
+        from tools.geo.doubao_indexer import run_doubao_indexer
+        is_audit = getattr(args, "audit", False)
+        is_boost = getattr(args, "boost", False)
+        is_verify = getattr(args, "verify", False)
+        is_dry = getattr(args, "dry_run", False)
+
+        # 默认全链路执行
+        if not (is_audit or is_boost or is_verify):
+            do_audit = True
+            do_boost = not is_dry
+            do_verify = True
+        else:
+            do_audit = is_audit
+            do_boost = is_boost and not is_dry
+            do_verify = is_verify
+
+        save_report = not is_dry
+
+        try:
+            res = run_doubao_indexer(
+                pid,
+                do_audit=do_audit,
+                do_boost=do_boost,
+                do_verify=do_verify,
+                save_report=save_report
+            )
+        except Exception as e:
+            print_error(f"豆包收录中枢调度执行异常: {e}")
+            sys.exit(1)
+
+        if getattr(args, "portal_sync", False):
+            from tools.geo.share import compile_portal_data
+            compile_portal_data(pid)
+
+        drs_str = f"{res.get('drs_score')} 分" if res.get('drs_score') is not None else "[待实测]"
+        bytes_hits_str = f"{res.get('bytespider_hits')} 次" if res.get('bytespider_hits') is not None else "[待实测]"
+        blocked_str = f"{res.get('bytespider_blocked_rate')}%" if res.get('bytespider_blocked_rate') is not None else "[待实测]"
+        top1_str = f"{res.get('top1_rate')}%" if res.get('top1_rate') is not None else "[待实测]"
+
+        print("\n" + "=" * 78)
+        print(f"🎯 豆包搜索极速收录与全链路索引保障中枢 · [{pid}] (第 34 维)")
+        print("=" * 78)
+        print(f"🏛️ 目标项目: {res.get('project_name')} ｜ DRS 就绪指数: {drs_str} (评级: {res.get('grade')})")
+        print(f"📊 态势总览: {res.get('status_label')}")
+        print(f"🕷️ Bytespider 抓取: {bytes_hits_str} ｜ 403 阻断率: {blocked_str} ｜ 豆包首推率: {top1_str}")
+        print(f"📦 头条母池发稿包: {'✅ 已就绪' if res.get('toutiao_pack_ready') else '⚪ 待打包'} ｜ 专属提权包: {'✅ 已生成' if res.get('booster_pack_ready') else '⚪ 未生成'}")
+        print("-" * 78)
+        print("📋 六维收录要素体检明细:")
+        for c in res.get("checks", []):
+            mark = "✅" if c.get("passed") else "⚠️"
+            score_disp = f"{c.get('score')}分" if c.get('score') is not None else "待实测"
+            print(f"  {mark} [{c.get('check_id')}] {c.get('name')}: 得分 {score_disp}")
+            print(f"      └─ 审计诊断: {c.get('detail')}")
+
+        intents = res.get("intents", [])
+        if intents:
+            print("-" * 78)
+            print(f"🔍 核心意图词豆包对账 ({len(intents)} 组):")
+            for it in intents[:5]:
+                t1_icon = "👑Top-1" if it.get("doubao_top1") else "⚪未首推"
+                cite_icon = "📌角标" if it.get("citation_found") else "⚪无角标"
+                print(f"  • {it.get('query')}: {it.get('status_label')} [{t1_icon} | {cite_icon}]")
+            if len(intents) > 5:
+                print(f"    ... 以及其余 {len(intents) - 5} 组意图词")
+
+        if getattr(args, "report", False) and res.get("report_file"):
+            print("-" * 78)
+            try:
+                with open(res["report_file"], "r", encoding="utf-8") as rf:
+                    print(rf.read())
+            except Exception:
+                pass
+
+        print("-" * 78)
+        print(f"ℹ️  第 34 维公文与加速包已落盘至:")
+        print(f"    projects/{pid}/outputs/34_豆包大模型搜索极速收录与全链路索引保障报告.md")
+        print(f"    projects/{pid}/outputs/doubao_index_audit.json")
+        print(f"    projects/{pid}/outputs/doubao_booster_pack/")
+        if getattr(args, "portal_sync", False):
+            print("🌐 高管只读交付门户已联动同步刷新 (含豆包收录态势卡片)")
         print("=" * 78 + "\n")
     elif args.command == "guard-clean":
         pid = get_pid(args)

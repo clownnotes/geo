@@ -1,9 +1,9 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 84,
-  "avg_princeton_score": 65.3,
-  "pass_rate_ge_80": 7.1,
+  "scanned_files": 88,
+  "avg_princeton_score": 65.4,
+  "pass_rate_ge_80": 8.0,
   "rating_grade": "B 级 (及格边缘级)",
   "est_visibility_ceiling": "+26.8%",
   "est_boost_vs_baseline": "+12.5%",
@@ -387,6 +387,24 @@
       }
     },
     {
+      "file": "34_豆包大模型搜索极速收录与全链路索引保障报告.md",
+      "overall_score": 59.0,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+24.2%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议清除广告法极限词与主观浮夸表述，改用客观陈述"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "26_大模型商业推荐博弈对抗与竞品截流动态护城河推演报告.md",
       "overall_score": 59.2,
       "rating_grade": "C 级 (低质营销水文)",
@@ -546,6 +564,24 @@
       }
     },
     {
+      "file": "doubao_booster_pack/04_豆包收录排障与白名单Checklist.md",
+      "overall_score": 61.2,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+25.1%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
+        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "decay_healing_pack/01_高衰减长尾搜索词定向强化清单.md",
       "overall_score": 61.2,
       "rating_grade": "B 级 (及格边缘级)",
@@ -636,6 +672,24 @@
       }
     },
     {
+      "file": "doubao_booster_pack/02_今日头条与微头条极速收录提权文案.md",
+      "overall_score": 62.5,
+      "rating_grade": "B 级 (及格边缘级)",
+      "est_visibility_ceiling": "+25.6%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议清除广告法极限词与主观浮夸表述，改用客观陈述"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "commercial_roi_pitch/03_下一阶段大模型商业心智护城河强化与续约规划建议书.md",
       "overall_score": 62.5,
       "rating_grade": "B 级 (及格边缘级)",
@@ -690,7 +744,7 @@
     },
     {
       "file": "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md",
-      "overall_score": 64.2,
+      "overall_score": 64.1,
       "rating_grade": "B 级 (及格边缘级)",
       "est_visibility_ceiling": "+26.3%",
       "top_suggestions": [
@@ -1439,6 +1493,23 @@
       }
     },
     {
+      "file": "doubao_booster_pack/01_Bytespider专享极简静态快照.html",
+      "overall_score": 83.5,
+      "rating_grade": "AA 级 (高质量高采纳级)",
+      "est_visibility_ceiling": "+34.2%",
+      "top_suggestions": [
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
+        "建议补充 1 张 Markdown 原生参数对比表格，进一步提升大模型 RAG 提取效率"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
       "file": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md",
       "overall_score": 83.8,
       "rating_grade": "AA 级 (高质量高采纳级)",
@@ -1471,7 +1542,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-04 04:59:28",
+  "generated_at": "2026-09-04 05:42:26",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

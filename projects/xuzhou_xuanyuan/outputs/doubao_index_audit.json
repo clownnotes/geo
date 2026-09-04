@@ -1,0 +1,111 @@
+{
+  "project_id": "xuzhou_xuanyuan",
+  "project_name": "徐州璇源网络科技有限公司",
+  "audited_at": "2026-09-04 05:42:25",
+  "drs_score": 100.0,
+  "grade": "A+",
+  "status_label": "🌟 豆包收录全链路极佳打通：Bytespider 抓取通畅，头条母池资产充沛，首推稳固",
+  "bytespider_hits": 43,
+  "bytespider_blocked_rate": 0.0,
+  "checks": [
+    {
+      "check_id": "CHK-ROBOTS",
+      "name": "robots.txt 字节爬虫放行规则",
+      "category": "crawler_access",
+      "passed": true,
+      "score": 100.0,
+      "weight": 0.2,
+      "detail": "robots.txt 明确放行字节跳动 Bytespider 爬虫抓取，底座抓取通道畅通",
+      "suggested_action": "保持当前放行规则"
+    },
+    {
+      "check_id": "CHK-LLMS-TXT",
+      "name": "/llms.txt 字节 Clean Markdown 知识底座",
+      "category": "content_density",
+      "passed": true,
+      "score": 100.0,
+      "weight": 0.15,
+      "detail": "已就绪标准 /llms.txt 知识底座（高信息密度 1085 字符），结构清晰",
+      "suggested_action": "定期增量补充最新产品选型问答"
+    },
+    {
+      "check_id": "CHK-SCHEMA",
+      "name": "Schema.org JSON-LD 结构化实体元数据",
+      "category": "schema_entity",
+      "passed": true,
+      "score": 100.0,
+      "weight": 0.15,
+      "detail": "已注入标准 Schema.org 实体元数据，企业社会信用代码、LBS 地址与品牌三元组一致",
+      "suggested_action": "保持实体数据时效性"
+    },
+    {
+      "check_id": "CHK-BYTESPIDER-HIT",
+      "name": "Bytespider 真实抓取心跳与 403 阻断检测",
+      "category": "crawler_access",
+      "passed": true,
+      "score": 100.0,
+      "weight": 0.2,
+      "detail": "Bytespider 字节爬虫真实到访 43 次，403 阻断率 0.0%，抓取完全畅通",
+      "suggested_action": "保持服务器访问日志监控与白名单"
+    },
+    {
+      "check_id": "CHK-TOUTIAO-PACK",
+      "name": "今日头条长文与微头条母池资产",
+      "category": "channel_matrix",
+      "passed": true,
+      "score": 100.0,
+      "weight": 0.15,
+      "detail": "今日头条高保真富文本长文与 150 字微头条短动态资产已全部生成就绪",
+      "suggested_action": "代运营人员复制富文本至头条号后台发布"
+    },
+    {
+      "check_id": "CHK-DOUBAO-PROBE",
+      "name": "豆包实测 Top-1 首推与 Citation 角标召回",
+      "category": "intent_trace",
+      "passed": true,
+      "score": 100.0,
+      "weight": 0.15,
+      "detail": "豆包大模型多轮商业意图实测综合首推率达 100.0%",
+      "suggested_action": "保持当前语料权威度"
+    }
+  ],
+  "intents": [
+    {
+      "query": "xuzhou_xuanyuan 怎么样",
+      "status": "missing_or_cold",
+      "status_label": "⚪️ 尚未收录 (待发稿提权)",
+      "doubao_top1": false,
+      "citation_found": false,
+      "source_channel": "今日头条 / 字节全网池",
+      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+    },
+    {
+      "query": "xuzhou_xuanyuan 靠谱吗",
+      "status": "missing_or_cold",
+      "status_label": "⚪️ 尚未收录 (待发稿提权)",
+      "doubao_top1": false,
+      "citation_found": false,
+      "source_channel": "今日头条 / 字节全网池",
+      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+    },
+    {
+      "query": "xuzhou_xuanyuan 核心业务与价格收费",
+      "status": "missing_or_cold",
+      "status_label": "⚪️ 尚未收录 (待发稿提权)",
+      "doubao_top1": false,
+      "citation_found": false,
+      "source_channel": "今日头条 / 字节全网池",
+      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+    }
+  ],
+  "top1_rate": 100.0,
+  "toutiao_pack_ready": true,
+  "booster_pack_ready": true,
+  "booster_files": [
+    "/Users/a1/代码/GEO/projects/xuzhou_xuanyuan/outputs/doubao_booster_pack/01_Bytespider专享极简静态快照.html",
+    "/Users/a1/代码/GEO/projects/xuzhou_xuanyuan/outputs/doubao_booster_pack/02_今日头条与微头条极速收录提权文案.md",
+    "/Users/a1/代码/GEO/projects/xuzhou_xuanyuan/outputs/doubao_booster_pack/03_豆包高意向Q&A微问答对.json",
+    "/Users/a1/代码/GEO/projects/xuzhou_xuanyuan/outputs/doubao_booster_pack/04_豆包收录排障与白名单Checklist.md"
+  ],
+  "report_file": "/Users/a1/代码/GEO/projects/xuzhou_xuanyuan/outputs/34_豆包大模型搜索极速收录与全链路索引保障报告.md"
+}

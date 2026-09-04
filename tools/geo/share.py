@@ -514,7 +514,8 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "live_citation_audit": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
         "spider_access_audit": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md",
         "rival_crack_audit": "32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md",
-        "alert_bot_audit": "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md"
+        "alert_bot_audit": "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md",
+        "doubao_index_audit": "34_豆包大模型搜索极速收录与全链路索引保障报告.md"
     }
     for key, fname in files_to_read.items():
         fpath = os.path.join(out_dir, fname)
@@ -971,6 +972,63 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             "audit_doc": ""
         }
 
+    # 豆包搜索极速收录与全链路索引保障中枢聚合 (第 34 维)
+    doubao_audit_path = os.path.join(out_dir, "doubao_index_audit.json")
+    if os.path.exists(doubao_audit_path):
+        try:
+            with open(doubao_audit_path, "r", encoding="utf-8") as fp:
+                doubao_data = json.load(fp)
+            doubao_index_summary = {
+                "has_data": True,
+                "status": "ready",
+                "status_label": doubao_data.get("status_label", "🌟 豆包收录全链路极佳打通"),
+                "drs_score": doubao_data.get("drs_score"),
+                "grade": doubao_data.get("grade", "pending"),
+                "bytespider_hits": doubao_data.get("bytespider_hits"),
+                "bytespider_blocked_rate": doubao_data.get("bytespider_blocked_rate"),
+                "top1_rate": doubao_data.get("top1_rate"),
+                "toutiao_pack_ready": doubao_data.get("toutiao_pack_ready", False),
+                "booster_pack_ready": doubao_data.get("booster_pack_ready", False),
+                "booster_files": doubao_data.get("booster_files", []),
+                "checks_count": len(doubao_data.get("checks", [])),
+                "intents_count": len(doubao_data.get("intents", [])),
+                "audit_doc": os.path.join("outputs", "34_豆包大模型搜索极速收录与全链路索引保障报告.md")
+            }
+        except Exception:
+            doubao_index_summary = {
+                "has_data": False,
+                "status": "never_run",
+                "status_label": "⚪️ 待执行豆包收录与索引就绪度审计",
+                "drs_score": None,
+                "grade": "pending",
+                "bytespider_hits": None,
+                "bytespider_blocked_rate": None,
+                "top1_rate": None,
+                "toutiao_pack_ready": False,
+                "booster_pack_ready": False,
+                "booster_files": [],
+                "checks_count": 0,
+                "intents_count": 0,
+                "audit_doc": ""
+            }
+    else:
+        doubao_index_summary = {
+            "has_data": False,
+            "status": "never_run",
+            "status_label": "⚪️ 待执行豆包收录与索引就绪度审计",
+            "drs_score": None,
+            "grade": "pending",
+            "bytespider_hits": None,
+            "bytespider_blocked_rate": None,
+            "top1_rate": None,
+            "toutiao_pack_ready": False,
+            "booster_pack_ready": False,
+            "booster_files": [],
+            "checks_count": 0,
+            "intents_count": 0,
+            "audit_doc": ""
+        }
+
     # 最终组合完整数据载荷
     return {
         "success": True,
@@ -980,13 +1038,14 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "website": cfg.get("website", ""),
         "brand_name": cfg.get("brand_name", cfg.get("client_name", "")),
 
-        # 高管专属新增战果模块 (第 28/29/30/31/32/33 维)
+        # 高管专属新增战果模块 (第 28/29/30/31/32/33/34 维)
         "executive_summary": executive_summary,
         "self_healing_summary": self_healing_summary,
         "live_citation_summary": live_citation_summary,
         "spider_access_summary": spider_access_summary,
         "rival_crack_summary": rival_crack_summary,
         "alert_bot_summary": alert_bot_summary,
+        "doubao_index_summary": doubao_index_summary,
         "models_mindshare": models_mindshare,
         "wechat_yuanbao_channel": wechat_yuanbao_channel,
         "competitor_interception": competitor_interception,

@@ -1,7 +1,7 @@
 {
   "project_id": "xuzhou_xuanyuan",
   "client_name": "徐州璇源网络科技有限公司",
-  "audited_at": "2026-09-04 04:59:30",
+  "audited_at": "2026-09-04 05:42:27",
   "is_sandbox": true,
   "status": "audited_sandbox",
   "source_description": "确定性高保真离线沙箱 (自动模拟主流大模型真实到访流量)",
@@ -15,7 +15,7 @@
     "health_status_label": "🔬 沙箱仿真：大模型爬虫抓取链路通畅（离线环境演练，非生产真实日志）",
     "is_sandbox": true,
     "llms_txt_hit_count": 26,
-    "last_crawled_at": "04/Sep/2026:04:48:01 +0800"
+    "last_crawled_at": "04/Sep/2026:05:30:58 +0800"
   },
   "status_distribution": {
     "200": 108,
@@ -33,7 +33,7 @@
       "status_304": 1,
       "status_403": 0,
       "status_other": 0,
-      "last_seen": "03/Sep/2026:14:22:29 +0800",
+      "last_seen": "03/Sep/2026:15:05:26 +0800",
       "top_paths": {
         "/schema.jsonld": 1,
         "/about": 2,
@@ -66,7 +66,7 @@
       "status_304": 0,
       "status_403": 0,
       "status_other": 1,
-      "last_seen": "04/Sep/2026:02:55:54 +0800",
+      "last_seen": "04/Sep/2026:03:38:51 +0800",
       "top_paths": {
         "/llms.txt": 2,
         "/robots.txt": 2,
@@ -98,7 +98,7 @@
       "status_304": 0,
       "status_403": 0,
       "status_other": 0,
-      "last_seen": "03/Sep/2026:05:22:29 +0800",
+      "last_seen": "03/Sep/2026:06:05:26 +0800",
       "top_paths": {
         "/schema.jsonld": 1
       },
@@ -118,7 +118,7 @@
       "status_304": 8,
       "status_403": 0,
       "status_other": 1,
-      "last_seen": "04/Sep/2026:04:37:11 +0800",
+      "last_seen": "04/Sep/2026:05:20:08 +0800",
       "top_paths": {
         "/robots.txt": 4,
         "/schema.jsonld": 5,
@@ -153,7 +153,7 @@
       "status_304": 5,
       "status_403": 0,
       "status_other": 1,
-      "last_seen": "04/Sep/2026:04:48:01 +0800",
+      "last_seen": "04/Sep/2026:05:30:58 +0800",
       "top_paths": {
         "/schema.jsonld": 7,
         "/llms.txt": 7,
@@ -188,7 +188,7 @@
       "status_304": 0,
       "status_403": 0,
       "status_other": 0,
-      "last_seen": "04/Sep/2026:03:40:35 +0800",
+      "last_seen": "04/Sep/2026:04:23:32 +0800",
       "top_paths": {
         "/": 4,
         "/llms.txt": 3,
@@ -218,7 +218,7 @@
       "status_304": 1,
       "status_403": 0,
       "status_other": 1,
-      "last_seen": "04/Sep/2026:00:29:56 +0800",
+      "last_seen": "04/Sep/2026:01:12:53 +0800",
       "top_paths": {
         "/products": 1,
         "/": 3,
@@ -251,7 +251,7 @@
       "status_304": 0,
       "status_403": 0,
       "status_other": 1,
-      "last_seen": "04/Sep/2026:04:14:21 +0800",
+      "last_seen": "04/Sep/2026:04:57:18 +0800",
       "top_paths": {
         "/robots.txt": 2,
         "/": 5,
@@ -319,7 +319,7 @@
   ],
   "recent_crawl_stream": [
     {
-      "time": "04/Sep/2026:04:48:01 +0800",
+      "time": "04/Sep/2026:05:30:58 +0800",
       "spider_name": "字节跳动·豆包 / 头条爬虫",
       "spider_family": "doubao",
       "path": "/",
@@ -327,7 +327,7 @@
       "ip": "111.225.148.133"
     },
     {
-      "time": "04/Sep/2026:04:37:11 +0800",
+      "time": "04/Sep/2026:05:20:08 +0800",
       "spider_name": "百度·文心一言爬虫",
       "spider_family": "baidu",
       "path": "/schema.jsonld",
@@ -335,7 +335,7 @@
       "ip": "110.242.68.73"
     },
     {
-      "time": "04/Sep/2026:04:25:25 +0800",
+      "time": "04/Sep/2026:05:08:22 +0800",
       "spider_name": "百度·文心一言爬虫",
       "spider_family": "baidu",
       "path": "/",
@@ -343,7 +343,7 @@
       "ip": "110.242.68.69"
     },
     {
-      "time": "04/Sep/2026:04:14:21 +0800",
+      "time": "04/Sep/2026:04:57:18 +0800",
       "spider_name": "DeepSeek·深度求索爬虫",
       "spider_family": "deepseek",
       "path": "/llms-full.txt",
@@ -351,7 +351,7 @@
       "ip": "124.239.243.122"
     },
     {
-      "time": "04/Sep/2026:04:03:43 +0800",
+      "time": "04/Sep/2026:04:46:40 +0800",
       "spider_name": "DeepSeek·深度求索爬虫",
       "spider_family": "deepseek",
       "path": "/schema.jsonld",
@@ -359,7 +359,7 @@
       "ip": "124.239.243.163"
     },
     {
-      "time": "04/Sep/2026:03:51:35 +0800",
+      "time": "04/Sep/2026:04:34:32 +0800",
       "spider_name": "DeepSeek·深度求索爬虫",
       "spider_family": "deepseek",
       "path": "/llms.txt",
@@ -367,7 +367,7 @@
       "ip": "124.239.243.112"
     },
     {
-      "time": "04/Sep/2026:03:40:35 +0800",
+      "time": "04/Sep/2026:04:23:32 +0800",
       "spider_name": "阿里·通义千问 / 夸克爬虫",
       "spider_family": "qwen",
       "path": "/",
@@ -375,7 +375,7 @@
       "ip": "140.205.201.267"
     },
     {
-      "time": "04/Sep/2026:03:29:11 +0800",
+      "time": "04/Sep/2026:04:12:08 +0800",
       "spider_name": "百度·文心一言爬虫",
       "spider_family": "baidu",
       "path": "/robots.txt",
@@ -383,7 +383,7 @@
       "ip": "110.242.68.33"
     },
     {
-      "time": "04/Sep/2026:03:18:40 +0800",
+      "time": "04/Sep/2026:04:01:37 +0800",
       "spider_name": "字节跳动·豆包 / 头条爬虫",
       "spider_family": "doubao",
       "path": "/",
@@ -391,7 +391,7 @@
       "ip": "111.225.148.140"
     },
     {
-      "time": "04/Sep/2026:03:07:03 +0800",
+      "time": "04/Sep/2026:03:50:00 +0800",
       "spider_name": "DeepSeek·深度求索爬虫",
       "spider_family": "deepseek",
       "path": "/llms.txt",
@@ -399,7 +399,7 @@
       "ip": "124.239.243.162"
     },
     {
-      "time": "04/Sep/2026:02:55:54 +0800",
+      "time": "04/Sep/2026:03:38:51 +0800",
       "spider_name": "OpenAI·GPTBot / ChatGPT",
       "spider_family": "openai",
       "path": "/",
@@ -407,7 +407,7 @@
       "ip": "20.171.206.178"
     },
     {
-      "time": "04/Sep/2026:02:44:45 +0800",
+      "time": "04/Sep/2026:03:27:42 +0800",
       "spider_name": "OpenAI·GPTBot / ChatGPT",
       "spider_family": "openai",
       "path": "/robots.txt",
@@ -415,7 +415,7 @@
       "ip": "20.171.206.142"
     },
     {
-      "time": "04/Sep/2026:02:33:34 +0800",
+      "time": "04/Sep/2026:03:16:31 +0800",
       "spider_name": "字节跳动·豆包 / 头条爬虫",
       "spider_family": "doubao",
       "path": "/robots.txt",
@@ -423,7 +423,7 @@
       "ip": "111.225.148.162"
     },
     {
-      "time": "04/Sep/2026:02:21:30 +0800",
+      "time": "04/Sep/2026:03:04:27 +0800",
       "spider_name": "DeepSeek·深度求索爬虫",
       "spider_family": "deepseek",
       "path": "/products",
@@ -431,7 +431,7 @@
       "ip": "124.239.243.187"
     },
     {
-      "time": "04/Sep/2026:02:11:15 +0800",
+      "time": "04/Sep/2026:02:54:12 +0800",
       "spider_name": "百度·文心一言爬虫",
       "spider_family": "baidu",
       "path": "/llms.txt",
@@ -439,7 +439,7 @@
       "ip": "110.242.68.91"
     },
     {
-      "time": "04/Sep/2026:01:59:10 +0800",
+      "time": "04/Sep/2026:02:42:07 +0800",
       "spider_name": "字节跳动·豆包 / 头条爬虫",
       "spider_family": "doubao",
       "path": "/llms.txt",
@@ -447,7 +447,7 @@
       "ip": "111.225.148.135"
     },
     {
-      "time": "04/Sep/2026:01:48:16 +0800",
+      "time": "04/Sep/2026:02:31:13 +0800",
       "spider_name": "字节跳动·豆包 / 头条爬虫",
       "spider_family": "doubao",
       "path": "/",
@@ -455,7 +455,7 @@
       "ip": "111.225.148.189"
     },
     {
-      "time": "04/Sep/2026:01:37:00 +0800",
+      "time": "04/Sep/2026:02:19:57 +0800",
       "spider_name": "字节跳动·豆包 / 头条爬虫",
       "spider_family": "doubao",
       "path": "/schema.jsonld",
@@ -463,7 +463,7 @@
       "ip": "111.225.148.152"
     },
     {
-      "time": "04/Sep/2026:01:25:47 +0800",
+      "time": "04/Sep/2026:02:08:44 +0800",
       "spider_name": "DeepSeek·深度求索爬虫",
       "spider_family": "deepseek",
       "path": "/schema.jsonld",
@@ -471,7 +471,7 @@
       "ip": "124.239.243.157"
     },
     {
-      "time": "04/Sep/2026:01:14:01 +0800",
+      "time": "04/Sep/2026:01:56:58 +0800",
       "spider_name": "百度·文心一言爬虫",
       "spider_family": "baidu",
       "path": "/llms.txt",

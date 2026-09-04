@@ -488,6 +488,54 @@
       </div>
     </div>
 
+    <!-- 6.5 豆包搜索极速收录与全链路索引保障态势 (第 34 维中枢) -->
+    <div id="doubao-index-card" class="executive-card rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="zap" class="w-4 h-4 text-cyan-400"></i>
+            <span>豆包第一主战模型搜索极速收录与全链路索引保障态势 (第 34 维)</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">占国内 AI 搜索推荐 50%+ 份额；打通 Bytespider 底座放行、今日头条母池资产与豆包买家意图 Top-1 首推</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="doubao-index-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待实测审计</span>
+        </div>
+      </div>
+
+      <!-- 核心指标 4 宫格 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">DRS 豆包就绪指数</div>
+          <div id="doubao-drs-val" class="text-xl font-extrabold text-cyan-400">-- 分</div>
+          <div id="doubao-grade-desc" class="text-[10px] text-slate-500">综合评级: --</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">Bytespider 到访频次</div>
+          <div id="doubao-spider-hits-val" class="text-xl font-extrabold text-slate-200">-- 次</div>
+          <div id="doubao-blocked-desc" class="text-[10px] text-slate-500">403 阻断率: --</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">豆包 Top-1 首推率</div>
+          <div id="doubao-top1-val" class="text-xl font-extrabold text-emerald-400">--</div>
+          <div id="doubao-intent-desc" class="text-[10px] text-slate-500">核心买家意图词</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">专属提权加速包</div>
+          <div id="doubao-booster-val" class="text-sm font-bold text-amber-400 flex items-center gap-1">
+            <i data-lucide="package-check" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span id="doubao-booster-status-text">待生成</span>
+          </div>
+          <div id="doubao-tt-desc" class="text-[10px] text-slate-500">今日头条/微头条母池</div>
+        </div>
+      </div>
+
+      <!-- 提权详情与诊断明细容器 -->
+      <div id="doubao-index-details-container" class="space-y-2 text-xs">
+        <!-- 动态渲染提权包与体检明细 -->
+      </div>
+    </div>
+
     <!-- 6. 第五部分：16 维技术交付物完整抽屉 (按需展开，向后兼容) -->
     <div class="executive-card rounded-2xl p-5 space-y-3">
       <div class="flex items-center justify-between">
@@ -1237,6 +1285,72 @@
         }
       }
 
+      // 6.6 渲染第 34 维豆包极速收录与全链路索引保障态势
+      const doubaoIdx = data.doubao_index_summary || {};
+      const doubaoBadge = document.getElementById('doubao-index-status-badge');
+      const doubaoDrsVal = document.getElementById('doubao-drs-val');
+      const doubaoGradeDesc = document.getElementById('doubao-grade-desc');
+      const doubaoHitsVal = document.getElementById('doubao-spider-hits-val');
+      const doubaoBlockedDesc = document.getElementById('doubao-blocked-desc');
+      const doubaoTop1Val = document.getElementById('doubao-top1-val');
+      const doubaoIntentDesc = document.getElementById('doubao-intent-desc');
+      const doubaoBoosterText = document.getElementById('doubao-booster-status-text');
+      const doubaoTtDesc = document.getElementById('doubao-tt-desc');
+      const doubaoDetailsContainer = document.getElementById('doubao-index-details-container');
+
+      if (doubaoBadge && doubaoIdx.has_data && (doubaoIdx.status === 'ready' || doubaoIdx.status === 'active')) {
+        const isGood = (doubaoIdx.drs_score || 0) >= 80;
+        doubaoBadge.className = isGood 
+          ? 'text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20'
+          : 'text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20';
+        doubaoBadge.textContent = isGood ? '🌟 豆包收录通道极佳' : '🟡 豆包收录通道待补强';
+
+        if (doubaoDrsVal) doubaoDrsVal.textContent = doubaoIdx.drs_score !== null && doubaoIdx.drs_score !== undefined ? `${doubaoIdx.drs_score} 分` : '[待实测]';
+        if (doubaoGradeDesc) doubaoGradeDesc.textContent = `综合评级: ${doubaoIdx.grade || '待评级'}`;
+        if (doubaoHitsVal) doubaoHitsVal.textContent = doubaoIdx.bytespider_hits !== null && doubaoIdx.bytespider_hits !== undefined ? `${doubaoIdx.bytespider_hits} 次` : '[待实测]';
+        if (doubaoBlockedDesc) doubaoBlockedDesc.textContent = doubaoIdx.bytespider_blocked_rate !== null && doubaoIdx.bytespider_blocked_rate !== undefined ? `403 阻断率: ${doubaoIdx.bytespider_blocked_rate}%` : '403 阻断率: 0.0%';
+        if (doubaoTop1Val) doubaoTop1Val.textContent = doubaoIdx.top1_rate !== null && doubaoIdx.top1_rate !== undefined ? `${doubaoIdx.top1_rate}%` : '[待实测]';
+        if (doubaoIntentDesc) doubaoIntentDesc.textContent = `已对账意图: ${doubaoIdx.intents_count || 0} 组`;
+        if (doubaoBoosterText) doubaoBoosterText.textContent = doubaoIdx.booster_pack_ready ? '提权四件套已就绪' : '待生成提权包';
+        if (doubaoTtDesc) doubaoTtDesc.textContent = doubaoIdx.toutiao_pack_ready ? '头条母池资产: 已就绪' : '头条母池资产: 待打包';
+
+        let doubaoHtml = `
+          <div class="mt-2 p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-2">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-300 font-bold flex items-center gap-1.5">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>${doubaoIdx.status_label || ''}</span>
+              </span>
+              <span class="text-cyan-400 font-mono text-[10px]">6 维要素体检项: ${doubaoIdx.checks_count || 6} 项</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-800/60">
+              <div>• Bytespider 专享静态快照: <span class="${doubaoIdx.booster_pack_ready ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${doubaoIdx.booster_pack_ready ? '已生成 (纯HTML无JS)' : '未就绪'}</span></div>
+              <div>• 今日头条/微头条提权文案: <span class="${doubaoIdx.toutiao_pack_ready ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${doubaoIdx.toutiao_pack_ready ? '已就绪 (富文本+短动态)' : '待打包'}</span></div>
+            </div>
+          </div>
+        `;
+        if (doubaoDetailsContainer) doubaoDetailsContainer.innerHTML = doubaoHtml;
+      } else if (doubaoBadge) {
+        doubaoBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
+        doubaoBadge.textContent = '⚪️ 待实测审计';
+        if (doubaoDrsVal) doubaoDrsVal.textContent = '-- 分';
+        if (doubaoGradeDesc) doubaoGradeDesc.textContent = '综合评级: --';
+        if (doubaoHitsVal) doubaoHitsVal.textContent = '-- 次';
+        if (doubaoBlockedDesc) doubaoBlockedDesc.textContent = '403 阻断率: --';
+        if (doubaoTop1Val) doubaoTop1Val.textContent = '--';
+        if (doubaoIntentDesc) doubaoIntentDesc.textContent = '核心买家意图词';
+        if (doubaoBoosterText) doubaoBoosterText.textContent = '待生成';
+        if (doubaoTtDesc) doubaoTtDesc.textContent = '今日头条/微头条母池';
+        if (doubaoDetailsContainer) {
+          doubaoDetailsContainer.innerHTML = `
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+              <div class="text-slate-400 text-xs font-medium">尚未执行豆包搜索极速收录与全链路索引保障流水线</div>
+              <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo doubao-index &lt;项目ID&gt; --report --portal-sync</code> 启动</div>
+            </div>
+          `;
+        }
+      }
+
       // 7. 渲染旧版 16 维交付物 Markdown 与第 30/31 维公文
       const deliv = data.deliverables || {};
       const renderMd = (elemId, md) => {
@@ -1253,7 +1367,7 @@
       renderMd('preview-spider', deliv.spider_access_audit);
       renderMd('preview-rival-crack', deliv.rival_crack_audit);
       renderMd('preview-alert-bot', deliv.alert_bot_audit);
-      renderMd('preview-spider', deliv.spider_access_audit);
+      renderMd('preview-doubao-index', deliv.doubao_index_audit);
       renderMd('preview-acceptance', deliv.acceptance);
 
       if (document.getElementById('preview-llms')) {

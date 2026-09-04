@@ -1021,6 +1021,23 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 第 34 维 豆包搜索极速收录与专属提权包生成: POST /api/projects/{id}/doubao-index/boost
+        if path.startswith("/api/projects/") and path.endswith("/doubao-index/boost"):
+            project_id = path.split("/")[3]
+            try:
+                from .doubao_indexer import run_doubao_indexer
+                res = run_doubao_indexer(
+                    project_id=project_id,
+                    do_audit=True,
+                    do_boost=True,
+                    do_verify=True,
+                    save_report=True
+                )
+                self.send_json({"success": True, "data": res})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 19 号声誉排查扫描: POST /api/projects/{id}/sentiment/scan
         if path.startswith("/api/projects/") and path.endswith("/sentiment/scan"):
             project_id = path.split("/")[3]
@@ -2981,6 +2998,45 @@ core_values:
                     self.send_json({
                         "success": False,
                         "message": "尚未生成 33 号报告，请先通过 POST /alert-bot/send 或 CLI 运行机器人"
+                    }, status=404)
+                return
+
+            # 获取 34 维豆包收录全案体检结果: /api/projects/{id}/doubao-index/audit (GET)
+            if path.startswith("/api/projects/") and path.endswith("/doubao-index/audit"):
+                project_id = path.split("/")[3]
+                try:
+                    from .doubao_indexer import run_doubao_indexer
+                    audit_json_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "doubao_index_audit.json")
+                    if os.path.exists(audit_json_file):
+                        with open(audit_json_file, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                    else:
+                        data = run_doubao_indexer(project_id=project_id, do_audit=True, do_boost=False, do_verify=True, save_report=False)
+                    self.send_json({"success": True, "data": data})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 获取 34 号公文报告内容: /api/projects/{id}/doubao-index/report (GET, 幂等只读)
+            if path.startswith("/api/projects/") and path.endswith("/doubao-index/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "34_豆包大模型搜索极速收录与全链路索引保障报告.md")
+                if os.path.exists(report_file):
+                    try:
+                        with open(report_file, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        self.send_json({
+                            "success": True,
+                            "project_id": project_id,
+                            "filename": "34_豆包大模型搜索极速收录与全链路索引保障报告.md",
+                            "content": content
+                        })
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    self.send_json({
+                        "success": False,
+                        "message": "尚未生成 34 号报告，请先通过 POST /doubao-index/boost 或 CLI 运行豆包收录中枢"
                     }, status=404)
                 return
 
