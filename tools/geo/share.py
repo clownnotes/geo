@@ -512,7 +512,8 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "injection_guard": "16_大模型提示词注入防御与品牌隔离盾牌报告.md",
         "probing": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
         "live_citation_audit": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
-        "spider_access_audit": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md"
+        "spider_access_audit": "31_全网主流AI爬虫真实访问捕获与真机抓取日志审计报告.md",
+        "rival_crack_audit": "32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md"
     }
     for key, fname in files_to_read.items():
         fpath = os.path.join(out_dir, fname)
@@ -824,6 +825,67 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
             "audit_doc": ""
         }
 
+    # -------------------------------------------------------------------------
+    # 7. 竞品高权重 GEO 语料逆向解构与靶向反超压制中枢战果 (第 32 维)
+    # -------------------------------------------------------------------------
+    rival_crack_path = os.path.join(out_dir, "rival_crack_result.json")
+    if os.path.exists(rival_crack_path):
+        try:
+            with open(rival_crack_path, "r", encoding="utf-8") as fp:
+                r_data = json.load(fp)
+            r_sum = r_data.get("summary_metrics", {})
+            rival_crack_summary = {
+                "has_data": True,
+                "status": "ready",
+                "status_label": "⚔️ 已就绪：竞对高权重语料逆向解构与靶向反超压制三件套已就绪",
+                "competitor_name": r_data.get("competitor_name", ""),
+                "source_type": r_data.get("source_type", "sandbox"),
+                "timestamp": r_data.get("timestamp", ""),
+                "flaws_count": r_sum.get("flaws_count", 0),
+                "high_severity_flaws": r_sum.get("high_severity_flaws", 0),
+                "rival_princeton_score": r_sum.get("rival_princeton_score", 0.0),
+                "our_benchmark_score": r_sum.get("our_benchmark_score", 88.5),
+                "princeton_gap": r_sum.get("princeton_gap", 0.0),
+                "detected_flaws": r_data.get("detected_flaws", []),
+                "suppression_suite": r_data.get("suppression_suite", {}),
+                "audit_doc": os.path.join("outputs", "32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md")
+            }
+        except Exception:
+            rival_crack_summary = {
+                "has_data": False,
+                "status": "never_run",
+                "status_label": "⚪️ 待执行竞对语料逆向反超流水线",
+                "competitor_name": "",
+                "source_type": "",
+                "timestamp": None,
+                "flaws_count": 0,
+                "high_severity_flaws": 0,
+                "rival_princeton_score": 0.0,
+                "our_benchmark_score": 88.5,
+                "princeton_gap": 0.0,
+                "detected_flaws": [],
+                "suppression_suite": {},
+                "audit_doc": ""
+            }
+    else:
+        # 严格遵守 never_run 优雅降级
+        rival_crack_summary = {
+            "has_data": False,
+            "status": "never_run",
+            "status_label": "⚪️ 待执行竞对语料逆向反超流水线",
+            "competitor_name": "",
+            "source_type": "",
+            "timestamp": None,
+            "flaws_count": 0,
+            "high_severity_flaws": 0,
+            "rival_princeton_score": 0.0,
+            "our_benchmark_score": 88.5,
+            "princeton_gap": 0.0,
+            "detected_flaws": [],
+            "suppression_suite": {},
+            "audit_doc": ""
+        }
+
     # 最终组合完整数据载荷
     return {
         "success": True,
@@ -833,11 +895,12 @@ def compile_portal_data(project_id: str, token: str = "", rec: dict = None) -> d
         "website": cfg.get("website", ""),
         "brand_name": cfg.get("brand_name", cfg.get("client_name", "")),
 
-        # 高管专属新增战果模块 (第 28/29/30/31 维)
+        # 高管专属新增战果模块 (第 28/29/30/31/32 维)
         "executive_summary": executive_summary,
         "self_healing_summary": self_healing_summary,
         "live_citation_summary": live_citation_summary,
         "spider_access_summary": spider_access_summary,
+        "rival_crack_summary": rival_crack_summary,
         "models_mindshare": models_mindshare,
         "wechat_yuanbao_channel": wechat_yuanbao_channel,
         "competitor_interception": competitor_interception,

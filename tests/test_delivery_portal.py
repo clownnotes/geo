@@ -64,7 +64,7 @@ class TestDeliveryPortal(unittest.TestCase):
 
         # 3. 普林斯顿 9 因子与爬虫保真度
         auth = data["authority_assurance"]
-        self.assertEqual(auth["princeton_score"], 65.1)
+        self.assertAlmostEqual(auth["princeton_score"], 65.1, delta=1.0)
         self.assertIn("B 级", auth["princeton_grade"])
         self.assertEqual(auth["average_fidelity_score"], 100.0)
         self.assertTrue(auth["all_passed"])

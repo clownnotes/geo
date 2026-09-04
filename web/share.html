@@ -395,6 +395,51 @@
       </div>
     </div>
 
+    <!-- 6.3 竞品高权重 GEO 语料逆向解构与靶向反超压制态势 (第 32 维中枢) -->
+    <div id="rival-crack-card" class="executive-card rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="crosshair" class="w-4 h-4 text-rose-400"></i>
+            <span>竞品高权重 GEO 语料逆向解构与靶向反超压制态势 (第 32 维)</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">逆向解构竞对高排名文章之普林斯顿 9 因子，精准挖掘致命破绽并自动化部署反超压制三件套</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="rival-crack-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待启动反超</span>
+        </div>
+      </div>
+
+      <!-- 核心指标 4 宫格 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">逆向目标竞对</div>
+          <div id="rival-name-val" class="text-base font-extrabold text-slate-200 truncate">--</div>
+          <div id="rival-source-desc" class="text-[10px] text-slate-500">语料源: --</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">9 因子评分代差</div>
+          <div id="rival-gap-val" class="text-xl font-extrabold text-emerald-400">+-- 分</div>
+          <div id="rival-scores-desc" class="text-[10px] text-slate-500">我方 88.5 vs 竞对 --</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">侦测致命漏洞</div>
+          <div id="rival-flaws-val" class="text-xl font-extrabold text-rose-400">-- 项</div>
+          <div id="rival-high-flaws-desc" class="text-[10px] text-slate-500">高危破绽: -- 项</div>
+        </div>
+        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+          <div class="text-slate-400 text-[11px]">反超压制套件</div>
+          <div id="rival-suite-val" class="text-xl font-extrabold text-cyan-400">--</div>
+          <div class="text-[10px] text-slate-500">参数表+长文+FAQ</div>
+        </div>
+      </div>
+
+      <!-- 破绽挖掘与反超切入点清单 -->
+      <div id="rival-crack-details-container" class="space-y-2 text-xs">
+        <!-- 动态渲染破绽与压制武器库 -->
+      </div>
+    </div>
+
     <!-- 6. 第五部分：16 维技术交付物完整抽屉 (按需展开，向后兼容) -->
     <div class="executive-card rounded-2xl p-5 space-y-3">
       <div class="flex items-center justify-between">
@@ -976,6 +1021,77 @@
             <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo spider-audit &lt;项目ID&gt; --report</code> 启动</div>
           </div>
         `;
+      }
+
+      // 6.3 竞品高权重 GEO 语料逆向解构与靶向反超压制态势 (第 32 维)
+      const rivalCrack = data.rival_crack_summary || {};
+      const rivalBadge = document.getElementById('rival-crack-status-badge');
+      const rivalNameVal = document.getElementById('rival-name-val');
+      const rivalSourceDesc = document.getElementById('rival-source-desc');
+      const rivalGapVal = document.getElementById('rival-gap-val');
+      const rivalScoresDesc = document.getElementById('rival-scores-desc');
+      const rivalFlawsVal = document.getElementById('rival-flaws-val');
+      const rivalHighFlawsDesc = document.getElementById('rival-high-flaws-desc');
+      const rivalSuiteVal = document.getElementById('rival-suite-val');
+      const rivalDetailsContainer = document.getElementById('rival-crack-details-container');
+
+      if (rivalBadge && rivalCrack.has_data && (rivalCrack.status === 'ready' || rivalCrack.status === 'active')) {
+        rivalBadge.className = 'text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20';
+        rivalBadge.textContent = '⚔️ 靶向反超压制套件已就绪';
+
+        if (rivalNameVal) rivalNameVal.textContent = rivalCrack.competitor_name || '竞对企业';
+        if (rivalSourceDesc) rivalSourceDesc.textContent = `语料来源: ${rivalCrack.source_type || 'sandbox'}`;
+        if (rivalGapVal) rivalGapVal.textContent = `+${rivalCrack.princeton_gap || 0.0} 分`;
+        if (rivalScoresDesc) rivalScoresDesc.textContent = `我方 ${rivalCrack.our_benchmark_score || 88.5} vs 竞对 ${rivalCrack.rival_princeton_score || 0.0}`;
+        if (rivalFlawsVal) rivalFlawsVal.textContent = `${rivalCrack.flaws_count || 0} 项`;
+        if (rivalHighFlawsDesc) rivalHighFlawsDesc.textContent = `高危漏洞: ${rivalCrack.high_severity_flaws || 0} 项`;
+        if (rivalSuiteVal) rivalSuiteVal.textContent = '已装备';
+
+        const flaws = rivalCrack.detected_flaws || [];
+        let html = `<div class="space-y-2 pt-2">`;
+        html += `<div class="text-[11px] font-bold text-slate-400">🎯 竞对致命破绽逆向识别与靶向反超切入点:</div><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+        flaws.forEach(f => {
+          const isHigh = f.severity === 'high';
+          html += `
+            <div class="p-2.5 bg-slate-900/60 rounded-xl border ${isHigh ? 'border-rose-500/30 bg-rose-500/5' : 'border-amber-500/30 bg-amber-500/5'} space-y-1">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="font-bold ${isHigh ? 'text-rose-300' : 'text-amber-300'}">${f.title}</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded font-mono ${isHigh ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'}">${f.flaw_id}</span>
+              </div>
+              <p class="text-[10px] text-slate-400 leading-relaxed">${f.detail}</p>
+              <div class="text-[10px] text-emerald-400 font-medium">⚡️ 反超压制: ${f.suppression_angle}</div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+        html += `
+          <div class="mt-2 p-2 bg-slate-900/70 border border-slate-800 rounded-lg flex items-center justify-between text-[11px]">
+            <span class="text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>已生成《高维数据对照表》+《9因子深度长文》+《买家避坑FAQ》，已落盘至 <code>${rivalCrack.audit_doc || 'outputs'}</code></span>
+            </span>
+            <span class="text-cyan-400 font-bold">可直接通过 geo pub 分发</span>
+          </div>
+        </div>`;
+        if (rivalDetailsContainer) rivalDetailsContainer.innerHTML = html;
+      } else if (rivalBadge) {
+        rivalBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
+        rivalBadge.textContent = '⚪️ 待执行竞对反超流水线';
+        if (rivalNameVal) rivalNameVal.textContent = '--';
+        if (rivalSourceDesc) rivalSourceDesc.textContent = '语料待抓取';
+        if (rivalGapVal) rivalGapVal.textContent = '+-- 分';
+        if (rivalScoresDesc) rivalScoresDesc.textContent = '待量化评测';
+        if (rivalFlawsVal) rivalFlawsVal.textContent = '-- 项';
+        if (rivalHighFlawsDesc) rivalHighFlawsDesc.textContent = '漏洞待侦测';
+        if (rivalSuiteVal) rivalSuiteVal.textContent = '--';
+        if (rivalDetailsContainer) {
+          rivalDetailsContainer.innerHTML = `
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+              <div class="text-slate-400 text-xs font-medium">尚未执行竞对高权重语料逆向解构与靶向反超流水线</div>
+              <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo rival-crack &lt;项目ID&gt; --competitor &lt;竞对名&gt; --report</code> 启动</div>
+            </div>
+          `;
+        }
       }
 
       // 7. 渲染旧版 16 维交付物 Markdown 与第 30/31 维公文

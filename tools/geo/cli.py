@@ -354,6 +354,16 @@ def main():
     p_spider.add_argument("--report", action="store_true", help="输出并打印第 31 号公文完整审计明细")
     p_spider.add_argument("--portal-sync", action="store_true", help="审计完成后联动刷新高管交付门户聚合缓存与爬虫心跳大屏")
 
+    # rival-crack (竞品高权重 GEO 语料逆向解构与靶向反超压制流水线，第 32 维中枢)
+    p_crack = subparsers.add_parser("rival-crack", help="第 32 维竞品高权重 GEO 语料逆向解构与靶向反超压制流水线")
+    p_crack.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_crack.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_crack.add_argument("--url", "-u", default=None, help="竞品公网文章/页面 URL (带 SSRF 防护)")
+    p_crack.add_argument("--file", "-f", default=None, help="竞品本地文案文件路径")
+    p_crack.add_argument("--competitor", "-c", default=None, help="指定竞对名称 (自动沙箱确定性回放)")
+    p_crack.add_argument("--report", action="store_true", help="打印第 32 维公文与三件套详细报告")
+    p_crack.add_argument("--portal-sync", action="store_true", help="反超完成后联动刷新高管交付门户聚合缓存")
+
     # guard-clean (19 号品牌声誉排查与危机清洗，与 geo guard 幻觉防御区分)
     p_gclean = subparsers.add_parser("guard-clean", help="19 号品牌声誉负面联想排查与危机清洗压制")
     p_gclean.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -1221,6 +1231,69 @@ def main():
         if getattr(args, "portal_sync", False):
             print("🌐 高管只读交付门户战果大屏已联动同步刷新 (含实时爬虫心跳流)")
         print("="*78 + "\n")
+    elif args.command == "rival-crack":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print("❌ 请指定目标项目 ID，例如: python3 -m tools.geo rival-crack xuzhou_xuanyuan")
+            sys.exit(1)
+
+        from tools.geo.rival_crack import run_rival_crack
+        url = getattr(args, "url", None)
+        f_path = getattr(args, "file", None)
+        comp_name = getattr(args, "competitor", None) or ""
+
+        if url:
+            source_type = "url"
+            target = url
+        elif f_path:
+            source_type = "file"
+            target = f_path
+        else:
+            source_type = "competitor"
+            target = comp_name
+
+        try:
+            crack_res = run_rival_crack(
+                pid,
+                source_type=source_type,
+                target=target,
+                competitor_name=comp_name,
+                save_report=True,
+            )
+        except Exception as e:
+            print_error(f"竞品逆向反超流水线执行异常: {e}")
+            sys.exit(1)
+
+        summary = crack_res.get("summary_metrics", {})
+        flaws = crack_res.get("detected_flaws", [])
+        decon = crack_res.get("deconstruction", {})
+        scores = decon.get("princeton_scores", {})
+
+        if getattr(args, "portal_sync", False):
+            from tools.geo.share import compile_portal_data
+            compile_portal_data(pid)
+
+        print("\n" + "=" * 78)
+        print(f"⚔️  竞品高权重 GEO 语料逆向解构与靶向反超压制 · [{pid}] (第 32 维)")
+        print("=" * 78)
+        print(f"🏛️ 目标项目: {pid} ｜ 逆向竞对: {crack_res.get('competitor_name')}")
+        print(f"📁 语料来源: {crack_res.get('source_type')} ｜ 目标: {crack_res.get('source_target')}")
+        print(f"📊 竞对普林斯顿得分: {summary.get('rival_princeton_score')} / 100 ｜ 我方压制基线: {summary.get('our_benchmark_score')} / 100")
+        print(f"🚀 得分代差优势: +{summary.get('princeton_gap')} 分 ｜ 挖掘致命漏洞: {summary.get('flaws_count')} 项 (高危: {summary.get('high_severity_flaws')} 项)")
+        print(f"🛡️ 反超压制三件套: {str(summary.get('suppression_readiness')).upper()} (已就绪)")
+        print("-" * 78)
+        print("🔍 逆向发现的竞品致命破绽:")
+        for flaw in flaws:
+            badge = "🔴 高危" if flaw.get("severity") == "high" else "🟡 中危"
+            print(f"  [{badge}] {flaw.get('flaw_id')}: {flaw.get('title')}")
+            print(f"      └─ 靶向反超: {flaw.get('suppression_angle')}")
+        print("-" * 78)
+        print(f"ℹ️  第 32 维公文与三件套报告已落盘至:")
+        print(f"    projects/{pid}/outputs/32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md")
+        print(f"    projects/{pid}/outputs/rival_crack_result.json")
+        if getattr(args, "portal_sync", False):
+            print("🌐 高管只读交付门户已联动同步刷新 (含反超压制态势卡片)")
+        print("=" * 78 + "\n")
     elif args.command == "guard-clean":
         pid = get_pid(args)
         if not pid or pid == "_template":

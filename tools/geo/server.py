@@ -977,6 +977,27 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 第 32 维 竞品高权重 GEO 语料逆向解构与靶向反超压制流水线: POST /api/projects/{id}/rival-crack/run
+        if path.startswith("/api/projects/") and path.endswith("/rival-crack/run"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() if self.headers.get("Content-Length") else {}
+            source_type = body.get("source_type", "competitor")
+            target = body.get("target", "")
+            competitor_name = body.get("competitor_name", "")
+            try:
+                from .rival_crack import run_rival_crack
+                res = run_rival_crack(
+                    project_id=project_id,
+                    source_type=source_type,
+                    target=target,
+                    competitor_name=competitor_name,
+                    save_report=True,
+                )
+                self.send_json({"success": True, "data": res})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 19 号声誉排查扫描: POST /api/projects/{id}/sentiment/scan
         if path.startswith("/api/projects/") and path.endswith("/sentiment/scan"):
             project_id = path.split("/")[3]
@@ -2816,6 +2837,49 @@ core_values:
                     self.send_json({
                         "success": False,
                         "message": "尚未生成 31 号审计报告，请先通过 POST /spider-audit/run 或 CLI 执行审计"
+                    }, status=404)
+                return
+
+            # 获取 32 维竞品逆向反超状态: /api/projects/{id}/rival-crack/status (GET)
+            if path.startswith("/api/projects/") and path.endswith("/rival-crack/status"):
+                project_id = path.split("/")[3]
+                crack_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "rival_crack_result.json")
+                if os.path.exists(crack_file):
+                    try:
+                        with open(crack_file, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                        self.send_json({"success": True, "has_data": True, "data": data})
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    self.send_json({
+                        "success": True,
+                        "has_data": False,
+                        "message": "尚未执行竞品语料逆向反超流水线",
+                        "data": None
+                    })
+                return
+
+            # 获取 32 号竞品逆向反超公文报告: /api/projects/{id}/rival-crack/report (GET, 幂等只读)
+            if path.startswith("/api/projects/") and path.endswith("/rival-crack/report"):
+                project_id = path.split("/")[3]
+                report_file = os.path.join(PROJECTS_DIR, project_id, "outputs", "32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md")
+                if os.path.exists(report_file):
+                    try:
+                        with open(report_file, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        self.send_json({
+                            "success": True,
+                            "project_id": project_id,
+                            "filename": "32_竞品高权重GEO语料逆向解构与靶向反超压制报告.md",
+                            "content": content
+                        })
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                else:
+                    self.send_json({
+                        "success": False,
+                        "message": "尚未生成 32 号反超报告，请先通过 POST /rival-crack/run 或 CLI 执行反超"
                     }, status=404)
                 return
 
