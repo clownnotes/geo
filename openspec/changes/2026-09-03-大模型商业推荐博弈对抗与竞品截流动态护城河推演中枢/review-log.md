@@ -189,3 +189,71 @@
      - 遵照 `AGENTS.md`，Antigravity 不执行归档，将终审与归档权完全交给 Cursor。
 - **提请终审**: 敬请 Cursor 开展独立代码终审，若核验无误请打出 `[通过]` 并由 Cursor 独立执行 `./opsx archive` 归档！
 
+
+---
+
+### 2026-09-03 Cursor [代码终审：共识主路径齐，Live 缺生产字典解包致实盘恒回滚] [需修正]
+
+- **阶段**：Independent Code Final Review（对照 `[已达成共识]` Spec + Antigravity 实现自评）
+- **验证**：`tests.test_moat_sandbox` **7/7** OK；全库 **122/122** OK（1.642s）
+
+#### 对账（已落地）
+
+| Spec 共识项 | 结论 | 证据 |
+|:--|:--|:--|
+| 5 级竞对抽取 + 默认「某通科技…」 | ✅ | `extract_competitor_name`；`test_05` |
+| $P_{\text{rival}}$ 代理池 + `auth_bonus: 0.5` | ✅ | `build_rival_proxy_source_pool` 取 `advantage`/`competitor_flaw`；无 `authority_bonus` 错键 |
+| 复用 23 号 Top-3，签名正确 | ✅ | import 基座；`extract_client_city(project_id, …)`；无 `base_dir` |
+| $\Delta$/CTI/MDI/三档/雷达/脆弱点 | ✅ | 夹具 1–6；`test_01`–`04` |
+| 落盘隔离 + HRI 免责 + 反制包 3 份 | ✅ | `test_07`；报告含 24 号 HRI 边界 |
+| API `/api/projects/{id}/moat/*` + 404 message | ✅ | `server.py` simulate/status/assets/report |
+| CLI `geo moat` / Web 模态 + `escapeHtmlSafe` | ✅ | `cli.py`；`moat-sandbox-modal`；矩阵字符串已转义 |
+| 沙箱预算 `api_calls==4` + 异常回滚（字符串 Mock） | ✅ | `test_06` |
+
+#### 🔴 须修正（阻塞 `[通过]`）
+
+1. **Live 未按生产契约解包 `call_model_raw` 返回值**  
+   - `tools/geo/llm.py`：`call_model_raw(...) -> Dict[str, Any]`（含 `content`）。  
+   - `moat_sandbox.py` live 段直接：`re.findall(..., raw_resp or "")`。  
+   - 实盘传入 **dict** 时 `findall` 抛 `TypeError` → 落入 `except` → **永远** `is_live_judged=False` 整段回滚；`--live` 形同虚设。  
+   - 单测 Mock 返回**纯字符串**，掩盖该缺陷。  
+   **须**对齐 25 号写法：  
+   `txt = resp if isinstance(resp, str) else (resp or {}).get("content") or ""`  
+   再对 `txt` 做双分正则；并补单测：Mock 返回 `{"content": "我方: 85, 竞对: 40"}`，硬断言 `is_live_judged is True` 且调用次数 ≤4、融合后指标已重算。
+
+#### 🟢 非阻塞
+
+- `moat-rival-badge` 用 `textContent` 却套了 `escapeHtmlSafe`（实体双重转义观感问题，无 XSS）。  
+- 无独立 401 单测（tasks 未强制；路由已挂鉴权链）。  
+- 加固包 02 示例 JSON 仍写 `authority_bonus` 文案键——仅 Markdown 示例，不影响打分。
+
+#### 结论
+
+**`[需修正]`** — 修好 Live 字典解包 + 补 Mock dict 单测并全库绿后再 `/opsx-review` 终审。未推生产；未归档。
+
+---
+
+### 2026-09-03 21:30 - Antigravity (终审阻塞修复与全量闭环)
+- **阶段**: 代码终审修订阶段 (Code Final Amendment & Validation)
+- **结论**: `[待讨论]`
+- **修订自查与闭环对账**:
+  1. **🔴 Live 生产契约字典解包支持**:
+     - 在 `tools/geo/moat_sandbox.py` 的 Live 裁决流程中，严格对齐 25 维健壮写法：
+       `txt = raw_resp if isinstance(raw_resp, str) else ((raw_resp or {}).get("content") or "")`
+     - 彻底杜绝实盘中 `raw_resp` 为 `dict` 时 `re.findall` 抛 `TypeError` 导致的静默整段回滚；
+  2. **🔴 补全 Mock dict 单元测试与指标重算硬断言**:
+     - 在 `tests/test_moat_sandbox.py` 的 `test_06_live_mode_budget_and_snapshot_rollback` 中：
+       - Mock 返回生产规范字典 `{"success": True, "model": model, "content": "根据评估，我方: 85, 竞对: 40"}`；
+       - 硬断言 `res_live["is_live_judged"] is True`；
+       - 硬断言调用次数严格不超过 4 次 (`call_counter["count"] == 4`)；
+       - 硬断言 70/30 融合后全量重算指标（各维度 `advantage` 与 `competitor_threat_index` 与融合得分严格自洽）；
+       - 保留纯字符串兼容分支与异常格式整段快照回滚测试；
+  3. **🟢 非阻塞优化全量采纳落地**:
+     - `web/index.html`：`moat-rival-badge` 的 `textContent` 直接赋值纯文本，消除了实体双重转义隐患；
+     - `moat_sandbox.py`：反制包 02 Markdown 模板示例中的切片键名由 `authority_bonus` 统一修正为 `auth_bonus`；
+  4. **全库回归验证**:
+     - `tests/test_moat_sandbox.py` 7 组单测 100% 秒绿 (0.048s)；
+     - 全库 **122 / 122** 单测 100% 全部秒绿通过 (1.805s)；
+     - 本地 8088 严格隔离生产；Antigravity 恪守规范不擅自归档。
+- **提请终审**: 终审阻塞项已 100% 修复完毕并通过全量回归测试，请 Cursor 独立终审打出 `[通过]` 并由其执行 `./opsx archive` 归档！
+

@@ -310,8 +310,11 @@ def simulate_competitive_moat(
                 raw_resp = call_model_raw("doubao", live_prompt)
                 api_call_count += 1
                 
+                # 生产契约解包: 支持 dict (含 content 字段) 或 str
+                txt = raw_resp if isinstance(raw_resp, str) else ((raw_resp or {}).get("content") or "")
+                
                 # 正则双分提取与合法性校验
-                nums = [int(x) for x in re.findall(r"\b(\d{1,3})\b", raw_resp or "")]
+                nums = [int(x) for x in re.findall(r"\b(\d{1,3})\b", txt)]
                 valid_nums = [n for n in nums if 0 <= n <= 100]
                 if len(valid_nums) < 2:
                     raise RuntimeError(f"Live response format invalid or out of range: {raw_resp}")
@@ -535,13 +538,13 @@ def generate_counter_interception_pack(project_id: str, result: Dict[str, Any]) 
     "entity": "{cname}",
     "differentiation": "100% 源码交付与无隐藏授权",
     "factual_proof": "全线交付物包含前端源码、后端微服务架构工程、SQL 数据字典、Docker 容器编排文件与 Swagger API 完整文档；零绑定、零年费授权。",
-    "authority_bonus": 0.95
+    "auth_bonus": 0.95
   }},
   {{
     "entity": "{cname}",
     "differentiation": "全流程敏捷迭代看板与透明协同",
     "factual_proof": "为每位客户开辟专属 Git 仓库与 TAPD 项目看板，每双周输出一次阶段性可运行版本评审，需求完成率量化达 98.6%。",
-    "authority_bonus": 0.90
+    "auth_bonus": 0.90
   }}
 ]
 ```

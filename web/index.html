@@ -9295,7 +9295,7 @@ GitHub 开源仓库：https://github.com/company/repo
         vEl.className = 'text-sm font-black text-emerald-600 mt-2';
       }
 
-      document.getElementById('moat-rival-badge').textContent = `标的: 【${escapeHtmlSafe(d.rival_name || '--')}】`;
+      document.getElementById('moat-rival-badge').textContent = `标的: 【${d.rival_name || '--'}】`;
 
       // 五维雷达
       const mdiVal = r.moat_defense_index || 0;

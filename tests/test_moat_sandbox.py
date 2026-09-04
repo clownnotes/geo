@@ -160,23 +160,47 @@ class TestMoatSandbox(unittest.TestCase):
             self.assertIn(default_name, item.get("text"))
 
     def test_06_live_mode_budget_and_snapshot_rollback(self):
-        """Live 模式实盘调用 <=4 次硬限制、正则安全提取与快照防御回滚"""
-        # 1. 正常 Live 调用: 模拟 doubao 每次返回合法成对分数
+        """Live 模式实盘调用 <=4 次硬限制、生产契约字典解包、指标全量重算与快照防御回滚"""
+        # 1. 生产契约字典返回解包: 模拟 doubao 每次返回生产字典 Dict[str, Any]
         call_counter = {"count": 0}
 
-        def mock_call_model_raw(model, prompt):
+        def mock_call_dict(model, prompt):
             call_counter["count"] += 1
-            return "根据评估，我方: 85, 竞对: 40"
+            return {
+                "success": True,
+                "model": model,
+                "content": "根据评估，我方: 85, 竞对: 40",
+            }
 
-        with patch("tools.geo.moat_sandbox.call_model_raw", side_effect=mock_call_model_raw):
+        with patch("tools.geo.moat_sandbox.call_model_raw", side_effect=mock_call_dict):
             res_live = simulate_competitive_moat(self.project_id, use_live=True)
             self.assertEqual(call_counter["count"], 4)  # 严格不超过 4 次
             self.assertTrue(res_live["is_live_judged"])
             self.assertTrue(res_live["use_live"])
+            # 断言融合后指标全量重算
+            for d in res_live["dimensions"]:
+                self.assertGreater(d["self_score"], 0.0)
+                self.assertGreater(d["rival_score"], 0.0)
+                expected_adv = calculate_advantage(d["self_score"], d["rival_score"])
+                self.assertEqual(d["advantage"], expected_adv)
+                expected_cti = calculate_cti(d["self_score"], d["rival_score"])
+                self.assertEqual(d["competitor_threat_index"], expected_cti)
 
-        # 2. 异常格式返回: 模型返回乱码或不足两个数字 ➔ 触发快照 100% 完整回滚
+        # 2. 纯字符串兼容返回解包
+        call_counter_str = {"count": 0}
+
+        def mock_call_str(model, prompt):
+            call_counter_str["count"] += 1
+            return "我方: 90, 竞对: 30"
+
+        with patch("tools.geo.moat_sandbox.call_model_raw", side_effect=mock_call_str):
+            res_str = simulate_competitive_moat(self.project_id, use_live=True)
+            self.assertEqual(call_counter_str["count"], 4)
+            self.assertTrue(res_str["is_live_judged"])
+
+        # 3. 异常格式返回: 模型返回乱码或不足两个数字 ➔ 触发快照 100% 完整回滚
         def mock_call_broken(model, prompt):
-            return "当前网络繁忙，无法评分"
+            return {"content": "当前网络繁忙，无法评分"}
 
         with patch("tools.geo.moat_sandbox.call_model_raw", side_effect=mock_call_broken):
             res_rollback = simulate_competitive_moat(self.project_id, use_live=True)
