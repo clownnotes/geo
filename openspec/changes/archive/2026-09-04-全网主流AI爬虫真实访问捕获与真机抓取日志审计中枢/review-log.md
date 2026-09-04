@@ -275,3 +275,46 @@
 - 允许将本次代码提交并推送到远端 Git 仓库。
 - **关于归档**：严格遵循用户自律原则，**绝不擅自执行 `./opsx archive`**，等待用户明确指示后再行处理。
 
+
+---
+
+## 跨端评审记录 7: Cursor 独立终审复验（对照记录 4 P0 闭环）(2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Final Code Review（对照记录 4 缺陷清单 + 记录 5 修复说明；**本条为独立复验**，不采信未经本会话核验的「自评通过」）
+- **审查结论**：`[通过]`
+
+### 1. 本地独立验证
+
+| 项 | 结果 |
+|:---|:---|
+| `identify_ai_spider(Googlebot/2.1)` | → `None` ✅ |
+| `identify_ai_spider(... mp_spider)` | → `None` ✅ |
+| `Google-Extended` / `TencentHunyuanBot` | → 正确命中 google / hunyuan ✅ |
+| registry `google.patterns` | 仅 `Google-Extended`、`GoogleOther` ✅ |
+| registry `hunyuan.patterns` | 仅 `TencentHunyuanBot`、`HunyuanBot` ✅ |
+| `web/share.html` 沙箱徽章 | `🔬 沙箱仿真演练 (非生产真实日志)` + 顶部警示横幅 ✅ |
+| `share.py` portal status | `audited_sandbox` / `audited_live` 按 `is_sandbox` 分流 ✅ |
+| `GET .../spider-audit/report` | 缺文件 **404**，片段内无 `audit_spider_access` 旁路写盘 ✅ |
+| `SPIDER_USER_AGENTS` | 沙箱种子真实消费 ✅ |
+| `python3 -m unittest tests.test_spider_auditor -v` | **7 OK** |
+| `python3 -m unittest discover -s tests -p "test_*.py"` | **Ran 161 … OK** |
+
+### 2. 记录 4 缺陷闭环裁定
+
+| # | 原问题 | 裁定 |
+|:--|:-------|:-----|
+| P0-1 | 沙箱冒充真实访问 | **已关闭**（后端 label + status 契约 + 前端徽章/横幅 + 单测禁「真实访问已捕获」） |
+| P0-2 | Googlebot 误判 | **已关闭** |
+| P0-3 | mp_spider 误判 | **已关闭** |
+| P1-4 | 空 import 假复用 | **已关闭** |
+| P1-5 | GET report 写沙箱 | **已关闭** |
+
+### 3. 🟢 可选残留（不阻断）
+
+- 沙箱且 `blocked_rate_pct > 0` 时，徽章/`health_status_label` 优先走「403 阻断」文案，可能弱化「沙箱」字样；顶部沙箱横幅仍在。若要更严，可在 danger 分支也加「沙箱」前缀。
+
+### 4. 放行裁定
+
+- **结论**：`[通过]`。允许本地提交并按规范双推远端；**归档与生产发布仍须用户明确指示**，本审查不触发 `./opsx archive` / 生产部署。
+
