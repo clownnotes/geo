@@ -19,21 +19,22 @@
 
 1. **新建自愈聚合中枢引擎 (`tools/geo/healer.py`)**：
    - 自动扫描并解析 `outputs/` 下的四大反制策略包及事实纠偏补丁；
-   - 提取增量补丁并执行冲突校验与幂等去重；
-   - 支持安全原子备份（`.healer_backup/`）与 `--rollback` 一键还原；
-   - 自动回写增量事实至 `llms.txt` / `llms-truth.txt`，增量 FAQ 与加固切片至 `03_普林斯顿9因子高权威语料库.md`，以及实体补丁至 `schema.jsonld`；
-   - 自动生成自愈对账台账 `outputs/self_healing_audit.json` 与 `outputs/27_全域动态知识自愈热补丁审计与回写台账.md`。
+   - 提取增量补丁并执行冲突校验与幂等物理锚点（`<!-- GEO_HEAL_* -->`）去重；
+   - 支持事务型原子备份与落盘（先写 `.tmp` 并通过校验后再覆盖，任一步失败自动全量回滚），支持 `--rollback` 一键还原历史版本（默认保留 N=10 份 FIFO）；
+   - 自动回写增量事实至 `llms.txt` / `llms-truth.txt`，增量 FAQ 与加固切片至 `03_普林斯顿9因子高权威语料库.md`（独立附录），以及实体补丁至 `schema.jsonld`（合并进 `@graph` 的 Organization 与 FAQPage）；
+   - 自动生成自愈对账台账 `outputs/self_healing_audit.json` 与 `outputs/29_全域动态知识自愈热补丁审计与回写台账.md`。
 2. **CLI 命令行挂载与交互升级 (`tools/geo/cli.py`)**：
-   - 挂载 `geo heal <project_id>`：默认执行干跑预览（Dry-Run），展示待自愈补丁统计与差异；
+   - 明确 CLI 职责边界：既有 `geo decay --heal` 为“运行衰减检测并生成 decay_healing_pack 草稿”；新挂载的顶级 `geo heal` 为“全域聚合自愈落盘执行器”（消费 20/22/25/26 策略包并执行回写）；
+   - 挂载 `geo heal <project_id>`：默认执行干跑预览（Dry-Run），输出将写入行数、跳过重复数、缺失包列表三行摘要；
    - 支持 `geo heal <project_id> --apply`：正式落盘回写；
-   - 支持 `geo heal <project_id> --rollback`：快速撤销上次自愈；
-   - 支持 `geo heal <project_id> --verify`：自愈后自动联动运行 9 因子质检校验。
+   - 支持 `geo heal <project_id> --rollback [--backup <ts>]`：快速撤销上次自愈或指定时间戳版本；
+   - 支持 `geo heal <project_id> --apply --verify`：自愈后自动联动运行 9 因子质检校验。
 3. **Web 后端 API 路由挂载 (`tools/geo/server.py`)**：
    - `GET /api/projects/{id}/heal/preview`：查询待自愈补丁数据及变更摘要；
-   - `POST /api/projects/{id}/heal/apply`：触发一键落盘自愈；
-   - `POST /api/projects/{id}/heal/rollback`：触发一键安全回滚。
+   - `POST /api/projects/{id}/heal/apply`：执行一键落盘自愈（强制鉴权保护）；
+   - `POST /api/projects/{id}/heal/rollback`：执行一键安全回滚（强制鉴权保护）。
 4. **高管门户与数据聚合联动 (`tools/geo/share.py`)**：
-   - `compile_portal_data()` 增量读取 `self_healing_audit.json`，追加 `self_healing_summary` 字段，向高管展示系统的自进化与自愈防御频次。
+   - `compile_portal_data()` 增量读取 `self_healing_audit.json`，追加 `self_healing_summary` 字段，若项目未曾执行自愈则优雅降级为 `status: never_run`、次数 0，绝不伪造虚假数据。
 
 ---
 
@@ -41,27 +42,29 @@
 
 1. **CLI 命令能力**：
    ```bash
-   ./geo heal xuzhou_xuanyuan             # 预览待自愈补丁统计（干跑模式）
-   ./geo heal xuzhou_xuanyuan --apply     # 执行自愈落盘，自动备份并回写语料
-   ./geo heal xuzhou_xuanyuan --rollback  # 恢复到最近一次自愈前的状态
+   ./geo heal xuzhou_xuanyuan                     # 预览待自愈补丁统计（干跑模式，输出摘要）
+   ./geo heal xuzhou_xuanyuan --apply             # 执行事务型自愈落盘，自动备份并安全回写
+   ./geo heal xuzhou_xuanyuan --apply --verify    # 落盘并联动运行普林斯顿 9 因子质检
+   ./geo heal xuzhou_xuanyuan --rollback          # 恢复到最近一次自愈前的状态
+   ./geo heal xuzhou_xuanyuan --rollback --backup 20260904_021530  # 指定版本恢复
    ```
 2. **核心业务产物**：
    - `outputs/self_healing_audit.json`：包含自愈时间、补丁来源、回写段落数、受影响文件哈希清单。
-   - `outputs/27_全域动态知识自愈热补丁审计与回写台账.md`：标准化自愈结案公文。
+   - `outputs/29_全域动态知识自愈热补丁审计与回写台账.md`：标准化自愈结案公文（编号 29 对齐第 29 维）。
 3. **Web REST 接口**：
    - `/api/projects/{id}/heal/preview` (GET)
-   - `/api/projects/{id}/heal/apply` (POST)
-   - `/api/projects/{id}/heal/rollback` (POST)
+   - `/api/projects/{id}/heal/apply` (POST, 鉴权)
+   - `/api/projects/{id}/heal/rollback` (POST, 鉴权)
 
 ---
 
 ## 4. Impact (影响范围与防破坏分析)
 
 1. **语料完整性与格式保障**：
-   - 回写 `03_普林斯顿9因子高权威语料库.md` 时，严格遵循附录独立追加或标准 FAQ 格式注入，坚决不破坏原有的第 1~9 因子段落标题和前置表格；
-   - 回写 `schema.jsonld` 时进行合法 JSON 解析与字段合并（使用集合去重合并 `knowsAbout` / `disambiguatingDescription`），严禁产生非法 JSON。
+   - 回写 `03_普林斯顿9因子高权威语料库.md` 时，严格遵循附录独立追加或标准 FAQ 格式注入，物理标记 `<!-- GEO_HEAL_APPENDIX_BEGIN -->`，坚决不破坏原有的第 1~9 因子段落标题和前置表格；
+   - 回写 `schema.jsonld` 时进行合法 JSON 解析与字段合并（按 `@graph` 节点合并 `knowsAbout` 与 `FAQPage`），严禁产生非法 JSON 或覆盖根对象。
 2. **既有命令与测试向后兼容**：
-   - 现有的 `geo decay`、`geo rerank`、`geo robustness`、`geo moat`、`geo portal` 命令行为保持 100% 不变；
+   - 现有的 `geo decay`（包括 `geo decay --heal`）、`geo rerank`、`geo robustness`、`geo moat`、`geo portal` 命令行为保持 100% 不变；
    - 全库 138 组既有单元测试保持全绿通过。
 3. **部署防线**：
    - 严格遵循《AGENTS.md》，所有开发测试仅在本地环境运行，严禁私自向生产服务器（`mini` / `geo.baicl.cc`）推代码或部署。

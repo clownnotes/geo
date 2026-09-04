@@ -1,19 +1,24 @@
 # Tasks: 全域动态知识热补丁聚合与一键落盘自愈流水线 (第 29 维)
 
 - [ ] 1. 核心自愈中枢引擎实现 (`tools/geo/healer.py`)
-  - [ ] 1.1 实现 `compile_healing_patches()`：扫描并聚合 20 维 (decay)、22 维 (rerank)、25 维 (robustness)、26 维 (moat) 与 07/08 维 (factual/schema) 策略产物，执行归一化提取与缺失包优雅降级
-  - [ ] 1.2 实现 `backup_state()` 与 `rollback_healing()`：在 `.healer_backup/<timestamp>/` 创建原子备份，并支持一键无损还原覆盖
-  - [ ] 1.3 实现 `apply_healing_patches()`：幂等回写 `llms.txt`/`llms-truth.txt`（事实段落）、`03_普林斯顿9因子高权威语料库.md`（独立自愈附录 FAQ）、`schema.jsonld`（实体字段与 FAQPage 合并），并输出 `self_healing_audit.json` 与结案报告
-  - [ ] 1.4 实现 `verify_integrity()`：执行 JSON-LD 语法解析与 9 因子文档结构合规校验，发现异常立刻阻断回滚
+  - [ ] 1.1 实现 `compile_healing_patches()`：扫描并聚合 20 维 (decay)、22 维 (rerank)、25 维 (robustness)、26 维 (moat) 与 07/08 维 (factual/schema) 策略产物，执行逐包标准化解析、物理注释锚点识别与缺失包优雅降级
+  - [ ] 1.2 实现 `backup_state()` 与 FIFO 轮转：在 `.healer_backup/<timestamp>/` 创建原子备份，默认保留最近 N=10 份历史，超出 FIFO 清理
+  - [ ] 1.3 实现五步事务型回写 `apply_healing_patches()`：
+    - ① 执行 `backup_state()`；
+    - ② 向 `.tmp` 文件写入四大靶标（`llms-truth.txt` Section 5 锚点、`llms.txt` 中文加固 FAQ、`03_普林斯顿9因子高权威语料库.md` 独立自愈附录、`schema.jsonld` `@graph` 节点合并）；
+    - ③ 调用 `verify_integrity()` 校验 JSON-LD 合法性与 9 因子结构合规；
+    - ④ 通过 `os.replace` 原子替换落盘（异常时自动从 `backup_dir` 全量覆盖还原并记录 `status="failed_rolled_back"`）；
+    - ⑤ 生成审计数据 `outputs/self_healing_audit.json` 与结案公文 `outputs/29_全域动态知识自愈热补丁审计与回写台账.md`
+  - [ ] 1.4 实现 `rollback_healing()`：支持一键回滚到最近一次（或指定 `--backup <ts>`）备份状态，并校验文件完整性与哈希一致性
 - [ ] 2. CLI 命令挂载与交互实现 (`tools/geo/cli.py`)
-  - [ ] 2.1 挂载 `geo heal` 子命令，支持参数 `--apply`、`--rollback`、`--verify`
-  - [ ] 2.2 优化终端控制台彩色输出：呈现待自愈三类补丁概览、回写对账表与一键回滚提示
+  - [ ] 2.1 挂载顶级 `geo heal` 子命令，与既有 `geo decay --heal` 形成明确语义隔离并在帮助文案中交叉引用澄清
+  - [ ] 2.2 实现干跑模式（默认输出“将写入行数 / 跳过重复数 / 缺失 pack 列表”三行摘要）以及 `--apply`、`--rollback`、`--apply --verify` 组合参数支持
 - [ ] 3. Web 后端路由与高管门户数据联动 (`tools/geo/server.py` & `tools/geo/share.py`)
-  - [ ] 3.1 在 `server.py` 挂载 `/api/projects/{id}/heal/preview`、`/api/projects/{id}/heal/apply`、`/api/projects/{id}/heal/rollback` 接口
-  - [ ] 3.2 在 `share.py` 的 `compile_portal_data()` 中追加 `self_healing_summary` 字段（自愈状态、累计修复长尾词数、最近自愈时间、健康度）
+  - [ ] 3.1 在 `server.py` 挂载 `/api/projects/{id}/heal/preview`、`/api/projects/{id}/heal/apply`、`/api/projects/{id}/heal/rollback` 接口，强制实施与既有项目接口相同的 Bearer Token 鉴权保护
+  - [ ] 3.2 在 `share.py` 的 `compile_portal_data()` 中追加 `self_healing_summary` 字段，缺失审计文件时严格降级为 `status: "never_run"`、修复词数 0，绝不伪造虚假数据
 - [ ] 4. 单元测试与端到端回归 (`tests/test_self_healing.py`)
   - [ ] 4.1 编写策略包扫描提取与缺失维度优雅降级单测
-  - [ ] 4.2 编写原子备份与 `--rollback` 一键无损恢复单测（SHA256 哈希精确比对）
-  - [ ] 4.3 编写多次 `--apply` 幂等去重测试（断言同一补丁不重复追加）
-  - [ ] 4.4 运行全库单元测试，确保全库测试秒绿通过，并验证 VitePress SSG 构建零报错
-
+  - [ ] 4.2 编写事务型原子落盘与校验失败自动回滚测试（模拟校验抛错，断言现场 100% 还原且状态记录为 `failed_rolled_back`）
+  - [ ] 4.3 编写 `--rollback` 一键无损恢复单测（SHA256 哈希完全一致）与 N=10 FIFO 轮转清理单测
+  - [ ] 4.4 编写多次 `--apply` 幂等物理锚点替换测试（断言同一补丁不重复追加）
+  - [ ] 4.5 运行全库单元测试，确保全库测试秒绿通过，并验证 VitePress SSG 构建零报错
