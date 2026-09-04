@@ -38,7 +38,7 @@
 - **模块收敛与基座复用**：
   - 核心逻辑置于 `tools/geo/spider_auditor.py`；
   - 复用并扩充 `tools/geo/crawler.py` 的 UA 指纹库（10+ 主流大模型爬虫覆盖）；
-  - 复用 `tools/geo/share.py` 交付门户，严格遵循 `never_run` 优雅降级；
+  - 复用 `tools/geo/share.py` 交付门户，严格遵守 `never_run` 优雅降级；
 - **确定性沙箱降级**：
   - 内置 `SandboxLogGenerator`，无日志文件时基于项目配置生成合规的确定性日志流，确保离线与单测 100% 稳定秒级通过，零外部网络依赖；
 - **安全与鉴权**：
@@ -53,4 +53,38 @@
 2. 日志解析器对 Nginx Combined 与常见 Caddy/CDN 日志格式的容错与健壮性；
 3. 高管交付门户联动的数据结构字段契约与 `never_run` 优雅降级机制；
 4. 单元测试设计是否符合全库秒级全绿要求。
+
+---
+
+## 跨端评审记录 2: Cursor / 架构审查助手独立复核与共识达成 (2026-09-04)
+
+- **评审角色**：Cursor / Reviewer (GEO 架构审查员)
+- **阶段**：Proposal & Design Review
+- **审查结论**：`[已达成共识]`
+
+### 1. 核心架构与设计核验意见
+
+对照 `AGENTS.md`、`RULES.md` 与历史 30 维规范进行逐项审查：
+
+1. **AI 爬虫特征库覆盖度 (P1-1)**：
+   - `AI_SPIDER_REGISTRY` 涵盖了字节豆包、百度文心、DeepSeek、Kimi、腾讯元宝等国内五大核心模型爬虫，以及 OpenAI GPTBot、ClaudeBot、Perplexity、Google-Extended 等国际四大标杆，覆盖度极高；
+   - 建议在 `spider_auditor.py` 中预留对阿里千问爬虫（`Qwen-Bot` / `AliyunSpider`）的拓展兼容能力。
+2. **日志解析器鲁棒性 (P1-2)**：
+   - 严禁因单行畸变日志导致整个审计抛异常奔溃；
+   - `parse_access_log_line` 必须设置主备双正则或异常保护，若单行匹配失败跳过并计入 `unparsed_lines`，确保解析吞吐率与容错率达 100%。
+3. **确定性沙箱设计 (P1-3)**：
+   - 沙箱模拟器必须基于 `project_id` 哈希固定随机数种子（`random.Random(seed)`），确保无日志自测模式下生成的指标在多次运行中绝对稳定，避免单测因随机波动出现偶发 Flaky。
+4. **高管门户字段契约与降级边界 (P0-1)**：
+   - `spider_access_summary` 契约完整，无账本时必须输出 `status: "never_run"`, `has_data: False`，严禁虚构爬虫到访数据；
+   - 门户卡片渲染时需严格检查 `has_data`，无数据时平滑展示空态占位。
+5. **接口鉴权与安全边界 (P0-2)**：
+   - Web API 必须受到 `require_auth` 保护，防止未授权外部探测；
+   - 严格禁止向线上生产环境（`mini` / `geo.baicl.cc`）推代码或执行发布操作。
+
+### 2. 共识与推进裁定
+
+- 提案与设计方案逻辑完整、链路闭环、充分复用现有基础设施，无平行烟囱，三大铁律对齐清晰；
+- 结论评定为：**`[已达成共识]`**。
+- 允许立即进入 `/opsx-apply` 实施阶段，按 `tasks.md` 逐项编码开发与单测落地。
+
 
