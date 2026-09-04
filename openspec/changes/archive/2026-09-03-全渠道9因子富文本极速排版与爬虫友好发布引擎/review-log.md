@@ -235,4 +235,43 @@
 - **生产防护红线**：严禁私自向生产服务器部署，全部功能仅在开发机本地验证；
 - **归档协同规范**：Antigravity 现已将本变更结论推进至 `[已达成共识]`，将代码提交并推送到双远端，归档（`./opsx archive`）交由 Cursor 执行终审并归档。
 
+---
+
+## 跨端评审记录 8: Cursor 修复复审终审 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Fix Verification Review（对照记录 6 的 P0/P1；独立核验 commit `9c93de4`，不采信自评）
+- **审查结论**：`[通过]`
+- **本地验证**：
+  - `python3 -m unittest tests.test_rich_publisher -v` → **11 tests OK**（含对抗/缺主源/verify=False/知乎轻量包）
+  - `python3 -m unittest discover -s tests -p "test_*.py"` → **Ran 133 tests … OK**
+  - 源码确认：`verify_crawler_fidelity` 中 **无** `max(92/90)` / 默认 96/95 托底
+  - 对抗探针：残表 overall=0 且 `passed=False`；完整小表无托底可得真实 100
+  - CLI：`--verify` 失败路径含 `sys.exit(1)`；`--channel zhihu` → `package_zhihu_assets`
+  - Web：`loadFidelityScoresForCards` 按 `passed`/分数切换 🟢 / ⚠️ 玫瑰警示样式
+
+#### P0 / P1 闭环复核
+
+| # | 原问题 | 复核结果 |
+|:--|:-------|:---------|
+| P0-1 | 打分托底 | ✅ 已删除；激活维度重归一化；对抗单测覆盖残表/丢引用 |
+| P1-2 | 缺主源静默 | ✅ `required=True` 抛 `FileNotFoundError` + 单测 |
+| P1-3 | `verify` 死参数 | ✅ 全链路尊重；`verify=False` 不写报告 |
+| P1-4 | CLI 退出码 | ✅ 未达标 `sys.exit(1)` |
+| P1-5 | 徽标恒绿 | ✅ 未达标切换 ⚠️ 红样式 |
+| P1-6 | zhihu 整包 DeepSeek | ✅ 独立 `package_zhihu_assets` 轻量路径 |
+
+#### 🟢 可选后续（不阻断通过/归档）
+
+- 响应里未激活维度仍回传 `citation/density=100.0` 作展示占位，可读性略混淆；可改为 `null` 或省略。
+- `verify_crawler_fidelity` 在输入无表时仍可能用项目 `03` 语料表作期望对照（`required=False` 回退），对「任意 HTML 探针」偏严；发稿包路径无影响。
+
+#### 已确认可归档
+
+- ✅ 架构复用边界保持（无平行 `rich_publisher`）
+- ✅ 保真度黄金线具备真实区分力
+- ✅ 133 组单测秒绿；未触达生产部署
+
+- **状态结论**：`[通过]` — 允许执行 `./opsx archive` 归档本变更。
+
 
