@@ -1,28 +1,33 @@
 # Tasks: 多主流大模型真实联网探测与 Citation 角标全自动捕获审计引擎 (第 30 维)
 
-## 1. 核心探测与反查引擎实现 (`tools/geo/live_auditor.py`)
+## 1. 扩充底层模型提供商矩阵与中文角标提取 (`tools/geo/llm.py` & `tools/geo/probing.py`)
 
-- [ ] 1.1 实现多模型客户端矩阵与确定性沙箱降级调度：支持豆包、DeepSeek、腾讯元宝、月之暗面 Kimi 的 OpenAI 兼容协议与超时重试，无密钥或 `--sandbox` 时自动启用高保真确定性测试数据。
-- [ ] 1.2 实现 Citation 引用角标与来源提取器：正则解析正文 Markdown 链接 `[标题](URL)`、裸 URL、标注角标 `[1]` / `【1】` 及文末 Sources/References 来源列表，并规范化清洗 URL 协议与主机名。
-- [ ] 1.3 实现分发存活台账 (`dist_ledger.json`) 反向核验与集合对账算法：精准匹配发布 URL、主阵地渠道域名（toutiao/zhihu/github/weixin/官网），输出 `dist_matched_count` 与真实采纳率 `citation_hit_rate`。
-- [ ] 1.4 实现公文级报告与审计台账原子落盘：输出 `outputs/30_多主流大模型真实联网探测与Citation角标反查审计报告.md` 与结构化 `outputs/live_citation_audit.json`。
+- [ ] 1.1 在 `tools/geo/llm.py` 的 `PROVIDERS` 字典中新增 `yuanbao`（腾讯混元/元宝生态兼容配置），支持 `GEO_YUANBAO_API_KEY`、`HUNYUAN_API_KEY` 链式降级读取。
+- [ ] 1.2 在 `tools/geo/probing.py` 的 `extract_citations_and_sources()` 中，增量加入中文方头括号 `【(?P<idx>\d+)】` 与前缀角标 `\[注(?P<idx>\d+)\]` 正则提取，确保本土化模型角标无遗漏。
 
-## 2. CLI 命令挂载与交互实现 (`tools/geo/cli.py`)
+## 2. 极速重对账引擎与 30 号公文输出 (`tools/geo/probing.py`)
 
-- [ ] 2.1 注册顶级 `geo probe-audit` 子命令（别名 `geo citation-audit`），支持 `--models`、`--limit`、`--sandbox`、`--reconcile-only` 参数解析。
-- [ ] 2.2 实现美观的终端控制台输出体验：包含启动 Banner、探测进度条、以及声量/角标采纳/报告落盘标准三行摘要。
+- [ ] 2.1 在 `probing.py` 中实现 `reconcile_existing_trace(project_id)`：免重复调用大模型 API，直接读取已有 `live_probing_trace.json`，调用 `dist_bot.get_distribution_ledger` 比对最新分发状态并刷新统计。
+- [ ] 2.2 严格锁定反向对账严谨口径：仅 `exact_hit` / 路径前缀 `domain_hit` 计入我方命中，严禁裸渠道域名算作命中，未匹配信源归入 `third_party_or_competitor`，杜绝虚抬命中率。
+- [ ] 2.3 在 `export_probing_report()` 中同步导出高管专属交付报告 `outputs/30_多主流大模型真实联网探测与Citation角标反查审计报告.md`，指标与 `live_probing_trace.json` 100% 同源。
 
-## 3. Web 后端路由与高管门户数据联动 (`tools/geo/server.py` & `tools/geo/share.py`)
+## 3. CLI 扩展与 Web 后端 API (`tools/geo/cli.py` & `tools/geo/server.py`)
 
-- [ ] 3.1 在 `server.py` 挂载 `POST /api/projects/{id}/citation-audit/run` 与 `GET /api/projects/{id}/citation-audit/report`，实施与既有项目相同的 Bearer Token 强鉴权保护。
-- [ ] 3.2 在 `share.py` 的 `compile_portal_data()` 中挂载 `live_citation_summary` 字段，审计缺失时严格降级为 `status: "never_run"`，杜绝伪造数据。
+- [ ] 3.1 扩展 `geo probe` 命令行参数，新增 `--reconcile-only` 参数；挂载 `geo probe-audit` 语义别名并在帮助文案中明确标明底层复用 `probing.py`。
+- [ ] 3.2 在 `server.py` 挂载 `POST /api/projects/{id}/probing/reconcile` 路由，实施与既有项目完全相同的 Bearer Token 强鉴权保护。
 
-## 4. 自动化单元测试与端到端回归 (`tests/test_live_auditor.py`)
+## 4. 高管只读交付门户战果反哺 (`tools/geo/share.py` & `web/share.html`)
 
-- [ ] 4.1 编写模型调用与优雅降级单测：断言在无环境变量 API Key 时秒级平滑切入沙箱，数据结构完整无崩溃。
-- [ ] 4.2 编写 Citation 正则解析与 URL 清洗单测：覆盖内联链接、角标注释、文末信源以及参数剥离。
-- [ ] 4.3 编写分发台账对账单测：沙箱比对 `dist_ledger.json`，断言命中与未命中集合划分准确。
-- [ ] 4.4 编写 CLI 子命令与参数解析单测。
-- [ ] 4.5 编写 Web 路由鉴权保护与高管门户数据联动单测（覆盖 `never_run` 与 `audited` 两态）。
-- [ ] 4.6 运行全库单元测试，确保包含新单测在内的全库测试 100% 秒绿通过，且 VitePress SSG 构建零报错。
+- [ ] 4.1 在 `share.py` 的 `compile_portal_data()` 中挂载 `live_citation_summary` 字段，无探测数据时严格优雅降级为 `status: "never_run"`，杜绝伪造假数据。
+- [ ] 4.2 在 `web/share.html` 对应位置渲染【全网大模型真实引用与信源对账】卡片，展示实测首推率、角标采纳数与真实命中外链。
+
+## 5. 增量单元测试与全库回归 (`tests/test_probing.py`)
+
+- [ ] 5.1 编写 `yuanbao` 提供商配置读取与模型解析单测。
+- [ ] 5.2 编写中文方头括号 `【1】` 与注释角标提取单测。
+- [ ] 5.3 编写 `reconcile_existing_trace()` 极速重对账单测（验证断言未调用模型、仅基于文件刷新且口径严谨无裸域名虚增）。
+- [ ] 5.4 编写 CLI `--reconcile-only` 参数解析单测。
+- [ ] 5.5 编写 Web 路由鉴权保护与高管门户 `live_citation_summary` 联动降级单测（`never_run` 与 `audited` 两态）。
+- [ ] 5.6 运行全库单元测试，确保包含新单测在内的全库测试 100% 秒绿通过，且 VitePress SSG 构建零报错。
+
 

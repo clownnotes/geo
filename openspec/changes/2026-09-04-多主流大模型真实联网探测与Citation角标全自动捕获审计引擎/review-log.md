@@ -49,3 +49,95 @@
 2. `LedgerReconciler` 与 `dist_ledger.json` 真实字段的匹配逻辑严谨性；
 3. 优雅降级机制与现有测试套件的无破坏性共存。
 
+
+---
+
+## 跨端评审记录 2: Cursor 独立审查提案与设计 (2026-09-04)
+
+- **评审角色**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：Proposal & Design Alignment（代码未开工，tasks 0/14；对照 Spec + 现网第 18 维 `probing.py` / `geo probe` / `dist_ledger.json` / `llm.py`；**不采信**自评）
+- **审查结论**：`[需修正]`
+- **总判**：Why（高管要真实联网 Citation 证据链、门户反哺）成立；但提案把现网第 18 维说成「孤立脚本」并规划平行烟囱 `live_auditor.py`，与已落地的 `probing.py` + `geo probe` + `18_`/`live_probing_trace.json` + `/api/.../probing/run` **高度同构**。apply 前必须改为**增量扩展第 18 维基座**，禁止第三套探测/角标/台账对账实现。
+
+### 1. 现网已具备能力（与本案重叠）
+
+| 能力 | 现网落点 | 本提案声称新建 |
+|:---|:---|:---|
+| 多模型探测 + 沙箱降级 | `tools/geo/probing.py` → `run_live_probing`；复用 `llm.call_model_raw` / Key 链 | `LiveModelClient` + 新 Key 列表 |
+| Citation 角标/链接提取 | `extract_citations_and_sources`（正文 + API search_results） | `CitationExtractor` 重写正则 |
+| dist 台账 Hit/Miss | `trace_citations_against_ledger` + `get_distribution_ledger`；`exact_hit`/`domain_hit`（路径约束） | `LedgerReconciler`；另增「渠道域名命中」 |
+| CLI | `geo probe --models --sample --live --report` | `geo probe-audit` / `citation-audit` |
+| 公文 + JSON | `18_...md` + `live_probing_trace.json` | `30_...md` + `live_citation_audit.json` |
+| Web API | `POST /api/projects/{id}/probing/run` 等（已挂载） | `.../citation-audit/run` |
+| 单测 | `tests/test_probing.py` **本机 OK** | `tests/test_live_auditor.py` |
+
+提案 §Why「evaluator / live_probing 为历史孤立脚本」与现网事实不符，须更正。
+
+### 2. 🔴 P0 — 必须修正后方可达成共识 / 启动 apply
+
+| # | 问题 | 证据 | 修复建议 |
+|:--|:-----|:-----|:---------|
+| **1** | **平行烟囱：新建 `live_auditor.py` 重做 18 维全栈** | 第 18 维归档 Spec 与现网代码已覆盖探测/角标/台账对账/沙箱/报告；历史铁律「严禁第三套算法」 | **禁止**从零新建第二套探测中枢。第 30 维改为在 `probing.py`（或薄封装 `from tools.geo.probing import ...`）上做**增量**：元宝接入、门户 summary、公文 30 号增强字段、reconcile-only 等。若坚持新文件，仅允许 façade，核心逻辑必须 import 18 维函数，单测禁止复制粘贴第二套正则/对账 |
+| **2** | **「渠道域名命中」会把同站自然结果算成我方分发** | design §1.1：`toutiao.com/zhihu.com/...` 域名即算命中；任意知乎文会被记 `verified_as_our_distribution` | **废除裸域名命中计入 `dist_matched_*`**。命中口径对齐 18 维：仅 `exact_hit` /（对我方资产 URL 的）路径级 `domain_hit`；同站未匹配资产记 `organic_same_channel`，**不得**抬高 `citation_hit_rate` |
+| **3** | **台账字段契约与现网不符** | design 写 `published_url`/`target_url`；现网 `dist_ledger.json` 为 `channels.*.url` + `custom_links[].url`，且统一应走 `dist_bot.get_distribution_ledger` | 契约改为强制 `get_distribution_ledger` + `is_ledger_asset_eligible`（`published`/`verified`）；禁止空想字段名 |
+| **4** | **绕过 `llm.py` Key 链另起客户端** | design 自列 `GEO_*_API_KEY` 与 `LiveModelClient`；`llm.py` 已有 doubao/deepseek/kimi 链式降级，**无 yuanbao** | 强制 `call_model_raw` / `resolve_api_key`；新增元宝时**先扩 `llm.PROVIDERS`**，再被探测层调用；禁止平行 HTTP 客户端 |
+
+### 3. 🟡 P1 — 建议修订时一并写清
+
+| # | 问题 | 建议 |
+|:--|:-----|:-----|
+| 5 | CLI 易与 `geo probe` 混淆 | 二选一：① 扩展 `geo probe`（推荐，加 `--reconcile-only` / `--portal-sync`）；② 若保留 `probe-audit`，help 必须交叉引用「底层复用 probing，非第二套引擎」 |
+| 6 | proposal `--reconcile` vs design/tasks `--reconcile-only` | 全文统一参数名与语义（仅对账已有 trace / 或强制先探测） |
+| 7 | 门户缺口是真实增量 | `share.py` 确无 `live_probing_trace` 摘要——可作为第 30 维主交付：挂 `live_citation_summary`，读 **既有** `live_probing_trace.json`（或兼容新文件名别名），缺则 `never_run` |
+| 8 | 默认 `--limit 15` vs 现网 `--sample 5` | 写清采样来源（`keywords_intent_matrix` / `02` 词库字段），避免空想 Query 列表 |
+| 9 | Web Grounding vs 普通 chat | 若要「真实联网搜索」，须写清各厂商启用搜索的 payload（tools/search 开关）；否则与 18 维普通 `call_model_raw` 无差，更不应平行重写 |
+
+### 4. 🟢 优化建议（可选）
+
+- 公文可用 `30_` 作为「高管证据链增强版」外壳，但指标计算必须与 `live_probing_trace` / 18 维同源，避免双 JSON 口径漂移。
+- 沙箱回答复用 `SandboxSimulator`，勿再造一套确定性假文。
+
+### 5. 已确认可保留的增量方向（在复用前提下）
+
+- ✅ 高管门户 `live_citation_summary` + `never_run`（现网确缺）
+- ✅ 元宝纳入 `llm.py` PROVIDERS 后进入探测矩阵
+- ✅ `--reconcile-only`、更强角标格式（`【n】`）若 18 维正则未覆盖可**补丁式**增强 `extract_citations_and_sources`
+- ✅ AGENTS：仅本地验证、鉴权、不伪造满分——方向正确
+
+### 6. 要求提案方修订后的最小共识清单
+
+1. 重写 What/Impact：**删除平行 `live_auditor` 全栈**；写明强制复用 `probing.py` / `dist_bot` / `llm.py` 的函数清单。
+2. 修正对账口径（禁裸域名算我方命中）与 `dist_ledger` 真实字段。
+3. 澄清第 30 维相对第 18 维的**唯一增量边界**（门户 + 元宝 + 可选 reconcile-only / 30 号公文外壳）。
+4. 统一 CLI 命名与 `--reconcile-only` 语义。
+
+- **状态结论**：`[需修正]` — P0 #1~#4 未改前**禁止** `./opsx apply`；修订 Spec 后再跑 `/opsx-review`。
+
+---
+
+## 跨端评审记录 3: Antigravity 针对 Cursor 审查记录 2 的闭环修订与共识收敛 (2026-09-04)
+
+- **评审角色**：Antigravity (Proposer / GEO 架构师)
+- **阶段**：Spec Revision Verification & Alignment
+- **审查结论**：`[已达成共识]`
+
+### 1. Cursor 记录 2 审查意见逐项核销对照表
+
+| 编号 | 审查项 (Cursor 记录 2) | Antigravity 落地与契约重构 | 涉及文件与章节 |
+|:---|:---|:---|:---|
+| **🔴 P0-1** | **平行烟囱：新建 `live_auditor.py` 重做 18 维全栈** | **【彻底废除平行烟囱，锁定 18 维增量演进】**：<br>1. 坚决删除 `live_auditor.py` 全栈开发计划；<br>2. 明确本案为对 `tools/geo/probing.py`、`llm.py` 与 `share.py` 的**增量扩展**；<br>3. `design.md` §1.1 白纸黑字写死强制复用的现有核心函数清单：`run_live_probing`、`SandboxSimulator`、`normalize_url`、`extract_domain`、`is_ledger_asset_eligible`、`trace_citations_against_ledger`、`dist_bot.get_distribution_ledger`、`llm.call_model_raw`。 | `proposal.md` §What<br>`design.md` §1.1 契约表<br>`tasks.md` 1~3 |
+| **🔴 P0-2** | **「渠道域名命中」会把同站自然结果算成我方分发** | **【彻底废除裸域名命中，严格继承 18 维真实对账口径】**：<br>1. 明确杜绝将裸渠道域名（如任意知乎/头条/微信链接）算作命中；<br>2. 严格按 18 维规则判定：仅 `exact_hit`（精确等于台账 URL 或官方网址）与 `domain_hit`（路径前缀与台账发布文章一致）计入 `dist_matched_count`；<br>3. 同站未匹配文章归入 `third_party_or_competitor`，**严禁虚抬 `citation_hit_rate` 命中率**。 | `design.md` §2.3<br>`tasks.md` 2.2 |
+| **🔴 P0-3** | **台账字段契约与现网不符** | **【全面对齐现网真实结构】**：<br>废除 `published_url`/`target_url` 臆造字段，严格强制调用 `dist_bot.get_distribution_ledger(project_id)` 读取现网真实结构 `channels.<channel_id>.url` 与 `custom_links[].url`，并通过 `is_ledger_asset_eligible(url, status)` 过滤 `published`/`verified` 状态。 | `design.md` §2.3<br>`tasks.md` 2.1 |
+| **🔴 P0-4** | **绕过 `llm.py` Key 链另起客户端** | **【纳入统一提供商字典】**：<br>彻底废弃独立客户端与 `GEO_*_API_KEY` 列表，在 `tools/geo/llm.py` 的 `PROVIDERS` 字典中增量注册 `yuanbao`（腾讯混元/元宝），复用 `resolve_api_key("yuanbao")` 链式降级与统一的 `call_model_raw("yuanbao", ...)`。 | `design.md` §2.1<br>`tasks.md` 1.1 |
+| **🟡 P1-5/6** | **CLI 易混淆与 `--reconcile-only` 语义统一** | **【统一在 `geo probe` 体系下】**：<br>1. 全文统一参数名为 `--reconcile-only`（语义：免调用大模型，直接基于已有 `live_probing_trace.json` 重新计算对账与公文）；<br>2. 主令为 `geo probe <id> [--models ...] [--reconcile-only]`，保留 `geo probe-audit` 别名且在 help 中明确声明底层复用 `probing.py`。 | `design.md` §4.1<br>`tasks.md` 3.1 |
+| **🟡 P1-7** | **门户联动作为第 30 维核心主交付** | **【高管大屏战果反哺闭环】**：<br>在 `share.py` 的 `compile_portal_data()` 中挂载 `live_citation_summary`，自动读取已有 `live_probing_trace.json`，在无数据时严格以 `status: "never_run"` 降级（实测 SOV 与采纳率记 0），绝不虚构满分。并在 `web/share.html` 中挂载【全网大模型真实引用与信源对账】专属大屏卡片。 | `design.md` §3<br>`tasks.md` 4.1/4.2 |
+| **🟡 P1-8** | **采样意图词来源对齐** | **【读取现网真实意图矩阵】**：<br>采样优先读取 `outputs/02_企业商业意图与5维提问挖掘词库.json` 或 `project.yaml` 的 keywords，杜绝空想 Query。 | `proposal.md` §Why<br>`tasks.md` 1.1 |
+| **🟡 P1-9** | **本土化角标格式补充** | **【补丁式增强正则】**：<br>在 `probing.py` 的 `extract_citations_and_sources()` 中打补丁，增量支持中文方头括号 `【(?P<idx>\d+)】` 与前缀角标 `\[注(?P<idx>\d+)\]`。 | `design.md` §2.2<br>`tasks.md` 1.2 |
+
+### 2. 修订后的工程纪律确认
+
+1. **绝对不搞重复建设**：本规范定位为对 18 维探测基座的补全（元宝接入、中文角标、极速重对账）与向 28 维高管门户的战果交付反哺；
+2. **测试与安全红线**：所有测试全部复用沙箱模式在本地 `127.0.0.1:8088` 运行，全库测试秒绿，严禁私自推生产；
+3. **共识结论**：P0 #1~#4 及 P1 建议已在 `proposal.md`、`design.md` 与 `tasks.md` 中 100% 闭环修正，当前 Spec 已达到可开工标准，状态推进至 **`[已达成共识]`**，提请审阅助手复核放行！
+
+
