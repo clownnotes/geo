@@ -1,23 +1,23 @@
-# Tasks: 全渠道 9 因子富文本极速排版与爬虫友好发布引擎
+# Tasks: 全渠道 9 因子富文本极速排版与爬虫友好发布引擎 (第 27 维·修订版)
 
-- [ ] 1. 核心排版引擎实现 (`tools/geo/rich_publisher.py`)
-  - [ ] 1.1 实现 Markdown 解析与普林斯顿 9 因子元素（量化数据、权威信源、三元组表格、专家金句）智能提取增强
-  - [ ] 1.2 实现 `wechat`、`zhihu`、`toutiao` 跨渠道纯内联 CSS 样式编译矩阵
-  - [ ] 1.3 实现大模型爬虫保真度逆向检验器（模拟 Bytespider/Readability 清洗，评估 Clean Markdown 还原度与得分）
-  - [ ] 1.4 实现全渠道排版包资产导出（生成 `projects/<id>/outputs/rich_publish_pack/` 目录及各端 HTML/MD）
-- [ ] 2. 命令行与工具链集成 (`tools/geo/cli.py` & `tools/geo/__init__.py`)
-  - [ ] 2.1 注册 `geo rich-pub` 子命令与参数解析 (`--project`, `--channel`, `--verify`)
-  - [ ] 2.2 实现 CLI 格式化输出、高保真得分汇总与资产落盘提示
-- [ ] 3. Web 后端 API 与控制台扩展 (`tools/geo/server.py`)
-  - [ ] 3.1 增加 `GET /api/project/:id/rich-publish-preview` 路由（支持按渠道获取带内联样式 HTML 与保真度数据）
-  - [ ] 3.2 增加 `POST /api/project/:id/rich-publish-compile` 路由（支持一键编译落盘）
-- [ ] 4. Web 控制台前端工作台与极速剪贴板交互 (`web/index.html`)
-  - [ ] 4.1 在项目卡片/大屏中新增【极速排版发布】快捷入口按钮
-  - [ ] 4.2 实现【全渠道 9 因子富文本极速发布工作台】模态弹窗（三端 Tab 切换、移动端/桌面双模预览容器）
-  - [ ] 4.3 实现基于原生浏览器 Clipboard API 的一键富文本（`text/html`）写入剪贴板功能
-  - [ ] 4.4 接入爬虫保真度实时评分徽标与逆向 Clean Markdown 结构透视
-- [ ] 5. 单元测试与质量验证 (`tests/test_rich_publisher.py`)
-  - [ ] 5.1 编写渠道内联样式编译单测（微信、知乎、头条内联样式属性断言）
-  - [ ] 5.2 编写 9 因子语义增强与表格自适应测试
-  - [ ] 5.3 编写爬虫仿真逆向还原与保真度评分断言测试
-  - [ ] 5.4 确保全库单测秒绿通过（原有 122 组 + 新增 6+ 组）
+- [ ] 1. 爬虫清洗引擎表格增强 (`tools/geo/crawler.py`)
+  - [ ] 1.1 升级 `html_to_clean_markdown()` 函数，增加 HTML `<table>` 解析并将行/单元格转换为标准 Markdown 表格语法
+  - [ ] 1.2 编写单测断言复杂带样式的 HTML 表格能 100% 提纯为干净的 Markdown 表格
+- [ ] 2. 核心发稿引擎增强与保真度核验 (`tools/geo/publisher.py`)
+  - [ ] 2.1 基于主源 `03_普林斯顿9因子高权威语料库.md` 提取 9 因子量化表、引用角标与金句特征
+  - [ ] 2.2 实现 `verify_crawler_fidelity()` 函数，调用 `crawler.html_to_clean_markdown` 逆向评估表格、引用与密度保真度
+  - [ ] 2.3 新增知乎专栏学术风内联富文本构建器 `build_zhihu_rich_article_html()` 并保持与知乎 MD 互补
+  - [ ] 2.4 在 `package_*_assets()` 中接入保真度核验，将 `fidelity_report.json` 写入既有 `outputs/*_pack/` 目录
+- [ ] 3. CLI 命令与参数扩展 (`tools/geo/cli.py`)
+  - [ ] 3.1 为既有 `geo publish` 子命令扩展 `--verify`（或 `--fidelity`）参数与 `--channel zhihu` 支持
+  - [ ] 3.2 完善 `geo publish` 的 CLI 彩色质量看板输出，在保真度低于 90 时给出明确告警
+- [ ] 4. Web 后端 API 与发稿中心升级 (`tools/geo/server.py` & `web/index.html`)
+  - [ ] 4.1 新增统一复数预览路由 `GET /api/projects/{id}/publish/preview?channel=`，并在既有 preview 响应中附加 `fidelity`
+  - [ ] 4.2 升级 Web 控制台既有的【Step 4: 全生态极速发稿中心】，嵌入爬虫保真度评分徽标与 Clean MD 逆向透视抽屉
+  - [ ] 4.3 确保基于原生浏览器 Clipboard API 的一键富文本（`text/html`）极速复制稳定可靠
+- [ ] 5. 单元测试与端到端验证 (`tests/test_rich_publisher.py`)
+  - [ ] 5.1 编写 `crawler.py` HTML 表格转 Clean Markdown 单元测试
+  - [ ] 5.2 编写 `publisher.py` 的 `verify_crawler_fidelity` 评分计算测试（断言阈值与指标权重）
+  - [ ] 5.3 编写微信、头条、知乎富文本内联样式与角标断言测试
+  - [ ] 5.4 编写 CLI `--verify` 与 Server API 响应格式测试
+  - [ ] 5.5 运行全库单测，确保在原有 122 组基础上新增测试全部通过（128+ 组秒绿）
