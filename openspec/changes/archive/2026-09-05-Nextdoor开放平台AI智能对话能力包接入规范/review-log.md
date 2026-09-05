@@ -263,3 +263,23 @@
 
 - **最终审查结论**：**`[通过]`**
   所有审查项与安全边界已 100% 修复并经单元测试自动化闭环，代码质量与契约完全符合规范，准予进入归档或正式交付。
+
+---
+
+### 2026-09-05 00:50 Cursor 实现修复独立终审 [通过]
+
+- **审查者**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：`apply` 修复复核 / 实现终审（对照 commit `883fd79`、`gateway/main.go`、`gateway/main_test.go`、`design.md`）
+- **审查结论**：`[通过]`
+- **对上一轮阻塞与建议的独立核验**：
+  1. ✅ **CORS 白名单（原 🔴）**：`isOriginAllowed` + 恶意 Origin OPTIONS → `403` 且无 ACAO；白名单 Origin → `204` + 正确 ACAO。单测 `TestCORSWhitelist` PASS。
+  2. ✅ **空 JWT 拦截（原 🟡）**：`ensureJWTConfigured` 默认拒绝 → HTTP 401 / `40101`；短路意图路径仍可无 Token。`TestJWTMissingRejection` PASS。
+  3. ✅ **Intent/Writing 非 200 信封转译（原 🟡）**：均走 `mapHTTPStatusToCode` + `sendErrorJSON`，不再裸透传错误体。
+  4. ✅ **abort 连带取消（原 🟡）**：`TestClientAbortUpstreamCancellation` 用 mock 上游断言 `r.Context().Done()`，本机复跑 PASS（约 0.10s）。
+  5. ✅ **本机回归**：`cd gateway && go test -v -count=1 .` → 4/4 PASS（约 1.56s）。
+
+- **残余非阻塞备注（不阻碍通过/归档）**：
+  1. 🟢 `allow_missing_jwt` 已实现并支持环境变量，但 `config.yaml.example` / `design.md` 尚未显式文档化该开关；归档前可补一行说明。
+  2. 🟢 `allowed_origin` 配置若写成 `*` 仍会放行任意源——建议生产配置禁止使用 `*`，或在文档标明仅限本地调试。
+
+- **结论说明**：上轮全部阻塞与关键风险已闭环，契约与自动化测试一致。**实现向审查通过**，可执行 `/opsx-archive`（或按流程先提交未入库的 OpenSpec 文档变更后再归档）。
