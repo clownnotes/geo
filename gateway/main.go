@@ -22,6 +22,7 @@ type Config struct {
 	BaseURL          string `json:"base_url"`
 	SourceClient     string `json:"source_client"`
 	JWTToken         string `json:"jwt_token"`
+	AllowMissingJWT  bool   `json:"allow_missing_jwt"`
 	HeaderTimeoutSec int    `json:"header_timeout_sec"`
 	JSONTimeoutSec   int    `json:"json_timeout_sec"`
 }
@@ -30,10 +31,11 @@ type Config struct {
 func defaultConfig() *Config {
 	return &Config{
 		Port:             8090,
-		AllowedOrigin:    "http://127.0.0.1:8088",
+		AllowedOrigin:    "http://127.0.0.1:8088,http://localhost:8088",
 		BaseURL:          "http://127.0.0.1:9000",
 		SourceClient:     "geo-custom-brand",
 		JWTToken:         "",
+		AllowMissingJWT:  false,
 		HeaderTimeoutSec: 15,
 		JSONTimeoutSec:   15,
 	}
@@ -74,6 +76,8 @@ func loadConfig() *Config {
 					cfg.SourceClient = v
 				case "jwt_token":
 					cfg.JWTToken = v
+				case "allow_missing_jwt":
+					cfg.AllowMissingJWT = (v == "true" || v == "1")
 				case "header_timeout_sec":
 					if s, err := strconv.Atoi(v); err == nil && s > 0 {
 						cfg.HeaderTimeoutSec = s
@@ -106,8 +110,33 @@ func loadConfig() *Config {
 	if envOrigin := os.Getenv("NEXTDOOR_ALLOWED_ORIGIN"); envOrigin != "" {
 		cfg.AllowedOrigin = envOrigin
 	}
+	if envAllowMissing := os.Getenv("NEXTDOOR_ALLOW_MISSING_JWT"); envAllowMissing != "" {
+		cfg.AllowMissingJWT = (envAllowMissing == "true" || envAllowMissing == "1")
+	}
 
 	return cfg
+}
+
+// 统一标准状态码查表映射
+func mapHTTPStatusToCode(status int) int {
+	switch status {
+	case http.StatusBadRequest:
+		return 40001
+	case http.StatusUnauthorized:
+		return 40101
+	case http.StatusForbidden:
+		return 40301
+	case http.StatusNotFound:
+		return 40401
+	case http.StatusMethodNotAllowed:
+		return 40001
+	case http.StatusBadGateway:
+		return 50201
+	case http.StatusGatewayTimeout:
+		return 50401
+	default:
+		return status*100 + 1
+	}
 }
 
 // 统一输出错误信封
@@ -132,21 +161,45 @@ func sendSuccessJSON(w http.ResponseWriter, data interface{}) {
 	})
 }
 
-// CORS 中间件，自动放行前端（如 GEO 主站 8088）
+// 严格白名单判定：杜绝反射任意 Origin
+func isOriginAllowed(origin string, allowedConfig string) bool {
+	if origin == "" {
+		return true // 服务端直调或非浏览器同源调用
+	}
+	origins := strings.Split(allowedConfig, ",")
+	for _, o := range origins {
+		o = strings.TrimSpace(o)
+		if o == "*" || strings.EqualFold(origin, o) {
+			return true
+		}
+		// 容错: 127.0.0.1:8088 与 localhost:8088 互认
+		if (o == "http://127.0.0.1:8088" && origin == "http://localhost:8088") ||
+			(o == "http://localhost:8088" && origin == "http://127.0.0.1:8088") {
+			return true
+		}
+	}
+	return false
+}
+
+// CORS 中间件：白名单保护与 OPTIONS 预检拦截
 func corsMiddleware(allowedOrigin string, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 		if origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		} else if allowedOrigin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
-		} else {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			if isOriginAllowed(origin, allowedOrigin) {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, vio-source-client, X-Requested-With")
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
+			} else {
+				// 恶意 Origin / 非白名单跨域拦截
+				if r.Method == http.MethodOptions {
+					http.Error(w, "CORS origin forbidden", http.StatusForbidden)
+					return
+				}
+				// 普通请求不回写 ACAO 头，浏览器端会自动触发安全拦截
+			}
 		}
-
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, vio-source-client, X-Requested-With")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
@@ -157,6 +210,15 @@ func corsMiddleware(allowedOrigin string, next http.HandlerFunc) http.HandlerFun
 	}
 }
 
+// 检查上游鉴权凭证配置状态
+func ensureJWTConfigured(cfg *Config, w http.ResponseWriter) bool {
+	if strings.TrimSpace(cfg.JWTToken) == "" && !cfg.AllowMissingJWT {
+		sendErrorJSON(w, http.StatusUnauthorized, 40101, "网关未配置有效开发者凭证 (JWTToken)")
+		return false
+	}
+	return true
+}
+
 // =========================================================================
 // 1. [SSE] 流式对话 Handler (POST /api/chat/stream -> /api/v1/xiulan/chat)
 // =========================================================================
@@ -164,6 +226,10 @@ func handleChatStream(cfg *Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			sendErrorJSON(w, http.StatusMethodNotAllowed, 40001, "仅支持 POST 请求")
+			return
+		}
+
+		if !ensureJWTConfigured(cfg, w) {
 			return
 		}
 
@@ -210,7 +276,8 @@ func handleChatStream(cfg *Config) http.HandlerFunc {
 		// 上游非 200 状态码：转译为统一错误信封，严禁裸流穿透
 		if resp.StatusCode != http.StatusOK {
 			errBody, _ := io.ReadAll(resp.Body)
-			sendErrorJSON(w, resp.StatusCode, resp.StatusCode*100+1, fmt.Sprintf("上游 Nextdoor 返回异常: %s", string(errBody)))
+			code := mapHTTPStatusToCode(resp.StatusCode)
+			sendErrorJSON(w, resp.StatusCode, code, fmt.Sprintf("上游 Nextdoor 返回异常: %s", string(errBody)))
 			return
 		}
 
@@ -279,6 +346,10 @@ func handleIntentMatch(cfg *Config) http.HandlerFunc {
 			return
 		}
 
+		if !ensureJWTConfigured(cfg, w) {
+			return
+		}
+
 		targetURL := fmt.Sprintf("%s/api/v1/xiulan/intent/match", cfg.BaseURL)
 		reqBytes, _ := json.Marshal(payload)
 		upstreamReq, err := http.NewRequestWithContext(r.Context(), "POST", targetURL, bytes.NewReader(reqBytes))
@@ -300,6 +371,14 @@ func handleIntentMatch(cfg *Config) http.HandlerFunc {
 			return
 		}
 		defer resp.Body.Close()
+
+		// 上游非 200 统一转译为标准 JSON 信封
+		if resp.StatusCode != http.StatusOK {
+			errBody, _ := io.ReadAll(resp.Body)
+			code := mapHTTPStatusToCode(resp.StatusCode)
+			sendErrorJSON(w, resp.StatusCode, code, fmt.Sprintf("上游 Nextdoor 返回异常: %s", string(errBody)))
+			return
+		}
 
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(resp.StatusCode)
@@ -337,6 +416,10 @@ func handleWritingSessions(cfg *Config) http.HandlerFunc {
 			return
 		}
 
+		if !ensureJWTConfigured(cfg, w) {
+			return
+		}
+
 		targetURL := fmt.Sprintf("%s/api/writing-flow/sessions", cfg.BaseURL)
 		reqBytes, _ := json.Marshal(payload)
 		upstreamReq, err := http.NewRequestWithContext(r.Context(), "POST", targetURL, bytes.NewReader(reqBytes))
@@ -359,6 +442,14 @@ func handleWritingSessions(cfg *Config) http.HandlerFunc {
 		}
 		defer resp.Body.Close()
 
+		// 上游非 200 统一转译为标准 JSON 信封
+		if resp.StatusCode != http.StatusOK {
+			errBody, _ := io.ReadAll(resp.Body)
+			code := mapHTTPStatusToCode(resp.StatusCode)
+			sendErrorJSON(w, resp.StatusCode, code, fmt.Sprintf("上游 Nextdoor 返回异常: %s", string(errBody)))
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(resp.StatusCode)
 		_, _ = io.Copy(w, resp.Body)
@@ -368,9 +459,7 @@ func handleWritingSessions(cfg *Config) http.HandlerFunc {
 // =========================================================================
 // 主入口
 // =========================================================================
-func main() {
-	cfg := loadConfig()
-
+func setupMux(cfg *Config) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	// 1. 三大核心对外路由
@@ -381,19 +470,29 @@ func main() {
 	// 2. 健康检查端点
 	mux.HandleFunc("/healthz", corsMiddleware(cfg.AllowedOrigin, func(w http.ResponseWriter, r *http.Request) {
 		sendSuccessJSON(w, map[string]interface{}{
-			"status":        "running",
-			"gateway_port":  cfg.Port,
-			"upstream_base": cfg.BaseURL,
-			"source_client": cfg.SourceClient,
-			"jwt_present":   cfg.JWTToken != "",
+			"status":             "running",
+			"gateway_port":       cfg.Port,
+			"upstream_base":      cfg.BaseURL,
+			"source_client":      cfg.SourceClient,
+			"jwt_present":        cfg.JWTToken != "",
+			"allow_missing_jwt":  cfg.AllowMissingJWT,
+			"allowed_origin_cfg": cfg.AllowedOrigin,
 		})
 	}))
+
+	return mux
+}
+
+func main() {
+	cfg := loadConfig()
+	mux := setupMux(cfg)
 
 	addr := fmt.Sprintf("0.0.0.0:%d", cfg.Port)
 	log.Printf("🚀 Nextdoor AI 智能对话透明流式网关已启动！")
 	log.Printf("📍 本地监听地址: http://127.0.0.1:%d", cfg.Port)
 	log.Printf("🔗 对应上游 Nextdoor: %s", cfg.BaseURL)
-	log.Printf("🛡️ 凭证与品牌标识: %s (JWT 已安全托管在服务端)", cfg.SourceClient)
+	log.Printf("🛡️ 凭证与品牌标识: %s (JWT 配置状态: %v)", cfg.SourceClient, cfg.JWTToken != "")
+	log.Printf("🔒 CORS 严格放行源: %s", cfg.AllowedOrigin)
 	log.Printf("⚡️ 核心路由已就绪:")
 	log.Printf("   - [SSE]  POST http://127.0.0.1:%d/api/chat/stream", cfg.Port)
 	log.Printf("   - [JSON] POST http://127.0.0.1:%d/api/chat/intent/match", cfg.Port)
