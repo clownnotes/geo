@@ -6,3 +6,6 @@ dist/
 __pycache__/
 *.pyc
 data/shares.json
+gateway/config.yaml
+gateway/gateway
+.env

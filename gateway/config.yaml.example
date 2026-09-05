@@ -1,0 +1,24 @@
+# Nextdoor 开放平台透明流式网关本地配置模板
+# 复制本文件为 gateway/config.yaml 并在本地填写真实凭证（config.yaml 已被 .gitignore 忽略）
+
+# 1. 服务端监听端口 (默认 8090，与 GEO 主站 8088 严格隔离)
+port: 8090
+
+# 2. 允许跨域调用的前端来源 (默认放行本地 GEO 工作台 8088 端口)
+allowed_origin: "http://127.0.0.1:8088"
+
+# 3. Nextdoor 开放平台 Base URL
+# 同机部署优先使用本地回环地址: http://127.0.0.1:9000
+# 公网环境可配置为: https://nextdoor.baicl.cc
+base_url: "http://127.0.0.1:9000"
+
+# 4. 必带品牌客户端标识 (vio-source-client)
+source_client: "geo-custom-brand"
+
+# 5. 开发者 JWT 凭证 (仅保存在本地后端配置或环境变量中，严禁写在前端)
+# 支持从环境变量 NEXTDOOR_JWT_TOKEN 覆盖
+jwt_token: "your_nextdoor_jwt_token_here"
+
+# 6. 超时配置
+header_timeout_sec: 15
+json_timeout_sec: 15
