@@ -24,3 +24,12 @@
 - [x] 4.1 本地 8088 端口全流程抽检（首页、博客列表、博客单篇、服务页、关于页）
 - [x] 4.2 检查全站代码严格杜绝任何 Emoji 彩色表情符号
 - [x] 4.3 Git 提交并推送至 `origin main` 与 `github main`（坚决遵守不擅自推生产服务器原则）
+
+## 5. 对标 DeepGEO 博客知识库全量 77 篇文章克隆与品牌实体置换
+- [x] 5.1 批量拉取 DeepGEO 77 篇权威博文原文与结构数据
+- [x] 5.2 实施品牌实体与口径深度置换（DeepGEO -> 邻里GEO NextGEO，余果 -> 老白，深圳 -> 徐州/淮海经济区，deep-geo.cn -> nextgeo.baicl.cc）
+- [x] 5.3 严格遵循普林斯顿 9 因子与零 Emoji 规范生成 77 篇独立静态 HTML（含 Schema.org TechArticle、右侧目录导航、FAQ 模块）
+- [x] 5.4 升级 `blog/index.html`，支持“全部(77)”、“GEO(33)”、“AI搜索(35)”、“案例(9)”分类筛选与 77 篇卡片网格
+- [x] 5.5 全量更新 `llms.txt` 与 `sitemap.xml`，同步双份目录（`outputs/site/` 与 `outputs/`）
+- [x] 5.6 本地 8088 端口全量验证、零 Emoji 自动化核验与 Git 双端推送
+

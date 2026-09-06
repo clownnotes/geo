@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实体清晰度如何影响AI是否推荐你的品牌｜邻里GEO</title>
+  <meta name="description" content="实体清晰度决定AI能否把品牌放进正确类别、场景和推荐集合。本文拆解品牌实体字段、能力边界、证据链和自测方法，帮助企业减少AI误解和错误推荐。">
+  <meta name="keywords" content="实体清晰度, AI推荐, 品牌实体, GEO, AI搜索, 实体SEO, 品牌理解, GEO, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/entity-clarity-ai-brand-recommendation.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/entity-clarity-ai-brand-recommendation.html#article",
+      "headline": "实体清晰度如何影响AI是否推荐你的品牌",
+      "description": "实体清晰度决定AI能否把品牌放进正确类别、场景和推荐集合。本文拆解品牌实体字段、能力边界、证据链和自测方法，帮助企业减少AI误解和错误推荐。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-09-24T08:00:00+08:00",
+      "dateModified": "2025-09-24T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "GEO 实战",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=geo"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "实体清晰度如何影响AI是否推荐你的品牌",
+          "item": "https://nextgeo.baicl.cc/blog/entity-clarity-ai-brand-recommendation.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="../blog/" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">GEO 实战</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          实体清晰度如何影响AI是否推荐你的品牌
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-09-24">发布日期: 2025-09-24</time>
+          <span>·</span>
+          <span>阅读时长: 8 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            实体清晰度决定AI能否把品牌放进正确类别、场景和推荐集合。本文拆解品牌实体字段、能力边界、证据链和自测方法，帮助企业减少AI误解和错误推荐。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：AI推荐的前提是先能定义你</h2><p>实体清晰度会直接影响AI是否推荐你的品牌。AI在推荐时需要判断品牌属于什么类别、解决什么问题、适合什么用户、有哪些证据支持。如果这些信息不清楚，模型更可能选择可解释性更强的替代品牌。</p><p>很多企业以为问题在“知名度不够”，其实问题常常在“定义不稳定”。官网、媒体、社交资料和产品页说法不一致，会让AI难以确认它面对的是同一个实体。</p><p>因此，提升AI推荐率的第一步不是写更多文章，而是把品牌实体建设成低歧义、可验证、可区分的知识对象。</p></section><section id="block-2" class="content-block"><h2>二、为什么AI不愿意推荐模糊品牌</h2><figure class="content-image"><img src="../../assets/article-images/entity-clarity-ai-brand-recommendation/entity-clarity-ai-recommendation.png" alt="实体清晰度影响AI推荐品牌示意"><figcaption>品牌实体越清晰，AI越容易判断它是否适合被推荐给用户。</figcaption></figure><p>推荐是一种风险更高的答案行为。相比定义性回答，推荐会影响用户选择，所以AI通常更倾向使用信息完整、外部证据较多、边界清楚的品牌。</p><p>如果一个品牌只说“领先”“智能”“一站式”，却没有说明服务对象、核心能力、适用条件和真实证据，AI很难判断它是否适合某个具体问题。为了降低错误推荐风险，模型可能直接忽略它。</p><p>实体清晰度越高，AI越容易把品牌放进正确候选集；实体越模糊，品牌越容易被归错类、弱化描述或完全不出现。</p></section><section id="block-3" class="content-block"><h2>三、实体清晰度包含哪些基础字段</h2><p>品牌实体不是一个名称，而是一组可被识别和复核的字段。企业至少要让AI稳定获得名称、类别、能力、对象、场景、证据和边界。</p><p>这些字段应出现在官网核心页面、结构化数据、FAQ、案例和第三方简介中，并保持一致。</p><table class="content-table"><thead><tr><th>字段</th><th>要回答的问题</th><th>常见问题</th></tr></thead><tbody><tr><td>名称</td><td>你是谁</td><td>中英文名、产品名混用</td></tr><tr><td>类别</td><td>你属于什么品类</td><td>自创概念太多，缺少行业归类</td></tr><tr><td>能力</td><td>你能解决什么问题</td><td>只写卖点，不写边界</td></tr><tr><td>对象</td><td>你服务谁</td><td>目标客户过宽</td></tr><tr><td>证据</td><td>为什么可信</td><td>缺少案例、来源和过程说明</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、类别和能力边界如何影响推荐</h2><p>AI推荐通常发生在具体类别和场景里。用户问“适合B2B企业的GEO服务商”，模型需要先知道哪些品牌属于GEO服务，再判断谁适合B2B企业。如果品牌没有清晰品类归属，就很难进入候选。</p><p>能力边界同样重要。一个品牌如果把所有能力都写成“全链路解决方案”，AI反而难以判断它最擅长什么。清楚写出适合、不适合、需要配合的条件，能降低误推荐风险。</p><p>边界不是削弱品牌，而是帮助AI在正确问题中推荐你。</p><ul class=""><li>用一句话定义品牌所属品类。</li><li>列出三到五个核心能力，不把愿景当能力。</li><li>说明适合的客户类型、行业和成熟度。</li><li>明确不适合的场景，避免AI过度泛化。</li></ul></section><section id="block-5" class="content-block"><h2>五、证据链如何降低模型推荐风险</h2><p>AI是否推荐品牌，还取决于证据链是否足够支撑。证据链包括官网说明、案例、客户评价、第三方报道、评测、文档和可复核的事实。证据越稳定，模型越有理由采用品牌。</p><p>证据要和具体能力相邻。不要只在页面底部堆客户Logo，而要说明客户遇到什么问题、品牌提供了什么方法、哪些结果可以公开、哪些结论不能夸大。</p><p>当官网证据和第三方证据一致时，AI更容易把品牌推荐给相关场景；当证据分散或冲突时，推荐稳定性会下降。</p></section><section id="block-6" class="content-block"><h2>六、如何测试品牌实体是否清晰</h2><p>实体清晰度可以通过问题测试，而不是靠内部感觉判断。企业应分别测试“你是谁”“你属于什么类别”“你解决什么问题”“你和谁不同”“为什么可信”等问题。</p><p>如果AI在不同模型和不同Prompt下都能给出相近答案，说明实体结构相对稳定。如果答案中出现行业归类错误、能力夸大、客户对象错误或把品牌与同名实体混淆，就要回到官网和外部资料修正。</p><p>测试结果应形成实体问题清单，并对应到具体页面：品牌页、产品页、案例页、FAQ、关于页和第三方资料。</p><table class="content-table"><thead><tr><th>测试问题</th><th>通过标准</th><th>修正方向</th></tr></thead><tbody><tr><td>这个品牌是什么</td><td>定义准确且不混淆</td><td>统一名称和一句话定义</td></tr><tr><td>它适合谁</td><td>对象和场景具体</td><td>补充客户类型和场景页</td></tr><tr><td>它凭什么可信</td><td>能找到证据来源</td><td>补案例、评测和引用</td></tr><tr><td>它不适合什么</td><td>边界表达清楚</td><td>增加限制条件和FAQ</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：实体清晰度是AI推荐的前置条件</h2><p>AI是否推荐品牌，首先取决于它能否清楚理解这个品牌。实体不清晰，后续的内容、外链和传播都会被削弱，因为模型不知道应该把这些信息归到哪个对象上。</p><p>在GEO体系中，企业要先把自己建设成一个稳定实体，再争取引用和推荐。越是细分品牌，越需要主动降低AI理解成本。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：Intro to structured data markup in Google Search -</span><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data</a></li><li><span>Schema.org：Organization schema -</span><a href="https://schema.org/Organization" target="_blank" rel="noopener noreferrer">https://schema.org/Organization</a></li><li><span>Microsoft Learn：Retrieval augmented generation and indexes -</span><a href="https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：实体清晰度和品牌知名度有什么区别？</h3><p>品牌知名度说明多少人听过你，实体清晰度说明AI能否稳定定义你。知名品牌也可能因为业务线复杂而被描述错误，小品牌也可能因为定义清楚而在细分场景中被推荐。GEO更关注后者，因为它直接影响答案生成。落地时可以先做实体字段表，再逐页检查是否存在冲突。</p></div><div><h3>Q2：企业应该先优化官网还是第三方资料？</h3><p>通常先优化官网。官网是品牌自我定义的主要来源，应先统一名称、品类、能力、对象和证据。第三方资料再围绕这套定义补充外部证明。如果外部资料先行但官网不清楚，AI仍然可能看到冲突信号。这种差异会直接影响AI在品类、场景和推荐问题中的候选判断。</p></div><div><h3>Q3：实体清晰度能通过结构化数据解决吗？</h3><p>结构化数据有帮助，但不能单独解决。它能辅助搜索系统识别组织、产品和页面关系，但页面正文仍要讲清楚品牌定义、能力边界和证据。结构化数据和可读内容一致时，效果才更稳。结构化数据、正文和第三方资料一致时，实体信号才更可靠。</p></div><div><h3>Q4：品牌名和产品名相似会影响AI推荐吗？</h3><p>会。名称相似、缩写混用或中英文不一致，都可能让AI把公司、产品和服务混成一个对象。企业应在官网中明确品牌层级，例如公司名、产品名、服务名分别是什么，并在第三方资料中保持同样写法。名称层级越清楚，AI越不容易把公司、产品和服务混在一起。</p></div><div><h3>Q5：为什么清楚写“不适合谁”也有用？</h3><p>因为推荐需要边界。只写适合所有人，会让AI难以判断具体场景中的相关性。明确不适合的预算、行业、成熟度或使用条件，反而能提高模型在正确问题中推荐品牌的信心，也能减少错误期待。边界信息还可以帮助销售过滤不匹配需求，减少后续沟通成本。</p></div><div><h3>Q6：实体清晰度多久检查一次？</h3><p>建议在品牌定位、产品能力、价格方案、客户类型或行业重点变化后立即检查，平时每月做一次轻量复盘。重点看AI是否仍然准确描述品牌，外部页面是否出现旧信息，官网新增内容是否与标准定义一致。检查时要同时看官网和外部页面，因为AI往往会综合多个来源。</p></div><div><h3>Q7：如何判断实体优化已经生效？</h3><p>可以观察多模型回答是否更一致，品牌是否进入正确品类问题，AI是否减少错误描述，是否更多引用官网和高质量第三方来源。不要只看一次推荐结果，至少连续观察数周，确认稳定性而不是偶然波动。评估时看趋势，不要因为一次推荐或一次缺席就急于下结论。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：AI推荐的前提是先能定义你</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么AI不愿意推荐模糊品牌</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、实体清晰度包含哪些基础字段</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、类别和能力边界如何影响推荐</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、证据链如何降低模型推荐风险</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、如何测试品牌实体是否清晰</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：实体清晰度是AI推荐的前置条件</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

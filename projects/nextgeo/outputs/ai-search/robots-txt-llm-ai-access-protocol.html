@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>robots.txt管不了LLM，我们需要新的AI访问协议｜邻里GEO</title>
+  <meta name="description" content="robots.txt可以表达抓取意愿，但它无法完整定义AI如何学习、摘要、引用和再分发内容。robots.txt主要管理爬虫访问路径，但AI场景还涉及训练、摘要、引用和答案展示。企业需要区分搜索索引、AI搜索检索、模型训练、用户触发访问和商业复用等用途。">
+  <meta name="keywords" content="robots.txt, LLM爬虫, AI访问协议, llms.txt, GEO, 内容授权, AI爬虫管理, AI搜索, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/robots-txt-llm-ai-access-protocol.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/robots-txt-llm-ai-access-protocol.html#article",
+      "headline": "robots.txt管不了LLM，我们需要新的AI访问协议",
+      "description": "robots.txt可以表达抓取意愿，但它无法完整定义AI如何学习、摘要、引用和再分发内容。robots.txt主要管理爬虫访问路径，但AI场景还涉及训练、摘要、引用和答案展示。企业需要区分搜索索引、AI搜索检索、模型训练、用户触发访问和商业复用等用途。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-05-07T08:00:00+08:00",
+      "dateModified": "2025-05-07T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AI 搜索认知",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=ai-search"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "robots.txt管不了LLM，我们需要新的AI访问协议",
+          "item": "https://nextgeo.baicl.cc/blog/robots-txt-llm-ai-access-protocol.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="../blog/" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">AI 搜索认知</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          robots.txt管不了LLM，我们需要新的AI访问协议
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-05-07">发布日期: 2025-05-07</time>
+          <span>·</span>
+          <span>阅读时长: 8 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            robots.txt可以表达抓取意愿，但它无法完整定义AI如何学习、摘要、引用和再分发内容。robots.txt主要管理爬虫访问路径，但AI场景还涉及训练、摘要、引用和答案展示。企业需要区分搜索索引、AI搜索检索、模型训练、用户触发访问和商业复用等用途。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：robots.txt不够表达AI时代的内容边界</h2><p>robots.txt可以告诉部分爬虫哪些路径不希望被访问，但它无法完整定义AI如何使用内容。AI时代的内容使用场景更复杂，包含搜索索引、AI搜索检索、模型训练、用户触发访问、摘要展示、引用链接和商业授权。</p><p>因此，企业需要新的AI访问协议或内容治理机制。它不一定是单一文件，也不一定马上形成统一标准，但必须能更细地表达：什么内容可以被读，什么内容可以被训练，什么内容可以被摘要，什么内容需要授权。</p></section><section id="block-2" class="content-block"><h2>二、robots.txt原本解决的是什么问题</h2><figure class="content-image"><img src="../../assets/article-images/robots-txt-llm-ai-access-protocol/robots-txt-llm-ai-access-protocol.png" alt="robots.txt与AI访问协议示意"><figcaption>robots.txt管理访问路径，但AI内容治理还需要区分训练、搜索、引用和授权场景。</figcaption></figure><p>robots.txt的核心作用，是让网站声明爬虫可以访问哪些URL路径。Google文档也明确说明，robots.txt主要用于避免爬虫请求给网站造成负担，它不是让网页从搜索结果中消失的安全机制。</p><p>这个设计适合传统网页抓取场景：爬虫访问页面，搜索引擎建立索引，用户点击搜索结果。但AI系统的内容使用链路更长，抓取只是开始，后面还可能涉及训练、检索、摘要、回答和再分发。</p></section><section id="block-3" class="content-block"><h2>三、AI访问包含哪些不同场景</h2><p>讨论AI访问协议，首先要拆开不同用途。把所有AI爬虫都当成同一种访问，会导致决策过粗：企业可能误挡搜索可见性，也可能放开不希望进入训练的数据。</p><p>OpenAI的爬虫说明已经把搜索、训练、广告校验和用户触发访问分成不同代理。这个方向说明，AI访问管理正在从“允许或禁止爬虫”转向“按用途声明边界”。</p><table class="content-table"><thead><tr><th>场景</th><th>典型问题</th><th>治理重点</th></tr></thead><tbody><tr><td>搜索索引</td><td>是否出现在搜索结果</td><td>抓取路径和索引控制</td></tr><tr><td>AI搜索检索</td><td>是否进入AI答案来源</td><td>允许检索、引用和来源展示</td></tr><tr><td>模型训练</td><td>是否用于训练基础模型</td><td>训练许可和数据使用边界</td></tr><tr><td>用户触发访问</td><td>用户要求AI读取网页</td><td>实时访问、权限和日志</td></tr><tr><td>商业复用</td><td>内容是否被产品化使用</td><td>授权、署名和收费规则</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、企业需要声明哪些内容边界</h2><p>企业不应该只写一个笼统的“禁止AI使用”。更可操作的做法，是按内容类型和用途声明边界。比如公开产品页可以用于搜索和引用，会员资料只能被登录用户访问，付费报告需要授权，客户数据不能用于训练或摘要。</p><p>这些边界既是法律和版权问题，也是品牌认知问题。企业如果完全屏蔽AI访问，可能失去被搜索和引用的机会；如果完全放开，又可能让敏感内容或过时内容被错误复用。</p><ul class=""><li>哪些页面允许AI搜索抓取并在答案中展示来源。</li><li>哪些内容允许被摘要，但必须保留链接或署名。</li><li>哪些内容不允许用于模型训练或商业再分发。</li><li>哪些资料需要登录、合同或付费授权才能访问。</li><li>哪些旧页面应下线、重定向或标注过期状态。</li></ul></section><section id="block-5" class="content-block"><h2>五、llms.txt和AI可读说明的价值</h2><p>llms.txt目前更像一项社区提案，目标是给LLM提供网站的简明说明、重要链接和可读资料入口。它不是robots.txt的替代品，也不是强制标准，但它提供了一个方向：网站可以主动告诉AI，哪些内容最适合被理解。</p><p>对企业来说，llms.txt或类似AI可读说明的价值，不在于神奇提升排名，而在于降低理解成本。它可以把品牌定义、核心页面、文档入口、使用边界和联系信息集中呈现，减少AI从复杂HTML中猜测结构。</p></section><section id="block-6" class="content-block"><h2>六、访问控制不能替代内容授权和监测</h2><p>AI访问协议不是一个技术文件就能解决的事。robots.txt、llms.txt、结构化数据、版权声明、合同条款、日志分析和监测流程要一起工作。尤其是内容授权和训练许可，往往需要法律和业务团队共同定义。</p><p>同时，企业还应监测AI系统是否正确描述和引用内容。即使访问规则写得清楚，AI答案仍可能受第三方来源、历史缓存和用户问题影响。治理的目标不是一次性封堵，而是持续校准内容边界和品牌表达。</p></section><section id="block-7" class="content-block"><h2>七、结论：AI时代需要更细粒度的内容治理协议</h2><p>robots.txt仍然有价值，但它解决的是传统爬虫访问路径问题。面对LLM和AI搜索，企业需要更细的协议来表达不同使用场景下的许可、限制和引用要求。</p><p>更好的方向不是简单拒绝AI，也不是无条件开放所有内容，而是把公开知识资产、受限资料、训练许可和商业授权分层管理。这样企业既能争取AI可见性，也能保护内容权益和品牌准确性。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li><li><span>Google Search Central：Introduction to robots.txt -</span><a href="https://developers.google.com/search/docs/crawling-indexing/robots/intro" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/crawling-indexing/robots/intro</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>llms.txt proposal：The /llms.txt file -</span><a href="https://llmstxt.org/" target="_blank" rel="noopener noreferrer">https://llmstxt.org/</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：robots.txt真的管不了LLM吗？</h3><p>更准确地说，robots.txt只能管理一部分爬虫访问意愿，不能完整管理LLM对内容的训练、摘要、引用和再分发。部分AI公司会提供不同user-agent供站长控制，但这仍然是访问层规则。企业还需要版权声明、授权条款、内容分级和监测机制共同治理。</p></div><div><h3>Q2：禁止AI爬虫会不会影响AI搜索可见性？</h3><p>可能会，具体取决于被禁止的是哪类爬虫和哪类用途。如果禁止的是AI搜索检索代理，网站可能难以出现在对应AI搜索答案中；如果禁止的是训练代理，则主要表达不希望内容用于训练。企业应区分搜索、训练和用户触发访问，避免一刀切造成误伤。</p></div><div><h3>Q3：llms.txt可以替代robots.txt吗？</h3><p>不能。robots.txt主要表达爬虫访问路径规则，llms.txt提案更偏向给LLM提供网站说明、重要链接和可读资料入口。两者用途不同，可以互补。企业可以用robots.txt管理访问，用llms.txt或类似页面帮助AI理解内容结构，但不能把它当成强制访问控制。</p></div><div><h3>Q4：企业应该开放哪些内容给AI读取？</h3><p>通常可以开放希望被市场和用户理解的公开知识资产，例如品牌介绍、产品说明、FAQ、案例摘要、文档入口和公开联系方式。涉及客户隐私、付费报告、内部资料、合同价格和敏感数据的内容，应通过登录、权限、noindex、合同条款或技术访问控制单独治理。</p></div><div><h3>Q5：AI访问协议和GEO有什么关系？</h3><p>GEO需要让AI准确理解企业，但这种理解必须建立在可控边界上。AI访问协议回答“哪些内容可以被AI怎样使用”，GEO内容结构回答“AI应该如何理解这些内容”。前者保护权益和边界，后者提升可见性和准确性，两者结合才是长期内容治理。</p></div><div><h3>Q6：只靠版权声明能限制AI使用内容吗？</h3><p>版权声明很重要，但它不是完整技术控制。它能表达权利主张和使用条件，却不能阻止所有爬虫访问，也不能自动纠正AI答案。企业应把版权声明与访问规则、权限系统、日志监测、外部沟通和法律条款结合起来，尤其是付费内容和客户资料。</p></div><div><h3>Q7：现在就需要为网站添加AI访问说明吗？</h3><p>如果网站有大量公开知识、产品文档、研究报告或内容资产，建议尽早规划。即使不马上采用某个标准，也应梳理哪些内容可公开、可引用、可训练或需授权。这个过程能帮助企业发现过期页面、冲突表述和敏感资料，比单纯加一个文件更重要。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：robots.txt不够表达AI时代的内容边界</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、robots.txt原本解决的是什么问题</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、AI访问包含哪些不同场景</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、企业需要声明哪些内容边界</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、llms.txt和AI可读说明的价值</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、访问控制不能替代内容授权和监测</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：AI时代需要更细粒度的内容治理协议</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

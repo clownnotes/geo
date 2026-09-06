@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一篇文章怎么改，才能被AI频繁引用？｜邻里GEO</title>
+  <meta name="description" content="本文提供一套面向AI引用的文章改写流程，帮助企业从标题、首段、H2结构、定义句、证据链、FAQ和内部链接七个方面重构旧内容，提高AI搜索可理解性、引用稳定性和长期内容价值。">
+  <meta name="keywords" content="AI引用, 文章改写, GEO优化, AI搜索优化, 内容结构, 可引用句, 答案源, GEO, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/how-to-rewrite-article-for-ai-citations.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/how-to-rewrite-article-for-ai-citations.html#article",
+      "headline": "一篇文章怎么改，才能被AI频繁引用？",
+      "description": "本文提供一套面向AI引用的文章改写流程，帮助企业从标题、首段、H2结构、定义句、证据链、FAQ和内部链接七个方面重构旧内容，提高AI搜索可理解性、引用稳定性和长期内容价值。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-03-26T08:00:00+08:00",
+      "dateModified": "2025-03-26T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "GEO 实战",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=geo"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "一篇文章怎么改，才能被AI频繁引用？",
+          "item": "https://nextgeo.baicl.cc/blog/how-to-rewrite-article-for-ai-citations.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">GEO 实战</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          一篇文章怎么改，才能被AI频繁引用？
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-03-26">发布日期: 2025-03-26</time>
+          <span>·</span>
+          <span>阅读时长: 10 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            本文提供一套面向AI引用的文章改写流程，帮助企业从标题、首段、H2结构、定义句、证据链、FAQ和内部链接七个方面重构旧内容，提高AI搜索可理解性、引用稳定性和长期内容价值。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：让AI引用文章，先把文章改成答案源</h2><p>一篇文章能否被AI频繁引用，关键不在于写得多长、观点多新，甚至不完全取决于传统SEO排名，而在于它是否能被AI稳定理解、拆解、验证和复用。</p><p>普通文章往往以表达为中心，强调铺垫、叙述和完整阅读体验。AI引用更看重的是答案结构：标题是否明确，首段是否有结论，H2是否可抽取，定义是否稳定，证据是否可信，FAQ是否覆盖真实问题。</p><p>因此，文章改写的本质不是文字润色，而是把原文从“给人读的文章”升级为“给AI调用的知识结构”。这也是GEO内容优化最核心的动作之一。</p></section><section id="block-2" class="content-block"><h2>二、第一步：重写标题，让搜索意图足够明确</h2><figure class="content-image"><img src="../assets/article-images/how-to-rewrite-article-for-ai-citations/article-rewrite-ai-citation-priorities.png" alt="文章改写与AI引用优先级示意"><figcaption>普通文章需要被改写为定义、证据、FAQ和可摘取知识单元。</figcaption></figure><p>标题是AI判断页面主题的第一层信号。一个模糊标题会让模型难以判断文章回答什么问题，也会降低检索系统召回概率。</p><p>面向AI引用的标题，应尽量包含明确对象、明确问题和明确结果。例如“内容优化的方法”过于宽泛，而“一篇文章怎么改，才能被AI频繁引用”就清楚得多。它告诉模型：这篇文章讨论文章改写，目标是AI引用，形式是方法论。</p><p>标题不要为了吸引点击而牺牲语义清晰度。AI搜索时代，标题首先是主题标签，其次才是传播包装。</p></section><section id="block-3" class="content-block"><h2>三、第二步：首段300字内必须给出可引用结论</h2><p>很多文章开头喜欢铺背景，但AI更偏好快速识别核心结论。首段如果没有明确答案，模型就需要从后文自行总结，引用稳定性会下降。</p><p>建议首段包含三件事：第一，直接回答标题问题；第二，解释为什么这个问题重要；第三，给出文章的方法框架。这样AI在快速扫描页面时，就能判断文章是否适合进入答案生成链路。</p><p>例如可以这样写：让AI频繁引用文章，不是靠增加篇幅，而是把文章改成结构清晰、证据充分、句子可摘取的答案源。这样的句子可以直接被模型复用。</p></section><section id="block-4" class="content-block--subsection content-block"><h3>可引用首段的三个标准</h3><p>第一，有明确主语和判断；第二，不依赖前文才能理解；第三，能回答一个真实搜索问题。只要首段满足这三个标准，文章被AI识别为答案候选的概率就会明显提升。</p></section><section id="block-5" class="content-block"><h2>四、第三步：重构H2，让每个小节承担一个知识任务</h2><p>H2不是排版工具，而是文章的知识骨架。AI会借助标题层级判断内容结构，因此H2必须清楚表达每个部分的功能。</p><p>推荐把H2设计成可抽取的问题或判断，例如“为什么AI不引用普通长文”“如何改写首段”“证据链如何影响引用”。不要使用过于文学化或情绪化的小标题，因为它们很难提供稳定语义信号。</p><p>一个好的H2应该让读者和模型在不读正文的情况下，也能理解文章的逻辑路径。H2越清楚，页面越容易被拆成可引用知识单元。</p><table class="content-table"><thead><tr><th>改写对象</th><th>常见问题</th><th>推荐做法</th></tr></thead><tbody><tr><td>标题</td><td>吸引点击但语义模糊</td><td>写清对象、问题和目标</td></tr><tr><td>首段</td><td>背景过长，没有结论</td><td>300字内给出核心判断</td></tr><tr><td>H2</td><td>小标题文学化</td><td>每个H2承担一个知识任务</td></tr><tr><td>正文</td><td>段落松散</td><td>拆成定义、机制、步骤和证据</td></tr><tr><td>FAQ</td><td>答案太短</td><td>100到200字解释边界</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>五、第四步：补充定义句，让AI知道你在定义什么</h2><p>AI引用内容时，非常依赖稳定的定义句。所谓定义句，就是用一句话说明一个概念是什么、解决什么问题、和什么不同。</p><p>很多文章不缺观点，但缺少定义。它们反复描述某个现象，却没有给出稳定表述。模型在使用这类内容时，需要自己归纳概念，容易产生偏差，也不容易直接引用原文。</p><p>改写文章时，每个核心概念都应该至少有一句定义句。例如：“面向AI引用的文章改写，是把普通文章重构为可检索、可理解、可验证、可摘取的答案源。”这类句子越稳定，越容易成为AI答案中的引用材料。</p></section><section id="block-7" class="content-block"><h2>六、第五步：增加证据链，让模型敢于引用</h2><p>AI不是只寻找表达漂亮的内容，它还会判断内容是否可信。没有证据支撑的判断，即使写得清楚，也更容易被模型视为普通观点。</p><p>证据链可以包括官方文档、研究论文、平台指南、案例数据、第三方报道和可验证事实。不同文章不一定都需要复杂数据，但至少要说明判断依据来自哪里。</p><p>在改写时，应把证据放在相关结论附近，而不是集中堆在文末。这样模型在抽取某个判断时，也能同时看到支撑材料。证据越接近结论，引用稳定性越高。</p></section><section id="block-8" class="content-block"><h2>七、第六步：把长段落拆成可摘取的知识单元</h2><p>普通长段落对人类阅读可能流畅，但对AI抽取并不友好。一个段落如果同时包含背景、观点、案例和建议，模型很难判断哪一句可以单独引用。</p><p>改写时，可以把段落拆成四类知识单元：定义单元、机制单元、步骤单元和判断单元。定义单元回答“是什么”，机制单元回答“为什么”，步骤单元回答“怎么做”，判断单元回答“什么时候适用”。</p><p>这种拆分会让文章看起来更清楚，也会让AI更容易把内容映射到用户问题。文章不是越碎越好，而是每个单元都要有明确语义任务。</p></section><section id="block-9" class="content-block"><h2>八、第七步：补FAQ和内部链接，形成可持续引用网络</h2><p>一篇文章如果只有正文，AI可以理解它；但如果同时有FAQ和内部链接，AI更容易把它放进站点知识系统中理解。</p><p>FAQ负责回答高频问题，内部链接负责连接相关主题。例如一篇讲文章改写的内容，可以链接到FAQ结构、Schema、AI搜索排名机制和知识单元设计等主题。这样模型不仅理解单页，还能理解站点的实体关系。</p><p>这一步的目标，是让文章从孤立内容变成知识网络中的节点。被引用的不是单篇文章本身，而是它背后的结构完整性。</p></section><section id="block-10" class="content-block"><h2>九、结论：AI频繁引用来自结构稳定，而不是表达用力</h2><p>一篇文章想被AI频繁引用，不能只靠写得更长、更热闹或更像营销稿。真正重要的是让文章具备清晰标题、直接结论、稳定定义、结构化H2、可信证据、可摘取段落和完整FAQ。</p><p>这些改写动作共同解决一个问题：让AI更容易判断这篇文章能回答什么、哪些句子可以引用、引用后是否可靠。</p><p>GEO内容优化的终点，不是制造更多文章，而是把每一篇文章都改造成可被AI理解和调用的答案源。</p></section><section id="block-11" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Creating helpful, reliable, people-first content</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central：SEO Starter Guide</span><a href="https://developers.google.com/search/docs/fundamentals/seo-starter-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/seo-starter-guide</a></li><li><span>Google Search Central：AI features and your website</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Lewis et al., 2020：Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</span><a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2005.11401</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：旧文章真的需要为AI引用重新改写吗？</h3><p>很多旧文章对人类读者仍然有价值，但不一定适合AI抽取。它们常见问题是首段没有结论、H2结构不清、定义句缺失、证据离结论太远。改写不是推翻原文，而是把已有内容整理成更清晰的答案结构，让模型更容易判断它能回答什么问题。</p></div><div><h3>Q2：文章改写后一定会被AI引用吗？</h3><p>不能保证一定被引用，因为AI引用还受检索系统、竞争来源、模型策略和用户问题影响。但结构化改写可以提高进入候选答案的概率。它让文章更容易被召回、理解和验证，也减少模型改写时产生偏差的可能，是GEO中最值得优先做的基础动作。</p></div><div><h3>Q3：首段为什么这么重要？</h3><p>首段是模型快速判断页面主题和答案价值的重要区域。如果首段只铺背景、不回答标题问题，模型需要继续向下寻找结论，抽取成本会变高。一个好的首段应该在300字内说明核心结论、适用对象和文章结构，让用户和AI都能迅速判断页面价值。</p></div><div><h3>Q4：是不是文章越长越容易被AI引用？</h3><p>长度不是核心变量，结构才是。长文章如果没有清晰H2、定义句和证据链，反而会增加语义噪声。短文章如果结构非常明确，也可能被AI引用。更好的做法是让长文由多个知识单元组成，每个部分都能独立回答一个问题，而不是把信息堆在一起。</p></div><div><h3>Q5：可引用句应该怎么写？</h3><p>可引用句要有完整主语、明确判断和稳定术语，尽量减少上下文依赖。例如不要写“这就是关键原因”，而要写“AI引用内容的关键，是页面是否能提供清晰、可信、可独立抽取的答案片段”。这样的句子更容易被模型直接放进生成式回答。</p></div><div><h3>Q6：参考来源应该放在哪里？</h3><p>文章末尾可以保留统一参考文献，但关键证据最好出现在相关结论附近。AI在处理内容时，会根据上下文判断某个观点是否有支撑。如果证据离结论太远，模型可能无法把两者稳定关联起来。最好的方式是结论、解释和来源形成局部闭环。</p></div><div><h3>Q7：FAQ对文章被AI引用有什么作用？</h3><p>FAQ可以把文章中的核心问题重新压缩成问答结构，帮助AI把页面映射到真实用户提问。很多用户在AI搜索中使用自然语言问题，而FAQ正好提供对应答案。只要FAQ问题选得准、答案写得完整，它就能成为正文之外的第二套可引用结构。</p></div><div><h3>Q8：如何判断一篇文章改写是否成功？</h3><p>可以从三个维度判断：第一，AI是否能准确概括文章核心结论；第二，AI回答相关问题时是否复用文章中的定义和判断；第三，不同模型对文章主题的理解是否趋于一致。如果这些信号改善，说明文章已经从普通内容接近答案源。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：让AI引用文章，先把文章改成答案源</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、第一步：重写标题，让搜索意图足够明确</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、第二步：首段300字内必须给出可引用结论</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">可引用首段的三个标准</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、第三步：重构H2，让每个小节承担一个知识任务</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、第四步：补充定义句，让AI知道你在定义什么</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、第五步：增加证据链，让模型敢于引用</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、第六步：把长段落拆成可摘取的知识单元</a>
+<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、第七步：补FAQ和内部链接，形成可持续引用网络</a>
+<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">九、结论：AI频繁引用来自结构稳定，而不是表达用力</a>
+<a href="#block-11" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

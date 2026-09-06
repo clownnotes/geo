@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>为什么同一品牌在不同Prompt下可见性差异巨大｜邻里GEO</title>
+  <meta name="description" content="同一品牌在不同Prompt下可见性差异巨大，通常源于用户意图、上下文、检索来源和竞争集合变化。本文拆解品牌词、品类词、场景词和对比词的差异，并给出Prompt矩阵、监测指标和内容修正方法。">
+  <meta name="keywords" content="Prompt, 品牌可见性, AI搜索, GEO监测, 提示词命中率, 品牌词, 品类词, AI搜索, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/brand-visibility-differences-across-prompts.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/brand-visibility-differences-across-prompts.html#article",
+      "headline": "为什么同一品牌在不同Prompt下可见性差异巨大",
+      "description": "同一品牌在不同Prompt下可见性差异巨大，通常源于用户意图、上下文、检索来源和竞争集合变化。本文拆解品牌词、品类词、场景词和对比词的差异，并给出Prompt矩阵、监测指标和内容修正方法。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-10-15T08:00:00+08:00",
+      "dateModified": "2025-10-15T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AI 搜索认知",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=ai-search"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "为什么同一品牌在不同Prompt下可见性差异巨大",
+          "item": "https://nextgeo.baicl.cc/blog/brand-visibility-differences-across-prompts.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">AI 搜索认知</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          为什么同一品牌在不同Prompt下可见性差异巨大
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-10-15">发布日期: 2025-10-15</time>
+          <span>·</span>
+          <span>阅读时长: 8 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            同一品牌在不同Prompt下可见性差异巨大，通常源于用户意图、上下文、检索来源和竞争集合变化。本文拆解品牌词、品类词、场景词和对比词的差异，并给出Prompt矩阵、监测指标和内容修正方法。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：Prompt改变的不是问法，而是答案候选集</h2><p>同一品牌在不同Prompt下可见性差异巨大，并不一定说明AI“随机”。更常见的原因是：不同Prompt触发了不同用户意图、不同检索来源、不同竞争品牌集合和不同回答格式。</p><p>企业如果只问“某某品牌怎么样”，看到一次出现就认为AI可见，容易误判。GEO监测要把Prompt拆成品牌识别、品类进入、场景推荐、竞品对比和风险纠错五类问题，分别看品牌是否被正确提及。</p><p>真正要优化的不是让每个问题都出现品牌，而是在与业务高度相关、用户决策真实发生的问题中，让AI能够稳定理解品牌是谁、适合谁、凭什么可信。</p></section><section id="block-2" class="content-block"><h2>二、为什么Prompt会改变品牌可见性</h2><figure class="content-image"><img src="../assets/article-images/brand-visibility-differences-across-prompts/brand-visibility-across-prompts.png" alt="不同Prompt下品牌可见性差异示意"><figcaption>同一个品牌会因为问题意图不同，进入不同的AI答案路径和竞争集合。</figcaption></figure><p>Prompt是用户意图的压缩表达。一个问题问“邻里GEO是什么”，模型会优先寻找定义性来源；问“适合B2B企业的GEO服务商有哪些”，模型会进入推荐和比较语境；问“GEO和SEO有什么区别”，品牌可能只有在具备解释权时才出现。</p><p>在带检索能力的AI搜索中，Prompt还会影响检索查询的生成方式。更具体的问题可能召回案例、文档和FAQ，更宽泛的问题可能召回百科、媒体报道或行业指南。来源不同，品牌出现概率自然不同。</p><p>因此，Prompt差异不是监测噪声，而是用户决策路径的映射。企业要关注哪些问法代表真实商机，哪些问法只是品牌认知测试。</p></section><section id="block-3" class="content-block"><h2>三、Prompt矩阵应该按意图分层</h2><p>一个可用的Prompt矩阵，不是把几十个问题随意堆在表格里，而是把问题按业务意图分层。每一层都对应不同的GEO判断：能否识别、能否进入候选、能否被推荐、能否被正确比较。</p><p>建议至少建立以下五类问题，并为每类保留固定样本。</p><table class="content-table"><thead><tr><th>Prompt类型</th><th>典型问题</th><th>主要判断</th></tr></thead><tbody><tr><td>品牌词</td><td>邻里GEO是什么</td><td>模型是否能准确识别实体</td></tr><tr><td>品类词</td><td>GEO服务商有哪些</td><td>品牌是否进入候选集合</td></tr><tr><td>场景词</td><td>B2B官网如何提升AI可见性</td><td>品牌是否与真实需求关联</td></tr><tr><td>对比词</td><td>GEO和传统SEO服务区别</td><td>品牌是否拥有解释权</td></tr><tr><td>风险词</td><td>某品牌价格或能力是否准确</td><td>错误描述是否可控</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、上下文会改变AI对品牌的判断</h2><p>同一个问题，如果加入行业、预算、地区、企业规模或使用场景，AI可能给出完全不同的品牌组合。这不是简单的排名变化，而是上下文改变了“什么才算合适答案”。</p><p>例如“适合中小企业的GEO方案”和“适合跨国企业的AI搜索监测系统”，会考察不同能力边界。前者更看重方法清晰和执行成本，后者更看重监测覆盖、权限管理、报告稳定性和风险治理。</p><p>企业内容如果只写抽象能力，缺少行业、角色、场景和限制条件，AI就难以在具体Prompt中判断它是否适配。</p><ul class=""><li>在产品页写清服务对象、适用行业和不适用场景。</li><li>在案例页写清问题背景、改写对象、监测口径和结果类型。</li><li>在FAQ中覆盖用户真实追问，而不是只回答品牌自我介绍。</li><li>在第三方资料中保持同一品牌定义和能力边界。</li></ul></section><section id="block-5" class="content-block"><h2>五、如何建立可复盘的Prompt监测表</h2><p>Prompt监测的价值取决于口径稳定。企业应固定模型、时间窗口、地区语言、问题文本和判定标准，否则两次结果很难比较。对于会联网检索的系统，还要记录回答中出现的来源和引用位置。</p><p>一张基础监测表至少包含：Prompt文本、意图类型、模型名称、采集日期、品牌是否出现、出现位置、是否引用官网、是否引用第三方、描述是否准确、是否推荐、错误类型和截图或原文存档。</p><p>监测不是为了抓取漂亮数字，而是为了找出内容缺口。稳定不出现的问题，往往对应官网没有定义、案例不足、外部证据少或第三方描述冲突。</p></section><section id="block-6" class="content-block"><h2>六、如何用结果反推内容缺口</h2><p>Prompt结果应回到页面和证据层处理。品牌词不准，先修实体定义；品类词不出现，补充分类和能力边界；场景词不推荐，补场景页、案例和FAQ；对比词被误解，补差异表和适用边界。</p><p>不要把每个未出现的问题都理解为“需要再写一篇文章”。有时更有效的动作是把已有页面的首段定义、H2结构、表格、案例证据和FAQ整理清楚，让模型更容易抽取。</p><p>当多个Prompt都指向同一缺口时，再考虑新增专题页。新增内容应承担明确任务：解释概念、补足证据、消除误解或建立比较框架。</p><table class="content-table"><thead><tr><th>监测现象</th><th>常见原因</th><th>优先动作</th></tr></thead><tbody><tr><td>品牌词描述错误</td><td>实体定义不一致</td><td>统一官网、资料页和第三方简介</td></tr><tr><td>品类词不出现</td><td>品类归属不清</td><td>补充服务类别、对象和能力边界</td></tr><tr><td>场景词不推荐</td><td>缺少场景证据</td><td>建设案例页和场景FAQ</td></tr><tr><td>对比词被竞品占据</td><td>缺少差异解释</td><td>增加对比表和判断标准</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：AI可见性要按问题场景管理</h2><p>同一品牌在不同Prompt下表现不同，是AI搜索的常态。企业真正要管理的不是一个抽象的“AI排名”，而是一组用户会真实提出的问题场景。</p><p>GEO的工作重点，是让品牌在高价值Prompt中被准确识别、合理归类、可信引用和谨慎推荐。只有把Prompt矩阵、内容结构和证据链连起来，可见性监测才会从截图展示变成可执行的增长工具。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>OpenAI Developers：Web search tool -</span><a href="https://developers.openai.com/api/docs/guides/tools-web-search" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/guides/tools-web-search</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：为什么同一品牌在品牌词里出现，在品类词里却不出现？</h3><p>品牌词主要测试AI是否认识这个实体，品类词测试AI是否把它放进某个解决方案集合。两者不是同一个问题。品牌能被识别，不代表模型已经理解它属于哪个品类、适合哪些场景、和哪些替代方案相比有什么差异。企业要补充品类定义、能力边界和第三方证据。</p></div><div><h3>Q2：Prompt矩阵应该包含多少个问题？</h3><p>初始阶段不需要很多，建议先选20到40个高价值问题，覆盖品牌词、品类词、场景词、对比词和风险词。数量过多但口径不稳定，反而难以复盘。等基础问题连续监测两到四周后，再根据销售咨询、客服问题和搜索词扩展。</p></div><div><h3>Q3：不同模型回答不一致，应该以哪个为准？</h3><p>不要只以某一个模型为准。不同模型、检索能力和数据源会造成差异，监测时应把它们当作不同用户入口。更重要的是看共性问题：哪些描述在多个模型中都不准，哪些高价值场景都没有召回品牌，这些才是优先修正项。复盘时应保留原始回答和时间，后续才能判断变化来自内容修正还是模型波动。</p></div><div><h3>Q4：能不能通过改Prompt让AI更常推荐品牌？</h3><p>内部测试可以用Prompt定位问题，但不能把改Prompt当作GEO成果。真实用户不会按照企业设计的问题提问。GEO要做的是让品牌定义、页面结构和证据链足够稳定，使AI在自然问题中也能正确理解，而不是依赖诱导式问法。</p></div><div><h3>Q5：Prompt可见性差异是否说明内容质量差？</h3><p>不一定。有些差异是正常的，因为问题意图本来不同。需要警惕的是高相关问题中长期不出现、出现但描述错误、被归到错误品类、或只引用低质量来源。这类情况通常说明内容结构、实体定义或外部证据存在缺口。如果一个问题长期异常，优先检查官网定义、案例证据和第三方资料是否互相冲突。</p></div><div><h3>Q6：监测Prompt时要不要保存AI回答原文？</h3><p>要保存。只记录出现或不出现，无法判断AI如何理解品牌。原文、截图、引用链接、采集时间和模型版本都应留档，后续才能分析描述偏差、来源变化和推荐语气。没有原始证据，GEO复盘很容易变成主观判断。这些记录会变成后续改写的依据，而不是散落在团队聊天里的主观感受。</p></div><div><h3>Q7：Prompt结果多久复盘一次合适？</h3><p>建议高价值问题每周复盘一次，重大页面改写后连续观察两到四周。AI答案会受模型更新、检索状态和新来源影响，单日波动不代表长期趋势。企业应看准确率、引用率和推荐稳定性是否持续改善。稳定观察一段时间后，再决定新增页面、改写FAQ还是补充外部证据。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：Prompt改变的不是问法，而是答案候选集</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么Prompt会改变品牌可见性</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、Prompt矩阵应该按意图分层</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、上下文会改变AI对品牌的判断</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、如何建立可复盘的Prompt监测表</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、如何用结果反推内容缺口</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：AI可见性要按问题场景管理</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

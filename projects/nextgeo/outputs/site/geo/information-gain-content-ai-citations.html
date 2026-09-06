@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>信息增量原则：高信息增益内容为何更容易被引用｜邻里GEO</title>
+  <meta name="description" content="AI不缺重复解释，缺的是能补上新证据、新判断和新结构的答案源。高信息增益内容更容易被引用，不是因为写得更长，而是因为它补充了已有答案缺少的内容。信息增量可以来自原创数据、真实案例、清晰框架、适用边界、反例和可执行模板。">
+  <meta name="keywords" content="信息增量, 信息增益, AI引用, GEO内容策略, 高质量内容, 答案源, 内容差异化, GEO, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/information-gain-content-ai-citations.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/information-gain-content-ai-citations.html#article",
+      "headline": "信息增量原则：高信息增益内容为何更容易被引用",
+      "description": "AI不缺重复解释，缺的是能补上新证据、新判断和新结构的答案源。高信息增益内容更容易被引用，不是因为写得更长，而是因为它补充了已有答案缺少的内容。信息增量可以来自原创数据、真实案例、清晰框架、适用边界、反例和可执行模板。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-08-06T08:00:00+08:00",
+      "dateModified": "2025-08-06T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "GEO 实战",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=geo"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "信息增量原则：高信息增益内容为何更容易被引用",
+          "item": "https://nextgeo.baicl.cc/blog/information-gain-content-ai-citations.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="../blog/" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">GEO 实战</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          信息增量原则：高信息增益内容为何更容易被引用
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-08-06">发布日期: 2025-08-06</time>
+          <span>·</span>
+          <span>阅读时长: 9 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            AI不缺重复解释，缺的是能补上新证据、新判断和新结构的答案源。高信息增益内容更容易被引用，不是因为写得更长，而是因为它补充了已有答案缺少的内容。信息增量可以来自原创数据、真实案例、清晰框架、适用边界、反例和可执行模板。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：AI引用会优先寻找有新增价值的答案源</h2><p>高信息增益内容更容易被AI引用，因为它能在已有公开信息之外提供新的判断、证据或结构。生成式AI在回答问题时通常需要整合多个来源，如果一篇文章只重复通用定义，它很难成为答案中不可替代的材料。</p><p>对企业来说，信息增量不是追求冷门观点，也不是故意制造差异，而是把真实经验、案例边界、产品限制、方法步骤和证据链写清楚。这样的内容既能帮助用户判断，也更容易被AI拆解成可引用的知识单元。</p></section><section id="block-2" class="content-block"><h2>二、什么是信息增益内容</h2><figure class="content-image"><img src="../../assets/article-images/information-gain-content-ai-citations/information-gain-ai-citation.png" alt="高信息增益内容更容易被引用示意"><figcaption>高信息增益内容会把新判断、新证据和清晰结构放在同一个答案单元里。</figcaption></figure><p>信息增益内容的关键是“相对增量”。一篇文章是否有价值，不能只看字数、标题或关键词覆盖，而要看它是否回答了用户在读完常见答案之后仍然没有解决的问题。</p><p>在GEO场景中，高信息增益内容通常具备三个特征：结论明确、证据可追溯、边界说得清楚。它不只告诉读者“是什么”，还说明“为什么这样判断”“什么时候不适用”“企业下一步怎么做”。</p></section><section id="block-3" class="content-block"><h2>三、为什么同质化内容很难被AI引用</h2><p>同质化内容的问题不是“不正确”，而是缺少可选择理由。AI在生成答案时需要判断哪些来源能支撑更完整、更可信或更具体的回答；如果十篇文章都在重复同一个定义，模型没有必要优先采用其中某一篇。</p><p>这也是很多企业内容“看起来完整、实际不可引用”的原因：标题覆盖了关键词，正文却没有提供真实案例、比较维度、证据来源或操作细节。这样的页面可能仍能被抓取，但在生成式答案中很难承担核心证据角色。</p><table class="content-table"><thead><tr><th>内容类型</th><th>常见表现</th><th>AI引用风险</th></tr></thead><tbody><tr><td>通用解释</td><td>复述百科式定义和常识</td><td>可替代性高，难以进入答案核心</td></tr><tr><td>观点堆叠</td><td>只有判断，没有证据和边界</td><td>容易被视为营销表达</td></tr><tr><td>经验沉淀</td><td>说明场景、步骤、限制和例外</td><td>更适合作为答案材料</td></tr><tr><td>数据或案例</td><td>提供可核验事实和方法说明</td><td>更容易支撑具体结论</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、信息增量从哪里来</h2><p>信息增量首先来自企业自己的真实业务材料，例如客户问题、产品限制、实施过程、失败经验、常见误解和售前问答。这些内容通常不在通用资料里，却正是用户和AI判断企业能力时需要的信息。</p><p>其次，信息增量也来自结构化表达。同样一个经验，如果只是散落在长段落中，AI不一定能稳定抽取；如果被整理成定义、步骤、表格、FAQ和证据列表，就更容易成为可复用的答案源。</p><ul class=""><li>把销售和客服高频问题整理成可发布FAQ。</li><li>把案例写出行业背景、约束条件和可复核结果。</li><li>为每个核心观点补充来源、方法或适用边界。</li><li>用表格比较概念差异，避免只写抽象判断。</li><li>保留反例和不适用场景，提升内容可信度。</li></ul></section><section id="block-5" class="content-block"><h2>五、如何判断一篇文章的信息增益</h2><p>评估信息增益，可以先问一个简单问题：如果删掉这篇文章，公开网络上是否少了一种重要解释、证据或方法？如果答案是否定的，这篇内容大概率只是重复库存。</p><p>更实际的做法，是建立内容评审表。企业在发布前检查每篇文章是否有独立定义、原创经验、可验证来源、结构化模块和可复盘指标。只要其中多个维度缺失，就应该先补材料，而不是继续扩写空话。</p><table class="content-table"><thead><tr><th>评审维度</th><th>合格信号</th><th>需要重写的信号</th></tr></thead><tbody><tr><td>定义</td><td>一句话能独立说明概念</td><td>开头绕很久仍没有结论</td></tr><tr><td>证据</td><td>有来源、案例或过程说明</td><td>只有形容词和主观判断</td></tr><tr><td>边界</td><td>说明适用和不适用场景</td><td>把方法写成万能答案</td></tr><tr><td>结构</td><td>有表格、步骤或FAQ</td><td>长段落堆叠，难以抽取</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>六、高信息增益内容如何写</h2><p>写高信息增益内容，第一步不是找更多关键词，而是确定读者真正卡住的判断点。比如“GEO是什么”已经有很多解释，企业更需要知道“哪些页面先改”“AI为什么没引用官网”“被引用是否等于被推荐”。</p><p>第二步是把答案写成可被人和机器共同理解的结构：首段给结论，中段解释机制，关键处放表格或步骤，最后用FAQ覆盖追问。每个核心判断都要尽量靠近证据，避免让读者自己在文章里拼接理由。</p><ul class=""><li>先写结论，再补机制，不把定义藏到后半篇。</li><li>每个H2只解决一个子问题，避免标题漂亮但内容散。</li><li>把新经验写成清单、流程、对比或判断标准。</li><li>引用外部资料时说明它支持什么判断。</li><li>定期用AI搜索样本检查内容是否被准确复述。</li></ul></section><section id="block-7" class="content-block"><h2>七、结论：信息增益是内容资产的长期护城河</h2><p>信息增量原则提醒企业，GEO不是把旧内容改成AI喜欢的格式，而是建设更清楚、更可信、更有新价值的答案源。只有当内容真正补充了公开信息空间，AI引用才有稳定理由。</p><p>因此，企业应把信息增益纳入内容生产流程：少写可替代的泛文章，多沉淀真实经验、结构化判断和可验证证据。这样的内容即使短期不一定带来爆发流量，也会逐步提升品牌在AI答案中的可理解性和可信度。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>Microsoft Learn：Retrieval-augmented generation in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Nielsen Norman Group：Information Foraging -</span><a href="https://www.nngroup.com/articles/information-foraging/" target="_blank" rel="noopener noreferrer">https://www.nngroup.com/articles/information-foraging/</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：信息增量和原创内容是一回事吗？</h3><p>不是一回事。原创内容强调来源是不是自己写的，信息增量强调它是否提供了已有答案之外的新价值。一篇完全原创的文章也可能只是重复常识；一篇基于公开资料的文章，如果加入了清晰框架、适用边界和企业经验，也可能具有较高信息增益。</p></div><div><h3>Q2：高信息增益内容一定更容易被AI引用吗？</h3><p>不能保证一定被引用，但它更符合被引用的条件。AI引用还会受到索引、来源权威性、页面可访问性、主题相关性和模型检索策略影响。信息增益解决的是“内容是否值得被采用”的问题，仍需要技术SEO和持续监测配合。</p></div><div><h3>Q3：企业没有原创数据，还能写出信息增量吗？</h3><p>可以。原创数据只是信息增量的一种来源。企业还可以提供客户问题分类、实施步骤、选型标准、常见误区、失败经验、产品边界和售前判断表。这些材料往往来自真实业务现场，比泛泛的数据摘录更能帮助用户和AI理解企业能力。</p></div><div><h3>Q4：如何避免为了信息增量而写偏门观点？</h3><p>信息增量不等于猎奇观点。企业应先保证事实真实、结论克制、来源可复核，再补充差异化经验。如果一个观点只是为了与众不同，却无法被案例、数据或清晰逻辑支撑，它不但不会提升引用价值，还可能损害品牌可信度。发布后还要观察AI是否能准确复述新增判断，避免信息增量停留在编辑自评里。</p></div><div><h3>Q5：旧文章可以通过改写获得信息增益吗？</h3><p>可以，但改写不应只是换标题和扩字数。更有效的做法是补充最新问题、删除重复段落、增加表格和FAQ、加入真实案例或边界说明，并检查首段是否直接回答用户意图。改写后的文章要比旧版本更容易被独立引用。复盘时可以把新增证据、结构和FAQ单独标记，方便后续判断哪类内容真正被采用。</p></div><div><h3>Q6：信息增益应该如何纳入内容团队流程？</h3><p>可以把信息增益做成发布前检查项：是否有新判断、是否有证据、是否有适用边界、是否有结构化模块、是否能回答真实追问。编辑不只审核语病和关键词，还要判断这篇内容是否真的为品牌知识库增加了可复用资产。发布后还要观察AI是否能准确复述新增判断，避免信息增量停留在编辑自评里。</p></div><div><h3>Q7：AI引用后还需要继续优化内容吗？</h3><p>需要。AI引用只是一个反馈，不代表内容已经长期稳定。企业应继续观察引用语境、引用是否准确、是否带来品牌提及，以及同类问题中是否保持一致。如果AI只引用了片段却误解了结论，就要调整段落结构和证据位置。复盘时可以把新增证据、结构和FAQ单独标记，方便后续判断哪类内容真正被采用。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：AI引用会优先寻找有新增价值的答案源</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、什么是信息增益内容</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、为什么同质化内容很难被AI引用</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、信息增量从哪里来</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、如何判断一篇文章的信息增益</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、高信息增益内容如何写</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：信息增益是内容资产的长期护城河</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

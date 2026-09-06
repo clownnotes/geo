@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEO是不是投毒？国际上的价值观、法律和技术对抗｜邻里GEO</title>
+  <meta name="description" content="GEO不是天然等于AI投毒。关键边界在于信息是否真实、透明、可验证，以及优化是否尊重用户利益、来源规则和模型安全。企业应该把GEO做成可信信息工程，而不是操控工程。">
+  <meta name="keywords" content="GEO投毒, AI治理, 内容操控, AI法律风险, AI安全, 品牌GEO, 信息污染, GEO, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/is-geo-poisoning-ai-values-law-technology.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/is-geo-poisoning-ai-values-law-technology.html#article",
+      "headline": "GEO是不是投毒？国际上的价值观、法律和技术对抗",
+      "description": "GEO不是天然等于AI投毒。关键边界在于信息是否真实、透明、可验证，以及优化是否尊重用户利益、来源规则和模型安全。企业应该把GEO做成可信信息工程，而不是操控工程。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-11-26T08:00:00+08:00",
+      "dateModified": "2025-11-26T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "GEO 实战",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=geo"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "GEO是不是投毒？国际上的价值观、法律和技术对抗",
+          "item": "https://nextgeo.baicl.cc/blog/is-geo-poisoning-ai-values-law-technology.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">GEO 实战</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          GEO是不是投毒？国际上的价值观、法律和技术对抗
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-11-26">发布日期: 2025-11-26</time>
+          <span>·</span>
+          <span>阅读时长: 8 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            GEO不是天然等于AI投毒。关键边界在于信息是否真实、透明、可验证，以及优化是否尊重用户利益、来源规则和模型安全。企业应该把GEO做成可信信息工程，而不是操控工程。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：GEO不是投毒，但GEO有越界风险</h2><p>GEO不是天然等于AI投毒。正当GEO的目标，是把真实、专业、可验证的信息表达得更清楚，让AI在回答用户问题时更容易找到正确来源。AI投毒则相反，它试图通过虚假内容、伪造信号或误导性结构，让模型相信不真实的信息。</p><p>真正的分界线不在于“是否影响AI”，而在于“用什么方式影响AI”。如果企业只是让官网、案例、产品说明、FAQ和第三方资料更一致、更可验证，这属于正常的信息治理；如果企业伪造口碑、批量制造低质页面、误导爬虫或污染训练语料，就已经越过了负责任优化的边界。</p><p>所以，讨论GEO是否投毒，不能停留在情绪化标签上。更有价值的问题是：哪些GEO动作是在提升信息质量，哪些动作是在制造信息污染。</p></section><section id="block-2" class="content-block"><h2>二、为什么有人把GEO称为投毒</h2><figure class="content-image"><img src="../assets/article-images/is-geo-poisoning-ai-values-law-technology/geo-poisoning-ai-governance.png" alt="GEO与AI投毒边界治理示意"><figcaption>GEO与AI投毒的区别，关键在于信息是否真实、透明、可验证，以及是否尊重用户利益和来源规则。</figcaption></figure><p>有人把GEO称为投毒，主要是因为他们看到了一些低质量实践：批量生成相似文章、伪造第三方背书、堆砌模型容易摘取的句子、用隐藏文本或诱导性页面影响AI回答。这些做法确实会破坏AI答案质量，也会伤害真实用户。</p><p>但把所有GEO都归为投毒，也是不准确的。企业整理自己的产品定义、公开案例证据、修正过时信息、让AI爬虫能访问公开页面，本质上是在降低信息误解，而不是制造污染。</p><p>争议的核心在于动机和证据：你是在帮助系统理解真实世界，还是在试图让系统相信一个被包装出来的假象。</p></section><section id="block-3" class="content-block"><h2>三、正当GEO和AI投毒的边界</h2><p>判断一个GEO动作是否越界，可以从四个问题入手：信息是否真实，来源是否透明，证据是否可验证，用户是否因此得到更准确的答案。只要其中任何一项明显失守，优化就会从信息治理滑向信息操控。</p><p>正当GEO并不承诺控制模型答案，它只提升内容被正确理解的概率。AI投毒则试图绕过正常的信息判断，让模型在缺乏证据或证据错误的情况下输出某个结论。</p><table class="content-table"><thead><tr><th>维度</th><th>正当GEO</th><th>AI投毒</th></tr></thead><tbody><tr><td>信息基础</td><td>基于真实产品、真实案例和公开资料</td><td>基于虚假描述、伪造口碑或误导性内容</td></tr><tr><td>目标</td><td>降低AI误解，提高可理解性和可验证性</td><td>操控模型输出，让不可靠信息进入答案</td></tr><tr><td>证据</td><td>来源可追溯，结论能被用户复核</td><td>来源模糊，证据不可验证或故意伪装</td></tr><tr><td>长期结果</td><td>提升品牌可信度和内容资产质量</td><td>增加平台风险、法律风险和声誉风险</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、国际争议集中在哪些方向</h2><p>国际上的争议主要集中在三个方向：模型安全、内容版权和信息真实性。模型安全关注恶意数据是否会改变系统行为；内容版权关注AI系统如何访问、使用和展示网页内容；信息真实性则关注生成式答案是否会放大错误、过时或伪造的信息。</p><p>这些争议说明，企业不能把GEO理解成“只要能让AI引用就行”。AI搜索正在同时受到技术规则、平台政策、版权关系和监管环境影响。越是长期做内容资产，越需要把边界写清楚。</p><ul class=""><li>不要伪造案例、评论、榜单、媒体报道或第三方评价。</li><li>不要用隐藏内容、诱导性结构或批量相似页面欺骗爬虫。</li><li>不要把不确定事实写成确定结论，尤其是价格、能力、排名和法律判断。</li><li>不要绕过明确的访问限制，也不要假装所有AI爬虫都会读取某个文件。</li></ul></section><section id="block-5" class="content-block"><h2>五、企业应该建立负责任的GEO原则</h2><p>企业做GEO，第一原则不是“让AI多提到我”，而是“让AI说对我”。这意味着官网内容、媒体资料、产品页、案例页、FAQ和结构化数据，都应该围绕同一个真实实体展开。</p><p>负责任的GEO应该留下证据链。一个产品能力如果只在营销口号里出现，却没有产品说明、客户场景、案例结果或第三方资料支撑，模型即使引用了，也可能是脆弱的。</p><p>更稳妥的做法，是把GEO纳入品牌知识治理：定期检查定义是否一致、旧信息是否过时、第三方资料是否冲突、AI答案是否错误描述品牌。</p><ol><li>建立品牌、产品、服务和价格的标准定义。</li><li>把重要结论配上可验证来源，而不是只写观点。</li><li>检查公开页面是否允许合理访问，并保持 sitemap、结构化数据和正文一致。</li><li>定期测试AI是否错误描述品牌、产品能力、适用场景和商业模式。</li></ol></section><section id="block-6" class="content-block"><h2>六、哪些做法最容易越界</h2><p>最容易越界的做法，通常不是技术最复杂的做法，而是短期最诱人的做法。例如批量铺同质化文章、制造虚假评测、伪装成第三方推荐、把竞品写成明显不准确的负面描述。</p><p>这些动作短期可能让某些页面更容易被检索到，但长期会破坏品牌可信度。一旦用户、平台或模型发现信息不可靠，损失的不只是某个页面，而是整个品牌实体的信任基础。</p><p>GEO真正值得投入的方向，是让真实优势变得更清楚，而不是让虚假优势看起来更像事实。</p></section><section id="block-7" class="content-block"><h2>七、结论：GEO要做可信信息工程，而不是操控工程</h2><p>GEO的正当价值，是帮助AI更准确地理解真实企业、真实产品和真实证据。它应该提升信息质量，而不是降低答案质量；应该减少误解，而不是制造噪音。</p><p>如果一个GEO动作经不起用户复核、来源追溯和事实核验，它就不应该进入企业内容体系。反过来，如果它能让公开信息更清楚、更一致、更可验证，它就是AI搜索时代必要的品牌基础设施。</p><p>未来企业真正需要的，不是操控模型的技巧，而是让自己值得被模型、搜索引擎和用户共同信任的知识结构。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：GEO是不是一种AI投毒？</h3><p>不是。GEO本身是一种信息结构优化方法，目标是让真实内容更容易被AI理解、引用和验证。只有当企业故意伪造来源、制造虚假口碑、误导模型或污染训练与检索环境时，才接近AI投毒。判断关键不是有没有影响AI，而是影响方式是否真实、透明、可验证。</p></div><div><h3>Q2：为什么会有人把GEO和投毒联系起来？</h3><p>因为市场上确实存在低质量做法，例如批量生成相似内容、伪装第三方评价、堆砌模型容易摘取的句子，甚至故意制造错误信息。这些做法会伤害AI答案质量，也会伤害用户判断。但不能因此把所有GEO都等同于投毒，负责任的GEO应该解决误解，而不是制造污染。</p></div><div><h3>Q3：企业怎么判断自己的GEO有没有越界？</h3><p>可以用四个问题判断：信息是否真实，来源是否透明，证据是否可验证，用户是否因此得到更准确的答案。如果一个页面只服务于操控AI，却不能帮助真实用户理解问题，或者经不起事实核验，就已经偏离了GEO应有的方向。</p></div><div><h3>Q4：优化AI爬虫可访问性算不算投毒？</h3><p>不算。让公开页面更容易被合理访问、解析和理解，属于正常的网站治理。问题在于访问规则和内容真实性：企业不应该绕过明确限制，也不应该向AI提供和用户看到内容不一致的信息。可访问性优化应该服务真实信息传播，而不是服务隐蔽操控。</p></div><div><h3>Q5：GEO和SEO在伦理边界上有什么不同？</h3><p>两者都可能有正当优化和越界操控。SEO的灰色地带常见于垃圾外链、关键词堆砌和误导页面；GEO的灰色地带则更容易出现在伪造证据、误导模型和污染答案来源上。共同原则是：内容必须真实、对用户有帮助，并且能被来源和事实支撑。</p></div><div><h3>Q6：企业做GEO时最应该避免什么？</h3><p>最应该避免把GEO当成控制模型答案的捷径。不要伪造客户案例、媒体报道、评测排名或专家背书；不要批量制造没有信息增量的页面；不要为了被引用而夸大产品能力。短期操控可能带来曝光，长期会损害品牌实体的可信度。</p></div><div><h3>Q7：负责任的GEO应该怎么做？</h3><p>负责任的GEO应该从真实信息出发：统一品牌定义，补齐产品和服务说明，公开可验证案例，修正过时信息，保持官网、媒体和第三方资料一致。它不是让AI相信企业想说的一切，而是让AI更容易找到企业已经能够证明的事实。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：GEO不是投毒，但GEO有越界风险</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么有人把GEO称为投毒</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、正当GEO和AI投毒的边界</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、国际争议集中在哪些方向</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、企业应该建立负责任的GEO原则</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、哪些做法最容易越界</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：GEO要做可信信息工程，而不是操控工程</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI即中介：如何管理AI对品牌的描述｜邻里GEO</title>
+  <meta name="description" content="品牌管理不只看企业如何介绍自己，还要看AI会如何替企业介绍自己。AI搜索让品牌信息多了一层解释中介，用户可能先看到AI总结，再决定是否访问官网。品牌描述失控通常来自名称、品类、能力、价格、案例和外部资料之间的不一致。">
+  <meta name="keywords" content="AI即中介, 品牌描述管理, GEO, AI搜索, 品牌语义治理, 实体一致性, AI引用, GEO, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/ai-as-intermediary-brand-description-management.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/ai-as-intermediary-brand-description-management.html#article",
+      "headline": "AI即中介：如何管理AI对品牌的描述",
+      "description": "品牌管理不只看企业如何介绍自己，还要看AI会如何替企业介绍自己。AI搜索让品牌信息多了一层解释中介，用户可能先看到AI总结，再决定是否访问官网。品牌描述失控通常来自名称、品类、能力、价格、案例和外部资料之间的不一致。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-07-30T08:00:00+08:00",
+      "dateModified": "2025-07-30T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "GEO 实战",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=geo"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "AI即中介：如何管理AI对品牌的描述",
+          "item": "https://nextgeo.baicl.cc/blog/ai-as-intermediary-brand-description-management.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="../blog/" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">GEO 实战</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          AI即中介：如何管理AI对品牌的描述
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-07-30">发布日期: 2025-07-30</time>
+          <span>·</span>
+          <span>阅读时长: 9 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            品牌管理不只看企业如何介绍自己，还要看AI会如何替企业介绍自己。AI搜索让品牌信息多了一层解释中介，用户可能先看到AI总结，再决定是否访问官网。品牌描述失控通常来自名称、品类、能力、价格、案例和外部资料之间的不一致。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：AI正在成为品牌第一解释层</h2><p>AI即中介的核心变化是：用户不一定先进入官网、广告或销售页面，而可能先向AI询问“这家公司是做什么的”“适合谁”“和竞品有什么区别”。AI给出的描述，会直接影响用户是否继续了解品牌。</p><p>这意味着品牌管理从“对外表达”扩展为“被机器解释”。企业不能只关心官网文案是否好看，还要关心AI是否能准确识别品牌实体、能力边界、服务对象和证据来源。</p></section><section id="block-2" class="content-block"><h2>二、为什么AI会成为品牌认知中介</h2><figure class="content-image"><img src="../../assets/article-images/ai-as-intermediary-brand-description-management/ai-intermediary-brand-description.png" alt="AI作为品牌信息中介示意"><figcaption>AI会把官网、第三方资料和用户问题重组为用户看到的品牌描述。</figcaption></figure><p>传统搜索把链接、标题和摘要交给用户判断；AI搜索则先把多个来源压缩成答案。用户看到的是经过模型筛选和改写后的品牌描述，而不是企业原文。</p><p>这种中介作用并不一定是坏事。对表达清楚、证据稳定的企业，AI可能帮助用户更快理解；对公开信息混乱的企业，AI也可能放大错误归类、过时说法或第三方误解。</p></section><section id="block-3" class="content-block"><h2>三、AI对品牌的描述通常从哪里失控</h2><p>品牌描述失控最常见的原因不是AI“故意说错”，而是公开资料本身给出了冲突信号。比如官网说自己是咨询公司，招聘页强调软件产品，媒体稿又把它归入营销代理，模型就可能选择一个并不准确的泛化标签。</p><p>另一个常见问题是证据缺失。企业声称服务某类客户、具备某种能力或覆盖某个行业，但没有案例、产品页、FAQ或第三方资料支撑，AI就很难把这些描述视为稳定事实。</p><table class="content-table"><thead><tr><th>失控位置</th><th>典型表现</th><th>治理动作</th></tr></thead><tbody><tr><td>实体定义</td><td>公司名称、简称、英文名混用</td><td>建立统一品牌实体说明</td></tr><tr><td>能力描述</td><td>不同页面说法不一致</td><td>固定产品和服务边界</td></tr><tr><td>证据来源</td><td>案例、资质、客户问题缺失</td><td>补充可验证材料</td></tr><tr><td>外部资料</td><td>旧媒体稿或平台简介过时</td><td>定期更新第三方入口</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、第一步：建立标准描述库</h2><p>标准描述库不是品牌口号库，而是给人、搜索引擎和AI共同使用的事实底稿。它应包含品牌一句话定义、业务范围、适用客户、核心能力、不做什么、常见误解和证据链接。</p><p>这个描述库要成为官网、销售材料、媒体资料、招聘介绍、社交平台简介和FAQ的共同来源。只有底稿一致，外部分发才不会制造新的语义冲突。</p><ul class=""><li>品牌标准名称、简称、英文名和所属主体。</li><li>一句话定义、长定义和面向不同客户的版本。</li><li>产品或服务边界，包括明确不提供的能力。</li><li>典型客户、行业场景、案例入口和证据链接。</li><li>常见错误描述及推荐纠正说法。</li></ul></section><section id="block-5" class="content-block"><h2>五、第二步：做AI提示词审计</h2><p>提示词审计用于观察AI如何实际描述品牌。企业可以固定一组问题，在多个AI入口中定期测试，包括品牌定义、行业推荐、竞品比较、价格模式、适用场景和风险问题。</p><p>审计结果不要只记录“有没有出现”，还要标注描述是否准确、语气是否正向、来源是否可靠、是否引用官网、是否把企业放入正确类别。这样才能从曝光监测进入语义质量管理。</p><table class="content-table"><thead><tr><th>问题类型</th><th>示例问题</th><th>需要记录</th></tr></thead><tbody><tr><td>品牌定义</td><td>某品牌是做什么的</td><td>品类、能力、来源</td></tr><tr><td>比较选择</td><td>某品牌和竞品区别</td><td>是否公平、是否遗漏</td></tr><tr><td>场景推荐</td><td>某需求适合哪些服务商</td><td>是否进入候选集</td></tr><tr><td>风险追问</td><td>某品牌有什么限制</td><td>是否夸大或误读</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>六、第三步：管理外部一致性</h2><p>AI不会只读取官网。百科、媒体报道、招聘页面、社交平台、行业目录、客户评价和合作伙伴页面，都可能影响品牌描述。企业需要把这些外部节点纳入语义治理，而不是只在官网内部修文案。</p><p>外部一致性管理的重点是修正过时和冲突信息。企业可以从搜索结果前两页、主流社交平台简介、行业目录和高权重媒体稿开始，检查品牌名称、业务类别、核心能力和链接是否一致。</p></section><section id="block-7" class="content-block"><h2>七、结论：管理AI描述，就是管理未来用户的第一印象</h2><p>AI作为中介后，品牌第一印象不再完全由企业官网控制。用户可能先看到AI对品牌的解释，再决定是否点击、询价或比较竞品。</p><p>因此，企业要把品牌管理、内容治理和GEO监测放在同一张表里：先统一事实底稿，再检查AI描述，最后持续修正官网与外部资料。目标不是操控AI，而是让AI更容易说对你。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li><li><span>Microsoft Learn：Retrieval-augmented generation in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI对品牌描述错误，是不是只能等模型更新？</h3><p>不能只等模型更新。模型更新可能改变答案，但如果公开资料仍然冲突或过时，错误描述还会反复出现。企业应先修正官网和高权重外部资料中的实体定义、业务范围和证据链接，再用固定问题集持续观察AI是否逐步纠偏。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div><div><h3>Q2：标准描述库应该由品牌部还是SEO团队负责？</h3><p>标准描述库最好由品牌、产品、销售、SEO和法务共同维护。品牌团队负责定位和语气，产品团队确认能力边界，销售团队提供真实客户问题，SEO团队负责可抓取和结构化表达，法务或合规团队检查不能夸大的承诺。每次调整后都应复测同一组问题，确认变化来自信息源改善，而不是一次模型波动。</p></div><div><h3>Q3：提示词审计要覆盖多少问题才够？</h3><p>早期可以从20到30个高价值问题开始，覆盖品牌定义、品类推荐、竞品比较、价格、适用场景和风险疑问。问题不必一开始很大，关键是固定口径、定期复测、记录来源和语义变化。等发现高风险主题后，再扩展更多长尾问题。</p></div><div><h3>Q4：AI没有提到品牌，和AI说错品牌哪个更严重？</h3><p>两者都重要，但风险不同。没有提到通常说明可见性不足，AI说错则可能直接影响用户判断。对于B2B、高客单价和专业服务企业，错误描述可能比缺席更危险，因为它会把用户带向错误期待、错误竞品或错误采购标准。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div><div><h3>Q5：企业能不能要求AI固定使用某段品牌介绍？</h3><p>通常不能。公开AI系统不会因为企业提交一段话就长期固定复述。企业能做的是让标准介绍出现在权威、可抓取、一致的页面和资料中，并用证据支撑关键描述。这样可以提高AI采用正确描述的概率，但不应承诺控制答案。</p></div><div><h3>Q6：外部平台资料太多，应该先改哪里？</h3><p>优先改最容易被用户和搜索系统看到的入口：官网首页和关于页、搜索结果靠前的平台简介、百科或行业目录、主流社交账号主页、媒体资料包和高访问量案例页。先处理这些节点，可以减少AI接触到冲突信息的机会。每次调整后都应复测同一组问题，确认变化来自信息源改善，而不是一次模型波动。</p></div><div><h3>Q7：如何判断AI描述管理已经有效？</h3><p>可以看三类信号：AI在多个入口中能稳定说清品牌是谁，关键能力和适用场景不再明显错误，答案开始引用官网或权威外部资料。不要只看一次截图，至少用连续几周的样本判断趋势，才能避免被模型波动误导。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：AI正在成为品牌第一解释层</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么AI会成为品牌认知中介</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、AI对品牌的描述通常从哪里失控</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、第一步：建立标准描述库</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、第二步：做AI提示词审计</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、第三步：管理外部一致性</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：管理AI描述，就是管理未来用户的第一印象</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

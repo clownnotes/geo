@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI情感分析：品牌被提到的时候，语气是正还是负｜邻里GEO</title>
+  <meta name="description" content="AI提到品牌只是可见性，AI用什么语气提到品牌才接近声誉风险。品牌提及不能只统计出现次数，还要判断AI是在推荐、解释、保留还是警示。AI情感分析必须结合问题语境，同一句评价在推荐、比较和风险追问中的意义不同。">
+  <meta name="keywords" content="AI情感分析, 品牌提及, GEO监测, AI搜索, 语气分析, 品牌声誉, AI答案分析, AI搜索, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/ai-sentiment-analysis-brand-mentions.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/ai-sentiment-analysis-brand-mentions.html#article",
+      "headline": "AI情感分析：品牌被提到的时候，语气是正还是负",
+      "description": "AI提到品牌只是可见性，AI用什么语气提到品牌才接近声誉风险。品牌提及不能只统计出现次数，还要判断AI是在推荐、解释、保留还是警示。AI情感分析必须结合问题语境，同一句评价在推荐、比较和风险追问中的意义不同。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-07-09T08:00:00+08:00",
+      "dateModified": "2025-07-09T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AI 搜索认知",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=ai-search"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "AI情感分析：品牌被提到的时候，语气是正还是负",
+          "item": "https://nextgeo.baicl.cc/blog/ai-sentiment-analysis-brand-mentions.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">AI 搜索认知</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          AI情感分析：品牌被提到的时候，语气是正还是负
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-07-09">发布日期: 2025-07-09</time>
+          <span>·</span>
+          <span>阅读时长: 8 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            AI提到品牌只是可见性，AI用什么语气提到品牌才接近声誉风险。品牌提及不能只统计出现次数，还要判断AI是在推荐、解释、保留还是警示。AI情感分析必须结合问题语境，同一句评价在推荐、比较和风险追问中的意义不同。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：出现不等于好印象</h2><p>在AI搜索中，品牌被提到只是第一层结果。真正影响用户判断的，是AI提到品牌时的语气：它是在推荐你、客观介绍你、提醒限制，还是把你作为负面案例。</p><p>因此，AI情感分析要从“有没有出现”升级为“以什么态度出现”。这类分析尤其适合品牌、竞品比较、购买建议、风险问题和客户评价相关场景。</p></section><section id="block-2" class="content-block"><h2>二、为什么AI语气比提及次数更接近品牌风险</h2><figure class="content-image"><img src="../assets/article-images/ai-sentiment-analysis-brand-mentions/ai-sentiment-brand-mentions.png" alt="AI品牌提及情感分析示意"><figcaption>品牌提及需要结合AI答案语气、场景和来源一起判断。</figcaption></figure><p>传统监测常把曝光次数当成核心指标，但AI答案会把品牌放入具体判断中。一次负向或错误的描述，可能比十次中性提及更影响用户决策。</p><p>例如AI说某品牌“适合预算有限的基础需求”和“适合复杂企业级项目”，都算提及，但传达的市场定位完全不同。企业如果只看出现率，就会错过语义偏差。</p></section><section id="block-3" class="content-block"><h2>三、AI答案里的品牌语气可以分成哪些类型</h2><p>企业可以先使用五类基础标签：正向、中性、负向、保留和错误。正向不一定等于明确推荐，中性也不等于没有价值，关键要看回答是否影响用户下一步行动。</p><p>错误类要单独标注，因为它不是情感问题，而是事实问题。AI可能用看似中性的语气说错价格、产品能力或服务对象，这类情况需要优先纠偏。</p><table class="content-table"><thead><tr><th>类型</th><th>判断标准</th><th>企业动作</th></tr></thead><tbody><tr><td>正向</td><td>明确认可能力或推荐场景</td><td>记录来源并强化证据</td></tr><tr><td>中性</td><td>仅客观说明品牌信息</td><td>检查是否缺少差异化</td></tr><tr><td>负向</td><td>指出明显不足或不建议</td><td>追溯来源和事实依据</td></tr><tr><td>保留</td><td>推荐前附加条件或限制</td><td>补充边界和案例</td></tr><tr><td>错误</td><td>事实、产品或定位不准确</td><td>优先修正权威资料</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、情感分析不能脱离问题语境</h2><p>同一句话在不同问题中含义可能不同。AI在“低成本工具推荐”里说某品牌价格高，可能是负向；在“高端企业服务商推荐”里说价格高但服务完整，可能反而支撑高端定位。</p><p>所以标注时要保留原始问题、答案片段、品牌位置和上下文，不要只抽一句话做情感判断。GEO监测的价值在于理解语境，而不是机械打分。</p><ul class=""><li>记录用户问题和AI入口。</li><li>截取包含品牌的完整段落。</li><li>标注品牌是否被推荐、比较、警示或排除。</li><li>记录引用来源和可疑错误。</li><li>把语气变化和页面修改时间对应起来。</li></ul></section><section id="block-5" class="content-block"><h2>五、如何建立品牌提及语气标注表</h2><p>标注表不需要一开始很复杂，但必须稳定。建议至少包含日期、模型、问题、答案摘要、是否提及、语气类型、准确性、来源链接、处理建议和负责人。</p><p>如果团队规模较小，可以先人工标注。等问题集扩大后，再考虑用工具辅助分类，但负向和错误提及仍然建议人工复核，避免把真实风险误判为普通情绪。</p></section><section id="block-6" class="content-block"><h2>六、负向提及时应该怎么修正信息源</h2><p>负向提及不一定都要“压下去”。如果AI指出的是事实限制，例如产品不适合某类客户，企业应在官网把边界说清楚，而不是试图让AI忽略限制。</p><p>如果负向来自过时资料、误解或个别来源放大，就要追溯到具体页面：官网是否说法模糊，第三方资料是否过期，案例是否不足，FAQ是否没有解释常见疑虑。</p></section><section id="block-7" class="content-block"><h2>七、结论：GEO监测必须进入语义质量层</h2><p>AI情感分析让企业看到品牌在答案中的真实位置。出现率告诉你是否被看见，语气和准确性告诉你是否被正确理解、是否被信任、是否可能影响用户选择。</p><p>因此，GEO监测不能停留在“AI有没有提到我”。企业要把品牌提及拆成语气、场景、来源和事实准确性，才能把AI答案风险转化为可修正的内容任务。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li><li><span>Google Search Help：AI Overviews in Search results -</span><a href="https://support.google.com/websearch/answer/14901683" target="_blank" rel="noopener noreferrer">https://support.google.com/websearch/answer/14901683</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：Retrieval-augmented generation in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Pew Research Center：Americans have mixed feelings about AI summaries in search results -</span><a href="https://www.pewresearch.org/short-reads/2025/10/01/americans-have-mixed-feelings-about-ai-summaries-in-search-results/" target="_blank" rel="noopener noreferrer">https://www.pewresearch.org/short-reads/2025/10/01/americans-have-mixed-feelings-about-ai-summaries-in-search-results/</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI情感分析和舆情监测有什么不同？</h3><p>舆情监测通常分析用户、媒体或社交平台对品牌的态度；AI情感分析关注AI答案如何重组这些信息并表达态度。它更接近“AI替用户总结品牌印象”的监测，因此必须同时看语气、事实准确性、来源和问题语境。标注时要保留原问题和完整上下文，否则很容易把真实限制误判成负面评价。</p></div><div><h3>Q2：中性提及是不是没有价值？</h3><p>不是。中性提及说明AI至少能识别品牌，但可能还没有形成明确推荐理由。企业应检查中性答案里是否缺少差异化能力、证据或适用场景。如果品牌长期只被中性介绍，说明内容可能还没有支撑更强的推荐判断。复盘时还应追踪负向语气对应的信息源，确认是事实限制、来源过时还是AI误读。</p></div><div><h3>Q3：负向提及一定要删除或压制吗？</h3><p>不一定。真实限制应该被清楚表达，而不是隐藏。企业要区分事实性负向和错误性负向：前者需要补充边界、解释适用场景；后者需要修正来源、更新官网和外部资料，避免AI继续传播错误理解。标注时要保留原问题和完整上下文，否则很容易把真实限制误判成负面评价。</p></div><div><h3>Q4：能不能用自动情感分析工具直接打分？</h3><p>可以辅助，但不能完全依赖。AI答案中的品牌语气常常和上下文有关，自动分数可能把“价格高但适合大型企业”误判为负向。重要品牌问题、竞品比较和风险回答，仍然需要人工复核并记录具体原因。复盘时还应追踪负向语气对应的信息源，确认是事实限制、来源过时还是AI误读。</p></div><div><h3>Q5：应该监测哪些问题的品牌语气？</h3><p>优先监测真实决策问题，例如“某类服务商推荐”“某品牌和竞品区别”“某产品适合谁”“某品牌有什么缺点”“预算有限选谁”。这些问题比单纯搜索品牌名更接近购买场景，也更能暴露AI对品牌的态度。标注时要保留原问题和完整上下文，否则很容易把真实限制误判成负面评价。</p></div><div><h3>Q6：如果AI引用官网却给出负向评价怎么办？</h3><p>先检查官网内容是否给了容易误读的信号，例如强调限制却没有说明适用场景，或案例不足导致AI无法判断优势。引用官网不代表答案一定正向，企业需要优化页面结构，让限制、优势、证据和边界同时出现。复盘时还应追踪负向语气对应的信息源，确认是事实限制、来源过时还是AI误读。</p></div><div><h3>Q7：情感分析多久复盘一次合适？</h3><p>核心品牌和竞品问题建议每周查看，行业推荐和长尾问题可以按月复盘。发生产品改版、价格调整、负面事件或大规模内容更新后，应做专项检查。重点不是样本越多越好，而是问题稳定、标注一致、能指导纠偏。标注时要保留原问题和完整上下文，否则很容易把真实限制误判成负面评价。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：出现不等于好印象</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么AI语气比提及次数更接近品牌风险</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、AI答案里的品牌语气可以分成哪些类型</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、情感分析不能脱离问题语境</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、如何建立品牌提及语气标注表</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、负向提及时应该怎么修正信息源</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：GEO监测必须进入语义质量层</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

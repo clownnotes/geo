@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2B制造业如何让AI理解产品能力和应用场景｜邻里GEO</title>
+  <meta name="description" content="B2B制造业想让AI准确理解产品，不能只写实力、品质和定制能力，而要把型号、规格、材料、工艺、认证、案例和选型逻辑整理成可比较的技术知识结构，帮助采购问题追溯到具体证据。">
+  <meta name="keywords" content="B2B制造业GEO, 产品结构化数据, 产品型号, 规格参数, 应用场景, 制造业SEO, 邻里GEO, 案例, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/b2b-manufacturing-ai-product-capabilities-use-cases.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/b2b-manufacturing-ai-product-capabilities-use-cases.html#article",
+      "headline": "B2B制造业如何让AI理解产品能力和应用场景",
+      "description": "B2B制造业想让AI准确理解产品，不能只写实力、品质和定制能力，而要把型号、规格、材料、工艺、认证、案例和选型逻辑整理成可比较的技术知识结构，帮助采购问题追溯到具体证据。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-05-20T08:00:00+08:00",
+      "dateModified": "2026-05-20T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "行业案例",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=case-studies"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "B2B制造业如何让AI理解产品能力和应用场景",
+          "item": "https://nextgeo.baicl.cc/blog/b2b-manufacturing-ai-product-capabilities-use-cases.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">行业案例</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          B2B制造业如何让AI理解产品能力和应用场景
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2026-05-20">发布日期: 2026-05-20</time>
+          <span>·</span>
+          <span>阅读时长: 10 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            B2B制造业想让AI准确理解产品，不能只写实力、品质和定制能力，而要把型号、规格、材料、工艺、认证、案例和选型逻辑整理成可比较的技术知识结构，帮助采购问题追溯到具体证据。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、AI看不懂制造业，常常是产品表达太像宣传页</h2><p>很多制造业企业并不是没有技术能力，而是公开页面没有把能力翻译成可检索、可比较、可验证的产品信息。首页写先进制造、严格品控、支持定制，但产品页缺少型号、规格、材料、工艺、认证和应用边界，AI只能把企业归为一个模糊供应商。</p><p>B2B采购问题通常不是简单地问哪家公司好，而是问某个工况下该用哪类产品，某种材料是否耐腐蚀，某个型号能否适配现有设备，批量交付是否稳定，认证是否覆盖目标市场。AI如果看不到具体参数和证据，很难把企业放进准确候选。</p><p>制造业GEO的任务，是把工厂能力拆成产品知识。产品系列、型号、规格、材料、工艺、检测、认证、案例和选型逻辑都要在官网形成稳定结构，让AI能从采购问题一路追溯到具体页面。</p></section><section id="block-2" class="content-block"><h2>二、产品型号和规格是机器理解的骨架</h2><figure class="content-image"><img src="../assets/article-images/b2b-manufacturing-ai-product-capabilities-use-cases/b2b-manufacturing-product-capabilities.png" alt="B2B制造业通过产品型号规格材料工艺认证和案例帮助AI理解能力与应用场景"><figcaption>制造业的AI理解路径，应从型号和规格出发，连接材料、工艺、认证、案例和选型逻辑。</figcaption></figure><p>制造业产品必须有稳定骨架。系列页回答这类产品解决什么问题，型号页回答某个具体产品能做什么，规格表回答参数范围，应用页回答适合什么工况，案例页回答真实项目中如何被选择和使用。</p><p>Google和Schema.org的Product相关文档都强调产品名称、报价或提供信息、评价、制造商、型号、材料、识别码和认证等属性。对制造业来说，这些不是为了做漂亮标注，而是帮助系统区分不同产品、不同变体和不同采购条件。</p><p>如果一个页面只写高精度传感器，却不写型号、量程、输出信号、精度等级、工作温度、防护等级和安装方式，AI无法判断它是否适合某个设备。参数越清楚，产品越容易进入正确问题。</p><table class="content-table"><thead><tr><th>页面层级</th><th>核心问题</th><th>应包含的信息</th></tr></thead><tbody><tr><td>系列页</td><td>这类产品解决什么问题</td><td>品类、应用行业、优势、型号入口</td></tr><tr><td>型号页</td><td>这个产品能做什么</td><td>型号、尺寸、参数、材料、认证</td></tr><tr><td>规格表</td><td>能否满足技术要求</td><td>公差、功率、温度、介质、接口</td></tr><tr><td>应用页</td><td>适合什么场景</td><td>工况、设备、限制、替代方案</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、材料、工艺和认证决定可信边界</h2><p>B2B制造业的能力不只体现在产品名称里，更体现在材料和工艺选择。钢材牌号、塑料等级、涂层方式、热处理、CNC加工、注塑、焊接、表面处理、洁净等级和检测方法，都会影响产品适用场景。</p><p>认证信息也要写到适用范围。ISO 9001是质量管理体系标准，它能说明组织建立了质量管理体系，但不等同于某个产品在所有场景下都有性能保证。CE、UL、RoHS、FDA、ATEX等认证或合规声明，也要区分产品范围、市场范围和有效状态。</p><p>Schema.org的Certification和hasCertification提醒企业，认证应作为可描述对象，而不是只放一个图标。更好的写法是说明认证名称、签发机构、证书编号、有效期、覆盖产品和下载入口，让AI和采购方都能判断证据是否匹配当前需求。</p><ul class=""><li>材料写清牌号、等级、供应标准和替代材料限制。</li><li>工艺写清加工方式、表面处理、检测方法和质量控制节点。</li><li>认证写清名称、签发机构、证书编号、有效期和覆盖范围。</li><li>检测报告说明样品、条件、指标、日期和适用产品，不扩展到未测试型号。</li></ul></section><section id="block-4" class="content-block"><h2>四、应用场景要写成采购问题</h2><p>制造业企业常把应用场景写成行业列表：汽车、电子、医疗、能源、食品、化工。这样的列表有帮助，但还不够。AI真正需要判断的是产品在某个行业的哪段流程、哪台设备、哪种工况、哪类限制下发挥作用。</p><p>应用页要从采购问题出发。用户问耐高温密封件怎么选，页面就要说明温度范围、介质、压力、寿命、材料选择和失效风险；用户问食品设备用什么输送带，页面就要说明接触材料、清洁方式、防霉要求、认证和维护周期。</p><p>场景越具体，AI越容易把产品与需求连接。行业名称只是入口，工况、设备、环境、风险和替代方案才是判断依据。对非标定制企业来说，写清不适用场景同样重要，因为它能减少错误询盘和错误推荐。</p><table class="content-table"><thead><tr><th>应用维度</th><th>需要说明什么</th><th>对AI理解的价值</th></tr></thead><tbody><tr><td>行业</td><td>汽车、医疗、食品、能源等</td><td>进入初步候选集合</td></tr><tr><td>设备</td><td>安装位置、接口、配套系统</td><td>判断适配关系</td></tr><tr><td>工况</td><td>温度、压力、介质、粉尘、振动</td><td>匹配技术限制</td></tr><tr><td>风险</td><td>磨损、腐蚀、污染、停机成本</td><td>解释为什么选择该方案</td></tr></tbody></table></div></section><section id="block-5" class="content-block"><h2>五、案例不是战报，而是选型证据</h2><p>制造业案例常被写成合作新闻：某客户选择某产品，项目顺利交付。这样的内容能证明合作存在，却很难帮助AI理解产品能力。真正有用的案例，应像一份简化的选型记录。</p><p>案例页可以匿名，但不能空泛。至少要说明客户行业、设备或产线、原始问题、工况条件、选择的型号或配置、材料和工艺原因、交付范围、测试方法、结果边界和后续维护建议。这样AI才能把案例和未来类似采购问题连接起来。</p><p>如果涉及保密，可以隐藏客户名称、价格和图纸，但保留技术结构。比如某新能源设备厂在高湿环境下需要防腐蚀紧固件，最终选择某材料和表面处理，并说明测试条件和适用限制。这样的案例比单纯写客户认可更有价值。</p><ul class=""><li>案例标题包含行业、设备、问题和产品类型。</li><li>正文保留工况、型号、材料、工艺和选型原因。</li><li>结果表达说明测试条件和适用范围，不夸大到所有场景。</li><li>案例链接回产品页、应用页、认证页和技术文档。</li></ul></section><section id="block-6" class="content-block"><h2>六、选型逻辑要让AI能比较方案</h2><p>B2B制造业要被AI用于采购建议，必须提供比较维度。用户很少只需要知道产品存在，他们需要知道A型号和B型号差在哪里，标准品和定制件怎么选，不同材料在成本、寿命、交期和认证上的取舍是什么。</p><p>选型内容可以写成表格、决策树、配置器或FAQ。关键是把判断条件公开化：负载、温度、介质、精度、速度、耐候性、清洁要求、认证市场、最小起订量、交期、维护方式和替换成本。</p><p>没有公开价格的B2B产品，也应提供报价逻辑。比如按材料、尺寸、加工难度、批量、模具、表面处理和检测要求影响报价。AI面对预算或采购周期问题时，至少能判断产品属于标准采购、询价采购还是项目制方案。</p><table class="content-table"><thead><tr><th>选型条件</th><th>应提供的信息</th><th>常见页面位置</th></tr></thead><tbody><tr><td>性能</td><td>负载、精度、寿命、速度、稳定性</td><td>型号页、规格表</td></tr><tr><td>环境</td><td>温度、湿度、介质、粉尘、腐蚀</td><td>应用页、技术指南</td></tr><tr><td>合规</td><td>认证、检测、市场准入、文件下载</td><td>认证页、资料中心</td></tr><tr><td>采购</td><td>MOQ、交期、报价因素、定制流程</td><td>询价页、FAQ</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、执行顺序：从产品数据库到答案源</h2><p>制造业企业可以先从产品数据库开始，而不是先写博客。把所有产品按系列、型号、规格、材料、工艺、认证、应用行业和可下载资料整理成统一字段，再决定哪些内容生成系列页、型号页、应用页、案例页和FAQ。</p><p>第二步是建立内部链接。型号页链接到对应规格表、认证文件、应用场景和案例；应用页链接回可选型号；案例页链接到材料和工艺说明。这样AI和采购者都能从一个问题继续追踪证据。</p><p>第三步是定期维护变化信息。型号停产、材料替代、认证过期、工艺升级、交期变化和新版资料都要及时更新。制造业的AI可见性不是靠一次内容发布完成，而是靠长期准确的产品知识库支撑。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Introduction to Product structured data，</span><a href="https://developers.google.com/search/docs/appearance/structured-data/product" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/product</a></li><li><span>Google Search Central：Product snippet structured data，</span><a href="https://developers.google.com/search/docs/appearance/structured-data/product-snippet" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/product-snippet</a></li><li><span>Schema.org：Product，</span><a href="https://schema.org/Product" target="_blank" rel="noopener noreferrer">https://schema.org/Product</a></li><li><span>GS1 US：What is a GTIN?，</span><a href="https://www.gs1us.org/upcs-barcodes-prefixes/what-is-a-gtin" target="_blank" rel="noopener noreferrer">https://www.gs1us.org/upcs-barcodes-prefixes/what-is-a-gtin</a></li><li><span>ISO：ISO 9001:2015 Quality management systems，</span><a href="https://www.iso.org/standard/62085.html" target="_blank" rel="noopener noreferrer">https://www.iso.org/standard/62085.html</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：制造业官网需要每个型号单独建页面吗？</h3><p>不一定，但核心型号、常卖型号和差异明显的变体建议单独页面。型号页能清楚承载参数、材料、认证、下载资料和适用场景。如果型号很多，可以用系列页加筛选表，再为重点型号建立独立页面，避免目录过散，也便于销售引用。</p></div><div><h3>Q2：产品参数太多，怎么避免页面难读？</h3><p>可以把信息分层。页面首屏说明产品定义、用途和关键参数，随后用规格表承载完整数据，再用下载资料提供图纸、手册和检测文件。对AI和采购者来说，参数不怕多，怕的是没有分组、没有单位、没有适用条件，也没有版本更新。</p></div><div><h3>Q3：B2B产品不公开价格会影响AI理解吗？</h3><p>可能影响采购类问题判断，但不等于必须公开全部报价。企业可以说明报价因素，例如材料、尺寸、批量、模具、加工难度、表面处理、检测和交期。这样AI至少能理解产品是标准购买、询价采购还是项目制方案，并减少错误匹配。</p></div><div><h3>Q4：认证证书应该怎么放在官网上？</h3><p>认证不应只放图标。建议写清认证名称、签发机构、证书编号、有效期、覆盖产品或工厂范围，并提供可下载文件或验证入口。尤其要区分质量管理体系认证和单个产品认证，避免让用户误解认证覆盖范围，AI也能更准确引用。</p></div><div><h3>Q5：客户案例可以匿名吗？</h3><p>可以匿名，很多制造业项目也必须匿名。关键是保留技术信息：客户行业、设备类型、工况条件、原始问题、选择的型号或配置、材料工艺原因、测试方式和适用限制。没有客户名称，也可以成为有效选型证据，并保护商业机密。</p></div><div><h3>Q6：外贸制造企业需要中英文内容完全一致吗？</h3><p>核心事实需要一致，包括型号、规格、材料、认证、应用场景、交期和联系方式。中英文可以根据市场表达习惯调整，但不能出现同一产品在不同语言页面参数不同、认证范围不同或型号命名不一致的情况，否则会削弱信任，也会增加AI误读。</p></div><div><h3>Q7：加Product结构化数据就足够了吗？</h3><p>不够。Product结构化数据能辅助表达产品信息，但AI还需要页面正文、规格表、材料说明、认证文件、案例、应用页和选型FAQ共同支撑。结构化数据应服务真实内容，而不是替代产品知识库，更不能包装缺失信息。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、AI看不懂制造业，常常是产品表达太像宣传页</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、产品型号和规格是机器理解的骨架</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、材料、工艺和认证决定可信边界</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、应用场景要写成采购问题</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、案例不是战报，而是选型证据</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、选型逻辑要让AI能比较方案</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、执行顺序：从产品数据库到答案源</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

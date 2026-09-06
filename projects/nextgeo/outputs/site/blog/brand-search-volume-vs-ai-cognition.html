@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>为什么“品牌词搜索量”不等于“AI认知强度”｜邻里GEO</title>
+  <meta name="description" content="搜索量衡量“注意力”，AI认知强度衡量“结构理解能力”。品牌词搜索量代表注意力增长，但不等于 AI 对品牌形成了稳定认知。AI认知强度的核心指标是实体稳定性、语义一致性和关系清晰度。">
+  <meta name="keywords" content="品牌词搜索量, AI认知强度, GEO, 品牌AI可见性, 实体稳定性, 语义一致性, 邻里GEO, GEO, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/brand-search-volume-vs-ai-cognition.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/brand-search-volume-vs-ai-cognition.html#article",
+      "headline": "为什么“品牌词搜索量”不等于“AI认知强度”",
+      "description": "搜索量衡量“注意力”，AI认知强度衡量“结构理解能力”。品牌词搜索量代表注意力增长，但不等于 AI 对品牌形成了稳定认知。AI认知强度的核心指标是实体稳定性、语义一致性和关系清晰度。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-01-29T08:00:00+08:00",
+      "dateModified": "2025-01-29T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "GEO 实战",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=geo"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "为什么“品牌词搜索量”不等于“AI认知强度”",
+          "item": "https://nextgeo.baicl.cc/blog/brand-search-volume-vs-ai-cognition.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">GEO 实战</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          为什么“品牌词搜索量”不等于“AI认知强度”
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-01-29">发布日期: 2025-01-29</time>
+          <span>·</span>
+          <span>阅读时长: 7 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            搜索量衡量“注意力”，AI认知强度衡量“结构理解能力”。品牌词搜索量代表注意力增长，但不等于 AI 对品牌形成了稳定认知。AI认知强度的核心指标是实体稳定性、语义一致性和关系清晰度。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：搜索量增长，只是“被更多人提及”，不等于“被正确理解”</h2><p>AI认知强度，是指模型能否稳定、准确、一致地理解一个品牌是谁、属于什么类别、解决什么问题以及与其他实体的关系。品牌词搜索量代表注意力增长，但不等于 AI 对品牌形成了稳定认知。</p><p>AI认知强度的核心指标是实体稳定性、语义一致性和关系清晰度。高注意力如果缺乏结构清晰度，反而可能放大语义噪声。</p><p>GEO 视角下的品牌增长，关键是结构清晰度增长，而不是搜索规模增长。</p></section><section id="block-2" class="content-block"><h2>二、一个关键误区：把“可见度”误当成“认知度”</h2><figure class="content-image"><img src="../assets/article-images/brand-search-volume-vs-ai-cognition/traditional-metrics-vs-ai-cognition.png" alt="传统搜索指标失效与 AI 认知指标变化示意"><figcaption>参考图：AI 搜索时代，传统流量和搜索量指标不足以解释品牌是否被模型稳定理解。</figcaption></figure><p>很多企业看到品牌词搜索量上升，会自然推断：</p><ul class=""><li>用户更认识我们了</li><li>品牌影响力增强了</li><li>AI也会更容易引用我们</li></ul></section><section id="block-3" class="content-block--subsection content-block"><h3>搜索行为只说明兴趣或记忆触发</h3><p>但在 GEO 视角中，这个推理是不成立的。</p><p>因为搜索行为本身只说明一件事：用户产生了兴趣或记忆触发，但并不代表AI对企业形成了稳定语义模型。</p><p>AI不会因为“被搜得多”而更理解你，它只会因为“结构更清晰”而更愿意引用你。</p></section><section id="block-4" class="content-block"><h2>三、AI认知的核心指标不是“次数”，而是“稳定性”</h2><p>在 AI 搜索系统中，一个企业是否被正确理解，取决于三个隐含指标：</p><table class="content-table"><thead><tr><th>指标</th><th>含义</th><th>风险</th></tr></thead><tbody><tr><td>实体稳定性（Entity Stability）</td><td>AI是否始终用同一方式指代你，而不是不断变化描述。</td><td>如果一次是“营销工具”，一次是“增长平台”，一次是“数据服务商”，会直接削弱认知强度。</td></tr><tr><td>语义一致性（Semantic Consistency）</td><td>不同来源对你的描述是否一致。</td><td>如果官网说你是A，媒体说你是B，用户说你是C，AI会降低信任等级。</td></tr><tr><td>关系清晰度（Relational Clarity）</td><td>你与行业其他实体的关系是否明确。</td><td>关系不清晰，就无法进入推荐链。</td></tr></tbody></table></div></section><section id="block-5" class="content-block"><h2>四、为什么品牌词增长，有时反而让AI更“困惑”？</h2><p>这看起来反直觉，但在实际语义系统中非常常见。</p><p>当品牌词搜索量快速增长，但内容体系没有同步升级时，会出现一种现象：高注意力 + 低结构清晰度 = 语义噪声放大。</p><p>结果是：</p><ul class=""><li>AI接收到更多关于你的信息</li><li>但信息结构并不统一</li><li>最终无法形成稳定实体模型</li></ul></section><section id="block-6" class="content-block--subsection content-block"><h3>用户更关注你，但AI更难解释你</h3><p>这会导致一个典型结果：用户更关注你，但AI更难解释你。</p></section><section id="block-7" class="content-block"><h2>五、AI如何“衡量认知强度”？其实不看搜索量</h2><p>AI系统不会直接使用“搜索量”作为理解依据，它更依赖以下信号：</p><table class="content-table"><thead><tr><th>信号</th><th>含义</th></tr></thead><tbody><tr><td>多源一致性</td><td>是否在多个来源中被一致描述。</td></tr><tr><td>结构可拆解性</td><td>你的信息是否可以被拆成“实体 + 能力 + 场景”。</td></tr><tr><td>可推理性</td><td>是否可以和其他实体形成关系图谱。</td></tr><tr><td>可引用性</td><td>是否存在可独立引用的定义句、事实句或结构表达。</td></tr></tbody></table></div></section><section id="block-8" class="content-block--subsection content-block"><h3>这些信号比被搜多少次更重要</h3><p>这些比“被搜多少次”重要得多。</p></section><section id="block-9" class="content-block"><h2>六、一个对比：SEO时代 vs GEO时代的“品牌强度定义”</h2><p>在 GEO 中，“品牌词增长”只是表层信号，而不是结构性信号。</p><table class="content-table"><thead><tr><th>维度</th><th>SEO时代</th><th>GEO时代</th></tr></thead><tbody><tr><td>品牌强度</td><td>搜索量 + 点击率</td><td>实体稳定性 + 可理解性</td></tr><tr><td>成功标准</td><td>排名靠前</td><td>被稳定引用</td></tr><tr><td>核心问题</td><td>如何被找到</td><td>如何被理解</td></tr><tr><td>数据来源</td><td>用户行为</td><td>语义结构</td></tr></tbody></table></div></section><section id="block-10" class="content-block"><h2>七、为什么大品牌更容易被AI“正确理解”？</h2><p>以一些大型互联网企业为例，例如 腾讯，它们在 AI 系统中的优势并不是简单的“知名度”，而是：</p><ul class=""><li>长期一致的实体命名</li><li>多维度稳定的业务描述</li><li>大量外部一致引用</li><li>清晰的业务分类结构</li></ul></section><section id="block-11" class="content-block--subsection content-block"><h3>大品牌往往拥有低歧义语义环境</h3><p>这些因素共同构成了“低歧义语义环境”。</p><p>因此，AI更容易形成稳定认知，而不是依赖搜索量。</p></section><section id="block-12" class="content-block"><h2>八、GEO视角下的关键判断：品牌增长是否“结构化”</h2><p>一个品牌是否真正变强，在 GEO 框架下可以通过一个问题判断：品牌增长，是“注意力增长”，还是“结构清晰度增长”？</p><p>如果只是：</p><ul class=""><li>更多人搜索你</li><li>更多人听说你</li></ul></section><section id="block-13" class="content-block--subsection content-block"><h3>只有注意力增长，不会自动转化为 AI 认知强度</h3><p>但定义没有变清晰、能力边界没有稳定、外部认知仍然混乱，那么在 AI 体系中，这种增长几乎不会转化为“认知强度”。</p></section><section id="block-14" class="content-block"><h2>九、结论：未来的品牌竞争，是“解释一致性”的竞争，而不是“搜索规模”的竞争</h2><p>在 AI 搜索时代，品牌真正的护城河正在发生变化：从“被看到多少次”，转向“被理解是否一致”。</p><p>品牌词搜索量依然重要，但它只是一个“人类行为信号”，而不是“机器认知信号”。</p><p>真正决定企业在 AI 世界位置的，是：是否能被稳定、统一、低歧义地解释。</p></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：品牌词搜索量还有价值吗？</h3><p>有价值，但它代表的是人类注意力，而不是机器理解能力。品牌词搜索量上升说明更多人记住或主动查找你，却不能证明AI已经准确理解你是谁、做什么、和谁不同。因此它只能作为表层信号，不能单独判断AI认知强度。这也是品牌增长必须同步做语义治理的原因。</p></div><div><h3>Q2：AI会用搜索量来判断品牌吗？</h3><p>AI通常不会直接把搜索量作为理解品牌的核心依据。它更依赖可检索文本、结构化信息、多源一致性和实体关系。不过搜索量增长可能间接带来更多讨论和外部页面，如果这些信息结构混乱，也可能放大噪声，而不是增强认知。</p></div><div><h3>Q3：为什么有些小品牌也能被AI引用？</h3><p>因为AI引用不完全取决于品牌规模，而取决于结构清晰度和信息可信度。小品牌如果在官网、第三方资料和案例中保持一致描述，能明确说明自己解决什么问题，并提供可验证证据，就可能在细分场景中比大而泛的品牌更容易被引用。</p></div><div><h3>Q4：品牌认知和AI认知有什么关系？</h3><p>两者相关但不等价。品牌认知是人类对企业的记忆、好感和选择倾向，AI认知是模型对企业实体、类别、能力和关系的建模结果。一个品牌可以在人群中有知名度，但如果信息表达不稳定，AI仍可能无法准确解释它。这也是品牌增长必须同步做语义治理的原因。</p></div><div><h3>Q5：如何提升AI认知强度？</h3><p>核心不是继续放大曝光，而是提升实体稳定性、语义一致性和关系清晰度。企业需要统一名称、定义、能力边界和场景表达，并让外部引用、案例和内容结构共同支持同一套解释。这样模型才更容易形成稳定认知。这也是品牌增长必须同步做语义治理的原因。</p></div><div><h3>Q6：SEO优化还能提升AI认知吗？</h3><p>可以间接提升，但不是完整答案。SEO能帮助页面被抓取、收录和排序，为AI检索提供入口；但AI是否正确理解，还取决于页面内容是否结构化、是否和其他来源一致、是否能被拆成实体、能力、场景和证据。这也是品牌增长必须同步做语义治理的原因。</p></div><div><h3>Q7：品牌词增长后应该做什么？</h3><p>品牌词增长后，不应该只继续堆内容或投放，而要同步强化知识结构。企业应检查搜索结果页、官网、媒体报道和第三方页面中的品牌描述是否一致，及时修正模糊定义，补齐能力边界和证据链，把注意力转化为可理解性。这也是品牌增长必须同步做语义治理的原因。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：搜索量增长，只是“被更多人提及”，不等于“被正确理解”</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、一个关键误区：把“可见度”误当成“认知度”</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">搜索行为只说明兴趣或记忆触发</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、AI认知的核心指标不是“次数”，而是“稳定性”</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、为什么品牌词增长，有时反而让AI更“困惑”？</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">用户更关注你，但AI更难解释你</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、AI如何“衡量认知强度”？其实不看搜索量</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">这些信号比被搜多少次更重要</a>
+<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、一个对比：SEO时代 vs GEO时代的“品牌强度定义”</a>
+<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、为什么大品牌更容易被AI“正确理解”？</a>
+<a href="#block-11" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">大品牌往往拥有低歧义语义环境</a>
+<a href="#block-12" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、GEO视角下的关键判断：品牌增长是否“结构化”</a>
+<a href="#block-13" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">只有注意力增长，不会自动转化为 AI 认知强度</a>
+<a href="#block-14" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">九、结论：未来的品牌竞争，是“解释一致性”的竞争，而不是“搜索规模”的竞争</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

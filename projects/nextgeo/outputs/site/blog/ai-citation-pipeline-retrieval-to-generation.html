@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI引用链路拆解：从检索召回到答案生成｜邻里GEO</title>
+  <meta name="description" content="AI引用不是一个按钮，而是一条链路；内容可能在召回、筛选、抽取或生成的任何一步掉队。AI引用通常经历查询理解、检索召回、来源筛选、内容切分、证据抽取和答案生成。没有被引用不一定是内容不好，可能是页面不可获取、问题不匹配、证据不清或来源可信度不足。">
+  <meta name="keywords" content="AI引用链路, 检索召回, 答案生成, RAG, GEO, AI搜索, 来源筛选, AI搜索, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/ai-citation-pipeline-retrieval-to-generation.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/ai-citation-pipeline-retrieval-to-generation.html#article",
+      "headline": "AI引用链路拆解：从检索召回到答案生成",
+      "description": "AI引用不是一个按钮，而是一条链路；内容可能在召回、筛选、抽取或生成的任何一步掉队。AI引用通常经历查询理解、检索召回、来源筛选、内容切分、证据抽取和答案生成。没有被引用不一定是内容不好，可能是页面不可获取、问题不匹配、证据不清或来源可信度不足。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-10-22T08:00:00+08:00",
+      "dateModified": "2025-10-22T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AI 搜索认知",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=ai-search"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "AI引用链路拆解：从检索召回到答案生成",
+          "item": "https://nextgeo.baicl.cc/blog/ai-citation-pipeline-retrieval-to-generation.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">AI 搜索认知</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          AI引用链路拆解：从检索召回到答案生成
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-10-22">发布日期: 2025-10-22</time>
+          <span>·</span>
+          <span>阅读时长: 8 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            AI引用不是一个按钮，而是一条链路；内容可能在召回、筛选、抽取或生成的任何一步掉队。AI引用通常经历查询理解、检索召回、来源筛选、内容切分、证据抽取和答案生成。没有被引用不一定是内容不好，可能是页面不可获取、问题不匹配、证据不清或来源可信度不足。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：AI引用是一条多阶段链路</h2><p>AI引用不是系统在最后一刻随手放上一个链接，而是一条从问题到答案的链路。用户提出问题后，系统需要理解意图、检索候选内容、筛选来源、抽取证据，再把材料组织成答案。</p><p>内容没有被引用，可能在任何阶段掉队。页面可能没有被抓取，可能没有被召回，可能被认为证据不足，也可能内容太难切分，无法在答案中稳定使用。</p></section><section id="block-2" class="content-block"><h2>二、第一步：查询理解决定检索方向</h2><figure class="content-image"><img src="../assets/article-images/ai-citation-pipeline-retrieval-to-generation/ai-citation-pipeline.png" alt="AI引用链路从检索召回到答案生成示意"><figcaption>AI引用链路包含查询理解、检索召回、来源筛选、证据抽取和答案生成多个阶段。</figcaption></figure><p>用户的自然语言问题通常不等于搜索关键词。AI系统会把问题拆成实体、意图、限制条件和可能的子问题。拆解方向不同，后续检索到的来源就会不同。</p><p>企业内容要覆盖真实问法，而不是只覆盖内部术语。用户会问“适合谁”“和某工具有什么区别”“价格怎么理解”，这些问题如果官网没有对应页面，后续引用机会就会下降。</p></section><section id="block-3" class="content-block"><h2>三、第二步：检索召回决定谁进入候选集</h2><p>检索召回是AI引用链路的入口。如果页面没有被索引、被robots阻断、标题与问题不匹配、正文缺少关键实体，就可能根本进入不了候选集合。</p><p>召回阶段并不关心页面是不是企业最想展示的页面，而是看它是否与问题相关、是否可访问、是否有足够文本和链接信号。</p><table class="content-table"><thead><tr><th>链路阶段</th><th>常见失败</th><th>改进方向</th></tr></thead><tbody><tr><td>查询理解</td><td>用户问法与页面语言不一致</td><td>补充真实问题、别名和场景</td></tr><tr><td>检索召回</td><td>页面不可抓取或主题不明确</td><td>修正索引、标题和内部链接</td></tr><tr><td>来源筛选</td><td>证据弱或来源不可信</td><td>补作者、案例、文档和外部一致性</td></tr><tr><td>内容抽取</td><td>段落太散或结论不清</td><td>使用定义、表格、FAQ和步骤</td></tr><tr><td>答案生成</td><td>内容不适合压缩成答案</td><td>把关键结论放在清楚位置</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、第三步：来源筛选会比较可信度和适配度</h2><p>进入候选集后，页面还要与其他来源竞争。系统可能更偏好权威、清楚、更新及时且可验证的来源。官网、文档、媒体、百科和社区都可能参与比较。</p><p>如果企业官网缺少证据，而第三方评测提供了更完整的对比维度，AI答案就可能引用第三方。企业要做的是提升官网可引用性，同时让外部资料不偏离事实。</p><ul class=""><li>来源是否来自明确机构或责任主体。</li><li>内容是否直接回答当前问题。</li><li>关键结论是否有证据、案例或文档支持。</li><li>信息是否仍然有效，是否有更新时间。</li><li>同一事实是否能在多个可信来源中相互印证。</li></ul></section><section id="block-5" class="content-block"><h2>五、第四步：内容切分影响证据能否被使用</h2><p>AI系统不会完整搬运网页，而是把页面切成片段再选择可用证据。长段落、混乱标题、图片化文字和缺少结构的页面，都可能让关键事实在切分时丢失。</p><p>这就是为什么定义句、对比表、FAQ和步骤对GEO有价值。它们不是装饰，而是让内容在切分后仍然保留完整语义。</p><ol><li>把首段写成可独立理解的定义或结论。</li><li>每个H2只回答一个清楚子问题。</li><li>用表格承载比较，用步骤承载流程，用FAQ承载追问。</li><li>避免把关键事实只放在图片、视频或下载文件中。</li></ol></section><section id="block-6" class="content-block"><h2>六、结论：按链路排查，才能找到真正问题</h2><p>企业看到AI没有引用自己时，不要只判断“内容不够好”。更专业的做法，是按链路检查：能否被抓取，能否被召回，是否可信，是否容易抽取，是否适合进入答案。</p><p>GEO优化的价值，就在于把模糊的“AI不提我”拆成可处理的问题。每个环节都有对应动作，企业才能把内容投资变成长期可复用的答案资产。</p></section><section id="block-7" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Microsoft Learn：Retrieval augmented generation and indexes -</span><a href="https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>OpenAI Developers：Web search tool -</span><a href="https://developers.openai.com/api/docs/guides/tools-web-search" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/guides/tools-web-search</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI引用链路和传统搜索排名有什么不同？</h3><p>传统搜索主要把链接排序后交给用户判断，AI引用链路会把检索到的材料重新组织成答案。页面不仅要被发现，还要被系统认为相关、可信、可抽取、适合支撑结论。因此排名好不等于一定会被AI引用。</p></div><div><h3>Q2：没有被AI引用，最先检查哪一步？</h3><p>先检查可获取性和召回。确认页面是否可抓取、可索引、返回正常状态码，标题和正文是否包含用户真实问题中的核心实体。很多引用问题并不在生成环节，而是在页面根本没有进入候选内容时就已经发生。</p></div><div><h3>Q3：为什么第三方页面会在链路中胜过官网？</h3><p>第三方页面可能提供更中立的比较、更清楚的证据或更适合当前问题的结构。官网如果只有宣传语，缺少定义、案例、FAQ和可验证来源，就可能在来源筛选阶段输给媒体、评测或文档型页面。</p></div><div><h3>Q4：内容切分为什么会影响AI引用？</h3><p>生成式系统通常不会整页理解和引用，而是把网页拆成片段处理。如果关键结论散落在长段落里，或依赖图片展示，切分后可能失去上下文。清晰H2、短段、表格和FAQ能让片段更容易保留完整语义。</p></div><div><h3>Q5：RAG和AI引用链路是什么关系？</h3><p>RAG是一类把检索内容带入生成过程的方法。AI引用链路可以理解为面向搜索产品的实际流程，包括问题理解、检索、来源筛选、证据抽取和答案生成。不同产品实现不同，但链路拆解有助于企业定位内容问题。</p></div><div><h3>Q6：GEO优化应该从哪类页面开始？</h3><p>优先从高价值问题对应的页面开始，例如产品定义、解决方案、对比、案例、价格说明和FAQ。这些页面更容易影响用户决策，也更适合作为AI答案证据。先把少数关键页面做扎实，再扩展到内容库。</p></div><div><h3>Q7：AI引用能被企业完全控制吗？</h3><p>不能。AI引用受平台策略、实时检索、其他来源质量和用户问题影响。企业能控制的是公开内容的准确性、结构、证据和可获取性。把这些做好，可以提高被正确理解和引用的概率，但不能承诺固定输出。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：AI引用是一条多阶段链路</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、第一步：查询理解决定检索方向</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、第二步：检索召回决定谁进入候选集</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、第三步：来源筛选会比较可信度和适配度</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、第四步：内容切分影响证据能否被使用</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、结论：按链路排查，才能找到真正问题</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

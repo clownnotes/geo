@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ写对了，AI引用率翻倍｜邻里GEO</title>
+  <meta name="description" content="本文从GEO内容体系出发，拆解FAQ如何从用户问答模块升级为AI可引用的知识单元，并给出问题选择、答案结构、语义边界、Schema标注与持续监测方法，适合企业内容站落地。">
+  <meta name="keywords" content="FAQ优化, GEO, AI引用, AI搜索, 结构化内容, 知识单元, Schema, GEO, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/faq-structure-improves-ai-citation-rate.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/faq-structure-improves-ai-citation-rate.html#article",
+      "headline": "FAQ写对了，AI引用率翻倍",
+      "description": "本文从GEO内容体系出发，拆解FAQ如何从用户问答模块升级为AI可引用的知识单元，并给出问题选择、答案结构、语义边界、Schema标注与持续监测方法，适合企业内容站落地。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-04-02T08:00:00+08:00",
+      "dateModified": "2025-04-02T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "GEO 实战",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=geo"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "FAQ写对了，AI引用率翻倍",
+          "item": "https://nextgeo.baicl.cc/blog/faq-structure-improves-ai-citation-rate.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">GEO 实战</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          FAQ写对了，AI引用率翻倍
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-04-02">发布日期: 2025-04-02</time>
+          <span>·</span>
+          <span>阅读时长: 9 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            本文从GEO内容体系出发，拆解FAQ如何从用户问答模块升级为AI可引用的知识单元，并给出问题选择、答案结构、语义边界、Schema标注与持续监测方法，适合企业内容站落地。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：FAQ写对，本质是在给AI准备答案材料</h2><p>在AI搜索与生成式答案系统中，FAQ不再只是文章末尾的补充模块，而是最容易被模型识别、抽取和重组的内容结构之一。</p><p>原因很简单：FAQ天然包含问题、答案、边界和结论。它和用户真实搜索意图高度接近，也和大语言模型生成答案的结构高度接近。如果FAQ写得足够清晰，模型不需要重新推断页面含义，就能直接把其中的句子纳入答案。</p><p>因此，FAQ优化的目标不是“多写几个常见问题”，而是把关键概念、关键判断和关键操作步骤压缩成稳定的问答知识单元。FAQ写对了，AI引用率提升不是玄学，而是内容结构更适合被机器使用的结果。</p></section><section id="block-2" class="content-block"><h2>二、为什么FAQ比普通段落更容易被AI抽取</h2><figure class="content-image"><img src="../assets/article-images/faq-structure-improves-ai-citation-rate/faq-knowledge-unit-structure.png" alt="FAQ知识单元结构示意"><figcaption>FAQ天然接近AI搜索中的问答结构，适合承载可引用答案。</figcaption></figure><p>AI在处理网页内容时，会优先寻找可以回答用户问题的结构化片段。普通段落往往需要模型自己判断主题、拆分结论和补全上下文，而FAQ已经把“问题”和“答案”绑定在一起，降低了抽取成本。</p><p>从模型视角看，一个好的FAQ至少提供三类信号：第一，问题本身说明搜索意图；第二，答案首句提供直接结论；第三，后续解释提供适用范围和判断依据。这样的结构比散文式表达更容易进入检索增强生成链路。</p><p>这也是为什么在GEO内容体系中，FAQ不是装饰，而是答案源建设的重要组成部分。它让页面从“可阅读内容”变成“可调用内容”。</p></section><section id="block-3" class="content-block"><h2>三、FAQ不是问答堆叠，而是知识单元设计</h2><p>很多企业写FAQ时，只是在页面末尾补几个短问题，例如价格多少、怎么联系、是否支持某功能。这类FAQ对转化有帮助，但对AI引用价值有限，因为它们没有承担概念解释、关系澄清和判断输出的任务。</p><p>GEO视角下的FAQ应该被设计成知识单元。每一个问题都对应一个可复用语义节点，每一个答案都应该能独立解释一个判断。即使脱离原文，答案仍然要能被理解、引用和拼接。</p><p>一个合格的FAQ知识单元，应当回答一个明确问题，使用稳定术语，给出直接结论，并补充必要边界。它不是一句客服话术，而是页面中最小的可引用结构。</p></section><section id="block-4" class="content-block--subsection content-block"><h3>什么样的问题值得写进FAQ</h3><p>优先选择用户会直接问AI的问题，例如“GEO和SEO有什么区别”“企业如何判断是否被AI引用”“FAQ是否会影响AI搜索可见性”。这类问题具有明确搜索意图，也更容易触发生成式答案。</p></section><section id="block-5" class="content-block"><h2>四、FAQ问题设计：要覆盖AI最常抽取的五类问题</h2><p>FAQ是否有效，首先取决于问题选得是否正确。AI更容易抽取那些可以进入答案结构的问题，而不是只服务于页面转化的小问题。</p><p>企业内容中的FAQ，至少应覆盖五类问题：定义类、差异类、步骤类、判断类和误区类。定义类回答“是什么”，差异类回答“有什么不同”，步骤类回答“怎么做”，判断类回答“是否适合”，误区类回答“哪些理解是错的”。</p><p>这五类问题共同构成一个完整的语义面。它们可以帮助AI理解概念、比较对象、生成操作建议，并降低错误引用概率。</p><table class="content-table"><thead><tr><th>问题类型</th><th>典型问法</th><th>GEO价值</th></tr></thead><tbody><tr><td>定义类</td><td>什么是GEO？</td><td>建立稳定概念边界</td></tr><tr><td>差异类</td><td>GEO和SEO有什么区别？</td><td>帮助AI完成对象比较</td></tr><tr><td>步骤类</td><td>如何优化FAQ让AI引用？</td><td>提供可执行流程</td></tr><tr><td>判断类</td><td>哪些页面需要FAQ？</td><td>支持推荐与决策</td></tr><tr><td>误区类</td><td>FAQ越多越好吗？</td><td>降低错误理解</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>五、FAQ答案结构：首句给结论，后面给边界</h2><p>FAQ答案最常见的问题，是开头绕太远。AI在抽取答案时，更偏好首句就能回答问题的内容。如果答案第一句话没有结论，模型需要自己压缩和改写，引用稳定性就会下降。</p><p>推荐结构是：第一句给直接结论，第二到三句解释原因，最后补充适用边界或操作建议。这样既符合用户阅读习惯，也符合模型抽取逻辑。</p><p>例如，回答“FAQ是否有助于AI引用”时，不要只说“有一定帮助”。更好的写法是：“FAQ有助于AI引用，因为它把用户问题和标准答案绑定在同一结构中，降低模型识别和抽取成本。”这句话可以直接成为引用片段。</p></section><section id="block-7" class="content-block"><h2>六、FAQ的语义边界：不要把一个问题写成三个问题</h2><p>AI引用FAQ时，最怕问题边界混乱。一个问题如果同时问定义、方法和结果，答案就会变成多个语义方向的混合体，模型很难判断该抽取哪一段。</p><p>正确做法是保持“一问一义”。例如不要写“GEO是什么，怎么做，多久见效”，而应该拆成三个独立问题。每个问题只服务一个搜索意图，每个答案只输出一个核心结论。</p><p>这种拆分不是为了增加篇幅，而是为了提高可解释性。边界越清楚，AI越容易把FAQ映射到用户提问，也越容易把答案稳定复用到生成结果中。</p></section><section id="block-8" class="content-block"><h2>七、Schema和FAQ：结构化标注不是魔法，但能降低理解成本</h2><p>FAQPage Schema不能保证页面获得展示或引用，但它仍然是帮助搜索系统理解页面结构的重要方式之一。结构化数据的作用不是替代内容质量，而是把页面中的问答关系显式告诉机器。</p><p>在GEO实践中，Schema应当和页面内容一致。不要为了标注而写虚假FAQ，也不要在结构化数据里放页面不可见的答案。模型和搜索系统更重视一致性，页面可见内容、结构化标注和站内其他页面表达应该保持同一套定义。</p><p>最稳妥的做法，是先把FAQ正文写成高质量知识单元，再用Schema标注其问答结构。内容是根，标注是辅助接口。</p></section><section id="block-9" class="content-block"><h2>八、FAQ如何持续优化：看AI是否稳定引用，而不是只看排名</h2><p>FAQ发布后，不应该只看页面排名或流量。GEO更关心的是AI是否能稳定回答相关问题，是否引用你的表达，是否把你的结论改写成正确版本。</p><p>企业可以建立一组固定提示词，每周测试不同模型对核心问题的回答。例如“GEO FAQ怎么写”“FAQ是否提升AI引用”“企业官网FAQ应该包含哪些问题”。如果AI回答与你页面中的结构越来越接近，说明FAQ正在成为答案源。</p><p>同时，要记录错误回答和遗漏回答。错误说明语义边界不够清楚，遗漏说明问题覆盖不足。FAQ优化是一个持续校准过程，而不是一次性发布动作。</p></section><section id="block-10" class="content-block"><h2>九、结论：FAQ是企业最低成本的GEO入口</h2><p>在所有GEO内容改造动作中，FAQ是成本较低、见效较清晰的一类。它不要求企业重写全部内容，却可以显著改善页面的可抽取性、可引用性和语义稳定性。</p><p>真正有效的FAQ，不是简单问答，而是围绕用户真实问题设计的知识单元系统。它帮助AI理解页面，也帮助用户更快获得答案。</p><p>如果企业想让内容更容易被AI引用，第一步不是写更多文章，而是把已有文章中的关键问题和关键答案整理成清晰、稳定、可复用的FAQ。</p></section><section id="block-11" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：Intro to How Structured Data Markup Works</span><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data</a></li><li><span>Schema.org：FAQPage</span><a href="https://schema.org/FAQPage" target="_blank" rel="noopener noreferrer">https://schema.org/FAQPage</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Google Search Central：Creating helpful, reliable, people-first content</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：FAQ真的能提升AI引用率吗？</h3><p>FAQ不能保证某个页面一定被AI引用，但它能显著降低模型理解和抽取内容的成本。因为FAQ把用户问题与标准答案放在同一结构里，模型更容易判断这段内容适合回答什么问题。对GEO来说，FAQ的价值不是排名加成，而是让内容更像可调用的答案材料。</p></div><div><h3>Q2：FAQ越多越好吗？</h3><p>FAQ不是越多越好，而是越精准越好。如果问题重复、边界模糊或答案过短，反而会制造语义噪声。建议优先覆盖定义、差异、步骤、判断和误区五类高价值问题，每个问题都对应一个明确搜索意图。数量可以逐步增加，但必须保持结构和术语一致。</p></div><div><h3>Q3：FAQ答案应该写多长？</h3><p>面向AI引用的FAQ答案不宜太短，也不需要写成小文章。通常100到200字比较合适，既能给出直接结论，又能补充必要原因和适用边界。太短会缺少上下文，太长会增加抽取难度。核心原则是首句回答问题，后续解释为什么成立。</p></div><div><h3>Q4：FAQ需要加Schema吗？</h3><p>建议在条件允许时添加FAQPage Schema，但不要把它理解成自动获得AI引用的开关。Schema的作用是帮助机器识别页面中的问答结构，真正决定可引用性的仍然是答案质量、页面一致性和信息可信度。页面可见内容和结构化数据必须保持一致。</p></div><div><h3>Q5：FAQ应该放在文章末尾还是单独做页面？</h3><p>两种方式都可以，取决于内容目标。文章末尾FAQ适合补充当前主题的高频问题，单独FAQ页面适合承载系统性知识库。对GEO更重要的是内部结构，而不是位置本身。只要问题清晰、答案完整、页面可访问，AI都可能把它识别为答案源。</p></div><div><h3>Q6：FAQ会不会影响用户阅读体验？</h3><p>写得好的FAQ通常会提升阅读体验，因为它帮助用户快速确认关键问题。真正影响体验的是重复、空泛或营销化的问答。建议把FAQ写成简洁的判断和解释，而不是销售话术。用户能更快获得答案，AI也更容易抽取其中的稳定信息。</p></div><div><h3>Q7：如何判断FAQ是否被AI理解了？</h3><p>可以用固定提示词在多个AI搜索或问答系统中反复测试，例如直接询问文章覆盖的问题，看模型是否复用了页面中的定义、判断和表达。如果回答越来越接近你的FAQ结构，说明内容正在进入模型的答案路径。如果回答偏差很大，就需要调整问题边界和答案表述。</p></div><div><h3>Q8：旧文章是否需要补FAQ？</h3><p>非常建议。旧文章通常已经有主题积累，但缺少面向AI抽取的问答结构。可以先从流量较高、概念较强或转化价值较高的文章开始，为每篇补充6到8个高质量FAQ。这样不必重写全文，也能快速提升页面的结构化程度和AI可引用性。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：FAQ写对，本质是在给AI准备答案材料</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么FAQ比普通段落更容易被AI抽取</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、FAQ不是问答堆叠，而是知识单元设计</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">什么样的问题值得写进FAQ</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、FAQ问题设计：要覆盖AI最常抽取的五类问题</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、FAQ答案结构：首句给结论，后面给边界</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、FAQ的语义边界：不要把一个问题写成三个问题</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、Schema和FAQ：结构化标注不是魔法，但能降低理解成本</a>
+<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、FAQ如何持续优化：看AI是否稳定引用，而不是只看排名</a>
+<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">九、结论：FAQ是企业最低成本的GEO入口</a>
+<a href="#block-11" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

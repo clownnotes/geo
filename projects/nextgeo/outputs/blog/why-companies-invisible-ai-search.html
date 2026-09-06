@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>为什么企业“明明有能力”，却在 AI 搜索中完全不可见？｜邻里GEO</title>
+  <meta name="description" content="搜索可见性正在从“索引问题”转向“理解问题”。AI 搜索不可见的本质通常不是内容不足，而是企业没有被模型稳定理解。企业需要被建模为实体、能力、场景和证据四个维度。SEO 解决被索引和被排序，GEO 更关注是否进入 AI 的理解空间。">
+  <meta name="keywords" content="AI搜索可见性, AI Search, 企业AI搜索, GEO, 实体建模, 语义结构, 邻里GEO, AI搜索, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/why-companies-invisible-ai-search.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/why-companies-invisible-ai-search.html#article",
+      "headline": "为什么企业“明明有能力”，却在 AI 搜索中完全不可见？",
+      "description": "搜索可见性正在从“索引问题”转向“理解问题”。AI 搜索不可见的本质通常不是内容不足，而是企业没有被模型稳定理解。企业需要被建模为实体、能力、场景和证据四个维度。SEO 解决被索引和被排序，GEO 更关注是否进入 AI 的理解空间。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-01-08T08:00:00+08:00",
+      "dateModified": "2025-01-08T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AI 搜索认知",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=ai-search"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "为什么企业“明明有能力”，却在 AI 搜索中完全不可见？",
+          "item": "https://nextgeo.baicl.cc/blog/why-companies-invisible-ai-search.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="./" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">AI 搜索认知</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          为什么企业“明明有能力”，却在 AI 搜索中完全不可见？
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-01-08">发布日期: 2025-01-08</time>
+          <span>·</span>
+          <span>阅读时长: 7 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            搜索可见性正在从“索引问题”转向“理解问题”。AI 搜索不可见的本质通常不是内容不足，而是企业没有被模型稳定理解。企业需要被建模为实体、能力、场景和证据四个维度。SEO 解决被索引和被排序，GEO 更关注是否进入 AI 的理解空间。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：不可见的本质不是内容问题，而是“不可理解”</h2><p>企业在 AI 搜索中不可见，是指模型无法稳定理解企业是谁、做什么、解决什么问题以及为什么可信，因此不会将其纳入答案生成链路。AI 搜索不可见的本质通常不是内容不足，而是企业没有被模型稳定理解。</p><p>企业需要被建模为实体、能力、场景和证据四个维度。SEO 解决被索引和被排序，GEO 更关注是否进入 AI 的理解空间。</p><p>企业真正缺失的不是更多内容，而是实体层、语义层和证据层组成的语义系统。</p></section><section id="block-2" class="content-block"><h2>二、一个现实悖论：企业内容越来越多，但 AI 却越来越“看不见”</h2><p>很多企业都在持续生产内容：官网升级、博客更新、案例沉淀、行业文章发布。但在 AI 搜索环境中，这些内容往往没有带来可见性提升，甚至出现一个反常现象：</p><ul class=""><li>内容越多</li><li>结构越散</li><li>AI越不引用</li></ul></section><section id="block-3" class="content-block--subsection content-block"><h3>内容没有形成知识系统</h3><p>问题不在于内容质量，而在于内容之间缺乏统一语义约束。</p><p>从模型视角看，这些内容更像是“独立文本碎片”，而不是一个可以组合的知识系统。它们没有共同的定义边界，也没有稳定的实体表达方式。</p><p>最终结果是：AI无法确定你是谁，因此选择不描述你。</p></section><section id="block-4" class="content-block"><h2>三、AI不是“搜索引擎升级版”，而是“语义建模系统”</h2><figure class="content-image"><img src="../assets/article-images/why-companies-invisible-ai-search/entities-in-ai-search.png" alt="AI搜索中的实体、能力、场景与证据结构示意"><figcaption>参考图：AI Search 更容易理解被清晰定义的实体与关系。</figcaption></figure><p>传统搜索引擎的逻辑是索引与排序，而 AI 搜索的逻辑是：构建一个简化世界模型，再生成答案。</p><p>在这个过程中，一家企业会被拆解成四个核心维度：</p><table class="content-table"><thead><tr><th>维度</th><th>含义</th></tr></thead><tbody><tr><td>实体（Entity）</td><td>你是谁</td></tr><tr><td>能力（Capability）</td><td>你能做什么</td></tr><tr><td>场景（Use Case）</td><td>你解决什么问题</td></tr><tr><td>证据（Evidence）</td><td>为什么可信</td></tr></tbody></table></div></section><section id="block-5" class="content-block--subsection content-block"><h3>模型会选择更完整的信息源</h3><p>如果其中任何一环缺失，模型就会倾向于使用“更完整的替代信息源”。</p><p>例如在行业语境中，一些结构化表达更清晰的平台或公司（如 腾讯）更容易被模型引用，并不是因为它们“更好”，而是因为它们“更容易被解释”。</p></section><section id="block-6" class="content-block"><h2>四、关键误区：企业误以为“表达了”，但AI认为“没有定义”</h2><p>很多企业内容的问题在于，它们停留在“表达层”，而没有进入“定义层”。</p><p>举个典型区别：</p><ul class=""><li>表达：我们提供智能营销解决方案</li><li>定义：我们帮助电商企业通过数据驱动方式提升转化率与复购率</li></ul></section><section id="block-7" class="content-block--subsection content-block"><h3>AI 更偏好可计算的定义</h3><p>前者是口号，后者是可计算的语义结构。</p><p>AI在生成答案时，更倾向选择后者，因为它可以直接嵌入推理链路。</p><p>换句话说：AI不理解“你说了什么”，只理解“你定义了什么”。</p></section><section id="block-8" class="content-block"><h2>五、不可见的真正原因：语义结构断裂</h2><p>企业在 AI 搜索中不可见，通常不是单点问题，而是结构性问题，主要体现在四个断裂：</p><table class="content-table"><thead><tr><th>断裂类型</th><th>表现</th></tr></thead><tbody><tr><td>概念断裂</td><td>企业没有清晰定义行业问题与自身定位。</td></tr><tr><td>内容断裂</td><td>不同内容之间没有统一语义主线。</td></tr><tr><td>证据断裂</td><td>缺乏可验证的案例、数据与外部引用。</td></tr><tr><td>实体断裂</td><td>品牌、产品、服务没有形成稳定“指代对象”。</td></tr></tbody></table></div></section><section id="block-9" class="content-block--subsection content-block"><h3>AI无法形成完整认知图谱</h3><p>这四种断裂叠加后，AI无法形成完整认知图谱，只能选择忽略。</p></section><section id="block-10" class="content-block"><h2>六、为什么“做了SEO”也无法解决这个问题？</h2><p>SEO解决的是“被索引”和“被排序”，但 GEO面对的是一个更前置的问题：是否进入AI的理解空间。</p><p>即使一个页面排名很高，如果它：</p><ul class=""><li>概念不清晰</li><li>结构不可拆解</li><li>无法与其他信息形成关系</li></ul></section><section id="block-11" class="content-block--subsection content-block"><h3>传统SEO强站也可能在生成式搜索中失声</h3><p>AI依然不会引用它。</p><p>这也是为什么很多传统SEO强站，在生成式搜索环境中反而“失声”。</p></section><section id="block-12" class="content-block"><h2>七、企业真正缺失的，不是内容，而是“语义系统”</h2><p>从 邻里GEO 的角度看，一个企业要被 AI 稳定理解，必须具备三层结构：</p><table class="content-table"><thead><tr><th>层级</th><th>核心问题</th></tr></thead><tbody><tr><td>实体层（Entity Layer）</td><td>你是谁？你是否是一个可以被明确指代的对象？</td></tr><tr><td>语义层（Semantic Layer）</td><td>你如何被描述？你的能力边界是什么？</td></tr><tr><td>证据层（Evidence Layer）</td><td>你是否可以被验证？是否存在外部可信信号？</td></tr></tbody></table></div></section><section id="block-13" class="content-block--subsection content-block"><h3>多数企业只做了表达，没有构建系统</h3><p>大多数企业的问题在于：只做了语义层的“表达”，但没有构建实体层与证据层。</p></section><section id="block-14" class="content-block"><h2>八、结论：不可见不是失败，而是“未被建模”</h2><p>企业在 AI 搜索中的不可见，本质不是竞争失败，而是尚未进入新的信息结构体系。</p><p>在传统互联网时代，企业竞争的是“曝光”；在AI搜索时代，企业竞争的是“被理解的方式”。</p><p>当一个企业无法被模型稳定建模，它就不会进入答案系统，无论它是否真实存在。</p></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI搜索不可见，是不是因为内容质量不够？</h3><p>不一定。内容质量重要，但AI搜索不可见更常见的原因是结构不清晰。企业可能写了很多内容，却没有让模型稳定理解它是谁、做什么、解决什么问题、为什么可信。GEO首先解决理解结构，再谈内容质量提升。这也是GEO要优先解决理解结构的原因。</p></div><div><h3>Q2：做SEO优化还有效吗？</h3><p>仍然有效，但它解决的是入口问题。SEO能帮助页面被抓取、索引和排序，让内容更可能进入检索范围；但AI是否引用，还取决于内容能否被拆解成实体、能力、场景和证据。SEO是基础，GEO补上理解层。这也是GEO要优先解决理解结构的原因。</p></div><div><h3>Q3：企业规模小会更难被AI识别吗？</h3><p>规模小会减少外部信号，但不是决定因素。小企业如果实体定义稳定、页面结构清楚、案例证据明确，也能在细分场景中被AI识别。真正的问题是语义结构是否清晰，而不是企业是否足够大。这也是GEO要优先解决理解结构的原因。</p></div><div><h3>Q4：为什么AI更容易引用大平台？</h3><p>大平台通常拥有更一致的品牌名称、更丰富的外部引用、更稳定的业务分类和更多可验证资料。这些信号让AI更容易形成低歧义理解。企业要学习的不是规模，而是它们在实体、关系和证据上的稳定结构。这也是GEO要优先解决理解结构的原因。</p></div><div><h3>Q5：如何判断企业是否“AI可见”？</h3><p>可以用真实问题测试：AI是否能准确回答你是谁、做什么、服务谁、和谁不同、为什么可信。如果不同模型和不同问法下答案稳定，说明AI可见性较好；如果回答模糊、分类错误或完全不提及，就说明仍未被稳定建模。这也是GEO要优先解决理解结构的原因。</p></div><div><h3>Q6：官网内容很多，为什么还是没用？</h3><p>因为内容多不等于结构清楚。很多官网页面各自表达产品、案例和观点，却没有形成统一实体模型，也没有明确能力边界和证据关系。AI看到的是碎片，而不是系统，因此很难把企业纳入答案生成路径。这也是GEO要优先解决理解结构的原因。</p></div><div><h3>Q7：GEO和内容营销是什么关系？</h3><p>内容营销负责表达、传播和影响用户，GEO负责让这些表达变成可被AI理解的结构。两者不是替代关系。好的内容营销需要嵌入GEO思维，让每篇内容同时强化定义、能力、场景、证据和实体关系。这也是GEO要优先解决理解结构的原因。</p></div><div><h3>Q8：是否需要重写全部内容？</h3><p>通常不需要。优先做的是重构语义结构：统一企业定义，整理核心能力，补齐证据链，修正重复和冲突表达。只有那些过时、错误或完全无法拆解的内容，才需要重写。GEO不是简单增加内容数量。这也是GEO要优先解决理解结构的原因。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：不可见的本质不是内容问题，而是“不可理解”</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、一个现实悖论：企业内容越来越多，但 AI 却越来越“看不见”</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">内容没有形成知识系统</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、AI不是“搜索引擎升级版”，而是“语义建模系统”</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">模型会选择更完整的信息源</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、关键误区：企业误以为“表达了”，但AI认为“没有定义”</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">AI 更偏好可计算的定义</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、不可见的真正原因：语义结构断裂</a>
+<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">AI无法形成完整认知图谱</a>
+<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、为什么“做了SEO”也无法解决这个问题？</a>
+<a href="#block-11" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">传统SEO强站也可能在生成式搜索中失声</a>
+<a href="#block-12" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、企业真正缺失的，不是内容，而是“语义系统”</a>
+<a href="#block-13" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">多数企业只做了表达，没有构建系统</a>
+<a href="#block-14" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、结论：不可见不是失败，而是“未被建模”</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

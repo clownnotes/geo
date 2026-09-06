@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>解码LLM：怎么在生成式AI的搜索结果里被看见｜邻里GEO</title>
+  <meta name="description" content="本文拆解生成式AI搜索的检索、理解、筛选和生成机制，说明企业内容如何通过可访问、可理解、可引用和可信证据获得可见性，并成为AI答案材料，而不只停留在传统排名里。">
+  <meta name="keywords" content="LLM, 生成式AI搜索, AI搜索可见性, GEO, RAG, AI引用, 内容可见性, AI搜索, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/decode-llm-visible-in-generative-ai-search.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://nextgeo.baicl.cc/blog/decode-llm-visible-in-generative-ai-search.html#article",
+      "headline": "解码LLM：怎么在生成式AI的搜索结果里被看见",
+      "description": "本文拆解生成式AI搜索的检索、理解、筛选和生成机制，说明企业内容如何通过可访问、可理解、可引用和可信证据获得可见性，并成为AI答案材料，而不只停留在传统排名里。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2025-05-21T08:00:00+08:00",
+      "dateModified": "2025-05-21T08:00:00+08:00",
+      "author": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "创始人 / GEO架构师"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "邻里GEO",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://nextgeo.baicl.cc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://nextgeo.baicl.cc/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AI 搜索认知",
+          "item": "https://nextgeo.baicl.cc/blog/?cat=ai-search"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "解码LLM：怎么在生成式AI的搜索结果里被看见",
+          "item": "https://nextgeo.baicl.cc/blog/decode-llm-visible-in-generative-ai-search.html"
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .content-block {
+      margin-bottom: 2.5rem;
+    }
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f1f5f9;
+      line-height: 1.35;
+    }
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .content-block p {
+      color: #334155;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+    .content-block ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      color: #334155;
+      line-height: 1.8;
+    }
+    .content-block li {
+      margin-bottom: 0.5rem;
+    }
+    .content-image {
+      margin: 1.5rem 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .content-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+    }
+    .content-image figcaption {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 0.625rem;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+    #faq {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    #faq h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+    }
+    #faq div {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+    #faq div:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    #faq h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #7e22ce;
+      margin: 0 0 0.5rem 0;
+    }
+    #faq p {
+      font-size: 0.9375rem;
+      color: #475569;
+      margin: 0;
+      line-height: 1.75;
+    }
+    .reference-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    .reference-list li {
+      margin-bottom: 0.625rem;
+      word-break: break-all;
+    }
+    .reference-list a {
+      color: #9333ea;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文主体 -->
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <a href="../../" class="hover:text-brand-600">首页</a>
+          <span>/</span>
+          <a href="../blog/" class="hover:text-brand-600">博客</a>
+          <span>/</span>
+          <span class="text-brand-700">AI 搜索认知</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+          解码LLM：怎么在生成式AI的搜索结果里被看见
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+          <span class="font-semibold text-slate-700">作者: 老白（邻里GEO架构师）</span>
+          <span>·</span>
+          <time datetime="2025-05-21">发布日期: 2025-05-21</time>
+          <span>·</span>
+          <span>阅读时长: 9 分钟</span>
+        </div>
+
+        <!-- 结论先行导读卡 (普林斯顿因子 1) -->
+        <div class="mt-6 p-6 rounded-xl border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+          <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+          <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+            本文拆解生成式AI搜索的检索、理解、筛选和生成机制，说明企业内容如何通过可访问、可理解、可引用和可信证据获得可见性，并成为AI答案材料，而不只停留在传统排名里。
+          </p>
+        </div>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="lg:col-span-8 min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：被LLM看见，意味着成为答案结构的一部分</h2><p>在生成式AI搜索结果里被看见，不只是网页被抓取或排名靠前，而是你的品牌、页面或观点能被AI系统检索、理解、筛选、引用，并最终进入用户看到的生成式答案。LLM不会像人一样完整阅读官网，它会寻找能组成答案的结构化材料。</p><p>因此，企业要解决的不是“让AI神奇地推荐我”，而是让自己的内容满足四个条件：能被访问，能被理解，能被拆出来引用，能被来源和证据支持。只有这四个条件同时成立，AI可见性才有稳定基础。</p></section><section id="block-2" class="content-block"><h2>二、生成式AI搜索结果是怎么形成的</h2><figure class="content-image"><img src="../../assets/article-images/decode-llm-visible-in-generative-ai-search/decode-llm-generative-ai-search.png" alt="LLM生成式AI搜索可见性机制示意"><figcaption>生成式AI搜索会把网页、知识库和外部来源拆成可用于回答问题的候选材料。</figcaption></figure><p>不同产品的技术细节不同，但生成式AI搜索通常会经历几个相似环节：理解用户问题，检索候选资料，判断资料相关性，抽取关键片段，重组为答案，并在需要时附带来源链接。RAG系统的基本思想，就是用检索到的外部资料来支撑生成答案。</p><p>这意味着网页不是直接“变成答案”，而是先成为候选材料。候选材料能否进入答案，取决于它和问题的匹配度、内容结构、来源可信度以及是否能提供清楚结论。</p><table class="content-table"><thead><tr><th>环节</th><th>AI在判断什么</th><th>企业内容要提供什么</th></tr></thead><tbody><tr><td>检索</td><td>哪些页面相关</td><td>清晰标题、可抓取页面和主题一致性</td></tr><tr><td>理解</td><td>页面在说什么</td><td>定义、H2、FAQ和实体关系</td></tr><tr><td>筛选</td><td>哪些来源可信</td><td>证据、作者、更新日期和外部引用</td></tr><tr><td>生成</td><td>如何组成答案</td><td>可独立引用的判断句和步骤</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、为什么传统SEO不能直接等于AI可见性</h2><p>传统SEO让页面更容易被搜索引擎发现、索引和排序，这是AI可见性的基础。但生成式AI搜索多了一层答案生成逻辑：系统不只返回链接，还要决定哪些材料适合被合成进答案。</p><p>一个页面即使有排名，也可能因为表达太营销化、结构不可拆、缺少证据或与问题不匹配而不被引用。反过来，结构清楚、证据明确、回答具体的页面，即使不是唯一入口，也更容易成为AI整理答案时的材料。</p></section><section id="block-4" class="content-block"><h2>四、影响LLM可见性的四个核心变量</h2><p>LLM可见性可以拆成四个变量：可访问性、可理解性、可引用性和可信度。可访问性解决页面能否进入候选集；可理解性解决模型是否知道你是谁；可引用性解决内容是否能被摘取；可信度解决答案是否敢采用。</p><p>这四个变量缺一不可。只有技术可访问但内容空泛，AI会找不到答案片段；内容写得专业但没有清晰结构，AI可能无法稳定抽取；观点很多但缺少证据，AI可能不会把它作为可信来源。</p><ul class=""><li>可访问性：页面能被正常抓取，核心内容不是只藏在图片或复杂交互里。</li><li>可理解性：品牌、产品、场景和概念有稳定定义，不同页面不互相冲突。</li><li>可引用性：重要结论能以段落、列表、表格或FAQ形式独立成立。</li><li>可信度：关键判断有作者、日期、来源、案例或公开证据支持。</li></ul></section><section id="block-5" class="content-block"><h2>五、企业应该如何提升生成式AI搜索可见性</h2><p>提升AI可见性应从核心问题集开始，而不是从批量写文章开始。企业先列出用户会向AI提出的真实问题，例如“某类产品怎么选”“哪些供应商适合中小企业”“某品牌适合什么场景”。然后检查官网是否有页面能直接回答这些问题。</p><p>下一步是把内容改成答案源：首段给结论，正文解释机制，表格区分概念，FAQ覆盖追问，案例和参考文献提供证据。这样的页面既适合人读，也更适合AI抽取。</p><table class="content-table"><thead><tr><th>优先级</th><th>要改的内容</th><th>目标</th></tr></thead><tbody><tr><td>高</td><td>品牌定义页和核心服务页</td><td>让AI准确识别企业实体</td></tr><tr><td>高</td><td>场景页和问题页</td><td>进入真实用户问题的候选集</td></tr><tr><td>中</td><td>案例页和对比页</td><td>提供推荐和采信依据</td></tr><tr><td>中</td><td>FAQ和术语页</td><td>补齐可独立引用的知识单元</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>六、如何判断你是否已经被AI看见</h2><p>判断AI可见性不能只测一个品牌词。品牌词问题往往已经带有明确对象，更应该测试品类词、痛点词、竞品比较、购买建议和本地化场景。只有在这些非品牌问题中出现，才说明品牌进入了更靠前的AI认知层。</p><p>记录时要保留问题、模型、时间、答案、引用来源和人工判断。重点看四件事：是否提到品牌，是否描述准确，是否给出来源，是否进入推荐语境。持续测试才能区分偶然出现和稳定可见。</p></section><section id="block-7" class="content-block"><h2>七、结论：GEO的目标是降低AI理解成本</h2><p>生成式AI搜索不会简单照搬传统排名，也不会无条件采纳官网自述。它会在可访问的信息中寻找更适合回答用户问题的材料。企业要做的是减少模型理解和引用的阻力。</p><p>因此，GEO不是操控AI答案，而是把真实能力表达清楚，把证据公开化，把内容组织成可理解、可引用、可验证的结构。这样，企业才更可能在生成式AI搜索结果里被正确看见。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Microsoft Learn：Retrieval-augmented generation in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Microsoft Learn：Retrieval augmented generation and indexes -</span><a href="https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>Google Search Central：SEO Starter Guide -</span><a href="https://developers.google.com/search/docs/fundamentals/seo-starter-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/seo-starter-guide</a></li><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：在生成式AI搜索里被看见是什么意思？</h3><p>它不是单纯指网页被抓取，也不是传统排名第一，而是品牌或内容进入AI生成答案的材料范围。具体表现包括被提及、被正确解释、被引用为来源，或在解决方案和供应商建议中出现。企业应同时观察出现次数和语义质量，避免把偶然提及当成稳定可见。</p></div><div><h3>Q2：传统SEO还有必要做吗？</h3><p>仍然有必要。页面可抓取、可索引、标题清楚、内容有用，是进入搜索和AI候选资料的基础。但SEO不能保证AI一定引用，因为AI还会判断内容是否适合回答问题。更准确的理解是，SEO解决发现和索引，GEO进一步解决理解、采信和引用。</p></div><div><h3>Q3：为什么我的官网有内容，AI还是不提到我？</h3><p>常见原因是内容没有对应真实问题，或者只介绍公司优势，没有提供可抽取的答案。AI更容易使用定义清楚、结构稳定、有证据支持的内容。如果官网只有宣传语、产品卖点和泛泛案例，模型可能知道你存在，却不知道在什么问题下应该推荐你。</p></div><div><h3>Q4：AI可见性可以通过发更多文章解决吗？</h3><p>不能只靠数量解决。更多文章可能扩大覆盖面，也可能制造重复和冲突，增加模型理解成本。优先级应该是先统一品牌定义、核心服务、适用场景和证据口径，再围绕真实问题补内容。结构清楚的少量关键页面，通常比大量模板文章更有价值。</p></div><div><h3>Q5：怎么设计AI搜索可见性测试问题？</h3><p>问题集要覆盖用户旅程，而不只是品牌词。可以包括品类定义、问题诊断、方案比较、品牌对比、价格咨询、采购建议和本地场景。每个问题都要固定措辞，并定期在同一批AI入口中测试。这样才能判断变化来自内容优化，还是来自随机回答波动。</p></div><div><h3>Q6：被AI引用一定会带来流量吗？</h3><p>不一定。生成式AI答案可能满足部分用户需求，点击行为会因产品形态和问题类型而变化。但引用仍有价值，因为它会影响用户对品牌的初步认知。企业评估时不要只看流量，还要看品牌是否进入候选清单、描述是否准确、销售线索质量是否变化。</p></div><div><h3>Q7：GEO会不会变成操控AI答案？</h3><p>不应该。健康的GEO不是伪造声量或污染答案，而是让AI更容易找到真实、专业、可验证的信息。企业要做的是统一定义、补充证据、改善结构和纠正错误来源。只要内容本身真实有用，GEO就是知识治理，而不是黑箱技巧。</p></div></section>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 -->
+        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>页面结构导航</span>
+              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+            </div>
+            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：被LLM看见，意味着成为答案结构的一部分</a>
+<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、生成式AI搜索结果是怎么形成的</a>
+<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、为什么传统SEO不能直接等于AI可见性</a>
+<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、影响LLM可见性的四个核心变量</a>
+<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、企业应该如何提升生成式AI搜索可见性</a>
+<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、如何判断你是否已经被AI看见</a>
+<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：GEO的目标是降低AI理解成本</a>
+<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
+<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
+              </div>
+              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
