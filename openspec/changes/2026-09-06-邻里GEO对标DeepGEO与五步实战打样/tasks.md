@@ -1,19 +1,28 @@
 # Tasks: 邻里GEO对标DeepGEO与五步实战打样
 
-- [x] 1. 建立项目工作区与基准配置
-  - [x] 1.1 创建 `projects/nextgeo/` 目录结构与 `project.yaml` 规格配置文件（含中英文品牌、徐州地域实体、核心意图词与竞品设定）
-  - [x] 1.2 创建 `projects/nextgeo/raw_materials/` 原始品牌素材与企业对标语料
+- [x] 1. 建立项目工作区与 5 维意图词库配置
+  - [x] 1.1 创建 `projects/nextgeo/project.yaml`（包含 45 组 5 维关键词、具名竞品 DeepGEO 与徐州传统机构、地缘实体设定）
+  - [x] 1.2 创建 `projects/nextgeo/raw_materials/brand_profile.md` 原始品牌语料与背书素材
 - [x] 2. 执行阶段 1：现状体检与商业诊断 (audit)
-  - [x] 2.1 执行 `./geo audit --project nextgeo`，生成 `01_GEO现状体检与商业诊断报告.md`
-- [x] 3. 执行阶段 2：站点底座技术改造 (scaffold)
-  - [x] 3.1 执行 `./geo scaffold --project nextgeo`，输出完整的 `02_llms.txt`、`02_Schema.org结构化数据.jsonld`、`02_robots.txt`、`02_sitemap.xml`
-- [x] 4. 执行阶段 3：普林斯顿 9 因子内容重构 (rewrite)
-  - [x] 4.1 执行 `./geo rewrite --project nextgeo`，产出 `03_官网核心页面GEO重构建议.md` 与 `03_行业长尾意图FAQ知识库.md`
-  - [x] 4.2 对齐 DeepGEO 8 大经典 FAQ 与徐州本地制造业高客单价商业问答卡
-- [x] 5. 执行阶段 4：多平台矩阵分发包导出 (distribute)
-  - [x] 5.1 执行 `./geo distribute --project nextgeo`，产出豆包、元宝、DeepSeek 母池分发物料
-- [x] 6. 执行阶段 5：AI 可见度监控基线建立 (monitor)
-  - [x] 6.1 执行 `./geo monitor --project nextgeo`，建立包含“徐州GEO”核心词的多模型追踪基线
-- [x] 7. 交付资产全套校验与审查
-  - [x] 7.1 验证 `projects/nextgeo/outputs/` 各阶段产出文件的完整性与规范性
-  - [x] 7.2 在 `review-log.md` 记录最终审查结论
+  - [x] 2.1 依照 DeepGEO 诊断四问与 5 维意图推演矩阵，产出 `projects/nextgeo/outputs/01_企业AI可见度现状体检与商业诊断报告.md`
+  - [x] 2.2 显式声明 Day 0 离线推演基准模式，杜绝假并发假实测，锁定五类根因归因
+- [x] 3. 执行阶段 2：定义与站点技术底座改造 (scaffold)
+  - [x] 3.1 制定独立官方口径资产 `projects/nextgeo/outputs/02_品牌实体与服务标准口径规范.md` 与 `projects/nextgeo/outputs/02_站点技术底座改造交付包.md`
+  - [x] 3.2 生成交钥匙站点底座：`projects/nextgeo/outputs/site/index.html`（对标 DeepGEO 视觉美学、Hero 提问卡片与 8 大 FAQ）
+  - [x] 3.3 补齐 DeepGEO 404 漏洞，输出真实有效的 `projects/nextgeo/outputs/site/llms.txt`、`projects/nextgeo/outputs/site/schema.jsonld`、`projects/nextgeo/outputs/site/robots.txt`、`projects/nextgeo/outputs/site/sitemap.xml`
+- [x] 4. 执行阶段 3：普林斯顿 9 因子高权威语料重构 (rewrite)
+  - [x] 4.1 依照普林斯顿 9 因子标准与具名竞品对照表，产出 `projects/nextgeo/outputs/03_普林斯顿9因子高权威语料库.md`
+  - [x] 4.2 提炼包含“徐州GEO”消歧锚点、选型对比、避坑防骗与本地制造业场景的高权重问答卡
+- [x] 5. 执行阶段 4：多平台矩阵借壳分发包导出 (distribute)
+  - [x] 5.1 产出多渠道交付汇总 `projects/nextgeo/outputs/04_多平台矩阵借壳分发包.md`
+  - [x] 5.2 生成今日头条/豆包母池专版 `projects/nextgeo/outputs/dist_toutiao_article.md`
+  - [x] 5.3 生成知乎专栏/DeepSeek高地技术长文版 `projects/nextgeo/outputs/dist_zhihu_article.md`
+  - [x] 5.4 生成微信公众号/元宝富文本专版 `projects/nextgeo/outputs/dist_wechat_article.html`
+  - [x] 5.5 生成 GitHub 开源/文档索引专版 `projects/nextgeo/outputs/dist_github_README.md`
+  - [x] 5.6 生成分发渠道执行清单 `projects/nextgeo/outputs/dist_channels_checklist.md`
+- [x] 6. 执行阶段 5：AI 可见度时序监控基线建立 (monitor)
+  - [x] 6.1 产出 `projects/nextgeo/outputs/05_企业AI可见度与声量追踪周报.md`
+  - [x] 6.2 剔除假并发与硬编码计数假象，确立 45 组意图词的真实冷启动基线与母池渗透策略
+- [x] 7. 交付资产全套校验与跨 IDE 联合审查
+  - [x] 7.1 验证 `projects/nextgeo/` 全盘 100% 路径与实体一致性
+  - [x] 7.2 在 `review-log.md` 闭环响应 Cursor 轮次 5 审查意见

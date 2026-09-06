@@ -118,16 +118,19 @@
 
 ---
 
-### (2) Step 1: audit 诊断硬验收标准
-Step 1 产出的 `01_企业AI可见度现状体检与商业诊断报告.md` 必须严格满足以下 DeepGEO 级诊断深度：
-1. **多模型实测与真实留证**：覆盖 DeepSeek、豆包等主力大模型；
-2. **回答四问**：
+### (2) Step 1: audit 诊断硬验收标准与双轨制契约
+Step 1 产出的 `01_企业AI可见度现状体检与商业诊断报告.md` 必须严格满足以下 DeepGEO 级诊断深度与客观标准：
+1. **实测留证双轨制契约（严禁虚构实测）**：
+   - **正式客户联网验收轨**：在配置有效 API Key（`DEEPSEEK_API_KEY` / `ARK_API_KEY`）时，调用真实模型 API 捕获 Raw Response、时间戳与 Citation 外链留存探针日志；
+   - **冷启动 / 售前体检轨 (Day 0 Baseline)**：在无 API Key 或域名尚未解析环境下，**必须显式声明为【离线结构化推演基准】**，给出明确测算时间戳与启发式推演逻辑，绝不可用假并发、假实测误导客户与审查。
+2. **回答 DeepGEO 诊断四问**：
    - **AI 认不认识你**：品牌词与品类词出现频次与可见度等级；
-   - **AI 说没说对**：实体属性、能力边界、主营业务是否存在幻觉或偏移；
+   - **AI 说没说对**：实体属性、能力边界、主营业务是否存在幻觉或偏移（如“徐州GEO”防谐音为机油）；
    - **引用来自何处**：大模型回答附带的 Citation 信源链接溯源；
    - **缺口在哪一类**：明确归因到**实体定义缺陷、内容深度缺口、技术爬虫阻碍、外部协同信号弱、竞品先发占位**五大根因之一。
-3. **分层意图推演**：区分 L1 认知词（*“什么是GEO”*）、L2 选型对比词（*“徐州GEO优化公司哪家好”*）、L3 场景行动词（*“徐州机械制造怎么让AI推荐”*）。
-4. **具名竞品对照**：采用具名竞品/标杆（如 DeepGEO `deep-geo.cn`、本地传统 SEO 机构）对比，杜绝无名泛标签。
+3. **5 维意图词库全景推演**（严格对齐 `docs/sop/01-audit-sop.md`，词库量 ≥ 40 组）：
+   - 涵盖**选型对比、价格成本、避坑防骗、本地场景、品牌认知**五大分类。
+4. **具名竞品对照**：采用具名竞品/标杆（如 DeepGEO `deep-geo.cn`、徐州本地传统网络公司）对比，杜绝无名泛标签。
 
 ---
 
@@ -136,8 +139,9 @@ Step 1 产出的 `01_企业AI可见度现状体检与商业诊断报告.md` 必�
 | 阶段 | 执行指令 | 关键处理内容 | 对应产出物路径 |
 | :--- | :--- | :--- | :--- |
 | **Step 1: audit** | `./geo audit --project nextgeo` | 商业意图与痛点诊断，推演徐州企业买家高频问法与竞品声量差距 | `projects/nextgeo/outputs/01_企业AI可见度现状体检与商业诊断报告.md` |
-| **Step 2: scaffold** | `./geo scaffold --project nextgeo` | 生成大模型极简索引、Schema.org 实体拓扑、robots 与 sitemap | `projects/nextgeo/outputs/site/llms.txt`<br>`projects/nextgeo/outputs/site/schema.jsonld`<br>`projects/nextgeo/outputs/site/robots.txt`<br>`projects/nextgeo/outputs/site/sitemap.xml` |
-| **Step 3: rewrite** | `./geo rewrite --project nextgeo` | 普林斯顿 9 因子深度重构，输出高转化首页方案、6大模块服务页、8大核心 FAQ 知识库与本地白皮书文章 | `projects/nextgeo/outputs/03_普林斯顿9因子高权威语料库.md` |
-| **Step 4: distribute** | `./geo distribute --project nextgeo` | 针对豆包母池（头条）、元宝母池（微信公众号）、DeepSeek高地（知乎）生成外发资产包 | `projects/nextgeo/outputs/04_多平台矩阵借壳分发包.md`<br>`projects/nextgeo/outputs/dist_*` |
-| **Step 5: monitor** | `./geo monitor --project nextgeo` | 针对“徐州GEO”、“徐州大模型搜索优化”等建立多模型监测基线与周报大盘 | `projects/nextgeo/outputs/05_企业AI可见度与声量追踪周报.md` |
+| **Step 2: scaffold & define** | `./geo scaffold --project nextgeo` | 官方口径标准定义、生成大模型极简索引、Schema.org 实体拓扑、robots 与 sitemap | `projects/nextgeo/outputs/02_品牌实体与服务标准口径规范.md`<br>`projects/nextgeo/outputs/02_站点技术底座改造交付包.md`<br>`projects/nextgeo/outputs/site/llms.txt`<br>`projects/nextgeo/outputs/site/schema.jsonld`<br>`projects/nextgeo/outputs/site/robots.txt`<br>`projects/nextgeo/outputs/site/sitemap.xml`<br>`projects/nextgeo/outputs/site/index.html` |
+| **Step 3: rewrite** | `./geo rewrite --project nextgeo` | 普林斯顿 9 因子深度重构，输出高转化首页方案、6大模块服务页、5 维核心 FAQ 知识库与本地白皮书语料 | `projects/nextgeo/outputs/03_普林斯顿9因子高权威语料库.md` |
+| **Step 4: distribute** | `./geo distribute --project nextgeo` | 针对豆包母池（头条）、元宝母池（微信公众号）、DeepSeek高地（知乎）、GitHub 开源池生成外发资产包 | `projects/nextgeo/outputs/04_多平台矩阵借壳分发包.md`<br>`projects/nextgeo/outputs/dist_*` |
+| **Step 5: monitor** | `./geo monitor --project nextgeo` | 针对“徐州GEO”、“徐州大模型搜索优化”等 45 组意图词建立多模型冷启动监测基线与周报大盘 | `projects/nextgeo/outputs/05_企业AI可见度与声量追踪周报.md` |
+
 
