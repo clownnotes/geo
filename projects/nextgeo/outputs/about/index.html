@@ -93,7 +93,7 @@
             }
           },
           fontFamily: {
-            sans: ["-apple-system", "BlinkMacSystemFont", ""PingFang SC"", ""Hiragino Sans GB"", ""Microsoft YaHei"", "sans-serif"],
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
           }
         }
       }
@@ -129,6 +129,41 @@
     .prose-geo strong {
       color: #111827; /* slate-900 */
       font-weight: 700;
+    }
+
+    /* 核心概念 Callout 容器：优雅对称呼吸感，杜绝贴顶/撑爆现象 */
+    .definition-callout {
+      margin-top: 1.75rem;
+      margin-bottom: 1.5rem;
+      padding: 24px 28px;
+      background-color: #ffffff;
+      border: 1px solid rgba(147, 51, 234, 0.25);
+      border-left: 4px solid #9333ea;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px -2px rgba(147, 51, 234, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03);
+      max-width: 980px;
+    }
+    @media (min-width: 640px) {
+      .definition-callout {
+        padding: 26px 32px;
+      }
+    }
+    .definition-callout p {
+      margin: 0 !important;
+      padding: 0 !important;
+      font-size: 0.9375rem !important;
+      line-height: 1.85 !important;
+      color: #334155 !important;
+    }
+    @media (min-width: 640px) {
+      .definition-callout p {
+        font-size: 1rem !important;
+        line-height: 1.9 !important;
+      }
+    }
+    .definition-callout strong {
+      color: #0f172a !important;
+      font-weight: 700 !important;
     }
 
     /* 对标 deep-geo.cn 的全宽内容表格 */
@@ -235,8 +270,10 @@
       </h1>
 
       <!-- 核心陈述卡片 (对标 deep-geo.cn .article-hero__description) -->
-      <div class="max-w-[820px] p-5 sm:p-6 rounded-lg border border-brand-300/60 border-l-4 border-l-brand-600 bg-gradient-to-r from-brand-100/70 to-white/90 shadow-sm text-slate-800 text-lg sm:text-xl leading-relaxed">
-        邻里GEO 是一家专注企业级 GEO 的 AI 增长服务团队，帮助企业建立 AI 能理解、验证、引用和推荐的品牌答案源。
+      <div class="max-w-[820px] p-5 sm:p-6 rounded-lg border border-brand-300/60 border-l-4 border-l-brand-600 bg-gradient-to-r from-brand-100/70 to-white/90 shadow-sm">
+        <p class="m-0 text-slate-800 text-lg sm:text-xl font-medium leading-relaxed">
+          邻里GEO 是一家专注企业级 GEO 的 AI 增长服务团队，帮助企业建立 AI 能理解、验证、引用和推荐的品牌答案源。
+        </p>
       </div>
     </section>
 
@@ -255,8 +292,10 @@
       <p>
         目前，邻里GEO 已帮助多个工业制造与高客单价 B2B 领域的企业提升 <strong>AI 搜索可见性</strong>，探索品牌增长的新路径。
       </p>
-      <div class="text-sm sm:text-base text-slate-600 bg-white/80 p-5 rounded-xl border border-slate-200/90 max-w-[980px] leading-relaxed">
-        <strong class="text-slate-900">品牌答案源（Brand Answer Source）</strong>：指企业能够被各大 AI 模型理解、验证和引用的一整套信息基础，包括统一品牌定义、产品资料、案例证据、FAQ 内容、技术结构和第三方信号。
+      <div class="definition-callout not-prose">
+        <p>
+          <strong>品牌答案源（Brand Answer Source）：</strong>指企业能够被各大 AI 模型理解、验证和引用的一整套信息基础，包括统一品牌定义、产品资料、案例证据、FAQ 内容、技术结构和第三方信号。
+        </p>
       </div>
     </section>
 
