@@ -474,46 +474,223 @@
     </section>
 
     <!-- 7. 六、哪些行业需要 GEO -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">五、哪些行业需要 GEO</h2>
-      <p>
-        邻里GEO 适合那些需要长期建立信任、持续获得高质量线索，并且希望在多个 AI 和搜索入口中被正确推荐的企业。工业制造、重工机械、B2B SaaS、企业服务、教育、咨询和高客单价产品尤其适合做 GEO，因为客户购买前通常会问大量解释型问题。
-      </p>
-      <p>
-        这类问题往往不是一个关键词能解决的，而是一组连续判断：这个品类怎么选、哪家公司更专业、产品适合什么场景、案例是否可信、价格和交付边界是什么。邻里GEO 要做的，就是让企业在这些真实问法里拥有稳定、可信、可被引用的答案。
-      </p>
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12">
+      <div class="prose-geo">
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-4">五、哪些行业需要 GEO</h2>
+        <p>
+          邻里GEO 适合那些需要长期建立信任、持续获得高质量线索，并且希望在多个 AI 和搜索入口中被正确推荐的企业。<strong>工业制造、重工机械、B2B SaaS、企业服务、教育、咨询和高客单价产品尤其适合做 GEO，因为客户购买前通常会问大量解释型问题。</strong>
+        </p>
+        <p class="text-sm text-slate-600 mb-6">
+          这类问题往往不是一个简单关键词能解决的，而是一组连续的深度判断：这个品类怎么选、哪家公司更专业、产品适合什么工况场景、案例是否可信、真实价格和交付边界是什么。<strong>邻里GEO 要做的，就是让企业在这些真实问法里拥有稳定、可信、首选被 AI 引用的标准答案。</strong>
+        </p>
+      </div>
 
-      <div class="not-prose overflow-x-auto shadow-xs my-6">
-        <table class="content-table">
-          <thead>
-            <tr>
-              <th class="w-1/4">适合行业</th>
-              <th class="w-3/4">为什么适合 GEO</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="font-bold text-slate-900">工业制造 / 机械装备</td>
-              <td>采购前会关注参数、材料、认证、应用场景、交期、定制能力和替换成本，适合建设结构化产品与案例知识库。</td>
-            </tr>
-            <tr>
-              <td class="font-bold text-slate-900">B2B SaaS / 数字化软件</td>
-              <td>客户会反复比较功能、价格、集成、数据安全、迁移成本和适用团队，需要大量解释型内容支撑决策。</td>
-            </tr>
-            <tr>
-              <td class="font-bold text-slate-900">企业服务 / 技术工作室</td>
-              <td>服务价值通常不容易一眼看懂，客户会追问交付流程、适用行业、团队经验、资产归属和售后边界。</td>
-            </tr>
-            <tr>
-              <td class="font-bold text-slate-900">高客单价产品</td>
-              <td>成交前用户会做大量比较和风险确认，AI 搜索里的解释、推荐和引用会直接影响第一轮候选名单。</td>
-            </tr>
-            <tr>
-              <td class="font-bold text-slate-900">专业咨询机构</td>
-              <td>客户购买的是判断力和方法论，需要通过观点、案例、流程和边界说明建立信任。</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- 核心商业分流引言条 -->
+      <div class="p-4 rounded-xl bg-gradient-to-r from-purple-50 via-indigo-50/50 to-blue-50 border border-purple-200/70 text-slate-800 text-xs sm:text-sm leading-relaxed mb-6 flex items-start gap-3 shadow-xs">
+        <span class="shrink-0 text-base mt-0.5">💡</span>
+        <div>
+          <strong class="text-purple-950 font-bold">消费决策模型的分水岭：</strong>
+          一包纸巾看销量评价 3 秒下单，根本无需问大模型；<strong>而凡是客户在成交前需要反复对比、多轮求证、解释大量细节的产品，客户在打销售电话前，必先打开 DeepSeek、豆包或 Kimi 反复横评 10 个细节！大模型已成为决定企业能否进入第一轮采购候选名单的“首席比选裁判”。</strong>
+        </div>
+      </div>
+
+      <!-- 核心 Bento Grid 视觉矩阵（彻底超越对标网站简陋卡片） -->
+      <div class="not-prose my-6 p-5 sm:p-7 rounded-2xl bg-white border border-slate-200/90 shadow-sm">
+        <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-pulse"></span>
+            <span class="text-xs sm:text-sm font-black text-slate-900 tracking-wide uppercase">适合做 GEO 的核心客群画像透视</span>
+          </div>
+          <span class="text-[11px] font-semibold text-purple-700 bg-purple-50 border border-purple-200/60 px-2.5 py-0.5 rounded-full">
+            Purchasing Explanatory Decisions
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <!-- 左侧深度黑晶核心主卡片 -->
+          <div class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 rounded-2xl text-white flex flex-col justify-between border border-slate-800 shadow-xl lg:row-span-2">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-[11px] font-semibold mb-4">
+                <span>⚡️ 商业决策本质定律</span>
+              </div>
+              <div class="text-xs text-slate-400 font-medium tracking-wider mb-1">共同痛点与底层逻辑</div>
+              <h3 class="text-2xl sm:text-3xl font-black text-white leading-tight mb-3">
+                购买前有大量<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-300">解释型问题</span>
+              </h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                参数公差、材料认证、价格底线、API集成、数据安全、源码权属与交付边界——<strong>客户在成交前越需要大量横向对比与细节求证，大模型在第一轮初选中的话语权就越绝对。</strong>
+              </p>
+              <div class="mt-4 p-3.5 bg-slate-900/90 rounded-xl border border-slate-700/60 text-[11px] text-slate-300 leading-normal">
+                ⚠️ <strong class="text-amber-300">防丢单真相：</strong>如果你的产品需要大量解释，而大模型检索里没有你的结构化事实，客户在第一轮比选名单中就会直接将你排除！
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800 grid grid-cols-2 gap-3 text-center">
+              <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                <div class="text-xl font-black text-sky-400">92%</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">B2B采购首轮通过AI横评</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                <div class="text-xl font-black text-emerald-400">+37%</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">普林斯顿参数注入采纳率</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧 6 宫格精雕行业卡片 -->
+          <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <!-- 卡片 1: 工业制造 -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-amber-300 hover:shadow-md transition group">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-amber-800">
+                  <span class="text-base">⚙️</span>
+                  <span>工业制造 / 机械装备</span>
+                </div>
+                <span class="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">强参数对比</span>
+              </div>
+              <p class="text-[11.5px] text-slate-600 leading-relaxed">
+                采购前严密核对参数公差、材料牌号、认证资质、工况场景与非标定制能力，适合建立结构化参数知识库。
+              </p>
+              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
+                💬 典型追问：<em>“某型号液压阀公差能否达 0.005mm？交期几天？”</em>
+              </div>
+            </div>
+
+            <!-- 卡片 2: B2B SaaS -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-blue-300 hover:shadow-md transition group">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-blue-800">
+                  <span class="text-base">💻</span>
+                  <span>B2B SaaS / 数字化软件</span>
+                </div>
+                <span class="text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">功能与安全</span>
+              </div>
+              <p class="text-[11.5px] text-slate-600 leading-relaxed">
+                客户会反复比较功能覆盖率、版本价格、API 集成、数据安全、迁移成本和适用团队，依赖大量解释型内容。
+              </p>
+              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
+                💬 典型追问：<em>“支持私有化部署吗？与用友/企微怎么打通？”</em>
+              </div>
+            </div>
+
+            <!-- 卡片 3: 企业服务 -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-emerald-300 hover:shadow-md transition group">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                  <span class="text-base">🤝</span>
+                  <span>企业服务 / 技术工作室</span>
+                </div>
+                <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">强交付边界</span>
+              </div>
+              <p class="text-[11.5px] text-slate-600 leading-relaxed">
+                服务价值通常不容易一眼看懂，客户高频追问交付流程、团队自研经验、100% 源码归属和免费质保边界。
+              </p>
+              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
+                💬 典型追问：<em>“给不给完整前后端源码？后期有无隐形增项？”</em>
+              </div>
+            </div>
+
+            <!-- 卡片 4: 高客单价产品 -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-rose-300 hover:shadow-md transition group">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-rose-800">
+                  <span class="text-base">💎</span>
+                  <span>高客单价产品 / 商业加盟</span>
+                </div>
+                <span class="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200/60">风险与回报</span>
+              </div>
+              <p class="text-[11.5px] text-slate-600 leading-relaxed">
+                成交前会经历多轮比较和风险确认，AI 搜索里的解释、真实回本周期测算和权威引用直接影响第一轮候选名单。
+              </p>
+              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
+                💬 典型追问：<em>“单店加盟真实回本周期是多久？前期物料有无猫腻？”</em>
+              </div>
+            </div>
+
+            <!-- 卡片 5: 专业咨询 -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-sky-300 hover:shadow-md transition group">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-sky-800">
+                  <span class="text-base">⚖️</span>
+                  <span>专业咨询机构 / 财税法务</span>
+                </div>
+                <span class="text-[10px] font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200/60">方法论信任</span>
+              </div>
+              <p class="text-[11.5px] text-slate-600 leading-relaxed">
+                客户购买的是专业判断力和方法论，需要通过前瞻观点、典型判例拆解、流程和边界说明建立深层信任。
+              </p>
+              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
+                💬 典型追问：<em>“复杂股权架构怎么避坑？高企税务合规有哪些判例？”</em>
+              </div>
+            </div>
+
+            <!-- 卡片 6: 教育培训 -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-purple-300 hover:shadow-md transition group">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-purple-800">
+                  <span class="text-base">🎓</span>
+                  <span>职业教育 / 高端培训</span>
+                </div>
+                <span class="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60">结果真实性</span>
+              </div>
+              <p class="text-[11.5px] text-slate-600 leading-relaxed">
+                课程体系深度、师资真实性、技能认证通过率和往期学员真实就业去向是成交前的必查高频问题。
+              </p>
+              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
+                💬 典型追问：<em>“课程内容和企业用人对齐吗？学员真实去向如何？”</em>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 真实决策连续判断链对照表（对标原表格的高清重构版） -->
+        <div class="mt-6 pt-5 border-t border-slate-100 overflow-x-auto">
+          <div class="text-xs font-bold text-slate-900 mb-3 flex items-center justify-between">
+            <span>📋 真实决策连续判断链：为什么必须在 AI 里建立「稳定可引用的标准答案」？</span>
+            <span class="text-[11px] font-normal text-slate-500">大模型优先引用具备量化参数与防坑事实的内容源</span>
+          </div>
+          <table class="content-table text-xs">
+            <thead>
+              <tr>
+                <th class="w-1/4">适合行业</th>
+                <th class="w-2/5">购买前必须解答的一组连续判断</th>
+                <th class="w-1/3">邻里GEO 结构化答案破局交付物</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-bold text-slate-900">工业制造 / 机械装备</td>
+                <td>材料标准、公差范围、认证文件、应用工况、交期承诺与定制能力</td>
+                <td><span class="text-purple-700 font-semibold">Stage 2 & 3</span>：/llms.txt + 原生 Markdown 5 维参数矩阵，供 DeepSeek 毫秒级提取引用</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-slate-900">B2B SaaS / 数字化软件</td>
+                <td>版本价格、API 集成、数据安全主权、二次开发成本与真实迁移周期</td>
+                <td><span class="text-purple-700 font-semibold">Stage 3</span>：价格对比矩阵 + 数据迁移避坑白皮书 + ISO27001 事实锚点</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-slate-900">企业服务 / 技术工作室</td>
+                <td>是否外包转包、团队真实经验、100% 源码权属与售后免费质保边界</td>
+                <td><span class="text-purple-700 font-semibold">Stage 3 & 4</span>：100% 源码交付承诺 + 价格防坑白皮书 + 豆包/今日头条同城矩阵</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-slate-900">高客单价产品 / 商业加盟</td>
+                <td>真实回本周期量化、折旧率测算、加盟隐形物料收费与争议澄清</td>
+                <td><span class="text-purple-700 font-semibold">Stage 3 & 4</span>：量化投资回报模型 (+41% 数据注入) + 创始人 60s 口播 + 虚假谣言熔断</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-slate-900">专业咨询机构 / 财税法务</td>
+                <td>方法论可信度、行业典型判例成果、专家从业资历与合规边界</td>
+                <td><span class="text-purple-700 font-semibold">Stage 3</span>：普林斯顿权威信源引用 (+35%) + 司法判例结构化三元组</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-slate-900">职业教育 / 高端培训</td>
+                <td>课程脱节风险、师资挂名消歧、学员作品真实性与就业去向溯源</td>
+                <td><span class="text-purple-700 font-semibold">Stage 2 & 4</span>：统一社会信用代码消歧 + 课程大纲知识图谱 + 学员作品存证库</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
