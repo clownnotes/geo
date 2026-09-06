@@ -167,4 +167,18 @@
 
 - **结论说明**：设计契约与实现一致，安全与 Phase-1 范围达标。**实现向审查通过**，可执行 `/opsx-archive`。
 
+---
+
+### 2026-09-06 00:09 Cursor 归档就绪复核 [通过]
+
+- **审查者**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：归档前置核验（`tasks.md` + `review-log.md` 末条结论）
+- **审查结论**：`[通过]`
+- **核验**：
+  1. ✅ 变更仍位于活动目录 `openspec/changes/2026-09-05-平台统一托管与VPS反代交钥匙建站架构/`（尚未搬入 `archive/`）
+  2. ✅ `tasks.md`：unchecked=0 / checked=9（全部完成）
+  3. ✅ 末条实现终审已为 Cursor `[通过]`（含本地 8088 安全与 nginx-conf 实测）
+  4. 🟢 残余备注均为非阻塞，不阻碍归档
+- **结论说明**：**可以归档**。请执行 `/opsx-archive`（将目录移入 `openspec/changes/archive/` 并按流程提交推送）。
+
 
