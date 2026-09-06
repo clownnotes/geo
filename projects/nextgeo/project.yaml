@@ -37,8 +37,8 @@ keywords:
   - "企业官网为什么要做llms.txt和Schema结构化数据"
 
 competitors:
-  - "一线城市高溢价GEO咨询机构（收费昂贵、缺少工程下沉与本地产业对接）"
-  - "传统地摊式SEO外包刷量公司（搞死链作弊、无法应对大模型RAG检索机制）"
+  - "DeepGEO (deep-geo.cn，国内企业级GEO方法标杆，全国高端咨询)"
+  - "徐州传统本地建站与SEO外包机构（重网页死链刷量，无大模型知识图谱与答案源基建）"
 
 models:
   - "deepseek"
