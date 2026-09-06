@@ -4642,6 +4642,72 @@ GitHub 开源仓库：https://github.com/company/repo
       checkAuthStatus();
     });
 
+    // 监听前进/后退/路由切换
+    window.addEventListener('hashchange', () => {
+      if (document.getElementById('login-view') && !document.getElementById('login-view').classList.contains('hidden')) {
+        return;
+      }
+      const route = parseCurrentRoute();
+      if (route.view === 'wizard' && route.projectId) {
+        if (currentProjectId !== route.projectId || currentStep !== route.step) {
+          enterWizard(route.projectId, route.step, route.tab);
+        } else if (currentStep === 2 && route.tab && currentScaffoldTab !== route.tab) {
+          switchScaffoldTab(route.tab);
+        }
+      } else if (route.view === 'dashboard') {
+        if (!document.getElementById('wizard-view').classList.contains('hidden')) {
+          backToDashboard();
+        }
+      }
+    });
+
+    // 路由解析：优先从 URL Hash 中获取项目、步骤与选项卡，其次回退至 localStorage
+    function parseCurrentRoute() {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (hash && hash !== 'dashboard') {
+        const params = new URLSearchParams(hash);
+        const projectId = params.get('project');
+        if (projectId) {
+          const step = parseInt(params.get('step') || '1', 10);
+          const tab = params.get('tab') || 'site.html';
+          return { view: 'wizard', projectId, step, tab };
+        }
+      }
+
+      const activeView = localStorage.getItem('geo_active_view');
+      const savedProject = localStorage.getItem('geo_active_project');
+      if (activeView === 'wizard' && savedProject) {
+        const step = parseInt(localStorage.getItem('geo_active_step') || '1', 10);
+        const tab = localStorage.getItem('geo_active_scaffold_tab') || 'site.html';
+        return { view: 'wizard', projectId: savedProject, step, tab };
+      }
+
+      return { view: 'dashboard' };
+    }
+
+    // 状态与路由同步：实时同步到 URL Hash 及 localStorage，页面刷新时原位还原
+    function updateRouteState() {
+      if (currentProjectId) {
+        localStorage.setItem('geo_active_view', 'wizard');
+        localStorage.setItem('geo_active_project', currentProjectId);
+        localStorage.setItem('geo_active_step', currentStep || 1);
+        localStorage.setItem('geo_active_scaffold_tab', currentScaffoldTab || 'site.html');
+
+        const hash = `#project=${encodeURIComponent(currentProjectId)}&step=${currentStep || 1}&tab=${encodeURIComponent(currentScaffoldTab || 'site.html')}`;
+        if (window.location.hash !== hash) {
+          history.replaceState(null, '', hash);
+        }
+      } else {
+        localStorage.setItem('geo_active_view', 'dashboard');
+        localStorage.removeItem('geo_active_project');
+        localStorage.removeItem('geo_active_step');
+        localStorage.removeItem('geo_active_scaffold_tab');
+        if (window.location.hash && window.location.hash !== '#dashboard') {
+          history.replaceState(null, '', window.location.pathname);
+        }
+      }
+    }
+
     // 检查登录态
     async function checkAuthStatus() {
       try {
@@ -4673,11 +4739,21 @@ GitHub 开源仓库：https://github.com/company/repo
       lucide.createIcons();
     }
 
-    function showDashboard(username) {
+    async function showDashboard(username) {
       document.getElementById('login-view').classList.add('hidden');
+      if (username) document.getElementById('current-user-name').innerText = username;
+      lucide.createIcons();
+
+      // 检查刷新前所在位置，如果在项目流水线内部，直接精准还原到对应项目、步骤与选项卡！
+      const route = parseCurrentRoute();
+      if (route.view === 'wizard' && route.projectId) {
+        await enterWizard(route.projectId, route.step, route.tab);
+        loadPatrolStatus();
+        return;
+      }
+
       document.getElementById('dashboard-view').classList.remove('hidden');
       document.getElementById('wizard-view').classList.add('hidden');
-      if (username) document.getElementById('current-user-name').innerText = username;
       loadProjectsList();
       loadPatrolStatus();
       lucide.createIcons();
@@ -4898,7 +4974,7 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     // 进入向导流水线
-    async function enterWizard(projectId) {
+    async function enterWizard(projectId, targetStep = 1, targetTab = null) {
       currentProjectId = projectId;
       document.getElementById('dashboard-view').classList.add('hidden');
       document.getElementById('wizard-view').classList.remove('hidden');
@@ -4913,17 +4989,23 @@ GitHub 开源仓库：https://github.com/company/repo
           document.getElementById('wizard-client-name').innerText = currentProjectData.client_name;
           document.getElementById('wizard-client-id').innerText = currentProjectData.client_id;
           document.getElementById('wizard-client-url').innerText = currentProjectData.official_url;
-          switchStep(1);
+          if (targetTab) {
+            currentScaffoldTab = targetTab;
+          }
+          switchStep(targetStep || 1);
           loadStepPreviews();
           loadRawMaterialsEditor();
         }
       } catch (err) {
         console.error(err);
       }
+      updateRouteState();
       lucide.createIcons();
     }
 
     function backToDashboard() {
+      currentProjectId = '';
+      updateRouteState();
       document.getElementById('wizard-view').classList.add('hidden');
       document.getElementById('dashboard-view').classList.remove('hidden');
       loadProjectsList();
@@ -5053,6 +5135,7 @@ GitHub 开源仓库：https://github.com/company/repo
         restoreStep2GuideState();
         switchScaffoldTab(currentScaffoldTab || 'site.html');
       }
+      updateRouteState();
       lucide.createIcons();
     }
 
@@ -7663,6 +7746,7 @@ GitHub 开源仓库：https://github.com/company/repo
         if (viewCode) viewCode.classList.remove('hidden');
         loadScaffoldTab(filename === 'robots.txt.patch' ? 'robots.txt' : filename);
       }
+      updateRouteState();
     }
 
     // 加载整站预览数据与 iframe
