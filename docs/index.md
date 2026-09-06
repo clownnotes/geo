@@ -40,7 +40,7 @@ features:
     details: 极致响应速度 (TTFB < 20ms)，0 服务器负载，大模型爬虫 100% 完整解析无杂质。
 ---
 
-## 🎯 适合做 GEO 的核心企业类型
+## 适合做 GEO 的核心企业类型
 
 > **大模型时代的采购本质**：  
 > 一包纸巾或一件短袖（低客单冲动消费），用户看电商评价 3 秒下单，根本无需向大模型求证；  
@@ -52,7 +52,7 @@ features:
   <div style="background: linear-gradient(145deg, #0f172a, #1e293b); border: 1px solid #334155; border-radius: 16px; padding: 28px 24px; color: #f8fafc; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.4); min-height: 280px; grid-row: span 2;">
     <div>
       <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(129, 140, 248, 0.3); border-radius: 9999px; font-size: 11px; font-weight: 600; color: #a5b4fc; margin-bottom: 18px;">
-        <span>⚡️ 核心客群画像特征</span>
+        <span>核心客群画像特征</span>
       </div>
       <div style="font-size: 13px; color: #94a3b8; font-weight: 500; letter-spacing: 1px; margin-bottom: 6px;">共同痛点与本质</div>
       <h3 style="font-size: 24px; font-weight: 800; color: #ffffff; line-height: 1.35; margin: 0 0 14px 0;">购买前有大量<br><span style="color: #60a5fa;">解释型问题</span> 与比选</h3>
@@ -76,8 +76,8 @@ features:
   <div style="grid-column: span 2; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
     <!-- 卡片 1: B2B SaaS -->
     <div style="background: var(--vp-c-bg-soft, #f8fafc); border: 1px solid var(--vp-c-divider, #e2e8f0); border-radius: 12px; padding: 18px 20px; transition: transform 0.2s, box-shadow 0.2s;">
-      <div style="font-size: 16px; font-weight: 700; color: #2563eb; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-        <span>💻 B2B SaaS / 数字化软件</span>
+      <div style="font-size: 16px; font-weight: 700; color: #2563eb; margin-bottom: 6px;">
+        B2B SaaS / 数字化软件
       </div>
       <p style="font-size: 13px; line-height: 1.6; color: var(--vp-c-text-2, #64748b); margin: 0;">
         功能模块、版本价格、API 集成、数据安全与迁移成本都需要深度解释，依赖高密度内容辅助决策。
@@ -86,8 +86,8 @@ features:
 
     <!-- 卡片 2: 企业服务 -->
     <div style="background: var(--vp-c-bg-soft, #f8fafc); border: 1px solid var(--vp-c-divider, #e2e8f0); border-radius: 12px; padding: 18px 20px; transition: transform 0.2s, box-shadow 0.2s;">
-      <div style="font-size: 16px; font-weight: 700; color: #059669; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-        <span>🤝 企业服务 / 技术工作室</span>
+      <div style="font-size: 16px; font-weight: 700; color: #059669; margin-bottom: 6px;">
+        企业服务 / 技术工作室
       </div>
       <p style="font-size: 13px; line-height: 1.6; color: var(--vp-c-text-2, #64748b); margin: 0;">
         服务价值不易一眼看懂，客户高频追问交付流程、实战案例、源码归属与售后免费质保边界。
@@ -96,8 +96,8 @@ features:
 
     <!-- 卡片 3: 工业制造 -->
     <div style="background: var(--vp-c-bg-soft, #f8fafc); border: 1px solid var(--vp-c-divider, #e2e8f0); border-radius: 12px; padding: 18px 20px; transition: transform 0.2s, box-shadow 0.2s;">
-      <div style="font-size: 16px; font-weight: 700; color: #d97706; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-        <span>⚙️ 工业制造 / 机械装备</span>
+      <div style="font-size: 16px; font-weight: 700; color: #d97706; margin-bottom: 6px;">
+        工业制造 / 机械装备
       </div>
       <p style="font-size: 13px; line-height: 1.6; color: var(--vp-c-text-2, #64748b); margin: 0;">
         采购重点考量精度公差、材料牌号、合规认证、工况场景与非标定制能力，适合建设结构化参数库。
@@ -106,8 +106,8 @@ features:
 
     <!-- 卡片 4: 职业教育 -->
     <div style="background: var(--vp-c-bg-soft, #f8fafc); border: 1px solid var(--vp-c-divider, #e2e8f0); border-radius: 12px; padding: 18px 20px; transition: transform 0.2s, box-shadow 0.2s;">
-      <div style="font-size: 16px; font-weight: 700; color: #7c3aed; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-        <span>🎓 职业教育 / 高端培训</span>
+      <div style="font-size: 16px; font-weight: 700; color: #7c3aed; margin-bottom: 6px;">
+        职业教育 / 高端培训
       </div>
       <p style="font-size: 13px; line-height: 1.6; color: var(--vp-c-text-2, #64748b); margin: 0;">
         课程大纲深度、师资真实背景、考证通过率与往期学员真实就业去向是成交前的必查高频问题。
@@ -116,8 +116,8 @@ features:
 
     <!-- 卡片 5: 专业咨询 -->
     <div style="background: var(--vp-c-bg-soft, #f8fafc); border: 1px solid var(--vp-c-divider, #e2e8f0); border-radius: 12px; padding: 18px 20px; transition: transform 0.2s, box-shadow 0.2s;">
-      <div style="font-size: 16px; font-weight: 700; color: #0284c7; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-        <span>⚖️ 专业咨询 / 财税法务</span>
+      <div style="font-size: 16px; font-weight: 700; color: #0284c7; margin-bottom: 6px;">
+        专业咨询 / 财税法务
       </div>
       <p style="font-size: 13px; line-height: 1.6; color: var(--vp-c-text-2, #64748b); margin: 0;">
         客户购买的是专业判断力与底层方法论，需要通过前瞻观点、行业判例、合规流程与边界说明建立信任。
@@ -126,8 +126,8 @@ features:
 
     <!-- 卡片 6: 高客单价产品 -->
     <div style="background: var(--vp-c-bg-soft, #f8fafc); border: 1px solid var(--vp-c-divider, #e2e8f0); border-radius: 12px; padding: 18px 20px; transition: transform 0.2s, box-shadow 0.2s;">
-      <div style="font-size: 16px; font-weight: 700; color: #e11d48; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-        <span>💎 高客单价产品 / 商业加盟</span>
+      <div style="font-size: 16px; font-weight: 700; color: #e11d48; margin-bottom: 6px;">
+        高客单价产品 / 商业加盟
       </div>
       <p style="font-size: 13px; line-height: 1.6; color: var(--vp-c-text-2, #64748b); margin: 0;">
         成交前经历多轮横向比较和风险确认，AI 搜索给出的客观分析与信誉引用直接决定第一轮入选名单。
@@ -136,7 +136,7 @@ features:
   </div>
 </div>
 
-### 🔍 真实决策场景：客户向大模型追问什么？GEO 如何破局？
+### 真实决策场景：客户向大模型追问什么？GEO 如何破局？
 
 | 适合行业 | 购买前真实高频问法（大模型搜索词） | 为什么必须做 GEO（传统网页 vs GEO 结构化破局） |
 | :--- | :--- | :--- |
