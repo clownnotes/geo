@@ -1,0 +1,147 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["Organization", "LocalBusiness"],
+      "@id": "https://nextgeo.baicl.cc/#organization",
+      "name": "邻里GEO",
+      "alternateName": "NextGEO",
+      "legalName": "徐州邻里网络科技有限公司",
+      "url": "https://nextgeo.baicl.cc/",
+      "logo": "https://nextgeo.baicl.cc/assets/logo.png",
+      "description": "邻里GEO（NextGEO）是一家专注企业级GEO（生成式引擎优化）的AI增长服务团队，立足徐州与淮海经济区，帮助制造企业与高客单价B2B品牌建立AI能理解、验证、引用和推荐的品牌答案源。",
+      "knowsAbout": [
+        "GEO",
+        "生成式引擎优化",
+        "企业级GEO",
+        "AI搜索优化",
+        "大模型推荐",
+        "徐州GEO",
+        "徐州AI搜索优化",
+        "LLM引用",
+        "普林斯顿9因子",
+        "AEO",
+        "SEO"
+      ],
+      "areaServed": [
+        {
+          "@type": "AdministrativeArea",
+          "name": "徐州市"
+        },
+        {
+          "@type": "AdministrativeArea",
+          "name": "淮海经济区"
+        },
+        {
+          "@type": "Country",
+          "name": "CN"
+        }
+      ],
+      "founder": {
+        "@type": "Person",
+        "name": "老白",
+        "jobTitle": "资深全栈工程师，GEO架构师",
+        "homeLocation": {
+          "@type": "Place",
+          "name": "徐州"
+        },
+        "description": "专注企业数字化研发与工业级GEO架构实战，常驻徐州，主张以可验证的工程代码与普林斯顿9因子重构企业品牌答案源。"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "徐州市",
+        "addressRegion": "江苏省",
+        "addressCountry": "CN"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "13150568888",
+        "contactType": "sales",
+        "areaServed": "CN",
+        "availableLanguage": ["zh-CN"]
+      }
+    },
+    {
+      "@type": "Service",
+      "@id": "https://nextgeo.baicl.cc/services/#service",
+      "name": "邻里GEO企业级AI搜索增长全案服务",
+      "provider": {
+        "@id": "https://nextgeo.baicl.cc/#organization"
+      },
+      "serviceType": "Generative Engine Optimization (GEO)",
+      "description": "帮助企业让 AI 搜索从不认识你到主动推荐你，涵盖问法库拆解、知识库结构化、普林斯顿9因子页面、多来源分发与时序监控。",
+      "areaServed": "CN",
+      "url": "https://nextgeo.baicl.cc/services"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://nextgeo.baicl.cc/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Q1：GEO 是什么？邻里GEO (NextGEO) 做什么？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "GEO（Generative Engine Optimization）是面向 AI 搜索和大模型答案的优化工作。邻里GEO（NextGEO）帮助企业建设品牌答案源，让企业信息更容易被 DeepSeek、豆包、Kimi、腾讯元宝、百度文心等大模型理解、引用和推荐。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q2：GEO 和传统的 SEO 有什么区别？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SEO 更关注传统搜索结果页的网页排名、收录和外链点击。GEO 则更关注大模型在生成回答时如何理解、引用、比较和推荐品牌。它处理品牌定义、答案源内容、FAQ、结构化数据、第三方证据和 AI 可见性监测。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q3：企业为什么现在应该开始做 GEO？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "AI 搜索正在迅速替代传统搜索引擎，成为高价值采购决策者获取信息和做选型对比的第一入口。越早建立企业在大模型生态中的权威信息资产，越容易形成垄断性的行业心智优势。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q4：GEO 多久可以看到效果？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "GEO 是长效数字资产建设过程：第 1 个月完成 AI 搜索现状体检、问法研究与知识库规划；第 2~3 个月重构官网底座、建立普林斯顿 9 因子内容、分发生态信息池；第 3 个月及以后即可观察到大模型提及率与引用角标显著提升。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q5：为什么徐州本地与制造业企业更应该抢先做 GEO？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "徐州是工程机械之都与先进制造重镇，拥有大量高客单价 B2B 制造企业。采购商在做大额选型前会深入使用 AI 调研比较。通过深耕“徐州GEO”与地域实体拓扑，本地企业能以极低阻力垄断本地大模型首位推荐。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q6：做 GEO 是否需要修改企业官网？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "通常需要。传统企业官网充斥大量空洞修辞，对大模型极不友好。GEO 优化会重构产品表达方式、注入 Schema.org 微数据、提供 Clean Markdown 答案卡与权威证据链，让 AI 爬虫毫秒级解析采信。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q7：GEO 服务如何衡量效果？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "通过三大指标综合评估：① AI 曝光指标（大模型提及次数、推荐频次、问题池覆盖率）；② 引用指标（Citation 角标捕获数、官网作为信源占比）；③ 商业指标（高质量意向询盘、大模型定向线索转化）。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q8：邻里GEO会承诺让 AI 一定推荐某个品牌吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "不会。AI 答案受模型参数、检索链路、实时信息动态影响，任何‘100%保证推荐’均为虚假宣传。邻里GEO能做的是降低模型理解成本，提升品牌信息的清晰度、证据链权威度与长期信源权重。"
+          }
+        }
+      ]
+    }
+  ]
+}
