@@ -33,3 +33,9 @@
 - [x] 5.5 全量更新 `llms.txt` 与 `sitemap.xml`，同步双份目录（`outputs/site/` 与 `outputs/`）
 - [x] 5.6 本地 8088 端口全量验证、零 Emoji 自动化核验与 Git 双端推送
 
+## 6. 首页底部 Canonical Answers 板块 1:1 对标视觉卡片与封面图
+- [x] 6.1 下载并持久化 6 篇优先展示文章封面图至 `assets/article-covers/`
+- [x] 6.2 重构首页底部 Canonical Answers 为 6 张带 16:9 封面图、标题与发布日期的标准卡片
+- [x] 6.3 卡片精准直达对应深度博客单篇，移除旧版纯文字排版
+- [x] 6.4 本地 8088 端口验证、同步双份目录并完成 Git 双端推送
+
