@@ -485,21 +485,22 @@
               </div>
             </div>
 
-            <!-- 卡片 3: 落地指引（第一步、第二步） -->
+            <!-- 卡片 3: 落地指引（物理机+VPS+CDN 三层交付） -->
             <div class="bg-white p-3.5 rounded-xl border border-indigo-100/70 shadow-xs flex flex-col justify-between space-y-2">
               <div>
                 <div class="flex items-center gap-1.5 font-bold text-slate-900 mb-1">
                   <span>📋</span>
-                  <span>操作指引（怎么落地上线）</span>
+                  <span>操作指引（物理机+VPS+CDN 三层交付）</span>
                 </div>
                 <div class="text-slate-600 text-[11px] space-y-1 leading-relaxed">
-                  <p><strong>第一步</strong>：点击下方【新窗口全屏打开】验收真实官网；</p>
-                  <p><strong>第二步</strong>：点击【一键下载整站源码包】将 3 个文件丢入服务器；</p>
-                  <p><strong>第三步</strong>：做完后直接点击【④ 矩阵借壳分发】发今日头条！</p>
+                  <p><strong>第一步</strong>：点击【一键编译交钥匙整站】生成最新静态单页；</p>
+                  <p><strong>第二步</strong>：点击下方【🌐 独立站点直达】验证无外框纯净官网；</p>
+                  <p><strong>第三步</strong>：点击【⚡ 查看/复制 VPS 反代配置】一键配置 Nginx 转发与 CDN 刷新；</p>
+                  <p><strong>第四步</strong>：若客户需要离线备份，点击【📦 导出源码包】作为资产兜底！</p>
                 </div>
               </div>
-              <div class="text-[10px] text-amber-700 font-medium bg-amber-50 px-2 py-1 rounded">
-                🚀 耗时仅需 1 分钟，大模型通道全面贯通
+              <div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">
+                🚀 免运维全托管，生产级高防秒开
               </div>
             </div>
           </div>
@@ -551,29 +552,41 @@
           <!-- 模式 1: 官网全景交付视图 (site.html) -->
           <div id="scaffold-view-site" class="p-6 space-y-4">
             <!-- 交付成果快捷操作栏 -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">🌐</div>
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-indigo-50/60 p-4 rounded-xl border border-indigo-100">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-indigo-100">
+                  🌐
+                </div>
                 <div>
-                  <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <span id="site-display-name">AI 原生极速静态官网已就绪</span>
-                    <span class="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">100% 纯静态源码</span>
+                  <div class="text-sm font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                    <span id="site-display-name">交钥匙官网·集中托管运行中</span>
+                    <span class="inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>在线托管已就绪</span>
+                    </span>
+                    <span class="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full font-mono font-medium">
+                      三层架构: 物理机 ➔ VPS ➔ CDN
+                    </span>
                   </div>
-                  <div class="text-xs text-slate-500 mt-0.5 flex items-center gap-3">
-                    <span>目标域名: <code id="site-display-domain" class="font-mono text-indigo-700">https://code.baicl.cc</code></span>
+                  <div class="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+                    <span>生产直访: <code id="site-pure-url" class="font-mono text-indigo-700 font-semibold cursor-pointer hover:underline" onclick="openPureSite()">http://127.0.0.1:8088/sites/...</code></span>
                     <span>•</span>
-                    <span>大模型就绪: <strong class="text-slate-700">已内置 JSON-LD / llms.txt / robots.txt</strong></span>
+                    <span>目标域名: <code id="site-display-domain" class="font-mono text-slate-700 font-medium">https://code.baicl.cc</code></span>
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-2.5 flex-wrap">
-                <button onclick="openSitePreview()" class="py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="openPureSite()" class="py-2 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
                   <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                  <span>新窗口全屏打开官网</span>
+                  <span>独立站点直达</span>
                 </button>
-                <button onclick="downloadSiteZip()" class="py-2 px-4 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
-                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                  <span>一键下载整站源码包 (.zip)</span>
+                <button onclick="openVpsNginxModal()" class="py-2 px-3.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition">
+                  <i data-lucide="server" class="w-3.5 h-3.5 text-indigo-600"></i>
+                  <span>查看/复制 VPS 反代配置</span>
+                </button>
+                <button onclick="downloadSiteZip()" class="py-2 px-3.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition" title="下载全量源码包作为客户资产离线兜底">
+                  <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                  <span>导出源码包 (.zip)</span>
                 </button>
               </div>
             </div>
@@ -2658,6 +2671,96 @@ GitHub 开源仓库：https://github.com/company/repo
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
         <span class="text-slate-400 text-[11px]">💡 说明：大模型（DeepSeek-R1 / o1 / Kimi）根据此拓扑进行长链多跳推理，精准消除幻觉。</span>
         <button onclick="closeGraphModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 客户 VPS 反代配置与腾讯云 CDN 联动弹窗 ================= -->
+  <div id="vps-nginx-modal" onclick="if(event.target === this) closeVpsNginxModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center font-bold text-sm">
+            ⚡
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-white">客户 VPS 反向代理配置与腾讯云 CDN 联动指引</h3>
+              <span id="vps-nginx-domain-badge" class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 font-mono">code.baicl.cc</span>
+            </div>
+            <p class="text-[11px] text-indigo-200/80">三层拓扑：家用物理机(Mac) ➔ 公网商用 VPS (3~5M) ➔ 腾讯云边缘 CDN</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="copyVpsNginxConf()" class="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>复制 Nginx 配置</span>
+          </button>
+          <button onclick="closeVpsNginxModal()" class="p-1 text-slate-300 hover:text-white rounded-lg hover:bg-white/10 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto text-xs text-slate-600 flex-1">
+        <!-- 回源参数配置栏 -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex-1">
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">
+              家用物理机公网回源地址 (Origin Upstream)
+            </label>
+            <div class="flex items-center gap-2">
+              <input type="text" id="vps-origin-input" placeholder="例如: http://your-mac-ddns.baicl.cc:8088" class="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:border-indigo-500">
+              <button onclick="loadVpsNginxConf()" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-semibold text-xs whitespace-nowrap transition">
+                更新配置
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 醒目防踩坑警示卡片 -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5 text-amber-900">
+          <span class="text-base">⚠️</span>
+          <div class="text-[11px] leading-relaxed">
+            <strong>部署警示（严禁在 VPS 填 127.0.0.1）</strong>：
+            客户的独立 VPS 拥有公网商用 IP，但自身没有运行 GEO 服务！在 VPS 的 Nginx 中配置时，<code class="bg-amber-100 px-1 py-0.5 rounded font-mono text-amber-800 font-bold">proxy_pass</code> 必须指向家里的<strong>动态公网 DDNS 域名或内网穿透公网地址</strong>。
+          </div>
+        </div>
+
+        <!-- Nginx 配置文件展示视窗 -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-700 flex items-center gap-1.5">
+              <span>📄</span>
+              <span>/etc/nginx/conf.d/<span id="vps-nginx-domain">code.baicl.cc</span>.conf</span>
+            </span>
+            <span class="text-[10px] text-slate-400">已内置 7 天静态容灾缓存与 Let's Encrypt 验证通道</span>
+          </div>
+          <pre id="vps-nginx-code-block" class="p-4 bg-slate-950 text-slate-200 font-mono text-xs rounded-xl overflow-x-auto max-h-[260px] border border-slate-800 select-all leading-relaxed"></pre>
+        </div>
+
+        <!-- 腾讯云 CDN Purge 指引 -->
+        <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-indigo-950 flex items-center gap-1.5">
+              <span>📡</span>
+              <span>腾讯云边缘 CDN 缓存一键刷新指令 (Purge Cache)</span>
+            </span>
+            <button onclick="copyCdnPurgeGuide()" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span>复制刷新命令</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-600">
+            当物理机更新了网站素材并重新编译后，若 CDN 仍存在旧缓存，可在终端执行如下官方 CLI 指令，秒级重载全网边缘快照：
+          </p>
+          <code id="vps-cdn-purge-code" class="block p-2.5 bg-white border border-indigo-200 text-indigo-900 font-mono text-xs rounded-lg select-all overflow-x-auto">tccli cdn PurgePathCache --Paths '["https://code.baicl.cc/"]' --FlushType flush</code>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
+        <span class="text-slate-400 text-[11px]">客户企业: <strong id="vps-nginx-company" class="text-slate-700">--</strong> · 交付模式: 老白技术全托管</span>
+        <button onclick="closeVpsNginxModal()" class="py-1.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition">关闭</button>
       </div>
     </div>
   </div>
@@ -7553,6 +7656,11 @@ GitHub 开源仓库：https://github.com/company/repo
       if (domainElem && currentProjectData) {
         domainElem.innerText = currentProjectData.official_url || 'https://code.baicl.cc';
       }
+      const pureUrlElem = document.getElementById('site-pure-url');
+      const purePath = `http://127.0.0.1:8088/sites/${currentProjectId}/`;
+      if (pureUrlElem) {
+        pureUrlElem.innerText = purePath;
+      }
       const addrElem = document.getElementById('site-iframe-address');
       const previewUrl = `/api/projects/${currentProjectId}/site/preview`;
       if (addrElem) addrElem.innerText = `http://127.0.0.1:8088${previewUrl}`;
@@ -7565,13 +7673,89 @@ GitHub 开源仓库：https://github.com/company/repo
       }
     }
 
-    // 新窗口全屏打开官网
+    // 独立纯净站点直达 (无向导控制台外框)
+    function openPureSite() {
+      if (!currentProjectId) {
+        showToast('请先选择或创建项目！', 'error');
+        return;
+      }
+      window.open(`/sites/${currentProjectId}/`, '_blank');
+    }
+
+    // 新窗口全屏打开官网 (管理端预览流)
     function openSitePreview() {
       if (!currentProjectId) {
         showToast('请先选择或创建项目！', 'error');
         return;
       }
       window.open(`/api/projects/${currentProjectId}/site/preview`, '_blank');
+    }
+
+    // 唤起客户 VPS Nginx 反代配置模态框
+    async function openVpsNginxModal() {
+      if (!currentProjectId) {
+        showToast('请先选择或创建项目！', 'error');
+        return;
+      }
+      document.getElementById('vps-nginx-modal').classList.remove('hidden');
+      await loadVpsNginxConf();
+      lucide.createIcons();
+    }
+
+    function closeVpsNginxModal() {
+      document.getElementById('vps-nginx-modal').classList.add('hidden');
+    }
+
+    async function loadVpsNginxConf() {
+      if (!currentProjectId) return;
+      const originInput = document.getElementById('vps-origin-input');
+      const originVal = originInput ? originInput.value.trim() : '';
+      let url = `/api/projects/${currentProjectId}/site/nginx-conf`;
+      if (originVal) {
+        url += `?origin=${encodeURIComponent(originVal)}`;
+      }
+      try {
+        const res = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const compElem = document.getElementById('vps-nginx-company');
+          if (compElem) compElem.innerText = data.company_name || currentProjectId;
+          const domElem = document.getElementById('vps-nginx-domain');
+          if (domElem) domElem.innerText = data.domain || '';
+          const badgeElem = document.getElementById('vps-nginx-domain-badge');
+          if (badgeElem) badgeElem.innerText = data.domain || '';
+          const codeElem = document.getElementById('vps-nginx-code-block');
+          if (codeElem) codeElem.innerText = data.nginx_conf || '';
+          const purgeElem = document.getElementById('vps-cdn-purge-code');
+          if (purgeElem) purgeElem.innerText = data.cdn_purge_guide || '';
+          if (originInput && !originInput.value && data.upstream) {
+            originInput.placeholder = data.upstream;
+          }
+        } else {
+          showToast(data.message || '加载配置失败', 'error');
+        }
+      } catch (err) {
+        showToast('网络请求异常', 'error');
+      }
+    }
+
+    function copyVpsNginxConf() {
+      const code = document.getElementById('vps-nginx-code-block').innerText;
+      if (!code) {
+        showToast('暂无配置内容可复制', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(code);
+      showToast('VPS Nginx 配置已成功复制到剪贴板！');
+    }
+
+    function copyCdnPurgeGuide() {
+      const cmd = document.getElementById('vps-cdn-purge-code').innerText;
+      if (!cmd) return;
+      navigator.clipboard.writeText(cmd);
+      showToast('腾讯云 CDN 刷新指令已复制！');
     }
 
     // 一键下载整站源码包 ZIP

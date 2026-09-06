@@ -20,6 +20,8 @@ import zipfile
 import io
 import shutil
 import threading
+import re
+from datetime import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, unquote
 
@@ -1347,6 +1349,9 @@ core_values:
 
         self.send_json({"error": "Not Found"}, status=404)
 
+    def do_HEAD(self):
+        self.do_GET()
+
     def do_GET(self):
         parsed = urlparse(self.path)
         path = parsed.path
@@ -1436,6 +1441,87 @@ core_values:
                 self.send_header("Content-Length", str(len(content)))
                 self.end_headers()
                 self.wfile.write(content)
+                return
+
+        # 4.5. 生产级多租户纯净静态官网托管路由: /sites/{project_id} 或 /sites/{project_id}/{asset}
+        if path.startswith("/sites/"):
+            raw_subpath = path[len("/sites/"):].strip("/")
+            parts = raw_subpath.split("/", 1)
+            project_id = parts[0]
+            sub_asset = parts[1] if len(parts) > 1 else ""
+
+            # 安全沙箱校验 1: project_id 字符集严格限定为字母、数字、下划线、减号
+            if not re.match(r"^[a-zA-Z0-9_-]+$", project_id):
+                self.send_response(400)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b"400 Bad Request: Invalid project_id format")
+                return
+
+            proj_dir = os.path.join(PROJECTS_DIR, project_id)
+            site_dir = os.path.join(proj_dir, "outputs", "site")
+
+            # 必须是合法的已存在项目，且已编译生成 site 静态目录
+            if not os.path.isdir(proj_dir) or not os.path.isdir(site_dir):
+                self.send_response(404)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b"404 Not Found: Project site not found or not compiled")
+                return
+
+            # 如果没有子路径，默认返回 index.html
+            target_rel = sub_asset if sub_asset else "index.html"
+            target_path = os.path.abspath(os.path.join(site_dir, target_rel))
+
+            # 安全沙箱校验 2: 严格防止路径穿越 (..)，必须归属于 site_dir 内部
+            try:
+                if os.path.commonpath([target_path, site_dir]) != site_dir or not os.path.exists(target_path) or os.path.isdir(target_path):
+                    self.send_response(404)
+                    self.send_header("Content-Type", "text/plain; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b"404 Not Found: File not found")
+                    return
+            except Exception:
+                self.send_response(404)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b"404 Not Found")
+                return
+
+            # 读取静态资源并下发
+            try:
+                with open(target_path, "rb") as f:
+                    content_bytes = f.read()
+
+                # MIME 类型推断
+                mime_type = "application/octet-stream"
+                if target_rel.endswith(".html"):
+                    mime_type = "text/html; charset=utf-8"
+                elif target_rel.endswith(".txt"):
+                    mime_type = "text/plain; charset=utf-8"
+                elif target_rel.endswith(".jsonld") or target_rel.endswith(".json"):
+                    mime_type = "application/ld+json; charset=utf-8" if target_rel.endswith(".jsonld") else "application/json; charset=utf-8"
+                elif target_rel.endswith(".svg"):
+                    mime_type = "image/svg+xml"
+                elif target_rel.endswith(".css"):
+                    mime_type = "text/css; charset=utf-8"
+                elif target_rel.endswith(".js"):
+                    mime_type = "application/javascript; charset=utf-8"
+
+                self.send_response(200)
+                self.send_header("Content-Type", mime_type)
+                self.send_header("Content-Length", str(len(content_bytes)))
+                # 开发预览态强制 no-cache 防死锁
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(content_bytes)
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(f"500 Internal Error: {str(e)}".encode("utf-8"))
                 return
 
         # 5. 专属甲方只读交付门户页面路由: /share/{token} 与 /portal/{token}
@@ -1919,6 +2005,94 @@ core_values:
             token = self.get_auth_token()
             if not is_authenticated(token):
                 self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+                return
+
+            # 获取项目的 VPS Nginx 反代配置与 CDN 刷新指引: /api/projects/{id}/site/nginx-conf
+            if path.startswith("/api/projects/") and path.endswith("/site/nginx-conf"):
+                parts = path.split("/")
+                project_id = parts[3]
+
+                # 校验 project_id 安全格式
+                if not re.match(r"^[a-zA-Z0-9_-]+$", project_id):
+                    self.send_json({"success": False, "message": "无效的项目ID格式"}, status=400)
+                    return
+
+                proj_dir = os.path.join(PROJECTS_DIR, project_id)
+                if not os.path.isdir(proj_dir):
+                    self.send_json({"success": False, "message": "项目不存在"}, status=404)
+                    return
+
+                pdata = load_project_config(project_id) or {}
+                domain = pdata.get("official_url", "https://code.baicl.cc").replace("https://", "").replace("http://", "").strip("/")
+                company_name = pdata.get("company_name") or pdata.get("client_name") or project_id
+
+                # 解析可选的 origin 参数 (例如 ?origin=http://your-mac-ddns.baicl.cc:8088)
+                qparams = parse_qs(parsed.query)
+                origin_upstream = qparams.get("origin", ["http://<YOUR_PHYSICAL_MAC_IP_OR_DDNS>:8088"])[0]
+
+                nginx_conf = f"""# ==============================================================================
+# GEO 客户交钥匙官网 VPS 反向代理配置
+# 客户企业: {company_name}
+# 客户域名: {domain}
+# 生成时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+# ==============================================================================
+# ⚠️ 部署提醒与三层拓扑说明:
+# 1. 物理机后端: 家用 Mac mini (中国联通动态公网 50M) 
+#    当前 upstream 回源目标: {origin_upstream}
+#    【注意】严禁在客户独立 VPS 上直接填 127.0.0.1:8088，必须替换为家用物理机动态公网 IP/DDNS 域名或内网穿透端口！
+# 2. 腾讯云边缘 CDN: 在 CDN 控制台配置加速域名 {domain}，回源地址指向本 VPS 的公网 IP。
+# ==============================================================================
+
+# 定义 7 天静态容灾缓存区 (可放入 nginx.conf 的 http 块或保留在当前 server 前)
+proxy_cache_path /var/cache/nginx/geo_site levels=1:2 keys_zone=geo_cache_{project_id}:20m max_size=1g inactive=7d use_temp_path=off;
+
+server {{
+    listen 80;
+    server_name {domain};
+
+    # 自动重定向到 HTTPS (如果配置了 SSL)
+    # return 301 https://$host$request_uri;
+
+    access_log /var/log/nginx/{domain}.access.log;
+    error_log  /var/log/nginx/{domain}.error.log;
+
+    # 静态根路由反向代理至物理机 /sites/{project_id}/
+    location / {{
+        proxy_pass {origin_upstream}/sites/{project_id}/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # 开启 7 天静态长效缓存 (抗大模型蜘蛛高并发爬取)
+        proxy_cache geo_cache_{project_id};
+        proxy_cache_valid 200 7d;
+        proxy_cache_valid 404 1m;
+        # 核心容灾：若物理机短时间重启或断网，使用本地快照避免返回 502
+        proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+        proxy_cache_background_update on;
+        proxy_cache_lock on;
+
+        add_header X-Cache-Status $upstream_cache_status;
+    }}
+
+    # 供腾讯云 CDN / Let's Encrypt 证书验证通道
+    location /.well-known/acme-challenge/ {{
+        root /var/www/html;
+    }}
+}}
+"""
+                cdn_purge_cmd = f"tccli cdn PurgePathCache --Paths '[\"https://{domain}/\"]' --FlushType flush"
+
+                self.send_json({
+                    "success": True,
+                    "project_id": project_id,
+                    "company_name": company_name,
+                    "domain": domain,
+                    "upstream": origin_upstream,
+                    "nginx_conf": nginx_conf,
+                    "cdn_purge_guide": cdn_purge_cmd
+                })
                 return
 
             # 全域多项目商业大盘概览: /api/portfolio/summary
