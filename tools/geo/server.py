@@ -86,7 +86,7 @@ def create_session(username: str) -> str:
     save_sessions(ACTIVE_SESSIONS)
     return token
 
-def is_authenticated(token: str, client_ip: str = None) -> bool:
+def is_authenticated(token: str) -> bool:
     global ACTIVE_SESSIONS
     if not token:
         return False
@@ -104,21 +104,6 @@ def is_authenticated(token: str, client_ip: str = None) -> bool:
             del ACTIVE_SESSIONS[token]
             save_sessions(ACTIVE_SESSIONS)
             return False
-
-    # 3. 本地开发回环支持 (127.0.0.1 / localhost / ::1)：
-    # 若客户端浏览器持有一个此前存留的有效 token (非空)，且来自本机回环请求，
-    # 自动无缝收录/延期，彻底消除改完代码重启服务后“被踢出登录”的糟糕体验！
-    is_loopback = (
-        client_ip in ("127.0.0.1", "::1", "localhost", "::ffff:127.0.0.1")
-        or (bool(client_ip) and (client_ip.startswith("127.") or client_ip == "testclient"))
-    )
-    if is_loopback and len(token) >= 8:
-        ACTIVE_SESSIONS[token] = {
-            "username": ADMIN_USERNAME,
-            "expire_at": time.time() + (SESSION_TIMEOUT_HOURS * 3600)
-        }
-        save_sessions(ACTIVE_SESSIONS)
-        return True
 
     return False
 
@@ -189,7 +174,7 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
     def check_auth(self) -> bool:
         token = self.get_auth_token()
-        return is_authenticated(token, self.get_client_ip())
+        return is_authenticated(token)
 
     def read_json_body(self) -> dict:
         content_length = int(self.headers.get("Content-Length", 0))
