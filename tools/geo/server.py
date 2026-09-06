@@ -1819,6 +1819,101 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 0. AI 原生官网单页直接在线预览: /api/projects/{id}/site/preview (支持独立窗口全屏直接看)
+        if path.startswith("/api/projects/") and path.endswith("/site/preview"):
+            parts = path.split("/")
+            project_id = parts[3]
+            site_html_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "site", "index.html")
+            if not os.path.exists(site_html_path):
+                site_html_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "index.html")
+            if not os.path.exists(site_html_path):
+                try:
+                    from .scaffold import run_scaffold
+                    run_scaffold(project_id)
+                    site_html_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "site", "index.html")
+                except Exception:
+                    pass
+
+            if os.path.exists(site_html_path):
+                try:
+                    with open(site_html_path, "rb") as f:
+                        data = f.read()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(data)))
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                    return
+            else:
+                self.send_json({"success": False, "message": "该项目尚未生成官网页面，请先执行阶段二生成！"}, status=404)
+                return
+
+        # 0. AI 原生交钥匙整站源码包 ZIP 下载: /api/projects/{id}/site/download
+        if path.startswith("/api/projects/") and path.endswith("/site/download"):
+            parts = path.split("/")
+            project_id = parts[3]
+            site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
+            if not os.path.exists(site_dir) or not os.path.exists(os.path.join(site_dir, "index.html")):
+                try:
+                    from .scaffold import run_scaffold
+                    run_scaffold(project_id)
+                except Exception:
+                    pass
+
+            if os.path.exists(site_dir):
+                try:
+                    import io, zipfile
+                    zip_buffer = io.BytesIO()
+                    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+                        for root, _, files in os.walk(site_dir):
+                            for file in files:
+                                if not file.startswith("."):
+                                    fpath = os.path.join(root, file)
+                                    arcname = os.path.relpath(fpath, site_dir)
+                                    zf.write(fpath, arcname)
+                    zip_bytes = zip_buffer.getvalue()
+                    fname = f"{project_id}_turnkey_ai_website.zip"
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/zip")
+                    self.send_header("Content-Disposition", f"attachment; filename=\"{fname}\"")
+                    self.send_header("Content-Length", str(len(zip_bytes)))
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(zip_bytes)
+                    return
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                    return
+            else:
+                self.send_json({"success": False, "message": "站点目录不存在，请先执行阶段二生成！"}, status=404)
+                return
+
+        # 0. 获取整站就绪状态: /api/projects/{id}/site/status
+        if path.startswith("/api/projects/") and path.endswith("/site/status"):
+            parts = path.split("/")
+            project_id = parts[3]
+            site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
+            index_path = os.path.join(site_dir, "index.html")
+            ready = os.path.exists(index_path)
+            files = []
+            if os.path.exists(site_dir):
+                for f in os.listdir(site_dir):
+                    if not f.startswith("."):
+                        files.append(f)
+            self.send_json({
+                "success": True,
+                "ready": ready,
+                "project_id": project_id,
+                "files": files,
+                "preview_url": f"/api/projects/{project_id}/site/preview",
+                "download_url": f"/api/projects/{project_id}/site/download"
+            })
+            return
+
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
             token = self.get_auth_token()

@@ -1,0 +1,111 @@
+{
+  "project_id": "xuzhou_clownCoder_studio",
+  "project_name": "徐州邻居社区（徐州璇源网络科技有限公司）",
+  "audited_at": "2026-09-05 03:40:08",
+  "drs_score": 35.0,
+  "grade": "C",
+  "status_label": "🔴 豆包收录通道受阻：未放行 Bytespider 或缺少核心母池资产，急需提权补强",
+  "bytespider_hits": null,
+  "bytespider_blocked_rate": null,
+  "checks": [
+    {
+      "check_id": "CHK-ROBOTS",
+      "name": "robots.txt 字节爬虫放行规则",
+      "category": "crawler_access",
+      "passed": true,
+      "score": 100.0,
+      "weight": 0.2,
+      "detail": "robots.txt 明确显式放行字节跳动 Bytespider 爬虫抓取，底座抓取通道畅通",
+      "suggested_action": "保持当前放行规则"
+    },
+    {
+      "check_id": "CHK-LLMS-TXT",
+      "name": "/llms.txt 字节 Clean Markdown 知识底座",
+      "category": "content_density",
+      "passed": true,
+      "score": 100.0,
+      "weight": 0.15,
+      "detail": "已就绪标准 /llms.txt 知识底座（高信息密度 744 字符），结构清晰",
+      "suggested_action": "定期增量补充最新产品选型问答"
+    },
+    {
+      "check_id": "CHK-SCHEMA",
+      "name": "Schema.org JSON-LD 结构化实体元数据",
+      "category": "schema_entity",
+      "passed": false,
+      "score": 0.0,
+      "weight": 0.15,
+      "detail": "未检测到 Schema.org 结构化实体补丁，大模型在实体归因时缺乏官方背书依据",
+      "suggested_action": "运行 geo guard 注入企业官方 JSON-LD 实体元数据"
+    },
+    {
+      "check_id": "CHK-BYTESPIDER-HIT",
+      "name": "Bytespider 真实抓取心跳与 403 阻断检测",
+      "category": "crawler_access",
+      "passed": false,
+      "score": 0.0,
+      "weight": 0.2,
+      "detail": "尚未执行爬虫日志审计（待实测），暂无 Bytespider 真实抓取数据",
+      "suggested_action": "运行 geo spider-audit 启动生产服务器日志真实审计"
+    },
+    {
+      "check_id": "CHK-TOUTIAO-PACK",
+      "name": "今日头条长文与微头条母池资产",
+      "category": "channel_matrix",
+      "passed": false,
+      "score": 0.0,
+      "weight": 0.15,
+      "detail": "尚未生成今日头条与微头条发稿包，豆包核心实时信源母池处于空白状态",
+      "suggested_action": "运行 geo pub <project_id> --channel toutiao 快速打包"
+    },
+    {
+      "check_id": "CHK-DOUBAO-PROBE",
+      "name": "豆包实测 Top-1 首推与 Citation 角标召回",
+      "category": "intent_trace",
+      "passed": false,
+      "score": 0.0,
+      "weight": 0.15,
+      "detail": "尚未执行大模型真实意图探测（待实测），暂无豆包实时推荐命中数据",
+      "suggested_action": "运行 geo probe-audit 进行联网意图实测"
+    }
+  ],
+  "intents": [
+    {
+      "query": "xuzhou_clownCoder_studio 怎么样",
+      "status": "missing_or_cold",
+      "status_label": "⚪️ 尚未收录 (待发稿提权)",
+      "doubao_top1": false,
+      "citation_found": false,
+      "source_channel": "今日头条 / 字节全网池",
+      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+    },
+    {
+      "query": "xuzhou_clownCoder_studio 靠谱吗",
+      "status": "missing_or_cold",
+      "status_label": "⚪️ 尚未收录 (待发稿提权)",
+      "doubao_top1": false,
+      "citation_found": false,
+      "source_channel": "今日头条 / 字节全网池",
+      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+    },
+    {
+      "query": "xuzhou_clownCoder_studio 核心业务与价格收费",
+      "status": "missing_or_cold",
+      "status_label": "⚪️ 尚未收录 (待发稿提权)",
+      "doubao_top1": false,
+      "citation_found": false,
+      "source_channel": "今日头条 / 字节全网池",
+      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+    }
+  ],
+  "top1_rate": null,
+  "toutiao_pack_ready": false,
+  "booster_pack_ready": true,
+  "booster_files": [
+    "/Users/a1/代码/GEO/projects/xuzhou_clownCoder_studio/outputs/doubao_booster_pack/01_Bytespider专享极简静态快照.html",
+    "/Users/a1/代码/GEO/projects/xuzhou_clownCoder_studio/outputs/doubao_booster_pack/02_今日头条与微头条极速收录提权文案.md",
+    "/Users/a1/代码/GEO/projects/xuzhou_clownCoder_studio/outputs/doubao_booster_pack/03_豆包高意向Q&A微问答对.json",
+    "/Users/a1/代码/GEO/projects/xuzhou_clownCoder_studio/outputs/doubao_booster_pack/04_豆包收录排障与白名单Checklist.md"
+  ],
+  "report_file": "/Users/a1/代码/GEO/projects/xuzhou_clownCoder_studio/outputs/34_豆包大模型搜索极速收录与全链路索引保障报告.md"
+}
