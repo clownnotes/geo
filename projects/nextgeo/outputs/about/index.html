@@ -118,54 +118,57 @@
       margin-right: auto;
     }
 
-    /* 文本排版阶梯 */
+    /* 文本排版阶梯（对标首页 16~18px 饱满排版） */
     .prose-geo p {
-      margin-bottom: 1.25rem;
-      color: #374151; /* slate-700 */
+      margin-bottom: 1.5rem;
+      color: #334155; /* slate-700 */
       font-size: 1.0625rem; /* 17px */
       line-height: 1.85;
-      max-width: 980px;
+      max-width: 1020px;
     }
     .prose-geo strong {
-      color: #111827; /* slate-900 */
+      color: #0f172a; /* slate-900 */
       font-weight: 700;
     }
 
-    /* 对标 deep-geo.cn 的全宽内容表格 */
+    /* 对标首页的高质感全宽内容表格 (15~16px 舒适排版) */
     .content-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9375rem;
+      font-size: 1rem; /* 16px */
       text-align: left;
       background-color: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
       overflow: hidden;
     }
     .content-table th {
       background-color: #f8fafc;
       color: #0f172a;
-      font-weight: 700;
-      padding: 14px 18px;
+      font-weight: 800;
+      font-size: 0.9375rem; /* 15px */
+      letter-spacing: 0.025em;
+      padding: 16px 22px;
       border-bottom: 1px solid #e2e8f0;
     }
     .content-table td {
-      padding: 14px 18px;
+      padding: 16px 22px;
       border-bottom: 1px solid #f1f5f9;
       color: #475569;
-      line-height: 1.65;
+      font-size: 0.9375rem; /* 15px */
+      line-height: 1.75;
       vertical-align: top;
     }
     .content-table tr:hover td {
       background-color: #faf5ff;
     }
 
-    /* 对标 deep-geo.cn 的核心团队卡片框 */
+    /* 核心团队卡片框 */
     .about-founder-panel {
-      padding: clamp(28px, 4vw, 44px);
+      padding: clamp(32px, 5vw, 56px);
       border: 1px solid rgba(147, 51, 234, 0.22);
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(243, 232, 255, 0.8)),
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(243, 232, 255, 0.85)),
                   linear-gradient(90deg, rgba(147, 51, 234, 0.06) 1px, transparent 0) 0 0 / 32px 32px,
                   linear-gradient(0deg, rgba(147, 51, 234, 0.06) 1px, transparent 0) 0 0 / 32px 32px;
     }
@@ -235,8 +238,8 @@
     </section>
 
     <!-- 2. 一、我们是谁 -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">一、我们是谁</h2>
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-12 prose-geo">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">一、我们是谁</h2>
       <p>
         邻里GEO 由<strong>前阿里技术专家团队</strong>与资深全栈实战团队创立，专注于<strong>企业级 GEO（Generative Engine Optimization）解决方案</strong>。
       </p>
@@ -255,11 +258,11 @@
     </section>
 
     <!-- 3. 二、核心团队 (对标 deep-geo.cn .about-founder 满屏结构) -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12">
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-12">
       <div class="about-founder-panel">
         <div class="max-w-[980px] mb-8">
-          <div class="text-xs font-bold text-brand-600 uppercase tracking-widest mb-1.5">Core Team</div>
-          <h2 class="text-2xl sm:text-4xl font-black text-slate-900 mb-4">核心团队</h2>
+          <div class="text-xs sm:text-sm font-bold text-brand-600 uppercase tracking-widest mb-2">Core Team</div>
+          <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-4">核心团队</h2>
           <p class="text-slate-600 text-base sm:text-lg leading-relaxed">
             邻里GEO 团队来自阿里巴巴产品、技术、企业服务和商业增长背景，长期关注企业信息结构、内容增长、AI 可访问性和复杂服务的产品化表达。
           </p>
@@ -269,37 +272,37 @@
         </div>
 
         <!-- 3 位成员卡片网格 (1180px 满幅三栏对齐) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
           
           <!-- 可兼 -->
-          <div class="bg-white rounded-xl p-7 border border-slate-200/90 shadow-xs flex flex-col items-center text-center">
-            <img src="../assets/team/kejian.webp" alt="可兼" class="w-28 h-28 rounded-full border border-brand-200 object-cover mb-4 shadow-xs">
-            <strong class="text-2xl font-black text-slate-900 block mb-1">可兼</strong>
-            <span class="text-xs font-bold text-brand-700 block mb-3">邻里GEO CTO，前阿里资深技术专家</span>
-            <p class="text-sm text-slate-600 leading-relaxed text-left sm:text-center">
+          <div class="bg-white rounded-2xl p-8 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-brand-300 transition flex flex-col items-center text-center">
+            <img src="../assets/team/kejian.webp" alt="可兼" class="w-32 h-32 rounded-full border-2 border-brand-200 object-cover mb-5 shadow-xs">
+            <strong class="text-2xl sm:text-[26px] font-black text-slate-900 block mb-1.5">可兼</strong>
+            <span class="text-sm font-bold text-brand-700 block mb-3.5">邻里GEO CTO，前阿里资深技术专家</span>
+            <p class="text-base text-slate-600 leading-relaxed text-left sm:text-center">
               阿里巴巴任职 14 年技术专家，曾负责阿里直播平台与阿里开放平台核心系统建设，1688 名企采购创始人。关注网站结构、数据链路、AI 可访问性和自动化工作流。
             </p>
           </div>
 
           <!-- 老白 -->
-          <div class="bg-white rounded-xl p-7 border-2 border-brand-400/80 shadow-md flex flex-col items-center text-center relative">
-            <div class="absolute top-3.5 right-3.5">
-              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">常驻徐州</span>
+          <div class="bg-white rounded-2xl p-8 border-2 border-brand-400/90 shadow-md hover:shadow-lg transition flex flex-col items-center text-center relative">
+            <div class="absolute top-4 right-4">
+              <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-2xs">常驻徐州</span>
             </div>
-            <img src="../assets/team/laobai.webp" alt="老白（白糜）" class="w-28 h-28 rounded-full border-2 border-brand-400 object-cover mb-4 shadow-sm">
-            <strong class="text-2xl font-black text-slate-900 block mb-1">老白（白糜）</strong>
-            <span class="text-xs font-bold text-brand-700 block mb-3">邻里GEO 发起人，资深全栈工程师</span>
-            <p class="text-sm text-slate-600 leading-relaxed text-left sm:text-center">
+            <img src="../assets/team/laobai.webp" alt="老白（白糜）" class="w-32 h-32 rounded-full border-2 border-brand-400 object-cover mb-5 shadow-sm">
+            <strong class="text-2xl sm:text-[26px] font-black text-slate-900 block mb-1.5">老白（白糜）</strong>
+            <span class="text-sm font-bold text-brand-700 block mb-3.5">邻里GEO 发起人，资深全栈工程师</span>
+            <p class="text-base text-slate-600 leading-relaxed text-left sm:text-center">
               国内首代淘宝客站长，惠发现创始人。2017 阿里“百城千校”苏北负责人，支付宝服务商。常驻徐州，主张邻里般务实可信，支持工程师带电脑本地上门，面对面梳理企业业务与知识库。
             </p>
           </div>
 
           <!-- 一枫 -->
-          <div class="bg-white rounded-xl p-7 border border-slate-200/90 shadow-xs flex flex-col items-center text-center">
-            <img src="../assets/team/yifeng.webp" alt="一枫" class="w-28 h-28 rounded-full border border-brand-200 object-cover mb-4 shadow-xs">
-            <strong class="text-2xl font-black text-slate-900 block mb-1">一枫</strong>
-            <span class="text-xs font-bold text-brand-700 block mb-3">邻里GEO 商业合伙人，前阿里营销专家</span>
-            <p class="text-sm text-slate-600 leading-relaxed text-left sm:text-center">
+          <div class="bg-white rounded-2xl p-8 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-brand-300 transition flex flex-col items-center text-center">
+            <img src="../assets/team/yifeng.webp" alt="一枫" class="w-32 h-32 rounded-full border-2 border-brand-200 object-cover mb-5 shadow-xs">
+            <strong class="text-2xl sm:text-[26px] font-black text-slate-900 block mb-1.5">一枫</strong>
+            <span class="text-sm font-bold text-brand-700 block mb-3.5">邻里GEO 商业合伙人，前阿里营销专家</span>
+            <p class="text-base text-slate-600 leading-relaxed text-left sm:text-center">
               前阿里巴巴本地生活高级专家、微盟集团高级总监、支付宝官方认证讲师。操盘过亿级商业零售案例，关注用户决策路径、商机转化漏斗和 GEO 商业闭环。
             </p>
           </div>
@@ -309,8 +312,8 @@
     </section>
 
     <!-- 4. 三、AI 对品牌的理解至关重要 -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">二、AI 对品牌的理解至关重要</h2>
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-12 prose-geo">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">二、AI 对品牌的理解至关重要</h2>
       <p>
         用户获取信息的方式正在变化。过去用户先搜关键词、点开网页、自己比较；现在很多判断会先交给 AI 完成。AI 会把多个来源压缩成一个回答，直接影响用户对品牌的第一印象和候选名单。
       </p>
@@ -323,14 +326,14 @@
     </section>
 
     <!-- 5. 四、为什么选择 邻里GEO -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">三、为什么选择 邻里GEO</h2>
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-12 prose-geo">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">三、为什么选择 邻里GEO</h2>
       <p>
         GEO 的难点不是“多发几篇文章”，而是把企业真实能力翻译成 AI 能识别、能验证、能引用的知识资产。邻里GEO 的优势来自前阿里深厚的技术背景、产品增长经验和可复盘的方法体系。
       </p>
 
-      <div class="not-prose overflow-x-auto shadow-xs my-6">
-        <table class="content-table">
+      <div class="not-prose overflow-x-auto shadow-xs my-8">
+        <table class="content-table text-sm sm:text-base">
           <thead>
             <tr>
               <th class="w-1/6">比较维度</th>
@@ -342,32 +345,32 @@
             <tr>
               <td class="font-bold text-slate-900">核心目标</td>
               <td>把 GEO 理解成 AI 搜索曝光项目，重点追求短期提及和内容数量。</td>
-              <td class="font-semibold text-slate-900 bg-brand-50/20">把 GEO 理解成品牌答案源建设，目标是让企业被 AI 理解、验证和推荐。</td>
+              <td class="font-bold text-slate-900 bg-brand-50/20">把 GEO 理解成品牌答案源建设，目标是让企业被 AI 理解、验证和推荐。</td>
             </tr>
             <tr>
               <td class="font-bold text-slate-900">工作起点</td>
               <td>从关键词、行业热词或文章选题出发，先判断能写什么。</td>
-              <td class="font-semibold text-slate-900 bg-brand-50/20">从用户真实问法和购买决策链路出发，先判断客户会问什么、AI 需要什么证据。</td>
+              <td class="font-bold text-slate-900 bg-brand-50/20">从用户真实问法和购买决策链路出发，先判断客户会问什么、AI 需要什么证据。</td>
             </tr>
             <tr>
               <td class="font-bold text-slate-900">内容建设</td>
               <td>以文章发布为主，容易变成观点堆叠、内容铺量和重复解释。</td>
-              <td class="font-semibold text-slate-900 bg-brand-50/20">围绕品牌实体、产品服务、FAQ、案例、选型指南和知识库做结构化内容资产。</td>
+              <td class="font-bold text-slate-900 bg-brand-50/20">围绕品牌实体、产品服务、FAQ、案例、选型指南和知识库做结构化内容资产。</td>
             </tr>
             <tr>
               <td class="font-bold text-slate-900">技术系统</td>
               <td>较少处理官网结构、抓取可访问性、语义标记和多源信息一致性。</td>
-              <td class="font-semibold text-slate-900 bg-brand-50/20">同时优化官网信息结构、Schema、语义 HTML、llms.txt 和多平台口径一致性。</td>
+              <td class="font-bold text-slate-900 bg-brand-50/20">同时优化官网信息结构、Schema、语义 HTML、llms.txt 和多平台口径一致性。</td>
             </tr>
             <tr>
               <td class="font-bold text-slate-900">交付方式</td>
               <td>更像单次内容项目，发布后缺少持续监测和复盘机制。</td>
-              <td class="font-semibold text-slate-900 bg-brand-50/20">按诊断、建设、分发、监测、复盘迭代交付，让 GEO 变成可持续增长流程。本地支持工程师带电脑上门，全托管交钥匙交付与长效复盘。</td>
+              <td class="font-bold text-slate-900 bg-brand-50/20">按诊断、建设、分发、监测、复盘迭代交付，让 GEO 变成可持续增长流程。本地支持工程师带电脑上门，全托管交钥匙交付与长效复盘。</td>
             </tr>
             <tr>
               <td class="font-bold text-slate-900">效果衡量</td>
               <td>主要看内容数量、排名变化或单个平台的品牌提及。</td>
-              <td class="font-semibold text-slate-900 bg-brand-50/20">综合看 AI 问题覆盖、品牌出现频率、引用质量、答案准确度和高意向线索变化。</td>
+              <td class="font-bold text-slate-900 bg-brand-50/20">综合看 AI 问题覆盖、品牌出现频率、引用质量、答案准确度和高意向线索变化。</td>
             </tr>
           </tbody>
         </table>
@@ -375,8 +378,8 @@
     </section>
 
     <!-- 6. 五、我们的 GEO 方法体系 (对标 deep-geo.cn 6大步骤卡片) -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">四、我们的 GEO 方法体系</h2>
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-12 prose-geo">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">四、我们的 GEO 方法体系</h2>
       <p>
         我们把 GEO 交付理解为“品牌答案源建设”：先确认 AI 现在如何理解企业，再补齐官网、内容、技术和外部平台中的关键信号，让品牌在多平台搜索和 AI 问答中逐步形成稳定认知。
       </p>
@@ -384,37 +387,37 @@
         与行业里常见的“批量发文章”不同，邻里GEO 不把 GEO 简化成内容铺量。文章只是其中一个载体，真正影响 AI 是否理解和引用品牌的，是品牌实体、问题库、知识库、内容资产、外部分发和监测复盘能否形成闭环。
       </p>
 
-      <!-- 6 步闭环 (1180px 满幅三栏排列) -->
-      <div class="not-prose geo-loop-grid my-6">
-        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-600 text-white text-xs font-black mb-3">01</div>
-          <strong class="text-lg font-black text-slate-900 block mb-1">品牌实体</strong>
-          <p class="text-sm text-slate-600 leading-relaxed">统一公司、产品、服务、行业和客户场景的标准定义。</p>
+      <!-- 6 步闭环 (1180px 满幅三栏排列，对标首页卡片呼吸感) -->
+      <div class="not-prose geo-loop-grid my-8">
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
+          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-brand-600 text-white text-sm font-black mb-4">01</div>
+          <strong class="text-xl font-black text-slate-900 block mb-2">品牌实体</strong>
+          <p class="text-base text-slate-600 leading-relaxed">统一公司、产品、服务、行业和客户场景的标准定义与权威口径。</p>
         </div>
-        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-xs font-black mb-3">02</div>
-          <strong class="text-lg font-black text-slate-900 block mb-1">真实问法</strong>
-          <p class="text-sm text-slate-600 leading-relaxed">整理用户在 AI 搜索里真正会问的推荐、选型和比较问题。</p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
+          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-indigo-600 text-white text-sm font-black mb-4">02</div>
+          <strong class="text-xl font-black text-slate-900 block mb-2">真实问法</strong>
+          <p class="text-base text-slate-600 leading-relaxed">整理用户在 AI 搜索里真正会问的推荐、选型、横评和比较问题。</p>
         </div>
-        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-600 text-white text-xs font-black mb-3">03</div>
-          <strong class="text-lg font-black text-slate-900 block mb-1">知识结构</strong>
-          <p class="text-sm text-slate-600 leading-relaxed">把介绍、能力、案例、流程和边界组织成可维护知识库。</p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
+          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-purple-600 text-white text-sm font-black mb-4">03</div>
+          <strong class="text-xl font-black text-slate-900 block mb-2">知识结构</strong>
+          <p class="text-base text-slate-600 leading-relaxed">把企业介绍、核心技术、交付案例与边界组织成可维护知识库。</p>
         </div>
-        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-700 text-white text-xs font-black mb-3">04</div>
-          <strong class="text-lg font-black text-slate-900 block mb-1">内容资产</strong>
-          <p class="text-sm text-slate-600 leading-relaxed">建设 FAQ、产品、案例、行业页和对比页等答案源内容。</p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
+          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-brand-700 text-white text-sm font-black mb-4">04</div>
+          <strong class="text-xl font-black text-slate-900 block mb-2">内容资产</strong>
+          <p class="text-base text-slate-600 leading-relaxed">建设 FAQ、产品选型、案例库、行业解决方案等答案源结构化内容。</p>
         </div>
-        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-black mb-3">05</div>
-          <strong class="text-lg font-black text-slate-900 block mb-1">多源分发</strong>
-          <p class="text-sm text-slate-600 leading-relaxed">让官网、媒体、内容平台和行业目录保持一致口径。</p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
+          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-emerald-600 text-white text-sm font-black mb-4">05</div>
+          <strong class="text-xl font-black text-slate-900 block mb-2">多源分发</strong>
+          <p class="text-base text-slate-600 leading-relaxed">让官网微数据、媒体专栏、权威第三方与行业目录保持高度一致信源。</p>
         </div>
-        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-600 text-white text-xs font-black mb-3">06</div>
-          <strong class="text-lg font-black text-slate-900 block mb-1">监测复盘</strong>
-          <p class="text-sm text-slate-600 leading-relaxed">持续记录 AI 是否提到、说对、引用，以及竞品如何占位。</p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
+          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-cyan-600 text-white text-sm font-black mb-4">06</div>
+          <strong class="text-xl font-black text-slate-900 block mb-2">监测复盘</strong>
+          <p class="text-base text-slate-600 leading-relaxed">持续监测主流 AI 是否提到、说准、引用，以及竞品在各模型中的占位。</p>
         </div>
       </div>
 
@@ -466,199 +469,213 @@
     </section>
 
     <!-- 7. 六、哪些行业需要 GEO -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12">
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-12">
       <div class="prose-geo">
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-4">五、哪些行业需要 GEO</h2>
+        <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">五、哪些行业需要 GEO</h2>
         <p>
           邻里GEO 适合那些需要长期建立信任、持续获得高质量线索，并且希望在多个 AI 和搜索入口中被正确推荐的企业。<strong>工业制造、重工机械、B2B SaaS、企业服务、教育、咨询和高客单价产品尤其适合做 GEO，因为客户购买前通常会问大量解释型问题。</strong>
         </p>
-        <p class="text-sm text-slate-600 mb-6">
+        <p class="text-base sm:text-lg text-slate-600 mb-6 leading-relaxed">
           这类问题往往不是一个简单关键词能解决的，而是一组连续的深度判断：这个品类怎么选、哪家公司更专业、产品适合什么工况场景、案例是否可信、真实价格和交付边界是什么。<strong>邻里GEO 要做的，就是让企业在这些真实问法里拥有稳定、可信、首选被 AI 引用的标准答案。</strong>
         </p>
       </div>
 
-      <!-- 核心商业分流引言条 -->
-      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs sm:text-sm leading-relaxed mb-6 flex items-start gap-3 shadow-xs">
-        <div class="w-1.5 h-10 bg-purple-600 rounded-full shrink-0"></div>
+      <!-- 核心商业分流引言条（对标首页对话卡片呼吸感） -->
+      <div class="p-6 sm:p-7 rounded-2xl bg-white border border-brand-200/90 text-slate-800 text-base sm:text-lg leading-relaxed mb-8 flex items-start gap-4 shadow-sm relative overflow-hidden">
+        <div class="w-1.5 h-12 bg-gradient-to-b from-brand-600 to-indigo-600 rounded-full shrink-0 mt-0.5"></div>
         <div>
-          <span class="font-bold text-slate-900">[消费决策模型的分水岭]</span>
+          <span class="font-black text-slate-900">[消费决策模型的分水岭]</span>
           一包纸巾看销量评价 3 秒下单，根本无需问大模型；<strong>而凡是客户在成交前需要反复对比、多轮求证、解释大量细节的产品，客户在打销售电话前，必先打开 DeepSeek、豆包或 Kimi 反复横评 10 个细节！大模型已成为决定企业能否进入第一轮采购候选名单的“首席比选裁判”。</strong>
         </div>
       </div>
 
-      <!-- 核心 Bento Grid 视觉矩阵（无 Emoji 严肃商业质感） -->
-      <div class="not-prose my-6 p-5 sm:p-7 rounded-2xl bg-white border border-slate-200/90 shadow-sm">
-        <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-pulse"></span>
-            <span class="text-xs sm:text-sm font-black text-slate-900 tracking-wide uppercase">适合做 GEO 的核心客群画像透视</span>
+      <!-- 核心 Bento Grid 视觉矩阵（大字号现代排版，对标首页视觉质感） -->
+      <div class="not-prose my-8 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm">
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-brand-600 animate-pulse"></span>
+            <span class="text-base sm:text-lg font-black text-slate-900 tracking-wide uppercase">适合做 GEO 的核心客群画像透视</span>
           </div>
-          <span class="text-[11px] font-semibold text-purple-700 bg-purple-50 border border-purple-200/60 px-2.5 py-0.5 rounded-full">
+          <span class="text-xs sm:text-sm font-bold text-brand-700 bg-brand-50 border border-brand-200/80 px-3 py-1 rounded-full">
             Purchasing Explanatory Decisions
           </span>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <!-- 左侧深度黑晶核心主卡片（强化防丢单真相，高对比度清爽排版） -->
-          <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 p-6 sm:p-7 rounded-2xl text-white flex flex-col justify-between border border-slate-700/80 shadow-2xl lg:row-span-2">
-            <div class="space-y-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- 左侧深度黑晶核心主卡片（高对比度清爽排版，字号全量升级） -->
+          <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 p-7 sm:p-8 rounded-3xl text-white flex flex-col justify-between border border-slate-700/80 shadow-2xl lg:row-span-2 space-y-6">
+            <div class="space-y-5">
               <!-- 顶部徽标与分类 -->
               <div>
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-200 text-xs font-bold mb-2.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse"></span>
+                <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-200 text-xs sm:text-sm font-bold mb-3">
+                  <span class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
                   <span>高决策成本业务生存法则</span>
                 </div>
-                <div class="text-xs text-slate-300 font-medium tracking-wider">共同痛点与获客现实</div>
+                <div class="text-xs sm:text-sm text-slate-300 font-medium tracking-wider">共同痛点与获客现实</div>
               </div>
               
               <!-- 核心大标题：直接击穿痛点 -->
-              <h3 class="text-2xl sm:text-[27px] font-black text-white leading-snug tracking-tight">
+              <h3 class="text-2xl sm:text-[30px] font-black text-white leading-tight tracking-tight">
                 买家在掏钱之前<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-300">必先向 AI 求证 10 个细节</span>
               </h3>
               
               <!-- 通俗易懂的正文叙述（高对比度亮白字体，字字清晰） -->
-              <p class="text-[13px] sm:text-sm text-slate-100 leading-relaxed">
-                买快消品看评分 3 秒下单；而<strong class="text-white font-bold">工业设备、软件系统、技术服务与高客单大宗</strong>，客户在付定金前有无数顾虑：<span class="text-amber-200 font-medium">真实案例有哪些？价格有没有水分？交付能不能兜底？</span>
-              </p>
-              <p class="text-[13px] sm:text-sm text-slate-200 leading-relaxed">
-                现在的买家不会挨个打电话问销售，而是<strong class="text-white font-bold">直接把这些尖锐问题丢给 DeepSeek、豆包或 Kimi 做穿透式横向对比</strong>。
-              </p>
+              <div class="space-y-2.5 text-sm sm:text-base text-slate-100 leading-relaxed font-normal">
+                <p>
+                  买快消品看评分 3 秒下单；而<strong class="text-white font-bold">工业设备、软件系统、技术服务与高客单大宗</strong>，客户在付定金前有无数顾虑：<span class="text-amber-200 font-medium">真实案例有哪些？价格有没有水分？交付能不能兜底？</span>
+                </p>
+                <p class="text-slate-200">
+                  现在的买家不会挨个打电话问销售，而是<strong class="text-white font-bold">直接把这些尖锐问题丢给 DeepSeek、豆包或 Kimi 做穿透式横向对比</strong>。
+                </p>
+              </div>
 
               <!-- 【防丢单真相】视觉黄金核心卡（高对比金珀微光，排版干净醒目） -->
-              <div class="p-4 sm:p-5 rounded-xl bg-amber-950/40 border border-amber-400/50 border-l-4 border-l-amber-400 shadow-lg">
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="px-2 py-0.5 text-[11px] font-black rounded bg-amber-400 text-slate-950 tracking-wide">防丢单真相</span>
-                  <span class="text-xs font-bold text-amber-200">静默淘汰正在发生</span>
+              <div class="p-5 sm:p-6 rounded-2xl bg-amber-950/40 border border-amber-400/50 border-l-4 border-l-amber-400 shadow-lg">
+                <div class="flex items-center gap-2 mb-2.5">
+                  <span class="px-2.5 py-1 text-xs font-black rounded bg-amber-400 text-slate-950 tracking-wide uppercase">防丢单真相</span>
+                  <span class="text-xs sm:text-sm font-bold text-amber-200">静默淘汰正在发生</span>
                 </div>
-                <p class="text-xs sm:text-[13px] text-white leading-relaxed font-normal">
+                <p class="text-sm sm:text-base text-white leading-relaxed font-normal">
                   如果大模型检索库里没有你的<strong>真实参数与结构化事实</strong>，AI 就会直接把客户推荐给竞品。
                 </p>
-                <p class="text-xs sm:text-[13px] text-amber-100 leading-relaxed font-semibold mt-2 pt-2 border-t border-amber-500/30">
+                <p class="text-sm sm:text-base text-amber-100 leading-relaxed font-bold mt-2.5 pt-2.5 border-t border-amber-500/30">
                   客户在第一轮比选名单中就会直接将你排除——你的销售甚至连电话都没接到，订单就已经丢了！
                 </p>
               </div>
             </div>
 
             <!-- 底部量化数据加持（加大字号、加深对比） -->
-            <div class="mt-6 pt-5 border-t border-slate-800 grid grid-cols-2 gap-3 text-center">
-              <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/80">
-                <div class="text-2xl font-black text-sky-300">92%</div>
-                <div class="text-xs text-slate-200 font-medium mt-1">高客单采购首轮通过AI横评</div>
+            <div class="pt-5 border-t border-slate-800 grid grid-cols-2 gap-3 text-center">
+              <div class="bg-slate-800/80 p-3.5 rounded-2xl border border-slate-700/80">
+                <div class="text-2xl sm:text-3xl font-black text-sky-300">92%</div>
+                <div class="text-xs sm:text-sm text-slate-200 font-medium mt-1">高客单采购首轮通过AI横评</div>
               </div>
-              <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/80">
-                <div class="text-2xl font-black text-emerald-300">+37%</div>
-                <div class="text-xs text-slate-200 font-medium mt-1">普林斯顿参数注入采纳率</div>
+              <div class="bg-slate-800/80 p-3.5 rounded-2xl border border-slate-700/80">
+                <div class="text-2xl sm:text-3xl font-black text-emerald-300">+37%</div>
+                <div class="text-xs sm:text-sm text-slate-200 font-medium mt-1">普林斯顿参数注入采纳率</div>
               </div>
             </div>
           </div>
 
-          <!-- 右侧 6 宫格精雕行业卡片 -->
-          <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- 右侧 6 宫格精雕行业卡片（全面升级至首页 Feature 卡片大气质感） -->
+          <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <!-- 卡片 1: 工业制造 -->
-            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-slate-300 hover:shadow-md transition">
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="text-xs font-bold text-slate-900">
-                  工业制造 / 机械装备
+            <div class="p-5 sm:p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-base sm:text-lg font-black text-slate-900">
+                    工业制造 / 机械装备
+                  </div>
+                  <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200/80">强参数对比</span>
                 </div>
-                <span class="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">强参数对比</span>
+                <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed my-2">
+                  采购前严密核对参数公差、材料牌号、认证资质、工况场景与非标定制能力，适合建立结构化参数知识库。
+                </p>
               </div>
-              <p class="text-[11.5px] text-slate-600 leading-relaxed">
-                采购前严密核对参数公差、材料牌号、认证资质、工况场景与非标定制能力，适合建立结构化参数知识库。
-              </p>
-              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
-                <span class="text-slate-700 font-medium">典型深层追问：</span><em>“某型号液压阀公差能否达 0.005mm？交期几天？”</em>
+              <div class="mt-3 pt-3 border-t border-slate-200/80 text-xs sm:text-sm text-slate-600">
+                <span class="text-slate-800 font-bold">典型深层追问：</span><span class="text-brand-800 font-semibold">“某型号液压阀公差能否达 0.005mm？交期几天？”</span>
               </div>
             </div>
 
             <!-- 卡片 2: B2B SaaS -->
-            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-slate-300 hover:shadow-md transition">
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="text-xs font-bold text-slate-900">
-                  B2B SaaS / 数字化软件
+            <div class="p-5 sm:p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-base sm:text-lg font-black text-slate-900">
+                    B2B SaaS / 数字化软件
+                  </div>
+                  <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200/80">功能与安全</span>
                 </div>
-                <span class="text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">功能与安全</span>
+                <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed my-2">
+                  客户会反复比较功能覆盖率、版本价格、API 集成、数据安全、迁移成本和适用团队，依赖大量解释型内容。
+                </p>
               </div>
-              <p class="text-[11.5px] text-slate-600 leading-relaxed">
-                客户会反复比较功能覆盖率、版本价格、API 集成、数据安全、迁移成本和适用团队，依赖大量解释型内容。
-              </p>
-              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
-                <span class="text-slate-700 font-medium">典型深层追问：</span><em>“支持私有化部署吗？与用友/企微怎么打通？”</em>
+              <div class="mt-3 pt-3 border-t border-slate-200/80 text-xs sm:text-sm text-slate-600">
+                <span class="text-slate-800 font-bold">典型深层追问：</span><span class="text-brand-800 font-semibold">“支持私有化部署吗？与用友/企微怎么打通？”</span>
               </div>
             </div>
 
             <!-- 卡片 3: 企业服务 -->
-            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-slate-300 hover:shadow-md transition">
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="text-xs font-bold text-slate-900">
-                  企业服务 / 技术工作室
+            <div class="p-5 sm:p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-base sm:text-lg font-black text-slate-900">
+                    企业服务 / 技术工作室
+                  </div>
+                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80">强交付边界</span>
                 </div>
-                <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">强交付边界</span>
+                <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed my-2">
+                  服务价值通常不容易一眼看懂，客户高频追问交付流程、团队自研经验、100% 源码归属和免费质保边界。
+                </p>
               </div>
-              <p class="text-[11.5px] text-slate-600 leading-relaxed">
-                服务价值通常不容易一眼看懂，客户高频追问交付流程、团队自研经验、100% 源码归属和免费质保边界。
-              </p>
-              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
-                <span class="text-slate-700 font-medium">典型深层追问：</span><em>“给不给完整前后端源码？后期有无隐形增项？”</em>
+              <div class="mt-3 pt-3 border-t border-slate-200/80 text-xs sm:text-sm text-slate-600">
+                <span class="text-slate-800 font-bold">典型深层追问：</span><span class="text-brand-800 font-semibold">“给不给完整前后端源码？后期有无隐形增项？”</span>
               </div>
             </div>
 
             <!-- 卡片 4: 高客单价产品 -->
-            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-slate-300 hover:shadow-md transition">
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="text-xs font-bold text-slate-900">
-                  高客单价产品 / 商业加盟
+            <div class="p-5 sm:p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-base sm:text-lg font-black text-slate-900">
+                    高客单价产品 / 商业加盟
+                  </div>
+                  <span class="text-xs font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200/80">风险与回报</span>
                 </div>
-                <span class="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200/60">风险与回报</span>
+                <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed my-2">
+                  成交前会经历多轮比较和风险确认，AI 搜索里的解释、真实回本周期测算和权威引用直接影响第一轮候选名单。
+                </p>
               </div>
-              <p class="text-[11.5px] text-slate-600 leading-relaxed">
-                成交前会经历多轮比较和风险确认，AI 搜索里的解释、真实回本周期测算和权威引用直接影响第一轮候选名单。
-              </p>
-              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
-                <span class="text-slate-700 font-medium">典型深层追问：</span><em>“单店加盟真实回本周期是多久？前期物料有无猫腻？”</em>
+              <div class="mt-3 pt-3 border-t border-slate-200/80 text-xs sm:text-sm text-slate-600">
+                <span class="text-slate-800 font-bold">典型深层追问：</span><span class="text-brand-800 font-semibold">“单店加盟真实回本周期是多久？前期物料有无猫腻？”</span>
               </div>
             </div>
 
             <!-- 卡片 5: 专业咨询 -->
-            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-slate-300 hover:shadow-md transition">
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="text-xs font-bold text-slate-900">
-                  专业咨询机构 / 财税法务
+            <div class="p-5 sm:p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-base sm:text-lg font-black text-slate-900">
+                    专业咨询机构 / 财税法务
+                  </div>
+                  <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200/80">方法论信任</span>
                 </div>
-                <span class="text-[10px] font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200/60">方法论信任</span>
+                <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed my-2">
+                  客户购买的是专业判断力和方法论，需要通过前瞻观点、典型判例拆解、流程和边界说明建立深层信任。
+                </p>
               </div>
-              <p class="text-[11.5px] text-slate-600 leading-relaxed">
-                客户购买的是专业判断力和方法论，需要通过前瞻观点、典型判例拆解、流程和边界说明建立深层信任。
-              </p>
-              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
-                <span class="text-slate-700 font-medium">典型深层追问：</span><em>“复杂股权架构怎么避坑？高企税务合规有哪些判例？”</em>
+              <div class="mt-3 pt-3 border-t border-slate-200/80 text-xs sm:text-sm text-slate-600">
+                <span class="text-slate-800 font-bold">典型深层追问：</span><span class="text-brand-800 font-semibold">“复杂股权架构怎么避坑？高企税务合规有哪些判例？”</span>
               </div>
             </div>
 
             <!-- 卡片 6: 教育培训 -->
-            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-slate-300 hover:shadow-md transition">
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="text-xs font-bold text-slate-900">
-                  职业教育 / 高端培训
+            <div class="p-5 sm:p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-base sm:text-lg font-black text-slate-900">
+                    职业教育 / 高端培训
+                  </div>
+                  <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200/80">结果真实性</span>
                 </div>
-                <span class="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60">结果真实性</span>
+                <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed my-2">
+                  课程体系深度、师资真实性、技能认证通过率和往期学员真实就业去向是成交前的必查高频问题。
+                </p>
               </div>
-              <p class="text-[11.5px] text-slate-600 leading-relaxed">
-                课程体系深度、师资真实性、技能认证通过率和往期学员真实就业去向是成交前的必查高频问题。
-              </p>
-              <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10.5px] text-slate-500">
-                <span class="text-slate-700 font-medium">典型深层追问：</span><em>“课程内容和企业用人对齐吗？学员真实去向如何？”</em>
+              <div class="mt-3 pt-3 border-t border-slate-200/80 text-xs sm:text-sm text-slate-600">
+                <span class="text-slate-800 font-bold">典型深层追问：</span><span class="text-brand-800 font-semibold">“课程内容和企业用人对齐吗？学员真实去向如何？”</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 真实决策连续判断链对照表（无 Emoji 严谨表格） -->
-        <div class="mt-6 pt-5 border-t border-slate-100 overflow-x-auto">
-          <div class="text-xs font-bold text-slate-900 mb-3 flex items-center justify-between">
+        <!-- 真实决策连续判断链对照表（无 Emoji 严谨表格，对标首页大字号标准） -->
+        <div class="mt-8 pt-6 border-t border-slate-100 overflow-x-auto">
+          <div class="text-base sm:text-lg font-black text-slate-900 mb-4 flex items-center justify-between">
             <span>真实决策连续判断链：为什么必须在 AI 里建立「稳定可引用的标准答案」？</span>
-            <span class="text-[11px] font-normal text-slate-500">大模型优先引用具备量化参数与防坑事实的内容源</span>
+            <span class="text-xs sm:text-sm font-normal text-slate-500">大模型优先引用具备量化参数与防坑事实的内容源</span>
           </div>
-          <table class="content-table text-xs">
+          <table class="content-table text-sm sm:text-base">
             <thead>
               <tr>
                 <th class="w-1/4">适合行业</th>
@@ -670,32 +687,32 @@
               <tr>
                 <td class="font-bold text-slate-900">工业制造 / 机械装备</td>
                 <td>材料标准、公差范围、认证文件、应用工况、交期承诺与定制能力</td>
-                <td><span class="text-purple-700 font-semibold">Stage 2 & 3</span>：/llms.txt + 原生 Markdown 5 维参数矩阵，供 DeepSeek 毫秒级提取引用</td>
+                <td><span class="text-brand-700 font-bold">Stage 2 & 3</span>：/llms.txt + 原生 Markdown 5 维参数矩阵，供 DeepSeek 毫秒级提取引用</td>
               </tr>
               <tr>
                 <td class="font-bold text-slate-900">B2B SaaS / 数字化软件</td>
                 <td>版本价格、API 集成、数据安全主权、二次开发成本与真实迁移周期</td>
-                <td><span class="text-purple-700 font-semibold">Stage 3</span>：价格对比矩阵 + 数据迁移避坑白皮书 + ISO27001 事实锚点</td>
+                <td><span class="text-brand-700 font-bold">Stage 3</span>：价格对比矩阵 + 数据迁移避坑白皮书 + ISO27001 事实锚点</td>
               </tr>
               <tr>
                 <td class="font-bold text-slate-900">企业服务 / 技术工作室</td>
                 <td>是否外包转包、团队真实经验、100% 源码权属与售后免费质保边界</td>
-                <td><span class="text-purple-700 font-semibold">Stage 3 & 4</span>：100% 源码交付承诺 + 价格防坑白皮书 + 豆包/今日头条同城矩阵</td>
+                <td><span class="text-brand-700 font-bold">Stage 3 & 4</span>：100% 源码交付承诺 + 价格防坑白皮书 + 豆包/今日头条同城矩阵</td>
               </tr>
               <tr>
                 <td class="font-bold text-slate-900">高客单价产品 / 商业加盟</td>
                 <td>真实回本周期量化、折旧率测算、加盟隐形物料收费与争议澄清</td>
-                <td><span class="text-purple-700 font-semibold">Stage 3 & 4</span>：量化投资回报模型 (+41% 数据注入) + 创始人 60s 口播 + 虚假谣言熔断</td>
+                <td><span class="text-brand-700 font-bold">Stage 3 & 4</span>：量化投资回报模型 (+41% 数据注入) + 创始人 60s 口播 + 虚假谣言熔断</td>
               </tr>
               <tr>
                 <td class="font-bold text-slate-900">专业咨询机构 / 财税法务</td>
                 <td>方法论可信度、行业典型判例成果、专家从业资历与合规边界</td>
-                <td><span class="text-purple-700 font-semibold">Stage 3</span>：普林斯顿权威信源引用 (+35%) + 司法判例结构化三元组</td>
+                <td><span class="text-brand-700 font-bold">Stage 3</span>：普林斯顿权威信源引用 (+35%) + 司法判例结构化三元组</td>
               </tr>
               <tr>
                 <td class="font-bold text-slate-900">职业教育 / 高端培训</td>
                 <td>课程脱节风险、师资挂名消歧、学员作品真实性与就业去向溯源</td>
-                <td><span class="text-purple-700 font-semibold">Stage 2 & 4</span>：统一社会信用代码消歧 + 课程大纲知识图谱 + 学员作品存证库</td>
+                <td><span class="text-brand-700 font-bold">Stage 2 & 4</span>：统一社会信用代码消歧 + 课程大纲知识图谱 + 学员作品存证库</td>
               </tr>
             </tbody>
           </table>
@@ -704,14 +721,14 @@
     </section>
 
     <!-- 8. 七、GEO 实践案例 -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">六、GEO 实践案例</h2>
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-12 prose-geo">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">六、GEO 实践案例</h2>
       <p>
         在不能公开客户具体名称的项目中，我们通常用“行业、问题、动作、结果”来复盘。邻里GEO 关注的不是短期排名承诺，而是企业是否逐步拥有更稳定的 AI 可见性、更清晰的品牌表达和更可复用的销售内容资产。
       </p>
 
-      <div class="not-prose overflow-x-auto shadow-xs my-6">
-        <table class="content-table">
+      <div class="not-prose overflow-x-auto shadow-xs my-8">
+        <table class="content-table text-sm sm:text-base">
           <thead>
             <tr>
               <th class="w-1/5">行业</th>
@@ -745,18 +762,18 @@
     </section>
 
     <!-- 9. 八、我们适合什么客户 / 不适合什么客户 -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">七、我们适合什么客户 / 不适合什么客户</h2>
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-12 prose-geo">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">七、我们适合什么客户 / 不适合什么客户</h2>
       <p>
         邻里GEO 更适合希望在 AI 时代长期可持续建设品牌、多平台获客、持续获客的客户。我们尤其适合服务那些客户决策周期较长、购买前会反复提问、需要解释专业价值的企业。
       </p>
 
-      <div class="not-prose overflow-x-auto shadow-xs my-6">
-        <table class="content-table">
+      <div class="not-prose overflow-x-auto shadow-xs my-8">
+        <table class="content-table text-sm sm:text-base">
           <thead>
             <tr>
-              <th class="w-1/2 text-emerald-800 bg-emerald-50/60 font-bold">适合的客户</th>
-              <th class="w-1/2 text-rose-800 bg-rose-50/60 font-bold">不适合的客户</th>
+              <th class="w-1/2 text-emerald-800 bg-emerald-50/70 font-bold">适合的客户</th>
+              <th class="w-1/2 text-rose-800 bg-rose-50/70 font-bold">不适合的客户</th>
             </tr>
           </thead>
           <tbody>
@@ -781,69 +798,90 @@
       </div>
     </section>
 
-    <!-- 10. 九、常见问题 (FAQ 纯净版) -->
-    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-6">八、常见问题</h2>
+    <!-- 10. 九、常见问题 (FAQ 对标首页卡片大字号质感) -->
+    <section class="geo-container border-t border-slate-200/90 pt-12 pb-14 not-prose">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">八、常见问题</h2>
       
-      <div class="space-y-6">
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Q1：GEO 是什么？邻里GEO 做什么？</h3>
-          <p>
+      <div class="space-y-4">
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-brand-300 transition">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 mb-2 flex items-start gap-3">
+            <span class="text-brand-600 font-extrabold">Q1</span>
+            <span>GEO 是什么？邻里GEO 做什么？</span>
+          </h3>
+          <p class="text-base text-slate-600 leading-relaxed m-0">
             GEO（Generative Engine Optimization）是面向 AI 搜索和大模型答案的优化工作。邻里GEO 帮助企业建设品牌答案源，让企业信息更容易被 AI 理解、引用和推荐。
           </p>
         </div>
 
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Q2：GEO 和 SEO 有什么区别？</h3>
-          <p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-brand-300 transition">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 mb-2 flex items-start gap-3">
+            <span class="text-brand-600 font-extrabold">Q2</span>
+            <span>GEO 和 SEO 有什么区别？</span>
+          </h3>
+          <p class="text-base text-slate-600 leading-relaxed m-0">
             SEO 更关注搜索结果页的排名、收录和点击。GEO 更关注 AI 如何理解、引用、比较和推荐品牌。它会同时处理品牌定义、答案源内容、FAQ、结构化数据、第三方证据和 AI 可见性监测。
           </p>
         </div>
 
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Q3：企业为什么现在应该开始做 GEO？</h3>
-          <p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-brand-300 transition">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 mb-2 flex items-start gap-3">
+            <span class="text-brand-600 font-extrabold">Q3</span>
+            <span>企业为什么现在应该开始做 GEO？</span>
+          </h3>
+          <p class="text-base text-slate-600 leading-relaxed m-0">
             AI 搜索正在成为用户获取信息和做购买决策的新入口。越早建立企业在 AI 生态中的信息资产，越容易形成行业认知优势。GEO 不是一次性的营销动作，而是企业未来数字竞争力的一部分。
           </p>
         </div>
 
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Q4：GEO 多久可以看到效果？</h3>
-          <p>
-            GEO 是企业长期数字资产建设过程，通常分阶段体现效果。<br>
-            第一阶段（1个月左右）：完成 AI搜索现状分析、用户问法研究、品牌知识体系规划。<br>
-            第二阶段（2-3个月）：建立内容资产、优化企业信息结构、增加AI可识别内容。<br>
-            第三阶段（3-6个月及以后）：持续观察 AI 提及、引用、推荐情况，并进行迭代优化。<br>
-            具体周期会受到行业竞争、企业基础信息量、内容积累程度影响。
-          </p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-brand-300 transition">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 mb-2 flex items-start gap-3">
+            <span class="text-brand-600 font-extrabold">Q4</span>
+            <span>GEO 多久可以看到效果？</span>
+          </h3>
+          <div class="text-base text-slate-600 leading-relaxed space-y-1.5 m-0">
+            <p>GEO 是企业长期数字资产建设过程，通常分阶段体现效果：</p>
+            <p>• <strong>第一阶段（1个月左右）</strong>：完成 AI 搜索现状分析、用户问法研究、品牌知识体系规划。</p>
+            <p>• <strong>第二阶段（2-3个月）</strong>：建立内容资产、优化企业信息结构、增加 AI 可识别内容。</p>
+            <p>• <strong>第三阶段（3-6个月及以后）</strong>：持续观察 AI 提及、引用、推荐情况，并进行迭代优化。</p>
+          </div>
         </div>
 
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Q5：GEO 适合哪些企业？</h3>
-          <p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-brand-300 transition">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 mb-2 flex items-start gap-3">
+            <span class="text-brand-600 font-extrabold">Q5</span>
+            <span>GEO 适合哪些企业？</span>
+          </h3>
+          <p class="text-base text-slate-600 leading-relaxed m-0">
             GEO 更适合以下类型企业：B2B企业、制造业企业、SaaS和软件企业、企业服务公司、高客单价产品企业、专业咨询机构，以及希望提升品牌影响力的企业。尤其是客户购买前会进行大量研究、比较和咨询的行业，GEO 价值更加明显。
           </p>
         </div>
 
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Q6：GEO 是否需要修改企业官网？</h3>
-          <p>
-            通常需要。<br>
-            传统企业官网更多面向人工浏览，而 AI 更需要结构化、明确的信息。<br>
-            GEO 优化通常会调整产品表达方式、服务页面结构、FAQ内容、案例展示方式和行业解决方案页面，让企业信息更容易被 AI 获取和理解。
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-brand-300 transition">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 mb-2 flex items-start gap-3">
+            <span class="text-brand-600 font-extrabold">Q6</span>
+            <span>GEO 是否需要修改企业官网？</span>
+          </h3>
+          <p class="text-base text-slate-600 leading-relaxed m-0">
+            通常需要。传统企业官网更多面向人工浏览，而 AI 更需要结构化、明确的信息。GEO 优化通常会调整产品表达方式、服务页面结构、FAQ内容、案例展示方式和行业解决方案页面，让企业信息更容易被 AI 获取和理解。
           </p>
         </div>
 
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Q7：GEO 服务如何衡量效果？</h3>
-          <p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-brand-300 transition">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 mb-2 flex items-start gap-3">
+            <span class="text-brand-600 font-extrabold">Q7</span>
+            <span>GEO 服务如何衡量效果？</span>
+          </h3>
+          <p class="text-base text-slate-600 leading-relaxed m-0">
             GEO 效果通常通过多个指标综合评估。AI曝光指标包括：品牌出现次数、AI推荐频率、不同问题覆盖情况；内容指标包括：核心问题覆盖率、内容引用情况、信息完整度；商业指标包括：品牌搜索增长、咨询线索变化、高意向客户触达。GEO 不是单一排名项目，而是一套企业AI时代的信息影响力建设体系。
           </p>
         </div>
 
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Q8：邻里GEO 会承诺让 AI 一定推荐某个品牌吗？</h3>
-          <p>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-brand-300 transition">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 mb-2 flex items-start gap-3">
+            <span class="text-brand-600 font-extrabold">Q8</span>
+            <span>邻里GEO 会承诺让 AI 一定推荐某个品牌吗？</span>
+          </h3>
+          <p class="text-base text-slate-600 leading-relaxed m-0">
             不会。AI 答案受模型、检索系统、语料、用户问题和实时信息影响，任何确定推荐承诺都不可靠。邻里GEO 能做的是降低模型理解成本，提升品牌信息的清晰度、可信度、可引用性和长期监测能力。
           </p>
         </div>
