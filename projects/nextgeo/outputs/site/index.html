@@ -68,7 +68,9 @@
         "name": "邻里GEO",
         "url": "https://nextgeo.baicl.cc/",
         "description": "AI 正在成为新的企业入口。邻里GEO 帮助企业建立 AI 能理解、验证和推荐的品牌知识基础设施。",
-        "inLanguage": "zh-CN"
+        "publisher": {
+          "@id": "https://nextgeo.baicl.cc/#organization"
+        }
       },
       {
         "@type": "FAQPage",
@@ -111,7 +113,7 @@
             "name": "Q5：为什么徐州本地与制造业企业更应该抢先做 GEO？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "徐州是工程机械之都与先进制造重镇，拥有大量高客单价 B2B 制造企业。采购商在做千万级选型前会深入使用 AI 调研比较。通过深耕“徐州GEO”与地域实体拓扑，本地企业能以极低阻力垄断本地大模型首位推荐。"
+              "text": "徐州是工程机械之都与先进制造重镇，拥有大量高客单价 B2B 制造企业。采购商在做大额选型前会深入使用 AI 调研比较。通过深耕“徐州GEO”与地域实体拓扑，本地企业能以极低阻力垄断本地大模型首位推荐。"
             }
           },
           {
@@ -158,45 +160,49 @@
               300: '#d8b4fe',   // 紫色边框
               400: '#c084fc',   // 头像光环紫
               500: '#a855f7',   // 小毛驴 AI 活力亮紫
-              600: '#9333ea',   // 主品牌紫色
-              700: '#7e22ce',   // 深紫文本 / 悬停
-              800: '#6b21a8',   // 强调深紫
-              900: '#581c87',   // 极深紫
-              950: '#3b0764'    // 午夜紫黑
+              600: '#9333ea',   // 主按键与高亮紫
+              700: '#7e22ce',   // 重点文字深紫
+              800: '#6b21a8',   // 标题沉稳紫
+              900: '#581c87',   // 最深紫
             }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
           }
         }
       }
     }
   </script>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background-color: #fcfaff;
-    }
-  </style>
 </head>
-<body class="text-slate-800 antialiased selection:bg-brand-600 selection:text-white">
+<body class="bg-brand-50 text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
 
-  <!-- 顶部导航栏 (融入老白头像 Logo 与小毛驴 AI 紫色调) -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3 group">
+  <!-- 顶部微公告条 (大号清晰排版) -->
+  <div class="bg-gradient-to-r from-brand-900 via-brand-800 to-indigo-900 text-brand-100 text-xs sm:text-sm py-2 px-4 text-center tracking-wide border-b border-brand-700/50">
+    <span class="inline-flex items-center gap-2 font-medium">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      邻里GEO 全案增长架构已发布：打造 AI 能直接理解、引用与推荐的企业级答案源基础设施
+    </span>
+  </div>
+
+  <!-- 顶部导航栏 (全栈统一大尺寸与高清晰度) -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3.5 group">
         <!-- 真实人物头像 Logo -->
         <div class="relative">
-          <img src="assets/logo.jpg" alt="老白 / 邻里GEO" class="w-10 h-10 rounded-full border-2 border-brand-400 shadow-sm object-cover group-hover:scale-105 transition duration-200">
-          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white"></span>
+          <img src="assets/logo.jpg" alt="老白 / 邻里GEO" class="w-12 h-12 rounded-full border-2 border-brand-400 shadow-sm object-cover group-hover:scale-105 transition duration-200">
+          <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
-          <div class="font-black text-base text-slate-900 leading-none flex items-center">
-            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-2">邻里GEO</span>
           </div>
-          <div class="text-[11px] text-slate-500 tracking-tight mt-1">中文企业级GEO方法研究与实战打样 · 主理人老白</div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1.5">中文企业级GEO方法研究与实战打样 · 主理人老白</div>
         </div>
       </a>
 
-      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-        <a href="#about" class="text-brand-700 font-semibold hover:text-brand-600 transition">首页</a>
+      <nav class="hidden md:flex items-center gap-8 text-base font-semibold text-slate-600">
+        <a href="/" class="text-brand-700 font-black hover:text-brand-600 transition border-b-2 border-brand-600 pb-1">首页</a>
         <a href="#core-value" class="hover:text-brand-600 transition">核心价值</a>
         <a href="#workflow" class="hover:text-brand-600 transition">四步闭环</a>
         <a href="#canonical" class="hover:text-brand-600 transition">定义页体系</a>
@@ -205,98 +211,104 @@
       </nav>
 
       <div class="flex items-center gap-3">
-        <a href="tel:13150568888" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-xs font-bold shadow-sm shadow-brand-500/20 transition">
+        <a href="tel:13150568888" class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-sm font-bold shadow-md shadow-brand-500/20 transition">
           <span>📞 咨询老白: 13150568888</span>
         </a>
-        <a href="#contact" class="inline-flex sm:hidden items-center px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-semibold">
+        <a href="#contact" class="inline-flex sm:hidden items-center px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-bold">
           联系老白
         </a>
       </div>
     </div>
   </header>
 
-  <!-- 首屏 Hero 区域 (小毛驴 AI 紫色调 + 提问卡片) -->
-  <section class="relative pt-14 pb-20 px-4 sm:px-6 max-w-6xl mx-auto">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+  <!-- 首屏 Hero 区域 (全栈统一大字号、高气场、强说服力) -->
+  <section class="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+      <!-- 左侧核心文案 -->
       <div class="lg:col-span-7">
         <!-- 标签胶囊 -->
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-100/80 border border-brand-300/80 text-brand-700 text-xs font-bold mb-5 tracking-wide">
-          <span class="w-2 h-2 rounded-full bg-brand-600 animate-pulse"></span>
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-100/90 border border-brand-300 text-brand-800 text-xs sm:text-sm font-extrabold mb-6 tracking-wider uppercase">
+          <span class="w-2.5 h-2.5 rounded-full bg-brand-600 animate-pulse"></span>
           GENERATIVE ENGINE OPTIMIZATION (GEO)
         </div>
-        <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
-          AI 正在成为新的企业入口
+
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.12] mb-6">
+          <span class="block">AI 正在成为</span>
+          <span class="text-brand-700 block mt-1">新的企业入口</span>
         </h1>
 
-        <!-- 对话筛选卡片 (小毛驴 AI 柔和紫色调卡片) -->
-        <div class="bg-white rounded-2xl p-6 sm:p-7 border border-brand-200 shadow-sm mb-8 space-y-4 relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-brand-500 to-brand-700"></div>
-          <p class="text-slate-600 text-sm leading-relaxed">
+        <!-- 对话筛选卡片 (大号清晰文字，投屏演示零压力) -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-brand-300 shadow-md shadow-brand-500/5 mb-8 space-y-5 relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-brand-500 via-brand-600 to-indigo-600"></div>
+          
+          <p class="text-lg sm:text-xl text-slate-700 font-medium leading-relaxed">
             用户正在从传统搜索网页与翻阅链接，转向直接向 AI 提问与索要明确答案。
           </p>
-          <div class="bg-brand-50/60 rounded-xl p-4 border border-brand-200/80">
-            <div class="text-xs font-extrabold text-brand-800 uppercase tracking-wider mb-2.5">当企业决策者直接询问 AI：</div>
-            <ul class="space-y-2 text-sm text-slate-700 font-medium">
-              <li class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+
+          <div class="bg-brand-50/90 rounded-2xl p-5 sm:p-6 border border-brand-200">
+            <div class="text-sm sm:text-base font-extrabold text-brand-800 uppercase tracking-wider mb-3">当企业决策者直接询问 AI：</div>
+            <ul class="space-y-3 text-base sm:text-lg text-slate-800 font-bold">
+              <li class="flex items-center gap-3">
+                <span class="w-2 h-2 rounded-full bg-brand-600 shrink-0"></span>
                 “徐州企业想做 AI 搜索大模型推荐找谁？”
               </li>
-              <li class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+              <li class="flex items-center gap-3">
+                <span class="w-2 h-2 rounded-full bg-brand-600 shrink-0"></span>
                 “徐州有哪些专业的企业级 GEO 服务团队？”
               </li>
-              <li class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+              <li class="flex items-center gap-3">
+                <span class="w-2 h-2 rounded-full bg-brand-600 shrink-0"></span>
                 “机械制造与 B2B 企业怎么让 DeepSeek 推荐我们的产品？”
               </li>
             </ul>
           </div>
-          <p class="text-slate-900 font-bold text-sm">
+
+          <p class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             AI 正在替采购方完成第一轮筛选与对比决策。
           </p>
-          <p class="text-slate-600 text-sm leading-relaxed">
-            <strong class="text-brand-700 font-bold">邻里GEO（NextGEO）</strong> 帮助徐州及高客单价 B2B 企业建立 AI 能理解、验证和推荐的品牌知识基础设施，让企业在 AI 搜索时代获得新的商业增长入口。
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
+            <strong class="text-brand-700 font-black">邻里GEO（NextGEO）</strong> 帮助徐州及高客单价 B2B 企业建立 AI 能理解、验证和推荐的品牌知识基础设施，让企业在 AI 搜索时代获得新的商业增长入口。
           </p>
         </div>
 
         <!-- 动作按钮 -->
         <div class="flex flex-wrap items-center gap-4">
-          <a href="services/" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-bold text-sm shadow-md shadow-brand-500/25 transition">
+          <a href="services/" class="px-8 py-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-black text-base shadow-lg shadow-brand-500/25 transition transform hover:-translate-y-0.5">
             查看 NextGEO 服务方案
           </a>
-          <a href="#about" class="px-6 py-3 rounded-xl bg-white hover:bg-brand-50 border border-brand-200 text-brand-800 font-bold text-sm transition">
+          <a href="#about" class="px-8 py-4 rounded-xl bg-white hover:bg-brand-50 border-2 border-brand-200 text-brand-900 font-black text-base shadow-sm transition">
             了解主理人老白背景
           </a>
         </div>
       </div>
 
-      <!-- 右侧 AI 平台生态卡片 (对标 DeepGEO 原生图案 + 25KB WebP 极速直出 + 小毛驴紫微质感卡片) -->
+      <!-- 右侧 AI 平台生态卡片 (对标 deep-geo.cn 原生图案 + 25KB WebP 极速直出 + 大卡片质感) -->
       <div class="lg:col-span-5 flex flex-col items-center justify-center">
-        <div class="w-full max-w-[460px] bg-white rounded-3xl p-6 sm:p-7 border border-brand-200/90 shadow-xl shadow-brand-500/5 hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-300 relative group">
+        <div class="w-full max-w-[480px] bg-white rounded-3xl p-8 border-2 border-brand-300 shadow-2xl shadow-brand-500/10 transition-all duration-300 relative group">
           <!-- 顶部生态状态指示 -->
-          <div class="flex items-center justify-between mb-4 pb-3 border-b border-brand-100/80">
-            <div class="flex items-center gap-2">
-              <span class="relative flex h-2.5 w-2.5">
+          <div class="flex items-center justify-between mb-5 pb-4 border-b border-brand-100">
+            <div class="flex items-center gap-2.5">
+              <span class="relative flex h-3 w-3">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-600"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-brand-600"></span>
               </span>
-              <span class="text-xs font-extrabold text-slate-800 tracking-wider uppercase">AI Search Ecosystem</span>
+              <span class="text-sm font-black text-slate-900 tracking-wider uppercase">AI Search Ecosystem</span>
             </div>
-            <span class="text-[11px] font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-200/80">
+            <span class="text-xs sm:text-sm font-extrabold text-brand-700 bg-brand-100 px-3 py-1 rounded-full border border-brand-200">
               8大主流模型答案源
             </span>
           </div>
 
           <!-- 核心 8 大平台矩阵示意图 (现代 WebP 格式，仅 25KB，极速首屏直出) -->
-          <figure class="relative overflow-hidden rounded-2xl bg-slate-50/50 p-2 border border-brand-100/50 flex items-center justify-center">
+          <figure class="relative overflow-hidden rounded-2xl bg-slate-50/60 p-3 border border-brand-100 flex items-center justify-center">
             <picture class="w-full block">
               <source srcset="assets/ai-platforms-cn.webp" type="image/webp">
               <img 
                 src="assets/ai-platforms-cn.webp" 
                 alt="通义千问、文心一言、讯飞星火、豆包、DeepSeek、Kimi、智谱清言、腾讯元宝等国产主流大模型矩阵" 
                 class="w-full h-auto aspect-square object-contain transform group-hover:scale-[1.02] transition-transform duration-300"
-                width="420"
-                height="420"
+                width="440"
+                height="440"
                 loading="eager"
                 fetchpriority="high"
                 decoding="async">
@@ -304,321 +316,397 @@
           </figure>
 
           <!-- 底部权威因子与指标背书 -->
-          <div class="mt-4 pt-3.5 border-t border-brand-100/80 flex items-center justify-between text-[11px] text-slate-500">
-            <span class="flex items-center gap-1.5 text-brand-700 font-bold">
+          <div class="mt-5 pt-4 border-t border-brand-100 flex items-center justify-between text-xs sm:text-sm font-bold text-slate-600">
+            <span class="flex items-center gap-1.5 text-brand-700 font-black">
               <svg class="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
               </svg>
               普林斯顿 9 因子标准注入
             </span>
-            <span class="text-slate-400 font-medium tracking-tight">100% 结构化语料直达</span>
+            <span class="text-slate-500 font-medium font-mono">100% 结构化语料直达</span>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 核心价值 (Core Value) -->
-  <section id="core-value" class="py-16 bg-white border-y border-brand-200/70">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="max-w-2xl mb-12">
-        <div class="text-xs font-extrabold text-brand-600 uppercase tracking-wider mb-2">Core Value</div>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">为什么 GEO 对品牌至关重要</h2>
-        <p class="text-slate-600 text-sm mt-3 leading-relaxed">
+  <!-- 核心价值 (Core Value) - 大字号与大卡片排版 -->
+  <section id="core-value" class="py-20 bg-white border-y border-brand-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mb-14">
+        <div class="text-sm font-extrabold text-brand-700 uppercase tracking-widest mb-3">Core Value</div>
+        <h2 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-5">为什么 GEO 对品牌至关重要</h2>
+        <p class="text-lg sm:text-xl text-slate-600 leading-relaxed">
           AI 搜索正在把用户的搜索、比较和决策压缩成一次对话。邻里GEO 关注的不是短期黑盒排名技巧，而是品牌能否在 AI 答案中被看见、被说对、被采信。
         </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- 价值 1 -->
-        <div class="p-7 rounded-2xl bg-brand-50/40 border border-brand-200/90 hover:border-brand-500 hover:shadow-md hover:shadow-brand-100/50 transition duration-200">
-          <div class="text-xs font-black uppercase tracking-wider text-brand-700 mb-2">Brand Visibility</div>
-          <h3 class="text-lg font-bold text-slate-900 mb-3">让品牌进入 AI 候选集合</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            当采购方直接向大模型询问推荐、对比和解决方案时，企业首先要被识别为清晰实体，并稳定出现在目标品类与竞品对比的核心候选集。
-          </p>
-        </div>
+        <article class="p-8 sm:p-9 rounded-2xl bg-brand-50/40 border border-brand-200 hover:border-brand-500 hover:shadow-xl hover:shadow-brand-100/50 transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-black uppercase tracking-widest text-brand-700 mb-3">Brand Visibility</div>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mb-4 tracking-tight">让品牌进入 AI 候选集合</h3>
+            <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+              当采购方直接向大模型询问推荐、对比和解决方案时，企业首先要被识别为清晰实体，并稳定出现在目标品类与竞品对比的核心候选集。
+            </p>
+          </div>
+          <div class="pt-6 mt-6 border-t border-brand-200/80 text-sm font-extrabold text-brand-700">
+            优先卡位第一轮筛选 →
+          </div>
+        </article>
 
         <!-- 价值 2 -->
-        <div class="p-7 rounded-2xl bg-brand-50/40 border border-brand-200/90 hover:border-brand-500 hover:shadow-md hover:shadow-brand-100/50 transition duration-200">
-          <div class="text-xs font-black uppercase tracking-wider text-brand-700 mb-2">Brand Cognition</div>
-          <h3 class="text-lg font-bold text-slate-900 mb-3">减少错误描述和能力偏移</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            AI 会综合全网信息生成答案。GEO 要做的是统一定义、技术参数、能力边界与可信证据链，彻底杜绝大模型胡言乱语与恶意唱衰。
-          </p>
-        </div>
+        <article class="p-8 sm:p-9 rounded-2xl bg-brand-50/40 border border-brand-200 hover:border-brand-500 hover:shadow-xl hover:shadow-brand-100/50 transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-black uppercase tracking-widest text-brand-700 mb-3">Brand Cognition</div>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mb-4 tracking-tight">减少错误描述和能力偏移</h3>
+            <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+              AI 会综合全网信息生成答案。GEO 要做的是统一定义、技术参数、能力边界与可信证据链，彻底杜绝大模型胡言乱语与恶意唱衰。
+            </p>
+          </div>
+          <div class="pt-6 mt-6 border-t border-brand-200/80 text-sm font-extrabold text-brand-700">
+            消除大模型虚假幻觉 →
+          </div>
+        </article>
 
         <!-- 价值 3 -->
-        <div class="p-7 rounded-2xl bg-brand-50/40 border border-brand-200/90 hover:border-brand-500 hover:shadow-md hover:shadow-brand-100/50 transition duration-200">
-          <div class="text-xs font-black uppercase tracking-wider text-brand-700 mb-2">Growth Channel</div>
-          <h3 class="text-lg font-bold text-slate-900 mb-3">把官网建设成权威答案源</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            官网不再是死板的宣传画册，而是大模型抽取实体、案例、FAQ 事实的黄金信源。结构越清晰，越容易被大模型直接采信并附带 Citation 引用角标。
-          </p>
-        </div>
+        <article class="p-8 sm:p-9 rounded-2xl bg-brand-50/40 border border-brand-200 hover:border-brand-500 hover:shadow-xl hover:shadow-brand-100/50 transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-black uppercase tracking-widest text-brand-700 mb-3">Growth Channel</div>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mb-4 tracking-tight">把官网建设成权威答案源</h3>
+            <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+              官网不再是死板的宣传画册，而是大模型抽取实体、案例、FAQ 事实的黄金信源。结构越清晰，越容易被大模型直接采信并附带 Citation 引用角标。
+            </p>
+          </div>
+          <div class="pt-6 mt-6 border-t border-brand-200/80 text-sm font-extrabold text-brand-700">
+            获取高权重 Citation 引用 →
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- 战略流程 (Strategic Workflow - 对标 DeepGEO 四步闭环) -->
-  <section id="workflow" class="py-16 bg-brand-50/30">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="max-w-2xl mb-12">
-        <div class="text-xs font-extrabold text-brand-600 uppercase tracking-wider mb-2">Strategic Workflow</div>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">从监测到塑造，建立 AI 时代的品牌答案系统</h2>
-        <p class="text-slate-600 text-sm mt-3 leading-relaxed">
+  <!-- 战略流程 (Strategic Workflow - 对标 DeepGEO 四步闭环大字号) -->
+  <section id="workflow" class="py-20 bg-brand-50/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mb-14">
+        <div class="text-sm font-extrabold text-brand-700 uppercase tracking-widest mb-3">Strategic Workflow</div>
+        <h2 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-5">从监测到塑造，建立 AI 时代的品牌答案系统</h2>
+        <p class="text-lg sm:text-xl text-slate-600 leading-relaxed">
           我们把 GEO 拆解为标准闭环：先摸清大模型目前如何描述你，再找到断点与偏见，最后把内容、技术底座和证据链变成可量化复盘的执行流程。
         </p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="p-6 rounded-2xl bg-white border border-brand-200 shadow-xs relative">
-          <div class="text-3xl font-black text-brand-400/20 absolute top-4 right-5">01</div>
-          <span class="text-xs font-extrabold text-brand-600 block mb-1">ANCHOR</span>
-          <h3 class="text-base font-bold text-slate-900 mb-2">锚定</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            明确品牌在 AI 搜索中的核心业务品类、典型采购场景、竞品对照组与必须被标准表达的实体知识三元组。
-          </p>
-        </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- 01 锚定 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 shadow-sm relative flex flex-col justify-between hover:border-brand-500 hover:shadow-lg transition-all duration-200">
+          <div class="text-5xl font-black text-brand-200/70 absolute top-6 right-6 select-none font-mono">01</div>
+          <div>
+            <span class="text-xs font-black uppercase tracking-widest text-brand-700 bg-brand-100 px-3 py-1 rounded-full mb-3 inline-block">ANCHOR</span>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3 tracking-tight">锚定</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              明确品牌在 AI 搜索中的核心业务品类、典型采购场景、竞品对照组与必须被标准表达的实体知识三元组。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">品类边界 · 竞品对照</div>
+        </article>
 
-        <div class="p-6 rounded-2xl bg-white border border-brand-200 shadow-xs relative">
-          <div class="text-3xl font-black text-brand-400/20 absolute top-4 right-5">02</div>
-          <span class="text-xs font-extrabold text-brand-600 block mb-1">MONITOR</span>
-          <h3 class="text-base font-bold text-slate-900 mb-2">监测</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            用品牌词、品类词、对比词与本地词建立多层意图问题池，持续探测不同模型对品牌的提及率、倾向度与引用来源。
-          </p>
-        </div>
+        <!-- 02 监测 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 shadow-sm relative flex flex-col justify-between hover:border-brand-500 hover:shadow-lg transition-all duration-200">
+          <div class="text-5xl font-black text-brand-200/70 absolute top-6 right-6 select-none font-mono">02</div>
+          <div>
+            <span class="text-xs font-black uppercase tracking-widest text-brand-700 bg-brand-100 px-3 py-1 rounded-full mb-3 inline-block">MONITOR</span>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3 tracking-tight">监测</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              用品牌词、品类词、对比词与本地词建立多层意图问题池，持续探测不同模型对品牌的提及率、倾向度与引用来源。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">问题池探测 · 提及率</div>
+        </article>
 
-        <div class="p-6 rounded-2xl bg-white border border-brand-200 shadow-xs relative">
-          <div class="text-3xl font-black text-brand-400/20 absolute top-4 right-5">03</div>
-          <span class="text-xs font-extrabold text-brand-600 block mb-1">INSIGHT</span>
-          <h3 class="text-base font-bold text-slate-900 mb-2">洞察</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            深度归因大模型回答中的盲区、误读与信源缺口，研判是来自官网技术阻塞、语料结构缺失还是外部第三方信号偏差。
-          </p>
-        </div>
+        <!-- 03 洞察 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 shadow-sm relative flex flex-col justify-between hover:border-brand-500 hover:shadow-lg transition-all duration-200">
+          <div class="text-5xl font-black text-brand-200/70 absolute top-6 right-6 select-none font-mono">03</div>
+          <div>
+            <span class="text-xs font-black uppercase tracking-widest text-brand-700 bg-brand-100 px-3 py-1 rounded-full mb-3 inline-block">INSIGHT</span>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3 tracking-tight">洞察</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              深度归因大模型回答中的盲区、误读与信源缺口，研判是来自官网技术阻塞、语料结构缺失还是外部第三方信号偏差。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">断点定位 · 归因分析</div>
+        </article>
 
-        <div class="p-6 rounded-2xl bg-white border border-brand-200 shadow-xs relative">
-          <div class="text-3xl font-black text-brand-400/20 absolute top-4 right-5">04</div>
-          <span class="text-xs font-extrabold text-brand-600 block mb-1">SHAPE</span>
-          <h3 class="text-base font-bold text-slate-900 mb-2">塑造</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            全面重构官网结构化数据、/llms.txt、普林斯顿 9 因子内容与多生态母池，让品牌在 AI 答案中的表达稳定、准确、无可争议。
-          </p>
-        </div>
+        <!-- 04 塑造 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 shadow-sm relative flex flex-col justify-between hover:border-brand-500 hover:shadow-lg transition-all duration-200">
+          <div class="text-5xl font-black text-brand-200/70 absolute top-6 right-6 select-none font-mono">04</div>
+          <div>
+            <span class="text-xs font-black uppercase tracking-widest text-brand-700 bg-brand-100 px-3 py-1 rounded-full mb-3 inline-block">SHAPE</span>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3 tracking-tight">塑造</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              全面重构官网结构化数据、/llms.txt、普林斯顿 9 因子内容与多生态母池，让品牌在 AI 答案中的表达稳定、准确、无可争议。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">结构化重构 · 权威注入</div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- 优先建设的 GEO 定义与方法页 (Canonical Answers) -->
-  <section id="canonical" class="py-16 bg-white border-t border-brand-200/70">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="max-w-2xl mb-12">
-        <div class="text-xs font-extrabold text-brand-600 uppercase tracking-wider mb-2">Canonical Answers</div>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">优先建设的 GEO 定义与方法库</h2>
-        <p class="text-slate-600 text-sm mt-3 leading-relaxed">
+  <!-- 优先建设的 GEO 定义与方法页 (Canonical Answers - 字体放大、极具质感) -->
+  <section id="canonical" class="py-20 bg-white border-t border-brand-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mb-14">
+        <div class="text-sm font-extrabold text-brand-700 uppercase tracking-widest mb-3">Canonical Answers</div>
+        <h2 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-5">优先建设的 GEO 定义与方法库</h2>
+        <p class="text-lg sm:text-xl text-slate-600 leading-relaxed">
           这些长青页面用于覆盖“什么是 GEO”、“AI 搜索怎么做”、“SEO 与 GEO 的区别”等高频提问，是抢占大模型底层信源的基石。
         </p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <a href="https://nextgeo.baicl.cc/geo/seo-geo-aio-llmo-differences.html" class="p-5 rounded-2xl border border-brand-200 hover:border-brand-500 bg-white hover:shadow-md hover:shadow-brand-100/50 transition group">
-          <div class="text-xs font-bold text-brand-600 mb-1">核心认知</div>
-          <h3 class="font-bold text-slate-900 group-hover:text-brand-600 transition text-base mb-2">SEO、GEO、AIO、LLMO有什么区别</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">从网页排名时代到大模型生成时代，解析四大概念的边界与企业落地重心。</p>
-          <div class="text-[11px] text-slate-400 mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 文章 1 -->
+        <a href="https://nextgeo.baicl.cc/geo/seo-geo-aio-llmo-differences.html" class="p-8 rounded-2xl border-2 border-brand-200 hover:border-brand-500 bg-white hover:shadow-xl hover:shadow-brand-100/50 transition-all duration-300 group flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-black text-brand-700 bg-brand-100 px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">核心认知</span>
+            <h3 class="text-2xl font-black text-slate-900 group-hover:text-brand-600 transition mb-3 tracking-tight">SEO、GEO、AIO、LLMO有什么区别</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-6">从网页排名时代到大模型生成时代，解析四大概念的边界与企业落地重心。</p>
+          </div>
+          <div class="text-xs sm:text-sm text-slate-400 font-semibold pt-4 border-t border-brand-100 flex items-center justify-between">
             <span>普林斯顿 9 因子</span>
-            <span class="text-brand-600 font-semibold">阅读全文 →</span>
+            <span class="text-brand-600 font-black">阅读全文 →</span>
           </div>
         </a>
 
-        <a href="https://nextgeo.baicl.cc/geo/geo-execution-roadmap-zero-to-one.html" class="p-5 rounded-2xl border border-brand-200 hover:border-brand-500 bg-white hover:shadow-md hover:shadow-brand-100/50 transition group">
-          <div class="text-xs font-bold text-brand-600 mb-1">执行体系</div>
-          <h3 class="font-bold text-slate-900 group-hover:text-brand-600 transition text-base mb-2">GEO从0到1：一份可执行的全流程路线图</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">从体检诊断、技术底座重构到多模型监控的标准化工业级五步交付 SOP。</p>
-          <div class="text-[11px] text-slate-400 mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <!-- 文章 2 -->
+        <a href="https://nextgeo.baicl.cc/geo/geo-execution-roadmap-zero-to-one.html" class="p-8 rounded-2xl border-2 border-brand-200 hover:border-brand-500 bg-white hover:shadow-xl hover:shadow-brand-100/50 transition-all duration-300 group flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-black text-brand-700 bg-brand-100 px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">执行体系</span>
+            <h3 class="text-2xl font-black text-slate-900 group-hover:text-brand-600 transition mb-3 tracking-tight">GEO从0到1：一份可执行的全流程路线图</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-6">从体检诊断、技术底座重构到多模型监控的标准化工业级五步交付 SOP。</p>
+          </div>
+          <div class="text-xs sm:text-sm text-slate-400 font-semibold pt-4 border-t border-brand-100 flex items-center justify-between">
             <span>实战交付指南</span>
-            <span class="text-brand-600 font-semibold">阅读全文 →</span>
+            <span class="text-brand-600 font-black">阅读全文 →</span>
           </div>
         </a>
 
-        <a href="https://nextgeo.baicl.cc/geo/xuzhou-manufacturing-b2b-geo-guide.html" class="p-5 rounded-2xl border border-brand-200 hover:border-brand-500 bg-white hover:shadow-md hover:shadow-brand-100/50 transition group">
-          <div class="text-xs font-bold text-brand-600 mb-1">本地产业</div>
-          <h3 class="font-bold text-slate-900 group-hover:text-brand-600 transition text-base mb-2">徐州制造业与B2B企业GEO实战指南</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">深度结合徐州工程机械与装备制造产业链，打通外贸与国内高客单获客链路。</p>
-          <div class="text-[11px] text-slate-400 mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <!-- 文章 3 -->
+        <a href="https://nextgeo.baicl.cc/geo/xuzhou-manufacturing-b2b-geo-guide.html" class="p-8 rounded-2xl border-2 border-brand-200 hover:border-brand-500 bg-white hover:shadow-xl hover:shadow-brand-100/50 transition-all duration-300 group flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-black text-brand-700 bg-brand-100 px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">本地产业</span>
+            <h3 class="text-2xl font-black text-slate-900 group-hover:text-brand-600 transition mb-3 tracking-tight">徐州制造业与B2B企业GEO实战指南</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-6">深度结合徐州工程机械与装备制造产业链，打通外贸与国内高客单获客链路。</p>
+          </div>
+          <div class="text-xs sm:text-sm text-slate-400 font-semibold pt-4 border-t border-brand-100 flex items-center justify-between">
             <span>徐州本地标杆</span>
-            <span class="text-brand-600 font-semibold">阅读全文 →</span>
+            <span class="text-brand-600 font-black">阅读全文 →</span>
           </div>
         </a>
 
-        <a href="https://nextgeo.baicl.cc/geo/schema-markdown-ai-readable-webpage.html" class="p-5 rounded-2xl border border-brand-200 hover:border-brand-500 bg-white hover:shadow-md hover:shadow-brand-100/50 transition group">
-          <div class="text-xs font-bold text-brand-600 mb-1">技术基建</div>
-          <h3 class="font-bold text-slate-900 group-hover:text-brand-600 transition text-base mb-2">Schema与Markdown：AI读得懂的网页长什么样</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">解析 Bytespider 与 DeepSeek 抓取机制，消除 JavaScript 盲区与解析损耗。</p>
-          <div class="text-[11px] text-slate-400 mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <!-- 文章 4 -->
+        <a href="https://nextgeo.baicl.cc/geo/schema-markdown-ai-readable-webpage.html" class="p-8 rounded-2xl border-2 border-brand-200 hover:border-brand-500 bg-white hover:shadow-xl hover:shadow-brand-100/50 transition-all duration-300 group flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-black text-brand-700 bg-brand-100 px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">技术基建</span>
+            <h3 class="text-2xl font-black text-slate-900 group-hover:text-brand-600 transition mb-3 tracking-tight">Schema与Markdown：AI读得懂的网页长什么样</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-6">解析 Bytespider 与 DeepSeek 抓取机制，消除 JavaScript 盲区与解析损耗。</p>
+          </div>
+          <div class="text-xs sm:text-sm text-slate-400 font-semibold pt-4 border-t border-brand-100 flex items-center justify-between">
             <span>技术规范</span>
-            <span class="text-brand-600 font-semibold">阅读全文 →</span>
+            <span class="text-brand-600 font-black">阅读全文 →</span>
           </div>
         </a>
 
-        <a href="https://nextgeo.baicl.cc/geo/how-to-get-ai-citations-empirical-data.html" class="p-5 rounded-2xl border border-brand-200 hover:border-brand-500 bg-white hover:shadow-md hover:shadow-brand-100/50 transition group">
-          <div class="text-xs font-bold text-brand-600 mb-1">实测数据</div>
-          <h3 class="font-bold text-slate-900 group-hover:text-brand-600 transition text-base mb-2">怎么让AI引用你：主流大模型实测真相</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">基于真实多模型联网检索的数据剖析，揭秘 Citation 权威角标的底层打分逻辑。</p>
-          <div class="text-[11px] text-slate-400 mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <!-- 文章 5 -->
+        <a href="https://nextgeo.baicl.cc/geo/how-to-get-ai-citations-empirical-data.html" class="p-8 rounded-2xl border-2 border-brand-200 hover:border-brand-500 bg-white hover:shadow-xl hover:shadow-brand-100/50 transition-all duration-300 group flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-black text-brand-700 bg-brand-100 px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">实测数据</span>
+            <h3 class="text-2xl font-black text-slate-900 group-hover:text-brand-600 transition mb-3 tracking-tight">怎么让AI引用你：主流大模型实测真相</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-6">基于真实多模型联网检索的数据剖析，揭秘 Citation 权威角标的底层打分逻辑。</p>
+          </div>
+          <div class="text-xs sm:text-sm text-slate-400 font-semibold pt-4 border-t border-brand-100 flex items-center justify-between">
             <span>权威实证</span>
-            <span class="text-brand-600 font-semibold">阅读全文 →</span>
+            <span class="text-brand-600 font-black">阅读全文 →</span>
           </div>
         </a>
 
-        <div class="p-5 rounded-2xl border border-dashed border-brand-300 bg-brand-50/40 flex flex-col justify-center items-center text-center">
-          <div class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-lg mb-2">
+        <!-- 文章 6 定制卡片 -->
+        <div class="p-8 rounded-2xl border-2 border-dashed border-brand-300 bg-brand-50/50 flex flex-col justify-center items-center text-center">
+          <div class="w-14 h-14 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center font-black text-2xl mb-4 shadow-xs">
             +
           </div>
-          <h3 class="font-bold text-slate-800 text-sm mb-1">专属行业知识库定制</h3>
-          <p class="text-xs text-slate-500 max-w-xs">针对您的特定行业细分品类，定制 45+ 组真实买家决策问答矩阵。</p>
+          <h3 class="font-black text-slate-900 text-2xl mb-2">专属行业知识库定制</h3>
+          <p class="text-base text-slate-600 max-w-xs leading-relaxed">针对您的特定行业细分品类，定制 45+ 组真实买家决策问答矩阵。</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 全案服务矩阵 (Services) -->
-  <section id="services" class="py-16 bg-brand-50/30 border-t border-brand-200/70">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="max-w-2xl mb-12">
-        <div class="text-xs font-extrabold text-brand-600 uppercase tracking-wider mb-2">NextGEO Services</div>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">企业级 GEO 营销增长服务范围</h2>
-        <p class="text-slate-600 text-sm mt-3 leading-relaxed">
-          帮助企业让 AI 搜索从“不认识你”到“主动推荐你”，覆盖 6 大端到端交付模块。
-        </p>
+  <!-- 全案服务矩阵 (Services 导航板块，引导至全案服务主页) -->
+  <section id="services" class="py-20 bg-brand-50/60 border-t border-brand-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
+        <div class="max-w-3xl">
+          <div class="text-sm font-extrabold text-brand-700 uppercase tracking-widest mb-3">NextGEO Services</div>
+          <h2 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-4">企业级 GEO 营销增长服务范围</h2>
+          <p class="text-lg sm:text-xl text-slate-600 leading-relaxed">
+            帮助企业让 AI 搜索从“不认识你”到“主动推荐你”，覆盖 6 大端到端标准化交付模块。
+          </p>
+        </div>
+        <a href="services/" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white border-2 border-brand-300 text-brand-900 font-black text-base shadow-sm hover:bg-brand-50 transition shrink-0">
+          查看完整服务流程与交付样张 →
+        </a>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="p-6 rounded-2xl bg-white border border-brand-200">
-          <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-black flex items-center justify-center text-sm mb-4">01</div>
-          <h3 class="font-bold text-slate-900 text-base mb-2">问法库与场景拆解</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            围绕“客户真实会问什么”，拆解 L1 认知、L2 选型对比、L3 避坑与品牌直达的 45+ 组核心提问矩阵。
-          </p>
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 模块 1 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 font-black flex items-center justify-center text-lg mb-5 shadow-xs">01</div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">问法库与场景拆解</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              围绕“客户真实会问什么”，拆解 L1 认知、L2 选型对比、L3 避坑与品牌直达的 45+ 组核心提问矩阵。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">行业 / 地区 / 选型 / 报价</div>
+        </article>
 
-        <div class="p-6 rounded-2xl bg-white border border-brand-200">
-          <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-black flex items-center justify-center text-sm mb-4">02</div>
-          <h3 class="font-bold text-slate-900 text-base mb-2">品牌口径与知识库结构化</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            将公司介绍、产品硬核参数、行业案例、核心技术做成统一口径与可被模型抽取的标准字段与 Schema 图谱。
-          </p>
-        </div>
+        <!-- 模块 2 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 font-black flex items-center justify-center text-lg mb-5 shadow-xs">02</div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">品牌口径与知识库结构化</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              将公司介绍、产品硬核参数、行业案例、核心技术做成统一口径与可被模型抽取的标准字段与 Schema 图谱。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">参数清单 · FAQ · 边界说明</div>
+        </article>
 
-        <div class="p-6 rounded-2xl bg-white border border-brand-200">
-          <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-black flex items-center justify-center text-sm mb-4">03</div>
-          <h3 class="font-bold text-slate-900 text-base mb-2">关键内容与页面体系重组</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            基于普林斯顿 9 因子标准重构官网与专题页，使其更像干净权威的“答案卡”，而非单纯的形式化宣传。
-          </p>
-        </div>
+        <!-- 模块 3 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 font-black flex items-center justify-center text-lg mb-5 shadow-xs">03</div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">关键内容与页面体系重组</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              基于普林斯顿 9 因子标准重构官网与专题页，使其更像干净权威的“答案卡”，而非单纯的形式化宣传。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">答案卡重组 · 竞品对比页</div>
+        </article>
 
-        <div class="p-6 rounded-2xl bg-white border border-brand-200">
-          <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-black flex items-center justify-center text-sm mb-4">04</div>
-          <h3 class="font-bold text-slate-900 text-base mb-2">分发与多来源信息池借壳</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            将关键事实发布至今日头条（豆包母池）、知乎（DeepSeek池）、微信公众号（元宝独占池），形成交叉验证信源。
-          </p>
-        </div>
+        <!-- 模块 4 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 font-black flex items-center justify-center text-lg mb-5 shadow-xs">04</div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">分发与多来源信息池借壳</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              将关键事实发布至今日头条（豆包母池）、知乎（DeepSeek池）、微信公众号（元宝独占池），形成交叉验证信源。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">知乎 / 头条 / 微信全域分发</div>
+        </article>
 
-        <div class="p-6 rounded-2xl bg-white border border-brand-200">
-          <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-black flex items-center justify-center text-sm mb-4">05</div>
-          <h3 class="font-bold text-slate-900 text-base mb-2">平台提及与表达监测</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            持续追踪各大模型在不同问法下的提及率、描述倾向与引用来源，量化大模型心智渗透率 (MPI)。
-          </p>
-        </div>
+        <!-- 模块 5 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 font-black flex items-center justify-center text-lg mb-5 shadow-xs">05</div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">平台提及与表达监测</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              持续追踪各大模型在不同问法下的提及率、描述倾向与引用来源，量化大模型心智渗透率 (MPI)。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">8大模型日常监控 · 偏差预警</div>
+        </article>
 
-        <div class="p-6 rounded-2xl bg-white border border-brand-200">
-          <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-black flex items-center justify-center text-sm mb-4">06</div>
-          <h3 class="font-bold text-slate-900 text-base mb-2">动态自愈与持续热补丁迭代</h3>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            基于大模型知识半衰期衰减与竞对博弈沙盘，按月生成语料补丁，实现企业品牌答案资产的长效留存。
-          </p>
-        </div>
+        <!-- 模块 6 -->
+        <article class="p-8 rounded-2xl bg-white border-2 border-brand-200 hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 font-black flex items-center justify-center text-lg mb-5 shadow-xs">06</div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">动态自愈与持续热补丁迭代</h3>
+            <p class="text-base text-slate-600 leading-relaxed mb-4">
+              基于大模型知识半衰期衰减与竞对博弈沙盘，按月生成语料补丁，实现企业品牌答案资产的长效留存。
+            </p>
+          </div>
+          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">月度复盘 · 语料热补丁</div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- 常见问答 (FAQ - 8大核心问答，带完整结构化数据) -->
-  <section id="faq" class="py-16 bg-white border-t border-brand-200/70">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-      <div class="text-center max-w-2xl mx-auto mb-12">
-        <div class="text-xs font-extrabold text-brand-600 uppercase tracking-wider mb-2">Frequently Asked Questions</div>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">关于 GEO 的常见疑问与权威解答</h2>
-        <p class="text-slate-600 text-sm mt-3 leading-relaxed">
+  <!-- 常见问答 (FAQ - 8大核心问答，大字号排版，极易阅读) -->
+  <section id="faq" class="py-20 bg-white border-t border-brand-200/80">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <div class="text-sm font-extrabold text-brand-700 uppercase tracking-widest mb-3">Frequently Asked Questions</div>
+        <h2 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-5">关于 GEO 的常见疑问与权威解答</h2>
+        <p class="text-lg sm:text-xl text-slate-600 leading-relaxed">
           以客观、严谨的标准，为您梳理企业在布局 AI 搜索时的关键决策考量。
         </p>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-6">
         <!-- Q1 -->
-        <div class="border border-brand-200 rounded-2xl p-6 bg-brand-50/40">
-          <h3 class="text-base font-bold text-slate-900 mb-2">Q1：GEO 是什么？邻里GEO (NextGEO) 做什么？</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
+        <div class="border-2 border-brand-200 rounded-2xl p-7 sm:p-8 bg-brand-50/40 hover:border-brand-400 transition-all duration-200">
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Q1：GEO 是什么？邻里GEO (NextGEO) 做什么？</h3>
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
             GEO（Generative Engine Optimization）是面向 AI 搜索和大模型答案的优化工作。邻里GEO（NextGEO）帮助企业建设品牌答案源，让企业信息更容易被 DeepSeek、豆包、Kimi、腾讯元宝、百度文心等大模型理解、引用和推荐。
           </p>
         </div>
 
         <!-- Q2 -->
-        <div class="border border-brand-200 rounded-2xl p-6 bg-brand-50/40">
-          <h3 class="text-base font-bold text-slate-900 mb-2">Q2：GEO 和传统的 SEO 有什么区别？</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
+        <div class="border-2 border-brand-200 rounded-2xl p-7 sm:p-8 bg-brand-50/40 hover:border-brand-400 transition-all duration-200">
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Q2：GEO 和传统的 SEO 有什么区别？</h3>
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
             SEO 更关注传统搜索结果页的网页排名、收录和外链点击。GEO 则更关注大模型在生成回答时如何理解、引用、比较和推荐品牌。它处理品牌定义、答案源内容、FAQ、结构化数据、第三方证据和 AI 可见性监测。
           </p>
         </div>
 
         <!-- Q3 -->
-        <div class="border border-brand-200 rounded-2xl p-6 bg-brand-50/40">
-          <h3 class="text-base font-bold text-slate-900 mb-2">Q3：企业为什么现在应该开始做 GEO？</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
+        <div class="border-2 border-brand-200 rounded-2xl p-7 sm:p-8 bg-brand-50/40 hover:border-brand-400 transition-all duration-200">
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Q3：企业为什么现在应该开始做 GEO？</h3>
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
             AI 搜索正在迅速替代传统搜索引擎，成为高价值采购决策者获取信息和做选型对比的第一入口。越早建立企业在大模型生态中的权威信息资产，越容易形成垄断性的行业心智优势。
           </p>
         </div>
 
         <!-- Q4 -->
-        <div class="border border-brand-200 rounded-2xl p-6 bg-brand-50/40">
-          <h3 class="text-base font-bold text-slate-900 mb-2">Q4：GEO 多久可以看到效果？</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
+        <div class="border-2 border-brand-200 rounded-2xl p-7 sm:p-8 bg-brand-50/40 hover:border-brand-400 transition-all duration-200">
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Q4：GEO 多久可以看到效果？</h3>
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
             GEO 是长效数字资产建设过程：第 1 个月完成 AI 搜索现状体检、问法研究与知识库规划；第 2~3 个月重构官网底座、建立普林斯顿 9 因子内容、分发生态信息池；第 3 个月及以后即可观察到大模型提及率与引用角标显著提升。
           </p>
         </div>
 
         <!-- Q5 -->
-        <div class="border border-brand-200 rounded-2xl p-6 bg-brand-50/40">
-          <h3 class="text-base font-bold text-slate-900 mb-2">Q5：为什么徐州本地与制造业企业更应该抢先做 GEO？</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
+        <div class="border-2 border-brand-200 rounded-2xl p-7 sm:p-8 bg-brand-50/40 hover:border-brand-400 transition-all duration-200">
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Q5：为什么徐州本地与制造业企业更应该抢先做 GEO？</h3>
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
             徐州是工程机械之都与先进制造重镇，拥有大量高客单价 B2B 制造企业。采购商在做大额选型前会深入使用 AI 调研比较。通过深耕“徐州GEO”与地域实体拓扑，本地企业能以极低阻力垄断本地大模型首位推荐。
           </p>
         </div>
 
         <!-- Q6 -->
-        <div class="border border-brand-200 rounded-2xl p-6 bg-brand-50/40">
-          <h3 class="text-base font-bold text-slate-900 mb-2">Q6：做 GEO 是否需要修改企业官网？</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
+        <div class="border-2 border-brand-200 rounded-2xl p-7 sm:p-8 bg-brand-50/40 hover:border-brand-400 transition-all duration-200">
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Q6：做 GEO 是否需要修改企业官网？</h3>
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
             通常需要。传统企业官网充斥大量空洞修辞，对大模型极不友好。GEO 优化会重构产品表达方式、注入 Schema.org 微数据、提供 Clean Markdown 答案卡与权威证据链，让 AI 爬虫毫秒级解析采信。
           </p>
         </div>
 
         <!-- Q7 -->
-        <div class="border border-brand-200 rounded-2xl p-6 bg-brand-50/40">
-          <h3 class="text-base font-bold text-slate-900 mb-2">Q7：GEO 服务如何衡量效果？</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
+        <div class="border-2 border-brand-200 rounded-2xl p-7 sm:p-8 bg-brand-50/40 hover:border-brand-400 transition-all duration-200">
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Q7：GEO 服务如何衡量效果？</h3>
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
             通过三大指标综合评估：① AI 曝光指标（大模型提及次数、推荐频次、问题池覆盖率）；② 引用指标（Citation 角标捕获数、官网作为信源占比）；③ 商业指标（高质量意向询盘、大模型定向线索转化）。
           </p>
         </div>
 
         <!-- Q8 -->
-        <div class="border border-brand-200 rounded-2xl p-6 bg-brand-50/40">
-          <h3 class="text-base font-bold text-slate-900 mb-2">Q8：邻里GEO会承诺让 AI 一定推荐某个品牌吗？</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
+        <div class="border-2 border-brand-200 rounded-2xl p-7 sm:p-8 bg-brand-50/40 hover:border-brand-400 transition-all duration-200">
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Q8：邻里GEO会承诺让 AI 一定推荐某个品牌吗？</h3>
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
             不会。AI 答案受模型参数、检索链路、实时信息动态影响，任何‘100%保证推荐’均为虚假宣传。邻里GEO能做的是降低模型理解成本，提升品牌信息的清晰度、证据链权威度与长期信源权重。
           </p>
         </div>
@@ -627,42 +715,42 @@
   </section>
 
   <!-- 关于我们 & 团队主理人老白 (突显真实人物头像与温度) -->
-  <section id="about" class="py-16 bg-brand-50/40 border-t border-brand-200/70">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-      <div class="bg-white rounded-3xl p-8 sm:p-10 border border-brand-200 shadow-sm relative overflow-hidden">
-        <div class="max-w-3xl">
-          <div class="text-xs font-extrabold text-brand-600 uppercase tracking-wider mb-2">About NextGEO & Founder</div>
-          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-6">关于邻里GEO 与 主理人老白</h2>
+  <section id="about" class="py-20 bg-brand-50/60 border-t border-brand-200/80">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-3xl p-8 sm:p-14 border-2 border-brand-300 shadow-xl shadow-brand-500/5 relative overflow-hidden">
+        <div class="max-w-4xl">
+          <div class="text-sm font-extrabold text-brand-700 uppercase tracking-widest mb-3">About NextGEO & Founder</div>
+          <h2 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-8">关于邻里GEO 与 主理人老白</h2>
           
           <!-- 人物主理人卡片 -->
-          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 rounded-2xl bg-gradient-to-br from-brand-50 to-indigo-50/60 border border-brand-200 mb-6">
-            <img src="assets/logo.jpg" alt="老白 / 邻里GEO" class="w-24 h-24 rounded-full border-4 border-brand-300 shadow-md object-cover shrink-0">
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-8 p-8 rounded-2xl bg-gradient-to-br from-brand-50 to-indigo-50/70 border-2 border-brand-200 mb-8">
+            <img src="assets/logo.jpg" alt="老白 / 邻里GEO" class="w-32 h-32 sm:w-36 sm:h-36 rounded-full border-4 border-brand-400 shadow-xl object-cover shrink-0">
             <div>
-              <div class="flex items-center gap-3">
-                <span class="text-xl font-black text-slate-900">老白</span>
-                <span class="px-2.5 py-0.5 rounded-full bg-brand-600 text-white text-[11px] font-bold">主理人 / 架构师</span>
-                <span class="text-xs text-slate-500">常驻江苏徐州</span>
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="text-2xl sm:text-3xl font-black text-slate-900">老白</span>
+                <span class="px-3.5 py-1 rounded-full bg-brand-600 text-white text-xs sm:text-sm font-black">主理人 / 架构师</span>
+                <span class="text-sm font-bold text-slate-500">常驻江苏徐州 · 淮海经济区</span>
               </div>
-              <div class="text-xs font-bold text-brand-700 mt-1">资深全栈工程师 · GEO 架构师</div>
-              <p class="text-sm text-slate-600 leading-relaxed mt-2.5">
+              <div class="text-base font-extrabold text-brand-700 mt-2">资深全栈工程师 · GEO 架构师</div>
+              <p class="text-base sm:text-lg text-slate-700 leading-relaxed mt-3">
                 深耕企业数字化与搜索架构多年。主张 <strong>“像邻居一样随叫随到，带电脑现场上门梳理知识库，以可验证的代码打造企业答案源”</strong>。我们拒绝销售中介传话，坚持 100% 结构化数据落盘与源码资产全量移交。
               </p>
             </div>
           </div>
 
-          <p class="text-slate-600 text-sm leading-relaxed mb-4">
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed mb-5">
             邻里GEO（NextGEO）立足江苏徐州与淮海经济区，团队主张 <strong>“GEO 不只是文字美化，而是一套涵盖爬虫可读性、知识三元组构建、多生态分发与时序追踪的工程体系”</strong>。
           </p>
-          <p class="text-slate-600 text-sm leading-relaxed mb-6">
+          <p class="text-base sm:text-lg text-slate-700 leading-relaxed mb-8">
             我们拒绝黑盒刷量套路，坚决贯彻<strong>普林斯顿 9 因子标准</strong>，坚持 100% 结构化微数据落盘与源码移交，帮助徐州及全国制造业、高客单价 B2B 企业把官网打造成大模型时代的绝对权威答案源。
           </p>
 
-          <div id="contact" class="p-5 rounded-2xl bg-brand-100/70 border border-brand-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div id="contact" class="p-7 sm:p-8 rounded-2xl bg-brand-100/80 border-2 border-brand-300 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div>
-              <div class="text-sm font-black text-slate-900">徐州本地面对面咨询 / 全国企业级交付</div>
-              <div class="text-xs text-slate-600 mt-0.5">主理人老白：13150568888 ｜ 微信号：nextdoor8</div>
+              <div class="text-xl sm:text-2xl font-black text-slate-900">徐州本地面对面咨询 / 全国企业级交付</div>
+              <div class="text-base text-slate-700 font-bold mt-1">主理人老白：13150568888 ｜ 微信号：nextdoor8</div>
             </div>
-            <a href="tel:13150568888" class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-xs font-bold transition shadow-sm whitespace-nowrap">
+            <a href="tel:13150568888" class="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-base font-black transition shadow-lg shadow-brand-500/25 whitespace-nowrap transform hover:scale-105">
               立即致电老白
             </a>
           </div>
@@ -671,23 +759,34 @@
     </div>
   </section>
 
-  <!-- 页脚 (完备大模型协议链接，杜绝 404) -->
-  <footer class="py-10 bg-white border-t border-brand-200">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-      <div class="flex items-center gap-2.5">
-        <img src="assets/logo.jpg" alt="Logo" class="w-6 h-6 rounded-full border border-brand-300 object-cover">
-        <strong class="text-slate-800">邻里GEO (NextGEO)</strong>
-        <span class="mx-1">·</span>
-        <span>中文企业级GEO方法研究与实战打样</span>
+  <!-- 页脚 (全栈统一大尺寸、规整布局) -->
+  <footer class="py-12 bg-white border-t border-brand-200/80 text-slate-500 text-xs sm:text-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8 border-b border-brand-100">
+        <div class="flex items-center gap-3">
+          <img src="assets/logo.jpg" alt="Logo" class="w-8 h-8 rounded-full border border-brand-300 object-cover">
+          <div>
+            <strong class="text-slate-900 font-bold text-base">邻里GEO (NextGEO)</strong>
+            <span class="ml-2 text-slate-400 text-xs sm:text-sm">中文企业级GEO方法研究与实战打样</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-5 font-semibold text-sm">
+          <a href="/" class="hover:text-brand-600 transition">首页</a>
+          <span>·</span>
+          <a href="services/" class="hover:text-brand-600 transition">全案服务</a>
+          <span>·</span>
+          <a href="#contact" class="hover:text-brand-600 transition">联系老白</a>
+          <span>·</span>
+          <a href="https://nextgeo.baicl.cc/llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+          <span>·</span>
+          <a href="https://nextgeo.baicl.cc/sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+          <span>·</span>
+          <a href="https://nextgeo.baicl.cc/robots.txt" class="hover:text-brand-600 transition font-mono">robots.txt</a>
+        </div>
       </div>
-      <div class="flex items-center gap-4">
-        <a href="#contact" class="hover:text-brand-600 transition">联系我们</a>
-        <span>·</span>
-        <a href="https://nextgeo.baicl.cc/llms.txt" class="hover:text-brand-600 transition font-mono">/llms.txt</a>
-        <span>·</span>
-        <a href="https://nextgeo.baicl.cc/sitemap.xml" class="hover:text-brand-600 transition font-mono">/sitemap.xml</a>
-        <span>·</span>
-        <a href="https://nextgeo.baicl.cc/robots.txt" class="hover:text-brand-600 transition font-mono">/robots.txt</a>
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between text-slate-400 gap-4 text-xs">
+        <div>© 2026 邻里GEO (NextGEO). 本项目遵循 Princeton 9-Factor GEO 框架规范与 Clean Markdown 交付标准.</div>
+        <div>官网：<a href="https://nextgeo.baicl.cc" class="text-brand-600 hover:underline font-mono">nextgeo.baicl.cc</a> · 淮海经济区 B2B 品牌 AI 答案源基建</div>
       </div>
     </div>
   </footer>
