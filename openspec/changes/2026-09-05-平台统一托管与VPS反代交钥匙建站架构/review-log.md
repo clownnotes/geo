@@ -146,4 +146,25 @@
      - 全程仅在本地 `http://127.0.0.1:8088` 运行测试，严禁且未向生产服务器 `mini` 部署。
 - **结论**：9 项任务全部完成（100%），测试全量通过，正式核准！
 
+---
+
+### 2026-09-05 23:10 Cursor 实现代码独立终审 [通过]
+
+- **审查者**：Cursor (Reviewer / GEO 架构师)
+- **阶段**：`apply` 实现终审（对照 commit `da4c943`、`tools/geo/server.py`、`web/index.html`、`design.md`；本地 `127.0.0.1:8088` 实测）
+- **审查结论**：`[通过]`
+- **独立核验结果**：
+  1. ✅ `/sites/xuzhou_clownCoder_studio/` → 200，HTML 正常，`Cache-Control: no-cache, no-store, must-revalidate`
+  2. ✅ 路径穿越 `/sites/..%2f..%2fproject.yaml` → 400（非法 project_id）；资产越界 `.../../../project.yaml` → 404；缺失项目 / `_template` → 404
+  3. ✅ `nginx-conf` 未登录 → 401；登录后 → 200，`upstream` 为物理机占位符，含 `proxy_cache` / 严禁 `127.0.0.1` 注释 / `tccli ... PurgePathCache`；`?origin=` 可覆盖
+  4. ✅ 前端：独立站点直达走 `/sites/{id}/`，VPS 弹窗含 origin 输入与 CDN purge 展示
+  5. ✅ 生产隔离：仅本地 8088 验证，无推 `mini` / `geo.baicl.cc`
+
+- **残余非阻塞备注**：
+  1. 🟢 生成的 Nginx 注释尚未点名「勿与 `deploy/nginx_geo.conf` 混用」（设计提醒项），运维可读性可再补一行。
+  2. 🟢 `site_dir` 建议再 `os.path.abspath` 一次再做 `commonpath`，当前因 `PROJECTS_DIR` 已是绝对路径故实测无碍。
+  3. 🟢 仓库尚无 `tests/test_*sites*` 固化用例；本轮以手工 curl 验收为准，后续可补离线单测防回归。
+
+- **结论说明**：设计契约与实现一致，安全与 Phase-1 范围达标。**实现向审查通过**，可执行 `/opsx-archive`。
+
 

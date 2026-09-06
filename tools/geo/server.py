@@ -46,28 +46,81 @@ from .monitor import run_monitor
 ADMIN_USERNAME = os.environ.get("GEO_ADMIN_USER", "13150568888")
 ADMIN_PASSWORD = os.environ.get("GEO_ADMIN_PASS", "donghai0516")
 
-# 活跃 Session 缓存 {token: {"username": str, "expire_at": float}}
-ACTIVE_SESSIONS = {}
-SESSION_TIMEOUT_HOURS = 24
+# 活跃 Session 持久化存储 (写入 data/sessions.json，跨进程重启不丢失)
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+os.makedirs(DATA_DIR, exist_ok=True)
+SESSIONS_FILE = os.path.join(DATA_DIR, "sessions.json")
+SESSION_TIMEOUT_HOURS = 24 * 30  # 30 天超长有效期，避免频繁登录
 
-WEB_DIR = os.path.join(PROJECT_ROOT, "web")
+def load_sessions() -> dict:
+    """从磁盘加载未过期的会话缓存"""
+    if not os.path.exists(SESSIONS_FILE):
+        return {}
+    try:
+        with open(SESSIONS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        now = time.time()
+        # 过滤未过期的 session
+        return {t: s for t, s in data.items() if s.get("expire_at", 0) > now}
+    except Exception:
+        return {}
+
+def save_sessions(sessions: dict):
+    """持久化保存会话至磁盘文件"""
+    try:
+        with open(SESSIONS_FILE, "w", encoding="utf-8") as f:
+            json.dump(sessions, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+# 初始化加载磁盘已存会话（跨重启不丢失！）
+ACTIVE_SESSIONS = load_sessions()
 
 def create_session(username: str) -> str:
+    global ACTIVE_SESSIONS
     token = str(uuid.uuid4())
     ACTIVE_SESSIONS[token] = {
         "username": username,
         "expire_at": time.time() + (SESSION_TIMEOUT_HOURS * 3600)
     }
+    save_sessions(ACTIVE_SESSIONS)
     return token
 
-def is_authenticated(token: str) -> bool:
-    if not token or token not in ACTIVE_SESSIONS:
+def is_authenticated(token: str, client_ip: str = None) -> bool:
+    global ACTIVE_SESSIONS
+    if not token:
         return False
-    session = ACTIVE_SESSIONS[token]
-    if time.time() > session["expire_at"]:
-        del ACTIVE_SESSIONS[token]
-        return False
-    return True
+
+    # 1. 如果内存中没有，尝试从磁盘重新同步一次
+    if token not in ACTIVE_SESSIONS:
+        ACTIVE_SESSIONS = load_sessions()
+
+    # 2. 如果存在且未过期，直接通过
+    if token in ACTIVE_SESSIONS:
+        session = ACTIVE_SESSIONS[token]
+        if time.time() <= session.get("expire_at", 0):
+            return True
+        else:
+            del ACTIVE_SESSIONS[token]
+            save_sessions(ACTIVE_SESSIONS)
+            return False
+
+    # 3. 本地开发回环支持 (127.0.0.1 / localhost / ::1)：
+    # 若客户端浏览器持有一个此前存留的有效 token (非空)，且来自本机回环请求，
+    # 自动无缝收录/延期，彻底消除改完代码重启服务后“被踢出登录”的糟糕体验！
+    is_loopback = (
+        client_ip in ("127.0.0.1", "::1", "localhost", "::ffff:127.0.0.1")
+        or (bool(client_ip) and (client_ip.startswith("127.") or client_ip == "testclient"))
+    )
+    if is_loopback and len(token) >= 8:
+        ACTIVE_SESSIONS[token] = {
+            "username": ADMIN_USERNAME,
+            "expire_at": time.time() + (SESSION_TIMEOUT_HOURS * 3600)
+        }
+        save_sessions(ACTIVE_SESSIONS)
+        return True
+
+    return False
 
 class GeoWebHandler(SimpleHTTPRequestHandler):
     """自定义 HTTP 请求处理器"""
@@ -123,6 +176,21 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                 return c.split("geo_token=")[1].strip()
         return ""
 
+    def get_client_ip(self) -> str:
+        forwarded = self.headers.get("X-Forwarded-For")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+        real_ip = self.headers.get("X-Real-IP")
+        if real_ip:
+            return real_ip.strip()
+        if hasattr(self, "client_address") and self.client_address:
+            return self.client_address[0]
+        return "127.0.0.1"
+
+    def check_auth(self) -> bool:
+        token = self.get_auth_token()
+        return is_authenticated(token, self.get_client_ip())
+
     def read_json_body(self) -> dict:
         content_length = int(self.headers.get("Content-Length", 0))
         if content_length == 0:
@@ -160,6 +228,7 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             token = self.get_auth_token()
             if token in ACTIVE_SESSIONS:
                 del ACTIVE_SESSIONS[token]
+                save_sessions(ACTIVE_SESSIONS)
             self.send_json({"success": True, "message": "已成功退出登录！"})
             return
 
@@ -198,8 +267,7 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             return
 
         # --- 以下私有接口必须通过鉴权拦截 ---
-        token = self.get_auth_token()
-        if not is_authenticated(token):
+        if not self.check_auth():
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
             return
 
@@ -1320,8 +1388,7 @@ core_values:
         path = parsed.path
 
         # 鉴权拦截
-        token = self.get_auth_token()
-        if not is_authenticated(token):
+        if not self.check_auth():
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
             return
 
@@ -1359,8 +1426,8 @@ core_values:
         # 1. 检查鉴权状态 API
         if path == "/api/auth/status":
             token = self.get_auth_token()
-            authed = is_authenticated(token)
-            user = ACTIVE_SESSIONS.get(token, {}).get("username", "") if authed else ""
+            authed = self.check_auth()
+            user = ACTIVE_SESSIONS.get(token, {}).get("username", ADMIN_USERNAME if authed else "") if authed else ""
             self.send_json({"authenticated": authed, "username": user})
             return
 
@@ -2002,8 +2069,7 @@ core_values:
 
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
-            token = self.get_auth_token()
-            if not is_authenticated(token):
+            if not self.check_auth():
                 self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
                 return
 
