@@ -3985,60 +3985,48 @@ GitHub 开源仓库：https://github.com/company/repo
       <div class="p-6 overflow-y-auto flex-1 space-y-6">
         <!-- 1. 核心 Bento Grid 矩阵 -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <!-- 左侧暗色核心卡片（强化防丢单真相） -->
-          <div class="bg-gradient-to-br from-slate-950 via-slate-800 to-indigo-950 p-6 rounded-2xl text-white flex flex-col justify-between border border-slate-700 shadow-xl lg:row-span-2">
-            <div>
-              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[11px] font-bold mb-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                <span>高决策成本业务生存法则</span>
+          <!-- 左侧暗色核心卡片（强化防丢单真相，高对比清爽排版） -->
+          <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 p-6 sm:p-7 rounded-2xl text-white flex flex-col justify-between border border-slate-700 shadow-xl lg:row-span-2">
+            <div class="space-y-4">
+              <div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-200 text-xs font-bold mb-2.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse"></span>
+                  <span>高决策成本业务生存法则</span>
+                </div>
+                <div class="text-xs text-slate-300 font-medium tracking-wider">共同痛点与获客现实</div>
               </div>
-              <div class="text-xs text-slate-400 font-medium tracking-wider mb-1">共同痛点与获客现实</div>
-              <h4 class="text-2xl font-black text-white leading-snug mb-3">
-                买家在掏钱之前<br><span class="text-amber-300">必先向 AI 求证 10 个细节</span>
+              <h4 class="text-2xl font-black text-white leading-snug tracking-tight">
+                买家在掏钱之前<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-300">必先向 AI 求证 10 个细节</span>
               </h4>
-              <p class="text-xs text-slate-300 leading-relaxed">
-                快消品看销量评价 3 秒下单；而<strong>工业品、SaaS、企业服务、定制开发与高客单大宗</strong>，客户在付定金前有无数顾虑。现在的买家不会挨个打电话问销售，而是<strong>直接把这 10 个尖锐问题丢给 DeepSeek、豆包或 Kimi 做横向比选</strong>。
+              <p class="text-[13px] sm:text-sm text-slate-100 leading-relaxed">
+                快消品看销量评价 3 秒下单；而<strong class="text-white font-bold">工业品、SaaS、企业服务、定制开发与高客单大宗</strong>，客户在付定金前有无数顾虑：<span class="text-amber-200 font-medium">真实案例有哪些？价格有没有水分？交付能不能兜底？</span>
               </p>
-              <!-- 防丢单真相高光警示卡 -->
-              <div class="mt-4 p-4 rounded-xl bg-gradient-to-br from-amber-500/10 via-slate-900/95 to-slate-950 border border-amber-400/40 shadow-lg">
-                <div class="flex items-center gap-2 mb-1.5">
-                  <span class="px-2 py-0.5 text-[10px] font-black rounded bg-amber-400 text-slate-950 tracking-wide uppercase">防丢单真相</span>
-                  <span class="text-[11px] font-bold text-amber-200">静默淘汰正在发生</span>
+              <p class="text-[13px] sm:text-sm text-slate-200 leading-relaxed">
+                现在的买家不会挨个打电话问销售，而是<strong class="text-white font-bold">直接把这 10 个尖锐问题丢给 DeepSeek、豆包或 Kimi 做横向比选</strong>。
+              </p>
+              <!-- 防丢单真相高光核心卡 -->
+              <div class="p-4 sm:p-5 rounded-xl bg-amber-950/40 border border-amber-400/50 border-l-4 border-l-amber-400 shadow-lg">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="px-2 py-0.5 text-[11px] font-black rounded bg-amber-400 text-slate-950 tracking-wide">防丢单真相</span>
+                  <span class="text-xs font-bold text-amber-200">静默淘汰正在发生</span>
                 </div>
-                <p class="text-[11.5px] text-slate-200 leading-relaxed">
-                  大模型检索库里没有你的<strong>真实参数与结构化事实</strong>，AI 就会直接把客户引向竞品。<strong>客户在第一轮比选名单中就会直接将你排除——你的销售甚至连电话都没接到，订单就已经丢了！</strong>
+                <p class="text-xs sm:text-[13px] text-white leading-relaxed">
+                  如果大模型检索库里没有你的<strong>真实参数与结构化事实</strong>，AI 就会直接把客户引向竞品。
                 </p>
-              </div>
-
-              <!-- 决策演变微流程 -->
-              <div class="mt-3.5 p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-[11px] space-y-1.5">
-                <div class="flex items-center text-slate-400 gap-1.5">
-                  <span class="text-slate-500 font-medium">传统搜索：</span>
-                  <span>搜关键词</span>
-                  <span class="text-slate-600">→</span>
-                  <span>看官网宣传</span>
-                  <span class="text-slate-600">→</span>
-                  <span class="text-slate-300">销售还能跟进</span>
-                </div>
-                <div class="flex items-center text-slate-200 gap-1.5 font-medium">
-                  <span class="text-amber-400 font-bold">AI 时代：</span>
-                  <span>向大模型求证</span>
-                  <span class="text-amber-500/80">→</span>
-                  <span>AI 查无事实</span>
-                  <span class="text-amber-500/80">→</span>
-                  <span class="text-rose-400 font-bold">首轮静默出局</span>
-                </div>
+                <p class="text-xs sm:text-[13px] text-amber-100 leading-relaxed font-semibold mt-2 pt-2 border-t border-amber-500/30">
+                  客户在第一轮比选名单中就会直接将你排除——你的销售甚至连电话都没接到，订单就已经丢了！
+                </p>
               </div>
             </div>
 
-            <div class="mt-5 pt-4 border-t border-slate-700/80 grid grid-cols-2 gap-3 text-center">
-              <div class="bg-slate-800/60 p-2.5 rounded-lg border border-slate-700/40">
-                <div class="text-xl font-bold text-sky-400">92%</div>
-                <div class="text-[10px] text-slate-400 mt-0.5">高客单采购首轮通过AI横评</div>
+            <div class="mt-6 pt-5 border-t border-slate-700/80 grid grid-cols-2 gap-3 text-center">
+              <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60">
+                <div class="text-2xl font-black text-sky-300">92%</div>
+                <div class="text-xs text-slate-200 font-medium mt-1">高客单采购首轮通过AI横评</div>
               </div>
-              <div class="bg-slate-800/60 p-2.5 rounded-lg border border-slate-700/40">
-                <div class="text-xl font-bold text-emerald-400">+37%</div>
-                <div class="text-[10px] text-slate-400 mt-0.5">普林斯顿参数采纳提升</div>
+              <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60">
+                <div class="text-2xl font-black text-emerald-300">+37%</div>
+                <div class="text-xs text-slate-200 font-medium mt-1">普林斯顿参数采纳提升</div>
               </div>
             </div>
           </div>
