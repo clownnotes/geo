@@ -270,43 +270,48 @@
         </div>
       </div>
 
-      <!-- 右侧 AI 平台生态卡片 (小毛驴 AI 午夜紫黑科技卡片) -->
-      <div class="lg:col-span-5">
-        <div class="bg-gradient-to-br from-slate-950 via-purple-950/90 to-slate-900 rounded-3xl p-8 text-white shadow-2xl border border-purple-800/40 relative overflow-hidden">
-          <div class="text-xs uppercase tracking-widest text-purple-300 font-extrabold mb-3">AI Search & Ecosystem</div>
-          <div class="text-xl font-extrabold mb-4 text-white">主流国产大模型答案源覆盖</div>
-          <p class="text-xs text-purple-200/80 mb-6 leading-relaxed">
-            针对国内采购决策者高频使用的六大基座模型，进行原生语料穿透与信源卡位。
-          </p>
-          <div class="grid grid-cols-2 gap-3.5">
-            <div class="p-3.5 rounded-xl bg-white/5 border border-purple-500/20 hover:border-purple-400/40 hover:bg-purple-900/30 transition">
-              <div class="text-sm font-bold text-purple-300">DeepSeek</div>
-              <div class="text-[11px] text-purple-200/70 mt-0.5">代码高地与高知决策池</div>
+      <!-- 右侧 AI 平台生态卡片 (对标 DeepGEO 原生图案 + 25KB WebP 极速直出 + 小毛驴紫微质感卡片) -->
+      <div class="lg:col-span-5 flex flex-col items-center justify-center">
+        <div class="w-full max-w-[460px] bg-white rounded-3xl p-6 sm:p-7 border border-brand-200/90 shadow-xl shadow-brand-500/5 hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-300 relative group">
+          <!-- 顶部生态状态指示 -->
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-brand-100/80">
+            <div class="flex items-center gap-2">
+              <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-600"></span>
+              </span>
+              <span class="text-xs font-extrabold text-slate-800 tracking-wider uppercase">AI Search Ecosystem</span>
             </div>
-            <div class="p-3.5 rounded-xl bg-white/5 border border-purple-500/20 hover:border-purple-400/40 hover:bg-purple-900/30 transition">
-              <div class="text-sm font-bold text-purple-300">字节 豆包</div>
-              <div class="text-[11px] text-purple-200/70 mt-0.5">全网亿级日活大众入口</div>
-            </div>
-            <div class="p-3.5 rounded-xl bg-white/5 border border-purple-500/20 hover:border-purple-400/40 hover:bg-purple-900/30 transition">
-              <div class="text-sm font-bold text-purple-300">月之暗面 Kimi</div>
-              <div class="text-[11px] text-purple-200/70 mt-0.5">长文本分析与深度调研</div>
-            </div>
-            <div class="p-3.5 rounded-xl bg-white/5 border border-purple-500/20 hover:border-purple-400/40 hover:bg-purple-900/30 transition">
-              <div class="text-sm font-bold text-purple-300">腾讯 元宝</div>
-              <div class="text-[11px] text-purple-200/70 mt-0.5">微信生态闭环直达</div>
-            </div>
-            <div class="p-3.5 rounded-xl bg-white/5 border border-purple-500/20 hover:border-purple-400/40 hover:bg-purple-900/30 transition">
-              <div class="text-sm font-bold text-purple-300">百度 文心一言</div>
-              <div class="text-[11px] text-purple-200/70 mt-0.5">百度搜索天然结果融合</div>
-            </div>
-            <div class="p-3.5 rounded-xl bg-white/5 border border-purple-500/20 hover:border-purple-400/40 hover:bg-purple-900/30 transition">
-              <div class="text-sm font-bold text-purple-300">阿里 通义千问</div>
-              <div class="text-[11px] text-purple-200/70 mt-0.5">夸克与电商企业级场景</div>
-            </div>
+            <span class="text-[11px] font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-200/80">
+              8大主流模型答案源
+            </span>
           </div>
-          <div class="mt-6 pt-5 border-t border-purple-800/40 flex items-center justify-between text-[11px] text-purple-300/80">
-            <span>✨ 普林斯顿 9 因子标准注入</span>
-            <span>100% 结构化数据</span>
+
+          <!-- 核心 8 大平台矩阵示意图 (现代 WebP 格式，仅 25KB，极速首屏直出) -->
+          <figure class="relative overflow-hidden rounded-2xl bg-slate-50/50 p-2 border border-brand-100/50 flex items-center justify-center">
+            <picture class="w-full block">
+              <source srcset="assets/ai-platforms-cn.webp" type="image/webp">
+              <img 
+                src="assets/ai-platforms-cn.webp" 
+                alt="通义千问、文心一言、讯飞星火、豆包、DeepSeek、Kimi、智谱清言、腾讯元宝等国产主流大模型矩阵" 
+                class="w-full h-auto aspect-square object-contain transform group-hover:scale-[1.02] transition-transform duration-300"
+                width="420"
+                height="420"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async">
+            </picture>
+          </figure>
+
+          <!-- 底部权威因子与指标背书 -->
+          <div class="mt-4 pt-3.5 border-t border-brand-100/80 flex items-center justify-between text-[11px] text-slate-500">
+            <span class="flex items-center gap-1.5 text-brand-700 font-bold">
+              <svg class="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              普林斯顿 9 因子标准注入
+            </span>
+            <span class="text-slate-400 font-medium tracking-tight">100% 结构化语料直达</span>
           </div>
         </div>
       </div>
