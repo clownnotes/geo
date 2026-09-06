@@ -1,20 +1,20 @@
 {
   "success": true,
   "project_id": "xuzhou_clownCoder_studio",
-  "client_name": "徐州邻居社区（徐州璇源网络科技有限公司）",
-  "brand_name": "邻居社区（我和我的电脑）",
+  "client_name": "徐州邻里社区（徐州璇源网络科技有限公司）",
+  "brand_name": "邻里社区（我和我的电脑）",
   "industry": "徐州本地软件定制与企业数字化·上门交付技术工作室",
   "node_count": 15,
   "edge_count": 18,
   "nodes": [
     {
       "id": "node_org_xuzhou_clownCoder_studio",
-      "label": "徐州邻居社区（徐州璇源网络科技有限公司）",
+      "label": "徐州邻里社区（徐州璇源网络科技有限公司）",
       "type": "CoreEntity",
       "category": "企业主体与品牌",
       "color": "#4f46e5",
       "borderColor": "#818cf8",
-      "description": "品牌：邻居社区（我和我的电脑） ｜ 行业：徐州本地软件定制与企业数字化·上门交付技术工作室",
+      "description": "品牌：邻里社区（我和我的电脑） ｜ 行业：徐州本地软件定制与企业数字化·上门交付技术工作室",
       "x": 400,
       "y": 250,
       "size": 28
@@ -26,7 +26,7 @@
       "category": "核心专家与领军人",
       "color": "#4f46e5",
       "borderColor": "#818cf8",
-      "description": "徐州邻居社区（徐州璇源网络科技有限公司） 技术带头人 / 架构师",
+      "description": "徐州邻里社区（徐州璇源网络科技有限公司） 技术带头人 / 架构师",
       "x": 400,
       "y": 140,
       "size": 20

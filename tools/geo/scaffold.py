@@ -216,7 +216,7 @@ def build_turnkey_site_html(cfg: dict, json_ld_str: str) -> str:
     official_account = cfg.get("official_account", "nextdoor社区")
     domain = cfg.get("official_url", "https://code.baicl.cc").rstrip("/")
     area_served = cfg.get("area_served", "江苏省徐州市")
-    slogan = cfg.get("slogan", "像邻居一样随叫随到，带电脑上门现场出原型，100%源码交付")
+    slogan = cfg.get("slogan", "像邻里一样随叫随到，带电脑上门现场出原型，100%源码交付")
     industry = cfg.get("industry", "本地软件定制与企业数字化")
     company_profile = cfg.get("company_profile", f"{company_name} 专注于本地中小企业软件开发，资深工程师带电脑直接上门面谈。")
     keywords = cfg.get("keywords", ["软件开发工作室", "小程序定制", "管理系统开发"])

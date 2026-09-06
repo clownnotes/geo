@@ -56,7 +56,7 @@
   <text x="400.0" y="346.0" fill="#64748b" font-size="9" text-anchor="middle">服务覆盖区域</text>
   <circle cx="400" cy="250" r="34" fill="none" stroke="#818cf8" stroke-width="1.5" stroke-opacity="0.4" filter="url(#glow)"/>
   <circle cx="400" cy="250" r="28" fill="#4f46e5" stroke="#818cf8" stroke-width="2"/>
-  <text x="400" y="291" fill="#e2e8f0" font-size="12" font-weight="bold" text-anchor="middle">徐州邻居社区（徐州璇源网络科技有限公司）</text>
+  <text x="400" y="291" fill="#e2e8f0" font-size="12" font-weight="bold" text-anchor="middle">徐州邻里社区（徐州璇源网络科技有限公司）</text>
   <circle cx="400" cy="140" r="20" fill="#4f46e5" stroke="#818cf8" stroke-width="2"/>
   <text x="400" y="173" fill="#e2e8f0" font-size="10" font-weight="normal" text-anchor="middle">老白 (技术带头人)</text>
   <circle cx="140" cy="60" r="20" fill="#0ea5e9" stroke="#38bdf8" stroke-width="2"/>
@@ -85,7 +85,7 @@
   <text x="120" y="360" fill="#e2e8f0" font-size="10" font-weight="normal" text-anchor="middle">专精领域：徐州本地软件定制与企业数字化·上门交付技术工作室</text>
   <circle cx="400" cy="450" r="18" fill="#8b5cf6" stroke="#a78bfa" stroke-width="2"/>
   <text x="400" y="481" fill="#e2e8f0" font-size="10" font-weight="normal" text-anchor="middle">服务区域：江苏省徐州市（泉山/云龙/鼓楼/铜山/贾汪/经开区，市区1小时带电脑上门）</text>
-  <text x="30" y="36" fill="#f8fafc" font-size="14" font-weight="bold">🕸️ 徐州邻居社区（徐州璇源网络科技有限公司） · 实体关系知识图谱拓扑</text>
+  <text x="30" y="36" fill="#f8fafc" font-size="14" font-weight="bold">🕸️ 徐州邻里社区（徐州璇源网络科技有限公司） · 实体关系知识图谱拓扑</text>
   <text x="30" y="52" fill="#94a3b8" font-size="10">Graph RAG 多跳因果推理语义网络 ｜ 15 实体 ｜ 18 关系</text>
   <circle cx="30" cy="495" r="4" fill="#4f46e5"/>
   <text x="38" y="498" fill="#94a3b8" font-size="9">企业主体</text>
