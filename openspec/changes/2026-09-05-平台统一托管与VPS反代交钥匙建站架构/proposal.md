@@ -10,20 +10,23 @@
    - 彻底剔除现代城市停电的过度设计。
 
 ## What Changes (改动了什么)
-1. **服务端内置静态托管宿主引擎**：
-   - 本地 Python Web 服务直接支持多租户站点对外路由：通过 `/sites/{project_id}/` 直接在线访问任意客户的 100% 静态交钥匙官网。
-   - 开发预览态强制 `no-cache` 与动态时间戳，改动素材与重新编译后秒级显现，杜绝缓存死锁。
-2. **VPS 反向代理配置与 CDN 联动指引一键生成**：
-   - 针对使用独立 VPS 或独立公网节点的客户，自动生成适配的 Nginx 反向代理配置（带 Let's Encrypt 证书挂载、静态资源转发规则与腾讯云 CDN 接入指南）。
+1. **服务端内置安全多租户静态托管宿主引擎**：
+   - 本地 Python Web 服务直接支持多租户站点对外路由：通过 `/sites/{project_id}/` 直接在线访问任意已就绪客户的 100% 静态交钥匙官网。
+   - **严格安全边界**：强制限制仅访问 `outputs/site/` 白名单文件，严禁路径穿越（`..`）及泄露 `project.yaml` 或原始素材；未编译站点返回 404。
+   - **防缓存死锁**：开发预览态强制 `Cache-Control: no-cache, no-store, must-revalidate`，改动素材重新编译后秒级显现。
+2. **VPS 反向代理配置与 CDN 联动指引生成接口**：
+   - 新增鉴权接口 `GET /api/projects/{id}/site/nginx-conf`（必须 Bearer Token 鉴权），自动生成适配的 Nginx 反向代理配置片段（明确区分公网可路由回源地址与本机联调地址，附带腾讯云 CDN Purge 指引）。
 3. **阶段二工作台中控台升级**：
    - 状态面板改造为【在线发布与运维中枢】：展示当前在线直链、绑定独立域名指引、VPS 反代一键配置复制、以及全量源码离线备份。
+4. **明确 Phase-1 阶段边界**：
+   - Phase-1 聚焦于：安全本地纯净宿主 + Nginx 生产反代配置生成 + 腾讯云 CDN 命令行一键刷新指引（暂不引入腾讯云 SDK 远程 API 强依赖）。
 
 ## Capabilities (新增或修改的对外能力)
-- `GET /sites/{project_id}/`：直接提供无任何 iframe 调试外框的客户专属纯净官网（生产级路由）。
-- `GET /api/projects/{id}/site/nginx-conf`：一键获取此项目专属的 VPS Nginx 反代与腾讯云 CDN 适配配置。
+- `GET /sites/{project_id}/`：直接提供无任何 iframe 调试外框的客户专属纯净官网（生产级路由，带防穿越沙箱与 no-cache）。
+- `GET /api/projects/{id}/site/nginx-conf`：必须鉴权，一键获取此项目专属的 VPS Nginx 反代与腾讯云 CDN 适配配置。
 - 前端阶段二：集成“在线运行状态卡”、“开发态实时直链”、“VPS反代一键配置”、“离线源码包导出”。
 
 ## Impact (受影响的部分)
-- `tools/geo/server.py`：新增 `/sites/{project_id}/` 纯净多租户静态托管路由与 Nginx 配置导出接口。
+- `tools/geo/server.py`：新增沙箱隔离的 `/sites/{project_id}/` 纯净多租户静态托管路由与鉴权的 Nginx 配置导出接口。
 - `web/index.html`：阶段二卡片升级为集“在线直访 + 反代配置 + 离线备份”于一体的综合发布中枢。
 - `docs/strategy/server-architecture.md`：建立正式战略规范。
