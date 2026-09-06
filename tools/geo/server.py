@@ -22,7 +22,7 @@ import shutil
 import threading
 import re
 from datetime import datetime
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import HTTPServer, ThreadingHTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, unquote
 
 from .utils import (
@@ -121,19 +121,29 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         """转义 YAML 字符串值中的双引号与反斜杠，防止生成格式破损的 project.yaml"""
         return str(val).replace("\\", "\\\\").replace('"', '\\"')
 
+    def handle_one_request(self):
+        try:
+            super().handle_one_request()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
     def send_json(self, data: dict, status: int = 200, headers: dict = None):
-        body = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        if headers:
-            for k, v in headers.items():
-                self.send_header(k, v)
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            body = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            if headers:
+                for k, v in headers.items():
+                    self.send_header(k, v)
+            self.end_headers()
+            if self.command != "HEAD":
+                self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -1591,6 +1601,14 @@ core_values:
                     mime_type = "application/ld+json; charset=utf-8" if target_rel.endswith(".jsonld") else "application/json; charset=utf-8"
                 elif target_rel.endswith(".svg"):
                     mime_type = "image/svg+xml"
+                elif target_rel.endswith(".jpg") or target_rel.endswith(".jpeg"):
+                    mime_type = "image/jpeg"
+                elif target_rel.endswith(".png"):
+                    mime_type = "image/png"
+                elif target_rel.endswith(".webp"):
+                    mime_type = "image/webp"
+                elif target_rel.endswith(".ico"):
+                    mime_type = "image/x-icon"
                 elif target_rel.endswith(".css"):
                     mime_type = "text/css; charset=utf-8"
                 elif target_rel.endswith(".js"):
@@ -3745,9 +3763,10 @@ server {{
         super().do_GET()
 
 def start_server(port: int = 8080):
-    """启动 Web 服务"""
+    """启动 Web 服务（支持高并发多线程与长连接）"""
     server_address = ("", port)
-    httpd = HTTPServer(server_address, GeoWebHandler)
+    httpd = ThreadingHTTPServer(server_address, GeoWebHandler)
+    httpd.daemon_threads = True
     
     print_banner("GEO 商业交付 Web 管理端已成功启动")
     print_success(f"管理端地址: http://localhost:{port}")
