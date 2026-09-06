@@ -4638,11 +4638,18 @@ GitHub 开源仓库：https://github.com/company/repo
     // 检查登录态
     async function checkAuthStatus() {
       try {
-        const res = await fetch('/api/auth/status', {
+        const isManual = sessionStorage.getItem('geo_manual_logout') === '1';
+        const url = isManual ? '/api/auth/status?manual=1' : '/api/auth/status';
+        const res = await fetch(url, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
         if (data.authenticated) {
+          if (data.token && data.token !== currentAuthToken) {
+            currentAuthToken = data.token;
+            localStorage.setItem('geo_token', data.token);
+          }
+          sessionStorage.removeItem('geo_manual_logout');
           showDashboard(data.username);
         } else {
           showLogin();
@@ -4708,6 +4715,7 @@ GitHub 开源仓库：https://github.com/company/repo
         if (data.success) {
           currentAuthToken = data.token;
           localStorage.setItem('geo_token', data.token);
+          sessionStorage.removeItem('geo_manual_logout');
           document.getElementById('login-password').value = '';
           showDashboard(data.username);
           showToast('欢迎登录 GEO 交付工作台！');
@@ -4725,6 +4733,7 @@ GitHub 开源仓库：https://github.com/company/repo
 
     // 退出处理
     async function handleLogout() {
+      sessionStorage.setItem('geo_manual_logout', '1');
       await fetch('/api/auth/logout', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${currentAuthToken}` }

@@ -172,6 +172,27 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             return self.client_address[0]
         return "127.0.0.1"
 
+    def is_local_dev_request(self) -> bool:
+        """
+        判断是否为本机开发环境直连访问 (127.0.0.1 / localhost 且非公网 VPS/CDN 代理转发)
+        严格保证公网域名 (如 geo.baicl.cc) 或公网反代无法利用此免登
+        """
+        # 1. 如果有反向代理标记 (公网 VPS / CDN 转发)，绝对不是本地直连开发
+        if self.headers.get("X-Forwarded-For") or self.headers.get("X-Real-IP") or self.headers.get("X-Forwarded-Host"):
+            return False
+
+        # 2. 检查 Host 是否为 localhost 或 127.0.0.1
+        host = self.headers.get("Host", "").split(":")[0].lower()
+        if host not in ("localhost", "127.0.0.1", "::1"):
+            return False
+
+        # 3. 检查底层客户端直连 IP
+        client_ip = self.client_address[0] if hasattr(self, "client_address") and self.client_address else ""
+        if client_ip in ("127.0.0.1", "::1", "localhost", "::ffff:127.0.0.1") or client_ip.startswith("127."):
+            return True
+
+        return False
+
     def check_auth(self) -> bool:
         token = self.get_auth_token()
         return is_authenticated(token)
@@ -1412,8 +1433,22 @@ core_values:
         if path == "/api/auth/status":
             token = self.get_auth_token()
             authed = self.check_auth()
+
+            # 本机开发直连专属免密畅通保障 (仅限 localhost/127.0.0.1 本地访问)：
+            # 若尚未登录或重启后 Token 未同步，自动无缝派发本地管理员 Token，
+            # 彻底避免写代码改代码后反复弹窗输入账密的干扰！
+            if not authed and self.is_local_dev_request():
+                query = parse_qs(parsed.query)
+                if query.get("manual", ["0"])[0] != "1":
+                    token = create_session(ADMIN_USERNAME)
+                    authed = True
+
             user = ACTIVE_SESSIONS.get(token, {}).get("username", ADMIN_USERNAME if authed else "") if authed else ""
-            self.send_json({"authenticated": authed, "username": user})
+            self.send_json({
+                "authenticated": authed,
+                "username": user,
+                "token": token if authed else ""
+            })
             return
 
         # 2. 行业对标数据接口 (公开)
