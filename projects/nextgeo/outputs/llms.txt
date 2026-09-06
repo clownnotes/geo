@@ -17,6 +17,7 @@
 
 ## 二、六大全案服务模块
 
+- [关于我们与前阿里核心团队](https://nextgeo.baicl.cc/about/): 前阿里14年技术专家与资深全栈团队创立，关于我们、核心成员履历、普林斯顿9因子标准与服务主张。
 - [问法库与意图拆解](https://nextgeo.baicl.cc/services#intent): 针对行业采购决策路径，裂变 L1 认知、L2 决策、L3 行动的真实提问矩阵。
 - [品牌口径与知识库结构化](https://nextgeo.baicl.cc/services#knowledge): 沉淀统一标准口径、事实参数、案例证据与 Schema.org 实体图谱。
 - [关键内容与普林斯顿9因子页面体系](https://nextgeo.baicl.cc/services#content): 重组官网与核心专题页，打造大模型极易抽取的答案卡。
