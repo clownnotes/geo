@@ -1567,9 +1567,12 @@ core_values:
                 self.wfile.write(b"404 Not Found: Project site not found or not compiled")
                 return
 
-            # 如果没有子路径，默认返回 index.html
+            # 如果没有子路径或子路径为目录，自动解析 index.html
             target_rel = sub_asset if sub_asset else "index.html"
             target_path = os.path.abspath(os.path.join(site_dir, target_rel))
+            if os.path.isdir(target_path):
+                target_path = os.path.join(target_path, "index.html")
+                target_rel = os.path.relpath(target_path, site_dir)
 
             # 安全沙箱校验 2: 严格防止路径穿越 (..)，必须归属于 site_dir 内部
             try:
