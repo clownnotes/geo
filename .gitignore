@@ -11,3 +11,8 @@ data/sessions.json
 gateway/config.yaml
 gateway/gateway
 .env
+.vitepress/cache/
+.vitepress/dist/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+

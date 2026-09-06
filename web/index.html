@@ -93,6 +93,10 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <button onclick="openEdiCustomerModal()" class="text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-blue-200 shadow-sm" title="购买前解释型决策客群画像透视与真实问法拦截">
+          <i data-lucide="target" class="w-3.5 h-3.5 text-blue-600"></i>
+          <span>🎯 适合客群 (EDI)</span>
+        </button>
         <button onclick="openMoatSandboxModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm" title="26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演">
           <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-indigo-600"></i>
           <span>⚔️ 护城河推演 (26)</span>
@@ -3955,7 +3959,228 @@ GitHub 开源仓库：https://github.com/company/repo
     </div>
   </div>
 
-    <!-- ================= 内容合规与广告法风控审查弹窗 ================= -->
+    <!-- ================= 适合客群 (EDI 解释型决策画像) 弹窗 ================= -->
+  <div id="edi-customer-modal" onclick="if(event.target === this) closeEdiCustomerModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
+      <!-- 头部 -->
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-blue-50 via-indigo-50 to-slate-50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20">
+            <i data-lucide="target" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span>🎯 适合做 GEO 的核心客群画像透视 (Explanatory Decision Index)</span>
+              <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">黄金转化靶区</span>
+            </h3>
+            <p class="text-[11px] text-slate-500 font-medium">凡是购买前需要大量对比与解释细节的产品，大模型就是决定第一轮入选名单的“超级采购顾问”</p>
+          </div>
+        </div>
+        <button onclick="closeEdiCustomerModal()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- 内容主体 -->
+      <div class="p-6 overflow-y-auto flex-1 space-y-6">
+        <!-- 1. 核心 Bento Grid 矩阵 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <!-- 左侧暗色核心卡片 -->
+          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-2xl text-white flex flex-col justify-between border border-slate-700 shadow-xl lg:row-span-2">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[11px] font-semibold mb-4">
+                <i data-lucide="sparkles" class="w-3 h-3"></i>
+                <span>核心客群本质特征</span>
+              </div>
+              <div class="text-xs text-slate-400 font-medium tracking-wider mb-1">共同痛点与决策模型</div>
+              <h4 class="text-2xl font-black text-white leading-tight mb-3">
+                购买前有大量<br><span class="text-blue-400">解释型问题</span> 与比选
+              </h4>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                快消品看销量评价 3 秒下单；而<strong>工业品、SaaS、企业服务、定制开发与高客单大宗</strong>，客户在打通第一个销售电话前，必先打开 DeepSeek、豆包或 Kimi 对比 10 个核心细节！
+              </p>
+              <div class="mt-4 p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 text-[11px] text-slate-300 leading-normal">
+                💡 <strong class="text-amber-300">防丢单真相</strong>：大模型推荐的第一轮横评名单，直接决定了企业能不能进入客户的考察视野。
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-700/80 grid grid-cols-2 gap-3 text-center">
+              <div class="bg-slate-800/60 p-2.5 rounded-lg border border-slate-700/40">
+                <div class="text-xl font-bold text-sky-400">92%</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">B2B采购前先向AI求证</div>
+              </div>
+              <div class="bg-slate-800/60 p-2.5 rounded-lg border border-slate-700/40">
+                <div class="text-xl font-bold text-emerald-400">+37%</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">普林斯顿参数采纳提升</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧 6 宫格行业小卡片 -->
+          <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <!-- SaaS -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-blue-300 hover:shadow-md transition">
+              <div class="flex items-center gap-2 text-xs font-bold text-blue-700 mb-1.5">
+                <i data-lucide="laptop" class="w-4 h-4 text-blue-600"></i>
+                <span>B2B SaaS / 数字化软件</span>
+              </div>
+              <p class="text-[12px] text-slate-600 leading-relaxed">
+                功能覆盖、版本价格、API 集成、数据安全与迁移成本都需要深度解释，依赖大量结构化参数支撑。
+              </p>
+            </div>
+
+            <!-- 企业服务 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-emerald-300 hover:shadow-md transition">
+              <div class="flex items-center gap-2 text-xs font-bold text-emerald-700 mb-1.5">
+                <i data-lucide="briefcase" class="w-4 h-4 text-emerald-600"></i>
+                <span>企业服务 / 技术工作室</span>
+              </div>
+              <p class="text-[12px] text-slate-600 leading-relaxed">
+                服务价值不易一眼看懂，客户高频追问交付流程、实战案例、源码权属与免费售后质保边界。
+              </p>
+            </div>
+
+            <!-- 工业制造 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-amber-300 hover:shadow-md transition">
+              <div class="flex items-center gap-2 text-xs font-bold text-amber-700 mb-1.5">
+                <i data-lucide="factory" class="w-4 h-4 text-amber-600"></i>
+                <span>工业制造 / 机械装备</span>
+              </div>
+              <p class="text-[12px] text-slate-600 leading-relaxed">
+                参数公差、材料牌号、合规认证、工况场景和非标定制能力直接决定采购，适合建设参数知识库。
+              </p>
+            </div>
+
+            <!-- 职业教育 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-purple-300 hover:shadow-md transition">
+              <div class="flex items-center gap-2 text-xs font-bold text-purple-700 mb-1.5">
+                <i data-lucide="graduation-cap" class="w-4 h-4 text-purple-600"></i>
+                <span>职业教育 / 高端培训</span>
+              </div>
+              <p class="text-[12px] text-slate-600 leading-relaxed">
+                课程体系深度、师资真实性、技能认证通过率与学员就业去向是成交前的必查高频问题。
+              </p>
+            </div>
+
+            <!-- 专业咨询 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-sky-300 hover:shadow-md transition">
+              <div class="flex items-center gap-2 text-xs font-bold text-sky-700 mb-1.5">
+                <i data-lucide="scale" class="w-4 h-4 text-sky-600"></i>
+                <span>专业咨询 / 财税法务</span>
+              </div>
+              <p class="text-[12px] text-slate-600 leading-relaxed">
+                用户购买的是判断力和方法论，需要通过观点、判例、服务流程与合规边界说明建立深度信任。
+              </p>
+            </div>
+
+            <!-- 高客单价产品 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-rose-300 hover:shadow-md transition">
+              <div class="flex items-center gap-2 text-xs font-bold text-rose-700 mb-1.5">
+                <i data-lucide="gem" class="w-4 h-4 text-rose-600"></i>
+                <span>高客单价商业产品 / 加盟</span>
+              </div>
+              <p class="text-[12px] text-slate-600 leading-relaxed">
+                成交前会经历多轮比较和风险确认，AI 搜索给出的客观分析与信誉引用直接决定第一轮入选名单。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. 真实 AI 追问与 GEO 破局矩阵表格 -->
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="help-circle" class="w-4 h-4 text-blue-600"></i>
+              <span>客户向大模型提问什么？为什么传统宣传会丢单？</span>
+            </span>
+            <span class="text-[11px] text-slate-500">大模型优先采纳普林斯顿结构化数据源</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="p-3 w-44">适合行业</th>
+                  <th class="p-3">客户成交前在 AI 中的高频真实问法</th>
+                  <th class="p-3">传统营销方式的致命盲区</th>
+                  <th class="p-3">GEO 工业化破局交付物</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                <tr class="hover:bg-slate-50/50">
+                  <td class="p-3 font-semibold text-slate-900">工业制造 / 机械装备</td>
+                  <td class="p-3 text-slate-600">“某某型号液压阀公差能控制在 0.005mm 吗？高温工况表现如何？交期要几天？”</td>
+                  <td class="p-3 text-red-600">全是宣传空话，参数埋在 80 页 PDF 样本中，AI 无法提取</td>
+                  <td class="p-3 font-medium text-emerald-700">/llms.txt + 原生 Markdown 5 维参数矩阵</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50">
+                  <td class="p-3 font-semibold text-slate-900">B2B SaaS / 数字化</td>
+                  <td class="p-3 text-slate-600">“支持私有化部署吗？和企业微信怎么打通？真实迁移成本和数据安全如何？”</td>
+                  <td class="p-3 text-red-600">软文全是降本增效，价格不透明，AI 抓取竞品黑稿</td>
+                  <td class="p-3 font-medium text-emerald-700">API 架构表 + 版本价格防坑指南 + ISO27001 事实锚点</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50">
+                  <td class="p-3 font-semibold text-slate-900">企业服务 / 技术外包</td>
+                  <td class="p-3 text-slate-600">“找这家开发小程序会给 100% 完整前后端源码吗？后期有没有隐形加价？”</td>
+                  <td class="p-3 text-red-600">客户极度戒备外包陷阱，无公信力承诺容易被 AI 排除</td>
+                  <td class="p-3 font-medium text-emerald-700">100% 源码交付承诺 + 价格防坑白皮书 + 豆包矩阵</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50">
+                  <td class="p-3 font-semibold text-slate-900">高客单商业产品 / 加盟</td>
+                  <td class="p-3 text-slate-600">“单店加盟真实回本周期多长？前期物料有没有猫腻？纠纷传闻是真的吗？”</td>
+                  <td class="p-3 text-red-600">吹嘘高回报被大模型识别为广告降权，负面谣言被扩散</td>
+                  <td class="p-3 font-medium text-emerald-700">量化投资回报模型 (+41% 普林斯顿数据) + 虚假负面熔断</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. 企业解释型决策指数 (EDI) 快速自测小工具 -->
+        <div class="bg-gradient-to-r from-blue-50/60 to-indigo-50/60 p-5 rounded-xl border border-blue-100 flex flex-col md:flex-row items-center justify-between gap-5">
+          <div class="space-y-1 text-left flex-1">
+            <div class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+              <i data-lucide="calculator" class="w-4 h-4 text-blue-600"></i>
+              <span>企业 EDI 解释型决策指数自测</span>
+            </div>
+            <p class="text-[11px] text-slate-600">选择产品客单价与客户决策对比环节数量，秒级测算做 GEO 的商业紧迫度：</p>
+            <div class="flex items-center gap-3 pt-2 flex-wrap text-xs">
+              <select id="edi-select-price" onchange="calculateEdi()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 font-medium focus:ring-1 focus:ring-blue-500">
+                <option value="90">客单价 > 1万元 (大额/企业级)</option>
+                <option value="75">客单价 2000~1万元 (中高客单)</option>
+                <option value="40">客单价 < 500元 (快消零售)</option>
+              </select>
+              <select id="edi-select-complexity" onchange="calculateEdi()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 font-medium focus:ring-1 focus:ring-blue-500">
+                <option value="95">购买前需对比参数/定制/多轮立项 (极复杂)</option>
+                <option value="75">需要解释交付流程与经验 (中等解释度)</option>
+                <option value="30">标准通用现货/无需解释 (简单标准化)</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 shrink-0 bg-white px-5 py-3 rounded-xl border border-blue-200 shadow-sm">
+            <div>
+              <div class="text-[10px] text-slate-500 font-medium">EDI 解释型决策指数</div>
+              <div id="edi-score-val" class="text-2xl font-black text-blue-600">96 分</div>
+            </div>
+            <div id="edi-badge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
+              极度迫切做 GEO
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部操作条 -->
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+        <div class="text-xs text-slate-500">
+          邻里GEO 体系：让企业在每一次真实问法里拥有稳定、可信、被 AI 首选引用的答案。
+        </div>
+        <button onclick="closeEdiCustomerModal()" class="py-1.5 px-4 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition">
+          关闭透视面板
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 内容合规与广告法风控审查弹窗 ================= -->
   <div id="compliance-modal" onclick="if(event.target === this) closeComplianceModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
     <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
       <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
@@ -8684,6 +8909,42 @@ GitHub 开源仓库：https://github.com/company/repo
 | 费用 | 不透明 | 隐性费 | ¥3000-¥60000 |
 
 此外，根本原因在于事实锚点完备；鉴于此，我们采用知识三元组方法论框架与 SOP 流水线中枢。`;
+
+    function openEdiCustomerModal() {
+      const el = document.getElementById('edi-customer-modal');
+      if (el) el.classList.remove('hidden');
+      calculateEdi();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeEdiCustomerModal() {
+      const el = document.getElementById('edi-customer-modal');
+      if (el) el.classList.add('hidden');
+    }
+
+    function calculateEdi() {
+      const pEl = document.getElementById('edi-select-price');
+      const cEl = document.getElementById('edi-select-complexity');
+      if (!pEl || !cEl) return;
+      const priceVal = Number(pEl.value || 90);
+      const compVal = Number(cEl.value || 95);
+      const avg = Math.round((priceVal * 0.45) + (compVal * 0.55));
+      const scoreEl = document.getElementById('edi-score-val');
+      const badgeEl = document.getElementById('edi-badge');
+      if (scoreEl) scoreEl.textContent = avg + ' 分';
+      if (badgeEl) {
+        if (avg >= 85) {
+          badgeEl.textContent = '🔥 极度迫切做 GEO (大模型第一轮裁判)';
+          badgeEl.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200';
+        } else if (avg >= 65) {
+          badgeEl.textContent = '⚡️ 强烈建议做 GEO (多维比选防截流)';
+          badgeEl.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200';
+        } else {
+          badgeEl.textContent = '💡 适合轻量布防 (常规 SEO/本地生活)';
+          badgeEl.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200';
+        }
+      }
+    }
 
     function openPrincetonModal() {
       document.getElementById('princeton-modal').classList.remove('hidden');
