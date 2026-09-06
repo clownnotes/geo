@@ -100,46 +100,94 @@
     }
   </script>
   <style>
-    /* 对标 deep-geo.cn 的排版规范：呼吸感、优雅阅读线宽、精致边框 */
+    /* 1:1 对标 deep-geo.cn 的全局工程背景：精密点阵与放射光晕，解决电脑端空洞留白 */
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+
+    /* 严谨 1180px 标准容器宽度 (对标 deep-geo.cn .container) */
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* 文本排版阶梯 */
     .prose-geo p {
       margin-bottom: 1.25rem;
       color: #374151; /* slate-700 */
       font-size: 1.0625rem; /* 17px */
       line-height: 1.85;
+      max-width: 980px;
     }
     .prose-geo strong {
       color: #111827; /* slate-900 */
       font-weight: 700;
     }
+
+    /* 对标 deep-geo.cn 的全宽内容表格 */
     .content-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9375rem;
       text-align: left;
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
     }
     .content-table th {
-      background-color: #f9fafb;
-      color: #111827;
+      background-color: #f8fafc;
+      color: #0f172a;
       font-weight: 700;
-      padding: 0.875rem 1.25rem;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 14px 18px;
+      border-bottom: 1px solid #e2e8f0;
     }
     .content-table td {
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid #f3f4f6;
-      color: #4b5563;
+      padding: 14px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
       line-height: 1.65;
+      vertical-align: top;
     }
     .content-table tr:hover td {
       background-color: #faf5ff;
     }
+
+    /* 对标 deep-geo.cn 的核心团队卡片框 */
+    .about-founder-panel {
+      padding: clamp(28px, 4vw, 44px);
+      border: 1px solid rgba(147, 51, 234, 0.22);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(243, 232, 255, 0.8)),
+                  linear-gradient(90deg, rgba(147, 51, 234, 0.06) 1px, transparent 0) 0 0 / 32px 32px,
+                  linear-gradient(0deg, rgba(147, 51, 234, 0.06) 1px, transparent 0) 0 0 / 32px 32px;
+    }
+
+    /* 对标 deep-geo.cn .geo-loop 6步闭环 */
+    .geo-loop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    @media (max-width: 768px) {
+      .geo-loop-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
-<body class="bg-brand-50/50 text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
 
-  <!-- 顶部导航栏 (对标 deep-geo.cn 极简素雅结构) -->
+  <!-- 顶部导航栏 (1180px 黄金标尺对齐) -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <div class="geo-container h-20 flex items-center justify-between">
       <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
           <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
@@ -171,27 +219,30 @@
     </div>
   </header>
 
-  <!-- 主体内容区域 (对标 deep-geo.cn 文章流式优雅版心 max-w-4xl) -->
-  <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+  <!-- 主体内容区域 (1180px 满幅排版，PC端从容饱满) -->
+  <main class="flex-grow py-12 w-full">
 
-    <!-- 顶部 Hero 面包屑与标题 (极简克制) -->
-    <div class="pb-8 mb-6">
-      <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+    <!-- 1. 顶部 Hero (对标 deep-geo.cn .article-hero) -->
+    <section class="geo-container pb-10">
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
         <a href="../" class="hover:text-brand-600">邻里GEO</a>
-        <span>·</span>
+        <span>/</span>
         <span class="text-slate-600">关于</span>
       </div>
-      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
+
+      <h1 class="text-4xl sm:text-6xl lg:text-[68px] font-black text-slate-900 tracking-tight leading-[1.12] mb-6 max-w-[930px]">
         关于 邻里GEO
       </h1>
-      <p class="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-3xl">
-        邻里GEO 是一家专注企业级 GEO 的 AI 增长服务团队，帮助企业建立 AI 能理解、验证、引用和推荐的品牌答案源。
-      </p>
-    </div>
 
-    <!-- 一、我们是谁 -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <h2 class="text-2xl font-black text-slate-900 mb-4">一、我们是谁</h2>
+      <!-- 核心陈述卡片 (对标 deep-geo.cn .article-hero__description) -->
+      <div class="max-w-[820px] p-5 sm:p-6 rounded-lg border border-brand-300/60 border-l-4 border-l-brand-600 bg-gradient-to-r from-brand-100/70 to-white/90 shadow-sm text-slate-800 text-lg sm:text-xl leading-relaxed">
+        邻里GEO 是一家专注企业级 GEO 的 AI 增长服务团队，帮助企业建立 AI 能理解、验证、引用和推荐的品牌答案源。
+      </div>
+    </section>
+
+    <!-- 2. 一、我们是谁 -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">一、我们是谁</h2>
       <p>
         邻里GEO 由<strong>前阿里技术专家团队</strong>与资深全栈实战团队创立，专注于<strong>企业级 GEO（Generative Engine Optimization）解决方案</strong>。
       </p>
@@ -204,76 +255,68 @@
       <p>
         目前，邻里GEO 已帮助多个工业制造与高客单价 B2B 领域的企业提升 <strong>AI 搜索可见性</strong>，探索品牌增长的新路径。
       </p>
-      <p class="text-sm text-slate-500 bg-white p-4 rounded-xl border border-slate-200/80">
-        <strong class="text-slate-800">品牌答案源（Brand Answer Source）</strong>：指企业能够被各大 AI 模型理解、验证和引用的一整套信息基础，包括统一品牌定义、产品资料、案例证据、FAQ 内容、技术结构和第三方信号。
-      </p>
-    </section>
-
-    <!-- 二、核心团队 (Core Team) -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <div class="text-xs font-bold text-brand-600 uppercase tracking-widest mb-1">Core Team</div>
-      <h2 class="text-2xl font-black text-slate-900 mb-4">核心团队</h2>
-      <p>
-        邻里GEO 团队来自阿里巴巴产品、技术、企业服务和商业增长背景，长期关注企业信息结构、内容增长、AI 可访问性和复杂服务的产品化表达。
-      </p>
-      <p>
-        我们把 GEO 看作企业级系统工程，而不是单次内容项目：既要理解 AI 如何读取信息，也要理解客户如何搜索、比较、质疑和做购买决策。
-      </p>
-
-      <!-- 3 位成员优雅行式卡片 (清爽不臃肿) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose mt-6 mb-2">
-        
-        <!-- 可兼 -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div>
-            <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-100 border border-brand-200 mb-4 flex items-center justify-center">
-              <img src="../assets/team/kejian.webp" alt="可兼" class="w-full h-full object-cover">
-            </div>
-            <h3 class="text-lg font-black text-slate-900">可兼</h3>
-            <div class="text-xs font-bold text-brand-700 mt-0.5 mb-3">邻里GEO CTO，前阿里资深技术专家</div>
-            <p class="text-sm text-slate-600 leading-relaxed">
-              阿里巴巴任职 14 年技术专家，曾负责阿里直播平台与阿里开放平台核心系统建设，1688 名企采购创始人。关注网站结构、数据链路、AI 可访问性和自动化工作流。
-            </p>
-          </div>
-        </div>
-
-        <!-- 老白 -->
-        <div class="bg-white rounded-2xl p-6 border border-brand-300 shadow-xs flex flex-col justify-between relative">
-          <div class="absolute top-4 right-4">
-            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">常驻徐州</span>
-          </div>
-          <div>
-            <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-100 border-2 border-brand-400 mb-4 flex items-center justify-center">
-              <img src="../assets/logo.jpg" alt="老白" class="w-full h-full object-cover">
-            </div>
-            <h3 class="text-lg font-black text-slate-900">老白（白糜）</h3>
-            <div class="text-xs font-bold text-brand-700 mt-0.5 mb-3">邻里GEO 发起人，资深全栈工程师</div>
-            <p class="text-sm text-slate-600 leading-relaxed">
-              国内首代淘宝客站长，惠发现创始人。2017 阿里“百城千校”苏北负责人，支付宝服务商。常驻徐州，主张像邻里一样随叫随到，现场带电脑上门梳理知识库。
-            </p>
-          </div>
-        </div>
-
-        <!-- 一枫 -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div>
-            <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-100 border border-brand-200 mb-4 flex items-center justify-center">
-              <img src="../assets/team/yifeng.webp" alt="一枫" class="w-full h-full object-cover">
-            </div>
-            <h3 class="text-lg font-black text-slate-900">一枫</h3>
-            <div class="text-xs font-bold text-brand-700 mt-0.5 mb-3">邻里GEO 商业合伙人，前阿里营销专家</div>
-            <p class="text-sm text-slate-600 leading-relaxed">
-              前阿里巴巴本地生活高级专家、微盟集团高级总监、支付宝认证讲师。操盘过亿级商业零售案例，关注用户决策路径、商机转化漏斗和 GEO 商业闭环。
-            </p>
-          </div>
-        </div>
-
+      <div class="text-sm sm:text-base text-slate-600 bg-white/80 p-5 rounded-xl border border-slate-200/90 max-w-[980px] leading-relaxed">
+        <strong class="text-slate-900">品牌答案源（Brand Answer Source）</strong>：指企业能够被各大 AI 模型理解、验证和引用的一整套信息基础，包括统一品牌定义、产品资料、案例证据、FAQ 内容、技术结构和第三方信号。
       </div>
     </section>
 
-    <!-- 三、AI 对品牌的理解至关重要 -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <h2 class="text-2xl font-black text-slate-900 mb-4">二、AI 对品牌的理解至关重要</h2>
+    <!-- 3. 二、核心团队 (对标 deep-geo.cn .about-founder 满屏结构) -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12">
+      <div class="about-founder-panel">
+        <div class="max-w-[980px] mb-8">
+          <div class="text-xs font-bold text-brand-600 uppercase tracking-widest mb-1.5">Core Team</div>
+          <h2 class="text-2xl sm:text-4xl font-black text-slate-900 mb-4">核心团队</h2>
+          <p class="text-slate-600 text-base sm:text-lg leading-relaxed">
+            邻里GEO 团队来自阿里巴巴产品、技术、企业服务和商业增长背景，长期关注企业信息结构、内容增长、AI 可访问性和复杂服务的产品化表达。
+          </p>
+          <p class="text-slate-600 text-base sm:text-lg leading-relaxed mt-2">
+            我们把 GEO 看作企业级系统工程，而不是单次内容项目：既要理解 AI 如何读取信息，也要理解客户如何搜索、比较、质疑和做购买决策。
+          </p>
+        </div>
+
+        <!-- 3 位成员卡片网格 (1180px 满幅三栏对齐) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- 可兼 -->
+          <div class="bg-white rounded-xl p-7 border border-slate-200/90 shadow-xs flex flex-col items-center text-center">
+            <img src="../assets/team/kejian.webp" alt="可兼" class="w-28 h-28 rounded-full border border-brand-200 object-cover mb-4 shadow-xs">
+            <strong class="text-2xl font-black text-slate-900 block mb-1">可兼</strong>
+            <span class="text-xs font-bold text-brand-700 block mb-3">邻里GEO CTO，前阿里资深技术专家</span>
+            <p class="text-sm text-slate-600 leading-relaxed text-left sm:text-center">
+              阿里巴巴任职 14 年技术专家，曾负责阿里直播平台与阿里开放平台核心系统建设，1688 名企采购创始人。关注网站结构、数据链路、AI 可访问性和自动化工作流。
+            </p>
+          </div>
+
+          <!-- 老白 -->
+          <div class="bg-white rounded-xl p-7 border-2 border-brand-400/80 shadow-md flex flex-col items-center text-center relative">
+            <div class="absolute top-3.5 right-3.5">
+              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">常驻徐州</span>
+            </div>
+            <img src="../assets/logo.jpg" alt="老白" class="w-28 h-28 rounded-full border-2 border-brand-400 object-cover mb-4 shadow-sm">
+            <strong class="text-2xl font-black text-slate-900 block mb-1">老白（白糜）</strong>
+            <span class="text-xs font-bold text-brand-700 block mb-3">邻里GEO 发起人，资深全栈工程师</span>
+            <p class="text-sm text-slate-600 leading-relaxed text-left sm:text-center">
+              国内首代淘宝客站长，惠发现创始人。2017 阿里“百城千校”苏北负责人，支付宝服务商。常驻徐州，主张像邻里一样随叫随到，现场带电脑上门梳理知识库。
+            </p>
+          </div>
+
+          <!-- 一枫 -->
+          <div class="bg-white rounded-xl p-7 border border-slate-200/90 shadow-xs flex flex-col items-center text-center">
+            <img src="../assets/team/yifeng.webp" alt="一枫" class="w-28 h-28 rounded-full border border-brand-200 object-cover mb-4 shadow-xs">
+            <strong class="text-2xl font-black text-slate-900 block mb-1">一枫</strong>
+            <span class="text-xs font-bold text-brand-700 block mb-3">邻里GEO 商业合伙人，前阿里营销专家</span>
+            <p class="text-sm text-slate-600 leading-relaxed text-left sm:text-center">
+              前阿里巴巴本地生活高级专家、微盟集团高级总监、支付宝官方认证讲师。操盘过亿级商业零售案例，关注用户决策路径、商机转化漏斗和 GEO 商业闭环。
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 三、AI 对品牌的理解至关重要 -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">二、AI 对品牌的理解至关重要</h2>
       <p>
         用户获取信息的方式正在变化。过去用户先搜关键词、点开网页、自己比较；现在很多判断会先交给 AI 完成。AI 会把多个来源压缩成一个回答，直接影响用户对品牌的第一印象和候选名单。
       </p>
@@ -285,20 +328,20 @@
       </p>
     </section>
 
-    <!-- 四、为什么选择 邻里GEO -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <h2 class="text-2xl font-black text-slate-900 mb-4">三、为什么选择 邻里GEO</h2>
+    <!-- 5. 四、为什么选择 邻里GEO -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">三、为什么选择 邻里GEO</h2>
       <p>
         GEO 的难点不是“多发几篇文章”，而是把企业真实能力翻译成 AI 能识别、能验证、能引用的知识资产。邻里GEO 的优势来自前阿里深厚的技术背景、产品增长经验和可复盘的方法体系。
       </p>
 
-      <div class="not-prose overflow-x-auto bg-white rounded-xl border border-slate-200 my-5 shadow-xs">
+      <div class="not-prose overflow-x-auto shadow-xs my-6">
         <table class="content-table">
           <thead>
             <tr>
-              <th class="w-1/5">比较维度</th>
-              <th class="w-2/5">普通 GEO 做法</th>
-              <th class="w-2/5 text-brand-900 bg-brand-50/50">邻里GEO 做法</th>
+              <th class="w-1/6">比较维度</th>
+              <th class="w-5/12">普通 GEO 做法</th>
+              <th class="w-5/12 text-brand-900 bg-brand-50/70">邻里GEO 做法</th>
             </tr>
           </thead>
           <tbody>
@@ -337,9 +380,9 @@
       </div>
     </section>
 
-    <!-- 五、我们的 GEO 方法体系 -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <h2 class="text-2xl font-black text-slate-900 mb-4">四、我们的 GEO 方法体系</h2>
+    <!-- 6. 五、我们的 GEO 方法体系 (对标 deep-geo.cn 6大步骤卡片) -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">四、我们的 GEO 方法体系</h2>
       <p>
         我们把 GEO 交付理解为“品牌答案源建设”：先确认 AI 现在如何理解企业，再补齐官网、内容、技术和外部平台中的关键信号，让品牌在多平台搜索和 AI 问答中逐步形成稳定认知。
       </p>
@@ -347,36 +390,42 @@
         与行业里常见的“批量发文章”不同，邻里GEO 不把 GEO 简化成内容铺量。文章只是其中一个载体，真正影响 AI 是否理解和引用品牌的，是品牌实体、问题库、知识库、内容资产、外部分发和监测复盘能否形成闭环。
       </p>
 
-      <!-- 6 步闭环列表 (对标 deep-geo.cn) -->
-      <div class="not-prose grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 my-6">
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-xs font-bold text-brand-600 mb-1">01 品牌实体</div>
-          <div class="text-sm text-slate-600">统一公司、产品、服务、行业和客户场景的标准定义。</div>
+      <!-- 6 步闭环 (1180px 满幅三栏排列) -->
+      <div class="not-prose geo-loop-grid my-6">
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-600 text-white text-xs font-black mb-3">01</div>
+          <strong class="text-lg font-black text-slate-900 block mb-1">品牌实体</strong>
+          <p class="text-sm text-slate-600 leading-relaxed">统一公司、产品、服务、行业和客户场景的标准定义。</p>
         </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-xs font-bold text-brand-600 mb-1">02 真实问法</div>
-          <div class="text-sm text-slate-600">整理用户在 AI 搜索里真正会问的推荐、选型和比较问题。</div>
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-xs font-black mb-3">02</div>
+          <strong class="text-lg font-black text-slate-900 block mb-1">真实问法</strong>
+          <p class="text-sm text-slate-600 leading-relaxed">整理用户在 AI 搜索里真正会问的推荐、选型和比较问题。</p>
         </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-xs font-bold text-brand-600 mb-1">03 知识结构</div>
-          <div class="text-sm text-slate-600">把介绍、能力、案例、流程和边界组织成可维护知识库。</div>
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-600 text-white text-xs font-black mb-3">03</div>
+          <strong class="text-lg font-black text-slate-900 block mb-1">知识结构</strong>
+          <p class="text-sm text-slate-600 leading-relaxed">把介绍、能力、案例、流程和边界组织成可维护知识库。</p>
         </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-xs font-bold text-brand-600 mb-1">04 内容资产</div>
-          <div class="text-sm text-slate-600">建设 FAQ、产品、案例、行业页和对比页等答案源内容。</div>
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-700 text-white text-xs font-black mb-3">04</div>
+          <strong class="text-lg font-black text-slate-900 block mb-1">内容资产</strong>
+          <p class="text-sm text-slate-600 leading-relaxed">建设 FAQ、产品、案例、行业页和对比页等答案源内容。</p>
         </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-xs font-bold text-brand-600 mb-1">05 多源分发</div>
-          <div class="text-sm text-slate-600">让官网、媒体、内容平台和行业目录保持一致口径。</div>
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-black mb-3">05</div>
+          <strong class="text-lg font-black text-slate-900 block mb-1">多源分发</strong>
+          <p class="text-sm text-slate-600 leading-relaxed">让官网、媒体、内容平台和行业目录保持一致口径。</p>
         </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-xs font-bold text-brand-600 mb-1">06 监测复盘</div>
-          <div class="text-sm text-slate-600">持续记录 AI 是否提到、说对、引用，以及竞品如何占位。</div>
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-600 text-white text-xs font-black mb-3">06</div>
+          <strong class="text-lg font-black text-slate-900 block mb-1">监测复盘</strong>
+          <p class="text-sm text-slate-600 leading-relaxed">持续记录 AI 是否提到、说对、引用，以及竞品如何占位。</p>
         </div>
       </div>
 
       <!-- 交付阶段表 -->
-      <div class="not-prose overflow-x-auto bg-white rounded-xl border border-slate-200 my-5 shadow-xs">
+      <div class="not-prose overflow-x-auto shadow-xs my-6">
         <table class="content-table">
           <thead>
             <tr>
@@ -411,9 +460,9 @@
       </div>
     </section>
 
-    <!-- 六、哪些行业需要 GEO -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <h2 class="text-2xl font-black text-slate-900 mb-4">五、哪些行业需要 GEO</h2>
+    <!-- 7. 六、哪些行业需要 GEO -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">五、哪些行业需要 GEO</h2>
       <p>
         邻里GEO 适合那些需要长期建立信任、持续获得高质量线索，并且希望在多个 AI 和搜索入口中被正确推荐的企业。工业制造、重工机械、B2B SaaS、企业服务、教育、咨询和高客单价产品尤其适合做 GEO，因为客户购买前通常会问大量解释型问题。
       </p>
@@ -421,7 +470,7 @@
         这类问题往往不是一个关键词能解决的，而是一组连续判断：这个品类怎么选、哪家公司更专业、产品适合什么场景、案例是否可信、价格和交付边界是什么。邻里GEO 要做的，就是让企业在这些真实问法里拥有稳定、可信、可被引用的答案。
       </p>
 
-      <div class="not-prose overflow-x-auto bg-white rounded-xl border border-slate-200 my-5 shadow-xs">
+      <div class="not-prose overflow-x-auto shadow-xs my-6">
         <table class="content-table">
           <thead>
             <tr>
@@ -455,14 +504,14 @@
       </div>
     </section>
 
-    <!-- 七、GEO 实践案例 -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <h2 class="text-2xl font-black text-slate-900 mb-4">六、GEO 实践案例</h2>
+    <!-- 8. 七、GEO 实践案例 -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">六、GEO 实践案例</h2>
       <p>
         在不能公开客户具体名称的项目中，我们通常用“行业、问题、动作、结果”来复盘。邻里GEO 关注的不是短期排名承诺，而是企业是否逐步拥有更稳定的 AI 可见性、更清晰的品牌表达和更可复用的销售内容资产。
       </p>
 
-      <div class="not-prose overflow-x-auto bg-white rounded-xl border border-slate-200 my-5 shadow-xs">
+      <div class="not-prose overflow-x-auto shadow-xs my-6">
         <table class="content-table">
           <thead>
             <tr>
@@ -496,19 +545,19 @@
       </div>
     </section>
 
-    <!-- 八、我们适合什么客户 / 不适合什么客户 -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <h2 class="text-2xl font-black text-slate-900 mb-4">七、我们适合什么客户 / 不适合什么客户</h2>
+    <!-- 9. 八、我们适合什么客户 / 不适合什么客户 -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-5">七、我们适合什么客户 / 不适合什么客户</h2>
       <p>
         邻里GEO 更适合希望在 AI 时代长期可持续建设品牌、多平台获客、持续获客的客户。我们尤其适合服务那些客户决策周期较长、购买前会反复提问、需要解释专业价值的企业。
       </p>
 
-      <div class="not-prose overflow-x-auto bg-white rounded-xl border border-slate-200 my-5 shadow-xs">
+      <div class="not-prose overflow-x-auto shadow-xs my-6">
         <table class="content-table">
           <thead>
             <tr>
-              <th class="w-1/2 text-emerald-800 bg-emerald-50/50 font-bold">适合的客户</th>
-              <th class="w-1/2 text-rose-800 bg-rose-50/50 font-bold">不适合的客户</th>
+              <th class="w-1/2 text-emerald-800 bg-emerald-50/60 font-bold">适合的客户</th>
+              <th class="w-1/2 text-rose-800 bg-rose-50/60 font-bold">不适合的客户</th>
             </tr>
           </thead>
           <tbody>
@@ -533,9 +582,9 @@
       </div>
     </section>
 
-    <!-- 九、常见问题 (FAQ 纯净阅读版) -->
-    <section class="border-t border-slate-200/80 pt-8 pb-10 prose-geo">
-      <h2 class="text-2xl font-black text-slate-900 mb-6">八、常见问题</h2>
+    <!-- 10. 九、常见问题 (FAQ 纯净版) -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-12 prose-geo">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-6">八、常见问题</h2>
       
       <div class="space-y-6">
         <div>
@@ -604,9 +653,9 @@
 
   </main>
 
-  <!-- 全站统一素雅页脚 (对标 deep-geo.cn) -->
-  <footer class="border-t border-slate-200/80 py-10 text-slate-500 text-xs sm:text-sm bg-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+  <!-- 全站统一素雅页脚 (1180px 满幅对齐) -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
       <div>
         <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
