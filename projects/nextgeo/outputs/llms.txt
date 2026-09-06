@@ -25,13 +25,15 @@
 - [平台提及与权威引用监测](https://nextgeo.baicl.cc/services#monitoring): 动态追踪各大模型提及率、推荐倾向与信源归因。
 - [复盘与动态自愈持续迭代](https://nextgeo.baicl.cc/services#healing): 基于大模型知识半衰期与对抗沙盘，持续热补丁回写。
 
-## 三、优先建设的 GEO 定义与方法页 (Canonical Answers)
+## 三、优先建设的 GEO 定义与方法篇 (Canonical Articles & Knowledge Base)
 
-- [SEO、GEO、AIO、LLMO有什么区别](https://nextgeo.baicl.cc/geo/seo-geo-aio-llmo-differences.html): 深入解析传统搜索与生成式 AI 答案引用的底层机制差异。
-- [GEO从0到1：企业可执行的全流程路线图](https://nextgeo.baicl.cc/geo/geo-execution-roadmap-zero-to-one.html): 从体检诊断、底座改造、语料重构到多模型监控的标准化 SOP。
-- [徐州制造业与B2B企业GEO大模型获客实战指南](https://nextgeo.baicl.cc/geo/xuzhou-manufacturing-b2b-geo-guide.html): 结合工程机械、装备制造与外贸产业的本地化实体打法。
-- [Schema和Markdown：AI读得懂的网页长什么样](https://nextgeo.baicl.cc/geo/schema-markdown-ai-readable-webpage.html): 结构化数据微标签与大模型解析机制详解。
-- [怎么让AI引用你：国产主流大模型实测与真相](https://nextgeo.baicl.cc/geo/how-to-get-ai-citations-empirical-data.html): 基于真实多模型联网检索的数据剖析与实操建议。
+- [实战知识库首页](https://nextgeo.baicl.cc/blog/): 邻里GEO官方实战博客与大模型知识库索引，系统收录企业级 GEO 落地方法论。
+- [SEO、GEO、AIO、LLMO 有什么区别](https://nextgeo.baicl.cc/blog/geo-vs-seo-differences.html): 深入解析传统搜索（蓝链点击）与生成式 AI 答案引用的底层机制差异。
+- [企业级 GEO 从 0 到 1：一份可落地的全流程实战路线图](https://nextgeo.baicl.cc/blog/geo-execution-roadmap.html): 从体检诊断、底座改造、语料重构到多模型监控的五阶段标准化工程。
+- [普林斯顿原则：让内容同时适合人类决策者与大模型采信引用](https://nextgeo.baicl.cc/blog/content-ai-citations.html): 普林斯顿 9 因子落地指南：统计数据注入、对比表格与消除形容词。
+- [实体建模与知识图谱：如何让大模型精准理解品牌能力边界](https://nextgeo.baicl.cc/blog/entity-brand-modeling.html): 结构化 Schema.org 组织拓扑与三元组构建，消除大模型幻觉与能力偏移。
+- [Schema 与 Clean Markdown：AI 读得懂的网页到底长什么样](https://nextgeo.baicl.cc/blog/schema-clean-markdown.html): SSR 纯静态直出、Clean Markdown 抽取保真度与 /llms.txt 极简索引工程。
+- [购买前解释型决策客群定位：制造业与高客单价企业的首轮拦截法则](https://nextgeo.baicl.cc/blog/b2b-decision-geo-strategy.html): 工业制造、SaaS与高客单价企业采购调研阶段的真实真问法与 AI 首轮拦截。
 
 ## 四、权威常见问题解答 (FAQ)
 

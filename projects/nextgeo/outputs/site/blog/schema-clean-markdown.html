@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schema 与 Clean Markdown：AI 读得懂的网页到底长什么样｜邻里GEO</title>
+  <meta name="description" content="从大模型爬虫抓取与RAG切片机制出发，深度解析现代化企业官网的底层技术规范：SSR纯静态直出、Clean Markdown 语料提取与 /llms.txt 极简索引体系。">
+  <meta name="keywords" content="Clean Markdown, llms.txt, Schema.org, 大模型爬虫, ByteSpider, SSR静态直出, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/schema-clean-markdown.html">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "@id": "https://nextgeo.baicl.cc/blog/schema-clean-markdown.html#article",
+        "headline": "Schema 与 Clean Markdown：AI 读得懂的网页到底长什么样",
+        "description": "解析现代化企业官网底层技术规范：SSR纯静态直出、Clean Markdown 与 /llms.txt 极简索引工程。",
+        "inLanguage": "zh-CN",
+        "datePublished": "2026-03-20T08:00:00+08:00",
+        "dateModified": "2026-03-20T08:00:00+08:00",
+        "author": {
+          "@type": "Person",
+          "name": "老白",
+          "jobTitle": "创始人 / GEO架构师"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "邻里GEO",
+          "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://nextgeo.baicl.cc/" },
+          { "@type": "ListItem", "position": 2, "name": "博客", "item": "https://nextgeo.baicl.cc/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "Clean Markdown与AI可读网页", "item": "https://nextgeo.baicl.cc/blog/schema-clean-markdown.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff", 100: "#f3e8ff", 200: "#e9d5ff", 300: "#d8b4fe",
+              400: "#c084fc", 500: "#a855f7", 600: "#9333ea", 700: "#7e22ce",
+              800: "#6b21a8", 900: "#581c87"
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .prose-geo p {
+      margin-bottom: 1.25rem;
+      color: #374151;
+      font-size: 1.0625rem;
+      line-height: 1.85;
+    }
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .content-table th {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .content-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 文章正文区域 -->
+  <main class="flex-grow py-12 w-full">
+    <article class="geo-container max-w-[900px]">
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+        <a href="./" class="text-brand-600 hover:underline">实战知识库</a>
+        <span>/</span>
+        <span class="text-slate-600">实体与技术</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+        Schema 与 Clean Markdown：AI 读得懂的网页到底长什么样
+      </h1>
+
+      <div class="flex items-center gap-4 text-xs sm:text-sm text-slate-500 pb-8 border-b border-slate-200">
+        <span>作者: 老白（邻里GEO架构师）</span>
+        <span>·</span>
+        <time datetime="2026-03-20">发布日期: 2026-03-20</time>
+        <span>·</span>
+        <span>阅读时长: 7 分钟</span>
+      </div>
+
+      <!-- 结论先行导读卡 -->
+      <div class="my-8 p-6 rounded-lg border border-brand-300/80 border-l-4 border-l-brand-600 bg-white shadow-xs">
+        <strong class="text-slate-900 font-bold text-base block mb-2">结论先行 (Executive Summary)：</strong>
+        <p class="text-slate-700 text-sm sm:text-base leading-relaxed m-0">
+          大模型爬虫（如字节跳动的 ByteSpider、DeepSeek 爬虫）在抓取网页时，<strong>默认不执行重度客户端 JavaScript 脚本，且极其排斥多层嵌套的空标签与广告组件</strong>。一个能够被 AI 高频采信引用的网页，必须满足“静态服务端直出（SSR/SSG）”、“Clean Markdown 极简文本结构”、“Schema.org 显式元数据”与“根目录 /llms.txt 索引”四大技术指标。
+        </p>
+      </div>
+
+      <!-- 章节正文 -->
+      <div class="prose-geo">
+        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">一、大模型爬虫的“阅读习惯”</h2>
+        <p>
+          很多传统外包建站公司热衷于使用动效十足的单页应用（SPA）或把整页文字做成一张巨幅海报图片。这种网站对大模型而言几乎是一堵“数据黑墙”：
+        </p>
+        <ul class="list-disc pl-6 space-y-2 text-slate-700 mb-6">
+          <li><strong>图片字无法即时 OCR</strong>：大模型在线实时联网搜索（Online Search）对时延要求极高（通常在 800ms~2s 之间），爬虫根本不会在检索阶段耗费昂贵算力对海报图片做深度 OCR；</li>
+          <li><strong>客户端渲染导致空白</strong>：传统 Vue/React 项目源码中只有一个空 <code>&lt;div id="app"&gt;&lt;/div&gt;</code>，爬虫抓取到的 HTML 体积极小且内容为空，直接判定为低质无意义死链；</li>
+          <li><strong>Token 浪费惩罚</strong>：如果网页充斥着上千行的无序 <code>&lt;div&gt;</code> 嵌套和内联 base64 样式，大模型在上下文窗口（Context Window）切分时会迅速耗尽 Token 额度，从而放弃阅读正文。</li>
+        </ul>
+
+        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">二、AI 友好型网页的技术改造对比</h2>
+
+        <table class="content-table">
+          <thead>
+            <tr>
+              <th>技术维度</th>
+              <th>传统落后官网做法</th>
+              <th>NextGEO 现代 AI 原生做法</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>网页渲染方式</strong></td>
+              <td>纯客户端渲染 (CSR) / 模板建站</td>
+              <td>静态预渲染 (SSG) / 服务端直出 (SSR)</td>
+            </tr>
+            <tr>
+              <td><strong>文本抽取保真度</strong></td>
+              <td>HTML 标签冗余、包含大量广告脚本</td>
+              <td>100% 纯净 Clean Markdown 原生可抽取</td>
+            </tr>
+            <tr>
+              <td><strong>大模型专属索引</strong></td>
+              <td>无（导致爬虫在海量页面中迷失）</td>
+              <td>根目录配置标准 <code>/llms.txt</code> 知识清单</td>
+            </tr>
+            <tr>
+              <td><strong>结构化数据</strong></td>
+              <td>缺失，仅有基础标题 Title</td>
+              <td>完整 Schema.org JSON-LD 实体图谱</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">三、什么是 /llms.txt？为什么它是未来企业的标配？</h2>
+        <p>
+          正如传统互联网时代企业依靠 <code>/robots.txt</code> 告知搜索引擎爬虫“允许访问什么路径”，在生成式 AI 时代，大模型社区制定了全新的 <code>/llms.txt</code> 开放标准。
+        </p>
+        <p>
+          <code>/llms.txt</code> 是一个存放于网站根目录的纯文本 Markdown 文件。它为各大模型的 Agent、知识检索器提供了一份精炼、无歧义的企业核心事实纲要与关键方法论文章索引。大模型在检索到该文件后，无需解析复杂的网页样式，就能瞬间掌握企业的服务口径、团队背景与参数细节。
+        </p>
+
+      </div>
+
+      <!-- 底部返回与引导 -->
+      <div class="mt-12 pt-8 border-t border-slate-200 flex items-center justify-between">
+        <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1">
+          <span>&larr;</span> 返回实战知识库
+        </a>
+        <a href="../services/#contact" class="text-sm font-semibold text-slate-600 hover:text-brand-600">
+          为您的企业官网进行 AI 底座改造
+        </a>
+      </div>
+    </article>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

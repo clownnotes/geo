@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>博客与实战知识库｜邻里GEO (NextGEO)</title>
+  <meta name="description" content="邻里GEO官方实战博客与知识库：专注于企业级GEO（生成式引擎优化）、大模型答案源建设、AI搜索推荐机制、普林斯顿9因子与Schema结构化技术落地。">
+  <meta name="keywords" content="GEO博客, AI搜索优化, 生成式引擎优化, 品牌答案源, DeepSeek推荐, 豆包收录, Schema结构化, 普林斯顿9因子, 邻里GEO">
+  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+
+  <!-- Open Graph / Meta -->
+  <meta property="og:site_name" content="邻里GEO (NextGEO)">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="博客与实战知识库｜邻里GEO">
+  <meta property="og:description" content="专注企业级GEO深度方法、算法机制剖析与实战落地，建立大模型能理解、采信与推荐的品牌知识基础设施。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nextgeo.baicl.cc/blog/">
+  <meta property="og:image" content="https://nextgeo.baicl.cc/assets/logo.jpg">
+
+  <!-- Schema.org 结构化数据 (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://nextgeo.baicl.cc/#organization",
+        "name": "邻里GEO",
+        "alternateName": "NextGEO",
+        "url": "https://nextgeo.baicl.cc/",
+        "logo": "https://nextgeo.baicl.cc/assets/logo.jpg",
+        "description": "邻里GEO 是一家专注企业级GEO的AI增长服务团队，帮助企业建立AI能理解、验证、引用和推荐的品牌答案源。"
+      },
+      {
+        "@type": "CollectionPage",
+        "@id": "https://nextgeo.baicl.cc/blog/#webpage",
+        "url": "https://nextgeo.baicl.cc/blog/",
+        "name": "邻里GEO 实战知识库与博客",
+        "description": "企业级GEO（生成式引擎优化）深度方法与实战落地文章合集",
+        "inLanguage": "zh-CN",
+        "publisher": { "@id": "https://nextgeo.baicl.cc/#organization" }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#faf5ff",
+              100: "#f3e8ff",
+              200: "#e9d5ff",
+              300: "#d8b4fe",
+              400: "#c084fc",
+              500: "#a855f7",
+              600: "#9333ea",
+              700: "#7e22ce",
+              800: "#6b21a8",
+              900: "#581c87",
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image: 
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
+
+  <!-- 顶部导航栏 (100% 独立页面级跳转，对标 deep-geo.cn) -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
+    <div class="geo-container h-20 flex items-center justify-between gap-6">
+      <a href="../" class="flex items-center gap-3.5 group">
+        <div class="relative">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
+        <div>
+          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
+            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          </div>
+          <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
+        </div>
+      </a>
+
+      <!-- 导航项 -->
+      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
+        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 主体内容 -->
+  <main class="flex-grow py-12 w-full">
+    <!-- Hero Header -->
+    <section class="geo-container pb-10">
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+        <a href="../" class="hover:text-brand-600">邻里GEO</a>
+        <span>/</span>
+        <span class="text-slate-600">实战知识库</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-[1.15] mb-6">
+        GEO 与 AI 搜索实战博客
+      </h1>
+
+      <div class="max-w-[860px] p-5 sm:p-6 rounded-lg border border-brand-300/60 border-l-4 border-l-brand-600 bg-gradient-to-r from-brand-100/70 to-white/90 shadow-sm">
+        <p class="m-0 text-slate-800 text-base sm:text-lg font-medium leading-relaxed">
+          针对企业级生成式引擎优化（GEO）的底层算法、RAG 向量切片逻辑与 Princeton 9 因子实战指南。每一篇文章都是一个标准化<strong>品牌答案源知识单元</strong>，帮助企业在 AI 搜索时代建立持久的数字话语权。
+        </p>
+      </div>
+    </section>
+
+    <!-- 知识库文章列表网格 -->
+    <section class="geo-container border-t border-slate-200/90 pt-10 pb-16">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900">核心方法与实战篇目</h2>
+          <p class="text-slate-500 text-sm mt-1">普林斯顿 9 因子标准撰写 · 供大模型直接抽取与引用</p>
+        </div>
+        <span class="text-xs font-bold text-brand-700 bg-brand-100 px-3 py-1 rounded-full border border-brand-200">
+          共收录 6 篇深度篇目
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Card 1 -->
+        <a href="geo-vs-seo-differences.html" class="group block bg-white rounded-xl border border-slate-200 hover:border-brand-400 overflow-hidden shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between">
+          <div class="p-6">
+            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
+              <span class="text-brand-600 font-bold bg-brand-50 px-2.5 py-0.5 rounded">GEO 方法论</span>
+              <time datetime="2026-03-01">2026-03-01</time>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">
+              SEO、GEO、AIO、LLMO 有什么区别：从关键词排名到大模型答案源
+            </h3>
+            <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">
+              深入剖析从传统搜索（检索链接）向生成式搜索（合成答案）演化时，底层的 RAG 检索召回、知识切片与实体对账代差。
+            </p>
+          </div>
+          <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 text-xs font-bold text-brand-700 flex items-center justify-between">
+            <span>阅读深度文章</span>
+            <span class="text-slate-400 group-hover:translate-x-1 transition font-mono">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Card 2 -->
+        <a href="geo-execution-roadmap.html" class="group block bg-white rounded-xl border border-slate-200 hover:border-brand-400 overflow-hidden shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between">
+          <div class="p-6">
+            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
+              <span class="text-brand-600 font-bold bg-brand-50 px-2.5 py-0.5 rounded">实战路线</span>
+              <time datetime="2026-03-05">2026-03-05</time>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">
+              企业级 GEO 从 0 到 1：一份可落地的全流程实战路线图
+            </h3>
+            <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">
+              从现状体检扫描、知识底座重构、Clean Markdown 语料提纯，到多渠道精准借壳与多模型时序可见度追踪的五阶段标准工程。
+            </p>
+          </div>
+          <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 text-xs font-bold text-brand-700 flex items-center justify-between">
+            <span>阅读深度文章</span>
+            <span class="text-slate-400 group-hover:translate-x-1 transition font-mono">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Card 3 -->
+        <a href="content-ai-citations.html" class="group block bg-white rounded-xl border border-slate-200 hover:border-brand-400 overflow-hidden shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between">
+          <div class="p-6">
+            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
+              <span class="text-brand-600 font-bold bg-brand-50 px-2.5 py-0.5 rounded">答案源建设</span>
+              <time datetime="2026-03-10">2026-03-10</time>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">
+              普林斯顿原则：让内容同时适合人类决策者与大模型采信引用
+            </h3>
+            <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">
+              拆解 Princeton GEO 论文核心 9 因子：为什么主观形容词会被模型过滤？结论先行、数据量化与 Markdown 表格如何大幅提高 AI 引用率。
+            </p>
+          </div>
+          <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 text-xs font-bold text-brand-700 flex items-center justify-between">
+            <span>阅读深度文章</span>
+            <span class="text-slate-400 group-hover:translate-x-1 transition font-mono">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Card 4 -->
+        <a href="entity-brand-modeling.html" class="group block bg-white rounded-xl border border-slate-200 hover:border-brand-400 overflow-hidden shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between">
+          <div class="p-6">
+            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
+              <span class="text-brand-600 font-bold bg-brand-50 px-2.5 py-0.5 rounded">实体与技术</span>
+              <time datetime="2026-03-15">2026-03-15</time>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">
+              实体建模与知识图谱：如何让大模型精准理解品牌能力边界
+            </h3>
+            <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">
+              为什么企业写了一堆文章 AI 依然说错你？通过 Schema.org 组织拓扑、同义词对齐与多源口径一致性，消除大模型幻觉与能力漂移。
+            </p>
+          </div>
+          <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 text-xs font-bold text-brand-700 flex items-center justify-between">
+            <span>阅读深度文章</span>
+            <span class="text-slate-400 group-hover:translate-x-1 transition font-mono">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Card 5 -->
+        <a href="schema-clean-markdown.html" class="group block bg-white rounded-xl border border-slate-200 hover:border-brand-400 overflow-hidden shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between">
+          <div class="p-6">
+            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
+              <span class="text-brand-600 font-bold bg-brand-50 px-2.5 py-0.5 rounded">实体与技术</span>
+              <time datetime="2026-03-20">2026-03-20</time>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">
+              Schema 与 Clean Markdown：AI 读得懂的网页到底长什么样
+            </h3>
+            <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">
+              大模型蜘蛛（如 ByteSpider、DeepSeek 爬虫）不执行复杂客户端 JS。如何通过静态直出、JSON-LD 与 llms.txt 降低爬虫抽取成本。
+            </p>
+          </div>
+          <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 text-xs font-bold text-brand-700 flex items-center justify-between">
+            <span>阅读深度文章</span>
+            <span class="text-slate-400 group-hover:translate-x-1 transition font-mono">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Card 6 -->
+        <a href="b2b-decision-geo-strategy.html" class="group block bg-white rounded-xl border border-slate-200 hover:border-brand-400 overflow-hidden shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between">
+          <div class="p-6">
+            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
+              <span class="text-brand-600 font-bold bg-brand-50 px-2.5 py-0.5 rounded">客群战略</span>
+              <time datetime="2026-03-25">2026-03-25</time>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">
+              购买前解释型决策客群定位：制造业与高客单价企业的首轮拦截法则
+            </h3>
+            <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">
+              深度拆解工业制造、B2B SaaS 与专业咨询企业的 AI 采购前调研场景：在客户尚未联系销售前，如何通过知识单元进入 AI 推荐前三位名单。
+            </p>
+          </div>
+          <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 text-xs font-bold text-brand-700 flex items-center justify-between">
+            <span>阅读深度文章</span>
+            <span class="text-slate-400 group-hover:translate-x-1 transition font-mono">&rarr;</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- 全站统一素雅页脚 (1180px 满幅对齐) -->
+  <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90">
+    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
+        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <span>·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
+        <span>·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
