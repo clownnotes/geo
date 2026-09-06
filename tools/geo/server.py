@@ -1600,6 +1600,8 @@ core_values:
                     mime_type = "text/html; charset=utf-8"
                 elif target_rel.endswith(".txt"):
                     mime_type = "text/plain; charset=utf-8"
+                elif target_rel.endswith(".xml"):
+                    mime_type = "application/xml; charset=utf-8"
                 elif target_rel.endswith(".jsonld") or target_rel.endswith(".json"):
                     mime_type = "application/ld+json; charset=utf-8" if target_rel.endswith(".jsonld") else "application/json; charset=utf-8"
                 elif target_rel.endswith(".svg"):
