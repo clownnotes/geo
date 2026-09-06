@@ -51,6 +51,7 @@ DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 SESSIONS_FILE = os.path.join(DATA_DIR, "sessions.json")
 SESSION_TIMEOUT_HOURS = 24 * 30  # 30 天超长有效期，避免频繁登录
+WEB_DIR = os.path.join(PROJECT_ROOT, "web")
 
 def load_sessions() -> dict:
     """从磁盘加载未过期的会话缓存"""
