@@ -95,7 +95,7 @@
     </span>
   </div>
 
-  <!-- 顶部导航栏 (1:1 对标 deep-geo.cn: 4大独立一级页面，无锚点跳转，无右侧外挂按钮) -->
+  <!-- 顶部导航栏: 4大独立一级页面，无锚点跳转，无右侧外挂按钮 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
       <a href="./" class="flex items-center gap-3.5 group">
@@ -122,7 +122,7 @@
     </div>
   </header>
 
-  <!-- 首屏 Hero 区域 (对标 deep-geo.cn .hero) -->
+  <!-- 首屏 Hero 区域 -->
   <section class="relative pt-12 pb-16 geo-container">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
       <!-- 左侧核心文案 -->
@@ -138,7 +138,7 @@
           <span class="text-brand-700 block mt-1">新的企业入口</span>
         </h1>
 
-        <!-- 对话筛选卡片 (对标 deep-geo.cn 提问卡片) -->
+        <!-- 对话筛选卡片 -->
         <div class="bg-white rounded-2xl p-7 sm:p-8 border border-brand-200/90 shadow-lg shadow-brand-500/5 mb-8 space-y-5 relative overflow-hidden">
           <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-brand-600 via-brand-500 to-indigo-600"></div>
           
@@ -205,7 +205,7 @@
     </div>
   </section>
 
-  <!-- 核心价值 (Core Value - 对标 deep-geo.cn 三大核心卡片) -->
+  <!-- 核心价值 (Core Value) -->
   <section class="py-16 bg-white border-y border-slate-200/80">
     <div class="geo-container">
       <div class="max-w-3xl mb-12">
@@ -262,7 +262,7 @@
     </div>
   </section>
 
-  <!-- 战略流程 (Strategic Workflow - 对标 deep-geo.cn 四步闭环) -->
+  <!-- 战略流程 (Strategic Workflow) -->
   <section class="py-16 bg-brand-50/60">
     <div class="geo-container">
       <div class="max-w-3xl mb-12">
@@ -278,201 +278,143 @@
         <article class="p-6 rounded-xl bg-white border border-brand-200 shadow-xs relative flex flex-col justify-between hover:border-brand-500 hover:shadow-md transition duration-200">
           <div class="text-4xl font-black text-brand-200/70 absolute top-5 right-5 select-none font-mono">01</div>
           <div>
-            <span class="text-xs font-bold uppercase tracking-widest text-brand-700 bg-brand-100 px-2.5 py-0.5 rounded mb-3 inline-block">ANCHOR</span>
-            <h3 class="text-xl font-bold text-slate-900 mb-2 tracking-tight">锚定</h3>
+            <div class="text-xs font-mono font-bold text-brand-700 mb-1">STAGE 01</div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">现状评测与认知审计</h3>
             <p class="text-sm text-slate-600 leading-relaxed mb-4">
-              明确品牌在 AI 搜索中的核心业务品类、典型采购场景、竞品对照组与必须被标准表达的实体知识三元组。
+              在主流 LLM（DeepSeek、ChatGPT、Kimi、豆包、通义）中评测品牌被提及率、回答偏见与关键能力召回率。
             </p>
           </div>
-          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">品类边界 · 竞品对照</div>
+          <ul class="text-xs text-slate-500 space-y-1.5 pt-3 border-t border-slate-100">
+            <li>· 跨模型行业高频 Query 跑测</li>
+            <li>· 竞品对抗与心智占有率对比</li>
+          </ul>
         </article>
 
-        <!-- 02 监测 -->
+        <!-- 02 提炼 -->
         <article class="p-6 rounded-xl bg-white border border-brand-200 shadow-xs relative flex flex-col justify-between hover:border-brand-500 hover:shadow-md transition duration-200">
           <div class="text-4xl font-black text-brand-200/70 absolute top-5 right-5 select-none font-mono">02</div>
           <div>
-            <span class="text-xs font-bold uppercase tracking-widest text-brand-700 bg-brand-100 px-2.5 py-0.5 rounded mb-3 inline-block">MONITOR</span>
-            <h3 class="text-xl font-bold text-slate-900 mb-2 tracking-tight">监测</h3>
+            <div class="text-xs font-mono font-bold text-brand-700 mb-1">STAGE 02</div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">核心实体与知识工程</h3>
             <p class="text-sm text-slate-600 leading-relaxed mb-4">
-              用品牌词、品类词、对比词与本地词建立多层意图问题池，持续探测不同模型对品牌的提及率、倾向度与引用来源。
+              梳理企业实体（Entity）、核心技术、产品优势与案例库，消除模棱两可的模糊定义，建立结构化事实图谱。
             </p>
           </div>
-          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">问题池探测 · 提及率</div>
+          <ul class="text-xs text-slate-500 space-y-1.5 pt-3 border-t border-slate-100">
+            <li>· 普林斯顿 9 因子结构化提纯</li>
+            <li>· 权威技术参数与量化证据锚定</li>
+          </ul>
         </article>
 
-        <!-- 03 洞察 -->
+        <!-- 03 筑基 -->
         <article class="p-6 rounded-xl bg-white border border-brand-200 shadow-xs relative flex flex-col justify-between hover:border-brand-500 hover:shadow-md transition duration-200">
           <div class="text-4xl font-black text-brand-200/70 absolute top-5 right-5 select-none font-mono">03</div>
           <div>
-            <span class="text-xs font-bold uppercase tracking-widest text-brand-700 bg-brand-100 px-2.5 py-0.5 rounded mb-3 inline-block">INSIGHT</span>
-            <h3 class="text-xl font-bold text-slate-900 mb-2 tracking-tight">洞察</h3>
+            <div class="text-xs font-mono font-bold text-brand-700 mb-1">STAGE 03</div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">站点重构与 AI 协议接入</h3>
             <p class="text-sm text-slate-600 leading-relaxed mb-4">
-              深度归因大模型回答中的盲区、误读与信源缺口，研判是来自官网技术阻塞、语料结构缺失还是外部第三方信号偏差。
+              改造官网代码：注入 Schema.org、配置 llms.txt、生成 Clean Markdown，让大模型爬虫秒懂并直接采纳。
             </p>
           </div>
-          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">断点定位 · 归因分析</div>
+          <ul class="text-xs text-slate-500 space-y-1.5 pt-3 border-t border-slate-100">
+            <li>· /llms.txt 知识图谱标准配置</li>
+            <li>· SSR/SSG 无障碍抓取与双模渲染</li>
+          </ul>
         </article>
 
-        <!-- 04 塑造 -->
+        <!-- 04 放大 -->
         <article class="p-6 rounded-xl bg-white border border-brand-200 shadow-xs relative flex flex-col justify-between hover:border-brand-500 hover:shadow-md transition duration-200">
           <div class="text-4xl font-black text-brand-200/70 absolute top-5 right-5 select-none font-mono">04</div>
           <div>
-            <span class="text-xs font-bold uppercase tracking-widest text-brand-700 bg-brand-100 px-2.5 py-0.5 rounded mb-3 inline-block">SHAPE</span>
-            <h3 class="text-xl font-bold text-slate-900 mb-2 tracking-tight">塑造</h3>
+            <div class="text-xs font-mono font-bold text-brand-700 mb-1">STAGE 04</div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">生态信源建设与动态跟踪</h3>
             <p class="text-sm text-slate-600 leading-relaxed mb-4">
-              全面重构官网结构化数据、/llms.txt、普林斯顿 9 因子内容与多生态母池，让品牌在 AI 答案中的表达稳定、准确、无可争议。
+              在主流 AI 检索依赖的第三方信源（知乎、百科、行业垂直站、开源社区）铺设一致的事实印证，形成共识闭环。
             </p>
           </div>
-          <div class="text-xs font-bold text-brand-600 pt-3 border-t border-brand-100">结构化重构 · 权威注入</div>
+          <ul class="text-xs text-slate-500 space-y-1.5 pt-3 border-t border-slate-100">
+            <li>· 权威第三方背书与数据交叉验证</li>
+            <li>· 每周 AI 引用与情感偏向动态监控</li>
+          </ul>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- 优先建设的 GEO 定义与方法库 (Canonical Answers - 1:1 直链导流至博客文章) -->
+  <!-- 优先建设的 GEO 定义与方法页 (Canonical Answers) -->
   <section class="py-16 bg-white border-t border-slate-200/80">
     <div class="geo-container">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
         <div class="max-w-3xl">
-          <div class="text-xs font-extrabold text-brand-700 uppercase tracking-widest mb-2">Canonical Answers</div>
-          <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-3">优先建设的 GEO 定义与方法库</h2>
-          <p class="text-base text-slate-600 leading-relaxed">
-            这些长青知识单元用于覆盖“什么是 GEO”、“AI 搜索怎么做”、“SEO 与 GEO 的区别”等高频提问，是大模型检索采信的核心基石。
-          </p>
+          <p class="text-xs font-black tracking-widest text-brand-700 uppercase mb-2">Canonical Answers</p>
+          <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">优先建设的 GEO 定义与方法页</h2>
+          <p class="text-base text-slate-600 leading-relaxed">这些页面用于覆盖“什么是 GEO”“AI Search 怎么做”“GEO 与 SEO/AEO 的区别”等高频问题。</p>
         </div>
-        <a href="blog/" class="inline-flex items-center gap-1 text-sm font-bold text-brand-700 hover:text-brand-800 transition shrink-0">
+        <a href="blog/" class="inline-flex items-center gap-1.5 text-sm font-bold text-brand-700 hover:text-brand-800 transition shrink-0 group">
           <span>进入博客知识库查看全部</span>
-          <span>&rarr;</span>
+          <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
         </a>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        <!-- 文章 1 -->
-        <a href="blog/geo-vs-seo-differences.html" class="p-6 rounded-xl border border-slate-200 hover:border-brand-400 bg-white hover:shadow-md transition duration-200 group flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
-              <span class="text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded">GEO 方法论</span>
-              <time datetime="2026-03-01">2026-03-01</time>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition mb-2 tracking-tight">
-              SEO、GEO、AIO、LLMO 有什么区别
-            </h3>
-            <p class="text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3">
-              从网页链接检索时代到大模型知识合成时代，深入解析四大概念底层机制差异与企业战略重心。
-            </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- 卡片 1 -->
+        <a href="blog/seo-geo-aio-llmo-differences.html" class="article-card group bg-white border border-slate-200/90 rounded-xl p-5 hover:border-brand-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col">
+          <div class="aspect-[16/9] -m-5 mb-4 overflow-hidden rounded-t-xl border-b border-slate-100 bg-slate-50">
+            <img src="assets/article-covers/seo-geo-aio-llmo-differences.png" alt="SEO、GEO、AIO、LLMO有什么区别封面图" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           </div>
-          <div class="text-xs text-slate-400 font-semibold pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span>普林斯顿 9 因子标准</span>
-            <span class="text-brand-600 font-bold">阅读全文 &rarr;</span>
-          </div>
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">SEO、GEO、AIO、LLMO有什么区别</h3>
+          <div class="mt-auto text-xs text-slate-400 font-semibold">2025-07-16</div>
         </a>
 
-        <!-- 文章 2 -->
-        <a href="blog/geo-execution-roadmap.html" class="p-6 rounded-xl border border-slate-200 hover:border-brand-400 bg-white hover:shadow-md transition duration-200 group flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
-              <span class="text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded">实战路线</span>
-              <time datetime="2026-03-05">2026-03-05</time>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition mb-2 tracking-tight">
-              GEO从0到1：一份可执行的全流程路线图
-            </h3>
-            <p class="text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3">
-              从现状意图体检、技术底座重构、Clean Markdown 语料提纯到多模型监控的工业级五步交付 SOP。
-            </p>
+        <!-- 卡片 2 -->
+        <a href="blog/geo-execution-roadmap-zero-to-one.html" class="article-card group bg-white border border-slate-200/90 rounded-xl p-5 hover:border-brand-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col">
+          <div class="aspect-[16/9] -m-5 mb-4 overflow-hidden rounded-t-xl border-b border-slate-100 bg-slate-50">
+            <img src="assets/article-covers/geo-execution-roadmap-zero-to-one.png" alt="GEO从0到1：一份可执行的全流程路线图封面图" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           </div>
-          <div class="text-xs text-slate-400 font-semibold pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span>实战路线标准</span>
-            <span class="text-brand-600 font-bold">阅读全文 &rarr;</span>
-          </div>
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">GEO从0到1：一份可执行的全流程路线图</h3>
+          <div class="mt-auto text-xs text-slate-400 font-semibold">2025-04-16</div>
         </a>
 
-        <!-- 文章 3 -->
-        <a href="blog/content-ai-citations.html" class="p-6 rounded-xl border border-slate-200 hover:border-brand-400 bg-white hover:shadow-md transition duration-200 group flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
-              <span class="text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded">答案源建设</span>
-              <time datetime="2026-03-10">2026-03-10</time>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition mb-2 tracking-tight">
-              普林斯顿原则：让内容适合决策者与AI引用
-            </h3>
-            <p class="text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3">
-              拆解普林斯顿 9 因子核心成果：为什么形容词会被过滤？统计数据与对比表如何使大模型引用率提升 30%~41%。
-            </p>
+        <!-- 卡片 3 -->
+        <a href="blog/content-for-users-and-ai-citations.html" class="article-card group bg-white border border-slate-200/90 rounded-xl p-5 hover:border-brand-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col">
+          <div class="aspect-[16/9] -m-5 mb-4 overflow-hidden rounded-t-xl border-b border-slate-100 bg-slate-50">
+            <img src="assets/article-covers/content-for-users-and-ai-citations.png" alt="原则：让内容同时适合用户和AI引用封面图" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           </div>
-          <div class="text-xs text-slate-400 font-semibold pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span>学术实证</span>
-            <span class="text-brand-600 font-bold">阅读全文 &rarr;</span>
-          </div>
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">原则：让内容同时适合用户和AI引用</h3>
+          <div class="mt-auto text-xs text-slate-400 font-semibold">2025-08-13</div>
         </a>
 
-        <!-- 文章 4 -->
-        <a href="blog/entity-brand-modeling.html" class="p-6 rounded-xl border border-slate-200 hover:border-brand-400 bg-white hover:shadow-md transition duration-200 group flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
-              <span class="text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded">实体与技术</span>
-              <time datetime="2026-03-15">2026-03-15</time>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition mb-2 tracking-tight">
-              实体建模：让大模型精准理解品牌能力边界
-            </h3>
-            <p class="text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3">
-              为什么企业写了软文 AI 依然说错你？通过 Schema.org 组织拓扑与三元组构建消除幻觉与能力偏移。
-            </p>
+        <!-- 卡片 4 -->
+        <a href="blog/entity-seo-and-geo-brand-understanding.html" class="article-card group bg-white border border-slate-200/90 rounded-xl p-5 hover:border-brand-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col">
+          <div class="aspect-[16/9] -m-5 mb-4 overflow-hidden rounded-t-xl border-b border-slate-100 bg-slate-50">
+            <img src="assets/article-covers/entity-seo-and-geo-brand-understanding.png" alt="实体SEO与GEO：如何让AI正确理解你的品牌封面图" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           </div>
-          <div class="text-xs text-slate-400 font-semibold pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span>知识图谱</span>
-            <span class="text-brand-600 font-bold">阅读全文 &rarr;</span>
-          </div>
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">实体SEO与GEO：如何让AI正确理解你的品牌</h3>
+          <div class="mt-auto text-xs text-slate-400 font-semibold">2025-09-03</div>
         </a>
 
-        <!-- 文章 5 -->
-        <a href="blog/schema-clean-markdown.html" class="p-6 rounded-xl border border-slate-200 hover:border-brand-400 bg-white hover:shadow-md transition duration-200 group flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
-              <span class="text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded">实体与技术</span>
-              <time datetime="2026-03-20">2026-03-20</time>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition mb-2 tracking-tight">
-              Schema与Markdown：AI读得懂的网页长什么样
-            </h3>
-            <p class="text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3">
-              大模型蜘蛛（如 ByteSpider、DeepSeek 爬虫）不执行复杂客户端 JS，详解 SSR 静态直出与 /llms.txt 索引工程。
-            </p>
+        <!-- 卡片 5 -->
+        <a href="blog/schema-markdown-ai-readable-webpage.html" class="article-card group bg-white border border-slate-200/90 rounded-xl p-5 hover:border-brand-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col">
+          <div class="aspect-[16/9] -m-5 mb-4 overflow-hidden rounded-t-xl border-b border-slate-100 bg-slate-50">
+            <img src="assets/article-covers/schema-markdown-ai-readable-webpage.png" alt="Schema和Markdown：AI读得懂的网页长什么样封面图" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           </div>
-          <div class="text-xs text-slate-400 font-semibold pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span>爬虫解析规范</span>
-            <span class="text-brand-600 font-bold">阅读全文 &rarr;</span>
-          </div>
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">Schema和Markdown：AI读得懂的网页长什么样</h3>
+          <div class="mt-auto text-xs text-slate-400 font-semibold">2025-03-19</div>
         </a>
 
-        <!-- 文章 6 -->
-        <a href="blog/b2b-decision-geo-strategy.html" class="p-6 rounded-xl border border-slate-200 hover:border-brand-400 bg-white hover:shadow-md transition duration-200 group flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-3">
-              <span class="text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded">客群战略</span>
-              <time datetime="2026-03-25">2026-03-25</time>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition mb-2 tracking-tight">
-              购买前解释型决策客群定位：首轮拦截法则
-            </h3>
-            <p class="text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3">
-              深度拆解工业制造、B2B SaaS 与专业企服在采购调研阶段的真实真问法：如何成为大模型首选推荐。
-            </p>
+        <!-- 卡片 6 -->
+        <a href="blog/how-to-get-ai-citations-8000-citation-data.html" class="article-card group bg-white border border-slate-200/90 rounded-xl p-5 hover:border-brand-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col">
+          <div class="aspect-[16/9] -m-5 mb-4 overflow-hidden rounded-t-xl border-b border-slate-100 bg-slate-50">
+            <img src="assets/article-covers/how-to-get-ai-citations-8000-citation-data.png" alt="怎么让AI引用你：8000次引用数据告诉我们的真相封面图" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           </div>
-          <div class="text-xs text-slate-400 font-semibold pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span>高客单转化</span>
-            <span class="text-brand-600 font-bold">阅读全文 &rarr;</span>
-          </div>
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug mb-3">怎么让AI引用你：8000次引用数据告诉我们的真相</h3>
+          <div class="mt-auto text-xs text-slate-400 font-semibold">2025-04-23</div>
         </a>
-
       </div>
     </div>
   </section>
 
-  <!-- 全站统一素雅页脚 (1180px 满幅对齐，对标 deep-geo.cn) -->
+  <!-- 全站统一素雅页脚 -->
   <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90">
     <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
       <div>
