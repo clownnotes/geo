@@ -237,17 +237,17 @@
           <span class="text-brand-700 block mt-1">新的企业入口</span>
         </h1>
 
-        <!-- 对话筛选卡片 (大号清晰文字，投屏演示零压力) -->
-        <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-brand-300 shadow-md shadow-brand-500/5 mb-8 space-y-5 relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-brand-500 via-brand-600 to-indigo-600"></div>
+        <!-- 对话筛选卡片 (清爽纯净，去多重嵌套，大字号呼吸感) -->
+        <div class="bg-white rounded-3xl p-8 sm:p-10 border border-brand-200/90 shadow-xl shadow-brand-500/5 mb-8 space-y-6 relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-brand-600 via-brand-500 to-indigo-600"></div>
           
           <p class="text-lg sm:text-xl text-slate-700 font-medium leading-relaxed">
             用户正在从传统搜索网页与翻阅链接，转向直接向 AI 提问与索要明确答案。
           </p>
 
-          <div class="bg-brand-50/90 rounded-2xl p-5 sm:p-6 border border-brand-200">
-            <div class="text-sm sm:text-base font-extrabold text-brand-800 uppercase tracking-wider mb-3">当企业决策者直接询问 AI：</div>
-            <ul class="space-y-3 text-base sm:text-lg text-slate-800 font-bold">
+          <div class="space-y-3 pt-1">
+            <div class="text-base font-extrabold text-brand-700 tracking-wide uppercase">当企业决策者直接询问 AI：</div>
+            <ul class="space-y-3 text-base sm:text-lg text-slate-800 font-bold pl-1">
               <li class="flex items-center gap-3">
                 <span class="w-2 h-2 rounded-full bg-brand-600 shrink-0"></span>
                 “徐州企业想做 AI 搜索大模型推荐找谁？”
@@ -263,12 +263,14 @@
             </ul>
           </div>
 
-          <p class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            AI 正在替采购方完成第一轮筛选与对比决策。
-          </p>
-          <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
-            <strong class="text-brand-700 font-black">邻里GEO（NextGEO）</strong> 帮助徐州及高客单价 B2B 企业建立 AI 能理解、验证和推荐的品牌知识基础设施，让企业在 AI 搜索时代获得新的商业增长入口。
-          </p>
+          <div class="pt-3 border-t border-brand-100/80 space-y-3">
+            <p class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              AI 正在替采购方完成第一轮筛选与对比决策。
+            </p>
+            <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+              <strong class="text-brand-700 font-black">邻里GEO（NextGEO）</strong> 帮助徐州及高客单价 B2B 企业建立 AI 能理解、验证和推荐的品牌知识基础设施，让企业在 AI 搜索时代获得新的商业增长入口。
+            </p>
+          </div>
         </div>
 
         <!-- 动作按钮 -->
@@ -282,49 +284,21 @@
         </div>
       </div>
 
-      <!-- 右侧 AI 平台生态卡片 (对标 deep-geo.cn 原生图案 + 25KB WebP 极速直出 + 大卡片质感) -->
-      <div class="lg:col-span-5 flex flex-col items-center justify-center">
-        <div class="w-full max-w-[480px] bg-white rounded-3xl p-8 border-2 border-brand-300 shadow-2xl shadow-brand-500/10 transition-all duration-300 relative group">
-          <!-- 顶部生态状态指示 -->
-          <div class="flex items-center justify-between mb-5 pb-4 border-b border-brand-100">
-            <div class="flex items-center gap-2.5">
-              <span class="relative flex h-3 w-3">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-brand-600"></span>
-              </span>
-              <span class="text-sm font-black text-slate-900 tracking-wider uppercase">AI Search Ecosystem</span>
-            </div>
-            <span class="text-xs sm:text-sm font-extrabold text-brand-700 bg-brand-100 px-3 py-1 rounded-full border border-brand-200">
-              8大主流模型答案源
-            </span>
-          </div>
-
-          <!-- 核心 8 大平台矩阵示意图 (现代 WebP 格式，仅 25KB，极速首屏直出) -->
-          <figure class="relative overflow-hidden rounded-2xl bg-slate-50/60 p-3 border border-brand-100 flex items-center justify-center">
-            <picture class="w-full block">
-              <source srcset="assets/ai-platforms-cn.webp" type="image/webp">
-              <img 
-                src="assets/ai-platforms-cn.webp" 
-                alt="通义千问、文心一言、讯飞星火、豆包、DeepSeek、Kimi、智谱清言、腾讯元宝等国产主流大模型矩阵" 
-                class="w-full h-auto aspect-square object-contain transform group-hover:scale-[1.02] transition-transform duration-300"
-                width="440"
-                height="440"
-                loading="eager"
-                fetchpriority="high"
-                decoding="async">
-            </picture>
-          </figure>
-
-          <!-- 底部权威因子与指标背书 -->
-          <div class="mt-5 pt-4 border-t border-brand-100 flex items-center justify-between text-xs sm:text-sm font-bold text-slate-600">
-            <span class="flex items-center gap-1.5 text-brand-700 font-black">
-              <svg class="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-              普林斯顿 9 因子标准注入
-            </span>
-            <span class="text-slate-500 font-medium font-mono">100% 结构化语料直达</span>
-          </div>
+      <!-- 右侧 AI 平台生态图案 (彻底去掉外层卡片框，8 大模型 Logo 纯净通透悬浮在版面上) -->
+      <div class="lg:col-span-5 flex items-center justify-center">
+        <div class="w-full max-w-[480px] p-2 sm:p-4">
+          <picture class="w-full block">
+            <source srcset="assets/ai-platforms-cn.webp" type="image/webp">
+            <img 
+              src="assets/ai-platforms-cn.webp" 
+              alt="通义千问、文心一言、讯飞星火、豆包、DeepSeek、Kimi、智谱清言、腾讯元宝等国产主流大模型矩阵" 
+              class="w-full h-auto aspect-square object-contain drop-shadow-sm hover:scale-[1.02] transition-transform duration-300"
+              width="480"
+              height="480"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async">
+          </picture>
         </div>
       </div>
     </div>
