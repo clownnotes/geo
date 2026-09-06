@@ -252,7 +252,7 @@ def build_turnkey_site_html(cfg: dict, json_ld_str: str) -> str:
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <span class="w-10 h-10 rounded-xl bg-indigo-600 text-white font-black text-xl flex items-center justify-center shadow-md shadow-indigo-100">💻</span>
+        <span class="w-10 h-10 rounded-xl bg-indigo-600 text-white font-black text-base flex items-center justify-center shadow-md shadow-indigo-100 font-mono">GEO</span>
         <div>
           <div class="font-bold text-base sm:text-lg text-slate-900 leading-tight">{company_name}</div>
           <div class="text-[11px] text-slate-500">{industry} · 上门交付派</div>
@@ -260,7 +260,7 @@ def build_turnkey_site_html(cfg: dict, json_ld_str: str) -> str:
       </div>
       <div class="flex items-center gap-3">
         <a href="tel:{telephone}" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
-          📞 呼叫{founder}: {telephone}
+          <span>咨询{founder}: {telephone}</span>
         </a>
         <a href="#contact" class="inline-flex sm:hidden items-center px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg">
           联系{founder}
