@@ -26,12 +26,12 @@
    - 必须提供 `https://domain.com/robots.txt`（明确放行 Bytespider、DeepSeekBot、Baiduspider、Sogouspider、Yisouspider）；
    - 必须提供 `https://domain.com/sitemap.xml`（包含全站页面绝对 URL 与最后更新时间）。
 2. **第二重：HTML `<head>` 隐形 W3C 标准嗅探标签**：
-   - 全站所有 HTML 页面 `<head>` 区域必须成对注入：
+   - 首页及全站新建页面 `<head>` 区域必须成对注入：
      ```html
      <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
      <link rel="alternate" type="text/markdown" title="LLMs.txt" href="llms.txt">
      ```
-     （子目录页面按层级使用 `../sitemap.xml` 或绝对路径）。
+     （子目录页面按层级使用 `../sitemap.xml` 或绝对路径；P3/P4 存量页面允许作为 Warn 缺口台账，新建文章与页面必须 100% 注入）。
 3. **第三重：页面 DOM 显式内链直达**：
    - 页脚必须保留直接指向 `llms.txt` 与 `sitemap.xml` 的可点击超链接，确保轻量级 RAG 代理可沿着 DOM 树 100% 抓取。
 
@@ -62,7 +62,8 @@
 ### 规范五：脚手架编译防覆盖锁定机制 (Scaffold Override Protection)
 - **唯一信源**：`projects/{project_id}/project.yaml` 中的 `custom_site: true`；
 - **锁行为规范**：
-  1. 当项目声明 `custom_site: true` 时，脚手架 `run_scaffold(project_id)` 仅重新生成与编译 `/llms.txt`、`/robots.txt`、`/schema.jsonld` 与 `02_站点技术底座改造交付包.md`；
-  2. **严禁重新生成并覆盖 `index.html`**；
-  3. **严禁破坏或覆盖已存在的定制子站目录（如 `about/`、`services/`、`blog/` 等）**；
-  4. 控制台日志必须明确打印：`[PROTECTED] 项目已锁定 custom_site: true，保留定制官网页面。`
+  1. 当项目声明 `custom_site: true` 时，脚手架 `run_scaffold(project_id)` **严禁重新生成并覆盖 `index.html`**；
+  2. **严禁破坏或覆盖已存在的定制子站目录（如 `about/`、`services/`、`blog/` 等）**；
+  3. **知识资产保护**：`/llms.txt` 与 `/schema.jsonld` 若已存在定制版本，脚手架必须予以保留、禁止以通用模板覆写，仅在缺失时生成初始模板；
+  4. 允许重新生成并更新 `/robots.txt` 放行规则及生成说明文档；
+  5. 控制台日志必须明确打印：`[PROTECTED] 项目已锁定 custom_site: true，保留定制官网页面与已有知识库。`

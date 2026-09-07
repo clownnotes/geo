@@ -127,5 +127,5 @@
    - 严禁纯裸奔依赖外部 Play CDN（如 `cdn.tailwindcss.com`）；
    - 页面 `<style>` 必须内联盒模型 `border-box`、自适应图片、字阶与 `.geo-container` 容器约束，防范离线弱网排版飞散。
 5. **脚手架编译防覆盖锁定机制 (Scaffold Override Protection)**：
-   - 当 `project.yaml` 声明 `custom_site: true` 时，阶段二脚手架（`scaffold.py`）仅允许重新编译更新 `/llms.txt`、`/robots.txt`、`/schema.jsonld`；
-   - **严禁重新生成并覆盖 `index.html`**，严禁覆盖存量定制子站目录（about/services/blog 等）。
+   - 当 `project.yaml` 声明 `custom_site: true` 时，阶段二脚手架（`scaffold.py`）**严禁重新生成并覆盖 `index.html`**，严禁覆盖存量定制子站目录（about/services/blog 等）；
+   - `/llms.txt` 与 `/schema.jsonld` 若已存在定制版本则严格保留，仅允许刷新 `/robots.txt` 放行规则。

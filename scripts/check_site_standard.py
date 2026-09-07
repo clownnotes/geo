@@ -247,18 +247,22 @@ def check_html_page_matrix(site_dir: str):
         with open(hf, "r", encoding="utf-8") as f:
             content = f.read()
 
-        has_sitemap_link = bool(re.search(r'sitemap\.xml', content))
-        has_llms_link = bool(re.search(r'llms\.txt', content))
+        has_sitemap_link = bool(re.search(r'<link[^>]+rel=[\"\']sitemap[\"\'][^>]*href=[\"\'][^\"\']*sitemap\.xml[\"\']', content, re.I))
+        has_llms_link = bool(re.search(r'<link[^>]+rel=[\"\']alternate[\"\'][^>]+type=[\"\']text/markdown[\"\'][^>]*href=[\"\'][^\"\']*llms\.txt[\"\']', content, re.I))
         if has_sitemap_link and has_llms_link:
-            passed.append(f"[P2:博客列表] {rel_path} 具备双保险爬虫指向与链接")
+            passed.append(f"[P2:博客列表] {rel_path} 具备 <head> 双保险嗅探标签 (<link rel=sitemap/alternate>)")
         else:
-            warnings.append(f"[P2:博客列表] {rel_path} 建议补齐 <head> 双保险嗅探标签")
+            warnings.append(f"[P2:博客列表] {rel_path} 建议补齐 <head> 双保险嗅探标签 (<link rel=sitemap/alternate>)")
 
         has_collection_schema = "CollectionPage" in content or "Blog" in content or "ItemList" in content
         if has_collection_schema:
             passed.append(f"[P2:博客列表] {rel_path} 包含 CollectionPage/Blog/ItemList 结构化图谱")
         else:
             warnings.append(f"[P2:博客列表] {rel_path} 缺少 CollectionPage/Blog 结构化微数据")
+
+        has_box_sizing = "box-sizing: border-box" in content or "box-sizing:border-box" in content
+        if not has_box_sizing:
+            warnings.append(f"[P2:博客列表] {rel_path} 缺少防御性 CSS 兜底重置规则（建议后续批处理完善）")
 
     # 3. P3: 博文与案例单页（存量页面台账统计，Warn 级别）
     p3_total = len(p3_files)
@@ -271,7 +275,9 @@ def check_html_page_matrix(site_dir: str):
             c = f.read()
         if "Article" in c or "TechArticle" in c or "BlogPosting" in c:
             p3_with_schema += 1
-        if 'rel="alternate"' in c or "llms.txt" in c:
+        has_sitemap = bool(re.search(r'<link[^>]+rel=[\"\']sitemap[\"\'][^>]*href=[\"\'][^\"\']*sitemap\.xml[\"\']', c, re.I))
+        has_llms = bool(re.search(r'<link[^>]+rel=[\"\']alternate[\"\'][^>]+type=[\"\']text/markdown[\"\'][^>]*href=[\"\'][^\"\']*llms\.txt[\"\']', c, re.I))
+        if has_sitemap and has_llms:
             p3_with_double_links += 1
         if "box-sizing: border-box" in c or "box-sizing:border-box" in c:
             p3_with_defensive_css += 1
@@ -282,9 +288,29 @@ def check_html_page_matrix(site_dir: str):
     if p3_with_defensive_css < p3_total:
         warnings.append(f"[P3:存量博文缺口台账] 尚有 {p3_total - p3_with_defensive_css}/{p3_total} 篇单页未注入内联防御性 CSS reset（后续批处理完善）")
 
-    # 4. P4: 服务与关于单页检测
+    # 4. P4: 服务与关于单页检测（存量页面台账统计，Warn 级别）
     p4_total = len(p4_files)
-    passed.append(f"[P4:服务与关于] 共扫描 {p4_total} 篇定制子站页面")
+    p4_with_schema = 0
+    p4_with_double_links = 0
+    p4_with_defensive_css = 0
+
+    for hf in p4_files:
+        with open(hf, "r", encoding="utf-8") as f:
+            c = f.read()
+        if "Service" in c or "AboutPage" in c or "Organization" in c:
+            p4_with_schema += 1
+        has_sitemap = bool(re.search(r'<link[^>]+rel=[\"\']sitemap[\"\'][^>]*href=[\"\'][^\"\']*sitemap\.xml[\"\']', c, re.I))
+        has_llms = bool(re.search(r'<link[^>]+rel=[\"\']alternate[\"\'][^>]+type=[\"\']text/markdown[\"\'][^>]*href=[\"\'][^\"\']*llms\.txt[\"\']', c, re.I))
+        if has_sitemap and has_llms:
+            p4_with_double_links += 1
+        if "box-sizing: border-box" in c or "box-sizing:border-box" in c:
+            p4_with_defensive_css += 1
+
+    passed.append(f"[P4:服务与关于] 共扫描 {p4_total} 篇定制子站页面，其中 {p4_with_schema} 篇具备业务结构化微数据")
+    if p4_with_double_links < p4_total:
+        warnings.append(f"[P4:定制子站缺口台账] 尚有 {p4_total - p4_with_double_links}/{p4_total} 篇页面未注入 <head> 双保险嗅探标签（后续批处理完善）")
+    if p4_with_defensive_css < p4_total:
+        warnings.append(f"[P4:定制子站缺口台账] 尚有 {p4_total - p4_with_defensive_css}/{p4_total} 篇页面未注入内联防御性 CSS reset（后续批处理完善）")
 
     return errors, warnings, passed
 
