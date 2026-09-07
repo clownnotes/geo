@@ -98,3 +98,28 @@
 5. **文章封面图绑定与防串图规范**：
    - 博客索引构建器仅允许精准读取与文章 slug 对应的 `article-covers/{slug}.*` 或正文首图，**严禁将任何特定文章的插图作为全局兜底**；
    - 无封面时必须统一展示标准分类微渐变徽章，坚决杜绝封面张冠李戴。
+
+---
+
+## 7. 站点技术底座与大模型爬虫工程规范（多租户托管与协议最高约束）
+
+> 详细技术规范与页面类型合规矩阵见：[`docs/specs/site-scaffold-standard.md`](docs/specs/site-scaffold-standard.md)
+
+1. **静态多租户托管严格 301 尾部重定向 (Strict Trailing Slash Rule)**：
+   - 访问 `/sites/{project_id}` 或站内任意静态子目录若末尾缺少 `/`，服务端**必须强制执行 HTTP 301 永久重定向补齐末尾 `/`**；
+   - 严禁直接 200 返回页面，杜绝浏览器 Base URL 错位导致 `assets/` 相对图片与内链大面积 404。
+2. **大模型爬虫三重绝对冗余 (Triple Redundancy)**：
+   - **根目录探测**：必须保障 `/llms.txt`、`/robots.txt`（明确放行国产 5 大 AI 爬虫）与 `/sitemap.xml` 可访问；
+   - **`<head>` 隐形嗅探**：全站所有 HTML 页面必须成对注入 `<link rel="alternate" type="text/markdown" href="...">` 与 `<link rel="sitemap" type="application/xml" href="...">`；
+   - **DOM 显式内链**：页脚必须保留直接指向 `llms.txt` 与 `sitemap.xml` 的可点击超链接。
+3. **页面类型差异化 Schema.org 实体图谱矩阵**：
+   - **首页**：必须聚合 `Organization` + `LocalBusiness` + `WebSite` + `Service` + `FAQPage`（8~15 组高频问答对）；
+   - **博客知识库列表**：必须配备 `CollectionPage` + `Blog` (+ `ItemList`)；
+   - **博文/案例单页**：必须配备 `Article`/`TechArticle`（FAQPage 非强制）；
+   - 实体声明的所有图片资源（如 `logo.jpg`）必须在本地磁盘真实存在且后缀一致。
+4. **前端排版防御性 CSS 兜底 (CSS Resilience Standard)**：
+   - 严禁纯裸奔依赖外部 Play CDN（如 `cdn.tailwindcss.com`）；
+   - 页面 `<style>` 必须内联盒模型 `border-box`、自适应图片、字阶与 `.geo-container` 容器约束，防范离线弱网排版飞散。
+5. **脚手架编译防覆盖锁定机制 (Scaffold Override Protection)**：
+   - 当 `project.yaml` 声明 `custom_site: true` 时，阶段二脚手架（`scaffold.py`）仅允许重新编译更新 `/llms.txt`、`/robots.txt`、`/schema.jsonld`；
+   - **严禁重新生成并覆盖 `index.html`**，严禁覆盖存量定制子站目录（about/services/blog 等）。

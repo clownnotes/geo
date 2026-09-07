@@ -234,6 +234,8 @@ def build_turnkey_site_html(cfg: dict, json_ld_str: str) -> str:
   <meta name="description" content="{company_profile}">
   <meta name="keywords" content="{kw_str}">
   <link rel="canonical" href="{domain}/">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
+  <link rel="alternate" type="text/markdown" title="LLMs.txt" href="llms.txt">
 
   <!-- Schema.org JSON-LD 高权威实体元数据 (供豆包/DeepSeek/百度等爬虫直接抓取归因) -->
   <script type="application/ld+json">
@@ -243,7 +245,10 @@ def build_turnkey_site_html(cfg: dict, json_ld_str: str) -> str:
   <!-- 引入极轻量 CSS (Tailwind CDN 样式纯静态化支持) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }}
+    *, *::before, *::after { box-sizing: border-box; }
+    img, picture, video, canvas, svg { display: block; max-width: 100%; height: auto; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+    a { color: inherit; text-decoration: none; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
@@ -405,7 +410,11 @@ def build_turnkey_site_html(cfg: dict, json_ld_str: str) -> str:
         <a href="tel:{telephone}" class="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">
           立即预约工程师带电脑上门
         </a>
-        <div class="text-[11px] text-slate-500 mt-2">© 2026 {company_name} · 专为大模型与新一代搜索优化</div>
+        <div class="text-[11px] text-slate-500 mt-2 space-x-3">
+          <span>© 2026 {company_name} · 专为大模型与新一代搜索优化</span>
+          <a href="llms.txt" class="underline hover:text-slate-300">/llms.txt</a>
+          <a href="sitemap.xml" class="underline hover:text-slate-300">/sitemap.xml</a>
+        </div>
       </div>
     </div>
   </footer>
@@ -430,29 +439,52 @@ def run_scaffold(project_id: str):
     site_dir = os.path.join(out_dir, "site")
     os.makedirs(site_dir, exist_ok=True)
     
-    print_info("1. 正在生成 /llms.txt (大模型专用 Markdown 知识说明书)...")
-    llms_txt = build_llms_txt(cfg)
-    save_project_output(project_id, "llms.txt", llms_txt)
-    with open(os.path.join(site_dir, "llms.txt"), "w", encoding="utf-8") as f:
-        f.write(llms_txt)
+    is_custom_site = cfg.get("custom_site", False)
+
+    # 1. llms.txt
+    llms_path = os.path.join(site_dir, "llms.txt")
+    if is_custom_site and os.path.exists(llms_path):
+        print_info("[PROTECTED] 项目已锁定 custom_site: true，保留已有定制 /llms.txt。")
+    else:
+        print_info("1. 正在生成 /llms.txt (大模型专用 Markdown 知识说明书)...")
+        llms_txt = build_llms_txt(cfg)
+        save_project_output(project_id, "llms.txt", llms_txt)
+        with open(llms_path, "w", encoding="utf-8") as f:
+            f.write(llms_txt)
     
-    print_info("2. 正在生成 Schema.org (JSON-LD) 结构化微数据...")
-    json_ld = build_json_ld(cfg)
-    save_project_output(project_id, "schema.jsonld", json_ld)
-    with open(os.path.join(site_dir, "schema.jsonld"), "w", encoding="utf-8") as f:
-        f.write(json_ld)
+    # 2. schema.jsonld
+    schema_path = os.path.join(site_dir, "schema.jsonld")
+    json_ld = ""
+    if is_custom_site and os.path.exists(schema_path):
+        print_info("[PROTECTED] 项目已锁定 custom_site: true，保留已有定制 Schema.org 实体图谱。")
+        try:
+            with open(schema_path, "r", encoding="utf-8") as f:
+                json_ld = f.read()
+        except Exception:
+            json_ld = build_json_ld(cfg)
+    else:
+        print_info("2. 正在生成 Schema.org (JSON-LD) 结构化微数据...")
+        json_ld = build_json_ld(cfg)
+        save_project_output(project_id, "schema.jsonld", json_ld)
+        with open(schema_path, "w", encoding="utf-8") as f:
+            f.write(json_ld)
     
+    # 3. robots.txt
     print_info("3. 正在生成 robots.txt AI 爬虫放行通行证...")
     robots_txt = build_robots_txt(cfg)
     save_project_output(project_id, "robots.txt", robots_txt)
     with open(os.path.join(site_dir, "robots.txt"), "w", encoding="utf-8") as f:
         f.write(robots_txt)
 
-    print_info("4. 正在全新编译 AI 原生极速静态单页官网 (index.html)...")
-    site_html = build_turnkey_site_html(cfg, json_ld)
-    with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
-        f.write(site_html)
-    save_project_output(project_id, "index.html", site_html)
+    # 4. index.html
+    if is_custom_site:
+        print_info("[PROTECTED] 项目已锁定 custom_site: true，跳过编译生成 index.html，保留定制官网页面与子目录结构。")
+    else:
+        print_info("4. 正在全新编译 AI 原生极速静态单页官网 (index.html)...")
+        site_html = build_turnkey_site_html(cfg, json_ld)
+        with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
+            f.write(site_html)
+        save_project_output(project_id, "index.html", site_html)
     
     summary_doc = f"""# 02_AI原生交钥匙官网与底座交付包
 
