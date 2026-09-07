@@ -18,7 +18,10 @@
    - **`/opsx-review` 阶段**：仅负责跨端审查、对照 Spec 核对、在 `review-log.md` 中记录结论或按讨论订正 proposal/design/tasks。**完成后必须立即停步（STOP）等待用户或对端 IDE 确认，严禁擅自进入编码（apply）或归档（archive）！**
    - **`/opsx-apply` 阶段**：严格按 `tasks.md` 编码并验证，测试通过后**必须立即停步（STOP）向用户汇报进展**，等待用户人工验收。**严禁擅自执行归档！**
    - **`/opsx-archive` 归档硬约束**：**只有当用户明确下达归档指令（显式输入 `/opsx-archive` 或文字明确要求“归档”）时，方可执行 `./opsx archive` 归档与推送。任何自动串联归档均为严重违规！**
-4. **任务跟踪**：
+4. **对端 IDE 审查意见的直接修复工作流 (Review-to-Fix Flow)**：
+   - **方案/设计类问题**（如合规矩阵、字段定义、架构分歧）：使用 `/opsx-review`，仅订正 `proposal.md` / `design.md` / `tasks.md`，并在 `review-log.md` 标记 `[已达成共识]`，然后**立即停步**；
+   - **代码/功能/Bug/测试缺陷**：使用专属快捷指令 **`/opsx-fix`**（或 `/opsx-apply`），直接定位源码与测试脚本进行修复，通过自动化回归后在 `review-log.md` 标记 `[已修正]`，然后**立即停步**等待复审，严禁擅自归档。
+5. **任务跟踪**：
    - 使用 `./opsx status` 查看当前进度。
 
 ---
