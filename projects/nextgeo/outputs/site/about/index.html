@@ -172,18 +172,6 @@
                   linear-gradient(90deg, rgba(147, 51, 234, 0.06) 1px, transparent 0) 0 0 / 32px 32px,
                   linear-gradient(0deg, rgba(147, 51, 234, 0.06) 1px, transparent 0) 0 0 / 32px 32px;
     }
-
-    /* 对标 deep-geo.cn .geo-loop 6步闭环 */
-    .geo-loop-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-    @media (max-width: 768px) {
-      .geo-loop-grid {
-        grid-template-columns: 1fr;
-      }
-    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -365,7 +353,7 @@
             <tr>
               <td class="font-bold text-slate-900">交付方式</td>
               <td>更像单次内容项目，发布后缺少持续监测和复盘机制。</td>
-              <td class="font-bold text-slate-900 bg-brand-50/20">按诊断、建设、分发、监测、复盘迭代交付，让 GEO 变成可持续增长流程。本地支持工程师带电脑上门，全托管交钥匙交付与长效复盘。</td>
+              <td class="font-bold text-slate-900 bg-brand-50/20">Stage 01 ~ Stage 05 全链路闭环与交钥匙交付。本地支持工程师带电脑上门，全托管代码/协议/语料落地与长效动态护航。</td>
             </tr>
             <tr>
               <td class="font-bold text-slate-900">效果衡量</td>
@@ -377,98 +365,161 @@
       </div>
     </section>
 
-    <!-- 6. 五、我们的 GEO 方法体系 (对标 deep-geo.cn 6大步骤卡片) -->
+    <!-- 四、我们的 GEO 方法体系 (Stage 01 ~ Stage 05 五步标准化交付流水线) -->
     <section class="geo-container border-t border-slate-200/90 pt-12 pb-12 prose-geo">
       <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">四、我们的 GEO 方法体系</h2>
       <p>
         我们把 GEO 交付理解为“品牌答案源建设”：先确认 AI 现在如何理解企业，再补齐官网、内容、技术和外部平台中的关键信号，让品牌在多平台搜索和 AI 问答中逐步形成稳定认知。
       </p>
       <p>
-        与行业里常见的“批量发文章”不同，邻里GEO 不把 GEO 简化成内容铺量。文章只是其中一个载体，真正影响 AI 是否理解和引用品牌的，是品牌实体、问题库、知识库、内容资产、外部分发和监测复盘能否形成闭环。
+        与行业里常见的“批量发文章”不同，邻里GEO 不把 GEO 简化成内容铺量。文章只是其中一个载体，真正影响 AI 是否理解和引用品牌的，是底座协议、语料提纯、多源共识与长效攻防护航能否形成标准工程闭环。
       </p>
 
-      <!-- 6 步闭环 (1180px 满幅三栏排列，对标首页卡片呼吸感) -->
-      <div class="not-prose geo-loop-grid my-8">
-        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
-          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-brand-600 text-white text-sm font-black mb-4">01</div>
-          <strong class="text-xl font-black text-slate-900 block mb-2">品牌实体</strong>
-          <p class="text-base text-slate-600 leading-relaxed">统一公司、产品、服务、行业和客户场景的标准定义与权威口径。</p>
+      <!-- 五步标准化交付流水线 (3+2 双行卡片布局) -->
+      <div class="not-prose my-8 space-y-6">
+        <!-- 第一行 3 个阶段：企业站内核心事实基座 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- STAGE 01 -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-black uppercase tracking-widest text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-1 rounded-full font-mono">STAGE 01</span>
+                <span class="text-2xl font-black text-slate-300 font-mono">01</span>
+              </div>
+              <strong class="text-xl font-black text-slate-900 block mb-2">现状评测与认知审计</strong>
+              <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">跨主流 LLM 全量跑测行业高频商机 Query，深度摸清品牌提及率、实体消歧与偏见差距。</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 text-xs font-bold text-brand-900 flex items-center gap-1.5">
+              <span class="bg-brand-600 text-white px-1.5 py-0.5 rounded text-[11px] font-black shrink-0">交付物</span>
+              <span>《企业 GEO 就绪度诊断报告》</span>
+            </div>
+          </div>
+
+          <!-- STAGE 02 -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-black uppercase tracking-widest text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full font-mono">STAGE 02</span>
+                <span class="text-2xl font-black text-slate-300 font-mono">02</span>
+              </div>
+              <strong class="text-xl font-black text-slate-900 block mb-2">站点底座与协议接入</strong>
+              <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">改造官网底层结构，注入 Schema.org 实体元数据，上线 /llms.txt 标准协议与 SSR 爬虫底座。</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 text-xs font-bold text-brand-900 flex items-center gap-1.5">
+              <span class="bg-brand-600 text-white px-1.5 py-0.5 rounded text-[11px] font-black shrink-0">交付物</span>
+              <span>官网技术改造部署包与机器可读协议接口</span>
+            </div>
+          </div>
+
+          <!-- STAGE 03 -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-black uppercase tracking-widest text-purple-700 bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-full font-mono">STAGE 03</span>
+                <span class="text-2xl font-black text-slate-300 font-mono">03</span>
+              </div>
+              <strong class="text-xl font-black text-slate-900 block mb-2">普林斯顿 9 因子语料重构</strong>
+              <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">基于 9 因子规范提纯权威实体定义、标杆案例与硬核参数表格，锚定高频 FAQ 问答对。</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 text-xs font-bold text-brand-900 flex items-center gap-1.5">
+              <span class="bg-brand-600 text-white px-1.5 py-0.5 rounded text-[11px] font-black shrink-0">交付物</span>
+              <span>普林斯顿 9 因子高权威内容库上线文档</span>
+            </div>
+          </div>
         </div>
-        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
-          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-indigo-600 text-white text-sm font-black mb-4">02</div>
-          <strong class="text-xl font-black text-slate-900 block mb-2">真实问法</strong>
-          <p class="text-base text-slate-600 leading-relaxed">整理用户在 AI 搜索里真正会问的推荐、选型、横评和比较问题。</p>
-        </div>
-        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
-          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-purple-600 text-white text-sm font-black mb-4">03</div>
-          <strong class="text-xl font-black text-slate-900 block mb-2">知识结构</strong>
-          <p class="text-base text-slate-600 leading-relaxed">把企业介绍、核心技术、交付案例与边界组织成可维护知识库。</p>
-        </div>
-        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
-          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-brand-700 text-white text-sm font-black mb-4">04</div>
-          <strong class="text-xl font-black text-slate-900 block mb-2">内容资产</strong>
-          <p class="text-base text-slate-600 leading-relaxed">建设 FAQ、产品选型、案例库、行业解决方案等答案源结构化内容。</p>
-        </div>
-        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
-          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-emerald-600 text-white text-sm font-black mb-4">05</div>
-          <strong class="text-xl font-black text-slate-900 block mb-2">多源分发</strong>
-          <p class="text-base text-slate-600 leading-relaxed">让官网微数据、媒体专栏、权威第三方与行业目录保持高度一致信源。</p>
-        </div>
-        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 hover:shadow-md transition">
-          <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-cyan-600 text-white text-sm font-black mb-4">06</div>
-          <strong class="text-xl font-black text-slate-900 block mb-2">监测复盘</strong>
-          <p class="text-base text-slate-600 leading-relaxed">持续监测主流 AI 是否提到、说准、引用，以及竞品在各模型中的占位。</p>
+
+        <!-- 第二行 2 个阶段：全网共识与长效护航（居中排版） -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <!-- STAGE 04 -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full font-mono">STAGE 04</span>
+                <span class="text-2xl font-black text-slate-300 font-mono">04</span>
+              </div>
+              <strong class="text-xl font-black text-slate-900 block mb-2">多平台矩阵借壳分发</strong>
+              <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">依托知乎专栏、权威百科、行业垂直媒体等高权重信源铺设一致佐证，构建交叉共识证据链。</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 text-xs font-bold text-brand-900 flex items-center gap-1.5">
+              <span class="bg-brand-600 text-white px-1.5 py-0.5 rounded text-[11px] font-black shrink-0">交付物</span>
+              <span>第三方高权重信源共识互证矩阵与发布存档</span>
+            </div>
+          </div>
+
+          <!-- STAGE 05 -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-black uppercase tracking-widest text-cyan-700 bg-cyan-50 border border-cyan-200 px-2.5 py-1 rounded-full font-mono">STAGE 05</span>
+                <span class="text-2xl font-black text-slate-300 font-mono">05</span>
+              </div>
+              <strong class="text-xl font-black text-slate-900 block mb-2">声量监测与动态复盘周报</strong>
+              <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">持续跟踪主流 AI 召回率、引用质量与竞品攻防归因，输出动态周报与知识热补丁修复。</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 text-xs font-bold text-brand-900 flex items-center gap-1.5">
+              <span class="bg-brand-600 text-white px-1.5 py-0.5 rounded text-[11px] font-black shrink-0">交付物</span>
+              <span>每周多模型 AI 引用率动态周报 &amp; 知识热补丁</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 交付阶段与详细交付内容表 -->
+      <!-- 双速交付节奏保障提示 -->
+      <div class="my-6 p-5 rounded-2xl bg-brand-50/60 border border-brand-200/80 not-prose">
+        <div class="text-xs font-bold text-brand-800 uppercase tracking-wider mb-1 font-mono">Dual-Speed Delivery Rhythm</div>
+        <p class="text-sm sm:text-base text-slate-700 font-medium leading-relaxed">
+          <strong>双速交付节奏保障</strong>：<strong>14 天首期敏捷起效</strong>（通过 Stage 01 诊断定位与 Stage 02/04 权威信源校准，首期跑出主流 AI 真实引用推荐，可验证、可汇报）；<strong>180 天长效壁垒</strong>（通过 Stage 03 普林斯顿 9 因子私有知识底座与全网共识互证，牢固沉淀行业品类第一首推心智）。
+        </p>
+      </div>
+
+      <!-- 交付阶段与采购方核心交付内容表 -->
       <div class="not-prose overflow-x-auto shadow-xs my-6">
         <table class="content-table">
           <thead>
             <tr>
-              <th class="w-1/6">交付阶段</th>
-              <th class="w-1/4">阶段交付成果物</th>
-              <th class="w-5/12">详细交付内容</th>
-              <th class="w-1/4 text-brand-900 bg-brand-50/70">交付形式与保障</th>
+              <th class="w-1/6">交付流水线阶段</th>
+              <th class="w-1/4">采购方核心交付成果物</th>
+              <th class="w-5/12">详细交付内容与工程动作</th>
+              <th class="w-1/4 text-brand-900 bg-brand-50/70">交付形式与保障承诺</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="font-bold text-slate-900">1. 诊断阶段</td>
-              <td class="font-semibold text-brand-700">《企业 AI 可见度体检与问法诊断报告》</td>
-              <td>主流 AI（DeepSeek、豆包、Kimi、腾讯元宝等）现状测试、品牌/竞品提及率分析、高意向客户真实搜索问法图谱。</td>
-              <td><strong>本地支持工程师带电脑上门</strong>，面对面深度梳理企业真实业务与核心技术壁垒。</td>
+              <td class="font-bold text-slate-900">STAGE 01<br><span class="text-xs font-normal text-slate-500">现状评测与认知审计</span></td>
+              <td class="font-semibold text-brand-700">《企业 GEO 就绪度诊断报告》&amp;《大模型首推份额差距清单》</td>
+              <td>主流大模型（DeepSeek、豆包、Kimi、ChatGPT 等）商机问法跑测、品牌/竞品提及率分析、高意向客户搜索问法图谱与大模型实体偏见审计。</td>
+              <td><strong>本地支持工程师带电脑上门</strong>，面对面深度梳理企业真实业务逻辑与核心技术壁垒。</td>
             </tr>
             <tr>
-              <td class="font-bold text-slate-900">2. 建设阶段</td>
-              <td class="font-semibold text-brand-700">《企业品牌标准答案源与知识基础设施》</td>
-              <td>统一品牌实体定义、核心产品/参数实体、选型指南、FAQ 问答对、Schema.org 微数据、Clean Markdown 与 llms.txt 规范。</td>
-              <td><strong>全托管交钥匙建设</strong>，无需客户触碰任何底层代码或服务器，数字资产全量归属企业。</td>
+              <td class="font-bold text-slate-900">STAGE 02<br><span class="text-xs font-normal text-slate-500">站点底座与协议接入</span></td>
+              <td class="font-semibold text-brand-700">符合 GEO 标准的企业官网与知识底座交付（技术部署包）</td>
+              <td>统一品牌实体定义、Schema.org (JSON-LD) 实体元数据注入、/llms.txt 标准协议接入与 SSR/SSG 爬虫无障碍双模渲染底座改造。</td>
+              <td><strong>全托管交钥匙交付</strong>，提供完整源码部署包与协议接口，企业完全自主掌控数字资产所有权。</td>
             </tr>
             <tr>
-              <td class="font-bold text-slate-900">3. 分发阶段</td>
-              <td class="font-semibold text-brand-700">《高权重第三方信源与证据链分发包》</td>
-              <td>针对核心高意向问法进行知乎、头条、行业垂直媒体等第三方深度分发，为各大模型交叉验证提供权威佐证。</td>
-              <td>多渠道高权威占位，口径高度一致，构建坚固的第三方公信力证据链。</td>
+              <td class="font-bold text-slate-900">STAGE 03<br><span class="text-xs font-normal text-slate-500">普林斯顿 9 因子语料重构</span></td>
+              <td class="font-semibold text-brand-700">普林斯顿 9 因子官网高权威内容库全量上线文档</td>
+              <td>基于普林斯顿 9 因子规范提纯权威实体定义、硬核参数表格、标杆客户案例库与行业解决方案，锚定无法被大模型反驳的标准事实证据链。</td>
+              <td>结合企业真实生产与工况数据，输出大模型可精准分块（Chunking）检索的结构化干净语料。</td>
             </tr>
             <tr>
-              <td class="font-bold text-slate-900">4. 监测阶段</td>
-              <td class="font-semibold text-brand-700">《主流 AI 搜索与召回表现多维监测》</td>
-              <td>持续跟踪企业在目标问法下的提及频次、引用来源质量、推荐顺位及回答准确性，动态捕捉竞品占位。</td>
-              <td>建立固定意图测试库，定期输出多模型监测动态数据，进展清晰透明。</td>
+              <td class="font-bold text-slate-900">STAGE 04<br><span class="text-xs font-normal text-slate-500">多平台矩阵借壳分发</span></td>
+              <td class="font-semibold text-brand-700">第三方高权重信源共识互证矩阵与发布存档</td>
+              <td>针对核心商业决策问法，依托知乎专栏、权威百科、行业垂直媒体等主流 AI 高信任度阵地借壳占位，铺设口径高度一致的第三方公信力佐证。</td>
+              <td>全渠道信源多向交叉验证，多点共识互锁，杜绝信息孤岛，形成高公信力证据闭环。</td>
             </tr>
             <tr>
-              <td class="font-bold text-slate-900">5. 复盘阶段</td>
-              <td class="font-semibold text-brand-700">《长效复盘分析报告与持续优化迭代》</td>
-              <td>系统复盘高意向客户咨询转化与商机归因，拓展最新衍生问题词库，动态增补与维护品牌答案源。</td>
-              <td>告别单次内容买卖，让 GEO 沉淀为企业<strong>可持续获客的长效数字资产</strong>。</td>
+              <td class="font-bold text-slate-900">STAGE 05<br><span class="text-xs font-normal text-slate-500">声量监测与动态复盘周报</span></td>
+              <td class="font-semibold text-brand-700">服务期内 AI 引用监测与竞品动态攻防护航（周报与热补丁）</td>
+              <td>每周多模型 AI 引用率与好感度动态监控、竞品异动与拦截预警、大模型回答事实偏差溯源，提供动态知识热补丁修复与问法库敏捷迭代。</td>
+              <td><strong>服务期内全周期护航</strong>，告别单次内容买卖，让 GEO 沉淀为企业可持续获客的长效壁垒。</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- 7. 六、哪些行业需要 GEO -->
+    <!-- 五、哪些行业需要 GEO -->
     <section class="geo-container border-t border-slate-200/90 pt-12 pb-12">
       <div class="prose-geo">
         <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-6">五、哪些行业需要 GEO</h2>
