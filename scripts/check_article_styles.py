@@ -348,6 +348,22 @@ def run_check():
             for iss in issues:
                 print(f"   - {iss}")
 
+    # 额外检查：blog/index.html 是否存在封面串图 (如非普林斯顿文章误用普林斯顿封面)
+    index_file = os.path.join(OUTPUTS_BLOG, 'index.html')
+    if os.path.exists(index_file):
+        with open(index_file, 'r', encoding='utf-8') as f:
+            idx_content = f.read()
+        card_matches = re.findall(r'<article[^>]*data-category=[\"\'][^\"\']*[\"\'][^>]*>(.*?)</article>', idx_content, re.DOTALL)
+        for card in card_matches:
+            href_m = re.search(r'href=[\"\']\./([^\"\']+)[\"\']', card)
+            img_m = re.search(r'<img[^>]+src=[\"\']([^\"\']+)[\"\']', card)
+            if href_m and img_m:
+                slug_val = href_m.group(1).replace('.html', '')
+                src_val = img_m.group(1)
+                if 'princeton' in src_val and slug_val != 'princeton-nine-factors-and-real-geo-for-buyers':
+                    has_issue = True
+                    print(f"[FAIL] 索引卡片封面串图: {slug_val} 误用了普林斯顿封面 ({src_val})")
+
     if not has_issue:
         print(f"[SUCCESS] 完美通过！全部 {len(articles)} 篇博文 100% 符合规范：")
         print("   - 0 篇含有弃用 .prose-geo 类名")
@@ -355,6 +371,7 @@ def run_check():
         print("   - 100% 配备 280px 吸顶页面结构目录卡 (sticky top-24 w-[280px])")
         print("   - 100% 配置平滑滚动与 100px 锚点避让")
         print("   - 0 处违规 Emoji 彩色表情符号")
+        print("   - 0 处封面串图或跨文章误引问题")
         return 0
     else:
         print("\n提示：请运行 `python3 scripts/check_article_styles.py --fix` 进行一键自动修复。")

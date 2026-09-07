@@ -109,12 +109,15 @@ def parse_article_metadata(fpath):
 
     # 6. 封面图
     cover_rel = None
-    # 检查是否有特定封面文件
     possible_covers = [
         f"../assets/article-covers/{slug}.png",
         f"../assets/article-covers/{slug}.jpg",
-        f"../assets/article-images/princeton-nine-factors/cover.jpg",
+        f"../assets/article-covers/{slug}.webp",
     ]
+    # 仅普林斯顿专文才匹配其专属插图目录
+    if slug == 'princeton-nine-factors-and-real-geo-for-buyers':
+        possible_covers.append("../assets/article-images/princeton-nine-factors/cover.jpg")
+
     for cov in possible_covers:
         disk_path = os.path.join(OUTPUTS_DIR, cov.replace('../', ''))
         if os.path.exists(disk_path):
@@ -122,10 +125,12 @@ def parse_article_metadata(fpath):
             break
 
     if not cover_rel:
-        # 检查正文中是否有本地图片
-        img_m = re.search(r'<img[^>]+src=[\"\'](\.\./assets/[^\"\']+)[\"\']', content)
-        if img_m:
-            cover_rel = img_m.group(1)
+        # 检查正文中是否有本地首图（排除 logo 图）
+        imgs = re.findall(r'<img[^>]+src=[\"\'](\.\./assets/[^\"\']+)[\"\']', content)
+        for img in imgs:
+            if 'logo' not in img and 'covers' not in img and os.path.exists(os.path.join(OUTPUTS_DIR, img.replace('../', ''))):
+                cover_rel = img
+                break
 
     return {
         'filename': filename,
@@ -423,6 +428,11 @@ def update_llms_and_sitemap(all_articles):
             f.write(sitemap_str)
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="NextGEO 博客全量动态索引构建系统")
+    parser.add_argument('--dry-run', action='store_true', help="预演模式：只执行扫描与统计，不写入磁盘")
+    args = parser.parse_args()
+
     print("Scanning all blog articles in projects/nextgeo/outputs/blog/*.html...")
     article_files = sorted(glob.glob(os.path.join(BLOG_DIR, '*.html')))
     articles = []
@@ -440,6 +450,19 @@ def main():
 
     # 按 publish_date 严格倒序排序
     sorted_articles = sorted(articles, key=lambda x: (x['publish_date'], x['title']), reverse=True)
+
+    geo_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'geo')
+    ai_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'ai-search')
+    case_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'case-studies')
+
+    print(f"Stats: 全部={len(sorted_articles)}, GEO={geo_cnt}, AI搜索={ai_cnt}, 案例={case_cnt}")
+    print(f"Top 3 Articles:")
+    for i, a in enumerate(sorted_articles[:3]):
+        print(f"  {i+1}. [{a['publish_date']}] {a['title']} (cover: {a['cover_rel']})")
+
+    if args.dry_run:
+        print("\n[DRY-RUN] 预演完成，未修改任何磁盘文件。")
+        return
 
     # 生成 blog/index.html
     index_html = generate_blog_index_html(sorted_articles)
