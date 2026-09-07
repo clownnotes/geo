@@ -70,3 +70,32 @@
 
 #### 结论一句话
 **产品方针与 Spec 范围已对齐；结论 `[已达成共识]`，可执行 apply（阅读时长按 🟡 完整修复）。**
+
+---
+
+### 2026-09-06 21:44 | Cursor | 独立跨 IDE 复审（implementation）
+
+- **对照**：`proposal.md` / `design.md` / `tasks.md` / 上轮 Cursor 🟡 约束 + commit `3e05deb`
+- **审查结论**：`[通过]`
+- **总判**：博客列表底座缺口已闭环；阅读时长双路径、JSON-LD 前 15、head 双 link、页脚三重冗余均达标，可归档。
+
+#### 抽检结果
+
+| 项 | 实测 | 判定 |
+| :--- | :--- | :---: |
+| 阅读时长 | 84/84 卡均为 `阅读约 N 分钟`；脚本 `阅读(?:时长|约)?` 抽数字后归一（上轮 🟡 已落地） | ✅ |
+| JSON-LD | `@graph` 含 `CollectionPage` + `Blog`；`mainEntity.ItemList` 共 15 条；绝对 URL；与列表倒序前 5 一致 | ✅ |
+| `<head>` 双保险 | `rel="sitemap"` → `../sitemap.xml`；`rel="alternate" type="text/markdown"` → `../llms.txt` | ✅ |
+| 页脚保留 | `llms.txt` / `sitemap.xml` 明文超链接仍在（未误删） | ✅ |
+| 双端镜像 | `outputs/blog/index.html` ≡ `site/blog/index.html`，MD5 `34539b1e12bab2d4a23defa712d2d6ac` | ✅ |
+| 样式巡检 | `check_article_styles.py` exit 0；0 Emoji | ✅ |
+| 本地渲染 | `http://127.0.0.1:8088/sites/nextgeo/blog/` HTTP 200，含 JSON-LD 与「分钟」文案 | ✅ |
+
+#### 问题分级
+
+- 🔴 无
+- 🟡 无（上轮 apply 约束已清零）
+- 🟢 可选：`CollectionPage.mainEntity` 与 ItemList `@id` 互指（非必须，不阻塞归档）
+
+#### 结论一句话
+**实现与共识一致，工程核验通过；结论 `[通过]`，可执行 `./opsx archive`。**
