@@ -61,6 +61,16 @@
    - **只有当用户明确指示推生产（如“部署到生产”、“推到线上网站”）时**，方可执行生产发布。
 2. **Git 协同推送规范**：
    - 开发端阶段性测试通过后，Git 仓库必须正常执行提交并推送到远端（`git push origin main` 与 `git push github main`），确保多端代码同步。
+3. **极简标准推生产流程（两步直达，严禁繁琐探查）**：
+   - **第 1 步：本地双推**：
+     ```bash
+     git push origin main && git push github main
+     ```
+   - **第 2 步：生产物理机单行拉取**：
+     ```bash
+     ssh mini "cd /Users/ne/apps/GEO && git pull github main"
+     ```
+   - **铁律**：严禁在推生产时擅自登录多台机器扫描端口、查杀进程或修改 Nginx；生产机 Web 服务直接挂载静态文件，`git pull` 完成后秒级生效。
 
 ---
 
