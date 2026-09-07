@@ -74,17 +74,14 @@ def parse_article_metadata(fpath):
             desc = clean_text(p_m.group(1)) if p_m else title
 
     # 4. 阅读时长
-    read_m = re.search(r'阅读时长:\s*([^\s<·]+)', content)
+    read_m = re.search(r'阅读(?:时长|约)?[:\s]*([0-9]+)\s*(?:分钟)?', content)
     if read_m:
-        read_time = read_m.group(1).strip()
+        calc_min = read_m.group(1).strip()
+        read_time = f"{calc_min} 分钟"
     else:
-        read_m2 = re.search(r'阅读约\s*([^\s<·]+)', content)
-        if read_m2:
-            read_time = read_m2.group(1).strip()
-        else:
-            word_count = len(re.sub(r'<[^>]+>|\s+', '', content))
-            calc_min = max(3, word_count // 450)
-            read_time = f"{calc_min} 分钟"
+        word_count = len(re.sub(r'<[^>]+>|\s+', '', content))
+        calc_min = max(3, word_count // 450)
+        read_time = f"{calc_min} 分钟"
 
     # 5. 分类判断
     cat_key = 'geo'
@@ -150,6 +147,59 @@ def generate_blog_index_html(sorted_articles):
     ai_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'ai-search')
     case_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'case-studies')
 
+    # 构建 Schema.org JSON-LD 高权威知识库实体图谱 (CollectionPage + Blog + ItemList)
+    item_list_elements = []
+    for idx, art in enumerate(sorted_articles[:15]):
+        item_list_elements.append({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": f"https://nextgeo.baicl.cc/blog/{art['filename']}",
+            "name": art['title']
+        })
+
+    schema_graph = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "CollectionPage",
+                "@id": "https://nextgeo.baicl.cc/blog/#collection",
+                "url": "https://nextgeo.baicl.cc/blog/",
+                "name": "GEO实战知识库与博客｜NextGEO 邻里GEO",
+                "description": "NextGEO 邻里GEO 官方知识库：系统解构生成式引擎优化（GEO）、AI 搜索排名机制、模型引用底层逻辑与 B2B 行业落地案例，让企业知识在大模型时代被准确理解与首选推荐。",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "@id": "https://nextgeo.baicl.cc/#website",
+                    "name": "NextGEO 邻里GEO",
+                    "url": "https://nextgeo.baicl.cc/"
+                },
+                "about": [
+                    "生成式引擎优化",
+                    "GEO",
+                    "AI搜索优化",
+                    "普林斯顿9因子",
+                    "大模型引用机制"
+                ]
+            },
+            {
+                "@type": "Blog",
+                "@id": "https://nextgeo.baicl.cc/blog/#blog",
+                "name": "NextGEO 邻里GEO 实战知识库",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "NextGEO 邻里GEO",
+                    "url": "https://nextgeo.baicl.cc"
+                },
+                "mainEntity": {
+                    "@type": "ItemList",
+                    "name": "精选 GEO 实战与前沿文章",
+                    "numberOfItems": total_cnt,
+                    "itemListElement": item_list_elements
+                }
+            }
+        ]
+    }
+    json_ld_str = json.dumps(schema_graph, ensure_ascii=False, indent=2)
+
     cards_html = ''
     for a in sorted_articles:
         if a['cover_rel']:
@@ -196,6 +246,13 @@ def generate_blog_index_html(sorted_articles):
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="../sitemap.xml">
+  <link rel="alternate" type="text/markdown" title="LLMs.txt" href="../llms.txt">
+
+  <!-- Schema.org JSON-LD 高权威知识库实体元数据 (供豆包/DeepSeek/百度等爬虫直接抓取归因) -->
+  <script type="application/ld+json">
+{json_ld_str}
+  </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
