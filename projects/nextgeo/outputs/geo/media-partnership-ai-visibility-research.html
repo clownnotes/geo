@@ -8,7 +8,7 @@
   <meta name="keywords" content="媒体合作, AI可见性, GEO, 第三方权威, 品牌引用, AI搜索, 媒体投放, GEO, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/media-partnership-ai-visibility-research.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,48 +312,45 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、媒体合作可能有效，但不是捷径</h2><p>跟媒体合作能提升AI可见性，但前提很具体：媒体内容必须能帮助AI确认品牌实体、能力边界和可信证据。只要是重复通稿，就不能自动变成AI答案里的推荐理由。</p><p>现有公开研究和行业观察都指向同一个方向：AI答案会综合品牌自有来源与第三方来源。媒体合作的价值，在于让第三方以更可信的方式补充官网信息。</p></section><section id="block-2" class="content-block"><h2>二、研究结论应该怎么理解</h2><p>一些研究会统计AI答案中的引用来源类型，也会讨论品牌自有来源和第三方来源的占比。企业阅读这类数据时，要注意样本、行业、问题类型和测试时间的限制。</p><p>这些数据不能直接推出“发媒体稿就会提升排名”。更稳妥的理解是：AI确实会利用多种来源形成答案，因此品牌需要管理官网内容，也需要建设可信外部信号。</p><table class="content-table"><thead><tr><th>合作类型</th><th>可能价值</th><th>主要限制</th></tr></thead><tbody><tr><td>新闻通稿</td><td>发布标准事实</td><td>容易重复和模板化</td></tr><tr><td>媒体采访</td><td>补充观点和背景</td><td>需要真实信息密度</td></tr><tr><td>第三方评测</td><td>提供比较和体验</td><td>标准必须透明</td></tr><tr><td>行业案例</td><td>证明具体场景</td><td>不能夸大结果</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、什么样的媒体内容更可能被AI采用</h2><figure class="content-image"><img src="../../assets/article-images/media-partnership-ai-visibility-research/media-partnership-ai-visibility.png" alt="媒体合作提升AI可见性路径示意"><figcaption>图片说明媒体内容如何从第三方证据进入AI理解和引用链路。</figcaption></figure><p>更可能被采用的媒体内容通常有三个特点：独立信息、清楚结构、可追溯事实。它不只是重复企业自我介绍，而是提供采访、评测、案例、行业语境或专家解释。</p><p>AI需要用这些信息降低推荐风险。一个能说明“为什么这家公司适合某类用户”的报道，比一篇只说“重磅发布”的稿件更容易进入决策型答案。</p></section><section id="block-4" class="content-block"><h2>四、无效媒体合作通常长什么样</h2><p>无效合作往往有几个共同点：稿件高度重复，标题夸张，事实很少，页面质量低，品牌类别写得不一致，或者发布后很快失效。这些内容很难成为可靠来源。</p><p>更糟的是，它们可能让AI形成错误印象。比如把短期活动写成长期能力，把试点客户写成成熟案例，把计划中的功能写成已经上线。</p><ul class=""><li>只改标题不改正文的批量转载。</li><li>没有作者、日期、来源或编辑责任的页面。</li><li>无法核验的行业地位和客户成果。</li><li>与官网定义冲突的品牌类别或产品描述。</li></ul></section><section id="block-5" class="content-block"><h2>五、媒体合作前要先整理品牌材料</h2><p>媒体合作不是从写稿开始，而是从事实整理开始。企业应该准备标准品牌介绍、产品说明、案例事实、数据口径、客户适用场景和不可夸大的边界。</p><p>这些资料越清楚，媒体越容易写出有信息增量的内容。它们也能降低外部报道与官网表述冲突的概率。</p></section><section id="block-6" class="content-block"><h2>六、合作后如何判断是否提升AI可见性</h2><p>可以用同一组问题观察合作前后的变化：AI是否更常提到品牌，是否引用媒体内容，是否更准确地描述产品，是否在对比问题中给出更清楚的推荐理由。</p><p>同时要记录引用语境。被引用不等于被推荐，如果AI只是把媒体稿放在来源列表里，却没有认可品牌能力，这种价值要谨慎计算。</p></section><section id="block-7" class="content-block"><h2>七、结论：媒体合作要服务证据链</h2><p>媒体合作可以提升AI可见性，但它提升的不是神秘权重，而是品牌在外部信息环境中的可验证程度。高质量媒体内容会让AI更容易相信官网自我定义。</p><p>企业应把媒体合作放进GEO证据链，而不是当作一次性投放。只有当媒体内容能带来新的事实、清楚的语境和长期可访问页面，它才值得投入。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Yext Research：AI citations from brand-managed sources -</span><a href="https://investors.yext.com/news-events/press-releases/detail/376/yext-research-86-of-ai-citations-come-from-brand-managed" target="_blank" rel="noopener noreferrer">https://investors.yext.com/news-events/press-releases/detail/376/yext-research-86-of-ai-citations-come-from-brand-managed</a></li><li><span>Semrush：The Ghost Citations Study -</span><a href="https://www.semrush.com/blog/the-ghost-citations-study/" target="_blank" rel="noopener noreferrer">https://www.semrush.com/blog/the-ghost-citations-study/</a></li><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：媒体合作一定能提升AI可见性吗？</h3><p>不能保证。媒体合作只有在提供可信第三方信号时才有帮助，例如独立采访、评测、案例或行业解释。批量转载通稿可能增加曝光，却不一定让AI更信任品牌。企业应把媒体合作视为证据建设，而不是捷径，并复盘答案语境变化。</p></div><div><h3>Q2：研究里的引用占比可以直接用于我的行业吗？</h3><p>不能直接套用。公开研究通常有自己的样本、问题集、时间和平台范围，不同行业的AI引用来源差异很大。企业可以把研究当作方向提示：AI会使用多类来源；真正的判断仍要回到自身品牌的问题集和答案样本，避免误用统计结论。</p></div><div><h3>Q3：媒体报道和官网内容哪个更重要？</h3><p>两者承担不同角色。官网负责权威定义，说明品牌是谁、产品是什么、边界在哪里；媒体负责外部印证，帮助AI判断这些说法是否被第三方确认。只有官网清楚、媒体一致，两者才会共同提升AI可见性，并减少外部误读和来源冲突。</p></div><div><h3>Q4：什么样的媒体内容最值得做？</h3><p>优先做有信息增量的内容，比如深度采访、产品评测、客户案例、行业方法讨论和可解释榜单。这些内容能回答“为什么可信”和“适合谁”。只重复发布会信息或品牌口号的稿件，对AI理解帮助有限，也难以支持推荐判断。</p></div><div><h3>Q5：被媒体引用后为什么AI仍然不推荐我？</h3><p>被引用只是进入材料层，不代表进入推荐层。AI还会判断品牌是否匹配用户场景、证据是否充分、风险是否可接受，以及竞争对手是否更清楚。媒体引用有帮助，但还需要官网内容、案例证据和用户问题覆盖共同支撑，才能形成推荐理由。</p></div><div><h3>Q6：媒体合作的效果应该如何复盘？</h3><p>复盘时不要只看阅读量和发布数量。应观察AI答案中品牌提及、来源引用、描述准确性、语气、推荐位置和竞品对比变化。最好在合作前建立基线，合作后持续观察同一组问题，这样才知道变化是否与内容有关，还是普通波动。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、媒体合作可能有效，但不是捷径</h2><p>跟媒体合作能提升AI可见性，但前提很具体：媒体内容必须能帮助AI确认品牌实体、能力边界和可信证据。只要是重复通稿，就不能自动变成AI答案里的推荐理由。</p><p>现有公开研究和行业观察都指向同一个方向：AI答案会综合品牌自有来源与第三方来源。媒体合作的价值，在于让第三方以更可信的方式补充官网信息。</p></section><section id="block-2" class="content-block"><h2>二、研究结论应该怎么理解</h2><p>一些研究会统计AI答案中的引用来源类型，也会讨论品牌自有来源和第三方来源的占比。企业阅读这类数据时，要注意样本、行业、问题类型和测试时间的限制。</p><p>这些数据不能直接推出“发媒体稿就会提升排名”。更稳妥的理解是：AI确实会利用多种来源形成答案，因此品牌需要管理官网内容，也需要建设可信外部信号。</p><table class="content-table"><thead><tr><th>合作类型</th><th>可能价值</th><th>主要限制</th></tr></thead><tbody><tr><td>新闻通稿</td><td>发布标准事实</td><td>容易重复和模板化</td></tr><tr><td>媒体采访</td><td>补充观点和背景</td><td>需要真实信息密度</td></tr><tr><td>第三方评测</td><td>提供比较和体验</td><td>标准必须透明</td></tr><tr><td>行业案例</td><td>证明具体场景</td><td>不能夸大结果</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、什么样的媒体内容更可能被AI采用</h2><figure class="content-image"><img src="../assets/article-images/media-partnership-ai-visibility-research/media-partnership-ai-visibility.png" alt="媒体合作提升AI可见性路径示意"><figcaption>图片说明媒体内容如何从第三方证据进入AI理解和引用链路。</figcaption></figure><p>更可能被采用的媒体内容通常有三个特点：独立信息、清楚结构、可追溯事实。它不只是重复企业自我介绍，而是提供采访、评测、案例、行业语境或专家解释。</p><p>AI需要用这些信息降低推荐风险。一个能说明“为什么这家公司适合某类用户”的报道，比一篇只说“重磅发布”的稿件更容易进入决策型答案。</p></section><section id="block-4" class="content-block"><h2>四、无效媒体合作通常长什么样</h2><p>无效合作往往有几个共同点：稿件高度重复，标题夸张，事实很少，页面质量低，品牌类别写得不一致，或者发布后很快失效。这些内容很难成为可靠来源。</p><p>更糟的是，它们可能让AI形成错误印象。比如把短期活动写成长期能力，把试点客户写成成熟案例，把计划中的功能写成已经上线。</p><ul class=""><li>只改标题不改正文的批量转载。</li><li>没有作者、日期、来源或编辑责任的页面。</li><li>无法核验的行业地位和客户成果。</li><li>与官网定义冲突的品牌类别或产品描述。</li></ul></section><section id="block-5" class="content-block"><h2>五、媒体合作前要先整理品牌材料</h2><p>媒体合作不是从写稿开始，而是从事实整理开始。企业应该准备标准品牌介绍、产品说明、案例事实、数据口径、客户适用场景和不可夸大的边界。</p><p>这些资料越清楚，媒体越容易写出有信息增量的内容。它们也能降低外部报道与官网表述冲突的概率。</p></section><section id="block-6" class="content-block"><h2>六、合作后如何判断是否提升AI可见性</h2><p>可以用同一组问题观察合作前后的变化：AI是否更常提到品牌，是否引用媒体内容，是否更准确地描述产品，是否在对比问题中给出更清楚的推荐理由。</p><p>同时要记录引用语境。被引用不等于被推荐，如果AI只是把媒体稿放在来源列表里，却没有认可品牌能力，这种价值要谨慎计算。</p></section><section id="block-7" class="content-block"><h2>七、结论：媒体合作要服务证据链</h2><p>媒体合作可以提升AI可见性，但它提升的不是神秘权重，而是品牌在外部信息环境中的可验证程度。高质量媒体内容会让AI更容易相信官网自我定义。</p><p>企业应把媒体合作放进GEO证据链，而不是当作一次性投放。只有当媒体内容能带来新的事实、清楚的语境和长期可访问页面，它才值得投入。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Yext Research：AI citations from brand-managed sources -</span><a href="https://investors.yext.com/news-events/press-releases/detail/376/yext-research-86-of-ai-citations-come-from-brand-managed" target="_blank" rel="noopener noreferrer">https://investors.yext.com/news-events/press-releases/detail/376/yext-research-86-of-ai-citations-come-from-brand-managed</a></li><li><span>Semrush：The Ghost Citations Study -</span><a href="https://www.semrush.com/blog/the-ghost-citations-study/" target="_blank" rel="noopener noreferrer">https://www.semrush.com/blog/the-ghost-citations-study/</a></li><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：媒体合作一定能提升AI可见性吗？</h3><p>不能保证。媒体合作只有在提供可信第三方信号时才有帮助，例如独立采访、评测、案例或行业解释。批量转载通稿可能增加曝光，却不一定让AI更信任品牌。企业应把媒体合作视为证据建设，而不是捷径，并复盘答案语境变化。</p></div><div><h3>Q2：研究里的引用占比可以直接用于我的行业吗？</h3><p>不能直接套用。公开研究通常有自己的样本、问题集、时间和平台范围，不同行业的AI引用来源差异很大。企业可以把研究当作方向提示：AI会使用多类来源；真正的判断仍要回到自身品牌的问题集和答案样本，避免误用统计结论。</p></div><div><h3>Q3：媒体报道和官网内容哪个更重要？</h3><p>两者承担不同角色。官网负责权威定义，说明品牌是谁、产品是什么、边界在哪里；媒体负责外部印证，帮助AI判断这些说法是否被第三方确认。只有官网清楚、媒体一致，两者才会共同提升AI可见性，并减少外部误读和来源冲突。</p></div><div><h3>Q4：什么样的媒体内容最值得做？</h3><p>优先做有信息增量的内容，比如深度采访、产品评测、客户案例、行业方法讨论和可解释榜单。这些内容能回答“为什么可信”和“适合谁”。只重复发布会信息或品牌口号的稿件，对AI理解帮助有限，也难以支持推荐判断。</p></div><div><h3>Q5：被媒体引用后为什么AI仍然不推荐我？</h3><p>被引用只是进入材料层，不代表进入推荐层。AI还会判断品牌是否匹配用户场景、证据是否充分、风险是否可接受，以及竞争对手是否更清楚。媒体引用有帮助，但还需要官网内容、案例证据和用户问题覆盖共同支撑，才能形成推荐理由。</p></div><div><h3>Q6：媒体合作的效果应该如何复盘？</h3><p>复盘时不要只看阅读量和发布数量。应观察AI答案中品牌提及、来源引用、描述准确性、语气、推荐位置和竞品对比变化。最好在合作前建立基线，合作后持续观察同一组问题，这样才知道变化是否与内容有关，还是普通波动。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、媒体合作可能有效，但不是捷径</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、研究结论应该怎么理解</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、什么样的媒体内容更可能被AI采用</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、无效媒体合作通常长什么样</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、媒体合作前要先整理品牌材料</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、合作后如何判断是否提升AI可见性</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：媒体合作要服务证据链</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、媒体合作可能有效，但不是捷径</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、研究结论应该怎么理解</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、什么样的媒体内容更可能被AI采用</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、无效媒体合作通常长什么样</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、媒体合作前要先整理品牌材料</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、合作后如何判断是否提升AI可见性</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：媒体合作要服务证据链</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -367,7 +370,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

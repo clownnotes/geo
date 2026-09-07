@@ -8,7 +8,7 @@
   <meta name="keywords" content="话题权威, AI搜索, GEO, E-E-A-T, 内容集群, 领域专家, AI引用, GEO, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/topical-authority-ai-search-expert-recognition.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,48 +312,45 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、核心结论：模型认准专家，靠的是长期一致的知识证据</h2><p>AI搜索时代的话题权威，不是某篇文章突然爆了，也不是某个关键词排名靠前，而是品牌或作者在一个主题上持续提供系统、可信、可验证的知识。</p><p>模型要判断谁是专家，会看内容是否覆盖核心问题、是否有清晰结构、是否提供经验和证据、是否被其他可信来源提及。单篇文章可以获得引用，但话题权威需要内容集群和身份信号共同支撑。</p><p>企业要让模型认准自己是某个领域的专家，应该先建设主题地图，再围绕真实问题形成稳定知识资产。</p></section><section id="block-2" class="content-block"><h2>二、AI搜索中的话题权威如何形成</h2><figure class="content-image"><img src="../../assets/article-images/topical-authority-ai-search-expert-recognition/topical-authority-ai-search.png" alt="AI搜索话题权威建设示意"><figcaption>AI搜索中的话题权威来自主题覆盖、作者身份、证据链和外部引用。</figcaption></figure><p>AI搜索会把用户问题拆成概念、场景、比较、步骤和证据需求。一个来源如果只能回答单点问题，很难被识别为领域专家；如果能连续回答上下游问题，就更容易进入答案候选。</p><p>话题权威还需要身份和证据。谁写的、为什么可信、有没有实践经验、有没有可验证来源，这些信号会影响AI是否采用内容。</p><p>因此，话题权威不是“多写”，而是围绕一个主题建立完整解释网络。</p></section><section id="block-3" class="content-block"><h2>三、第一步：建立主题地图，而不是随便追热点</h2><p>主题地图是话题权威的骨架。它把一个领域拆成核心概念、用户问题、方法流程、工具指标、案例场景和风险误区。没有主题地图，内容团队容易追热点，最后形成大量互不关联的文章。</p><p>主题地图应从用户决策路径出发：用户先问什么、比较什么、担心什么、需要什么证据、最后如何选择。每个节点都对应一类可被AI抽取的知识单元。</p><table class="content-table"><thead><tr><th>主题层级</th><th>内容任务</th><th>示例</th></tr></thead><tbody><tr><td>核心概念</td><td>定义领域边界</td><td>什么是GEO</td></tr><tr><td>机制解释</td><td>说明为什么发生</td><td>AI为什么引用某些来源</td></tr><tr><td>方法流程</td><td>给出执行步骤</td><td>如何建立Prompt矩阵</td></tr><tr><td>判断标准</td><td>帮助用户选择</td><td>哪些指标值得监测</td></tr><tr><td>案例证据</td><td>证明方法有效</td><td>官网改写前后对比</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、第二步：用内容集群证明你理解完整语境</h2><p>内容集群不是把相关文章互相链接这么简单，而是让每篇文章承担不同知识任务。定义页负责概念，方法页负责步骤，案例页负责证据，FAQ负责追问，工具页负责操作。</p><p>当AI在多个问题中反复看到同一来源提供清晰答案，就更容易把该品牌识别为领域知识中心。内部链接和一致术语能帮助系统理解这些页面属于同一主题网络。</p><p>内容集群也要避免重复。每篇文章应回答一个明确问题，而不是换标题重复同一段观点。</p><ul class=""><li>为每个主题保留一个权威定义页。</li><li>围绕定义页建设方法、工具、案例和FAQ内容。</li><li>用内部链接说明上下游关系。</li><li>定期合并重复文章，减少语义噪声。</li></ul></section><section id="block-5" class="content-block"><h2>五、第三步：让作者和机构具备可验证身份</h2><p>话题权威不仅来自内容，也来自作者和机构。页面应清楚说明作者是谁、具备什么经验、为什么有资格讨论这个问题。对于企业内容，还要说明机构实践、服务边界和资料来源。</p><p>可验证身份不等于堆头衔。更有价值的是具体经验：参与过哪些类型项目、沉淀过哪些方法、引用了哪些公开资料、哪些结论来自实践观察。</p><p>作者页、关于页、案例页和外部资料应互相支持，形成可信身份链。</p></section><section id="block-6" class="content-block"><h2>六、第四步：把E-E-A-T转化为页面结构</h2><p>E-E-A-T不能只写在内部策略文档里。它应该体现在页面上：经验来自案例和过程，专业来自定义和方法，权威来自外部引用和一致评价，可信来自来源、更新日期和限制说明。</p><p>对AI搜索而言，这些信号越结构化，越容易被抽取。文章应在首段给结论，在正文展示步骤和证据，在FAQ回答边界问题，在参考文献中列出支撑资料。</p><table class="content-table"><thead><tr><th>信号</th><th>页面表达方式</th><th>GEO价值</th></tr></thead><tbody><tr><td>Experience</td><td>真实场景、案例过程</td><td>证明不是空泛观点</td></tr><tr><td>Expertise</td><td>方法、定义、判断标准</td><td>降低理解成本</td></tr><tr><td>Authoritativeness</td><td>外部引用、行业合作</td><td>增强第三方证明</td></tr><tr><td>Trustworthiness</td><td>来源、日期、限制条件</td><td>减少错误引用风险</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：话题权威是长期知识资产</h2><p>让模型认准你是某个领域的专家，不靠一次投放或几篇热点文章，而靠长期稳定的主题覆盖、作者身份、证据链和外部认可。</p><p>在GEO体系中，话题权威的目标不是制造声量，而是让AI和用户都能确认：当这个领域的问题出现时，你的内容值得被优先阅读、引用和复核。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central Blog：Search Quality Rater Guidelines update -</span><a href="https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：话题权威和关键词排名有什么区别？</h3><p>关键词排名是某个页面在某个查询下的位置，话题权威是品牌或作者在一个领域中的整体可信度。排名可以来自单页优化，话题权威需要主题覆盖、内容结构、作者身份、证据链和外部引用共同支撑。因此，企业不能只追单篇爆文，而要建设可持续的主题网络。</p></div><div><h3>Q2：小团队能建立话题权威吗？</h3><p>可以，但要聚焦。小团队不适合覆盖过宽主题，应选择最能体现专业能力的细分问题，建立定义页、方法页、案例页和FAQ。只要内容真实、结构稳定、证据清楚，也能在细分AI搜索场景中形成专家识别。聚焦还能让案例和经验更具体，更容易被AI识别为专业证据。</p></div><div><h3>Q3：主题地图应该从哪里开始？</h3><p>从用户真实决策问题开始，而不是从关键词工具开始。先列出用户会问的定义、比较、方法、价格、风险和案例问题，再整理成主题层级。关键词可以帮助补充表达方式，但不能替代主题结构。主题地图后续也能指导内链、FAQ和案例补充，避免内容碎片化。</p></div><div><h3>Q4：作者信息对AI搜索有多重要？</h3><p>作者信息有助于建立可信度，尤其是专业服务、医疗、金融、法律和技术类内容。页面应说明作者背景、实践经验和资料来源。即使是企业团队署名，也应有机构介绍、方法说明和可验证案例，而不是匿名营销文。作者身份和机构经验写清楚后，用户也更容易判断内容是否值得信任。</p></div><div><h3>Q5：E-E-A-T是不是直接排名因素？</h3><p>不应把它简单理解为一个可操作的排名按钮。更准确的做法是把经验、专业、权威和可信转化为页面质量信号，例如案例过程、清晰方法、外部引用、来源说明和更新记录。这些内容同时帮助用户和AI判断可信度。页面化表达比口号更重要，因为AI需要能抽取和复核的具体信号。</p></div><div><h3>Q6：内容集群是否会造成重复内容？</h3><p>如果没有清晰分工，会。内容集群不是重复写同一主题，而是让不同页面回答不同子问题。定义页讲概念，方法页讲步骤，案例页讲证据，FAQ讲追问。每篇文章都应有独立任务，并通过链接形成主题网络。定期清理重复内容，可以让主题集群更集中，也减少AI理解噪声。</p></div><div><h3>Q7：如何监测话题权威是否提升？</h3><p>可以观察AI在品类词、方法词、对比词和场景词中是否更常引用你的内容，是否准确复述你的定义和方法，是否把品牌或作者作为相关来源。同时看外部引用、自然链接和用户咨询问题是否更聚焦。监测时要看多个问题类型，避免只用品牌词判断话题权威。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：模型认准专家，靠的是长期一致的知识证据</h2><p>AI搜索时代的话题权威，不是某篇文章突然爆了，也不是某个关键词排名靠前，而是品牌或作者在一个主题上持续提供系统、可信、可验证的知识。</p><p>模型要判断谁是专家，会看内容是否覆盖核心问题、是否有清晰结构、是否提供经验和证据、是否被其他可信来源提及。单篇文章可以获得引用，但话题权威需要内容集群和身份信号共同支撑。</p><p>企业要让模型认准自己是某个领域的专家，应该先建设主题地图，再围绕真实问题形成稳定知识资产。</p></section><section id="block-2" class="content-block"><h2>二、AI搜索中的话题权威如何形成</h2><figure class="content-image"><img src="../assets/article-images/topical-authority-ai-search-expert-recognition/topical-authority-ai-search.png" alt="AI搜索话题权威建设示意"><figcaption>AI搜索中的话题权威来自主题覆盖、作者身份、证据链和外部引用。</figcaption></figure><p>AI搜索会把用户问题拆成概念、场景、比较、步骤和证据需求。一个来源如果只能回答单点问题，很难被识别为领域专家；如果能连续回答上下游问题，就更容易进入答案候选。</p><p>话题权威还需要身份和证据。谁写的、为什么可信、有没有实践经验、有没有可验证来源，这些信号会影响AI是否采用内容。</p><p>因此，话题权威不是“多写”，而是围绕一个主题建立完整解释网络。</p></section><section id="block-3" class="content-block"><h2>三、第一步：建立主题地图，而不是随便追热点</h2><p>主题地图是话题权威的骨架。它把一个领域拆成核心概念、用户问题、方法流程、工具指标、案例场景和风险误区。没有主题地图，内容团队容易追热点，最后形成大量互不关联的文章。</p><p>主题地图应从用户决策路径出发：用户先问什么、比较什么、担心什么、需要什么证据、最后如何选择。每个节点都对应一类可被AI抽取的知识单元。</p><table class="content-table"><thead><tr><th>主题层级</th><th>内容任务</th><th>示例</th></tr></thead><tbody><tr><td>核心概念</td><td>定义领域边界</td><td>什么是GEO</td></tr><tr><td>机制解释</td><td>说明为什么发生</td><td>AI为什么引用某些来源</td></tr><tr><td>方法流程</td><td>给出执行步骤</td><td>如何建立Prompt矩阵</td></tr><tr><td>判断标准</td><td>帮助用户选择</td><td>哪些指标值得监测</td></tr><tr><td>案例证据</td><td>证明方法有效</td><td>官网改写前后对比</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、第二步：用内容集群证明你理解完整语境</h2><p>内容集群不是把相关文章互相链接这么简单，而是让每篇文章承担不同知识任务。定义页负责概念，方法页负责步骤，案例页负责证据，FAQ负责追问，工具页负责操作。</p><p>当AI在多个问题中反复看到同一来源提供清晰答案，就更容易把该品牌识别为领域知识中心。内部链接和一致术语能帮助系统理解这些页面属于同一主题网络。</p><p>内容集群也要避免重复。每篇文章应回答一个明确问题，而不是换标题重复同一段观点。</p><ul class=""><li>为每个主题保留一个权威定义页。</li><li>围绕定义页建设方法、工具、案例和FAQ内容。</li><li>用内部链接说明上下游关系。</li><li>定期合并重复文章，减少语义噪声。</li></ul></section><section id="block-5" class="content-block"><h2>五、第三步：让作者和机构具备可验证身份</h2><p>话题权威不仅来自内容，也来自作者和机构。页面应清楚说明作者是谁、具备什么经验、为什么有资格讨论这个问题。对于企业内容，还要说明机构实践、服务边界和资料来源。</p><p>可验证身份不等于堆头衔。更有价值的是具体经验：参与过哪些类型项目、沉淀过哪些方法、引用了哪些公开资料、哪些结论来自实践观察。</p><p>作者页、关于页、案例页和外部资料应互相支持，形成可信身份链。</p></section><section id="block-6" class="content-block"><h2>六、第四步：把E-E-A-T转化为页面结构</h2><p>E-E-A-T不能只写在内部策略文档里。它应该体现在页面上：经验来自案例和过程，专业来自定义和方法，权威来自外部引用和一致评价，可信来自来源、更新日期和限制说明。</p><p>对AI搜索而言，这些信号越结构化，越容易被抽取。文章应在首段给结论，在正文展示步骤和证据，在FAQ回答边界问题，在参考文献中列出支撑资料。</p><table class="content-table"><thead><tr><th>信号</th><th>页面表达方式</th><th>GEO价值</th></tr></thead><tbody><tr><td>Experience</td><td>真实场景、案例过程</td><td>证明不是空泛观点</td></tr><tr><td>Expertise</td><td>方法、定义、判断标准</td><td>降低理解成本</td></tr><tr><td>Authoritativeness</td><td>外部引用、行业合作</td><td>增强第三方证明</td></tr><tr><td>Trustworthiness</td><td>来源、日期、限制条件</td><td>减少错误引用风险</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：话题权威是长期知识资产</h2><p>让模型认准你是某个领域的专家，不靠一次投放或几篇热点文章，而靠长期稳定的主题覆盖、作者身份、证据链和外部认可。</p><p>在GEO体系中，话题权威的目标不是制造声量，而是让AI和用户都能确认：当这个领域的问题出现时，你的内容值得被优先阅读、引用和复核。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central Blog：Search Quality Rater Guidelines update -</span><a href="https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：话题权威和关键词排名有什么区别？</h3><p>关键词排名是某个页面在某个查询下的位置，话题权威是品牌或作者在一个领域中的整体可信度。排名可以来自单页优化，话题权威需要主题覆盖、内容结构、作者身份、证据链和外部引用共同支撑。因此，企业不能只追单篇爆文，而要建设可持续的主题网络。</p></div><div><h3>Q2：小团队能建立话题权威吗？</h3><p>可以，但要聚焦。小团队不适合覆盖过宽主题，应选择最能体现专业能力的细分问题，建立定义页、方法页、案例页和FAQ。只要内容真实、结构稳定、证据清楚，也能在细分AI搜索场景中形成专家识别。聚焦还能让案例和经验更具体，更容易被AI识别为专业证据。</p></div><div><h3>Q3：主题地图应该从哪里开始？</h3><p>从用户真实决策问题开始，而不是从关键词工具开始。先列出用户会问的定义、比较、方法、价格、风险和案例问题，再整理成主题层级。关键词可以帮助补充表达方式，但不能替代主题结构。主题地图后续也能指导内链、FAQ和案例补充，避免内容碎片化。</p></div><div><h3>Q4：作者信息对AI搜索有多重要？</h3><p>作者信息有助于建立可信度，尤其是专业服务、医疗、金融、法律和技术类内容。页面应说明作者背景、实践经验和资料来源。即使是企业团队署名，也应有机构介绍、方法说明和可验证案例，而不是匿名营销文。作者身份和机构经验写清楚后，用户也更容易判断内容是否值得信任。</p></div><div><h3>Q5：E-E-A-T是不是直接排名因素？</h3><p>不应把它简单理解为一个可操作的排名按钮。更准确的做法是把经验、专业、权威和可信转化为页面质量信号，例如案例过程、清晰方法、外部引用、来源说明和更新记录。这些内容同时帮助用户和AI判断可信度。页面化表达比口号更重要，因为AI需要能抽取和复核的具体信号。</p></div><div><h3>Q6：内容集群是否会造成重复内容？</h3><p>如果没有清晰分工，会。内容集群不是重复写同一主题，而是让不同页面回答不同子问题。定义页讲概念，方法页讲步骤，案例页讲证据，FAQ讲追问。每篇文章都应有独立任务，并通过链接形成主题网络。定期清理重复内容，可以让主题集群更集中，也减少AI理解噪声。</p></div><div><h3>Q7：如何监测话题权威是否提升？</h3><p>可以观察AI在品类词、方法词、对比词和场景词中是否更常引用你的内容，是否准确复述你的定义和方法，是否把品牌或作者作为相关来源。同时看外部引用、自然链接和用户咨询问题是否更聚焦。监测时要看多个问题类型，避免只用品牌词判断话题权威。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：模型认准专家，靠的是长期一致的知识证据</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、AI搜索中的话题权威如何形成</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、第一步：建立主题地图，而不是随便追热点</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、第二步：用内容集群证明你理解完整语境</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、第三步：让作者和机构具备可验证身份</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、第四步：把E-E-A-T转化为页面结构</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：话题权威是长期知识资产</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：模型认准专家，靠的是长期一致的知识证据</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、AI搜索中的话题权威如何形成</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、第一步：建立主题地图，而不是随便追热点</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、第二步：用内容集群证明你理解完整语境</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、第三步：让作者和机构具备可验证身份</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、第四步：把E-E-A-T转化为页面结构</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：话题权威是长期知识资产</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -367,7 +370,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

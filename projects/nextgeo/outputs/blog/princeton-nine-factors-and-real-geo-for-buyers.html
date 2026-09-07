@@ -315,10 +315,10 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
 
           <!-- 核心配图 -->
           <figure class="content-image">
@@ -609,29 +609,26 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、采购者的困局：当“GEO转型”演变为一场集体作秀</a>
-              <a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、底层的物理法则：大模型是信息压缩机</a>
-              <a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、深水区突围：为什么光写出好文章远远不够？</a>
-              <a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、按图索骥：企业决策者的五步真GEO路线图</a>
-              <a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、同行者的告白：两种选择，同样的敬畏</a>
-              <a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献 (Academic References)</a>
-              <a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">采购决策者常见问答 (FAQ)</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、采购者的困局：当“GEO转型”演变为一场集体作秀</a>
+              <a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、底层的物理法则：大模型是信息压缩机</a>
+              <a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、深水区突围：为什么光写出好文章远远不够？</a>
+              <a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、按图索骥：企业决策者的五步真GEO路线图</a>
+              <a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、同行者的告白：两种选择，同样的敬畏</a>
+              <a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献 (Academic References)</a>
+              <a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">采购决策者常见问答 (FAQ)</a>
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                不想在水文投毒与试错陷阱中消耗预算？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
-                预约老白 1v1 真 GEO 商业诊断
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
+                预约老白 1v1 GEO 诊断
               </a>
             </div>
           </div>

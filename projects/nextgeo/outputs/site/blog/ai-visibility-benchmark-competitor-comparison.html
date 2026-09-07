@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、核心结论：基准测试要回答相对位置</h2><p>AI可见性不是一个稳定排名，也不是问一次ChatGPT或豆包就能得出结论。真正有用的基准测试，是把你的品牌和竞品放进同一批真实问题里，看谁更常被提到、谁被引用得更准确、谁的优势被AI说清楚、谁被错误归类。</p><p>这类测试回答的是相对位置，而不是绝对真理。AI答案会受模型版本、联网能力、检索结果、上下文和安全策略影响；但当问题集合足够清楚、采集条件一致、人工复核严格时，它仍然能帮助企业发现品牌表达和证据链的差距。</p><p>因此，AI可见性基准测试的价值，不是给市场团队一个好看的分数，而是把模糊的“AI好像不提我们”变成可讨论的清单：哪些问题里缺席，哪些答案里被误解，哪些竞品拿到了更强证据，下一步该修哪些页面和资料。</p></section><section id="block-2" class="content-block"><h2>二、先定义竞品集合和问题集合</h2><figure class="content-image"><img src="../assets/article-images/ai-visibility-benchmark-competitor-comparison/ai-visibility-benchmark-comparison.png" alt="AI可见性基准测试中品牌与竞品在同一问题集合下对比"><figcaption>同题对比把品牌和竞品放进同一组问题、模型范围和评分口径中，才能形成可复查的AI可见性基准。</figcaption></figure><p>竞品集合不能只来自销售印象。AI答案里的竞争者可能包括直接竞品、替代方案、资讯网站、评测平台、开源项目、咨询机构和大型综合品牌。企业要区分商业竞品、答案竞品和来源竞品，否则会错过真正抢走AI注意力的对象。</p><p>问题集合也不能只放品牌词。真实用户会问“哪家适合中型制造业”“A和B怎么选”“有没有更便宜的替代方案”“某产品是否支持私有部署”“这个领域有哪些风险”。这些问题比“某某品牌怎么样”更能反映AI是否把品牌放入候选集合。</p><p>一个可用的问题样本，应覆盖品牌、品类、场景、对比、价格、风险、替代方案和购买决策。每类问题都要有清楚意图，并保留原始问法。后续复测时，题目不应随意改动，否则趋势就失去可比性。</p><table class="content-table"><thead><tr><th>问题类型</th><th>示例意图</th><th>观察重点</th></tr></thead><tbody><tr><td>品牌词</td><td>用户已知道品牌</td><td>描述是否准确、是否有旧信息</td></tr><tr><td>品类词</td><td>寻找候选名单</td><td>品牌是否进入同一候选集合</td></tr><tr><td>场景词</td><td>解决具体业务问题</td><td>AI是否匹配适用人群和行业</td></tr><tr><td>对比词</td><td>在两三个方案间选择</td><td>差异是否公平、证据是否充分</td></tr><tr><td>风险词</td><td>担心价格、合规、替换成本</td><td>限制条件是否被正确说明</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、采集条件要一致，样本量要能支撑判断</h2><p>AI基准测试最常见的问题，是今天问一个模型，明天换一个入口，后天又换一批题目，然后把结果放在一起比较。这样得到的不是趋势，而是混杂样本。要让结果可复查，模型范围、题目集合、地区语言、登录状态、联网设置和采集时段都要写清楚。</p><p>样本量不必一开始就很大，但要覆盖真实决策路径。小型项目可以从50到100个问题开始，分布在不同意图下；成熟项目可以扩展到更多行业、角色和购买阶段。重点不是数字越大越好，而是每个问题都能解释它代表哪类用户需求。</p><p>采集时段也要接近。比如在同一天或同一周内完成同一批模型和问题的采集，避免某个平台更新、热点新闻或客户页面改版造成偏差。如果项目持续监测，可以按月或按双周复测，并保留每次的采集说明。</p><ul class=""><li>同一轮测试使用同一批问题，不临时增删有利题目。</li><li>同一轮测试使用相同模型范围和相同语言地区设置。</li><li>同一轮测试在接近的采集时段完成，保留日期和入口说明。</li><li>样本按意图分层，避免品牌词占比过高。</li><li>所有原始答案、引用链接和评分记录都可追溯。</li></ul></section><section id="block-4" class="content-block"><h2>四、评分维度不仅是有没有被提到</h2><p>品牌被提到只是第一层。更重要的是AI把品牌放在什么语境里：是推荐候选、背景来源、负面案例，还是顺手列名？同样出现一次，进入“适合中大型企业的三款方案”，和被写成“也有人提到过”，业务意义完全不同。</p><p>评分体系可以分成六项：提及、引用、推荐位置、事实准确性、语气倾向和来源质量。AI Share of Voice 可以作为相对可见性的指标之一，但它不能替代事实复核。一个品牌出现很多次，却被错写功能、错配人群或引用低质量来源，并不代表可见性健康。</p><p>还要避免只看平均分。按主题拆开看更有价值：某品牌可能在品牌词表现好，在品类词缺席；在价格问题里被提到，在合规问题里被忽略；在ChatGPT里描述准确，在Google AI功能中被旧页面影响。报告要让差异浮出水面。</p><table class="content-table"><thead><tr><th>评分维度</th><th>怎么判断</th><th>为什么重要</th></tr></thead><tbody><tr><td>提及</td><td>答案是否出现品牌或产品名</td><td>衡量基础可见性</td></tr><tr><td>引用</td><td>是否链接或指向可信来源</td><td>判断证据来源质量</td></tr><tr><td>位置</td><td>是否进入推荐短名单或核心段落</td><td>区分曝光强弱</td></tr><tr><td>准确性</td><td>品类、功能、价格、对象是否正确</td><td>识别品牌误解风险</td></tr><tr><td>语气</td><td>推荐、保留、中性或负面</td><td>理解答案对购买的影响</td></tr><tr><td>来源</td><td>官方页、第三方评测、论坛或旧页面</td><td>决定修复路径</td></tr></tbody></table></div></section><section id="block-5" class="content-block"><h2>五、人工复核负责识别误引、错归因和语境偏差</h2><p>自动采集能提高效率，但AI可见性报告不能完全交给工具。很多关键问题需要人工判断：答案是否把竞品能力写到客户身上，是否把旧价格当现价，是否把论坛吐槽当普遍事实，是否把媒体榜单当官方推荐，是否遗漏了重要限制条件。</p><p>人工复核最好由懂业务的人参与。SEO团队能看页面和引用，产品团队能判断功能与版本，销售团队能判断用户意图，法务或合规团队能判断高风险表述。尤其在医疗、金融、教育、法律和企业软件等领域，错误描述可能带来真实风险。</p><p>复核结果不要只写“错”。要给出修复方向：需要改官网定义，补案例，更新价格页，发布对比说明，统一第三方资料，还是联系平台更正错误信息。基准测试的目的不是证明AI错了，而是找出品牌信息在哪里不够稳定。</p><ul class=""><li>检查同名品牌、旧品牌名和产品线是否被混淆。</li><li>检查AI引用的页面是否仍然有效、是否为原始来源。</li><li>检查竞品比较是否遗漏适用条件和限制。</li><li>检查价格、功能、地区、合规和支持范围是否过期。</li><li>把每个错误对应到可修复的页面、资料或外部来源。</li></ul></section><section id="block-6" class="content-block"><h2>六、报告结构要从数据走向行动</h2><p>一份好的AI可见性基准报告，不应只有图表和截图。它应该从业务问题开始：客户要在哪些场景里被发现，核心竞品是谁，当前AI答案如何描述这个市场，品牌在哪些意图下强，在哪些意图下弱。</p><p>报告建议采用七段结构：测试范围、方法说明、总体结果、主题拆解、竞品差距、事实错误、行动路线图。测试范围解释模型、问题、地区和时间；主题拆解说明品牌在不同场景的表现；行动路线图把数据转成页面、内容、证据和外部资料的修复清单。</p><p>图表要服务判断。比如用矩阵显示不同主题下品牌和竞品的提及差异，用表格列出错误事实和对应来源，用优先级清单说明先修高风险错误，再补高价值页面，最后扩展长期内容。客户需要的不是更复杂的分数，而是下一步该做什么。</p><table class="content-table"><thead><tr><th>报告部分</th><th>应包含内容</th><th>输出结果</th></tr></thead><tbody><tr><td>测试范围</td><td>问题数量、模型范围、地区语言、采集日期</td><td>让比较可复查</td></tr><tr><td>总体结果</td><td>提及、引用、准确性、竞品差距</td><td>看到相对位置</td></tr><tr><td>主题拆解</td><td>按场景、价格、风险、对比分类</td><td>找到具体弱项</td></tr><tr><td>事实错误</td><td>错名、错类、旧价格、误引用</td><td>处理品牌风险</td></tr><tr><td>行动路线图</td><td>页面修复、证据补充、外部资料、复测计划</td><td>进入执行</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、复测节奏要看趋势，不看单点输赢</h2><p>AI可见性会波动，单点输赢不值得过度解读。更可靠的做法是保持问题集合和评分口径稳定，按月或按重要改版节点复测。这样才能判断：页面修复后，品牌描述是否更准确；内容补证据后，引用来源是否更靠近官方页面；竞品发布新资料后，差距是否扩大。</p><p>趋势也要结合业务事件。新品发布、改名、融资、负面新闻、价格调整、文档改版、媒体报道，都可能影响AI答案。报告中应标注这些事件，避免把外部变化误解为GEO动作的直接结果。</p><p>最终，基准测试应该成为品牌治理的一部分。它让市场、SEO、内容、产品和销售团队拥有同一张地图：用户怎样问，AI怎样答，竞品怎样出现，我们哪里被理解，哪里还缺证据。这样的地图，比一次漂亮截图更有价值。</p><ul class=""><li>按月、双月或重大改版后复测，而不是每天追逐单次波动。</li><li>保留历史样本和评分说明，确保趋势可追溯。</li><li>把页面更新、媒体报道、产品变化和外部事件写进备注。</li><li>优先修复事实错误，再扩展品牌覆盖和竞品对比内容。</li><li>让报告进入内容计划、产品文档、公关资料和销售话术。</li></ul></section><section id="block-8" class="content-block--subsection content-block"><h3>把基准测试变成内部共识工具</h3><p>基准测试最实用的场景，是让不同团队停止各说各话。市场团队看到品牌是否进入候选集合，SEO团队看到哪些页面被引用，产品团队看到功能是否被说错，销售团队看到客户真实问题是否被覆盖。它把AI答案变成跨部门可讨论的证据。</p><p>当报告进入季度复盘，企业可以把AI可见性和内容计划、官网改版、客户案例、公关发布、产品文档同步推进。这样做不会消除模型波动，但能让品牌公开信息逐步变得更稳定、更清楚、更容易被准确采用。</p></section><section id="block-9" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Semrush：How to Measure AI Share of Voice Using Semrush，</span><a href="https://www.semrush.com/blog/how-to-measure-ai-share-of-voice/" target="_blank" rel="noopener noreferrer">https://www.semrush.com/blog/how-to-measure-ai-share-of-voice/</a></li><li><span>Semrush Knowledge Base：AI Visibility Toolkit，</span><a href="https://www.semrush.com/kb/1493-ai-visibility-toolkit" target="_blank" rel="noopener noreferrer">https://www.semrush.com/kb/1493-ai-visibility-toolkit</a></li><li><span>Ahrefs：Brand Radar Methodology，</span><a href="https://ahrefs.com/blog/brand-radar-methodology/" target="_blank" rel="noopener noreferrer">https://ahrefs.com/blog/brand-radar-methodology/</a></li><li><span>Lumar：AI Visibility Tracking Tools，</span><a href="https://www.lumar.io/ai-visibility-tracking-lumar/" target="_blank" rel="noopener noreferrer">https://www.lumar.io/ai-visibility-tracking-lumar/</a></li><li><span>OpenAI Docs：File search，</span><a href="https://developers.openai.com/api/docs/guides/tools-file-search" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/guides/tools-file-search</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI可见性基准测试和SEO排名监控有什么不同？</h3><p>SEO排名监控通常看页面在搜索结果中的位置，AI可见性基准测试看品牌在生成答案中的提及、引用、描述和语境。它更接近品牌认知和答案占有情况，不能简单换算成传统排名，也不应只用单个位置指标解释。两类监测应并行观察。</p></div><div><h3>Q2：一次测试需要多少问题才够？</h3><p>没有统一数字。小型项目可以从50到100个高质量问题开始，覆盖品牌、品类、场景、对比、价格和风险。比数量更重要的是问题是否代表真实用户意图，是否能长期复用，以及每类问题是否有足够样本支撑判断。样本少时，结论要更克制。</p></div><div><h3>Q3：为什么要和竞品做同题对比？</h3><p>因为AI答案本质上经常在候选集合中做取舍。只看自己是否出现，无法知道是整个品类都少被提到，还是竞品占据了更强证据。把品牌和竞品放进同一批问题里，才能看清相对差距和具体修复方向，也能避免自我感觉式判断和片面结论。</p></div><div><h3>Q4：可以只测试一个AI工具吗？</h3><p>可以作为起步，但结论要标注范围。不同AI工具的数据来源、联网能力、引用方式和回答风格不同，一个平台的表现不能代表全部AI搜索环境。预算有限时，可以先选客户最可能使用的平台，再逐步扩展，并说明未覆盖平台的风险。</p></div><div><h3>Q5：人工复核为什么这么重要？</h3><p>工具能统计提及和引用，却不一定理解业务语境。AI可能提到品牌但写错功能，也可能引用旧页面或把竞品能力归到客户身上。人工复核能判断这些错误的业务风险，并把问题转成页面、资料和外部来源的修复动作。高风险行业更不能省略。</p></div><div><h3>Q6：AI Share of Voice能代表全部表现吗？</h3><p>不能。AI Share of Voice有助于衡量相对提及，但它只是指标之一。品牌出现次数多，不代表描述准确、来源可靠或购买语境有利。基准报告还应同时看引用质量、事实准确性、语气倾向和主题覆盖，并解释每项指标的限制和适用范围，避免误读。</p></div><div><h3>Q7：多久复测一次比较合适？</h3><p>多数企业可以按月或双月复测，重大页面改版、产品发布、价格变化或行业事件后再增加一次专项复测。频率太高容易被日常波动干扰；频率太低又难以及时发现错误描述和竞品变化。复测节奏应和内容更新能力匹配，并保留历史记录。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,32 +329,29 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：基准测试要回答相对位置</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、先定义竞品集合和问题集合</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、采集条件要一致，样本量要能支撑判断</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、评分维度不仅是有没有被提到</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、人工复核负责识别误引、错归因和语境偏差</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、报告结构要从数据走向行动</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、复测节奏要看趋势，不看单点输赢</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">把基准测试变成内部共识工具</a>
-<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：基准测试要回答相对位置</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、先定义竞品集合和问题集合</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、采集条件要一致，样本量要能支撑判断</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、评分维度不仅是有没有被提到</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、人工复核负责识别误引、错归因和语境偏差</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、报告结构要从数据走向行动</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、复测节奏要看趋势，不看单点输赢</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">把基准测试变成内部共识工具</a>
+<a href="#block-9" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

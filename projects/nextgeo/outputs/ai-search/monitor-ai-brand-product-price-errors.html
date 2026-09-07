@@ -8,7 +8,7 @@
   <meta name="keywords" content="AI品牌监测, AI错误描述, 品牌AI可见性, AI搜索监测, 语义治理, 产品价格监测, 邻里GEO, AI搜索, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/monitor-ai-brand-product-price-errors.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,50 +312,47 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、核心结论：AI时代的品牌风险，不是“没人说你”，而是“说错你”</h2><p>AI错误描述监测，是指企业定期检查生成式AI对品牌身份、产品能力、价格和商业模式的回答是否准确、一致、可验证。AI时代的品牌风险不只是不可见，也包括被错误理解、错误归类和错误引用。</p><p>品牌身份错误、产品能力错误、价格与商业模式错误是企业必须监测的三类风险。企业需要用提示词审计、多模型交叉验证、关键页面一致性检查和竞品混淆检测建立最小监测体系。</p><p>降低AI错误率的本质，是建立统一语义源、稳定实体定义和一致证据信号。</p></section><section id="block-2" class="content-block"><h2>二、AI错误描述是如何产生的？</h2><figure class="content-image"><img src="../../assets/article-images/monitor-ai-brand-product-price-errors/ai-brand-monitoring-dashboard.png" alt="AI品牌监测仪表盘中品牌与竞品表现对比"><figcaption>参考图：企业需要持续监测 AI 对品牌、产品和竞品关系的描述是否准确。</figcaption></figure><p>AI并不是数据库，而是一个“概率生成系统 + 检索增强系统”的组合。在缺乏稳定信息源时，它会进行“合理补全”。</p><p>常见错误来源包括：</p><table class="content-table"><thead><tr><th>错误来源</th><th>表现</th></tr></thead><tbody><tr><td>多版本信息冲突</td><td>不同网页或平台对同一品牌描述不一致。</td></tr><tr><td>语义缺失补全</td><td>AI在缺乏信息时，会用行业常识进行“合理推断”。</td></tr><tr><td>相似品牌混淆</td><td>名称、业务或类别相近的企业会被合并理解。</td></tr><tr><td>过时信息残留</td><td>旧版本产品、旧价格仍在训练语料或索引中存在。</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、为什么品牌错误在 AI 时代更危险？</h2><p>在传统搜索时代，错误信息至少需要用户点击才能看到；但在 AI 时代，错误信息会直接进入“答案层”。</p><p>这意味着用户不再看到“来源”，只看到“结论”；AI生成内容可能成为第一认知入口；错误会被重复引用，而不是被纠正。</p><p>一旦某个错误描述被多次生成，它会逐渐变成“默认事实”。</p></section><section id="block-4" class="content-block"><h2>四、你必须监测的三类 AI 错误信息</h2><p>企业不需要一开始监测所有问题，但必须先覆盖最容易影响认知、转化和销售预期的三类错误。</p><table class="content-table"><thead><tr><th>错误类型</th><th>包括什么</th><th>影响</th></tr></thead><tbody><tr><td>品牌身份错误（Entity Error）</td><td>公司名称被写错或混用、被归类到错误行业、与其他企业混为一体。</td><td>直接影响“你是谁”，是最严重的一类错误。</td></tr><tr><td>产品能力错误（Capability Error）</td><td>产品功能被夸大或缩小、产品用途被误判、产品被替换成竞品能力。</td><td>会造成语义偏移，让用户对产品形成错误预期。</td></tr><tr><td>价格与商业模式错误（Commercial Error）</td><td>错误价格区间、错误收费模式、错误套餐结构。</td><td>会直接影响转化、销售沟通和客户预期。</td></tr></tbody></table></div></section><section id="block-5" class="content-block"><h2>五、AI错误监测的基本方法（企业必须建立的最小体系）</h2><p>企业可以先建立一个低成本但稳定的最小监测体系，用固定问题、固定频率和固定记录方式持续观察AI答案是否变化。</p><table class="content-table"><thead><tr><th>方法</th><th>做法</th></tr></thead><tbody><tr><td>定期提示词审计</td><td>用“XX公司是做什么的？”“XX产品价格是多少？”“XX和竞品有什么区别？”等统一问题反复测试AI。</td></tr><tr><td>多模型交叉验证</td><td>不要只看一个AI系统，而要对比ChatGPT类模型、搜索增强型AI和本地化AI助手。</td></tr><tr><td>关键页面一致性检查</td><td>检查官网、产品页、博客、第三方平台的信息是否统一。</td></tr><tr><td>竞品混淆检测</td><td>测试AI是否将你与同行业名称相似公司、功能接近产品或同赛道平台混为一体。</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>六、如何构建“AI错误预警系统”？</h2><p>一个完整的监测体系可以分为三层，不只是记录AI说了什么，还要判断它是否稳定、哪里偏离了事实。</p><table class="content-table"><thead><tr><th>层级</th><th>核心问题</th><th>监测重点</th></tr></thead><tbody><tr><td>语义监测层（What is said）</td><td>AI具体说了什么？</td><td>监控AI输出的品牌描述内容。</td></tr><tr><td>一致性检测层（Is it consistent）</td><td>不同模型和不同时间是否一致？</td><td>判断输出是否稳定，是否出现明显漂移。</td></tr><tr><td>偏差识别层（Where is wrong）</td><td>错误发生在哪里？</td><td>识别定义偏差、功能偏差和定价偏差。</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、为什么“信息越多”反而更容易被AI误解？</h2><p>这是很多企业容易忽略的关键问题。</p><p>当信息没有统一结构时，AI会随机选择不同来源、拼接不同版本描述，并生成“平均语义结果”。</p><p>结果就是：信息越多，模型越容易混淆你是谁。</p><p>因此问题不是“信息不足”，而是“信息不一致”。</p></section><section id="block-8" class="content-block"><h2>八、如何降低AI错误率？本质是统一“语义源”</h2><p>要减少错误描述，企业必须控制三件事：单一权威定义、结构化表达一致性和外部信息同步治理。</p><p>单一权威定义要求品牌、产品、能力只有一个标准解释版本。结构化表达一致性要求不同页面使用相同语义结构描述同一对象。外部信息同步治理则要求第三方平台、媒体、合作方同步核心描述。</p></section><section id="block-9" class="content-block"><h2>九、一个现实判断标准：AI是否能“稳定回答你是谁”</h2><p>判断AI是否错误理解你的最简单方式，是反复问它三个问题：你是谁？你做什么？你和谁不同？</p><p>如果答案每次变化，或者出现品牌混淆、能力错配、价格错误，就说明你的语义结构已经失控。</p><p>这个测试不需要复杂工具，但需要长期记录，因为AI错误往往不是一次性出现，而是在多个入口和多个时间点逐渐扩散。</p></section><section id="block-10" class="content-block"><h2>十、结论：AI错误不是异常，而是默认状态，除非你主动治理</h2><p>在 AI 搜索体系中，“正确理解”不是默认发生的，而是需要持续维护的结果。</p><p>企业必须接受一个现实：AI不会自动理解你，只会基于结构最清晰的信息理解你。</p><p>如果没有统一语义源、稳定实体定义和一致证据信号，那么错误描述将成为系统默认输出。</p></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI错误描述品牌是常见问题吗？</h3><p>非常常见，尤其是在品牌信息分散、第三方资料不一致、产品迭代频繁的企业中。AI通常会根据可检索内容进行综合推断，如果这些内容存在冲突，就可能把企业归入错误类别，或者生成看似合理但并不准确的品牌描述。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q2：错误信息会影响SEO吗？</h3><p>错误信息不一定直接影响传统SEO排名，但会影响AI搜索中的推荐、引用和用户第一印象。当用户通过AI答案了解企业时，错误描述可能比搜索结果页更早影响判断。因此企业需要同时关注SEO可见性和AI答案准确性。</p></div><div><h3>Q3：AI会自己纠正错误吗？</h3><p>不会稳定纠正。AI可能在不同时间给出不同答案，但这不代表它已经理解正确。如果底层信息源仍然冲突或过时，模型会继续重建错误版本。企业需要主动统一语义源，并用稳定证据持续纠偏。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q4：小公司更容易被误解吗？</h3><p>通常更容易，因为小公司外部信息少，第三方资料不完整，品牌名称也更容易和相似企业混淆。但这不是无法解决的问题。小公司可以通过统一官网定义、产品页结构和外部平台描述，降低AI误解概率。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q5：如何判断是否被错误描述？</h3><p>可以用多模型、多轮问答对比。固定一组问题，例如“这家公司做什么”“产品价格是多少”“和竞品有什么区别”，定期在多个AI入口测试。如果答案不稳定、出现混淆或无法说明证据来源，就需要记录并修正。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q6：是否需要专门做AI监测工具？</h3><p>建议需要，尤其是品牌、产品、价格、合规信息会影响销售和信任的企业。早期可以用表格手动记录提示词、模型、时间和答案；当监测频率提高后，就需要工具化管理差异、趋势、错误类型和修正进度。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q7：官网信息是否是唯一标准？</h3><p>理想状态下官网应该是权威标准，但现实中AI会融合多源信息。即使官网正确，第三方平台、媒体报道或旧页面如果存在冲突，也可能影响模型判断。因此企业要把官网作为源头，同时治理外部信息一致性。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q8：如何长期解决这个问题？</h3><p>长期解决方式是建立统一的知识结构与语义治理体系。企业需要维护标准品牌定义、产品能力边界、价格和商业模式说明，并同步到官网、内容库、第三方平台和合作方资料中，让AI长期获得一致信号。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：AI时代的品牌风险，不是“没人说你”，而是“说错你”</h2><p>AI错误描述监测，是指企业定期检查生成式AI对品牌身份、产品能力、价格和商业模式的回答是否准确、一致、可验证。AI时代的品牌风险不只是不可见，也包括被错误理解、错误归类和错误引用。</p><p>品牌身份错误、产品能力错误、价格与商业模式错误是企业必须监测的三类风险。企业需要用提示词审计、多模型交叉验证、关键页面一致性检查和竞品混淆检测建立最小监测体系。</p><p>降低AI错误率的本质，是建立统一语义源、稳定实体定义和一致证据信号。</p></section><section id="block-2" class="content-block"><h2>二、AI错误描述是如何产生的？</h2><figure class="content-image"><img src="../assets/article-images/monitor-ai-brand-product-price-errors/ai-brand-monitoring-dashboard.png" alt="AI品牌监测仪表盘中品牌与竞品表现对比"><figcaption>参考图：企业需要持续监测 AI 对品牌、产品和竞品关系的描述是否准确。</figcaption></figure><p>AI并不是数据库，而是一个“概率生成系统 + 检索增强系统”的组合。在缺乏稳定信息源时，它会进行“合理补全”。</p><p>常见错误来源包括：</p><table class="content-table"><thead><tr><th>错误来源</th><th>表现</th></tr></thead><tbody><tr><td>多版本信息冲突</td><td>不同网页或平台对同一品牌描述不一致。</td></tr><tr><td>语义缺失补全</td><td>AI在缺乏信息时，会用行业常识进行“合理推断”。</td></tr><tr><td>相似品牌混淆</td><td>名称、业务或类别相近的企业会被合并理解。</td></tr><tr><td>过时信息残留</td><td>旧版本产品、旧价格仍在训练语料或索引中存在。</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、为什么品牌错误在 AI 时代更危险？</h2><p>在传统搜索时代，错误信息至少需要用户点击才能看到；但在 AI 时代，错误信息会直接进入“答案层”。</p><p>这意味着用户不再看到“来源”，只看到“结论”；AI生成内容可能成为第一认知入口；错误会被重复引用，而不是被纠正。</p><p>一旦某个错误描述被多次生成，它会逐渐变成“默认事实”。</p></section><section id="block-4" class="content-block"><h2>四、你必须监测的三类 AI 错误信息</h2><p>企业不需要一开始监测所有问题，但必须先覆盖最容易影响认知、转化和销售预期的三类错误。</p><table class="content-table"><thead><tr><th>错误类型</th><th>包括什么</th><th>影响</th></tr></thead><tbody><tr><td>品牌身份错误（Entity Error）</td><td>公司名称被写错或混用、被归类到错误行业、与其他企业混为一体。</td><td>直接影响“你是谁”，是最严重的一类错误。</td></tr><tr><td>产品能力错误（Capability Error）</td><td>产品功能被夸大或缩小、产品用途被误判、产品被替换成竞品能力。</td><td>会造成语义偏移，让用户对产品形成错误预期。</td></tr><tr><td>价格与商业模式错误（Commercial Error）</td><td>错误价格区间、错误收费模式、错误套餐结构。</td><td>会直接影响转化、销售沟通和客户预期。</td></tr></tbody></table></div></section><section id="block-5" class="content-block"><h2>五、AI错误监测的基本方法（企业必须建立的最小体系）</h2><p>企业可以先建立一个低成本但稳定的最小监测体系，用固定问题、固定频率和固定记录方式持续观察AI答案是否变化。</p><table class="content-table"><thead><tr><th>方法</th><th>做法</th></tr></thead><tbody><tr><td>定期提示词审计</td><td>用“XX公司是做什么的？”“XX产品价格是多少？”“XX和竞品有什么区别？”等统一问题反复测试AI。</td></tr><tr><td>多模型交叉验证</td><td>不要只看一个AI系统，而要对比ChatGPT类模型、搜索增强型AI和本地化AI助手。</td></tr><tr><td>关键页面一致性检查</td><td>检查官网、产品页、博客、第三方平台的信息是否统一。</td></tr><tr><td>竞品混淆检测</td><td>测试AI是否将你与同行业名称相似公司、功能接近产品或同赛道平台混为一体。</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>六、如何构建“AI错误预警系统”？</h2><p>一个完整的监测体系可以分为三层，不只是记录AI说了什么，还要判断它是否稳定、哪里偏离了事实。</p><table class="content-table"><thead><tr><th>层级</th><th>核心问题</th><th>监测重点</th></tr></thead><tbody><tr><td>语义监测层（What is said）</td><td>AI具体说了什么？</td><td>监控AI输出的品牌描述内容。</td></tr><tr><td>一致性检测层（Is it consistent）</td><td>不同模型和不同时间是否一致？</td><td>判断输出是否稳定，是否出现明显漂移。</td></tr><tr><td>偏差识别层（Where is wrong）</td><td>错误发生在哪里？</td><td>识别定义偏差、功能偏差和定价偏差。</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、为什么“信息越多”反而更容易被AI误解？</h2><p>这是很多企业容易忽略的关键问题。</p><p>当信息没有统一结构时，AI会随机选择不同来源、拼接不同版本描述，并生成“平均语义结果”。</p><p>结果就是：信息越多，模型越容易混淆你是谁。</p><p>因此问题不是“信息不足”，而是“信息不一致”。</p></section><section id="block-8" class="content-block"><h2>八、如何降低AI错误率？本质是统一“语义源”</h2><p>要减少错误描述，企业必须控制三件事：单一权威定义、结构化表达一致性和外部信息同步治理。</p><p>单一权威定义要求品牌、产品、能力只有一个标准解释版本。结构化表达一致性要求不同页面使用相同语义结构描述同一对象。外部信息同步治理则要求第三方平台、媒体、合作方同步核心描述。</p></section><section id="block-9" class="content-block"><h2>九、一个现实判断标准：AI是否能“稳定回答你是谁”</h2><p>判断AI是否错误理解你的最简单方式，是反复问它三个问题：你是谁？你做什么？你和谁不同？</p><p>如果答案每次变化，或者出现品牌混淆、能力错配、价格错误，就说明你的语义结构已经失控。</p><p>这个测试不需要复杂工具，但需要长期记录，因为AI错误往往不是一次性出现，而是在多个入口和多个时间点逐渐扩散。</p></section><section id="block-10" class="content-block"><h2>十、结论：AI错误不是异常，而是默认状态，除非你主动治理</h2><p>在 AI 搜索体系中，“正确理解”不是默认发生的，而是需要持续维护的结果。</p><p>企业必须接受一个现实：AI不会自动理解你，只会基于结构最清晰的信息理解你。</p><p>如果没有统一语义源、稳定实体定义和一致证据信号，那么错误描述将成为系统默认输出。</p></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI错误描述品牌是常见问题吗？</h3><p>非常常见，尤其是在品牌信息分散、第三方资料不一致、产品迭代频繁的企业中。AI通常会根据可检索内容进行综合推断，如果这些内容存在冲突，就可能把企业归入错误类别，或者生成看似合理但并不准确的品牌描述。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q2：错误信息会影响SEO吗？</h3><p>错误信息不一定直接影响传统SEO排名，但会影响AI搜索中的推荐、引用和用户第一印象。当用户通过AI答案了解企业时，错误描述可能比搜索结果页更早影响判断。因此企业需要同时关注SEO可见性和AI答案准确性。</p></div><div><h3>Q3：AI会自己纠正错误吗？</h3><p>不会稳定纠正。AI可能在不同时间给出不同答案，但这不代表它已经理解正确。如果底层信息源仍然冲突或过时，模型会继续重建错误版本。企业需要主动统一语义源，并用稳定证据持续纠偏。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q4：小公司更容易被误解吗？</h3><p>通常更容易，因为小公司外部信息少，第三方资料不完整，品牌名称也更容易和相似企业混淆。但这不是无法解决的问题。小公司可以通过统一官网定义、产品页结构和外部平台描述，降低AI误解概率。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q5：如何判断是否被错误描述？</h3><p>可以用多模型、多轮问答对比。固定一组问题，例如“这家公司做什么”“产品价格是多少”“和竞品有什么区别”，定期在多个AI入口测试。如果答案不稳定、出现混淆或无法说明证据来源，就需要记录并修正。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q6：是否需要专门做AI监测工具？</h3><p>建议需要，尤其是品牌、产品、价格、合规信息会影响销售和信任的企业。早期可以用表格手动记录提示词、模型、时间和答案；当监测频率提高后，就需要工具化管理差异、趋势、错误类型和修正进度。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q7：官网信息是否是唯一标准？</h3><p>理想状态下官网应该是权威标准，但现实中AI会融合多源信息。即使官网正确，第三方平台、媒体报道或旧页面如果存在冲突，也可能影响模型判断。因此企业要把官网作为源头，同时治理外部信息一致性。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div><div><h3>Q8：如何长期解决这个问题？</h3><p>长期解决方式是建立统一的知识结构与语义治理体系。企业需要维护标准品牌定义、产品能力边界、价格和商业模式说明，并同步到官网、内容库、第三方平台和合作方资料中，让AI长期获得一致信号。这也是企业需要把AI错误监测纳入日常语义治理流程的原因。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：AI时代的品牌风险，不是“没人说你”，而是“说错你”</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、AI错误描述是如何产生的？</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、为什么品牌错误在 AI 时代更危险？</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、你必须监测的三类 AI 错误信息</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、AI错误监测的基本方法（企业必须建立的最小体系）</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、如何构建“AI错误预警系统”？</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、为什么“信息越多”反而更容易被AI误解？</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、如何降低AI错误率？本质是统一“语义源”</a>
-<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">九、一个现实判断标准：AI是否能“稳定回答你是谁”</a>
-<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">十、结论：AI错误不是异常，而是默认状态，除非你主动治理</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：AI时代的品牌风险，不是“没人说你”，而是“说错你”</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、AI错误描述是如何产生的？</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、为什么品牌错误在 AI 时代更危险？</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、你必须监测的三类 AI 错误信息</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、AI错误监测的基本方法（企业必须建立的最小体系）</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、如何构建“AI错误预警系统”？</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、为什么“信息越多”反而更容易被AI误解？</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">八、如何降低AI错误率？本质是统一“语义源”</a>
+<a href="#block-9" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">九、一个现实判断标准：AI是否能“稳定回答你是谁”</a>
+<a href="#block-10" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">十、结论：AI错误不是异常，而是默认状态，除非你主动治理</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -369,7 +372,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

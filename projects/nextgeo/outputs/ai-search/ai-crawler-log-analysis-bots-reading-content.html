@@ -8,7 +8,7 @@
   <meta name="keywords" content="AI爬虫, 访问日志, OAI-SearchBot, GPTBot, GEO技术, robots.txt, AI可获取性, AI搜索, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/ai-crawler-log-analysis-bots-reading-content.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,47 +312,44 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、核心结论：Bot出现不等于内容被读取</h2><p>AI爬虫日志分析的第一条原则，是不要把“出现过某个User-Agent”直接理解为“内容已经进入AI答案系统”。Bot可能只读取robots.txt，也可能访问了首页但没有进入关键页面，还可能因为状态码、重定向或渲染问题拿不到正文。</p><p>真正值得关注的是：哪个Bot访问了哪些路径，拿到什么状态码，是否读取了核心内容页，访问频率是否稳定，以及这些访问是否与站点允许策略一致。</p></section><section id="block-2" class="content-block"><h2>二、常见AI相关Bot有哪些差异</h2><figure class="content-image"><img src="../../assets/article-images/ai-crawler-log-analysis-bots-reading-content/ai-crawler-log-analysis.png" alt="AI爬虫访问日志分析示意"><figcaption>AI爬虫日志要结合身份、路径和响应结果，才能判断内容是否真正可获取。</figcaption></figure><p>不同Bot承担的任务可能不同。OpenAI官方文档区分了用于搜索、用户代理和训练相关的不同爬虫；Perplexity也公开了与搜索结果相关的Bot说明。企业不能只写一个“AI爬虫”标签，而要按实际User-Agent和官方说明区分用途。</p><p>这种区分会影响策略。如果目标是让内容有机会进入AI搜索引用，搜索相关Bot的访问情况更值得观察；如果目标是控制训练用途，则需要按平台文档管理robots规则和访问许可。</p></section><section id="block-3" class="content-block"><h2>三、日志里应该看哪些字段</h2><p>访问日志不是只看User-Agent。User-Agent可以被伪造，单独依赖它会产生误判。更可靠的分析要结合IP验证、请求路径、状态码、响应大小、时间分布和来源页面。</p><p>下面的表格列出最常用的字段及其判断意义。</p><table class="content-table"><thead><tr><th>字段</th><th>要看什么</th><th>说明什么</th></tr></thead><tbody><tr><td>User-Agent</td><td>Bot名称和版本</td><td>初步识别访问者身份</td></tr><tr><td>IP与反查</td><td>是否匹配官方范围</td><td>降低伪造Bot的误判</td></tr><tr><td>路径</td><td>访问首页、robots还是内容页</td><td>判断是否进入关键内容</td></tr><tr><td>状态码</td><td>200、301、403、404、5xx</td><td>判断是否成功拿到资源</td></tr><tr><td>响应大小</td><td>正文是否接近正常页面</td><td>发现空页面、拦截页或异常渲染</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、哪些信号说明Bot真正读取了内容</h2><p>比较强的信号，是Bot访问了可索引的正文页面，返回200状态码，响应大小与正常页面接近，并且不是只停留在robots.txt、sitemap或静态资源。对于依赖JavaScript渲染的网站，还要确认首屏HTML里是否有足够正文。</p><p>日志还要与页面清单结合。企业可以把产品页、方案页、案例页、文档页和FAQ页列成关键路径，看AI相关Bot是否实际访问过这些页面。</p><ul class=""><li>Bot访问了核心HTML页面，而不只是robots.txt。</li><li>返回200状态码，且响应体不是拦截页或空壳。</li><li>访问路径覆盖产品、文档、案例和FAQ等高价值页面。</li><li>访问节奏稳定，没有被防火墙、CDN或权限规则误伤。</li></ul></section><section id="block-5" class="content-block"><h2>五、企业如何修正常见阻断问题</h2><p>日志发现问题后，先处理明确的技术阻断。常见情况包括robots规则写得过宽、CDN把Bot当成异常流量、服务端返回地区性错误、移动端和桌面端内容不一致、关键正文只在客户端渲染。</p><p>修复时要保持边界清楚：允许哪些Bot、哪些路径可访问、哪些内容不开放，都应与企业版权和合规策略一致。GEO不要求无条件开放所有内容，而是让应该公开的内容能被正常读取。</p><ol><li>核对robots.txt、sitemap和关键页面状态码。</li><li>按官方文档验证重要Bot身份，排除伪造访问。</li><li>检查CDN、防火墙和反爬规则是否误拦截公开页面。</li><li>抽样抓取HTML，确认正文、标题、结构化数据和链接可见。</li></ol></section><section id="block-6" class="content-block"><h2>六、结论：AI可见性要从可获取性开始</h2><p>AI搜索中的内容可见性，首先取决于内容是否能被正常发现和读取。没有日志分析，企业很容易把内容问题误判为模型偏好问题。</p><p>服务器日志给了企业一个更扎实的起点：先确认Bot是否到达关键页面，再讨论页面结构、证据质量和AI引用表现。技术可获取性是GEO的底层工程，不是附属细节。</p></section><section id="block-7" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li><li><span>OpenAI Help Center：Publishers and Developers FAQ -</span><a href="https://help.openai.com/en/articles/12627856-publishers-and-developers-faq" target="_blank" rel="noopener noreferrer">https://help.openai.com/en/articles/12627856-publishers-and-developers-faq</a></li><li><span>Perplexity Docs：Perplexity Crawlers -</span><a href="https://docs.perplexity.ai/docs/resources/perplexity-crawlers" target="_blank" rel="noopener noreferrer">https://docs.perplexity.ai/docs/resources/perplexity-crawlers</a></li><li><span>Bing Webmaster Guidelines -</span><a href="https://www.bing.com/webmasters/help/webmaster-guidelines-30fba23a" target="_blank" rel="noopener noreferrer">https://www.bing.com/webmasters/help/webmaster-guidelines-30fba23a</a></li><li><span>Google Search Central：robots.txt introduction -</span><a href="https://developers.google.com/search/docs/crawling-indexing/robots/intro" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/crawling-indexing/robots/intro</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：日志里出现GPTBot是否说明内容会被ChatGPT引用？</h3><p>不能这样判断。GPTBot、OAI-SearchBot等Bot的用途不同，访问日志只能说明某个请求到达了站点。内容是否会进入搜索结果、训练数据或答案引用，还受到平台规则、页面质量、检索召回和生成策略影响。日志只是第一层证据。</p></div><div><h3>Q2：为什么Bot一直访问robots.txt，却不访问正文？</h3><p>这通常说明Bot先在检查访问规则，但不代表它一定会继续抓取正文。原因可能是robots规则阻止、站点可发现性不足、sitemap缺失、Bot调度还未展开，或防火墙后续拦截。需要把robots、sitemap、状态码和关键路径访问记录一起看。</p></div><div><h3>Q3：User-Agent可以作为唯一判断依据吗？</h3><p>不建议。User-Agent容易被伪造，单看名称会误判真实来源。更可靠的做法是结合官方IP范围、反向DNS、访问频率、请求路径和行为模式。对重要结论，最好只把经过验证的Bot访问纳入统计。</p></div><div><h3>Q4：403或404状态码会影响AI可见性吗？</h3><p>会影响公开内容的可获取性。如果关键页面对AI相关Bot返回403、404或5xx，系统就无法正常读取页面内容。企业需要判断这是有意限制还是误拦截。如果页面本来应该公开，就要修正权限、路由、CDN或防火墙配置。</p></div><div><h3>Q5：只开放官网首页够不够？</h3><p>通常不够。AI搜索需要理解具体产品、服务、案例、文档和FAQ，首页往往只能提供概览。企业应确认关键深层页面也能被发现和读取，并通过内部链接、sitemap和清晰标题帮助系统进入真正有答案价值的内容。</p></div><div><h3>Q6：日志分析多久做一次比较合适？</h3><p>上线初期可以更频繁，尤其在调整robots、CDN、防火墙或站点结构后，应尽快检查Bot访问是否恢复。稳定后可按周或按月复盘关键路径。重点不是追逐每天波动，而是确认公开内容长期没有被技术问题阻断。</p></div><div><h3>Q7：AI爬虫日志能证明GEO效果吗？</h3><p>只能证明一部分。日志能说明可获取性和访问行为，不能直接证明AI是否理解、采信或推荐内容。完整GEO监测还要结合页面结构检查、AI答案抽样、引用来源记录和错误描述分析，才能判断内容资产是否真的改善。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：Bot出现不等于内容被读取</h2><p>AI爬虫日志分析的第一条原则，是不要把“出现过某个User-Agent”直接理解为“内容已经进入AI答案系统”。Bot可能只读取robots.txt，也可能访问了首页但没有进入关键页面，还可能因为状态码、重定向或渲染问题拿不到正文。</p><p>真正值得关注的是：哪个Bot访问了哪些路径，拿到什么状态码，是否读取了核心内容页，访问频率是否稳定，以及这些访问是否与站点允许策略一致。</p></section><section id="block-2" class="content-block"><h2>二、常见AI相关Bot有哪些差异</h2><figure class="content-image"><img src="../assets/article-images/ai-crawler-log-analysis-bots-reading-content/ai-crawler-log-analysis.png" alt="AI爬虫访问日志分析示意"><figcaption>AI爬虫日志要结合身份、路径和响应结果，才能判断内容是否真正可获取。</figcaption></figure><p>不同Bot承担的任务可能不同。OpenAI官方文档区分了用于搜索、用户代理和训练相关的不同爬虫；Perplexity也公开了与搜索结果相关的Bot说明。企业不能只写一个“AI爬虫”标签，而要按实际User-Agent和官方说明区分用途。</p><p>这种区分会影响策略。如果目标是让内容有机会进入AI搜索引用，搜索相关Bot的访问情况更值得观察；如果目标是控制训练用途，则需要按平台文档管理robots规则和访问许可。</p></section><section id="block-3" class="content-block"><h2>三、日志里应该看哪些字段</h2><p>访问日志不是只看User-Agent。User-Agent可以被伪造，单独依赖它会产生误判。更可靠的分析要结合IP验证、请求路径、状态码、响应大小、时间分布和来源页面。</p><p>下面的表格列出最常用的字段及其判断意义。</p><table class="content-table"><thead><tr><th>字段</th><th>要看什么</th><th>说明什么</th></tr></thead><tbody><tr><td>User-Agent</td><td>Bot名称和版本</td><td>初步识别访问者身份</td></tr><tr><td>IP与反查</td><td>是否匹配官方范围</td><td>降低伪造Bot的误判</td></tr><tr><td>路径</td><td>访问首页、robots还是内容页</td><td>判断是否进入关键内容</td></tr><tr><td>状态码</td><td>200、301、403、404、5xx</td><td>判断是否成功拿到资源</td></tr><tr><td>响应大小</td><td>正文是否接近正常页面</td><td>发现空页面、拦截页或异常渲染</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、哪些信号说明Bot真正读取了内容</h2><p>比较强的信号，是Bot访问了可索引的正文页面，返回200状态码，响应大小与正常页面接近，并且不是只停留在robots.txt、sitemap或静态资源。对于依赖JavaScript渲染的网站，还要确认首屏HTML里是否有足够正文。</p><p>日志还要与页面清单结合。企业可以把产品页、方案页、案例页、文档页和FAQ页列成关键路径，看AI相关Bot是否实际访问过这些页面。</p><ul class=""><li>Bot访问了核心HTML页面，而不只是robots.txt。</li><li>返回200状态码，且响应体不是拦截页或空壳。</li><li>访问路径覆盖产品、文档、案例和FAQ等高价值页面。</li><li>访问节奏稳定，没有被防火墙、CDN或权限规则误伤。</li></ul></section><section id="block-5" class="content-block"><h2>五、企业如何修正常见阻断问题</h2><p>日志发现问题后，先处理明确的技术阻断。常见情况包括robots规则写得过宽、CDN把Bot当成异常流量、服务端返回地区性错误、移动端和桌面端内容不一致、关键正文只在客户端渲染。</p><p>修复时要保持边界清楚：允许哪些Bot、哪些路径可访问、哪些内容不开放，都应与企业版权和合规策略一致。GEO不要求无条件开放所有内容，而是让应该公开的内容能被正常读取。</p><ol><li>核对robots.txt、sitemap和关键页面状态码。</li><li>按官方文档验证重要Bot身份，排除伪造访问。</li><li>检查CDN、防火墙和反爬规则是否误拦截公开页面。</li><li>抽样抓取HTML，确认正文、标题、结构化数据和链接可见。</li></ol></section><section id="block-6" class="content-block"><h2>六、结论：AI可见性要从可获取性开始</h2><p>AI搜索中的内容可见性，首先取决于内容是否能被正常发现和读取。没有日志分析，企业很容易把内容问题误判为模型偏好问题。</p><p>服务器日志给了企业一个更扎实的起点：先确认Bot是否到达关键页面，再讨论页面结构、证据质量和AI引用表现。技术可获取性是GEO的底层工程，不是附属细节。</p></section><section id="block-7" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li><li><span>OpenAI Help Center：Publishers and Developers FAQ -</span><a href="https://help.openai.com/en/articles/12627856-publishers-and-developers-faq" target="_blank" rel="noopener noreferrer">https://help.openai.com/en/articles/12627856-publishers-and-developers-faq</a></li><li><span>Perplexity Docs：Perplexity Crawlers -</span><a href="https://docs.perplexity.ai/docs/resources/perplexity-crawlers" target="_blank" rel="noopener noreferrer">https://docs.perplexity.ai/docs/resources/perplexity-crawlers</a></li><li><span>Bing Webmaster Guidelines -</span><a href="https://www.bing.com/webmasters/help/webmaster-guidelines-30fba23a" target="_blank" rel="noopener noreferrer">https://www.bing.com/webmasters/help/webmaster-guidelines-30fba23a</a></li><li><span>Google Search Central：robots.txt introduction -</span><a href="https://developers.google.com/search/docs/crawling-indexing/robots/intro" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/crawling-indexing/robots/intro</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：日志里出现GPTBot是否说明内容会被ChatGPT引用？</h3><p>不能这样判断。GPTBot、OAI-SearchBot等Bot的用途不同，访问日志只能说明某个请求到达了站点。内容是否会进入搜索结果、训练数据或答案引用，还受到平台规则、页面质量、检索召回和生成策略影响。日志只是第一层证据。</p></div><div><h3>Q2：为什么Bot一直访问robots.txt，却不访问正文？</h3><p>这通常说明Bot先在检查访问规则，但不代表它一定会继续抓取正文。原因可能是robots规则阻止、站点可发现性不足、sitemap缺失、Bot调度还未展开，或防火墙后续拦截。需要把robots、sitemap、状态码和关键路径访问记录一起看。</p></div><div><h3>Q3：User-Agent可以作为唯一判断依据吗？</h3><p>不建议。User-Agent容易被伪造，单看名称会误判真实来源。更可靠的做法是结合官方IP范围、反向DNS、访问频率、请求路径和行为模式。对重要结论，最好只把经过验证的Bot访问纳入统计。</p></div><div><h3>Q4：403或404状态码会影响AI可见性吗？</h3><p>会影响公开内容的可获取性。如果关键页面对AI相关Bot返回403、404或5xx，系统就无法正常读取页面内容。企业需要判断这是有意限制还是误拦截。如果页面本来应该公开，就要修正权限、路由、CDN或防火墙配置。</p></div><div><h3>Q5：只开放官网首页够不够？</h3><p>通常不够。AI搜索需要理解具体产品、服务、案例、文档和FAQ，首页往往只能提供概览。企业应确认关键深层页面也能被发现和读取，并通过内部链接、sitemap和清晰标题帮助系统进入真正有答案价值的内容。</p></div><div><h3>Q6：日志分析多久做一次比较合适？</h3><p>上线初期可以更频繁，尤其在调整robots、CDN、防火墙或站点结构后，应尽快检查Bot访问是否恢复。稳定后可按周或按月复盘关键路径。重点不是追逐每天波动，而是确认公开内容长期没有被技术问题阻断。</p></div><div><h3>Q7：AI爬虫日志能证明GEO效果吗？</h3><p>只能证明一部分。日志能说明可获取性和访问行为，不能直接证明AI是否理解、采信或推荐内容。完整GEO监测还要结合页面结构检查、AI答案抽样、引用来源记录和错误描述分析，才能判断内容资产是否真的改善。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：Bot出现不等于内容被读取</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、常见AI相关Bot有哪些差异</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、日志里应该看哪些字段</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、哪些信号说明Bot真正读取了内容</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、企业如何修正常见阻断问题</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、结论：AI可见性要从可获取性开始</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：Bot出现不等于内容被读取</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、常见AI相关Bot有哪些差异</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、日志里应该看哪些字段</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、哪些信号说明Bot真正读取了内容</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、企业如何修正常见阻断问题</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、结论：AI可见性要从可获取性开始</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -366,7 +369,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

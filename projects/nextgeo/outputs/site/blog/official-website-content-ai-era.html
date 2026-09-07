@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、核心结论：官网要从展示页升级为官方答案源</h2><p>AI时代官网再次重要，不是因为传统官网形式复兴，而是因为AI搜索需要稳定、权威、可引用的品牌信息源。企业官网是最应该承担这个角色的地方。</p><p>过去官网常被当作品牌展示和转化页面，很多内容只服务人类浏览。现在它还要服务AI理解：你是谁、做什么、适合谁、有什么证据、哪些信息是最新的。</p><p>如果官网不清楚，AI会转向第三方资料、旧新闻、目录站和社区讨论。品牌对自身解释权就会被动让渡。</p></section><section id="block-2" class="content-block"><h2>二、为什么官网在AI时代重新重要</h2><figure class="content-image"><img src="../assets/article-images/official-website-content-ai-era/official-website-ai-era-content.png" alt="AI时代官网内容结构示意"><figcaption>AI时代官网应成为品牌实体、能力、证据和FAQ的官方知识源。</figcaption></figure><p>生成式AI在回答品牌、产品和行业问题时，需要可验证来源。官网具有天然优势：信息可控、更新及时、责任主体明确、能承载完整结构。</p><p>但官网只有在内容清晰时才有价值。如果页面充满口号、图片和抽象卖点，AI很难从中提取稳定信息。官网要从“好看”进一步变成“好理解、好引用、好核验”。</p><p>官网的重新重要，也意味着市场、产品、SEO、品牌和销售需要共同维护同一套知识资产。</p></section><section id="block-3" class="content-block"><h2>三、官网首先要准备标准实体定义</h2><p>官网内容的第一层是实体定义。企业需要用稳定语言说明公司名、品牌名、产品名、服务类别、目标客户和核心能力。这个定义应出现在首页、关于页、产品页和结构化数据中。</p><p>标准实体定义不宜写成广告语。它要能被用户和AI单独引用，最好包含对象、方法、问题和结果。定义越具体，AI越不容易把企业归错类。</p><table class="content-table"><thead><tr><th>官网位置</th><th>应承担的任务</th><th>常见缺口</th></tr></thead><tbody><tr><td>首页首屏</td><td>说明你是谁和服务谁</td><td>只写口号，没有定义</td></tr><tr><td>关于页</td><td>说明组织和品牌背景</td><td>缺少产品和能力关系</td></tr><tr><td>产品页</td><td>说明能力和边界</td><td>卖点多，场景少</td></tr><tr><td>案例页</td><td>提供可信证据</td><td>过程和结果不清楚</td></tr><tr><td>FAQ页</td><td>回答真实追问</td><td>只有销售话术</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、首页要从品牌展示页升级为AI理解入口</h2><p>首页仍然要服务转化，但不能只承担视觉展示。它应该让第一次访问的人和AI都能快速理解品牌定位、服务对象、核心能力、主要入口和可信证据。</p><p>建议首页首段就给出清楚定义，随后提供产品或服务分区、典型场景、客户或案例证据、核心方法和FAQ入口。这样AI抓取首页时，能获得完整而不混乱的品牌概览。</p><p>首页不要把所有内容堆在一个长页面里。它更像目录和摘要，负责把用户和AI引向更具体的产品页、案例页和知识页。</p></section><section id="block-5" class="content-block"><h2>五、产品页要讲清能力边界，而不是只写卖点</h2><p>AI在推荐产品或服务时，需要知道它解决什么问题、适合谁、如何工作、需要什么前提、有哪些限制。传统产品页如果只写“领先、智能、高效”，很难成为答案材料。</p><p>每个产品页都应包含定义、适用场景、核心功能、工作流程、输入输出、案例证据、常见问题和不适用场景。能力边界写清楚，反而能减少AI错误推荐。</p><ul class=""><li>首段说明产品或服务的明确用途。</li><li>用表格区分适合和不适合的场景。</li><li>用步骤说明交付或使用流程。</li><li>用案例证明能力，而不是只列功能。</li><li>用FAQ处理价格、周期、限制和风险问题。</li></ul></section><section id="block-6" class="content-block"><h2>六、博客要从内容营销变成知识结构</h2><p>AI时代的博客不应只是追热点和覆盖关键词，而应成为官网知识结构的一部分。每篇文章都要回答一个真实问题，并与品牌实体、产品能力或行业方法建立关系。</p><p>博客内容应避免大量重复观点。更好的结构是：定义型文章建立概念，方法型文章给步骤，诊断型文章解决误区，案例型文章提供证据。它们共同组成AI可读的知识网络。</p><p>文章之间要有明确内链，告诉用户和AI哪些内容是基础概念，哪些是延伸方法，哪些是实践证明。</p><table class="content-table"><thead><tr><th>内容类型</th><th>作用</th><th>适合链接到</th></tr></thead><tbody><tr><td>定义文章</td><td>建立概念和边界</td><td>产品页、方法页</td></tr><tr><td>方法文章</td><td>提供执行步骤</td><td>案例页、工具页</td></tr><tr><td>诊断文章</td><td>解释常见问题</td><td>FAQ、服务页</td></tr><tr><td>案例文章</td><td>提供证据</td><td>产品页、行业页</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：未来官网是AI时代的品牌操作系统</h2><p>官网再次伟大，不是回到过去的企业门面，而是升级为品牌知识的主控系统。它要统一实体、能力、证据、FAQ和更新记录，让AI和用户都能获得准确答案。</p><p>企业下一步应审计官网：哪些页面承担定义，哪些页面承担证据，哪些问题没有官方答案，哪些第三方旧信息正在替你解释品牌。把这些补齐，官网才会成为AI时代的长期资产。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：Intro to structured data markup in Google Search -</span><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data</a></li><li><span>Schema.org：Organization schema -</span><a href="https://schema.org/Organization" target="_blank" rel="noopener noreferrer">https://schema.org/Organization</a></li><li><span>Microsoft Learn：Retrieval augmented generation and indexes -</span><a href="https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI时代官网为什么比以前更重要？</h3><p>因为官网是企业最可控的官方知识源。AI在生成品牌和产品答案时，需要稳定、可信、可核验的信息。如果官网定义模糊或更新滞后，AI可能依赖第三方旧资料，导致品牌被错误描述或错过推荐机会。官网越清楚，第三方资料越容易围绕同一套事实形成证据链。</p></div><div><h3>Q2：官网首页最需要改什么？</h3><p>首先改首段定义。首页应清楚说明企业是谁、服务谁、解决什么问题、核心能力是什么。不要只写口号或愿景。随后用清晰入口连接产品、案例、知识文章和FAQ，让用户和AI都能继续找到细节。这一段也应和结构化数据、关于页和产品页保持一致。</p></div><div><h3>Q3：产品页为什么要写不适用场景？</h3><p>因为AI推荐需要边界。如果产品页只写适合所有人，模型很难判断具体用户是否匹配。写清不适用场景、前提条件和限制，可以减少错误推荐，也能提升真实客户的判断效率。边界清楚不是削弱转化，而是提升信任。边界写清后，AI和潜在客户都更容易判断是否进入下一步沟通。</p></div><div><h3>Q4：官网博客还需要追SEO关键词吗？</h3><p>关键词仍然有参考价值，但不能成为唯一目标。AI时代的博客更应围绕用户问题和知识结构组织：定义、方法、诊断、案例、FAQ。关键词帮助发现表达方式，主题结构决定内容是否能被AI稳定理解和引用。博客选题仍要回到主题地图，避免为了覆盖关键词制造重复内容。</p></div><div><h3>Q5：官网内容要不要写得更长？</h3><p>不一定。更重要的是信息密度和结构。一个页面应有明确结论、清楚小标题、表格或步骤、证据和FAQ。为了字数拉长的内容会降低阅读体验，也不一定更适合AI抽取。清楚、完整、可核验比单纯长更重要。页面改写时可以先做信息删减，再补充表格、FAQ和证据。</p></div><div><h3>Q6：第三方信息和官网不一致怎么办？</h3><p>先更新官网标准信息，再尽量修正可控第三方来源，例如媒体资料、合作伙伴页面和行业目录。不可控来源无法修改时，可以在官网FAQ或新闻更新中澄清。AI纠偏需要稳定的新证据持续出现。官网还应保留更新日期，帮助用户和AI判断哪些信息更新。</p></div><div><h3>Q7：官网改完后多久能影响AI答案？</h3><p>没有固定时间。AI答案受抓取、索引、检索、模型更新和外部来源影响。建议在改版前建立Prompt基线，改版后连续监测数周到数月，观察官网引用率、描述准确率和错误信息率是否逐步改善。监测时要把官网引用率和描述准确率一起看，单看流量并不够。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,31 +329,28 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：官网要从展示页升级为官方答案源</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么官网在AI时代重新重要</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、官网首先要准备标准实体定义</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、首页要从品牌展示页升级为AI理解入口</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、产品页要讲清能力边界，而不是只写卖点</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、博客要从内容营销变成知识结构</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：未来官网是AI时代的品牌操作系统</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：官网要从展示页升级为官方答案源</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、为什么官网在AI时代重新重要</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、官网首先要准备标准实体定义</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、首页要从品牌展示页升级为AI理解入口</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、产品页要讲清能力边界，而不是只写卖点</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、博客要从内容营销变成知识结构</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：未来官网是AI时代的品牌操作系统</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

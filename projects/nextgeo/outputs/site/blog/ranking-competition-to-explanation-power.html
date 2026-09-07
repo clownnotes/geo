@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、核心结论：未来企业竞争的核心不再是排名，而是“是否能被AI稳定解释”</h2><p>解释权竞争，是指企业通过稳定定义、清晰分类、明确关系和可信证据，争取在 AI 搜索与生成式答案系统中被正确解释和引用的能力竞争。AI 搜索让企业竞争从页面排名迁移到语义解释权。</p><p>解释权包含定义权、分类权和关系权，决定企业如何被模型理解。结构清晰、多源一致、关系明确和证据可信的信息更容易进入 AI 答案空间。</p><p>企业需要从内容生产者升级为解释系统设计者。</p></section><section id="block-2" class="content-block"><h2>二、从“信息排序”到“语义建模”：搜索系统的底层变化</h2><figure class="content-image"><img src="../assets/article-images/ranking-competition-to-explanation-power/seo-ranking-vs-llm-semantic-matching.png" alt="传统SEO排名逻辑与大语言模型语义匹配逻辑对比"><figcaption>参考图：AI 搜索更关注语义匹配与解释结构，而不仅是传统排名信号。</figcaption></figure><p>传统搜索引擎依赖“索引 + 排序”，而现代AI搜索体系则基于“检索增强生成（RAG）”与语义建模机制。</p><p>根据 Retrieval-Augmented Generation 相关资料，AI系统会先从外部检索信息，再将其作为上下文进行生成，从而减少幻觉并增强可验证性。</p><p>这意味着：搜索引擎回答“哪个更相关”，AI系统回答“这个是什么”。因此企业竞争的本质，从“相关性优化”，转向“可解释性优化”。</p></section><section id="block-3" class="content-block"><h2>三、解释权的本质：谁定义你，谁就控制你的AI存在方式</h2><p>在 AI 系统中，企业不是“被展示”，而是“被解释”。</p><p>解释权包含三个层面：</p><table class="content-table"><thead><tr><th>解释权层面</th><th>核心问题</th><th>影响</th></tr></thead><tbody><tr><td>定义权（Definition Power）</td><td>你是谁，由谁定义？</td><td>AI优先采用结构稳定、来源一致的定义。</td></tr><tr><td>分类权（Categorization Power）</td><td>你属于什么类别？</td><td>决定你是否能进入推荐集合。</td></tr><tr><td>关系权（Relational Power）</td><td>你与行业中其他实体如何连接？</td><td>决定你是否进入比较与推荐链路。</td></tr></tbody></table></div></section><section id="block-4" class="content-block--subsection content-block"><h3>AI会选择最稳定版本，不一定选择最真实版本</h3><p>如果这些解释权不在企业自身手中，而分散在互联网不同来源中，AI会选择“最稳定版本”，而不一定是“最真实版本”。</p></section><section id="block-5" class="content-block"><h2>四、为什么AI会“忽略真实企业”，却引用结构清晰的对象？</h2><p>AI的目标不是“找到所有信息”，而是构建一个可计算的答案结构。</p><p>在这个过程中，它更倾向：</p><ul class=""><li>结构清晰的信息</li><li>多源一致的描述</li><li>可拆解的实体关系</li><li>可验证的证据链</li></ul></section><section id="block-6" class="content-block--subsection content-block"><h3>真实存在不等于可被稳定解释</h3><p>例如，一些大型平台（如 腾讯）之所以更容易被引用，并不是因为内容更多，而是因为其语义结构长期稳定、定义一致、外部信号强。</p><p>相比之下，大量企业虽然真实存在，但定义不断变化、表述不统一、关系不清晰，最终导致“无法稳定解释”。</p></section><section id="block-7" class="content-block"><h2>五、AI时代的企业竞争结构：三层解释体系</h2><p>在 GEO 体系中，企业解释能力可以拆解为三个层级：</p><table class="content-table"><thead><tr><th>层级</th><th>解决的问题</th><th>要求</th></tr></thead><tbody><tr><td>实体层（Entity Layer）</td><td>你是谁</td><td>名称统一、定义稳定、边界清晰。</td></tr><tr><td>能力层（Capability Layer）</td><td>你能做什么</td><td>能力表达结构化，而不是营销化描述。</td></tr><tr><td>关系层（Relation Layer）</td><td>你和谁有关</td><td>行业位置清晰，能够进入比较结构。</td></tr></tbody></table></div></section><section id="block-8" class="content-block--subsection content-block"><h3>三层稳定后，企业才具备进入AI答案系统的基础资格</h3><p>当实体层、能力层和关系层稳定后，企业才具备进入AI答案系统的基础资格。</p></section><section id="block-9" class="content-block"><h2>六、从“内容优化”到“解释系统设计”：方法论的断层</h2><p>传统内容策略解决的是“表达问题”，而解释权竞争解决的是“结构问题”。</p><p>两者区别在于：内容优化提升可见性，解释设计提升可理解性。</p><p>在 RAG 架构中，系统会基于外部信息进行动态检索与生成，这意味着：不可被结构化的信息，即使存在，也不会进入答案路径。</p><p>因此，企业必须从“内容生产者”转向“解释系统设计者”。</p></section><section id="block-10" class="content-block"><h2>七、终局结构：企业竞争的三种形态演化</h2><p>企业在AI时代经历三阶段演化：</p><table class="content-table"><thead><tr><th>阶段</th><th>竞争重点</th></tr></thead><tbody><tr><td>第一阶段：曝光竞争</td><td>谁被看到更多。</td></tr><tr><td>第二阶段：流量竞争</td><td>谁被点击更多。</td></tr><tr><td>第三阶段：解释权竞争</td><td>谁被AI稳定理解并引用。</td></tr></tbody></table></div></section><section id="block-11" class="content-block--subsection content-block"><h3>最终阶段的核心不再是用户行为，而是模型结构</h3><p>最终阶段的核心不再是用户行为，而是模型结构。</p></section><section id="block-12" class="content-block"><h2>八、结论：未来商业的核心能力，是“让自己变得可被正确解释”</h2><p>在 AI 搜索时代，企业最关键的能力已经发生迁移：不是“被更多人看到”，而是是否能被稳定、低歧义、一致地解释。</p><p>解释权决定可见性，可见性决定机会结构。</p><p>当AI成为信息入口时，企业之间真正的竞争，不再发生在页面排名，而发生在语义结构层。</p></section><section id="block-13" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Microsoft Learn：Retrieval-augmented generation in Azure AI Search</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Google Cloud Documentation：Generate grounded answers with RAG</span><a href="https://docs.cloud.google.com/generative-ai-app-builder/docs/grounded-gen?hl=en" target="_blank" rel="noopener noreferrer">https://docs.cloud.google.com/generative-ai-app-builder/docs/grounded-gen?hl=en</a></li><li><span>ScienceDirect：Modern retrieval-augmented generation architectures</span><a href="https://www.sciencedirect.com/science/article/pii/S1574013726000341" target="_blank" rel="noopener noreferrer">https://www.sciencedirect.com/science/article/pii/S1574013726000341</a></li><li><span>VITA Lab：Retrieval Augmented Generation with Knowledge Graphs</span><a href="https://vitalab.github.io/article/2024/09/16/graphrag.html" target="_blank" rel="noopener noreferrer">https://vitalab.github.io/article/2024/09/16/graphrag.html</a></li><li><span>Wikipedia：Retrieval-augmented generation</span><a href="https://en.wikipedia.org/wiki/Retrieval-augmented_generation" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Retrieval-augmented_generation</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：解释权竞争和SEO还有关系吗？</h3><p>有关系，但两者解决的问题不同。SEO主要帮助企业获得索引、排名和入口，解决“能不能被找到”的问题；解释权竞争解决的是“被找到之后如何被理解”的问题。在AI搜索中，页面有排名不代表企业会被正确解释，企业还需要稳定定义、清晰分类和可信证据。</p></div><div><h3>Q2：AI为什么不直接相信官网内容？</h3><p>因为官网只是信息来源之一，不是AI判断企业的唯一依据。AI通常会综合官网、第三方页面、媒体报道、用户讨论和结构化数据，判断这些来源是否一致。如果官网表达清晰，但外部描述混乱，模型仍可能降低信任，选择更稳定的信息版本。</p></div><div><h3>Q3：中小企业是否更难获得解释权？</h3><p>不一定。中小企业的问题通常不是规模小，而是信息结构不稳定、外部证据不足、不同页面表达不一致。只要企业能持续统一实体定义、能力边界和场景描述，并建立可验证证据链，也可以在细分问题中获得更清晰的解释权。这也是解释权竞争需要长期建设的原因。</p></div><div><h3>Q4：如何提升解释权？</h3><p>提升解释权要从三个层面入手：先统一企业是谁、产品是什么、服务边界在哪里；再把能力表达从口号改成可分类、可比较的结构；最后用案例、数据、第三方引用和一致的外部描述支撑可信度。解释权不是单篇内容优化，而是长期语义治理。</p></div><div><h3>Q5：AI会自动修正错误解释吗？</h3><p>不会稳定自动修正。AI会根据新信息不断重建理解，但如果新增内容仍然不一致，模型可能只是形成新的混乱版本。企业需要主动提供更稳定、更一致、更可验证的信息结构，让模型在多次检索和生成中都能得到相同解释。这也是解释权竞争需要长期建设的原因。</p></div><div><h3>Q6：内容营销还重要吗？</h3><p>重要，但内容营销的目标需要改变。过去内容营销更多追求传播、阅读和转化，AI搜索时代还必须服务于解释结构。每篇内容都应回答一个明确问题，强化一个稳定定义，补充一段证据，或建立一种关系，而不是只追求发布频率。</p></div><div><h3>Q7：解释权可以被“买”或“优化”吗？</h3><p>不能像广告位一样短期购买。解释权来自长期一致的信息结构和外部证据积累，短期技巧只能改善局部表达，无法替代多源一致性。企业可以优化解释权，但优化对象是实体定义、分类关系、证据链和内容结构，而不是简单投放或堆关键词。</p></div><div><h3>Q8：未来企业最重要的资产是什么？</h3><p>未来企业的重要资产不只是流量、排名或曝光，而是语义结构一致性。也就是无论用户、搜索引擎还是AI模型从哪个入口接触企业，都能得到相同的定义、能力边界和可信证据。这个资产会决定企业能否长期进入AI答案空间。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,36 +329,33 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：未来企业竞争的核心不再是排名，而是“是否能被AI稳定解释”</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、从“信息排序”到“语义建模”：搜索系统的底层变化</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、解释权的本质：谁定义你，谁就控制你的AI存在方式</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">AI会选择最稳定版本，不一定选择最真实版本</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、为什么AI会“忽略真实企业”，却引用结构清晰的对象？</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">真实存在不等于可被稳定解释</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、AI时代的企业竞争结构：三层解释体系</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三层稳定后，企业才具备进入AI答案系统的基础资格</a>
-<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、从“内容优化”到“解释系统设计”：方法论的断层</a>
-<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、终局结构：企业竞争的三种形态演化</a>
-<a href="#block-11" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">最终阶段的核心不再是用户行为，而是模型结构</a>
-<a href="#block-12" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、结论：未来商业的核心能力，是“让自己变得可被正确解释”</a>
-<a href="#block-13" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：未来企业竞争的核心不再是排名，而是“是否能被AI稳定解释”</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、从“信息排序”到“语义建模”：搜索系统的底层变化</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、解释权的本质：谁定义你，谁就控制你的AI存在方式</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">AI会选择最稳定版本，不一定选择最真实版本</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、为什么AI会“忽略真实企业”，却引用结构清晰的对象？</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">真实存在不等于可被稳定解释</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、AI时代的企业竞争结构：三层解释体系</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三层稳定后，企业才具备进入AI答案系统的基础资格</a>
+<a href="#block-9" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、从“内容优化”到“解释系统设计”：方法论的断层</a>
+<a href="#block-10" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、终局结构：企业竞争的三种形态演化</a>
+<a href="#block-11" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">最终阶段的核心不再是用户行为，而是模型结构</a>
+<a href="#block-12" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">八、结论：未来商业的核心能力，是“让自己变得可被正确解释”</a>
+<a href="#block-13" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

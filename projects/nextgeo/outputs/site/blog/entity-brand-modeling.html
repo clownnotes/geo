@@ -109,6 +109,12 @@
       color: #475569;
       line-height: 1.6;
     }
+      html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -140,9 +146,12 @@
   </header>
 
   <!-- 文章正文区域 -->
-  <main class="flex-grow py-12 w-full">
-    <article class="geo-container max-w-[900px]">
-      <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
         <a href="./" class="text-brand-600 hover:underline">实战知识库</a>
         <span>/</span>
         <span class="text-slate-600">实体与技术</span>
@@ -169,16 +178,26 @@
       </div>
 
       <!-- 章节正文 -->
-      <div class="prose-geo">
-        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">一、为什么大模型经常“说错你”？</h2>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="min-w-0">
+          <div class="prose-geo">
+<section id="block-1" class="content-block">
+<h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">一、为什么大模型经常“说错你”？</h2>
         <p>
           很多企业在测试 DeepSeek、Kimi 或豆包时会发现一个尴尬现象：大模型知道有这家公司，但把公司的产品线说成了竞品的产品，甚至把注册资本、成立年限、交付能力完全张冠李戴。
         </p>
         <p>
           根本原因在于：<strong>传统网页上的文字是非结构化的</strong>。大语言模型在预训练或联网检索（RAG）切片时，由于缺少机器可直接解析的关系元数据，只能通过词频概率进行“猜词”。当互联网上存在冲突的招聘简章、历史旧稿或竞品混淆稿件时，模型的猜词概率便会产生致命偏差。
         </p>
+</section>
 
-        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">二、企业实体三元组的标准建构</h2>
+<section id="block-2" class="content-block">
+<h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">二、企业实体三元组的标准建构</h2>
         <p>
           在企业级 GEO 落地中，我们必须把企业的核心信息转化为严谨的知识图谱三元组：
         </p>
@@ -189,8 +208,10 @@
           <li><code>(企业主实体) --[地域服务范围]--> (江苏省徐州市 / 淮海经济区 B2B 制造企业)</code></li>
           <li><code>(企业主实体) --[遵循学术框架]--> (Princeton 9-Factor GEO 标准)</code></li>
         </ul>
+</section>
 
-        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">三、如何使用 Schema.org 锁死实体定义？</h2>
+<section id="block-3" class="content-block">
+<h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">三、如何使用 Schema.org 锁死实体定义？</h2>
         <p>
           国际标准化组织推出的 Schema.org 是各大搜索引擎与 LLM 爬虫公认的通用语法标准。通过在官网 <code>&lt;head&gt;</code> 中注入结构化 JSON-LD，相当于直接给爬虫递送了一份“数字身份证”：
         </p>
@@ -227,18 +248,44 @@
           </tbody>
         </table>
 
+      </section>
+        </div>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
+            </div>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+  <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、为什么大模型经常“说错你”？</a>
+  <a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、企业实体三元组的标准建构</a>
+  <a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、如何使用 Schema.org 锁死实体定义？</a>
+            </nav>
+
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
       </div>
 
-      <!-- 底部返回与引导 -->
-      <div class="mt-12 pt-8 border-t border-slate-200 flex items-center justify-between">
-        <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1">
-          <span>&larr;</span> 返回实战知识库
-        </a>
-        <a href="../services/#contact" class="text-sm font-semibold text-slate-600 hover:text-brand-600">
-          获取品牌 Schema.org 实体架构诊断
-        </a>
-      </div>
-    </article>
+    </div>
   </main>
 
   <!-- 页脚 -->

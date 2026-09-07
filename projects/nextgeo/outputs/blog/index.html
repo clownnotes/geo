@@ -97,13 +97,13 @@
       <!-- 分类过滤筛选器 -->
       <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-10 border-b border-slate-200/90 pb-6">
         <button onclick="filterCategory('all')" id="tab-all" class="cat-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-slate-900 text-white shadow-xs">
-          全部 <span class="ml-1 opacity-80 font-normal">(77)</span>
+          全部 <span class="ml-1 opacity-80 font-normal">(75)</span>
         </button>
         <button onclick="filterCategory('geo')" id="tab-geo" class="cat-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
           GEO实战 <span class="ml-1 text-slate-400 font-normal">(33)</span>
         </button>
         <button onclick="filterCategory('ai-search')" id="tab-ai-search" class="cat-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
-          AI搜索认知 <span class="ml-1 text-slate-400 font-normal">(35)</span>
+          AI搜索认知 <span class="ml-1 text-slate-400 font-normal">(33)</span>
         </button>
         <button onclick="filterCategory('case-studies')" id="tab-case-studies" class="cat-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
           行业案例 <span class="ml-1 text-slate-400 font-normal">(9)</span>
@@ -112,35 +112,6 @@
 
       <!-- 文章卡片网格 -->
       <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        
-        <article class="article-item group bg-white rounded-2xl border-2 border-brand-300 overflow-hidden hover:shadow-xl hover:border-brand-500 transition duration-200 flex flex-col relative" data-category="geo">
-          <div class="absolute top-3 right-3 z-10">
-            <span class="px-2.5 py-1 rounded-full text-xs font-black bg-brand-600 text-white shadow-xs">重磅深度</span>
-          </div>
-          <a href="./princeton-nine-factors-and-real-geo-for-buyers.html" class="block overflow-hidden">
-            <div class="aspect-16/10 bg-slate-100 overflow-hidden border-b border-slate-100"><img src="../assets/article-images/princeton-nine-factors/cover.jpg" alt="大模型是信息压缩机，不是垃圾桶" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"></div>
-          </a>
-          <div class="p-5 sm:p-6 flex flex-col flex-grow justify-between">
-            <div>
-              <div class="flex items-center justify-between gap-2 text-xs mb-3">
-                <span class="font-bold px-2.5 py-0.5 rounded-full text-brand-700 bg-brand-50 border border-brand-200">GEO实战</span>
-                <time datetime="2026-09-06" class="text-slate-400 font-medium">2026-09-06</time>
-              </div>
-              <h2 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug line-clamp-2 mb-2">
-                <a href="./princeton-nine-factors-and-real-geo-for-buyers.html">大模型是信息压缩机，不是垃圾桶：写给正被“虚假GEO”收割的企业决策者</a>
-              </h2>
-              <p class="text-slate-600 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-4">
-                解密传统SEO转型GEO的水文投毒与虚假电话乱象。普林斯顿9因子实证证明：数据注入（+41%）与权威信源（+35%）是硬通货，关键词堆砌面临负分惩罚。给企业决策者的按图索骥真GEO破局手册。
-              </p>
-            </div>
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>阅读约 12 分钟</span>
-              <a href="./princeton-nine-factors-and-real-geo-for-buyers.html" class="font-bold text-brand-600 group-hover:translate-x-0.5 transition flex items-center gap-1">
-                阅读全文 <span>&rarr;</span>
-              </a>
-            </div>
-          </div>
-        </article>
         
         <article class="article-item group bg-white rounded-2xl border border-slate-200/80 overflow-hidden hover:shadow-lg hover:border-brand-300 transition duration-200 flex flex-col" data-category="case-studies">
           <a href="./professional-services-geo-lawyers.html" class="block overflow-hidden">
@@ -422,32 +393,6 @@
             <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
               <span>阅读约 9 分钟</span>
               <a href="./prompt-drift-monitoring-weekly-retests.html" class="font-bold text-brand-600 group-hover:translate-x-0.5 transition flex items-center gap-1">
-                阅读全文 <span>&rarr;</span>
-              </a>
-            </div>
-          </div>
-        </article>
-        
-        <article class="article-item group bg-white rounded-2xl border border-slate-200/80 overflow-hidden hover:shadow-lg hover:border-brand-300 transition duration-200 flex flex-col" data-category="ai-search">
-          <a href="./brand-ai-search-question-monitoring-volume.html" class="block overflow-hidden">
-            <div class="aspect-16/10 bg-slate-100 overflow-hidden border-b border-slate-100"><img src="../assets/article-covers/brand-ai-search-question-monitoring-volume.png" alt="一个品牌应该监测多少个AI搜索问题" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"></div>
-          </a>
-          <div class="p-5 sm:p-6 flex flex-col flex-grow justify-between">
-            <div>
-              <div class="flex items-center justify-between gap-2 text-xs mb-3">
-                <span class="font-bold px-2.5 py-0.5 rounded-full text-brand-700 bg-brand-50 border border-brand-200">AI 搜索认知</span>
-                <time datetime="2026-04-08" class="text-slate-400 font-medium">2026-04-08</time>
-              </div>
-              <h2 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug line-clamp-2 mb-2">
-                <a href="./brand-ai-search-question-monitoring-volume.html">一个品牌应该监测多少个AI搜索问题</a>
-              </h2>
-              <p class="text-slate-600 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-4">
-                品牌AI搜索监测不该盲目堆问题数量，合理问题池要按品牌、品类、场景、竞品和风险分层，既能覆盖真实决策，也能让团队持续复盘并把发现转化为页面、证据和技术改进任务。
-              </p>
-            </div>
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>阅读约 9 分钟</span>
-              <a href="./brand-ai-search-question-monitoring-volume.html" class="font-bold text-brand-600 group-hover:translate-x-0.5 transition flex items-center gap-1">
                 阅读全文 <span>&rarr;</span>
               </a>
             </div>
@@ -1878,32 +1823,6 @@
             <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
               <span>阅读约 8 分钟</span>
               <a href="./schema-markdown-ai-readable-webpage.html" class="font-bold text-brand-600 group-hover:translate-x-0.5 transition flex items-center gap-1">
-                阅读全文 <span>&rarr;</span>
-              </a>
-            </div>
-          </div>
-        </article>
-        
-        <article class="article-item group bg-white rounded-2xl border border-slate-200/80 overflow-hidden hover:shadow-lg hover:border-brand-300 transition duration-200 flex flex-col" data-category="ai-search">
-          <a href="./chinese-content-ai-citation-patterns.html" class="block overflow-hidden">
-            <div class="aspect-16/10 bg-slate-100 overflow-hidden border-b border-slate-100"><img src="../assets/article-covers/chinese-content-ai-citation-patterns.png" alt="中文内容怎么才能被AI引用？我们找到了一些规律" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"></div>
-          </a>
-          <div class="p-5 sm:p-6 flex flex-col flex-grow justify-between">
-            <div>
-              <div class="flex items-center justify-between gap-2 text-xs mb-3">
-                <span class="font-bold px-2.5 py-0.5 rounded-full text-brand-700 bg-brand-50 border border-brand-200">AI 搜索认知</span>
-                <time datetime="2025-03-12" class="text-slate-400 font-medium">2025-03-12</time>
-              </div>
-              <h2 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition leading-snug line-clamp-2 mb-2">
-                <a href="./chinese-content-ai-citation-patterns.html">中文内容怎么才能被AI引用？我们找到了一些规律</a>
-              </h2>
-              <p class="text-slate-600 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-4">
-                本文总结中文内容被AI引用的关键规律，包括定义稳定性、结构清晰度、证据密度、实体一致性和中文语境下的问答表达方式，并给出企业内容站可直接执行的改写方法与监测建议。
-              </p>
-            </div>
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>阅读约 9 分钟</span>
-              <a href="./chinese-content-ai-citation-patterns.html" class="font-bold text-brand-600 group-hover:translate-x-0.5 transition flex items-center gap-1">
                 阅读全文 <span>&rarr;</span>
               </a>
             </div>

@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、核心结论：2026年的GEO要从趋势焦虑转向数据治理</h2><p>2026年，企业做GEO不能只问“哪个AI入口增长最快”，而要问“我们的品牌在这些入口里是否被准确理解、稳定提及、正确引用”。公开统计数据说明环境正在变化，但不能替代企业自己的观测。</p><p>更稳妥的策略是把外部数据当作方向信号，把内部监测当作决策依据。AI采用率、AI摘要点击、用户信任和企业AI落地，都应该转化为可执行的GEO指标。</p></section><section id="block-2" class="content-block"><h2>二、趋势一：AI使用正在从尝鲜进入日常</h2><figure class="content-image"><img src="../assets/article-images/ai-statistics-2026-geo-trends/ai-statistics-2026-geo-trends.png" alt="2026年AI搜索趋势与GEO策略示意"><figcaption>AI采用、搜索点击和用户信任变化会共同影响GEO策略优先级。</figcaption></figure><p>Stanford AI Index 2026提到，生成式AI在短时间内获得了广泛采用，但不同国家、年龄和行业之间差异明显。Pew Research的美国调查也显示，公众对AI的认知和使用频率持续上升。</p><p>这对GEO的影响很直接：用户不再只通过传统搜索了解品牌，而会把AI当作解释器、比较器和初步顾问。企业需要保证自己的官网、内容和第三方资料能被AI正确读取和复述。</p></section><section id="block-3" class="content-block"><h2>三、趋势二：AI摘要会改变点击，但不会取消内容价值</h2><p>Pew Research 2025年的一项分析显示，当搜索结果出现AI摘要时，用户点击传统搜索结果链接的比例更低。这不意味着官网不重要，而是官网的角色从单纯承接流量，转向为AI答案提供权威材料。</p><p>Google的官方文档也强调，生成式搜索体验仍依赖搜索索引和高质量网页。企业应继续做好可抓取、可索引和有用内容，同时把页面写成更适合被AI理解的答案源。</p><table class="content-table"><thead><tr><th>变化</th><th>旧口径</th><th>2026年GEO口径</th></tr></thead><tbody><tr><td>流量</td><td>只看自然点击</td><td>同时看引用、提及和描述准确性</td></tr><tr><td>内容</td><td>覆盖关键词</td><td>回答真实问题并提供证据</td></tr><tr><td>官网</td><td>承接访问</td><td>提供权威品牌事实源</td></tr><tr><td>复盘</td><td>看排名波动</td><td>看AI答案语义变化</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、趋势三：用户信任仍然是AI搜索的限制条件</h2><p>AI搜索增长并不等于用户完全信任AI答案。Pew Research关于AI搜索摘要的调查显示，不少用户只保持有限信任，Google自己的帮助文档也提醒AI回答可能出错，需要核对来源。</p><p>这给企业一个重要机会：可信来源会更重要。官网、案例、文档、FAQ、结构化数据和第三方资料越清楚，用户和AI越容易复核品牌说法。GEO不是取代信任建设，而是把信任材料变得更可发现。</p></section><section id="block-5" class="content-block"><h2>五、趋势四：企业AI采用增加，但GEO不能只看工具数量</h2><p>McKinsey的AI调研反复提醒，企业使用AI并不等于已经获得规模化价值。对GEO来说也是一样：买监测工具、生成大量内容或测试多个模型，都不等于品牌在AI答案中变得更清楚。</p><p>真正需要管理的是流程：谁维护标准描述，谁处理错误答案，谁更新过时页面，谁判断AI引用是否对业务有意义。没有组织流程，数据只会变成截图堆积。</p><ul class=""><li>建立固定问题集，覆盖品牌、行业、竞品和购买场景。</li><li>记录AI是否提及、是否引用、是否描述准确、语气是否正向。</li><li>把错误答案对应到需要修正的官网或外部资料。</li><li>每月复盘趋势，不用单次回答决定策略。</li></ul></section><section id="block-6" class="content-block"><h2>六、2026年GEO应重点监测哪些指标</h2><p>GEO指标不应只追求“出现次数”。企业更需要知道自己是否被放入正确类别，是否被正确解释，是否被推荐到合适场景，是否被可信来源支撑。</p><p>建议把指标分成五类：可见性、准确性、引用质量、语气倾向和业务相关性。这样既能看到曝光，也能看到AI对品牌的理解质量。</p><table class="content-table"><thead><tr><th>指标</th><th>回答的问题</th><th>典型记录方式</th></tr></thead><tbody><tr><td>品牌出现率</td><td>AI是否提到我</td><td>固定问题集出现次数</td></tr><tr><td>描述准确率</td><td>AI是否说对我</td><td>人工标注错误类型</td></tr><tr><td>引用质量</td><td>引用了哪些来源</td><td>官网、媒体、平台分类</td></tr><tr><td>语气倾向</td><td>推荐还是保留</td><td>正向、中性、负向</td></tr><tr><td>业务相关性</td><td>是否影响决策</td><td>购买、比较、风险问题表现</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：趋势数据要落到企业自己的答案样本里</h2><p>2026年的AI统计数据说明入口、信任和内容归因都在变化，但每个企业受到的影响并不相同。行业平均数据只能告诉你需要关注什么，不能告诉你自己的品牌哪里出了问题。</p><p>因此，GEO策略应从“看报告”走向“建观测系统”：用公开数据判断方向，用固定问题集建立基线，用官网和外部资料持续纠偏。这样才能把趋势变成长期知识资产。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Stanford HAI：The 2026 AI Index Report -</span><a href="https://hai.stanford.edu/ai-index/2026-ai-index-report" target="_blank" rel="noopener noreferrer">https://hai.stanford.edu/ai-index/2026-ai-index-report</a></li><li><span>Pew Research Center：Americans and AI 2026 -</span><a href="https://www.pewresearch.org/internet/2026/06/17/americans-and-ai-2026-chatbots-smart-devices-and-views-on-impact/" target="_blank" rel="noopener noreferrer">https://www.pewresearch.org/internet/2026/06/17/americans-and-ai-2026-chatbots-smart-devices-and-views-on-impact/</a></li><li><span>Pew Research Center：Google users are less likely to click on links when an AI summary appears -</span><a href="https://www.pewresearch.org/short-reads/2025/07/22/google-users-are-less-likely-to-click-on-links-when-an-ai-summary-appears-in-the-results/" target="_blank" rel="noopener noreferrer">https://www.pewresearch.org/short-reads/2025/07/22/google-users-are-less-likely-to-click-on-links-when-an-ai-summary-appears-in-the-results/</a></li><li><span>McKinsey：The State of AI: Global Survey 2025 -</span><a href="https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai" target="_blank" rel="noopener noreferrer">https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：2026年AI统计数据能直接决定GEO预算吗？</h3><p>不能直接决定。公开统计数据只能说明大环境变化，例如AI使用增加、搜索点击变化或用户信任不足。企业是否加大GEO预算，还要看自己的品牌是否被AI提及、描述是否准确、竞品是否占位，以及AI答案是否影响真实销售问题。</p></div><div><h3>Q2：AI搜索点击下降是不是说明官网流量没价值了？</h3><p>不是。点击下降说明用户可能在搜索结果或AI答案里完成更多初步判断，但官网仍是AI和用户核验品牌事实的重要来源。企业官网要从单纯流量入口升级为权威答案源，承担定义品牌、解释能力和提供证据的角色。落地时要把外部趋势转成自己的问题集和监测表，否则报告数字很难指导具体页面修改。</p></div><div><h3>Q3：企业应该优先关注哪些AI入口？</h3><p>优先关注目标客户实际使用的入口，而不是所有入口平均铺开。B2B企业可以从Google AI功能、ChatGPT、Perplexity、百度或行业常用AI助手开始；国内消费品牌还要关注社交平台搜索和内容被AI引用的情况。</p></div><div><h3>Q4：为什么用户信任不足反而让GEO更重要？</h3><p>用户不完全信任AI答案时，会更依赖来源、证据和可复核材料。企业如果能提供清楚官网、案例、FAQ、文档和第三方资料，就能帮助AI生成更有依据的答案，也能让用户在看到AI摘要后更容易核验品牌可信度。复盘时应记录模型、日期、问题和来源，避免把一次平台变化误当成长期趋势。</p></div><div><h3>Q5：GEO指标应该按周还是按月看？</h3><p>核心品牌问题适合按周观察，因为错误描述需要尽快发现；行业推荐、竞品比较和长尾购买问题可以按月复盘。不要用单次回答判断趋势，至少要记录模型、日期、问题、答案、来源和标注结果，形成连续样本。落地时要把外部趋势转成自己的问题集和监测表，否则报告数字很难指导具体页面修改。</p></div><div><h3>Q6：统计报告里的数字可以直接写进文章吗？</h3><p>可以引用，但必须标明来源、时间和口径，并说明它支持什么判断。不要把不同国家、平台或样本的数据混在一起使用，也不要把“相关性”写成“因果”。涉及2026趋势时，尤其要避免用过时数据做当前结论。复盘时应记录模型、日期、问题和来源，避免把一次平台变化误当成长期趋势。</p></div><div><h3>Q7：小企业也需要做AI趋势监测吗？</h3><p>需要，但不必复杂。小企业可以先选20个真实客户会问的问题，每周在两三个AI入口中测试，记录品牌是否出现、描述是否准确、是否引用官网。这个轻量基线比购买复杂工具更重要，能帮助团队先找到最明显的认知缺口。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,31 +329,28 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：2026年的GEO要从趋势焦虑转向数据治理</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、趋势一：AI使用正在从尝鲜进入日常</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、趋势二：AI摘要会改变点击，但不会取消内容价值</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、趋势三：用户信任仍然是AI搜索的限制条件</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、趋势四：企业AI采用增加，但GEO不能只看工具数量</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、2026年GEO应重点监测哪些指标</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：趋势数据要落到企业自己的答案样本里</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：2026年的GEO要从趋势焦虑转向数据治理</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、趋势一：AI使用正在从尝鲜进入日常</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、趋势二：AI摘要会改变点击，但不会取消内容价值</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、趋势三：用户信任仍然是AI搜索的限制条件</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、趋势四：企业AI采用增加，但GEO不能只看工具数量</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、2026年GEO应重点监测哪些指标</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：趋势数据要落到企业自己的答案样本里</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

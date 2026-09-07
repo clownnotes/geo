@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、搜索直达正在从入口变成任务链路</h2><p>搜索直达正在被解耦：用户提出问题后，AI代理可能先理解意图，再检索来源、合并证据、给出建议，最后把用户带向一个更具体的行动。传统搜索里的“输入关键词、浏览结果、点击网站”，正在变成一条由AI组织的信息任务链。</p><p>这不是搜索消失，而是搜索结果页不再必然是用户判断的中心。企业仍然需要让页面可抓取、可理解、可引用，但还要让内容能进入代理的比较和决策过程。</p></section><section id="block-2" class="content-block"><h2>二、AI代理和传统搜索的差异在哪里</h2><p>传统搜索把大量选择交给用户，页面标题、摘要和排名承担主要入口价值。AI代理更像一个信息中介，它会把用户的模糊问题拆成若干子问题，并尝试在答案中完成筛选。</p><p>因此，企业内容不能只追求被搜到，还要能被解释。产品定义、适用场景、限制条件、价格口径、案例证据和常见问题，都要写得足够清楚，才可能被代理系统当作可靠材料。</p><table class="content-table"><thead><tr><th>维度</th><th>传统搜索</th><th>AI代理</th></tr></thead><tbody><tr><td>用户动作</td><td>主动筛选多个结果</td><td>先接收整理后的答案</td></tr><tr><td>内容价值</td><td>吸引点击和停留</td><td>支撑理解、比较和建议</td></tr><tr><td>失败原因</td><td>排名低或摘要弱</td><td>信息不清、证据不足</td></tr><tr><td>企业重点</td><td>页面质量和索引</td><td>实体、证据和可引用结构</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、企业网站会在哪些环节被过滤</h2><figure class="content-image"><img src="../assets/article-images/ai-agents-unbundle-search-direct-answers/ai-agents-search-unbundling.png" alt="搜索直达解耦与AI代理流程示意"><figcaption>这张图适合用来理解用户问题如何被AI代理拆成检索、比较和建议几个步骤。</figcaption></figure><p>企业网站可能在很早的环节就被过滤：页面无法访问，正文主要由脚本渲染，关键信息藏在图片里，或者不同页面对同一产品的说法不一致。这些问题会让AI代理很难把网站当作稳定来源。</p><p>第二类过滤发生在证据层。官网如果只有营销表达，没有清楚的功能边界、客户场景、技术说明、政策页面或第三方来源，AI即使看到内容，也未必愿意把它放进答案。</p></section><section id="block-4" class="content-block"><h2>四、内容要能回答代理的连续追问</h2><p>AI代理处理的往往不是单个关键词，而是一组连续追问。它可能先问“这家公司是谁”，再问“它适合什么场景”，接着比较替代方案，最后给出推荐理由。</p><p>官网内容要覆盖这些连续问题。一个只写品牌口号的页面，很难支撑代理完成判断；一个能清楚说明对象、能力、边界、证据和下一步动作的页面，更容易成为答案材料。</p><ul class=""><li>用标准名称和一句话定义固定品牌实体。</li><li>为核心产品写清适用场景、限制条件和交付方式。</li><li>把案例、文档、FAQ和政策页连接成可追溯路径。</li><li>让重要结论旁边出现来源、日期或可核验说明。</li></ul></section><section id="block-5" class="content-block"><h2>五、GEO监测要加入任务完成视角</h2><p>只看AI是否提到品牌不够。代理式搜索真正影响的是用户能否在答案里形成判断：品牌有没有进入候选名单，描述是否准确，推荐理由是否成立，来源是否能回到官网或可信第三方。</p><p>更有效的监测方式，是把用户旅程拆成问题组。比如“了解概念”“寻找供应商”“比较方案”“确认风险”“决定联系”，分别观察品牌在不同任务中的表现。</p></section><section id="block-6" class="content-block"><h2>六、企业可以先改哪些页面</h2><p>优先级应该从高价值决策页面开始。首页解决“你是谁”，产品页解决“你能做什么”，案例页解决“凭什么可信”，FAQ解决“用户还会追问什么”，文档或政策页解决“边界在哪里”。</p><p>改写时不必追求一次覆盖所有内容。先选出最常被销售、客服和用户反复询问的问题，把这些问题写成清楚、可访问、可引用的页面，通常比继续增加泛泛的资讯文章更有价值。</p></section><section id="block-7" class="content-block"><h2>七、结论：未来入口竞争会转向任务完成</h2><p>搜索直达解耦之后，企业竞争不再只是某个关键词下排第几，而是能否在AI代理完成任务时被识别、被信任、被比较、被推荐。排名仍然重要，但它只是候选入口之一。</p><p>长期看，企业要建设的是一套AI也能读懂的知识资产：清楚的品牌实体、稳定的产品说明、可核验的证据、持续更新的FAQ和能被第三方印证的声誉信号。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Microsoft Learn：Retrieval augmented generation and indexes -</span><a href="https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation</a></li><li><span>OpenAI Developers：Web search tool -</span><a href="https://developers.openai.com/api/docs/guides/tools-web-search" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/guides/tools-web-search</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：搜索直达解耦是不是意味着SEO不重要了？</h3><p>不是。SEO仍然决定页面能否被抓取、索引和理解，是进入AI搜索信息环境的基础。变化在于，进入候选集以后，AI代理还会继续判断内容是否清楚、可信、可引用。企业不能放弃SEO，而是要在SEO之上补足实体定义、证据链和FAQ结构。</p></div><div><h3>Q2：AI代理会不会直接替代官网？</h3><p>AI代理可能减少一部分早期点击，但官网不会失去价值。相反，官网会成为品牌最稳定的权威语义源。代理需要可靠材料来解释企业是谁、产品是什么、适合谁、有哪些限制。官网写得越清楚，AI越不容易用过时或第三方误读的信息替你发声。</p></div><div><h3>Q3：企业应该怎样判断自己是否适合代理式搜索？</h3><p>可以从用户问题入手。如果用户在购买前需要比较方案、确认风险、理解专业概念或判断服务适配度，那么代理式搜索就会影响你。B2B软件、专业服务、教育培训、医疗健康、工业产品等复杂决策场景，尤其需要把官网内容写成可被连续追问的知识结构。</p></div><div><h3>Q4：AI代理更喜欢什么样的页面？</h3><p>它更容易使用结构清楚、信息完整、来源明确的页面。好的页面通常有直接定义、明确适用场景、简洁对比、可核验证据和具体FAQ。只有营销口号、图片文字或模糊承诺的页面，即使人类读者能大致理解，也很难被代理稳定拆解成答案材料。</p></div><div><h3>Q5：如何监测品牌是否进入AI代理链路？</h3><p>可以设计一组真实用户任务，分别测试品牌词、品类词、对比词和场景词。观察AI是否提到品牌、描述是否准确、引用哪些来源、是否给出推荐理由，以及是否把用户引向官网。连续观察这些信号，比只截图一次AI回答更能判断趋势。</p></div><div><h3>Q6：小品牌还有机会进入AI答案吗？</h3><p>有机会，特别是在细分场景里。小品牌通常缺少天然声量，但可以通过清楚的官网结构、具体案例、稳定FAQ和可信第三方内容降低AI理解成本。不要试图覆盖所有大词，先把最有优势的专业问题写清楚，往往更容易被AI代理采用。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,31 +329,28 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、搜索直达正在从入口变成任务链路</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、AI代理和传统搜索的差异在哪里</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、企业网站会在哪些环节被过滤</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、内容要能回答代理的连续追问</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、GEO监测要加入任务完成视角</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、企业可以先改哪些页面</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：未来入口竞争会转向任务完成</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、搜索直达正在从入口变成任务链路</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、AI代理和传统搜索的差异在哪里</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、企业网站会在哪些环节被过滤</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、内容要能回答代理的连续追问</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、GEO监测要加入任务完成视角</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、企业可以先改哪些页面</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：未来入口竞争会转向任务完成</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

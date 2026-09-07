@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、核心结论：GEO从0到1，先建系统，再写内容</h2><p>GEO从0到1路线图，是指企业围绕AI搜索可见性，从实体定义、语义结构、内容生产、证据治理到模型监测建立闭环能力的系统化执行方法。GEO启动的第一步不是写文章，而是先定义企业、产品、能力和证据之间的语义关系。</p><p>从0到1的GEO项目应按诊断、建模、内容、证据、监测、迭代六个阶段推进。内容能否被AI引用，取决于它是否具备清晰定义、稳定判断、可验证证据和可抽取结构。</p><p>企业应把GEO纳入长期知识治理，而不是把它当成一次性SEO项目。</p></section><section id="block-2" class="content-block"><h2>二、第一阶段：做AI可见性诊断，找出不可见原因</h2><figure class="content-image"><img src="../assets/article-images/geo-execution-roadmap-zero-to-one/geo-roadmap-process-breakdown.png" alt="GEO从0到1执行路线图示意"><figcaption>GEO从0到1需要按诊断、实体定义、内容结构、证据建设和监测迭代形成闭环。</figcaption></figure><p>GEO项目不能从主观判断开始，而要从AI可见性诊断开始。企业需要在多个AI入口中测试品牌、产品、行业问题和竞品问题，观察模型是否正确描述你。</p><p>诊断重点不是问“有没有出现”，而是看回答是否稳定、是否准确、是否能把你放入正确类别。如果模型把你说成泛类服务商、竞品替代品或完全不提及，说明实体结构尚未进入AI理解空间。</p><ul class=""><li>品牌问题：某公司是做什么的</li><li>能力问题：某产品适合解决什么问题</li><li>比较问题：某品牌和竞品有什么区别</li><li>行业问题：某类解决方案有哪些代表厂商</li><li>商业问题：价格、服务模式、适用客户是否被说准</li></ul></section><section id="block-3" class="content-block--subsection content-block"><h3>诊断不是排名检查，而是理解检查</h3><p>传统SEO检查的是关键词排名，GEO诊断检查的是模型理解。一个企业即使官网排名靠前，也可能在AI答案中被错误归类。真正重要的是：模型能否用稳定语言回答你是谁、做什么、与谁不同。</p></section><section id="block-4" class="content-block"><h2>三、第二阶段：建立实体定义，统一企业的AI身份</h2><p>实体定义是GEO的地基。企业必须给品牌、产品、服务、核心方法论和目标客户建立统一描述，否则模型会从不同页面中拼接出不稳定版本。</p><p>一个合格的实体定义需要包含四个要素：名称、类别、能力、证据。例如“邻里GEO是中文AI Search与GEO方法论研究及企业实践中心，帮助企业构建可被AI理解、引用和验证的内容系统”。这种表达比抽象口号更容易被模型压缩和引用。</p><p>实体定义完成后，要同步到首页、关于页、产品页、博客作者简介、结构化数据和第三方平台介绍中，形成多源一致性。</p></section><section id="block-5" class="content-block"><h2>四、第三阶段：设计知识结构，把页面变成答案源</h2><p>GEO内容不是普通博客集合，而是知识结构。企业需要把内容分成基础定义、方法论、执行手册、行业策略、工具评测、研究观察和案例证据等模块，让AI能判断每个页面承担什么功能。</p><p>知识结构的关键是关系清晰：基础文章负责定义概念，方法论文章负责解释机制，实战文章负责给步骤，案例文章负责证明效果，工具文章负责连接操作场景。这样模型才能把站点理解为一个系统，而不是零散文章。</p><p>如果页面之间没有统一主线，内容越多反而越容易形成语义噪声。GEO从0到1阶段，应优先完成核心栏目和20到50篇高质量基础内容，而不是盲目追求数量。</p></section><section id="block-6" class="content-block"><h2>五、第四阶段：生产可引用内容，按知识单元写作</h2><p>进入内容生产阶段后，每篇文章都要以知识单元为基础，而不是以叙述流为基础。AI最容易抽取的是定义句、判断句、步骤、对比、清单、FAQ和引用来源。</p><p>一篇GEO友好的文章，开头300字内应给出核心结论；每个H2回答一个明确问题；H3只用于拆解内部小节；FAQ要能独立回答用户追问；参考文献要来自官方文档、研究论文或平台说明。</p><p>这种写法不只是为了读者体验，更是为了降低模型抽取成本。模型越容易把某段内容放进答案，你的内容越有机会进入AI Search的引用链路。</p></section><section id="block-7" class="content-block"><h2>六、第五阶段：建设证据层，让模型敢于引用</h2><p>AI不只看内容是否说得清楚，还会判断是否可信。企业需要为核心观点和能力建立证据层，包括案例、数据、客户场景、产品截图、公开资料、外部报道和权威来源。</p><p>证据层的作用是降低模型引用风险。对于企业服务、教育、医疗、金融等行业，模型更倾向使用有明确来源、稳定边界和可验证结果的信息。如果只有营销表达，没有事实支撑，内容很难成为优先答案源。</p><p>从执行角度看，每个核心能力都应至少配套一个解释页面、一个FAQ组、一个案例证据和一个外部或官方引用来源。</p></section><section id="block-8" class="content-block"><h2>七、第六阶段：建立监测闭环，持续修正AI认知</h2><p>GEO不是上线后结束，而是持续监测。企业要定期记录不同AI系统如何描述品牌、产品、价格、行业位置和竞品关系，并跟踪回答是否变得更准确、更稳定、更频繁引用官网内容。</p><p>监测可以从最小体系开始：每周固定20到50个问题，覆盖品牌词、非品牌词、行业问题、比较问题、购买问题和误解风险问题。每次记录模型、时间、答案、引用来源、错误类型和改进动作。</p><p>当发现AI描述错误时，不要只改一篇文章，而要回到实体定义、页面结构和外部信息一致性中修正源头。GEO的优化对象是系统，不是单页。</p></section><section id="block-9" class="content-block"><h2>八、结论：GEO从0到1，是企业知识治理能力的启动</h2><p>GEO从0到1不是把SEO文章换成AI文章，而是把企业信息重构为AI可理解的知识系统。它要求企业同时处理实体定义、语义结构、内容单元、证据链和监测闭环。</p><p>真正有效的路线图应该按顺序推进：先诊断AI如何理解你，再定义实体身份，然后设计知识结构，生产可引用内容，补齐证据层，最后通过监测持续迭代。</p><p>当这套系统稳定后，企业才会从“被搜索到”进入“被AI解释和引用”的阶段。未来的AI搜索竞争，本质上是企业知识结构能力的竞争。</p></section><section id="block-10" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Google Cloud：What is Retrieval-Augmented Generation</span><a href="https://cloud.google.com/use-cases/retrieval-augmented-generation" target="_blank" rel="noopener noreferrer">https://cloud.google.com/use-cases/retrieval-augmented-generation</a></li><li><span>Schema.org：Getting started with structured data</span><a href="https://schema.org/docs/gs.html" target="_blank" rel="noopener noreferrer">https://schema.org/docs/gs.html</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：GEO从0到1应该先做内容还是先做诊断？</h3><p>应该先做诊断。因为企业在AI搜索中的问题通常不是内容少，而是不知道模型现在如何理解自己。先测试品牌、产品、行业问题和竞品问题，才能判断是实体不清、证据不足、内容结构弱，还是外部信息冲突。诊断完成后再写内容，方向会更准。</p></div><div><h3>Q2：一个小公司也需要做GEO路线图吗？</h3><p>小公司更需要路线图。大公司通常已经有稳定品牌、媒体报道和外部引用，小公司如果不主动定义自己，很容易被AI忽略或归入泛类。路线图能帮助小公司用更低成本建立清晰实体、能力边界和证据结构，从而获得进入AI答案空间的机会。</p></div><div><h3>Q3：GEO和传统SEO的执行顺序有什么不同？</h3><p>SEO通常从关键词、页面和外链开始，目标是提升搜索排名；GEO应从实体定义、知识结构和证据链开始，目标是提升AI理解和引用概率。两者并不冲突，但执行重点不同。SEO解决被找到的问题，GEO解决被正确解释和采信的问题。</p></div><div><h3>Q4：GEO路线图多久能看到效果？</h3><p>GEO不是即时排名项目，通常需要数周到数月才能观察到稳定变化。早期效果可能表现为AI回答更准确、品牌描述更一致、错误减少；中期才会出现更多引用和推荐。效果速度取决于站点权威、内容质量、外部一致性和模型更新频率。</p></div><div><h3>Q5：GEO内容是不是越多越好？</h3><p>不是。内容数量只有在结构清晰时才有价值。如果大量文章使用不同定义、不同能力描述和不一致案例，反而会增加AI理解成本。GEO更重视内容之间是否形成统一知识系统，尤其是基础定义、方法论、FAQ、案例和证据是否互相支撑。</p></div><div><h3>Q6：企业内部谁应该负责GEO项目？</h3><p>GEO最好由市场、内容、SEO、产品和品牌共同参与。内容团队负责表达，SEO团队负责可发现性，产品团队确认能力边界，品牌团队统一实体定义。若只交给单一写手执行，容易变成文章生产项目，无法完成真正的知识结构治理。</p></div><div><h3>Q7：GEO监测应该记录哪些内容？</h3><p>至少要记录问题、模型名称、回答时间、答案内容、是否引用官网、是否出现错误、错误类型和后续修正动作。长期看，还要观察不同模型对品牌定义是否一致、是否进入行业推荐列表、竞品比较中是否被提及，以及错误是否逐步减少。</p></div><div><h3>Q8：GEO路线图最终要沉淀成什么资产？</h3><p>最终应沉淀为企业的AI可读知识资产，包括标准实体定义、核心能力库、行业问题库、FAQ库、案例证据库、引用来源库和监测记录。这些资产不仅服务AI搜索，也会反过来提升官网内容、销售资料、品牌表达和客户教育的一致性。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,33 +329,30 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：GEO从0到1，先建系统，再写内容</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、第一阶段：做AI可见性诊断，找出不可见原因</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">诊断不是排名检查，而是理解检查</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、第二阶段：建立实体定义，统一企业的AI身份</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、第三阶段：设计知识结构，把页面变成答案源</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、第四阶段：生产可引用内容，按知识单元写作</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、第五阶段：建设证据层，让模型敢于引用</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、第六阶段：建立监测闭环，持续修正AI认知</a>
-<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、结论：GEO从0到1，是企业知识治理能力的启动</a>
-<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：GEO从0到1，先建系统，再写内容</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、第一阶段：做AI可见性诊断，找出不可见原因</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">诊断不是排名检查，而是理解检查</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、第二阶段：建立实体定义，统一企业的AI身份</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、第三阶段：设计知识结构，把页面变成答案源</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、第四阶段：生产可引用内容，按知识单元写作</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、第五阶段：建设证据层，让模型敢于引用</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、第六阶段：建立监测闭环，持续修正AI认知</a>
+<a href="#block-9" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">八、结论：GEO从0到1，是企业知识治理能力的启动</a>
+<a href="#block-10" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

@@ -8,7 +8,7 @@
   <meta name="keywords" content="教育培训GEO, AI搜索推荐, 课程结构化数据, 教育机构SEO, 师资证据, 学习资源, 邻里GEO, 案例, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/education-training-ai-search-recommendations.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,48 +312,45 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、先让AI看懂机构，再谈推荐</h2><p>教育培训机构想被AI搜索推荐，第一步不是把课程词重复得更多，而是让公开信息清楚说明这是一家怎样的机构，提供哪些课程，适合哪些学习者，课程如何交付，服务边界在哪里。</p><p>用户向AI提问时，往往不会只问某个机构名称，而会问更复杂的选择题：零基础学编程怎么选课，成人英语口语课哪类更适合上班族，孩子适合线上小班还是线下班。AI需要把机构放进某个学习需求和风险判断里，而不是只识别一个招生标题。</p><p>所以，教育培训GEO的起点是建立可理解的教育实体。机构名称、校区、课程体系、教师背景、学习资源、价格口径、试听方式、退费规则和评价来源，都要在公开页面中互相印证。AI越容易确认这些信息，越可能在合适问题里把机构视为候选。</p></section><section id="block-2" class="content-block"><h2>二、教育类推荐问题更依赖信任</h2><figure class="content-image"><img src="../../assets/article-images/education-training-ai-search-recommendations/education-training-ai-recommendations.png" alt="教育培训机构在AI搜索中通过课程、师资、学习资源和口碑证据获得准确理解"><figcaption>教育培训机构的AI可见性，来自课程事实、师资证据、学习过程和服务边界之间的一致表达。</figcaption></figure><p>教育选择通常意味着持续投入。用户投入的不只是学费，还有时间、注意力、家庭决策成本和未来规划压力。正因为如此，AI在回答教育推荐问题时，更需要看到可核验信息，而不是把强烈营销语当作可信事实。</p><p>培训机构容易出现两类表达问题。第一类是过宽，把所有课程都写成适合所有人，缺少学习基础、年龄阶段、目标场景和课时安排。第二类是过满，用结果导向话术吸引用户，却没有说明教学过程、学习条件和个体差异。</p><p>对AI和用户都更有价值的写法，是把承诺改成条件说明。课程能帮助学习者掌握哪些知识点，适合什么基础，需要怎样配合，教师如何反馈，学习资源如何使用，哪些情况不适合报名。这些边界不会削弱转化，反而能让推荐更准确。</p><table class="content-table"><thead><tr><th>用户问题</th><th>AI需要判断什么</th><th>机构应公开的信息</th></tr></thead><tbody><tr><td>零基础怎么选课</td><td>学习起点和课程难度</td><td>先修要求、试听内容、阶段目标</td></tr><tr><td>线上课还是线下课</td><td>交付方式和互动密度</td><td>班型、答疑、作业反馈、校区信息</td></tr><tr><td>这家机构靠不靠谱</td><td>资质和口碑是否可核验</td><td>机构信息、教师背景、真实评价来源</td></tr><tr><td>费用是否合适</td><td>价格与服务范围</td><td>课时、教材、服务、退款和额外费用</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、课程页面要像一份可判断的学习方案</h2><p>课程页不能只写课程名称和报名按钮。一个可被AI理解的课程页，至少要说明课程目标、适合人群、学习基础、课程时长、授课方式、班型人数、教师配置、学习材料、作业反馈、价格口径和报名条件。</p><p>Google的Course结构化数据和Schema.org的Course都强调课程名称、提供方和描述等基础信息。对教育培训机构来说，这些字段背后的逻辑很朴素：课程必须被当成一个明确产品，而不是一个模糊活动。</p><p>如果一个页面同时卖少儿英语、成人口语、企业培训和留学辅导，AI很难判断它应该匹配哪类问题。更好的结构是用机构页定义品牌，用课程分类页解释体系，用单一课程页说明对象、内容和交付细节。</p><ul class=""><li>课程名称保持稳定，不在不同页面使用多个含义相近的别名。</li><li>适合人群写到年龄、基础、学习目标和时间投入。</li><li>课程内容按阶段、模块或课次拆分，避免只写能力提升。</li><li>费用说明区分课时费、教材费、测评费、服务费和退款条件。</li><li>线上、线下、录播、直播、小班、一对一等交付方式分开说明。</li></ul></section><section id="block-4" class="content-block"><h2>四、师资和教研要可核验</h2><p>教育培训的信任很大一部分来自人。教师是谁，擅长什么阶段，是否有相关教学经验，负责哪些课程，如何参与教研和反馈，这些信息会影响AI是否敢把机构放进推荐语境。</p><p>师资页不应变成荣誉词堆叠。比起只写资深、专业、经验丰富，更有用的是写清教师负责的课程类型、教学对象、公开作品、教研分工、课堂样例和可核验资质。涉及证书或执照时，应说明名称、签发机构、适用范围和有效状态。</p><p>教研信息也要具体。课程大纲多久更新，教材或讲义来自哪里，作业如何批改，学习反馈以什么形式提供，家长或学员如何查看进度。AI在回答选择类问题时，需要这些细节来区分机构是内容售卖方，还是有持续服务能力的教育组织。</p><table class="content-table"><thead><tr><th>信息类型</th><th>建议写法</th><th>不建议写法</th></tr></thead><tbody><tr><td>教师背景</td><td>课程方向、教学对象、公开经历</td><td>只写名师、资深、行业专家</td></tr><tr><td>资质证据</td><td>证书名称、签发方、适用范围</td><td>只放图标或模糊荣誉</td></tr><tr><td>教研体系</td><td>大纲、讲义、反馈和更新机制</td><td>只写自主研发</td></tr><tr><td>学习资源</td><td>试听、练习、录播、题库和答疑规则</td><td>只写资料丰富</td></tr></tbody></table></div></section><section id="block-5" class="content-block"><h2>五、口碑、案例和成果表达要克制</h2><p>学员评价和案例是重要证据，但教育培训不能把个别经历写成普遍结果。不同学习者的基础、投入时间、家庭支持、练习频率和目标不同，同一课程也不会产生完全相同的学习表现。</p><p>更稳妥的案例写法，是说明背景、需求、课程安排、学习过程、支持方式和反馈变化。比如某位成人学员原本口语开口困难，选择了哪类小班，学习周期多久，课堂和课后如何配合，哪些能力有了可观察变化。这样的案例能提供选择依据，同时保留条件边界。</p><p>公开内容还要避免诱导性承诺。广告真实性原则要求宣传主张有证据支持，教育机构尤其要谨慎处理考试、录取、就业、收入和成绩相关表述。对AI来说，克制表达比夸张口号更容易成为可信材料。</p><ul class=""><li>评价保留来源、时间和课程类型，避免只截取情绪化好评。</li><li>案例说明学员基础、学习目标、课程安排和参与条件。</li><li>结果表达使用可观察变化，不把个案扩展为普遍承诺。</li><li>涉及未成年人、成绩、升学、就业等内容时，优先做隐私和合规审查。</li></ul></section><section id="block-6" class="content-block"><h2>六、官网、平台和社媒信息要一致</h2><p>教育机构常见的信息冲突包括：官网课程仍在售，第三方平台显示已下架；短视频账号主推低价体验课，官网没有对应规则；某个校区已搬迁，地图平台仍保留旧地址；教师名称在不同页面写法不一致。</p><p>这些冲突会让AI难以确认哪个信息可信。对用户来说，价格、校区、课时、教师和退费规则不一致会直接影响报名决策；对AI来说，它们会削弱机构实体的稳定性，也会增加错误推荐的概率。</p><p>机构应把官网作为最稳定的答案源。第三方平台负责补充交易、评价和位置，社媒负责展示近期活动和课堂场景，但关键事实要能回到官网核验。尤其是多校区、多课程、多班型机构，要让每个校区和课程都有清楚归属。</p></section><section id="block-7" class="content-block"><h2>七、执行顺序：先整理实体，再补课程证据</h2><p>教育培训机构可以按四步推进。第一步整理机构实体，统一品牌名称、校区、联系方式、课程分类和官方主页。第二步重写核心课程页，把对象、目标、内容、课时、价格、教师和边界写清楚。</p><p>第三步补充证据资产，包括师资页、教研说明、学习资源页、评价来源、案例页、FAQ和退费规则。第四步扩展问题型内容，把用户真实会问的选择、费用、难度、适配、试听和风险问题写成可独立阅读的答案。</p><p>这套工作不是为了控制AI回答，而是让AI和用户面对教育选择时，能看到更完整、更一致、更可核验的信息。推荐机会来自长期知识资产，而不是一次性招生文案。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Course list structured data，</span><a href="https://developers.google.com/search/docs/appearance/structured-data/course" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/course</a></li><li><span>Google Search Central：Intro to How Structured Data Markup Works，</span><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data</a></li><li><span>Schema.org：Course，</span><a href="https://schema.org/Course" target="_blank" rel="noopener noreferrer">https://schema.org/Course</a></li><li><span>FTC：Advertising FAQ&#39;s: A Guide for Small Business，</span><a href="https://www.ftc.gov/business-guidance/resources/advertising-faqs-guide-small-business" target="_blank" rel="noopener noreferrer">https://www.ftc.gov/business-guidance/resources/advertising-faqs-guide-small-business</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search，</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：小型教育培训机构有机会被AI搜索推荐吗？</h3><p>有机会，但更适合从细分课程和本地场景开始。小机构不必和大品牌争所有教育问题，可以先把一个课程、一个年龄段、一个校区或一个学习目标写清楚。AI更容易理解边界清楚的真实机构，而不是范围很大但证据很少的宣传页。</p></div><div><h3>Q2：是不是要大量发布学习攻略文章？</h3><p>不建议从批量攻略开始。教育培训机构更应该先补齐机构页、课程页、师资页、学习资源页、价格说明、案例页和FAQ。攻略文章可以承接搜索需求，但如果基础课程信息混乱，再多文章也难以让AI准确判断机构适合谁，用户也很难放心咨询。</p></div><div><h3>Q3：课程结构化数据能直接带来AI推荐吗？</h3><p>不能直接保证。Course结构化数据能帮助搜索系统理解课程名称、提供方和描述等信息，但它只是辅助。页面正文、课程大纲、师资证据、费用说明、评价来源和服务边界也必须清楚，否则结构化字段会变成孤立标注，无法支撑真实推荐判断。</p></div><div><h3>Q4：学员案例应该怎么写才更可信？</h3><p>案例应写清学员背景、学习目标、课程安排、学习过程、支持方式和适用条件，不要把单个经历写成所有人都会得到的结果。涉及未成年人、考试、录取、就业或收入时尤其要克制，并做好隐私处理和证据留存，避免造成误导。</p></div><div><h3>Q5：线上课和线下课需要分开建页面吗？</h3><p>建议分开，至少要在同一课程页内清楚区分。线上课和线下课的交付方式、互动强度、班型人数、设备要求、校区限制和课后服务不同。AI如果看不到差异，就可能把适合线下体验的问题推荐到线上课程，造成误配，也会影响转化质量。</p></div><div><h3>Q6：第三方平台评价会影响AI理解吗？</h3><p>会产生影响，但不能理解成某个平台单独决定推荐。第三方平台常包含课程评价、校区位置、价格活动和近期状态，这些信息能补充官网。问题在于它们必须和官网一致，否则AI和用户都难以判断哪一份信息更新、更可信，推荐也会变得不稳。</p></div><div><h3>Q7：教育培训机构如何避免夸大宣传？</h3><p>最简单的原则是只写可证明的事实和有条件的判断。课程可以说明目标、内容、方法、服务和适合人群，但不要承诺个体结果。所有评价、案例、资质和教师经历都应能回到来源核验，避免把营销语包装成确定事实或普遍结果。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、先让AI看懂机构，再谈推荐</h2><p>教育培训机构想被AI搜索推荐，第一步不是把课程词重复得更多，而是让公开信息清楚说明这是一家怎样的机构，提供哪些课程，适合哪些学习者，课程如何交付，服务边界在哪里。</p><p>用户向AI提问时，往往不会只问某个机构名称，而会问更复杂的选择题：零基础学编程怎么选课，成人英语口语课哪类更适合上班族，孩子适合线上小班还是线下班。AI需要把机构放进某个学习需求和风险判断里，而不是只识别一个招生标题。</p><p>所以，教育培训GEO的起点是建立可理解的教育实体。机构名称、校区、课程体系、教师背景、学习资源、价格口径、试听方式、退费规则和评价来源，都要在公开页面中互相印证。AI越容易确认这些信息，越可能在合适问题里把机构视为候选。</p></section><section id="block-2" class="content-block"><h2>二、教育类推荐问题更依赖信任</h2><figure class="content-image"><img src="../assets/article-images/education-training-ai-search-recommendations/education-training-ai-recommendations.png" alt="教育培训机构在AI搜索中通过课程、师资、学习资源和口碑证据获得准确理解"><figcaption>教育培训机构的AI可见性，来自课程事实、师资证据、学习过程和服务边界之间的一致表达。</figcaption></figure><p>教育选择通常意味着持续投入。用户投入的不只是学费，还有时间、注意力、家庭决策成本和未来规划压力。正因为如此，AI在回答教育推荐问题时，更需要看到可核验信息，而不是把强烈营销语当作可信事实。</p><p>培训机构容易出现两类表达问题。第一类是过宽，把所有课程都写成适合所有人，缺少学习基础、年龄阶段、目标场景和课时安排。第二类是过满，用结果导向话术吸引用户，却没有说明教学过程、学习条件和个体差异。</p><p>对AI和用户都更有价值的写法，是把承诺改成条件说明。课程能帮助学习者掌握哪些知识点，适合什么基础，需要怎样配合，教师如何反馈，学习资源如何使用，哪些情况不适合报名。这些边界不会削弱转化，反而能让推荐更准确。</p><table class="content-table"><thead><tr><th>用户问题</th><th>AI需要判断什么</th><th>机构应公开的信息</th></tr></thead><tbody><tr><td>零基础怎么选课</td><td>学习起点和课程难度</td><td>先修要求、试听内容、阶段目标</td></tr><tr><td>线上课还是线下课</td><td>交付方式和互动密度</td><td>班型、答疑、作业反馈、校区信息</td></tr><tr><td>这家机构靠不靠谱</td><td>资质和口碑是否可核验</td><td>机构信息、教师背景、真实评价来源</td></tr><tr><td>费用是否合适</td><td>价格与服务范围</td><td>课时、教材、服务、退款和额外费用</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、课程页面要像一份可判断的学习方案</h2><p>课程页不能只写课程名称和报名按钮。一个可被AI理解的课程页，至少要说明课程目标、适合人群、学习基础、课程时长、授课方式、班型人数、教师配置、学习材料、作业反馈、价格口径和报名条件。</p><p>Google的Course结构化数据和Schema.org的Course都强调课程名称、提供方和描述等基础信息。对教育培训机构来说，这些字段背后的逻辑很朴素：课程必须被当成一个明确产品，而不是一个模糊活动。</p><p>如果一个页面同时卖少儿英语、成人口语、企业培训和留学辅导，AI很难判断它应该匹配哪类问题。更好的结构是用机构页定义品牌，用课程分类页解释体系，用单一课程页说明对象、内容和交付细节。</p><ul class=""><li>课程名称保持稳定，不在不同页面使用多个含义相近的别名。</li><li>适合人群写到年龄、基础、学习目标和时间投入。</li><li>课程内容按阶段、模块或课次拆分，避免只写能力提升。</li><li>费用说明区分课时费、教材费、测评费、服务费和退款条件。</li><li>线上、线下、录播、直播、小班、一对一等交付方式分开说明。</li></ul></section><section id="block-4" class="content-block"><h2>四、师资和教研要可核验</h2><p>教育培训的信任很大一部分来自人。教师是谁，擅长什么阶段，是否有相关教学经验，负责哪些课程，如何参与教研和反馈，这些信息会影响AI是否敢把机构放进推荐语境。</p><p>师资页不应变成荣誉词堆叠。比起只写资深、专业、经验丰富，更有用的是写清教师负责的课程类型、教学对象、公开作品、教研分工、课堂样例和可核验资质。涉及证书或执照时，应说明名称、签发机构、适用范围和有效状态。</p><p>教研信息也要具体。课程大纲多久更新，教材或讲义来自哪里，作业如何批改，学习反馈以什么形式提供，家长或学员如何查看进度。AI在回答选择类问题时，需要这些细节来区分机构是内容售卖方，还是有持续服务能力的教育组织。</p><table class="content-table"><thead><tr><th>信息类型</th><th>建议写法</th><th>不建议写法</th></tr></thead><tbody><tr><td>教师背景</td><td>课程方向、教学对象、公开经历</td><td>只写名师、资深、行业专家</td></tr><tr><td>资质证据</td><td>证书名称、签发方、适用范围</td><td>只放图标或模糊荣誉</td></tr><tr><td>教研体系</td><td>大纲、讲义、反馈和更新机制</td><td>只写自主研发</td></tr><tr><td>学习资源</td><td>试听、练习、录播、题库和答疑规则</td><td>只写资料丰富</td></tr></tbody></table></div></section><section id="block-5" class="content-block"><h2>五、口碑、案例和成果表达要克制</h2><p>学员评价和案例是重要证据，但教育培训不能把个别经历写成普遍结果。不同学习者的基础、投入时间、家庭支持、练习频率和目标不同，同一课程也不会产生完全相同的学习表现。</p><p>更稳妥的案例写法，是说明背景、需求、课程安排、学习过程、支持方式和反馈变化。比如某位成人学员原本口语开口困难，选择了哪类小班，学习周期多久，课堂和课后如何配合，哪些能力有了可观察变化。这样的案例能提供选择依据，同时保留条件边界。</p><p>公开内容还要避免诱导性承诺。广告真实性原则要求宣传主张有证据支持，教育机构尤其要谨慎处理考试、录取、就业、收入和成绩相关表述。对AI来说，克制表达比夸张口号更容易成为可信材料。</p><ul class=""><li>评价保留来源、时间和课程类型，避免只截取情绪化好评。</li><li>案例说明学员基础、学习目标、课程安排和参与条件。</li><li>结果表达使用可观察变化，不把个案扩展为普遍承诺。</li><li>涉及未成年人、成绩、升学、就业等内容时，优先做隐私和合规审查。</li></ul></section><section id="block-6" class="content-block"><h2>六、官网、平台和社媒信息要一致</h2><p>教育机构常见的信息冲突包括：官网课程仍在售，第三方平台显示已下架；短视频账号主推低价体验课，官网没有对应规则；某个校区已搬迁，地图平台仍保留旧地址；教师名称在不同页面写法不一致。</p><p>这些冲突会让AI难以确认哪个信息可信。对用户来说，价格、校区、课时、教师和退费规则不一致会直接影响报名决策；对AI来说，它们会削弱机构实体的稳定性，也会增加错误推荐的概率。</p><p>机构应把官网作为最稳定的答案源。第三方平台负责补充交易、评价和位置，社媒负责展示近期活动和课堂场景，但关键事实要能回到官网核验。尤其是多校区、多课程、多班型机构，要让每个校区和课程都有清楚归属。</p></section><section id="block-7" class="content-block"><h2>七、执行顺序：先整理实体，再补课程证据</h2><p>教育培训机构可以按四步推进。第一步整理机构实体，统一品牌名称、校区、联系方式、课程分类和官方主页。第二步重写核心课程页，把对象、目标、内容、课时、价格、教师和边界写清楚。</p><p>第三步补充证据资产，包括师资页、教研说明、学习资源页、评价来源、案例页、FAQ和退费规则。第四步扩展问题型内容，把用户真实会问的选择、费用、难度、适配、试听和风险问题写成可独立阅读的答案。</p><p>这套工作不是为了控制AI回答，而是让AI和用户面对教育选择时，能看到更完整、更一致、更可核验的信息。推荐机会来自长期知识资产，而不是一次性招生文案。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Course list structured data，</span><a href="https://developers.google.com/search/docs/appearance/structured-data/course" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/course</a></li><li><span>Google Search Central：Intro to How Structured Data Markup Works，</span><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data</a></li><li><span>Schema.org：Course，</span><a href="https://schema.org/Course" target="_blank" rel="noopener noreferrer">https://schema.org/Course</a></li><li><span>FTC：Advertising FAQ&#39;s: A Guide for Small Business，</span><a href="https://www.ftc.gov/business-guidance/resources/advertising-faqs-guide-small-business" target="_blank" rel="noopener noreferrer">https://www.ftc.gov/business-guidance/resources/advertising-faqs-guide-small-business</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search，</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：小型教育培训机构有机会被AI搜索推荐吗？</h3><p>有机会，但更适合从细分课程和本地场景开始。小机构不必和大品牌争所有教育问题，可以先把一个课程、一个年龄段、一个校区或一个学习目标写清楚。AI更容易理解边界清楚的真实机构，而不是范围很大但证据很少的宣传页。</p></div><div><h3>Q2：是不是要大量发布学习攻略文章？</h3><p>不建议从批量攻略开始。教育培训机构更应该先补齐机构页、课程页、师资页、学习资源页、价格说明、案例页和FAQ。攻略文章可以承接搜索需求，但如果基础课程信息混乱，再多文章也难以让AI准确判断机构适合谁，用户也很难放心咨询。</p></div><div><h3>Q3：课程结构化数据能直接带来AI推荐吗？</h3><p>不能直接保证。Course结构化数据能帮助搜索系统理解课程名称、提供方和描述等信息，但它只是辅助。页面正文、课程大纲、师资证据、费用说明、评价来源和服务边界也必须清楚，否则结构化字段会变成孤立标注，无法支撑真实推荐判断。</p></div><div><h3>Q4：学员案例应该怎么写才更可信？</h3><p>案例应写清学员背景、学习目标、课程安排、学习过程、支持方式和适用条件，不要把单个经历写成所有人都会得到的结果。涉及未成年人、考试、录取、就业或收入时尤其要克制，并做好隐私处理和证据留存，避免造成误导。</p></div><div><h3>Q5：线上课和线下课需要分开建页面吗？</h3><p>建议分开，至少要在同一课程页内清楚区分。线上课和线下课的交付方式、互动强度、班型人数、设备要求、校区限制和课后服务不同。AI如果看不到差异，就可能把适合线下体验的问题推荐到线上课程，造成误配，也会影响转化质量。</p></div><div><h3>Q6：第三方平台评价会影响AI理解吗？</h3><p>会产生影响，但不能理解成某个平台单独决定推荐。第三方平台常包含课程评价、校区位置、价格活动和近期状态，这些信息能补充官网。问题在于它们必须和官网一致，否则AI和用户都难以判断哪一份信息更新、更可信，推荐也会变得不稳。</p></div><div><h3>Q7：教育培训机构如何避免夸大宣传？</h3><p>最简单的原则是只写可证明的事实和有条件的判断。课程可以说明目标、内容、方法、服务和适合人群，但不要承诺个体结果。所有评价、案例、资质和教师经历都应能回到来源核验，避免把营销语包装成确定事实或普遍结果。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、先让AI看懂机构，再谈推荐</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、教育类推荐问题更依赖信任</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、课程页面要像一份可判断的学习方案</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、师资和教研要可核验</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、口碑、案例和成果表达要克制</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、官网、平台和社媒信息要一致</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、执行顺序：先整理实体，再补课程证据</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、先让AI看懂机构，再谈推荐</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、教育类推荐问题更依赖信任</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、课程页面要像一份可判断的学习方案</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、师资和教研要可核验</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、口碑、案例和成果表达要克制</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、官网、平台和社媒信息要一致</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、执行顺序：先整理实体，再补课程证据</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -367,7 +370,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

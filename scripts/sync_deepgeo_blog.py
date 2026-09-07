@@ -279,9 +279,9 @@ def render_article_html(data):
     toc_links_html = ''
     if data['toc_items']:
         for href, text in data['toc_items']:
-            toc_links_html += f'<a href="{href}" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">{text}</a>\n'
+            toc_links_html += f'<a href="{href}" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">{text}</a>\n'
     else:
-        toc_links_html = '<a href="#article-start" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition">回到顶部</a>'
+        toc_links_html = '<a href="#article-start" class="block py-2 text-slate-600 hover:text-brand-700 transition text-xs sm:text-[13.5px]">回到顶部</a>'
 
     # 构建 Schema.org JSON-LD
     schema_json = {
@@ -510,6 +510,12 @@ def render_article_html(data):
       color: #9333ea;
       text-decoration: underline;
     }}
+    html {{
+      scroll-behavior: smooth;
+    }}
+    .content-block, [id^="block-"], #faq {{
+      scroll-margin-top: 100px;
+    }}
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -576,15 +582,15 @@ def render_article_html(data):
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           {data['clean_article']}
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -593,22 +599,19 @@ def render_article_html(data):
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
               {toc_links_html}
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -661,7 +664,7 @@ def process_single_article(rel_url):
         cat_dir = os.path.join(SITE_ROOT, data['cat_key'])
         os.makedirs(cat_dir, exist_ok=True)
         cat_file_path = os.path.join(cat_dir, data['filename'])
-        cat_rendered = rendered_html.replace('../assets/', '../../assets/').replace('../services/', '../../services/').replace('../about/', '../../about/').replace('href="../"', 'href="../../"').replace('href="./"', 'href="../blog/"')
+        cat_rendered = rendered_html.replace('href="./"', 'href="../blog/"')
         with open(cat_file_path, 'w', encoding='utf-8') as f:
             f.write(cat_rendered)
 

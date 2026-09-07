@@ -109,6 +109,12 @@
       color: #475569;
       line-height: 1.6;
     }
+      html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -140,9 +146,12 @@
   </header>
 
   <!-- 文章正文区域 -->
-  <main class="flex-grow py-12 w-full">
-    <article class="geo-container max-w-[900px]">
-      <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+  <main id="article-start" class="flex-grow py-10 w-full">
+    <div class="geo-container">
+      
+      <!-- 面包屑与文章头信息 -->
+      <div class="max-w-4xl mb-8">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
         <a href="./" class="text-brand-600 hover:underline">实战知识库</a>
         <span>/</span>
         <span class="text-slate-600">客群战略</span>
@@ -169,8 +178,16 @@
       </div>
 
       <!-- 章节正文 -->
-      <div class="prose-geo">
-        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">一、什么是“购买前解释型决策”？</h2>
+      </div>
+
+      <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
+        
+        <!-- 左侧文章内容 -->
+        <article class="min-w-0">
+          <div class="prose-geo">
+<section id="block-1" class="content-block">
+<h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">一、什么是“购买前解释型决策”？</h2>
         <p>
           在商业决策中，产品与服务天然分为两大截然不同的阵营：
         </p>
@@ -178,8 +195,10 @@
           <li><strong>即时冲动消费品（Impulsive Goods）</strong>：客单价低（如奶茶、便签、手机壳），决策时间低于 30 秒，用户看的是网红颜值和情绪价值，根本不需要问 AI；</li>
           <li><strong>解释型决策品（Explanatory Goods）</strong>：客单价高、风险大、专业门槛高（如数控机床、自动化产线、企业 ERP 软件、合规咨询、财税代理）。客户在下单前必须问清楚：<strong>“适合什么场景？参数指标是多少？交付周期多长？烂尾包赔吗？如何迁移旧数据？”</strong></li>
         </ul>
+</section>
 
-        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">二、六大核心行业在 AI 搜索中的真问法对照</h2>
+<section id="block-2" class="content-block">
+<h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">二、六大核心行业在 AI 搜索中的真问法对照</h2>
         <p>
           当面对解释型决策品类时，采购方在 DeepSeek 或豆包中会提出极其具体的对比型与避坑型问题：
         </p>
@@ -225,8 +244,10 @@
             </tr>
           </tbody>
         </table>
+</section>
 
-        <h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">三、首轮拦截法则：如何成为 AI 唯一的推荐解？</h2>
+<section id="block-3" class="content-block">
+<h2 class="text-2xl font-black text-slate-900 mt-10 mb-4">三、首轮拦截法则：如何成为 AI 唯一的推荐解？</h2>
         <p>
           在过去，企业的销售冠军必须依靠面对面反复宣讲，才能解答客户的数十个疑虑。而在 AI 时代，<strong>大模型充当了客户的“超级采购参谋”</strong>。
         </p>
@@ -234,18 +255,44 @@
           如果企业提前把每一个可能被追问的问题，用普林斯顿标准写成结构清晰、客观中立的答案源放在官网上，大模型在阅读后，就会在综合评估时把你的品牌排在第 1 位，并附上你提供的参数证据。当客户拿着 AI 的答案找到销售时，成交转化率将提升数倍。
         </p>
 
+      </section>
+        </div>
+
+          <!-- 底部返回与行动召唤 -->
+          <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+              <span>&larr;</span> 返回博客实战知识库
+            </a>
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+              与老白探讨企业的 GEO 落地方案
+            </a>
+          </div>
+        </article>
+
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
+            </div>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+  <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、什么是“购买前解释型决策”？</a>
+  <a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、六大核心行业在 AI 搜索中的真问法对照</a>
+  <a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、首轮拦截法则：如何成为 AI 唯一的推荐解？</a>
+            </nav>
+
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
+                预约老白 1v1 GEO 诊断
+              </a>
+            </div>
+          </div>
+        </aside>
+
       </div>
 
-      <!-- 底部返回与引导 -->
-      <div class="mt-12 pt-8 border-t border-slate-200 flex items-center justify-between">
-        <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1">
-          <span>&larr;</span> 返回实战知识库
-        </a>
-        <a href="../services/#contact" class="text-sm font-semibold text-slate-600 hover:text-brand-600">
-          诊断您的产品是否适合 GEO 拦截
-        </a>
-      </div>
-    </article>
+    </div>
   </main>
 
   <!-- 页脚 -->

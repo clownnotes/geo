@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、AI先要拿得到，才可能说得对</h2><p>品牌信息如果不能被AI获取，后面的理解、引用和推荐都无从谈起。AI可能转而使用媒体、社区、旧页面或竞争对手页面来解释你，这会放大错误信息的影响。</p><p>AI可获取性不是单纯技术问题。它同时涉及爬虫访问、页面渲染、文本结构、站点地图、内部链接、外部来源和信息更新频率。</p></section><section id="block-2" class="content-block"><h2>二、哪些问题会阻止AI获取品牌信息</h2><p>常见问题包括 robots 规则阻挡、重要内容只在图片或PDF里、页面依赖复杂脚本、移动端和桌面端信息不一致、站点地图过时，以及核心页面缺少内部链接。</p><p>还有一种隐形问题：信息虽然能访问，但太分散。品牌定义在首页，产品能力在PPT，案例在公众号，价格口径在销售话术里，AI很难把这些内容合并成稳定答案。</p><table class="content-table"><thead><tr><th>问题类型</th><th>表现</th><th>影响</th></tr></thead><tbody><tr><td>访问阻挡</td><td>爬虫无法读取页面</td><td>官网信息缺席</td></tr><tr><td>渲染困难</td><td>正文依赖脚本或图片</td><td>关键信息被忽略</td></tr><tr><td>结构混乱</td><td>页面缺少标题和层级</td><td>AI难以抽取结论</td></tr><tr><td>信息过时</td><td>旧产品和旧价格仍可见</td><td>答案容易出错</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、官网是最重要的权威入口</h2><figure class="content-image"><img src="../assets/article-images/can-ai-access-your-brand-information/ai-access-brand-information.png" alt="品牌信息AI可获取性检查示意"><figcaption>这张图说明品牌信息从官网到AI答案之间可能遇到的访问和解析环节。</figcaption></figure><p>官网应该承担品牌权威语义源的角色。它要清楚说明品牌是谁、产品是什么、服务谁、有哪些证据、如何联系，以及哪些说法已经更新。</p><p>如果官网只有视觉展示，没有可读文本和清楚层级，AI就很难把它当作可靠来源。对AI来说，漂亮设计不能替代可访问的信息结构。</p></section><section id="block-4" class="content-block"><h2>四、可获取性要同时看技术和内容</h2><p>技术层面要保证页面能被访问、抓取、渲染和索引。内容层面要保证核心信息以文本形式出现，并用标题、列表、表格、FAQ和结构化数据帮助理解。</p><p>企业经常只检查搜索引擎收录，却忽略AI答案是否使用了官网内容。GEO视角下，收录只是第一步，被准确解释才是更重要的结果。</p><ul class=""><li>检查 robots、站点地图、canonical 和重要页面状态码。</li><li>确保核心信息不是只存在于图片、视频或下载文件中。</li><li>为品牌、产品、案例和FAQ建立清楚内部链接。</li><li>定期清理过时页面，避免AI引用旧信息。</li></ul></section><section id="block-5" class="content-block"><h2>五、外部来源也会决定AI能看到什么</h2><p>AI不只看官网，也可能参考媒体、百科、行业目录、社区讨论、招聘页、应用商店和合作伙伴页面。外部来源如果比官网更容易访问，AI可能优先使用外部描述。</p><p>因此，企业要把外部资料当作品牌信息网络的一部分。关键不是所有页面都由自己控制，而是核心事实不能长期冲突或过时。</p></section><section id="block-6" class="content-block"><h2>六、llms.txt可以作为补充说明</h2><p>llms.txt可以帮助网站用更直接的方式列出重要页面和背景说明，但它目前不应被理解为AI排名按钮。不是所有模型都会读取，也不能替代正文质量和基础SEO。</p><p>如果企业已经有清楚的产品页、文档、政策页、案例页和FAQ，可以用llms.txt做导航补充。前提是被列出的页面本身内容准确、可访问、可维护。</p></section><section id="block-7" class="content-block"><h2>七、结论：可获取性是AI可见性的地基</h2><p>品牌信息能否被AI获取，是GEO最基础也最容易被忽略的问题。AI拿不到权威信息，就会依赖其他来源；其他来源越混乱，品牌解释越不可控。</p><p>企业应把可获取性纳入官网和内容治理：让关键信息可访问、可解析、可更新、可核验。只有先被正确获取，才有机会被正确理解和引用。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：SEO Starter Guide -</span><a href="https://developers.google.com/search/docs/fundamentals/seo-starter-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/seo-starter-guide</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>llms.txt proposal：The /llms.txt file -</span><a href="https://llmstxt.org/" target="_blank" rel="noopener noreferrer">https://llmstxt.org/</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI能访问网站就一定会引用官网吗？</h3><p>不一定。访问只是前提，AI还会判断内容是否相关、清楚、可信和适合回答用户问题。官网如果能被抓取但只有营销口号，仍然可能输给更具体的第三方页面。企业要同时解决可访问、可理解和可核验三个层面，并维护内容更新。</p></div><div><h3>Q2：怎样知道AI是否拿到了我的品牌信息？</h3><p>可以从两方面检查。技术上看日志、robots、站点地图和核心页面索引情况；答案上用品牌词、产品词和场景词询问AI，看它是否引用官网、描述是否准确、是否出现旧信息。两类检查结合，才能判断可获取性是否真的生效。</p></div><div><h3>Q3：品牌信息放在PDF或图片里可以吗？</h3><p>可以作为补充，但不应作为唯一来源。AI和搜索系统对PDF、图片、视频和复杂脚本的处理能力不完全一致，关键信息最好在HTML正文中以文本形式出现。产品定义、价格口径、联系方式和限制条件尤其应该可直接读取。</p></div><div><h3>Q4：robots屏蔽AI爬虫会有什么影响？</h3><p>屏蔽可能符合某些版权或商业策略，但也会减少AI直接获取官网信息的机会。企业需要在内容保护和品牌可见性之间做取舍。如果选择限制访问，更要确保公开渠道里有准确、可核验的品牌资料，避免AI只依赖零散外部信息。</p></div><div><h3>Q5：llms.txt能解决AI获取问题吗？</h3><p>llms.txt只能作为补充导航。它可以告诉模型哪些页面重要，但不能保证被读取，也不能替代页面本身的质量。企业应先做好官网结构、文本内容、内部链接和站点地图，再考虑用llms.txt整理高价值页面，并定期清理旧链接。</p></div><div><h3>Q6：外部平台上的旧信息要不要处理？</h3><p>要处理，尤其是品牌改名、产品停用、价格变化、服务范围调整和资质更新。AI可能从外部页面获取这些信息，如果旧资料长期存在，就会影响答案准确性。企业应定期盘点高权重外部来源，并优先修正影响决策的错误，避免旧口径被反复引用。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,31 +329,28 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、AI先要拿得到，才可能说得对</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、哪些问题会阻止AI获取品牌信息</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、官网是最重要的权威入口</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、可获取性要同时看技术和内容</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、外部来源也会决定AI能看到什么</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、llms.txt可以作为补充说明</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：可获取性是AI可见性的地基</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、AI先要拿得到，才可能说得对</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、哪些问题会阻止AI获取品牌信息</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、官网是最重要的权威入口</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、可获取性要同时看技术和内容</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、外部来源也会决定AI能看到什么</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、llms.txt可以作为补充说明</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：可获取性是AI可见性的地基</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、核心结论：引用是结果，识别是前提</h2><p>LLM认知匹配解决的是一个前置问题：模型是否知道你的品牌是谁、属于什么类别、能解决什么问题、证据在哪里。品牌不是先被AI引用才被理解，而是先被模型稳定识别，才有机会进入引用和推荐链路。</p><p>如果认知匹配失败，品牌可能被归入过宽的泛类，可能被竞品替代，也可能被描述成早期业务形态。官网内容的任务不是等待AI自动归纳，而是主动提供清晰、稳定、可验证的品牌结构。</p></section><section id="block-2" class="content-block"><h2>二、LLM不是阅读品牌，而是在压缩品牌</h2><figure class="content-image"><img src="../assets/article-images/llm-cognitive-match-brand-recognition/llm-cognitive-match-brand-recognition.png" alt="LLM认知匹配与品牌识别示意"><figcaption>LLM认知匹配要求品牌在名称、能力、场景和证据上提供一致信号。</figcaption></figure><p>人类用户可以浏览多个页面，慢慢形成印象。LLM处理品牌信息时，更像是在大量文本中压缩出一个实体画像：名称、类别、能力、场景、证据和关系。如果这些信息分散、矛盾或过时，压缩结果就会偏差。</p><p>这也是为什么很多品牌官网内容不少，却仍然无法被AI准确介绍。问题不一定是内容太少，而是没有形成稳定的实体信号。模型看到的是许多零散说法，而不是一个清楚的品牌定义。</p></section><section id="block-3" class="content-block"><h2>三、认知匹配包含四个层级</h2><p>品牌被模型识别，通常不是一次完成，而是由多个层级共同构成。第一层是实体识别，模型要知道这个名称指向哪个组织或产品；第二层是能力识别，模型要知道它能做什么；第三层是场景识别，模型要知道何时推荐；第四层是证据识别，模型要知道为什么可信。</p><p>企业内容如果只强调愿景和形容词，而不说明客户、问题、交付物、案例和边界，认知匹配就会停留在很浅的层级。浅层识别可以让AI说出品牌名，却不足以支撑推荐。</p><table class="content-table"><thead><tr><th>层级</th><th>模型要识别什么</th><th>官网应提供什么</th></tr></thead><tbody><tr><td>实体层</td><td>品牌是谁</td><td>标准名称、简介、组织信息</td></tr><tr><td>能力层</td><td>能解决什么问题</td><td>产品、服务、方法和交付范围</td></tr><tr><td>场景层</td><td>适合何种用户</td><td>行业、角色、痛点和使用条件</td></tr><tr><td>证据层</td><td>为什么可信</td><td>案例、数据、资质、引用和更新记录</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、为什么很多品牌被AI忽略</h2><p>品牌被忽略，常见原因不是AI故意偏向大公司，而是小品牌提供的可识别信号太少。页面标题写得像广告语，服务页没有明确对象，案例页没有行业和结果，FAQ没有回答采购问题，外部资料又很少。这些都会让模型难以判断品牌应该进入哪个答案。</p><p>另一个常见问题是内部说法不一致。首页说自己是咨询公司，产品页说自己是平台，案例页又强调代运营。对人类读者来说，这可能只是不同角度；对模型来说，却可能变成实体边界不稳定。</p><ul class=""><li>品牌名称、产品名称和公司名称没有清楚对应关系。</li><li>核心服务只写优势，不写交付内容和适用客户。</li><li>不同页面对行业、定位和能力的描述互相冲突。</li><li>缺少第三方资料、案例证据和可验证来源。</li><li>页面更新后，旧资料仍在外部平台传播。</li></ul></section><section id="block-5" class="content-block"><h2>五、RAG强化了可检索证据的重要性</h2><p>许多AI搜索和问答系统会结合检索增强生成，让模型在回答时参考外部或内部知识库。对企业来说，这意味着可检索证据变得更重要：模型不仅要知道品牌自称什么，还要能找到支持这些说法的页面和来源。</p><p>证据可以是结构化案例、公开客户故事、技术文档、对比页面、媒体报道或权威平台资料。关键不是堆数量，而是让证据与品牌定义、能力边界和目标场景保持一致。</p></section><section id="block-6" class="content-block"><h2>六、如何提高品牌的LLM认知匹配度</h2><p>提高认知匹配度，应先做品牌实体审计。把官网、知识库、媒体稿、百科资料、招聘页和第三方平台里的品牌描述放在一起，检查名称、类别、核心能力和服务对象是否一致。冲突越多，AI越容易误读。</p><p>然后建设标准答案源。企业至少应准备品牌定义页、核心服务页、场景页、案例页、FAQ和结构化数据。每类页面回答一个明确问题，避免所有内容都挤在首页。</p><table class="content-table"><thead><tr><th>动作</th><th>目的</th><th>检查点</th></tr></thead><tbody><tr><td>统一品牌定义</td><td>稳定实体识别</td><td>一句话介绍是否全站一致</td></tr><tr><td>拆清能力边界</td><td>避免泛类化</td><td>能做什么和不做什么是否明确</td></tr><tr><td>补场景页面</td><td>进入推荐语境</td><td>是否对应真实用户问题</td></tr><tr><td>强化证据链</td><td>提升采信概率</td><td>案例和外部来源是否可验证</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：品牌要先成为清晰实体，再成为AI答案</h2><p>LLM认知匹配提醒企业，AI引用不是孤立发生的结果。模型只有先稳定识别品牌实体、能力、场景和证据，才可能在相关问题中把品牌纳入答案。</p><p>因此，GEO工作的起点不是追求更多AI提及，而是建设更清楚的品牌知识结构。让品牌成为一个边界明确、证据充分、关系稳定的实体，后续引用、推荐和比较才有可靠基础。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>Google Search Central：Organization structured data -</span><a href="https://developers.google.com/search/docs/appearance/structured-data/organization" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/organization</a></li><li><span>Google Knowledge Graph Search API -</span><a href="https://developers.google.com/knowledge-graph" target="_blank" rel="noopener noreferrer">https://developers.google.com/knowledge-graph</a></li><li><span>Schema.org：FAQPage -</span><a href="https://schema.org/FAQPage" target="_blank" rel="noopener noreferrer">https://schema.org/FAQPage</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：什么是LLM认知匹配？</h3><p>LLM认知匹配是指品牌提供的信息结构，能否和模型理解实体、能力、场景和证据的方式对应起来。它不是让模型记住一句广告语，而是让模型稳定知道品牌是谁、做什么、适合谁、凭什么可信。匹配度越高，品牌越有机会进入相关AI答案。</p></div><div><h3>Q2：品牌被AI提到，是否说明认知匹配已经成功？</h3><p>不一定。被提到只是可见性信号，还要检查AI是否说对了品牌类别、产品能力、适用场景和证据来源。如果AI只是把品牌列在一串名单里，或者描述明显过时，就说明认知匹配仍然较弱。真正的成功是稳定、准确并能进入推荐语境。</p></div><div><h3>Q3：认知匹配失败最常见的原因是什么？</h3><p>最常见原因是品牌信息源不一致。官网、产品页、媒体稿、招聘页和第三方平台各说各话，模型就很难压缩出稳定画像。另一个原因是内容太营销化，只写愿景和优势，不写客户、问题、交付物和边界，导致AI无法判断品牌适合哪个具体问题。</p></div><div><h3>Q4：小品牌如何提高被模型识别的概率？</h3><p>小品牌应优先建设清晰的官网答案源，而不是追求大量外部曝光。先统一一句话定义，再补核心服务页、场景页、案例页和FAQ。每个页面都要写清对象、问题、方法和证据。外部资料可以逐步增加，但如果官网基础混乱，外部曝光也可能放大误读。</p></div><div><h3>Q5：结构化数据对认知匹配有帮助吗？</h3><p>有帮助，但它不是万能答案。Organization、FAQPage等结构化数据能帮助搜索系统理解页面实体和内容类型，但模型仍会依赖正文、链接、来源和外部资料综合判断。结构化数据应与页面内容一致，不能用标记弥补正文缺失或夸大品牌能力。</p></div><div><h3>Q6：RAG为什么会强化品牌证据的重要性？</h3><p>RAG类系统会先检索相关资料，再把资料用于生成答案。品牌如果只有口号，没有可检索的案例、文档、对比或第三方来源，就很难成为可靠材料。证据越清晰，越容易支持模型把品牌放进答案；证据越分散或冲突，越容易造成遗漏和误读。</p></div><div><h3>Q7：如何监测LLM认知匹配是否提升？</h3><p>可以建立固定问题集，定期测试AI如何描述品牌。记录品牌是否出现、类别是否正确、能力是否准确、场景是否匹配、来源是否可靠。不要只看一次回答，要观察多模型、多问题、多时间的稳定性。如果错误类型减少，推荐语境增加，说明认知匹配正在改善。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,31 +329,28 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：引用是结果，识别是前提</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、LLM不是阅读品牌，而是在压缩品牌</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、认知匹配包含四个层级</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、为什么很多品牌被AI忽略</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、RAG强化了可检索证据的重要性</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、如何提高品牌的LLM认知匹配度</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：品牌要先成为清晰实体，再成为AI答案</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：引用是结果，识别是前提</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、LLM不是阅读品牌，而是在压缩品牌</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、认知匹配包含四个层级</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、为什么很多品牌被AI忽略</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、RAG强化了可检索证据的重要性</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、如何提高品牌的LLM认知匹配度</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：品牌要先成为清晰实体，再成为AI答案</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

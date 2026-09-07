@@ -8,7 +8,7 @@
   <meta name="keywords" content="律师GEO, 律所官网优化, 专业服务GEO, 法律服务内容, AI搜索可见性, E-E-A-T, 邻里GEO, 案例, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/professional-services-geo-lawyers.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,49 +312,46 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、核心结论：律师做 GEO，先做可信边界，再做可见性</h2><p>法律服务的可见性不能靠夸张表达换来。对律所和律师来说，GEO 首先是一套可信信息整理方法：让 AI 知道服务由谁提供、面向哪些法律事务、受哪些执业规则限制、哪些内容只是一般信息。</p><p>AI Search 会把官网、律师简介、业务页面、新闻稿、第三方名录和用户评价放在同一个语义环境里理解。如果这些来源对律师身份、执业领域或服务结果的描述不一致，模型很容易给出模糊、过度概括甚至不恰当的答案。</p><p>所以，律师行业做 GEO 的起点不是写更多法律文章，而是把主体、边界、证据和免责声明放到稳定位置。这样做既帮助潜在客户理解，也降低 AI 错误归类和错误引用的概率。</p></section><section id="block-2" class="content-block"><h2>二、律师服务为什么更容易被 AI 误解</h2><figure class="content-image"><img src="../../assets/article-images/professional-services-geo-lawyers/legal-services-geo-lawyers.png" alt="律师服务 GEO 中的执业主体、服务边界和可信证据结构"><figcaption>律师行业 GEO 需要把执业身份、服务范围和内容责任放在同一套可信结构里。</figcaption></figure><p>律师服务有三个天然复杂点：专业术语多、结果高度依赖事实、不同地区的执业和广告规则不同。普通内容营销喜欢把这些复杂性压缩成“擅长某类案件”或“经验丰富”，但 AI 需要更明确的判断材料。</p><p>当一个页面只写“婚姻家事律师”“商业诉讼专家”“刑事辩护经验丰富”，却没有说明负责律师、执业辖区、服务范围和内容用途时，模型可能只把它当成泛化服务页，而不是可信专业实体。</p><p>更大的风险是误导性表达。律师服务传播如果制造不合理期待，或省略影响理解的重要事实，就可能触碰伦理和广告规则。GEO 不能绕过这些约束，它应该把约束变成页面结构的一部分。</p><table class="content-table"><thead><tr><th>常见写法</th><th>AI 可能误读</th><th>更稳妥的表达方向</th></tr></thead><tbody><tr><td>多年胜诉经验</td><td>暗示结果可复制</td><td>说明过往事务类型和非结果承诺</td></tr><tr><td>某领域专家</td><td>无法确认资格来源</td><td>列明执业资格、认证来源和适用辖区</td></tr><tr><td>免费解答法律问题</td><td>误读为具体法律意见</td><td>说明仅提供一般信息和咨询入口</td></tr><tr><td>全国案件均可办理</td><td>忽略执业限制</td><td>写清可服务地区和合作方式</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、律所官网要先让 AI 识别“谁在负责”</h2><p>律师网站最基础的 GEO 结构，是让机器和用户都能确认内容责任人。每个核心页面都应该能回到一个明确主体：律所名称、负责律师或团队、联系方式、办公地点、执业资质和必要的资格说明。</p><p>这不是形式问题。ABA Model Rule 7.2 要求律师服务传播包含至少一名负责律师或律所的姓名和联系方式。不同司法辖区细则会有差异，但“谁对内容负责”始终是法律服务可信度的核心线索。</p><p>律所可以把官网拆成三类实体：律所实体、律师实体和服务实体。律所实体负责名称、地址、电话和执业组织；律师实体负责资格、教育、执业领域和公开履历；服务实体负责服务范围、流程和限制。三者互相链接，AI 才更容易稳定理解。</p><p>如果律所有多个办公室、多个执业团队或跨地区合作关系，应把这些关系写成清楚的页面结构，而不是让用户从长段介绍里自行猜测。地点页面、团队页面和业务页面之间的链接，能帮助 AI 区分“谁在何地提供什么服务”。</p></section><section id="block-4" class="content-block"><h2>四、执业领域页面要写能力边界，不写答案模板</h2><p>法律服务页面最容易犯的错误，是把内容写成“用户遇到某问题应该怎么做”。这类表达一旦过于具体，就可能被用户或 AI 当成法律意见。更稳妥的写法，是说明律所可以协助的信息类型、沟通流程、所需材料类别和服务限制。</p><p>例如，劳动争议页面可以说明常见服务事项、初次沟通通常会了解哪些事实、哪些问题需要律师结合材料判断，但不应给出“遇到某情形一定这样处理”的确定指引。公司合规页面也可以解释服务范围，却不能把复杂法律判断写成通用结论。</p><p>GEO 友好的执业领域页面，应让 AI 看见“这家律所处理哪类问题”，同时也看见“它没有在网页上替用户下法律结论”。这种边界越清楚，被错误摘要的风险越低。</p><p>页面还应避免把不同法律制度混在一起。面向中国内地、美国州法、香港法或跨境事务的内容，应在标题、导语或说明区标明适用范围。否则，AI 可能把一个地区的流程套用到另一个地区，造成不必要的误解。</p><ul class=""><li>页面开头先说明服务范围和适用对象。</li><li>中段解释沟通流程、材料准备和可能涉及的专业角色。</li><li>案例只描述问题类型和服务过程，不承诺结果。</li><li>结尾提供预约、咨询和免责声明，不把网页内容包装为法律意见。</li></ul></section><section id="block-5" class="content-block"><h2>五、案例与经验如何表达才更可信</h2><p>律师行业的经验内容很有价值，但它也是信任风险最高的内容之一。案例如果写得像结果展示，AI 可能把它压缩成“这位律师擅长赢得某类案件”；用户也可能误以为类似事实会产生类似结果。</p><p>更适合 GEO 的案例写法，是把案例当作服务过程说明，而不是结果广告。可以写清问题背景、法律事务类型、律师参与环节、公开信息来源和隐私处理方式；如果涉及结果，也需要克制、准确，并说明个案结果不代表未来结果。</p><p>对 AI 来说，这类内容的价值在于建立“经验范围”而非制造“结果承诺”。当页面能够区分经验、观点、新闻和一般法律信息时，模型更容易把律所放入合适的服务集合，而不是生成过度承诺的摘要。</p><p>评论、媒体报道和奖项页面也要保持同样克制。可以说明公开来源、评选机构或报道背景，避免把第三方评价改写成绝对优势。律师行业的信任来自可追溯事实，不来自把有限材料包装成全面证明。</p></section><section id="block-6" class="content-block"><h2>六、律师内容如何兼顾 E-E-A-T 与 GEO</h2><p>法律内容属于高信任内容。无论从搜索质量还是 AI 引用角度看，页面都需要清楚呈现经验、专业性、权威性和可信度。这里的重点不是把 E-E-A-T 当成口号，而是把它落成用户能看见、AI 能抽取的信息。</p><p>作者栏应写明律师姓名、执业身份、所属律所和主要执业领域；审校栏应说明内容由谁复核；来源栏应标注法律法规、官方文件或公开资料；更新时间应反映内容维护状态；免责声明应提醒页面内容仅供一般信息参考。</p><p>如果律所使用 AI 辅助写作，更要有人类律师审校。AI 可以帮助整理结构，但不能替代律师对准确性、适用地区、事实条件和伦理边界的判断。最终出现在官网上的内容，责任仍回到律所和律师。</p><p>内部流程也很重要。新文章发布前，应由熟悉该执业领域的律师复核；法规或政策变化后，应重新检查相关页面；律师离职、转岗或联系方式变化后，应同步更新作者页、团队页和第三方名录。</p><table class="content-table"><thead><tr><th>内容要素</th><th>页面应呈现</th><th>GEO 价值</th></tr></thead><tbody><tr><td>作者</td><td>姓名、身份、执业领域</td><td>确认专业主体</td></tr><tr><td>审校</td><td>复核人和复核时间</td><td>降低错误引用风险</td></tr><tr><td>来源</td><td>法规、法院或官方资料</td><td>支持事实追溯</td></tr><tr><td>免责声明</td><td>一般信息非法律意见</td><td>限定内容用途</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、从“被搜索到”到“被正确引用”的执行顺序</h2><p>律师 GEO 可以按四步推进。第一步是统一实体信息，确认律所名称、律师姓名、地址、电话、执业辖区和第三方名录一致。第二步是重写核心执业领域页，把服务范围、边界、流程和免责声明放到固定结构中。</p><p>第三步是整理专业内容库。法律评论、案例观察、法规更新和常见问题应分开管理，不同内容类型使用不同提示语，避免用户和模型把科普内容误读成个案建议。第四步是定期检查 AI 对律所和律师的描述，发现错误归类后回到官网和可信第三方页面修正源头信息。</p><p>这个顺序看起来慢，却更适合法律服务。可见性如果建立在不清楚的承诺上，后续会带来更高的信任成本；可见性如果建立在稳定事实上，AI 引用和用户咨询才更可能朝准确方向发展。</p><p>执行中不要只检查品牌词。还应查看 AI 如何描述具体律师、具体执业领域、服务地区和代表性经验。只要发现模型把一般信息写成法律意见，就说明页面边界、免责声明或来源结构仍需加强。</p></section><section id="block-8" class="content-block"><h2>八、结论：律师 GEO 的底层任务是减少法律服务被误读</h2><p>律师行业不适合把 GEO 当成内容放大器。它更像是一套专业服务信息治理：让律所被识别为明确实体，让律师资质被看见，让服务范围被正确归类，让页面内容不越过法律意见边界。</p><p>当官网、名录、文章、案例和联系方式形成一致结构后，AI 更容易回答“这是谁、做什么、为什么可信、该如何联系”，而不是生成模糊或过度承诺的描述。</p><p>因此，律师做 GEO 的长期任务不是追求每个法律问题都被引用，而是让真实专业能力以克制、清楚、可核验的方式进入 AI Search 的理解空间。</p></section><section id="block-9" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>American Bar Association：Rule 7.1: Communications Concerning a Lawyer&#39;s Services，</span><a href="https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_1_communication_concerning_a_lawyer_s_services/" target="_blank" rel="noopener noreferrer">https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_1_communication_concerning_a_lawyer_s_services/</a></li><li><span>American Bar Association：Rule 7.2: Communications Concerning a Lawyer&#39;s Services，</span><a href="https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_2_advertising/" target="_blank" rel="noopener noreferrer">https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_2_advertising/</a></li><li><span>State Bar of California：Chapter 7. Information About Legal Services (Rules 7.1-7.6)，</span><a href="https://www.calbar.ca.gov/Portals/0/documents/rules/New-Rules-of-Professional-Conduct-7.pdf" target="_blank" rel="noopener noreferrer">https://www.calbar.ca.gov/Portals/0/documents/rules/New-Rules-of-Professional-Conduct-7.pdf</a></li><li><span>Google Search Central：Creating helpful, reliable, people-first content，</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google：Search Quality Rater Guidelines，</span><a href="https://guidelines.raterhub.com/searchqualityevaluatorguidelines.pdf" target="_blank" rel="noopener noreferrer">https://guidelines.raterhub.com/searchqualityevaluatorguidelines.pdf</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：律师做 GEO 会不会变成法律广告？</h3><p>有可能，所以要先按所在司法辖区的律师广告和职业伦理规则复核。GEO 本身只是整理信息结构，不能绕过虚假或误导性传播限制。律所应把负责主体、服务边界、资格来源和免责声明写清楚，避免把可见性目标变成结果承诺，也要保留专业人员复核流程。</p></div><div><h3>Q2：律所官网可以写案例吗？</h3><p>可以写，但要谨慎。案例更适合说明问题类型、服务流程和公开经验边界，而不是展示可复制结果。涉及客户隐私、案件细节或结果表述时，需要确认授权和规则要求，并说明个案结果不代表未来结果，避免用户和 AI 产生错误期待。</p></div><div><h3>Q3：律师文章能不能回答具体法律问题？</h3><p>官网文章适合提供一般信息、流程说明和风险提示，不适合替读者给出个案法律意见。涉及事实判断、证据材料和适用法律时，应引导用户预约律师沟通。这样既保护用户，也能减少 AI 把科普内容改写成具体建议的风险，并让页面用途更清楚。</p></div><div><h3>Q4：律师个人品牌和律所品牌应该分开做吗？</h3><p>两者可以分层管理。律师个人页面负责资质、执业领域、公开履历和内容作者身份；律所页面负责组织实体、服务能力、团队结构和联系方式。两者互相链接并保持描述一致，AI 才不容易把个人经验和律所整体能力混为一谈，也便于用户确认责任主体。</p></div><div><h3>Q5：第三方律师名录对 GEO 有帮助吗？</h3><p>有帮助，但前提是信息准确一致。第三方名录常被搜索系统和 AI 作为辅助来源，如果姓名、地址、电话、执业领域或简介与官网冲突，反而会增加误解。律所应定期检查主要名录和公开资料，把不一致的信息尽快修正，并记录来源页面。</p></div><div><h3>Q6：律师内容需要标注作者和审校吗？</h3><p>建议标注。法律内容属于高信任内容，用户和 AI 都需要知道内容由谁撰写、谁复核、依据什么来源、何时更新。作者和审校信息不是装饰，而是帮助页面建立责任关系和专业边界，尤其适合法规更新和执业领域说明页面，也便于后续维护。</p></div><div><h3>Q7：GEO 能保证律师被 AI 推荐吗？</h3><p>不能保证。GEO 只能提高信息清晰度、可核验性和被正确理解的概率，不能控制模型答案。律师行业更不应把 AI 推荐当成承诺。合理目标是减少错误描述、提升服务边界清晰度，并让真实专业能力更容易被用户和系统识别，长期积累信任。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：律师做 GEO，先做可信边界，再做可见性</h2><p>法律服务的可见性不能靠夸张表达换来。对律所和律师来说，GEO 首先是一套可信信息整理方法：让 AI 知道服务由谁提供、面向哪些法律事务、受哪些执业规则限制、哪些内容只是一般信息。</p><p>AI Search 会把官网、律师简介、业务页面、新闻稿、第三方名录和用户评价放在同一个语义环境里理解。如果这些来源对律师身份、执业领域或服务结果的描述不一致，模型很容易给出模糊、过度概括甚至不恰当的答案。</p><p>所以，律师行业做 GEO 的起点不是写更多法律文章，而是把主体、边界、证据和免责声明放到稳定位置。这样做既帮助潜在客户理解，也降低 AI 错误归类和错误引用的概率。</p></section><section id="block-2" class="content-block"><h2>二、律师服务为什么更容易被 AI 误解</h2><figure class="content-image"><img src="../assets/article-images/professional-services-geo-lawyers/legal-services-geo-lawyers.png" alt="律师服务 GEO 中的执业主体、服务边界和可信证据结构"><figcaption>律师行业 GEO 需要把执业身份、服务范围和内容责任放在同一套可信结构里。</figcaption></figure><p>律师服务有三个天然复杂点：专业术语多、结果高度依赖事实、不同地区的执业和广告规则不同。普通内容营销喜欢把这些复杂性压缩成“擅长某类案件”或“经验丰富”，但 AI 需要更明确的判断材料。</p><p>当一个页面只写“婚姻家事律师”“商业诉讼专家”“刑事辩护经验丰富”，却没有说明负责律师、执业辖区、服务范围和内容用途时，模型可能只把它当成泛化服务页，而不是可信专业实体。</p><p>更大的风险是误导性表达。律师服务传播如果制造不合理期待，或省略影响理解的重要事实，就可能触碰伦理和广告规则。GEO 不能绕过这些约束，它应该把约束变成页面结构的一部分。</p><table class="content-table"><thead><tr><th>常见写法</th><th>AI 可能误读</th><th>更稳妥的表达方向</th></tr></thead><tbody><tr><td>多年胜诉经验</td><td>暗示结果可复制</td><td>说明过往事务类型和非结果承诺</td></tr><tr><td>某领域专家</td><td>无法确认资格来源</td><td>列明执业资格、认证来源和适用辖区</td></tr><tr><td>免费解答法律问题</td><td>误读为具体法律意见</td><td>说明仅提供一般信息和咨询入口</td></tr><tr><td>全国案件均可办理</td><td>忽略执业限制</td><td>写清可服务地区和合作方式</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、律所官网要先让 AI 识别“谁在负责”</h2><p>律师网站最基础的 GEO 结构，是让机器和用户都能确认内容责任人。每个核心页面都应该能回到一个明确主体：律所名称、负责律师或团队、联系方式、办公地点、执业资质和必要的资格说明。</p><p>这不是形式问题。ABA Model Rule 7.2 要求律师服务传播包含至少一名负责律师或律所的姓名和联系方式。不同司法辖区细则会有差异，但“谁对内容负责”始终是法律服务可信度的核心线索。</p><p>律所可以把官网拆成三类实体：律所实体、律师实体和服务实体。律所实体负责名称、地址、电话和执业组织；律师实体负责资格、教育、执业领域和公开履历；服务实体负责服务范围、流程和限制。三者互相链接，AI 才更容易稳定理解。</p><p>如果律所有多个办公室、多个执业团队或跨地区合作关系，应把这些关系写成清楚的页面结构，而不是让用户从长段介绍里自行猜测。地点页面、团队页面和业务页面之间的链接，能帮助 AI 区分“谁在何地提供什么服务”。</p></section><section id="block-4" class="content-block"><h2>四、执业领域页面要写能力边界，不写答案模板</h2><p>法律服务页面最容易犯的错误，是把内容写成“用户遇到某问题应该怎么做”。这类表达一旦过于具体，就可能被用户或 AI 当成法律意见。更稳妥的写法，是说明律所可以协助的信息类型、沟通流程、所需材料类别和服务限制。</p><p>例如，劳动争议页面可以说明常见服务事项、初次沟通通常会了解哪些事实、哪些问题需要律师结合材料判断，但不应给出“遇到某情形一定这样处理”的确定指引。公司合规页面也可以解释服务范围，却不能把复杂法律判断写成通用结论。</p><p>GEO 友好的执业领域页面，应让 AI 看见“这家律所处理哪类问题”，同时也看见“它没有在网页上替用户下法律结论”。这种边界越清楚，被错误摘要的风险越低。</p><p>页面还应避免把不同法律制度混在一起。面向中国内地、美国州法、香港法或跨境事务的内容，应在标题、导语或说明区标明适用范围。否则，AI 可能把一个地区的流程套用到另一个地区，造成不必要的误解。</p><ul class=""><li>页面开头先说明服务范围和适用对象。</li><li>中段解释沟通流程、材料准备和可能涉及的专业角色。</li><li>案例只描述问题类型和服务过程，不承诺结果。</li><li>结尾提供预约、咨询和免责声明，不把网页内容包装为法律意见。</li></ul></section><section id="block-5" class="content-block"><h2>五、案例与经验如何表达才更可信</h2><p>律师行业的经验内容很有价值，但它也是信任风险最高的内容之一。案例如果写得像结果展示，AI 可能把它压缩成“这位律师擅长赢得某类案件”；用户也可能误以为类似事实会产生类似结果。</p><p>更适合 GEO 的案例写法，是把案例当作服务过程说明，而不是结果广告。可以写清问题背景、法律事务类型、律师参与环节、公开信息来源和隐私处理方式；如果涉及结果，也需要克制、准确，并说明个案结果不代表未来结果。</p><p>对 AI 来说，这类内容的价值在于建立“经验范围”而非制造“结果承诺”。当页面能够区分经验、观点、新闻和一般法律信息时，模型更容易把律所放入合适的服务集合，而不是生成过度承诺的摘要。</p><p>评论、媒体报道和奖项页面也要保持同样克制。可以说明公开来源、评选机构或报道背景，避免把第三方评价改写成绝对优势。律师行业的信任来自可追溯事实，不来自把有限材料包装成全面证明。</p></section><section id="block-6" class="content-block"><h2>六、律师内容如何兼顾 E-E-A-T 与 GEO</h2><p>法律内容属于高信任内容。无论从搜索质量还是 AI 引用角度看，页面都需要清楚呈现经验、专业性、权威性和可信度。这里的重点不是把 E-E-A-T 当成口号，而是把它落成用户能看见、AI 能抽取的信息。</p><p>作者栏应写明律师姓名、执业身份、所属律所和主要执业领域；审校栏应说明内容由谁复核；来源栏应标注法律法规、官方文件或公开资料；更新时间应反映内容维护状态；免责声明应提醒页面内容仅供一般信息参考。</p><p>如果律所使用 AI 辅助写作，更要有人类律师审校。AI 可以帮助整理结构，但不能替代律师对准确性、适用地区、事实条件和伦理边界的判断。最终出现在官网上的内容，责任仍回到律所和律师。</p><p>内部流程也很重要。新文章发布前，应由熟悉该执业领域的律师复核；法规或政策变化后，应重新检查相关页面；律师离职、转岗或联系方式变化后，应同步更新作者页、团队页和第三方名录。</p><table class="content-table"><thead><tr><th>内容要素</th><th>页面应呈现</th><th>GEO 价值</th></tr></thead><tbody><tr><td>作者</td><td>姓名、身份、执业领域</td><td>确认专业主体</td></tr><tr><td>审校</td><td>复核人和复核时间</td><td>降低错误引用风险</td></tr><tr><td>来源</td><td>法规、法院或官方资料</td><td>支持事实追溯</td></tr><tr><td>免责声明</td><td>一般信息非法律意见</td><td>限定内容用途</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、从“被搜索到”到“被正确引用”的执行顺序</h2><p>律师 GEO 可以按四步推进。第一步是统一实体信息，确认律所名称、律师姓名、地址、电话、执业辖区和第三方名录一致。第二步是重写核心执业领域页，把服务范围、边界、流程和免责声明放到固定结构中。</p><p>第三步是整理专业内容库。法律评论、案例观察、法规更新和常见问题应分开管理，不同内容类型使用不同提示语，避免用户和模型把科普内容误读成个案建议。第四步是定期检查 AI 对律所和律师的描述，发现错误归类后回到官网和可信第三方页面修正源头信息。</p><p>这个顺序看起来慢，却更适合法律服务。可见性如果建立在不清楚的承诺上，后续会带来更高的信任成本；可见性如果建立在稳定事实上，AI 引用和用户咨询才更可能朝准确方向发展。</p><p>执行中不要只检查品牌词。还应查看 AI 如何描述具体律师、具体执业领域、服务地区和代表性经验。只要发现模型把一般信息写成法律意见，就说明页面边界、免责声明或来源结构仍需加强。</p></section><section id="block-8" class="content-block"><h2>八、结论：律师 GEO 的底层任务是减少法律服务被误读</h2><p>律师行业不适合把 GEO 当成内容放大器。它更像是一套专业服务信息治理：让律所被识别为明确实体，让律师资质被看见，让服务范围被正确归类，让页面内容不越过法律意见边界。</p><p>当官网、名录、文章、案例和联系方式形成一致结构后，AI 更容易回答“这是谁、做什么、为什么可信、该如何联系”，而不是生成模糊或过度承诺的描述。</p><p>因此，律师做 GEO 的长期任务不是追求每个法律问题都被引用，而是让真实专业能力以克制、清楚、可核验的方式进入 AI Search 的理解空间。</p></section><section id="block-9" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>American Bar Association：Rule 7.1: Communications Concerning a Lawyer&#39;s Services，</span><a href="https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_1_communication_concerning_a_lawyer_s_services/" target="_blank" rel="noopener noreferrer">https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_1_communication_concerning_a_lawyer_s_services/</a></li><li><span>American Bar Association：Rule 7.2: Communications Concerning a Lawyer&#39;s Services，</span><a href="https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_2_advertising/" target="_blank" rel="noopener noreferrer">https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_2_advertising/</a></li><li><span>State Bar of California：Chapter 7. Information About Legal Services (Rules 7.1-7.6)，</span><a href="https://www.calbar.ca.gov/Portals/0/documents/rules/New-Rules-of-Professional-Conduct-7.pdf" target="_blank" rel="noopener noreferrer">https://www.calbar.ca.gov/Portals/0/documents/rules/New-Rules-of-Professional-Conduct-7.pdf</a></li><li><span>Google Search Central：Creating helpful, reliable, people-first content，</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google：Search Quality Rater Guidelines，</span><a href="https://guidelines.raterhub.com/searchqualityevaluatorguidelines.pdf" target="_blank" rel="noopener noreferrer">https://guidelines.raterhub.com/searchqualityevaluatorguidelines.pdf</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：律师做 GEO 会不会变成法律广告？</h3><p>有可能，所以要先按所在司法辖区的律师广告和职业伦理规则复核。GEO 本身只是整理信息结构，不能绕过虚假或误导性传播限制。律所应把负责主体、服务边界、资格来源和免责声明写清楚，避免把可见性目标变成结果承诺，也要保留专业人员复核流程。</p></div><div><h3>Q2：律所官网可以写案例吗？</h3><p>可以写，但要谨慎。案例更适合说明问题类型、服务流程和公开经验边界，而不是展示可复制结果。涉及客户隐私、案件细节或结果表述时，需要确认授权和规则要求，并说明个案结果不代表未来结果，避免用户和 AI 产生错误期待。</p></div><div><h3>Q3：律师文章能不能回答具体法律问题？</h3><p>官网文章适合提供一般信息、流程说明和风险提示，不适合替读者给出个案法律意见。涉及事实判断、证据材料和适用法律时，应引导用户预约律师沟通。这样既保护用户，也能减少 AI 把科普内容改写成具体建议的风险，并让页面用途更清楚。</p></div><div><h3>Q4：律师个人品牌和律所品牌应该分开做吗？</h3><p>两者可以分层管理。律师个人页面负责资质、执业领域、公开履历和内容作者身份；律所页面负责组织实体、服务能力、团队结构和联系方式。两者互相链接并保持描述一致，AI 才不容易把个人经验和律所整体能力混为一谈，也便于用户确认责任主体。</p></div><div><h3>Q5：第三方律师名录对 GEO 有帮助吗？</h3><p>有帮助，但前提是信息准确一致。第三方名录常被搜索系统和 AI 作为辅助来源，如果姓名、地址、电话、执业领域或简介与官网冲突，反而会增加误解。律所应定期检查主要名录和公开资料，把不一致的信息尽快修正，并记录来源页面。</p></div><div><h3>Q6：律师内容需要标注作者和审校吗？</h3><p>建议标注。法律内容属于高信任内容，用户和 AI 都需要知道内容由谁撰写、谁复核、依据什么来源、何时更新。作者和审校信息不是装饰，而是帮助页面建立责任关系和专业边界，尤其适合法规更新和执业领域说明页面，也便于后续维护。</p></div><div><h3>Q7：GEO 能保证律师被 AI 推荐吗？</h3><p>不能保证。GEO 只能提高信息清晰度、可核验性和被正确理解的概率，不能控制模型答案。律师行业更不应把 AI 推荐当成承诺。合理目标是减少错误描述、提升服务边界清晰度，并让真实专业能力更容易被用户和系统识别，长期积累信任。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：律师做 GEO，先做可信边界，再做可见性</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、律师服务为什么更容易被 AI 误解</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、律所官网要先让 AI 识别“谁在负责”</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、执业领域页面要写能力边界，不写答案模板</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、案例与经验如何表达才更可信</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、律师内容如何兼顾 E-E-A-T 与 GEO</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、从“被搜索到”到“被正确引用”的执行顺序</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、结论：律师 GEO 的底层任务是减少法律服务被误读</a>
-<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：律师做 GEO，先做可信边界，再做可见性</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、律师服务为什么更容易被 AI 误解</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、律所官网要先让 AI 识别“谁在负责”</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、执业领域页面要写能力边界，不写答案模板</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、案例与经验如何表达才更可信</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、律师内容如何兼顾 E-E-A-T 与 GEO</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、从“被搜索到”到“被正确引用”的执行顺序</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">八、结论：律师 GEO 的底层任务是减少法律服务被误读</a>
+<a href="#block-9" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -368,7 +371,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

@@ -8,7 +8,7 @@
   <meta name="keywords" content="AI即中介, 品牌描述管理, GEO, AI搜索, 品牌语义治理, 实体一致性, AI引用, GEO, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/ai-as-intermediary-brand-description-management.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,48 +312,45 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、核心结论：AI正在成为品牌第一解释层</h2><p>AI即中介的核心变化是：用户不一定先进入官网、广告或销售页面，而可能先向AI询问“这家公司是做什么的”“适合谁”“和竞品有什么区别”。AI给出的描述，会直接影响用户是否继续了解品牌。</p><p>这意味着品牌管理从“对外表达”扩展为“被机器解释”。企业不能只关心官网文案是否好看，还要关心AI是否能准确识别品牌实体、能力边界、服务对象和证据来源。</p></section><section id="block-2" class="content-block"><h2>二、为什么AI会成为品牌认知中介</h2><figure class="content-image"><img src="../../assets/article-images/ai-as-intermediary-brand-description-management/ai-intermediary-brand-description.png" alt="AI作为品牌信息中介示意"><figcaption>AI会把官网、第三方资料和用户问题重组为用户看到的品牌描述。</figcaption></figure><p>传统搜索把链接、标题和摘要交给用户判断；AI搜索则先把多个来源压缩成答案。用户看到的是经过模型筛选和改写后的品牌描述，而不是企业原文。</p><p>这种中介作用并不一定是坏事。对表达清楚、证据稳定的企业，AI可能帮助用户更快理解；对公开信息混乱的企业，AI也可能放大错误归类、过时说法或第三方误解。</p></section><section id="block-3" class="content-block"><h2>三、AI对品牌的描述通常从哪里失控</h2><p>品牌描述失控最常见的原因不是AI“故意说错”，而是公开资料本身给出了冲突信号。比如官网说自己是咨询公司，招聘页强调软件产品，媒体稿又把它归入营销代理，模型就可能选择一个并不准确的泛化标签。</p><p>另一个常见问题是证据缺失。企业声称服务某类客户、具备某种能力或覆盖某个行业，但没有案例、产品页、FAQ或第三方资料支撑，AI就很难把这些描述视为稳定事实。</p><table class="content-table"><thead><tr><th>失控位置</th><th>典型表现</th><th>治理动作</th></tr></thead><tbody><tr><td>实体定义</td><td>公司名称、简称、英文名混用</td><td>建立统一品牌实体说明</td></tr><tr><td>能力描述</td><td>不同页面说法不一致</td><td>固定产品和服务边界</td></tr><tr><td>证据来源</td><td>案例、资质、客户问题缺失</td><td>补充可验证材料</td></tr><tr><td>外部资料</td><td>旧媒体稿或平台简介过时</td><td>定期更新第三方入口</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、第一步：建立标准描述库</h2><p>标准描述库不是品牌口号库，而是给人、搜索引擎和AI共同使用的事实底稿。它应包含品牌一句话定义、业务范围、适用客户、核心能力、不做什么、常见误解和证据链接。</p><p>这个描述库要成为官网、销售材料、媒体资料、招聘介绍、社交平台简介和FAQ的共同来源。只有底稿一致，外部分发才不会制造新的语义冲突。</p><ul class=""><li>品牌标准名称、简称、英文名和所属主体。</li><li>一句话定义、长定义和面向不同客户的版本。</li><li>产品或服务边界，包括明确不提供的能力。</li><li>典型客户、行业场景、案例入口和证据链接。</li><li>常见错误描述及推荐纠正说法。</li></ul></section><section id="block-5" class="content-block"><h2>五、第二步：做AI提示词审计</h2><p>提示词审计用于观察AI如何实际描述品牌。企业可以固定一组问题，在多个AI入口中定期测试，包括品牌定义、行业推荐、竞品比较、价格模式、适用场景和风险问题。</p><p>审计结果不要只记录“有没有出现”，还要标注描述是否准确、语气是否正向、来源是否可靠、是否引用官网、是否把企业放入正确类别。这样才能从曝光监测进入语义质量管理。</p><table class="content-table"><thead><tr><th>问题类型</th><th>示例问题</th><th>需要记录</th></tr></thead><tbody><tr><td>品牌定义</td><td>某品牌是做什么的</td><td>品类、能力、来源</td></tr><tr><td>比较选择</td><td>某品牌和竞品区别</td><td>是否公平、是否遗漏</td></tr><tr><td>场景推荐</td><td>某需求适合哪些服务商</td><td>是否进入候选集</td></tr><tr><td>风险追问</td><td>某品牌有什么限制</td><td>是否夸大或误读</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>六、第三步：管理外部一致性</h2><p>AI不会只读取官网。百科、媒体报道、招聘页面、社交平台、行业目录、客户评价和合作伙伴页面，都可能影响品牌描述。企业需要把这些外部节点纳入语义治理，而不是只在官网内部修文案。</p><p>外部一致性管理的重点是修正过时和冲突信息。企业可以从搜索结果前两页、主流社交平台简介、行业目录和高权重媒体稿开始，检查品牌名称、业务类别、核心能力和链接是否一致。</p></section><section id="block-7" class="content-block"><h2>七、结论：管理AI描述，就是管理未来用户的第一印象</h2><p>AI作为中介后，品牌第一印象不再完全由企业官网控制。用户可能先看到AI对品牌的解释，再决定是否点击、询价或比较竞品。</p><p>因此，企业要把品牌管理、内容治理和GEO监测放在同一张表里：先统一事实底稿，再检查AI描述，最后持续修正官网与外部资料。目标不是操控AI，而是让AI更容易说对你。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li><li><span>Microsoft Learn：Retrieval-augmented generation in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI对品牌描述错误，是不是只能等模型更新？</h3><p>不能只等模型更新。模型更新可能改变答案，但如果公开资料仍然冲突或过时，错误描述还会反复出现。企业应先修正官网和高权重外部资料中的实体定义、业务范围和证据链接，再用固定问题集持续观察AI是否逐步纠偏。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div><div><h3>Q2：标准描述库应该由品牌部还是SEO团队负责？</h3><p>标准描述库最好由品牌、产品、销售、SEO和法务共同维护。品牌团队负责定位和语气，产品团队确认能力边界，销售团队提供真实客户问题，SEO团队负责可抓取和结构化表达，法务或合规团队检查不能夸大的承诺。每次调整后都应复测同一组问题，确认变化来自信息源改善，而不是一次模型波动。</p></div><div><h3>Q3：提示词审计要覆盖多少问题才够？</h3><p>早期可以从20到30个高价值问题开始，覆盖品牌定义、品类推荐、竞品比较、价格、适用场景和风险疑问。问题不必一开始很大，关键是固定口径、定期复测、记录来源和语义变化。等发现高风险主题后，再扩展更多长尾问题。</p></div><div><h3>Q4：AI没有提到品牌，和AI说错品牌哪个更严重？</h3><p>两者都重要，但风险不同。没有提到通常说明可见性不足，AI说错则可能直接影响用户判断。对于B2B、高客单价和专业服务企业，错误描述可能比缺席更危险，因为它会把用户带向错误期待、错误竞品或错误采购标准。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div><div><h3>Q5：企业能不能要求AI固定使用某段品牌介绍？</h3><p>通常不能。公开AI系统不会因为企业提交一段话就长期固定复述。企业能做的是让标准介绍出现在权威、可抓取、一致的页面和资料中，并用证据支撑关键描述。这样可以提高AI采用正确描述的概率，但不应承诺控制答案。</p></div><div><h3>Q6：外部平台资料太多，应该先改哪里？</h3><p>优先改最容易被用户和搜索系统看到的入口：官网首页和关于页、搜索结果靠前的平台简介、百科或行业目录、主流社交账号主页、媒体资料包和高访问量案例页。先处理这些节点，可以减少AI接触到冲突信息的机会。每次调整后都应复测同一组问题，确认变化来自信息源改善，而不是一次模型波动。</p></div><div><h3>Q7：如何判断AI描述管理已经有效？</h3><p>可以看三类信号：AI在多个入口中能稳定说清品牌是谁，关键能力和适用场景不再明显错误，答案开始引用官网或权威外部资料。不要只看一次截图，至少用连续几周的样本判断趋势，才能避免被模型波动误导。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：AI正在成为品牌第一解释层</h2><p>AI即中介的核心变化是：用户不一定先进入官网、广告或销售页面，而可能先向AI询问“这家公司是做什么的”“适合谁”“和竞品有什么区别”。AI给出的描述，会直接影响用户是否继续了解品牌。</p><p>这意味着品牌管理从“对外表达”扩展为“被机器解释”。企业不能只关心官网文案是否好看，还要关心AI是否能准确识别品牌实体、能力边界、服务对象和证据来源。</p></section><section id="block-2" class="content-block"><h2>二、为什么AI会成为品牌认知中介</h2><figure class="content-image"><img src="../assets/article-images/ai-as-intermediary-brand-description-management/ai-intermediary-brand-description.png" alt="AI作为品牌信息中介示意"><figcaption>AI会把官网、第三方资料和用户问题重组为用户看到的品牌描述。</figcaption></figure><p>传统搜索把链接、标题和摘要交给用户判断；AI搜索则先把多个来源压缩成答案。用户看到的是经过模型筛选和改写后的品牌描述，而不是企业原文。</p><p>这种中介作用并不一定是坏事。对表达清楚、证据稳定的企业，AI可能帮助用户更快理解；对公开信息混乱的企业，AI也可能放大错误归类、过时说法或第三方误解。</p></section><section id="block-3" class="content-block"><h2>三、AI对品牌的描述通常从哪里失控</h2><p>品牌描述失控最常见的原因不是AI“故意说错”，而是公开资料本身给出了冲突信号。比如官网说自己是咨询公司，招聘页强调软件产品，媒体稿又把它归入营销代理，模型就可能选择一个并不准确的泛化标签。</p><p>另一个常见问题是证据缺失。企业声称服务某类客户、具备某种能力或覆盖某个行业，但没有案例、产品页、FAQ或第三方资料支撑，AI就很难把这些描述视为稳定事实。</p><table class="content-table"><thead><tr><th>失控位置</th><th>典型表现</th><th>治理动作</th></tr></thead><tbody><tr><td>实体定义</td><td>公司名称、简称、英文名混用</td><td>建立统一品牌实体说明</td></tr><tr><td>能力描述</td><td>不同页面说法不一致</td><td>固定产品和服务边界</td></tr><tr><td>证据来源</td><td>案例、资质、客户问题缺失</td><td>补充可验证材料</td></tr><tr><td>外部资料</td><td>旧媒体稿或平台简介过时</td><td>定期更新第三方入口</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、第一步：建立标准描述库</h2><p>标准描述库不是品牌口号库，而是给人、搜索引擎和AI共同使用的事实底稿。它应包含品牌一句话定义、业务范围、适用客户、核心能力、不做什么、常见误解和证据链接。</p><p>这个描述库要成为官网、销售材料、媒体资料、招聘介绍、社交平台简介和FAQ的共同来源。只有底稿一致，外部分发才不会制造新的语义冲突。</p><ul class=""><li>品牌标准名称、简称、英文名和所属主体。</li><li>一句话定义、长定义和面向不同客户的版本。</li><li>产品或服务边界，包括明确不提供的能力。</li><li>典型客户、行业场景、案例入口和证据链接。</li><li>常见错误描述及推荐纠正说法。</li></ul></section><section id="block-5" class="content-block"><h2>五、第二步：做AI提示词审计</h2><p>提示词审计用于观察AI如何实际描述品牌。企业可以固定一组问题，在多个AI入口中定期测试，包括品牌定义、行业推荐、竞品比较、价格模式、适用场景和风险问题。</p><p>审计结果不要只记录“有没有出现”，还要标注描述是否准确、语气是否正向、来源是否可靠、是否引用官网、是否把企业放入正确类别。这样才能从曝光监测进入语义质量管理。</p><table class="content-table"><thead><tr><th>问题类型</th><th>示例问题</th><th>需要记录</th></tr></thead><tbody><tr><td>品牌定义</td><td>某品牌是做什么的</td><td>品类、能力、来源</td></tr><tr><td>比较选择</td><td>某品牌和竞品区别</td><td>是否公平、是否遗漏</td></tr><tr><td>场景推荐</td><td>某需求适合哪些服务商</td><td>是否进入候选集</td></tr><tr><td>风险追问</td><td>某品牌有什么限制</td><td>是否夸大或误读</td></tr></tbody></table></div></section><section id="block-6" class="content-block"><h2>六、第三步：管理外部一致性</h2><p>AI不会只读取官网。百科、媒体报道、招聘页面、社交平台、行业目录、客户评价和合作伙伴页面，都可能影响品牌描述。企业需要把这些外部节点纳入语义治理，而不是只在官网内部修文案。</p><p>外部一致性管理的重点是修正过时和冲突信息。企业可以从搜索结果前两页、主流社交平台简介、行业目录和高权重媒体稿开始，检查品牌名称、业务类别、核心能力和链接是否一致。</p></section><section id="block-7" class="content-block"><h2>七、结论：管理AI描述，就是管理未来用户的第一印象</h2><p>AI作为中介后，品牌第一印象不再完全由企业官网控制。用户可能先看到AI对品牌的解释，再决定是否点击、询价或比较竞品。</p><p>因此，企业要把品牌管理、内容治理和GEO监测放在同一张表里：先统一事实底稿，再检查AI描述，最后持续修正官网与外部资料。目标不是操控AI，而是让AI更容易说对你。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Google Search Central：Optimizing your website for generative AI features on Google Search -</span><a href="https://developers.google.com/search/docs/fundamentals/ai-optimization-guide" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/ai-optimization-guide</a></li><li><span>OpenAI Developers：Overview of OpenAI Crawlers -</span><a href="https://developers.openai.com/api/docs/bots" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/bots</a></li><li><span>Microsoft Learn：Retrieval-augmented generation in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：AI对品牌描述错误，是不是只能等模型更新？</h3><p>不能只等模型更新。模型更新可能改变答案，但如果公开资料仍然冲突或过时，错误描述还会反复出现。企业应先修正官网和高权重外部资料中的实体定义、业务范围和证据链接，再用固定问题集持续观察AI是否逐步纠偏。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div><div><h3>Q2：标准描述库应该由品牌部还是SEO团队负责？</h3><p>标准描述库最好由品牌、产品、销售、SEO和法务共同维护。品牌团队负责定位和语气，产品团队确认能力边界，销售团队提供真实客户问题，SEO团队负责可抓取和结构化表达，法务或合规团队检查不能夸大的承诺。每次调整后都应复测同一组问题，确认变化来自信息源改善，而不是一次模型波动。</p></div><div><h3>Q3：提示词审计要覆盖多少问题才够？</h3><p>早期可以从20到30个高价值问题开始，覆盖品牌定义、品类推荐、竞品比较、价格、适用场景和风险疑问。问题不必一开始很大，关键是固定口径、定期复测、记录来源和语义变化。等发现高风险主题后，再扩展更多长尾问题。</p></div><div><h3>Q4：AI没有提到品牌，和AI说错品牌哪个更严重？</h3><p>两者都重要，但风险不同。没有提到通常说明可见性不足，AI说错则可能直接影响用户判断。对于B2B、高客单价和专业服务企业，错误描述可能比缺席更危险，因为它会把用户带向错误期待、错误竞品或错误采购标准。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div><div><h3>Q5：企业能不能要求AI固定使用某段品牌介绍？</h3><p>通常不能。公开AI系统不会因为企业提交一段话就长期固定复述。企业能做的是让标准介绍出现在权威、可抓取、一致的页面和资料中，并用证据支撑关键描述。这样可以提高AI采用正确描述的概率，但不应承诺控制答案。</p></div><div><h3>Q6：外部平台资料太多，应该先改哪里？</h3><p>优先改最容易被用户和搜索系统看到的入口：官网首页和关于页、搜索结果靠前的平台简介、百科或行业目录、主流社交账号主页、媒体资料包和高访问量案例页。先处理这些节点，可以减少AI接触到冲突信息的机会。每次调整后都应复测同一组问题，确认变化来自信息源改善，而不是一次模型波动。</p></div><div><h3>Q7：如何判断AI描述管理已经有效？</h3><p>可以看三类信号：AI在多个入口中能稳定说清品牌是谁，关键能力和适用场景不再明显错误，答案开始引用官网或权威外部资料。不要只看一次截图，至少用连续几周的样本判断趋势，才能避免被模型波动误导。落地时最好保留问题、答案、来源和修正动作，避免只凭单次截图判断AI是否已经理解品牌。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：AI正在成为品牌第一解释层</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么AI会成为品牌认知中介</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、AI对品牌的描述通常从哪里失控</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、第一步：建立标准描述库</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、第二步：做AI提示词审计</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、第三步：管理外部一致性</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：管理AI描述，就是管理未来用户的第一印象</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：AI正在成为品牌第一解释层</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、为什么AI会成为品牌认知中介</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、AI对品牌的描述通常从哪里失控</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、第一步：建立标准描述库</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、第二步：做AI提示词审计</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、第三步：管理外部一致性</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：管理AI描述，就是管理未来用户的第一印象</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -367,7 +370,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

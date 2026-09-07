@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、先成为明确候选，再谈被推荐</h2><p>B2B SaaS 想出现在 AI 的软件推荐答案里，第一步不是抢“最佳”这个词，而是让产品在公开信息中成为一个边界清楚的候选。AI 面对“推荐一个 CRM”“有没有 HubSpot 替代品”“哪款项目管理软件适合制造业”这类问题时，通常会先判断候选集合，再根据场景、证据和限制条件生成答案。</p><p>这意味着企业要解决的不是单篇文章能否排名，而是整个品牌信息是否能让 AI 判断：你属于哪个软件品类，解决哪类业务问题，适合什么规模和行业，价格与实施门槛如何，为什么值得被放进同一组比较对象。</p><p>推荐类答案不会因为官网说自己领先就自动出现。更现实的路径，是把官网、案例、帮助文档、定价页、第三方评测和对比内容组织成一套可检索、可核验、低歧义的信息环境。</p></section><section id="block-2" class="content-block"><h2>二、AI 推荐类问题背后有一套候选生成逻辑</h2><figure class="content-image"><img src="../assets/article-images/b2b-saas-ai-best-software-recommendations/b2b-saas-ai-recommendations.png" alt="B2B SaaS 进入 AI 软件推荐答案的候选生成路径"><figcaption>B2B SaaS 需要用清晰品类、场景证据和外部信号，帮助 AI 判断它是否适合进入推荐候选集。</figcaption></figure><p>“最佳软件”“推荐工具”“替代品”“对比”看起来都是推荐问题，实际触发的判断并不相同。最佳软件更依赖品类代表性和广泛证据；推荐工具更看重具体场景；替代品问题强调相似能力与差异；对比问题则要求功能、价格、部署方式和适用人群都能被清楚拆分。</p><p>很多生成式问答和企业级检索增强生成系统，会在生成前检索外部材料或知识库内容。公开网页、文档、评测和案例如果表达混乱，AI 即使检索到，也很难放心把它们转化为推荐依据。</p><p>所以 B2B SaaS 的 GEO 工作不能只盯品牌词。真正重要的是让产品能在“品类词 + 场景词 + 对比词 + 替代词”的问题组合中被稳定理解。</p><table class="content-table"><thead><tr><th>问题类型</th><th>用户真实意图</th><th>SaaS 需要提供的信息</th></tr></thead><tbody><tr><td>最佳软件</td><td>寻找品类短名单</td><td>品类定位、代表场景、权威评价</td></tr><tr><td>推荐工具</td><td>解决具体任务</td><td>用例、行业、角色、实施条件</td></tr><tr><td>替代品</td><td>寻找相似方案</td><td>能力重叠、差异、迁移成本</td></tr><tr><td>对比</td><td>做采购判断</td><td>功能、价格、限制、适配对象</td></tr></tbody></table></div></section><section id="block-3" class="content-block"><h2>三、品类定位决定你能进入哪一类答案</h2><p>AI 很少从“某家公司很优秀”开始推荐软件，它更常从品类和任务开始组织答案。一个 B2B SaaS 如果同时把自己写成客户数据平台、营销自动化工具、销售管理系统和增长平台，短期看覆盖面更大，长期看反而会让系统难以判断它的主要归属。</p><p>品类定位不是一句标语，而是一组重复出现的稳定表达：产品名称、软件类别、核心对象、典型用户、主要结果和排除边界。比如“面向中大型制造企业的售后服务工单管理 SaaS”，比“智能企业协同平台”更容易进入明确推荐场景。</p><p>在官网结构上，首页和产品页负责给出主品类；解决方案页负责连接行业和角色；博客与指南负责解释需求；结构化数据负责补充软件、组织、价格、评价等机器可读信息。</p></section><section id="block-4" class="content-block--subsection content-block"><h3>品类表达要避免三种漂移</h3><p>第一种漂移是名称漂移，同一个产品在不同页面有多个叫法，AI 难以判断它们是否指向同一实体。第二种漂移是能力漂移，首页说做销售增长，案例页说做客服效率，帮助文档又像通用表单工具。第三种漂移是对象漂移，一会面向创业团队，一会面向企业集团，却没有说明套餐、部署或服务差异。</p><p>这些问题不会立刻造成传统 SEO 流量下降，却会削弱 AI 对产品的稳定归类。对于 B2B SaaS，宁可先占住一个高确定性的细分场景，也不要用过宽表达稀释候选身份。</p></section><section id="block-5" class="content-block--subsection content-block"><h3>用例页面要写到触发条件</h3><p>用例页不能只写“提升效率”“降低成本”。它更应该回答：客户在什么业务状态下会需要这个软件，原有流程有哪些限制，产品接入后改变了哪一段流程，哪些团队会参与使用，哪些条件会影响效果。这样的页面更容易被映射到具体推荐问题。</p><p>例如同样是项目管理 SaaS，面向研发团队、设计团队、施工项目和咨询交付的推荐理由并不相同。AI 如果只看到通用功能，很难判断它适合哪类用户；如果页面写清任务、角色、流程和限制，就更容易把产品放进正确语境。</p></section><section id="block-6" class="content-block"><h2>四、不同页面资产承担不同推荐价值</h2><p>进入 AI 推荐答案不是一篇“最佳工具”文章能完成的任务。AI 更可能从多个来源拼出判断：官网确认你是谁，第三方评测确认别人如何描述你，案例页确认你解决过什么问题，帮助文档确认产品是否真的可用，定价页确认采购条件是否清楚。</p><p>这也是 B2B SaaS 内容资产要协同的原因。每个页面都不必讲完所有事情，但它要在自己的位置上回答一个明确问题，并和其他页面保持一致。</p><table class="content-table"><thead><tr><th>页面类型</th><th>AI 推荐价值</th><th>应呈现的关键信息</th></tr></thead><tbody><tr><td>官网</td><td>确认品牌实体和主品类</td><td>产品定义、目标客户、核心能力、集成生态</td></tr><tr><td>第三方评测</td><td>提供外部可信信号</td><td>真实评价、榜单分类、用户反馈、评分依据</td></tr><tr><td>案例页</td><td>证明场景适配性</td><td>客户背景、问题、方案、结果、限制条件</td></tr><tr><td>帮助文档</td><td>证明功能可用和边界</td><td>配置步骤、权限、API、集成、常见限制</td></tr><tr><td>定价页</td><td>支持采购短名单判断</td><td>套餐、计费方式、试用、企业版条件</td></tr></tbody></table></div></section><section id="block-7" class="content-block--subsection content-block"><h3>帮助文档是容易被忽略的证据源</h3><p>很多市场团队只把帮助文档当成售后资料，但在 AI 推荐场景里，它常常是判断产品真实能力的关键材料。产品页可以说支持权限管理，帮助文档要说明角色、字段、审批、日志和异常处理；官网可以说支持 API，开发者文档要说明鉴权、限流、回调、错误码和版本更新。</p><p>帮助文档越清楚，AI 越容易把营销表达和具体功能连接起来。尤其在 B2B SaaS 采购中，用户经常会问“是否支持 SSO”“能否接入 Salesforce”“有没有本地数据驻留选项”。如果这些答案只藏在销售话术里，公开推荐答案就缺少可引用依据。</p></section><section id="block-8" class="content-block--subsection content-block"><h3>案例页要写出约束而不是只写成功</h3><p>案例页不应只留下客户名称和结果数字。更有用的写法是说明客户原本的组织规模、系统环境、业务限制、上线范围和采用路径。对 AI 来说，这些细节能帮助它判断产品适合哪类企业，而不是把案例当成孤立的宣传素材。</p><p>如果一个客户案例能回答“为什么选择这款软件”“替换了什么流程”“哪些条件让项目成立”“哪些问题仍需人工或集成解决”，它就能同时服务销售、SEO 和 AI 推荐。克制的限制说明并不会削弱可信度，反而让推荐更接近真实采购判断。</p></section><section id="block-9" class="content-block"><h2>五、对比页和替代品页要像采购材料</h2><p>很多 SaaS 做对比页时容易写成竞品攻击：对方复杂、昂贵、过时，自己简单、灵活、先进。这类内容对用户帮助有限，对 AI 也不可靠。真正有价值的对比页应该像采购材料，承认双方适合的场景，并把差异落到功能、数据、权限、部署、集成、服务和价格上。</p><p>替代品页尤其要克制。用户搜索“A 替代品”，不一定已经否定 A，可能只是在寻找更便宜、更垂直、更易部署或更适合本地化需求的选择。页面如果只强调“我们更好”，很难进入可信答案；如果能说明“什么情况下适合迁移，什么情况下不建议迁移”，反而更容易被采信。</p><ul class=""><li>写清共同能力：让 AI 知道你和竞品为什么属于同一比较集合。</li><li>写清关键差异：说明行业、规模、部署、权限、集成或服务上的区别。</li><li>写清适配对象：告诉用户和 AI 哪类团队更适合你，哪类需求不适合。</li><li>写清证据来源：案例、文档、截图、公开价格和第三方评价都比形容词更有用。</li></ul></section><section id="block-10" class="content-block"><h2>六、第三方权威信号决定可信边界</h2><p>AI 在回答推荐问题时，不只看企业如何描述自己，也会参考外部世界如何描述这家企业。评测平台、行业报告、应用市场、合作伙伴目录、客户公开案例、开发者社区和媒体报道，都会影响产品是否被理解为真实、活跃、可比较的软件实体。</p><p>对 B2B SaaS 来说，第三方信号的价值不在于制造热闹，而在于减少单方叙述的风险。官网说自己适合金融行业，客户案例和行业媒体也出现相近描述；官网说支持某个集成，应用市场或帮助文档能看到对应页面；定价页说有企业版，采购资料能解释服务边界。这些一致性会提高推荐判断的可信度。</p><p>企业不应伪造评价、购买虚假榜单或用无来源奖项包装自己。短期看这些材料像背书，长期看会破坏品牌实体的可信结构，也违背 GEO 的底线。</p></section><section id="block-11" class="content-block--subsection content-block"><h3>外部信号要能回到具体能力</h3><p>不是所有外部露出都有同等价值。一次没有产品信息的品牌新闻，通常不如一篇写清应用场景的客户案例；一个泛泛的合作公告，也不如可以打开的集成目录、API 文档或市场应用页。AI 需要的不只是“有人提到你”，还要能理解外部提及和产品能力之间的关系。</p><p>因此，B2B SaaS 做公关、合作伙伴和客户案例时，应尽量让品牌名、产品名、品类、行业、用例和证据指向同一个对象。外部页面越能补充官网没有展开的细节，越能增强推荐类答案中的可信边界。</p></section><section id="block-12" class="content-block"><h2>七、清晰定价和实施边界会影响短名单</h2><p>很多 B2B SaaS 不愿公开价格，原因可以理解：企业版报价复杂，销售希望先获取线索，方案也常随客户规模变化。但在 AI 推荐场景里，完全没有价格、套餐或实施门槛，会让产品很难被放入“适合中小团队”“预算有限”“可快速上线”这类答案。</p><p>清晰定价不等于必须公开所有合同价格。企业至少可以说明计费维度、是否有免费试用、是否按席位或用量计费、企业版是否需要联系销售、实施周期通常受哪些因素影响。对 AI 和采购者来说，这些信息能帮助判断产品是否适合当前约束。</p><p>Schema.org 和 Google 的软件应用结构化数据都支持用软件、价格、评价等属性描述应用页面。B2B SaaS 可以在自然页面表达之外，用规范字段强化产品类别、报价线索和评价信息，但结构化数据只能辅助理解，不能替代真实页面内容。</p></section><section id="block-13" class="content-block--subsection content-block"><h3>采购条件越清楚，推荐语境越准确</h3><p>B2B SaaS 的定价页可以保留销售空间，但不能让所有关键信息都处于黑箱。最少应说明基础套餐面向谁、企业版多了什么、是否有最低席位或最低合同额、是否需要实施服务、数据迁移和安全审查会不会影响上线周期。</p><p>这些信息会改变推荐语境。同一款软件可能适合大型企业治理，却不适合五人团队快速试用；也可能功能强大，但需要较长实施周期。AI 如果无法判断采购门槛，就容易选择价格和适用边界更清楚的替代方案。</p></section><section id="block-14" class="content-block"><h2>八、结论：推荐不是控制答案，而是降低选择成本</h2><p>B2B SaaS 进入 AI 推荐类答案，靠的不是让模型记住一句广告语，而是让产品在公开信息中具备清楚身份、稳定品类、可验证用例、真实外部信号和可判断的商业条件。AI 不能被企业随意安排答案，但它会更容易使用结构清楚、证据完整、限制明确的信息。</p><p>执行顺序可以很简单：先统一产品定义和品类；再补齐用例页、案例页、帮助文档和定价页；随后建设对比页、替代品页和第三方资料；最后定期检查不同 AI 系统对品牌、品类和竞品关系的描述是否出现偏差。</p><p>因此，在 GEO 体系中，B2B SaaS 要争取的不是“任何问题都被推荐”，而是在最匹配的品类、场景和采购约束下，成为 AI 可以放心放入候选集合的真实软件。</p></section><section id="block-15" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Intro to How Structured Data Markup Works，</span><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data</a></li><li><span>Google Search Central：Software app (SoftwareApplication) structured data，</span><a href="https://developers.google.com/search/docs/appearance/structured-data/software-app" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/software-app</a></li><li><span>Schema.org：SoftwareApplication，</span><a href="https://schema.org/SoftwareApplication" target="_blank" rel="noopener noreferrer">https://schema.org/SoftwareApplication</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search，</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>OpenAI Docs：File search，</span><a href="https://developers.openai.com/api/docs/guides/tools-file-search" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/guides/tools-file-search</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：小型 B2B SaaS 有机会进入 AI 推荐答案吗？</h3><p>有机会，但通常更适合从细分场景开始。小品牌外部信号较少，如果还使用宽泛定位，很容易被大品牌覆盖。更可行的做法是明确一个行业、角色或任务，例如“面向跨境电商客服团队的工单系统”，并用案例、文档和第三方资料证明适配性。</p></div><div><h3>Q2：是不是要大量发布“最佳软件”文章？</h3><p>不建议把重点放在批量文章上。AI 推荐类答案更需要稳定品类、真实用例、外部评价和清晰商业条件。少量高质量的品类指南、对比页和替代品页有价值，但如果只是改标题、堆关键词、重复生成榜单，既不能建立信任，也可能制造语义噪声。</p></div><div><h3>Q3：对比页可以直接写竞品缺点吗？</h3><p>可以写差异，但不应写成攻击。好的对比页要承认不同产品适合不同客户，并把差异落到功能、价格、集成、部署、服务和限制条件上。越像采购判断材料，越容易被用户和 AI 采信；越像单方面贬低，越难成为可靠依据。</p></div><div><h3>Q4：第三方评测比官网更重要吗？</h3><p>两者承担不同任务。官网负责定义产品身份、能力边界和官方信息；第三方评测提供外部视角和用户反馈。只有第三方信号而官网混乱，AI 仍可能理解不稳定；只有官网自述而缺少外部印证，也会削弱推荐类答案中的可信度。</p></div><div><h3>Q5：定价不公开会影响 AI 推荐吗？</h3><p>可能会影响，尤其是用户问题带有预算、规模或上线速度约束时。企业不一定要公布所有企业版价格，但应说明计费方式、试用条件、套餐差异和联系销售的原因。价格信息越模糊，AI 越难判断产品是否适合某类采购场景。</p></div><div><h3>Q6：加了结构化数据就能被 AI 推荐吗？</h3><p>不能。结构化数据能帮助搜索系统理解软件、价格、评价等页面信息，但它不是推荐保证。真正起作用的是结构化数据、页面正文、案例证据、帮助文档和外部信号的一致性。字段写得再完整，如果页面内容空泛或证据不足，仍然难以进入可信候选。</p></div><div><h3>Q7：多久能看到 AI 答案发生变化？</h3><p>没有固定周期。不同 AI 产品的数据来源、检索方式和更新节奏都不同，网页被抓取、第三方页面更新、知识库刷新也需要时间。企业更适合观察长期趋势：品牌描述是否更准确，品类归属是否更稳定，对比和替代品问题中是否逐步出现。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,38 +329,35 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、先成为明确候选，再谈被推荐</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、AI 推荐类问题背后有一套候选生成逻辑</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、品类定位决定你能进入哪一类答案</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">品类表达要避免三种漂移</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">用例页面要写到触发条件</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、不同页面资产承担不同推荐价值</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">帮助文档是容易被忽略的证据源</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">案例页要写出约束而不是只写成功</a>
-<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、对比页和替代品页要像采购材料</a>
-<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、第三方权威信号决定可信边界</a>
-<a href="#block-11" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">外部信号要能回到具体能力</a>
-<a href="#block-12" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、清晰定价和实施边界会影响短名单</a>
-<a href="#block-13" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">采购条件越清楚，推荐语境越准确</a>
-<a href="#block-14" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、结论：推荐不是控制答案，而是降低选择成本</a>
-<a href="#block-15" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、先成为明确候选，再谈被推荐</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、AI 推荐类问题背后有一套候选生成逻辑</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、品类定位决定你能进入哪一类答案</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">品类表达要避免三种漂移</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">用例页面要写到触发条件</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、不同页面资产承担不同推荐价值</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">帮助文档是容易被忽略的证据源</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">案例页要写出约束而不是只写成功</a>
+<a href="#block-9" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、对比页和替代品页要像采购材料</a>
+<a href="#block-10" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、第三方权威信号决定可信边界</a>
+<a href="#block-11" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">外部信号要能回到具体能力</a>
+<a href="#block-12" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、清晰定价和实施边界会影响短名单</a>
+<a href="#block-13" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">采购条件越清楚，推荐语境越准确</a>
+<a href="#block-14" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">八、结论：推荐不是控制答案，而是降低选择成本</a>
+<a href="#block-15" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>

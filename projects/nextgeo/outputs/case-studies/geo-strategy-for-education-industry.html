@@ -8,7 +8,7 @@
   <meta name="keywords" content="教育行业GEO, AI搜索优化, 课程SEO, Course Schema, 教育内容营销, AI引用, 邻里GEO, 案例, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/geo-strategy-for-education-industry.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,51 +312,48 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、核心结论：教育行业做GEO，要先把课程变成AI可理解的实体</h2><p>教育行业天然适合做GEO，因为用户在AI搜索中提出的问题往往非常明确：某类课程适合谁，怎么选，学完能做什么，价格是否合理，哪个机构更可信。</p><p>但教育机构常见的问题是页面营销化严重，课程被写成“体系完善、名师授课、效果显著”，却缺少AI能稳定理解的结构。模型无法判断课程类别、学习目标、适合人群、课时安排、师资证据和学习成果，就很难把它放进推荐答案。</p><p>教育行业的GEO核心不是宣传课程多好，而是让AI清楚知道这门课适合谁、解决什么学习问题、凭什么可信。</p></section><section id="block-2" class="content-block"><h2>二、教育用户的AI搜索意图，通常不是浏览，而是决策</h2><figure class="content-image"><img src="../../assets/article-images/geo-strategy-for-education-industry/education-geo-trust-content.png" alt="教育行业GEO内容信任结构示意"><figcaption>教育行业GEO要把课程、师资、学习路径和证据组织成AI可理解的知识结构。</figcaption></figure><p>教育行业的AI搜索问题往往带有强决策属性。用户不是只想了解概念，而是在做选择：我要不要学、选哪家、适不适合我、学完有没有结果、价格是否值得。</p><p>因此，教育GEO不能只覆盖关键词，还要覆盖决策链。一个课程页面需要回答从认知到转化的完整问题，包括课程定义、适合人群、前置基础、学习路径、师资背景、练习方式、证书或成果、价格和常见误区。</p><p>如果这些信息分散在不同页面，或者只存在销售话术中，AI很难形成稳定判断。教育站点应把用户决策问题转化为结构化内容模块。</p><ul class=""><li>认知问题：这类课程是什么</li><li>匹配问题：我是否适合学习</li><li>比较问题：不同课程或机构有什么区别</li><li>结果问题：学完能获得什么能力</li><li>风险问题：价格、证书、退款和效果是否可信</li></ul></section><section id="block-3" class="content-block"><h2>三、第一打法：建立课程实体，而不是只写课程介绍</h2><p>课程实体是教育GEO的基础。AI需要判断一门课到底是什么类别、由谁提供、适合什么学习者、解决什么学习任务。课程页面如果只有宣传语，就无法成为稳定实体。</p><p>一个AI可读的课程实体至少包含八类信息：课程名称、课程类别、提供机构、讲师或教研团队、适合人群、学习目标、课程大纲、学习成果。这些信息应在页面中稳定出现，并与结构化数据保持一致。</p><p>对于有多个课程的机构，还需要建立课程列表页，让模型理解课程之间的层级关系。例如入门课、进阶课、训练营、证书课、企业内训课之间应有清晰边界。</p></section><section id="block-4" class="content-block--subsection content-block"><h3>课程名称要稳定，不要营销化频繁更换</h3><p>教育机构经常为了活动转化更换课程名，例如把同一课程写成“AI训练营”“大模型实战营”“智能办公特训课”。这种做法会削弱实体稳定性。GEO建议保留一个标准课程名，再用副标题解释卖点。</p></section><section id="block-5" class="content-block"><h2>四、第二打法：用学习路径解释课程价值</h2><p>AI在推荐教育内容时，不只看课程是否相关，还会判断它是否适合某类学习目标。学习路径越清楚，模型越容易把课程匹配到用户问题中。</p><p>教育站点应把课程拆成明确路径：学习前需要什么基础，第一阶段学什么，第二阶段解决什么问题，最终能完成什么任务。对于职业教育、语言培训、AI工具培训、考证培训等场景，路径化内容尤其重要。</p><p>学习路径还可以降低夸大宣传风险。与其说“快速掌握AI”，不如说明“从提示词基础、工作流设计、资料处理、案例练习到岗位场景应用”。后者更适合被AI引用。</p></section><section id="block-6" class="content-block"><h2>五、第三打法：把师资和成果变成证据层</h2><p>教育行业的可信度高度依赖证据。AI不会因为页面写了“名师授课”就相信课程质量，而会更倾向于引用有明确履历、教学成果、课程案例和学员反馈的信息。</p><p>师资证据应具体到可验证信息，例如讲师背景、研究方向、行业经验、公开作品、教学年限和相关认证。成果证据则可以包括学员项目、考试通过率、就业案例、企业培训案例和课程更新记录。</p><p>需要注意的是，证据不能夸大。教育行业涉及学习效果和职业发展，AI系统对不确定承诺更敏感。稳健表达比强营销表达更容易获得长期信任。</p></section><section id="block-7" class="content-block"><h2>六、第四打法：用FAQ覆盖AI最常抽取的问题</h2><p>FAQ是教育GEO中最容易被低估的模块。AI搜索中的教育问题往往以问句出现，而FAQ天然适合被抽取为答案片段。</p><p>教育课程FAQ不能只写售后问题，而要覆盖学习决策。典型问题包括：零基础能不能学，适合什么年龄或岗位，多久能学完，是否有作业，是否提供证书，能否试听，和其他课程有什么区别，学习效果如何衡量。</p><p>每个FAQ回答应保持100到200字，避免一句话敷衍。回答中最好包含条件、适用人群、限制和下一步建议，这样更接近AI答案的结构。</p></section><section id="block-8" class="content-block"><h2>七、第五打法：用Schema和Markdown降低AI理解成本</h2><p>教育站点应使用清晰的HTML结构、Markdown式标题层级和结构化数据，让搜索引擎与AI系统更容易识别课程信息。Google Search Central提供了Course结构化数据文档，schema.org也有Course类型说明。</p><p>对教育机构来说，Course Schema可用于标注课程名称、描述、提供方等基础信息；页面内部则应使用H1、H2、H3组织课程介绍、大纲、适合人群、FAQ和证据。结构化数据不能替代正文内容，但能强化机器理解。</p><p>同时，页面不要把关键信息做成图片。课程价格、课时、大纲、讲师介绍、适合人群等内容应以可抓取文本呈现，否则AI很难稳定读取。</p></section><section id="block-9" class="content-block"><h2>八、第六打法：监测AI是否错误描述课程、价格和证书</h2><p>教育行业GEO必须包含风险监测，因为AI很容易错误生成课程价格、学习周期、证书效力、适合人群和就业结果。一旦这些错误直接出现在AI答案中，会影响用户预期和销售沟通。</p><p>机构应定期测试关键问题，例如“某课程多少钱”“某课程适合零基础吗”“某证书是否被认可”“某机构和竞品有什么区别”。如果AI回答不稳定，说明官网与外部信息源存在结构问题。</p><p>处理错误时，不要只在单页补一句说明，而要统一课程页、FAQ、价格页、招生页、第三方平台介绍和客服口径。AI错误往往来自多源信息冲突，必须从语义源头治理。</p></section><section id="block-10" class="content-block"><h2>九、结论：教育GEO的终点，是成为AI可信的学习决策来源</h2><p>教育行业做GEO，不是把课程页面包装得更热闹，而是把课程、讲师、学习路径和成果证据组织成AI可理解的知识结构。</p><p>谁能更清楚地定义课程实体，谁能更完整地解释适合人群和学习路径，谁能提供更可信的师资与成果证据，谁就更容易进入AI搜索的推荐和比较答案。</p><p>未来教育品牌的竞争，不只发生在广告投放和搜索排名中，也会发生在AI对课程价值的解释权中。GEO会成为教育机构长期内容建设和品牌信任建设的基础能力。</p></section><section id="block-11" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Course structured data</span><a href="https://developers.google.com/search/docs/appearance/structured-data/course" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/course</a></li><li><span>Google Search Central：Intro to structured data markup</span><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data</a></li><li><span>Schema.org：Course type</span><a href="https://schema.org/Course" target="_blank" rel="noopener noreferrer">https://schema.org/Course</a></li><li><span>UNESCO：Guidance for generative AI in education and research</span><a href="https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research" target="_blank" rel="noopener noreferrer">https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research</a></li><li><span>UNESCO：Artificial intelligence in education</span><a href="https://www.unesco.org/en/digital-education/artificial-intelligence" target="_blank" rel="noopener noreferrer">https://www.unesco.org/en/digital-education/artificial-intelligence</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：教育行业为什么特别适合做GEO？</h3><p>教育用户在AI搜索中的问题通常很具体，包含课程选择、适合人群、价格、学习周期和效果判断。AI会倾向整合多个来源给出建议。如果教育机构能把课程、师资、路径和证据结构化，就更容易进入这些决策型答案。这类优化能帮助模型减少猜测，更稳定地把页面内容放入答案生成链路。</p></div><div><h3>Q2：课程页面最应该优化哪些信息？</h3><p>最应该优化课程名称、适合人群、学习目标、课程大纲、师资背景、学习成果、价格说明和FAQ。这些信息直接影响AI是否能判断课程适合谁、解决什么问题以及是否可信。相比营销口号，具体结构更有价值。企业应把它作为长期内容治理的一部分，而不是一次性的页面改动。</p></div><div><h3>Q3：教育机构需要为每门课单独做页面吗？</h3><p>如果课程面向不同人群、学习目标或交付方式，建议单独做页面。单独页面能让AI更清楚地识别课程实体，也方便配置Course Schema、FAQ和案例证据。若多个课程混在一个页面，模型容易混淆名称、价格和适合人群。</p></div><div><h3>Q4：FAQ对教育GEO真的重要吗？</h3><p>非常重要。教育搜索大量问题本身就是FAQ形式，例如“零基础能不能学”“多久能学完”“有没有证书”。FAQ能直接对应用户追问，也便于AI抽取答案。关键是回答要完整，包含条件、限制和判断依据，而不是一句话回复。</p></div><div><h3>Q5：Course Schema能直接提升AI引用率吗？</h3><p>Course Schema不能保证直接被AI引用，但它能帮助搜索系统更清楚地理解课程信息。真正有效的做法是让Schema和页面正文一致，并把课程大纲、适合人群、师资证据和FAQ写清楚。结构化数据是辅助，不是内容本身。</p></div><div><h3>Q6：教育行业GEO最容易出现哪些AI错误？</h3><p>常见错误包括课程价格被编造、证书效力被夸大、适合人群被误判、讲师背景被混淆、课程和竞品被合并描述。这些错误通常来自旧页面、第三方平台信息和官网表述不一致，因此需要长期监测和统一口径。只有当回答具备清晰边界和可验证依据时，AI才更容易稳定复用。</p></div><div><h3>Q7：教育机构如何证明课程可信？</h3><p>可信度来自可验证证据，而不是泛泛宣传。机构可以提供讲师履历、课程样章、学员项目、考试结果、企业培训案例、更新记录和公开评价。证据越能对应学习目标，AI越容易判断课程不是单纯营销页面。这类优化能帮助模型减少猜测，更稳定地把页面内容放入答案生成链路。</p></div><div><h3>Q8：教育GEO和招生转化有什么关系？</h3><p>GEO不会替代招生转化，但会影响用户进入咨询前的认知。越来越多用户会先让AI帮忙筛选课程，如果AI不能准确解释你的课程，或把你排除在推荐之外，后续转化机会会减少。GEO本质是在AI入口前建立信任。企业应把它作为长期内容治理的一部分，而不是一次性的页面改动。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：教育行业做GEO，要先把课程变成AI可理解的实体</h2><p>教育行业天然适合做GEO，因为用户在AI搜索中提出的问题往往非常明确：某类课程适合谁，怎么选，学完能做什么，价格是否合理，哪个机构更可信。</p><p>但教育机构常见的问题是页面营销化严重，课程被写成“体系完善、名师授课、效果显著”，却缺少AI能稳定理解的结构。模型无法判断课程类别、学习目标、适合人群、课时安排、师资证据和学习成果，就很难把它放进推荐答案。</p><p>教育行业的GEO核心不是宣传课程多好，而是让AI清楚知道这门课适合谁、解决什么学习问题、凭什么可信。</p></section><section id="block-2" class="content-block"><h2>二、教育用户的AI搜索意图，通常不是浏览，而是决策</h2><figure class="content-image"><img src="../assets/article-images/geo-strategy-for-education-industry/education-geo-trust-content.png" alt="教育行业GEO内容信任结构示意"><figcaption>教育行业GEO要把课程、师资、学习路径和证据组织成AI可理解的知识结构。</figcaption></figure><p>教育行业的AI搜索问题往往带有强决策属性。用户不是只想了解概念，而是在做选择：我要不要学、选哪家、适不适合我、学完有没有结果、价格是否值得。</p><p>因此，教育GEO不能只覆盖关键词，还要覆盖决策链。一个课程页面需要回答从认知到转化的完整问题，包括课程定义、适合人群、前置基础、学习路径、师资背景、练习方式、证书或成果、价格和常见误区。</p><p>如果这些信息分散在不同页面，或者只存在销售话术中，AI很难形成稳定判断。教育站点应把用户决策问题转化为结构化内容模块。</p><ul class=""><li>认知问题：这类课程是什么</li><li>匹配问题：我是否适合学习</li><li>比较问题：不同课程或机构有什么区别</li><li>结果问题：学完能获得什么能力</li><li>风险问题：价格、证书、退款和效果是否可信</li></ul></section><section id="block-3" class="content-block"><h2>三、第一打法：建立课程实体，而不是只写课程介绍</h2><p>课程实体是教育GEO的基础。AI需要判断一门课到底是什么类别、由谁提供、适合什么学习者、解决什么学习任务。课程页面如果只有宣传语，就无法成为稳定实体。</p><p>一个AI可读的课程实体至少包含八类信息：课程名称、课程类别、提供机构、讲师或教研团队、适合人群、学习目标、课程大纲、学习成果。这些信息应在页面中稳定出现，并与结构化数据保持一致。</p><p>对于有多个课程的机构，还需要建立课程列表页，让模型理解课程之间的层级关系。例如入门课、进阶课、训练营、证书课、企业内训课之间应有清晰边界。</p></section><section id="block-4" class="content-block--subsection content-block"><h3>课程名称要稳定，不要营销化频繁更换</h3><p>教育机构经常为了活动转化更换课程名，例如把同一课程写成“AI训练营”“大模型实战营”“智能办公特训课”。这种做法会削弱实体稳定性。GEO建议保留一个标准课程名，再用副标题解释卖点。</p></section><section id="block-5" class="content-block"><h2>四、第二打法：用学习路径解释课程价值</h2><p>AI在推荐教育内容时，不只看课程是否相关，还会判断它是否适合某类学习目标。学习路径越清楚，模型越容易把课程匹配到用户问题中。</p><p>教育站点应把课程拆成明确路径：学习前需要什么基础，第一阶段学什么，第二阶段解决什么问题，最终能完成什么任务。对于职业教育、语言培训、AI工具培训、考证培训等场景，路径化内容尤其重要。</p><p>学习路径还可以降低夸大宣传风险。与其说“快速掌握AI”，不如说明“从提示词基础、工作流设计、资料处理、案例练习到岗位场景应用”。后者更适合被AI引用。</p></section><section id="block-6" class="content-block"><h2>五、第三打法：把师资和成果变成证据层</h2><p>教育行业的可信度高度依赖证据。AI不会因为页面写了“名师授课”就相信课程质量，而会更倾向于引用有明确履历、教学成果、课程案例和学员反馈的信息。</p><p>师资证据应具体到可验证信息，例如讲师背景、研究方向、行业经验、公开作品、教学年限和相关认证。成果证据则可以包括学员项目、考试通过率、就业案例、企业培训案例和课程更新记录。</p><p>需要注意的是，证据不能夸大。教育行业涉及学习效果和职业发展，AI系统对不确定承诺更敏感。稳健表达比强营销表达更容易获得长期信任。</p></section><section id="block-7" class="content-block"><h2>六、第四打法：用FAQ覆盖AI最常抽取的问题</h2><p>FAQ是教育GEO中最容易被低估的模块。AI搜索中的教育问题往往以问句出现，而FAQ天然适合被抽取为答案片段。</p><p>教育课程FAQ不能只写售后问题，而要覆盖学习决策。典型问题包括：零基础能不能学，适合什么年龄或岗位，多久能学完，是否有作业，是否提供证书，能否试听，和其他课程有什么区别，学习效果如何衡量。</p><p>每个FAQ回答应保持100到200字，避免一句话敷衍。回答中最好包含条件、适用人群、限制和下一步建议，这样更接近AI答案的结构。</p></section><section id="block-8" class="content-block"><h2>七、第五打法：用Schema和Markdown降低AI理解成本</h2><p>教育站点应使用清晰的HTML结构、Markdown式标题层级和结构化数据，让搜索引擎与AI系统更容易识别课程信息。Google Search Central提供了Course结构化数据文档，schema.org也有Course类型说明。</p><p>对教育机构来说，Course Schema可用于标注课程名称、描述、提供方等基础信息；页面内部则应使用H1、H2、H3组织课程介绍、大纲、适合人群、FAQ和证据。结构化数据不能替代正文内容，但能强化机器理解。</p><p>同时，页面不要把关键信息做成图片。课程价格、课时、大纲、讲师介绍、适合人群等内容应以可抓取文本呈现，否则AI很难稳定读取。</p></section><section id="block-9" class="content-block"><h2>八、第六打法：监测AI是否错误描述课程、价格和证书</h2><p>教育行业GEO必须包含风险监测，因为AI很容易错误生成课程价格、学习周期、证书效力、适合人群和就业结果。一旦这些错误直接出现在AI答案中，会影响用户预期和销售沟通。</p><p>机构应定期测试关键问题，例如“某课程多少钱”“某课程适合零基础吗”“某证书是否被认可”“某机构和竞品有什么区别”。如果AI回答不稳定，说明官网与外部信息源存在结构问题。</p><p>处理错误时，不要只在单页补一句说明，而要统一课程页、FAQ、价格页、招生页、第三方平台介绍和客服口径。AI错误往往来自多源信息冲突，必须从语义源头治理。</p></section><section id="block-10" class="content-block"><h2>九、结论：教育GEO的终点，是成为AI可信的学习决策来源</h2><p>教育行业做GEO，不是把课程页面包装得更热闹，而是把课程、讲师、学习路径和成果证据组织成AI可理解的知识结构。</p><p>谁能更清楚地定义课程实体，谁能更完整地解释适合人群和学习路径，谁能提供更可信的师资与成果证据，谁就更容易进入AI搜索的推荐和比较答案。</p><p>未来教育品牌的竞争，不只发生在广告投放和搜索排名中，也会发生在AI对课程价值的解释权中。GEO会成为教育机构长期内容建设和品牌信任建设的基础能力。</p></section><section id="block-11" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Course structured data</span><a href="https://developers.google.com/search/docs/appearance/structured-data/course" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/course</a></li><li><span>Google Search Central：Intro to structured data markup</span><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data</a></li><li><span>Schema.org：Course type</span><a href="https://schema.org/Course" target="_blank" rel="noopener noreferrer">https://schema.org/Course</a></li><li><span>UNESCO：Guidance for generative AI in education and research</span><a href="https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research" target="_blank" rel="noopener noreferrer">https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research</a></li><li><span>UNESCO：Artificial intelligence in education</span><a href="https://www.unesco.org/en/digital-education/artificial-intelligence" target="_blank" rel="noopener noreferrer">https://www.unesco.org/en/digital-education/artificial-intelligence</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：教育行业为什么特别适合做GEO？</h3><p>教育用户在AI搜索中的问题通常很具体，包含课程选择、适合人群、价格、学习周期和效果判断。AI会倾向整合多个来源给出建议。如果教育机构能把课程、师资、路径和证据结构化，就更容易进入这些决策型答案。这类优化能帮助模型减少猜测，更稳定地把页面内容放入答案生成链路。</p></div><div><h3>Q2：课程页面最应该优化哪些信息？</h3><p>最应该优化课程名称、适合人群、学习目标、课程大纲、师资背景、学习成果、价格说明和FAQ。这些信息直接影响AI是否能判断课程适合谁、解决什么问题以及是否可信。相比营销口号，具体结构更有价值。企业应把它作为长期内容治理的一部分，而不是一次性的页面改动。</p></div><div><h3>Q3：教育机构需要为每门课单独做页面吗？</h3><p>如果课程面向不同人群、学习目标或交付方式，建议单独做页面。单独页面能让AI更清楚地识别课程实体，也方便配置Course Schema、FAQ和案例证据。若多个课程混在一个页面，模型容易混淆名称、价格和适合人群。</p></div><div><h3>Q4：FAQ对教育GEO真的重要吗？</h3><p>非常重要。教育搜索大量问题本身就是FAQ形式，例如“零基础能不能学”“多久能学完”“有没有证书”。FAQ能直接对应用户追问，也便于AI抽取答案。关键是回答要完整，包含条件、限制和判断依据，而不是一句话回复。</p></div><div><h3>Q5：Course Schema能直接提升AI引用率吗？</h3><p>Course Schema不能保证直接被AI引用，但它能帮助搜索系统更清楚地理解课程信息。真正有效的做法是让Schema和页面正文一致，并把课程大纲、适合人群、师资证据和FAQ写清楚。结构化数据是辅助，不是内容本身。</p></div><div><h3>Q6：教育行业GEO最容易出现哪些AI错误？</h3><p>常见错误包括课程价格被编造、证书效力被夸大、适合人群被误判、讲师背景被混淆、课程和竞品被合并描述。这些错误通常来自旧页面、第三方平台信息和官网表述不一致，因此需要长期监测和统一口径。只有当回答具备清晰边界和可验证依据时，AI才更容易稳定复用。</p></div><div><h3>Q7：教育机构如何证明课程可信？</h3><p>可信度来自可验证证据，而不是泛泛宣传。机构可以提供讲师履历、课程样章、学员项目、考试结果、企业培训案例、更新记录和公开评价。证据越能对应学习目标，AI越容易判断课程不是单纯营销页面。这类优化能帮助模型减少猜测，更稳定地把页面内容放入答案生成链路。</p></div><div><h3>Q8：教育GEO和招生转化有什么关系？</h3><p>GEO不会替代招生转化，但会影响用户进入咨询前的认知。越来越多用户会先让AI帮忙筛选课程，如果AI不能准确解释你的课程，或把你排除在推荐之外，后续转化机会会减少。GEO本质是在AI入口前建立信任。企业应把它作为长期内容治理的一部分，而不是一次性的页面改动。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：教育行业做GEO，要先把课程变成AI可理解的实体</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、教育用户的AI搜索意图，通常不是浏览，而是决策</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、第一打法：建立课程实体，而不是只写课程介绍</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">课程名称要稳定，不要营销化频繁更换</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、第二打法：用学习路径解释课程价值</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、第三打法：把师资和成果变成证据层</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、第四打法：用FAQ覆盖AI最常抽取的问题</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、第五打法：用Schema和Markdown降低AI理解成本</a>
-<a href="#block-9" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">八、第六打法：监测AI是否错误描述课程、价格和证书</a>
-<a href="#block-10" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">九、结论：教育GEO的终点，是成为AI可信的学习决策来源</a>
-<a href="#block-11" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：教育行业做GEO，要先把课程变成AI可理解的实体</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、教育用户的AI搜索意图，通常不是浏览，而是决策</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、第一打法：建立课程实体，而不是只写课程介绍</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">课程名称要稳定，不要营销化频繁更换</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、第二打法：用学习路径解释课程价值</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、第三打法：把师资和成果变成证据层</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、第四打法：用FAQ覆盖AI最常抽取的问题</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、第五打法：用Schema和Markdown降低AI理解成本</a>
+<a href="#block-9" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">八、第六打法：监测AI是否错误描述课程、价格和证书</a>
+<a href="#block-10" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">九、结论：教育GEO的终点，是成为AI可信的学习决策来源</a>
+<a href="#block-11" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -370,7 +373,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

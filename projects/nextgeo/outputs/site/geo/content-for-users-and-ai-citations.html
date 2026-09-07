@@ -8,7 +8,7 @@
   <meta name="keywords" content="用户友好内容, AI引用, GEO内容原则, 结构化写作, 可引用内容, Helpful Content, AI搜索优化, GEO, 邻里GEO">
   <link rel="canonical" href="https://nextgeo.baicl.cc/blog/content-for-users-and-ai-citations.html">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="icon" href="../../assets/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
   <script type="application/ld+json">
 {
@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -247,9 +253,9 @@
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
     <div class="geo-container h-20 flex items-center justify-between gap-6">
-      <a href="../../" class="flex items-center gap-3.5 group">
+      <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
-          <img src="../../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
+          <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -262,10 +268,10 @@
 
       <!-- 导航项 -->
       <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../../" class="hover:text-brand-600 transition">首页</a>
+        <a href="../" class="hover:text-brand-600 transition">首页</a>
         <a href="../blog/" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../../about/" class="hover:text-brand-600 transition">关于</a>
+        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -277,7 +283,7 @@
       <!-- 面包屑与文章头信息 -->
       <div class="max-w-4xl mb-8">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-          <a href="../../" class="hover:text-brand-600">首页</a>
+          <a href="../" class="hover:text-brand-600">首页</a>
           <span>/</span>
           <a href="../blog/" class="hover:text-brand-600">博客</a>
           <span>/</span>
@@ -306,48 +312,45 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
-          <section id="block-1" class="content-block"><h2>一、核心结论：先让人读懂，再让AI容易引用</h2><p>让内容同时适合用户和AI引用，不是把文章写给机器，也不是堆关键词。真正有效的内容，首先能帮助用户理解问题、做出判断；其次，它的结构足够清楚，AI可以稳定抽取其中的定义、方法、证据和边界。</p><p>如果一篇文章人读不懂，AI也很难可靠引用。反过来，如果内容首段有结论、段落表达单一、证据相邻、FAQ完整，它通常也会更适合用户阅读。</p><p>因此，GEO写作的核心原则是：用户价值优先，机器可读性作为内容结构的质量要求。</p></section><section id="block-2" class="content-block"><h2>二、原则一：先回答用户问题，再优化AI结构</h2><figure class="content-image"><img src="../../assets/article-images/content-for-users-and-ai-citations/content-users-ai-citations.png" alt="同时服务用户和AI引用的内容结构"><figcaption>适合用户和AI引用的内容需要同时具备清晰答案、结构和证据。</figcaption></figure><p>每篇内容都应从一个真实问题开始。用户搜索这个标题，想解决什么困惑、做什么决策、避免什么风险？如果问题没有想清楚，后面的标题层级和关键词都会变成装饰。</p><p>AI引用也依赖问题匹配。生成式答案不是随机抽文章，而是在特定问题下寻找能直接支撑回答的材料。内容越明确回答一个问题，越容易在相关Prompt中被采用。</p><p>写作前先确定文章类型：定义、诊断、方法、比较、案例或FAQ。不同类型对应不同结构。</p></section><section id="block-3" class="content-block"><h2>三、原则二：首段必须给出可行动结论</h2><p>首段是用户和AI判断页面价值的入口。不要把结论藏在最后，也不要用长背景铺垫。前300字应说明核心答案、适用范围和读者下一步能获得什么。</p><p>可行动结论不是口号，而是能指导判断的句子。例如“官网内容要先统一品牌实体，再扩展博客文章”，就比“官网内容非常重要”更有用。</p><p>首段清楚，后文才有展开空间；首段模糊，AI可能无法确认这篇内容到底回答什么。</p><table class="content-table"><thead><tr><th>写法</th><th>用户感受</th><th>AI抽取效果</th></tr></thead><tbody><tr><td>先讲背景再绕到结论</td><td>阅读成本高</td><td>主题不稳定</td></tr><tr><td>首句直接回答问题</td><td>快速判断价值</td><td>容易抽取核心定义</td></tr><tr><td>只写营销口号</td><td>缺少决策信息</td><td>难以形成可靠引用</td></tr><tr><td>给结论加适用边界</td><td>预期更准确</td><td>减少过度概括</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、原则三：用标题层级降低理解成本</h2><p>标题层级是内容的语义地图。H2应该承接主要问题，H3用于解释子问题。不要为了SEO把关键词硬塞进每个标题，也不要把自然段拆成过多小标题。</p><p>好的标题让用户扫一眼就知道文章逻辑，也让AI更容易判断每段内容的功能：定义、机制、误区、步骤、标准、结论。</p><p>标题应该像问题路径，而不是广告语集合。每个H2都要推进论证。</p><ul class=""><li>H2负责主论点，每节解决一个核心问题。</li><li>H3负责细分解释，不要抢主线。</li><li>表格用于对比，步骤用于流程，列表用于检查项。</li><li>同一节不要同时表达多个互不相关观点。</li></ul></section><section id="block-5" class="content-block"><h2>五、原则四：提供信息密度，而不是堆字数</h2><p>AI引用不奖励空洞长文。用户也不需要大量重复解释。内容应提供高密度信息：定义、条件、例子、判断标准、步骤、证据和限制。</p><p>每段最好只表达一个意思，并且能脱离上下文被理解。这样既方便用户扫描，也方便AI抽取。不要用大量形容词代替事实，不要用行业黑话代替解释。</p><p>如果一个段落删掉后不影响理解，它很可能只是填充。</p></section><section id="block-6" class="content-block"><h2>六、原则五：用证据链保护内容可信度</h2><p>可引用内容必须有可信来源。证据可以是官方文档、研究报告、案例过程、产品文档、第三方评测或明确的作者经验。关键是让读者知道结论从哪里来，适用边界是什么。</p><p>证据要靠近结论。不要在文章末尾堆一串链接，却让正文中每个判断都悬空。对于不能公开的数据，不要编造具体数字，可以改用方法、过程和可验证事实说明。</p><p>同时要写限制条件。AI容易把清晰句子泛化，适用范围写得越清楚，越不容易被错误引用。</p><table class="content-table"><thead><tr><th>内容元素</th><th>作用</th><th>写作要求</th></tr></thead><tbody><tr><td>定义句</td><td>让AI识别概念</td><td>一句话说清对象、方法和目标</td></tr><tr><td>判断标准</td><td>帮助用户决策</td><td>具体、可检查</td></tr><tr><td>案例证据</td><td>证明不是空谈</td><td>说明背景、动作和边界</td></tr><tr><td>FAQ</td><td>覆盖追问</td><td>答案可独立成立</td></tr><tr><td>参考文献</td><td>支撑外部事实</td><td>只列真正相关来源</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：最好的AI引用内容，仍然是最清楚的人类答案</h2><p>让内容适合AI引用，不是牺牲人类阅读体验。恰恰相反，清楚的结论、稳定的结构、可靠的证据和具体的FAQ，会同时提升用户理解和AI抽取。</p><p>企业内容团队应把GEO写作当作内容质量升级：少写空泛观点，多写可复核答案；少追求堆量，多建设能长期被用户和AI共同使用的知识资产。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central Blog：Search Quality Rater Guidelines update -</span><a href="https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：为AI引用优化会不会伤害用户体验？</h3><p>不会，前提是方法正确。真正的AI友好内容通常也更适合用户，因为它结论清楚、结构稳定、证据明确、FAQ完整。会伤害体验的是关键词堆砌、模板化段落和为了机器牺牲可读性的写法。优化时应优先改善答案质量，再考虑标题和结构细节。</p></div><div><h3>Q2：一篇文章一定要写很长才容易被引用吗？</h3><p>不一定。长度不是核心，信息密度才是核心。文章需要足够完整地回答问题，但不应为了字数重复观点。定义、机制、步骤、表格、证据和FAQ齐全，比单纯拉长到几千字更有价值。如果内容没有新增判断或证据，增加字数只会稀释信息密度。</p></div><div><h3>Q3：FAQ为什么对AI引用有帮助？</h3><p>FAQ把用户追问整理成独立答案，天然适合AI抽取。好的FAQ先给结论，再解释条件和例外，能覆盖长尾Prompt。它还可以纠正常见误解，例如价格、适用场景、限制和SEO/GEO关系。FAQ问题最好来自销售、客服、搜索词和AI回答中的真实缺口。</p></div><div><h3>Q4：内容里可以写品牌观点吗？</h3><p>可以，但要有依据和边界。品牌观点是建立解释权的重要部分，问题在于不能只写态度。每个观点都应配合方法、案例、公开资料或实践经验，并说明适用范围。这样观点才可能成为可信答案材料。观点越明确，越需要说明依据和限制，避免被AI过度泛化。</p></div><div><h3>Q5：如何避免内容被AI错误引用？</h3><p>要写清适用条件、限制和更新时间。容易被误解的概念应提供定义、反例和FAQ。涉及价格、功能、政策或客户结果时，要避免含糊表达和过度承诺，并定期检查旧文章是否需要更新。更新记录和限制条件也应写在页面上，而不是只存在内部文档。</p></div><div><h3>Q6：用户文章和AI引用文章是否要分开写？</h3><p>通常不需要分开。更好的做法是在同一篇内容中同时满足阅读和抽取：标题回答真实问题，首段给结论，正文用结构解释，表格呈现差异，FAQ覆盖追问。只有技术文档或数据接口类内容才可能需要独立格式。统一写法还能减少维护成本，让团队不用为用户版和AI版重复生产内容。</p></div><div><h3>Q7：如何判断一篇内容是否适合AI引用？</h3><p>可以自查五点：首段是否回答标题，定义是否能独立成立，是否有步骤或表格，关键判断是否有证据，FAQ是否覆盖真实追问。再用固定Prompt测试AI是否能准确复述页面观点，结果比主观感觉更可靠。自查结果应转化为改写清单，逐项修正定义、证据和FAQ。</p></div></section>
+        <article class="min-w-0">
+          <section id="block-1" class="content-block"><h2>一、核心结论：先让人读懂，再让AI容易引用</h2><p>让内容同时适合用户和AI引用，不是把文章写给机器，也不是堆关键词。真正有效的内容，首先能帮助用户理解问题、做出判断；其次，它的结构足够清楚，AI可以稳定抽取其中的定义、方法、证据和边界。</p><p>如果一篇文章人读不懂，AI也很难可靠引用。反过来，如果内容首段有结论、段落表达单一、证据相邻、FAQ完整，它通常也会更适合用户阅读。</p><p>因此，GEO写作的核心原则是：用户价值优先，机器可读性作为内容结构的质量要求。</p></section><section id="block-2" class="content-block"><h2>二、原则一：先回答用户问题，再优化AI结构</h2><figure class="content-image"><img src="../assets/article-images/content-for-users-and-ai-citations/content-users-ai-citations.png" alt="同时服务用户和AI引用的内容结构"><figcaption>适合用户和AI引用的内容需要同时具备清晰答案、结构和证据。</figcaption></figure><p>每篇内容都应从一个真实问题开始。用户搜索这个标题，想解决什么困惑、做什么决策、避免什么风险？如果问题没有想清楚，后面的标题层级和关键词都会变成装饰。</p><p>AI引用也依赖问题匹配。生成式答案不是随机抽文章，而是在特定问题下寻找能直接支撑回答的材料。内容越明确回答一个问题，越容易在相关Prompt中被采用。</p><p>写作前先确定文章类型：定义、诊断、方法、比较、案例或FAQ。不同类型对应不同结构。</p></section><section id="block-3" class="content-block"><h2>三、原则二：首段必须给出可行动结论</h2><p>首段是用户和AI判断页面价值的入口。不要把结论藏在最后，也不要用长背景铺垫。前300字应说明核心答案、适用范围和读者下一步能获得什么。</p><p>可行动结论不是口号，而是能指导判断的句子。例如“官网内容要先统一品牌实体，再扩展博客文章”，就比“官网内容非常重要”更有用。</p><p>首段清楚，后文才有展开空间；首段模糊，AI可能无法确认这篇内容到底回答什么。</p><table class="content-table"><thead><tr><th>写法</th><th>用户感受</th><th>AI抽取效果</th></tr></thead><tbody><tr><td>先讲背景再绕到结论</td><td>阅读成本高</td><td>主题不稳定</td></tr><tr><td>首句直接回答问题</td><td>快速判断价值</td><td>容易抽取核心定义</td></tr><tr><td>只写营销口号</td><td>缺少决策信息</td><td>难以形成可靠引用</td></tr><tr><td>给结论加适用边界</td><td>预期更准确</td><td>减少过度概括</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、原则三：用标题层级降低理解成本</h2><p>标题层级是内容的语义地图。H2应该承接主要问题，H3用于解释子问题。不要为了SEO把关键词硬塞进每个标题，也不要把自然段拆成过多小标题。</p><p>好的标题让用户扫一眼就知道文章逻辑，也让AI更容易判断每段内容的功能：定义、机制、误区、步骤、标准、结论。</p><p>标题应该像问题路径，而不是广告语集合。每个H2都要推进论证。</p><ul class=""><li>H2负责主论点，每节解决一个核心问题。</li><li>H3负责细分解释，不要抢主线。</li><li>表格用于对比，步骤用于流程，列表用于检查项。</li><li>同一节不要同时表达多个互不相关观点。</li></ul></section><section id="block-5" class="content-block"><h2>五、原则四：提供信息密度，而不是堆字数</h2><p>AI引用不奖励空洞长文。用户也不需要大量重复解释。内容应提供高密度信息：定义、条件、例子、判断标准、步骤、证据和限制。</p><p>每段最好只表达一个意思，并且能脱离上下文被理解。这样既方便用户扫描，也方便AI抽取。不要用大量形容词代替事实，不要用行业黑话代替解释。</p><p>如果一个段落删掉后不影响理解，它很可能只是填充。</p></section><section id="block-6" class="content-block"><h2>六、原则五：用证据链保护内容可信度</h2><p>可引用内容必须有可信来源。证据可以是官方文档、研究报告、案例过程、产品文档、第三方评测或明确的作者经验。关键是让读者知道结论从哪里来，适用边界是什么。</p><p>证据要靠近结论。不要在文章末尾堆一串链接，却让正文中每个判断都悬空。对于不能公开的数据，不要编造具体数字，可以改用方法、过程和可验证事实说明。</p><p>同时要写限制条件。AI容易把清晰句子泛化，适用范围写得越清楚，越不容易被错误引用。</p><table class="content-table"><thead><tr><th>内容元素</th><th>作用</th><th>写作要求</th></tr></thead><tbody><tr><td>定义句</td><td>让AI识别概念</td><td>一句话说清对象、方法和目标</td></tr><tr><td>判断标准</td><td>帮助用户决策</td><td>具体、可检查</td></tr><tr><td>案例证据</td><td>证明不是空谈</td><td>说明背景、动作和边界</td></tr><tr><td>FAQ</td><td>覆盖追问</td><td>答案可独立成立</td></tr><tr><td>参考文献</td><td>支撑外部事实</td><td>只列真正相关来源</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：最好的AI引用内容，仍然是最清楚的人类答案</h2><p>让内容适合AI引用，不是牺牲人类阅读体验。恰恰相反，清楚的结论、稳定的结构、可靠的证据和具体的FAQ，会同时提升用户理解和AI抽取。</p><p>企业内容团队应把GEO写作当作内容质量升级：少写空泛观点，多写可复核答案；少追求堆量，多建设能长期被用户和AI共同使用的知识资产。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central Blog：Search Quality Rater Guidelines update -</span><a href="https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：为AI引用优化会不会伤害用户体验？</h3><p>不会，前提是方法正确。真正的AI友好内容通常也更适合用户，因为它结论清楚、结构稳定、证据明确、FAQ完整。会伤害体验的是关键词堆砌、模板化段落和为了机器牺牲可读性的写法。优化时应优先改善答案质量，再考虑标题和结构细节。</p></div><div><h3>Q2：一篇文章一定要写很长才容易被引用吗？</h3><p>不一定。长度不是核心，信息密度才是核心。文章需要足够完整地回答问题，但不应为了字数重复观点。定义、机制、步骤、表格、证据和FAQ齐全，比单纯拉长到几千字更有价值。如果内容没有新增判断或证据，增加字数只会稀释信息密度。</p></div><div><h3>Q3：FAQ为什么对AI引用有帮助？</h3><p>FAQ把用户追问整理成独立答案，天然适合AI抽取。好的FAQ先给结论，再解释条件和例外，能覆盖长尾Prompt。它还可以纠正常见误解，例如价格、适用场景、限制和SEO/GEO关系。FAQ问题最好来自销售、客服、搜索词和AI回答中的真实缺口。</p></div><div><h3>Q4：内容里可以写品牌观点吗？</h3><p>可以，但要有依据和边界。品牌观点是建立解释权的重要部分，问题在于不能只写态度。每个观点都应配合方法、案例、公开资料或实践经验，并说明适用范围。这样观点才可能成为可信答案材料。观点越明确，越需要说明依据和限制，避免被AI过度泛化。</p></div><div><h3>Q5：如何避免内容被AI错误引用？</h3><p>要写清适用条件、限制和更新时间。容易被误解的概念应提供定义、反例和FAQ。涉及价格、功能、政策或客户结果时，要避免含糊表达和过度承诺，并定期检查旧文章是否需要更新。更新记录和限制条件也应写在页面上，而不是只存在内部文档。</p></div><div><h3>Q6：用户文章和AI引用文章是否要分开写？</h3><p>通常不需要分开。更好的做法是在同一篇内容中同时满足阅读和抽取：标题回答真实问题，首段给结论，正文用结构解释，表格呈现差异，FAQ覆盖追问。只有技术文档或数据接口类内容才可能需要独立格式。统一写法还能减少维护成本，让团队不用为用户版和AI版重复生产内容。</p></div><div><h3>Q7：如何判断一篇内容是否适合AI引用？</h3><p>可以自查五点：首段是否回答标题，定义是否能独立成立，是否有步骤或表格，关键判断是否有证据，FAQ是否覆盖真实追问。再用固定Prompt测试AI是否能准确复述页面观点，结果比主观感觉更可靠。自查结果应转化为改写清单，逐项修正定义、证据和FAQ。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
-            <a href="../../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
+            <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
               与老白探讨企业的 GEO 落地方案
             </a>
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：先让人读懂，再让AI容易引用</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、原则一：先回答用户问题，再优化AI结构</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、原则二：首段必须给出可行动结论</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、原则三：用标题层级降低理解成本</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、原则四：提供信息密度，而不是堆字数</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、原则五：用证据链保护内容可信度</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：最好的AI引用内容，仍然是最清楚的人类答案</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：先让人读懂，再让AI容易引用</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、原则一：先回答用户问题，再优化AI结构</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、原则二：首段必须给出可行动结论</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、原则三：用标题层级降低理解成本</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、原则四：提供信息密度，而不是堆字数</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、原则五：用证据链保护内容可信度</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：最好的AI引用内容，仍然是最清楚的人类答案</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
@@ -367,7 +370,7 @@
         <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
       </div>
       <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
+        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
         <span>·</span>
         <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
         <span>·</span>

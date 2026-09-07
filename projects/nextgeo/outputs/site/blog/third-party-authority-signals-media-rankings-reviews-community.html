@@ -240,6 +240,12 @@
       color: #9333ea;
       text-decoration: underline;
     }
+    html {
+      scroll-behavior: smooth;
+    }
+    .content-block, [id^="block-"], #faq {
+      scroll-margin-top: 100px;
+    }
   </style>
 </head>
 <body class="site-shell text-slate-800 font-sans antialiased selection:bg-brand-200 selection:text-brand-900 min-h-screen flex flex-col">
@@ -306,15 +312,15 @@
       </div>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start">
         
         <!-- 左侧文章内容 -->
-        <article class="lg:col-span-8 min-w-0">
+        <article class="min-w-0">
           <section id="block-1" class="content-block"><h2>一、核心结论：第三方信号的价值在于可信证据，而不是曝光数量</h2><p>第三方权威信号怎么建设，关键不是把同一篇稿件发到更多地方，而是让媒体、榜单、评测和社区从不同角度证明同一个品牌实体和能力边界。</p><p>在AI搜索中，官网说“我是谁”很重要，但模型还会寻找外部来源验证这种说法是否稳定。外部证据越清晰、一致、可索引，AI越容易把品牌纳入可信答案材料。</p><p>真正有效的第三方信号，应能回答四个问题：谁在说、说了什么、依据是什么、是否与官网定义一致。</p></section><section id="block-2" class="content-block"><h2>二、为什么第三方权威信号重要</h2><figure class="content-image"><img src="../assets/article-images/third-party-authority-signals-media-rankings-reviews-community/third-party-authority-signals.png" alt="第三方权威信号建设示意"><figcaption>第三方来源从媒体、榜单、评测和社区四个方向补充品牌可信证据。</figcaption></figure><p>AI搜索生成答案时，通常不会只依赖品牌自述。它需要在多个来源中确认名称、类别、能力、客户类型、使用效果和风险边界。第三方资料能帮助模型判断品牌是否真实、是否相关、是否可信。</p><p>对中小品牌尤其如此。官网可以把定义写清楚，但缺少外部佐证时，AI可能仍然倾向引用更知名、更容易验证的品牌。第三方信号的作用，是降低模型采用你作为答案来源的风险。</p><p>不过，外部信号必须服务于理解，而不是制造声量。大量内容相互复制、标题夸张、信息不一致，只会让AI更难判断真实情况。</p></section><section id="block-3" class="content-block"><h2>三、媒体、榜单、评测和社区分别承担什么角色</h2><p>不同第三方来源适合证明不同问题。媒体报道适合解释品牌背景和行业意义，榜单适合提供比较位置，评测适合验证产品能力，社区讨论适合呈现真实使用语境。</p><p>企业不应把所有外部合作都当成“发稿”。更好的做法是先明确想证明什么，再选择相应来源。</p><table class="content-table"><thead><tr><th>来源类型</th><th>适合证明的问题</th><th>建设重点</th></tr></thead><tbody><tr><td>媒体报道</td><td>品牌为什么值得关注</td><td>事实准确、背景完整、可索引</td></tr><tr><td>行业榜单</td><td>品牌在同类中处于什么位置</td><td>评价口径透明、分类准确</td></tr><tr><td>产品评测</td><td>能力是否经得起验证</td><td>过程清楚、限制明确、结论克制</td></tr><tr><td>社区讨论</td><td>真实用户如何使用和评价</td><td>场景具体、避免诱导和伪造</td></tr></tbody></table></div></section><section id="block-4" class="content-block"><h2>四、建设第三方信号前，先统一官网定义</h2><p>第三方信号不是独立工程。外部资料如果引用了不同的品牌名称、业务分类、产品描述和目标客户，会让AI看到多个版本的你。越铺越多，冲突越多。</p><p>因此，企业应先准备标准品牌资料包：一句话定义、产品类别、核心能力、适用场景、客户案例、禁止夸大的表述和可公开引用的事实。媒体、榜单、评测和合作伙伴都应基于同一套资料理解品牌。</p><p>这不是控制外部评价，而是减少事实层面的歧义。外部来源仍然可以独立判断，但基础实体信息应保持一致。</p><ul class=""><li>统一公司全称、品牌名、产品名和英文名。</li><li>统一品类归属，避免在不同稿件中变成不同赛道。</li><li>统一能力边界，不把愿景写成已经具备的能力。</li><li>统一案例事实，避免客户名称、行业和结果口径冲突。</li></ul></section><section id="block-5" class="content-block"><h2>五、如何选择值得投入的第三方来源</h2><p>值得投入的第三方来源，至少要满足相关性、可信度、可访问性和稳定性。一个高度相关但不可索引的闭门材料，对AI搜索帮助有限；一个可索引但低质量的转载站，也难以提供可信证据。</p><p>选择媒体和榜单时，要看它是否覆盖目标行业、是否有清晰编辑或评价机制、页面是否长期可访问、是否允许事实细节充分呈现。选择评测和社区时，要看是否能提供真实体验和可复核过程。</p><p>如果预算有限，优先建设少量高质量、能长期访问、与官网定义一致的来源，而不是追求短期铺量。</p></section><section id="block-6" class="content-block"><h2>六、如何避免第三方信号变成语义噪声</h2><p>第三方信号最大的风险，是本来想证明品牌，最后却制造了多个互相矛盾的版本。常见噪声包括标题党、过度包装、旧业务描述残留、产品能力夸大、评价口径不透明和重复转载。</p><p>企业应定期审计外部页面：哪些来源被AI引用，哪些描述已经过时，哪些第三方页面与官网冲突。能更新的更新，不能更新的就在官网FAQ或资料页中澄清。</p><p>不要伪造社区口碑、购买虚假评测或诱导榜单评价。这类内容即使短期可见，也会破坏长期信任，并增加AI错误引用风险。</p><table class="content-table"><thead><tr><th>噪声类型</th><th>表现</th><th>处理方式</th></tr></thead><tbody><tr><td>重复软文</td><td>多站点复制同一稿件</td><td>减少铺量，补充独立事实</td></tr><tr><td>描述冲突</td><td>品类和能力说法不一致</td><td>回到官网标准定义纠偏</td></tr><tr><td>过时信息</td><td>旧产品、旧价格仍被引用</td><td>更新可控来源并增加说明</td></tr><tr><td>评价不透明</td><td>榜单口径不清</td><td>优先选择规则公开的来源</td></tr></tbody></table></div></section><section id="block-7" class="content-block"><h2>七、结论：外部证据是品牌GEO的第二现场</h2><p>第三方权威信号的建设，本质上是在官网之外建立品牌证据链。官网负责定义，外部来源负责验证，二者共同降低AI理解和引用品牌的成本。</p><p>企业要把媒体、榜单、评测和社区纳入同一套GEO治理：先统一实体定义，再选择高质量来源，最后用AI答案监测外部证据是否真的被采用。</p></section><section id="block-8" class="content-block"><h2>参考文献</h2><ul class="reference-list"><li><span>Google Search Central：Creating helpful, reliable, people-first content -</span><a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li><li><span>Google Search Central Blog：Search Quality Rater Guidelines update -</span><a href="https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/blog/2023/11/search-quality-rater-guidelines-update</a></li><li><span>Google Search Central：AI features and your website -</span><a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener noreferrer">https://developers.google.com/search/docs/appearance/ai-features</a></li><li><span>Microsoft Learn：RAG and Generative AI in Azure AI Search -</span><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</a></li><li><span>NIST：AI Risk Management Framework -</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">https://www.nist.gov/itl/ai-risk-management-framework</a></li></ul></section><section id="faq" class="content-block mt-12 p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs"><h2>FAQ</h2><div><h3>Q1：第三方权威信号是不是越多越好？</h3><p>不是。AI更需要一致、可信、可验证的外部证据，而不是大量重复转载。低质量铺量可能增加收录页面，但也可能制造过时和冲突描述。企业应优先建设少量高相关来源，并确保它们与官网定义保持一致。建设时要把来源质量和信息一致性放在铺量之前。</p></div><div><h3>Q2：媒体报道和行业榜单哪个更重要？</h3><p>它们解决的问题不同。媒体报道适合解释品牌背景、观点和行业角色；行业榜单适合提供同类比较和分类位置。企业应根据当前缺口选择：如果AI不知道你是谁，先补媒体和官网定义；如果不知道你属于哪个候选集合，再补榜单和评测。</p></div><div><h3>Q3：社区讨论能不能作为AI可信来源？</h3><p>可以作为使用语境的补充，但不应作为唯一证据。社区内容更适合反映真实问题、用户语言和体验反馈，可信度取决于平台质量、讨论真实性和内容稳定性。企业不能伪造口碑，而应从真实反馈中提炼FAQ和产品改进点。每次合作前都应提供标准资料包，减少外部页面写错品牌和能力。</p></div><div><h3>Q4：外部页面信息过时怎么办？</h3><p>先分清是否可更新。可控或合作来源应尽快修正；不可控来源则通过官网标准资料页、FAQ、新闻更新和新的第三方材料提供正确信息。AI纠偏需要时间，关键是让新的、可信的一致来源持续覆盖旧信息。如果预算有限，先选择目标客户真正会信任和搜索的垂直来源。</p></div><div><h3>Q5：评测文章应该怎么写才有GEO价值？</h3><p>有价值的评测应说明测试对象、使用场景、评价维度、过程证据、优点、限制和适用边界。只写夸奖没有参考价值。AI更容易采纳结构清晰、口径透明、结论克制的评测，因为它能被拆解为可信答案材料。社区内容尤其要尊重真实性，不能用伪造口碑换短期可见。</p></div><div><h3>Q6：小品牌没有媒体资源怎么办？</h3><p>可以从更具体的第三方信号开始，例如客户案例、垂直社区、行业播客、专家访谈、合作伙伴页面和小范围评测。关键不是追求大媒体，而是让目标问题中相关的可信来源开始出现一致描述，并能长期被访问。外部页面上线后，还要监测AI是否真的引用它，而不是只看发布完成。</p></div><div><h3>Q7：如何判断第三方信号已经产生效果？</h3><p>用固定Prompt监测AI答案中是否引用或复述第三方资料，品牌描述是否更准确，是否进入品类或场景推荐集合。同时检查来源质量和语境。如果只是链接偶尔出现，但答案没有采用其观点，说明证据价值仍然有限。这些信号最终要和官网定义互相支撑，才能形成稳定证据链。</p></div></section>
 
           <!-- 底部返回与行动召唤 -->
           <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <a href="./" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
+            <a href="../blog/" class="text-brand-600 hover:text-brand-700 font-bold text-sm flex items-center gap-1.5 transition">
               <span>&larr;</span> 返回博客实战知识库
             </a>
             <a href="../services/#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold text-xs sm:text-sm hover:bg-brand-700 transition shadow-xs">
@@ -323,31 +329,28 @@
           </div>
         </article>
 
-        <!-- 右侧吸顶目录卡 -->
-        <aside class="hidden lg:block lg:col-span-4 sticky top-28">
-          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-            <div class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>页面结构导航</span>
-              <span class="text-slate-400 font-normal">普林斯顿标准</span>
+        <!-- 右侧吸顶目录卡 (固定 280px 宽度，1:1 对标 deep-geo.cn) -->
+        <aside class="hidden lg:block sticky top-24 w-[280px]">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+            <div class="pb-3 mb-2 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">页面结构</span>
+              <span class="text-[11px] font-medium text-slate-400">普林斯顿标准</span>
             </div>
-            <nav class="space-y-1 text-xs text-slate-600 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-              <a href="#block-1" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">一、核心结论：第三方信号的价值在于可信证据，而不是曝光数量</a>
-<a href="#block-2" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">二、为什么第三方权威信号重要</a>
-<a href="#block-3" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">三、媒体、榜单、评测和社区分别承担什么角色</a>
-<a href="#block-4" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">四、建设第三方信号前，先统一官网定义</a>
-<a href="#block-5" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">五、如何选择值得投入的第三方来源</a>
-<a href="#block-6" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">六、如何避免第三方信号变成语义噪声</a>
-<a href="#block-7" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">七、结论：外部证据是品牌GEO的第二现场</a>
-<a href="#block-8" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">参考文献</a>
-<a href="#faq" class="block py-1 px-2 rounded-md hover:bg-brand-50 hover:text-brand-700 transition leading-snug">FAQ</a>
+            <nav class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <a href="#block-1" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">一、核心结论：第三方信号的价值在于可信证据，而不是曝光数量</a>
+<a href="#block-2" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">二、为什么第三方权威信号重要</a>
+<a href="#block-3" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">三、媒体、榜单、评测和社区分别承担什么角色</a>
+<a href="#block-4" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">四、建设第三方信号前，先统一官网定义</a>
+<a href="#block-5" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">五、如何选择值得投入的第三方来源</a>
+<a href="#block-6" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">六、如何避免第三方信号变成语义噪声</a>
+<a href="#block-7" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">七、结论：外部证据是品牌GEO的第二现场</a>
+<a href="#block-8" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">参考文献</a>
+<a href="#faq" class="block py-2 text-slate-600 hover:text-brand-700 transition border-t border-slate-100 first:border-t-0 text-xs sm:text-[13.5px] leading-snug">FAQ</a>
 
             </nav>
 
-            <div class="mt-6 pt-5 border-t border-slate-100">
-              <div class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
-                想要让您的企业品牌与核心产品进入大模型权威推荐答案？
-              </div>
-              <a href="../services/#contact" class="block w-full text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs hover:bg-brand-100 transition border border-brand-200">
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <a href="../services/#contact" class="block text-center py-2 px-3 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs hover:bg-brand-100 transition border border-brand-200/80">
                 预约老白 1v1 GEO 诊断
               </a>
             </div>
