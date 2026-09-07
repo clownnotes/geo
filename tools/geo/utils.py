@@ -164,32 +164,9 @@ def save_project_output(target, filename: str, content: str) -> str:
     return out_path
 
 def get_configured_llm() -> dict:
-    """获取当前系统配置的可用 LLM 供应商信息"""
-    # 1. 优先检查 DeepSeek
-    if os.environ.get("DEEPSEEK_API_KEY"):
-        return {
-            "provider": "deepseek",
-            "model": os.environ.get("DEEPSEEK_MODEL", "deepseek-chat"),
-            "api_key": os.environ.get("DEEPSEEK_API_KEY"),
-            "base_url": os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/")
-        }
-    # 2. 检查 豆包 / 火山方舟
-    if os.environ.get("ARK_API_KEY") or os.environ.get("DOUBAO_API_KEY"):
-        return {
-            "provider": "doubao",
-            "model": os.environ.get("DOUBAO_MODEL", "doubao-pro-32k"),
-            "api_key": os.environ.get("ARK_API_KEY") or os.environ.get("DOUBAO_API_KEY"),
-            "base_url": os.environ.get("ARK_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3").rstrip("/")
-        }
-    # 3. 检查 通用 OpenAI 或代理
-    if os.environ.get("OPENAI_API_KEY") or os.environ.get("GEO_LLM_API_KEY"):
-        return {
-            "provider": "openai_compatible",
-            "model": os.environ.get("GEO_LLM_MODEL") or os.environ.get("OPENAI_MODEL", "gpt-4o-mini"),
-            "api_key": os.environ.get("GEO_LLM_API_KEY") or os.environ.get("OPENAI_API_KEY"),
-            "base_url": (os.environ.get("GEO_LLM_BASE_URL") or os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")).rstrip("/")
-        }
-    return None
+    """薄封装：统一走 llm.resolve_llm_runtime()（禁止第二套 env 判断）。"""
+    from .llm import resolve_llm_runtime
+    return resolve_llm_runtime()
 
 def call_llm_api(prompt: str, system_prompt: str = None, model: str = None, timeout: int = 30) -> tuple:
     """
@@ -205,7 +182,7 @@ def call_llm_api(prompt: str, system_prompt: str = None, model: str = None, time
         return False, "未配置大模型 API Key（DEEPSEEK_API_KEY / ARK_API_KEY / OPENAI_API_KEY）", "none"
 
     # 只有当 model 看起来是真实的模型名（含 "-"）时才覆盖，避免传入 "deepseek"/"doubao" 等简写导致 API 报错
-    _PROVIDER_SHORTHANDS = {"deepseek", "doubao", "openai", "gpt", "ark", "qwen", "ernie"}
+    _PROVIDER_SHORTHANDS = {"deepseek", "doubao", "openai", "gpt", "ark", "qwen", "ernie", "openai_compatible"}
     target_model = llm_info["model"]
     if model and model.lower() not in _PROVIDER_SHORTHANDS:
         target_model = model

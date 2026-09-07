@@ -330,6 +330,22 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
             return
 
+        # 大模型配置写入: POST /api/llm/config（有 X-Forwarded-* 时不得免登写 Key）
+        if path == "/api/llm/config":
+            if self.headers.get("X-Forwarded-For") or self.headers.get("X-Real-IP") or self.headers.get("X-Forwarded-Host"):
+                if not self.get_auth_token() or not self.check_auth():
+                    self.send_json({"success": False, "message": "公网代理环境下必须登录后才能写入 API Key"}, status=401)
+                    return
+            try:
+                from .llm import save_llm_config
+                body = self.read_json_body()
+                res = save_llm_config(body)
+                status = 200 if res.get("success") else 400
+                self.send_json(res, status=status)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 全域多项目健康巡检 API: /api/portfolio/patrol
         if path == "/api/portfolio/patrol":
             try:
@@ -554,8 +570,24 @@ core_values:
                     run_scaffold(project_id)
                     msg = "阶段 2：站点技术底座改造包已生成！"
                 elif step == "rewrite":
-                    run_rewrite(project_id)
+                    rewrite_res = run_rewrite(project_id)
                     msg = "阶段 3：普林斯顿 9 因子内容重构已完成！"
+                    self.send_json({
+                        "success": True,
+                        "step": step,
+                        "message": msg,
+                        "mode": rewrite_res.get("mode", "fallback"),
+                        "provider": rewrite_res.get("provider", "none"),
+                        "rag": rewrite_res.get("rag") or {
+                            "ok": False,
+                            "score": None,
+                            "total_chunks": None,
+                            "golden_chunks": None,
+                            "entity_coverage_pct": None,
+                            "error": "无 RAG 结果",
+                        },
+                    })
+                    return
                 elif step == "distribute":
                     run_distribute(project_id)
                     msg = "阶段 4：多平台矩阵借壳分发包已就绪！"
@@ -2135,6 +2167,18 @@ core_values:
         if path.startswith("/api/"):
             if not self.check_auth():
                 self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+                return
+
+            # 大模型状态探测: GET /api/llm/status
+            if path == "/api/llm/status":
+                try:
+                    from .llm import build_llm_status_payload
+                    query = parse_qs(parsed.query)
+                    refresh = query.get("refresh", ["0"])[0] in ("1", "true", "yes")
+                    payload = build_llm_status_payload(force_refresh=refresh)
+                    self.send_json(payload)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
             # 获取项目的 VPS Nginx 反代配置与 CDN 刷新指引: /api/projects/{id}/site/nginx-conf

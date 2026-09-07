@@ -626,23 +626,31 @@
 
       <!-- ===== STEP 3 PANEL ===== -->
       <div id="step-panel-3" class="hidden space-y-6">
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between flex-wrap gap-3">
           <div>
             <h2 class="text-base font-bold text-slate-900">阶段三：普林斯顿 9 因子高权威内容重构</h2>
             <p class="text-xs text-slate-500 mt-1">注入三元组结论先行、+41% 采纳率的参数对比表与搜索意图 Q&A 问答对。</p>
+            <div class="mt-2.5 flex items-center gap-2 flex-wrap">
+              <span id="llm-status-tag" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-600">
+                LLM：检测中…
+              </span>
+              <button type="button" onclick="refreshLlmStatus(true)" class="text-[11px] text-indigo-700 hover:text-indigo-900 font-medium underline-offset-2 hover:underline">立即检测</button>
+              <button type="button" onclick="openLlmConfigModal()" class="text-[11px] px-2 py-1 rounded-md border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold">配置 API Key</button>
+              <span id="rag-cascade-badge" class="hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">RAG：--</span>
+            </div>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
             <button onclick="openRagDiagModal()" class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="puzzle" class="w-4 h-4 text-emerald-600"></i>
-              <span>🧩 RAG 语义分块诊断</span>
+              <span>RAG 语义分块诊断</span>
             </button>
             <button onclick="openGraphModal()" class="py-2.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="network" class="w-4 h-4 text-indigo-600"></i>
-              <span>🕸️ 实体图谱</span>
+              <span>实体图谱</span>
             </button>
             <button onclick="openVisualModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="palette" class="w-4 h-4"></i>
-              <span>🎨 视觉资产</span>
+              <span>视觉资产</span>
             </button>
             <button onclick="runSingleStep(event, 'rewrite')" id="btn-step-3" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="sparkles" class="w-4 h-4"></i>
@@ -3867,6 +3875,44 @@ GitHub 开源仓库：https://github.com/company/repo
   </div>
 
   <!-- ================= 普林斯顿 9 因子量化体检仪模态 ================= -->
+  <!-- ================= LLM 配置弹窗 ================= -->
+  <div id="llm-config-modal" onclick="if(event.target === this) closeLlmConfigModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">大模型 API 配置</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">写入本地 .env（不入库）；探测失败不落盘</p>
+        </div>
+        <button onclick="closeLlmConfigModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div>
+          <label class="text-[11px] font-semibold text-slate-700">供应商</label>
+          <select id="llm-config-provider" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white">
+            <option value="deepseek">DeepSeek（写入 DEEPSEEK_API_KEY）</option>
+            <option value="doubao">豆包 / 火山方舟（写入 ARK_API_KEY）</option>
+            <option value="openai_compatible">OpenAI 兼容代理（写入 GEO_LLM_API_KEY）</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] font-semibold text-slate-700">API Key</label>
+          <input id="llm-config-key" type="password" autocomplete="off" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="sk-..." />
+        </div>
+        <div>
+          <label class="text-[11px] font-semibold text-slate-700">模型（可选）</label>
+          <input id="llm-config-model" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="deepseek-chat / doubao-pro-32k" />
+        </div>
+        <div>
+          <label class="text-[11px] font-semibold text-slate-700">Base URL（可选）</label>
+          <input id="llm-config-base" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="留空使用默认" />
+        </div>
+        <button id="btn-llm-config-save" onclick="saveLlmConfig()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg">探测并保存</button>
+      </div>
+    </div>
+  </div>
+
   <div id="princeton-modal" onclick="if(event.target === this) closePrincetonModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
     <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
       <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-violet-50 to-indigo-50 shrink-0">
@@ -3903,8 +3949,9 @@ GitHub 开源仓库：https://github.com/company/repo
             </button>
             <button onclick="handlePrincetonRewrite()" id="btn-princeton-rewrite" class="py-2 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5">
               <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-              <span>✨ 一键普林斯顿重构</span>
+              <span>局部文案改写</span>
             </button>
+            <p class="w-full text-[10px] text-amber-800 bg-amber-50 border border-amber-100 rounded-md px-2 py-1.5">旁路工具：仅改写粘贴文案，不写 03 母盘、不刷新 RAG 诊断。</p>
             <button onclick="handlePrincetonAudit()" id="btn-princeton-audit" class="py-2 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 flex items-center gap-1.5">
               <i data-lucide="folder-search" class="w-3.5 h-3.5"></i>
               <span>全案 17 号审计</span>
@@ -5375,6 +5422,9 @@ GitHub 开源仓库：https://github.com/company/repo
         restoreStep2GuideState();
         switchScaffoldTab(currentScaffoldTab || 'site.html');
       }
+      if (step === 3) {
+        refreshLlmStatus(false);
+      }
       updateRouteState();
       lucide.createIcons();
     }
@@ -5392,26 +5442,135 @@ GitHub 开源仓库：https://github.com/company/repo
         lucide.createIcons();
       }
 
+      const controller = new AbortController();
+      const timeoutMs = stepName === 'rewrite' ? 180000 : 120000;
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/run/${stepName}`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` },
+          signal: controller.signal
         });
         const data = await res.json();
         if (data.success) {
           await loadStepPreviews();
-          showToast(data.message || '步骤执行完成！');
+          if (stepName === 'rewrite') {
+            updateRagCascadeBadge(data.rag);
+            const modeLabel = data.mode === 'llm' ? `在线:${(data.provider || '').toUpperCase()}` : '离线:规则兜底';
+            showToast(`${data.message || '步骤执行完成'}（${modeLabel}）`);
+            refreshLlmStatus(false);
+          } else {
+            showToast(data.message || '步骤执行完成！');
+          }
         } else {
           showToast('执行出错: ' + data.message, 'error');
         }
       } catch (err) {
         showToast('请求失败: ' + err.message, 'error');
       } finally {
+        clearTimeout(timer);
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = originalText;
           lucide.createIcons();
         }
+      }
+    }
+
+    function updateRagCascadeBadge(rag) {
+      const el = document.getElementById('rag-cascade-badge');
+      if (!el) return;
+      if (!rag) {
+        el.classList.add('hidden');
+        return;
+      }
+      el.classList.remove('hidden');
+      if (rag.ok) {
+        el.className = 'inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800';
+        el.textContent = `RAG：${rag.score ?? '--'} 分 · 黄金块 ${rag.golden_chunks ?? 0}`;
+      } else {
+        el.className = 'inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-md border border-amber-200 bg-amber-50 text-amber-900';
+        el.textContent = `RAG：级联未完成${rag.error ? ' · ' + rag.error : ''}`;
+      }
+    }
+
+    async function refreshLlmStatus(force) {
+      const tag = document.getElementById('llm-status-tag');
+      if (!tag) return;
+      try {
+        const q = force ? '?refresh=1' : '';
+        const res = await fetch(`/api/llm/status${q}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (!res.ok) {
+          tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-600';
+          tag.textContent = 'LLM：需登录后检测';
+          return;
+        }
+        if (!d.configured || d.status === 'offline') {
+          tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-slate-300 bg-slate-100 text-slate-700';
+          tag.textContent = '离线: 规则兜底';
+          return;
+        }
+        if (d.status === 'ready') {
+          const lat = d.latency_ms != null ? ` ${d.latency_ms}ms` : '';
+          const src = d.source ? ` · ${d.source}` : '';
+          tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800';
+          tag.textContent = `在线: ${(d.provider || '').toUpperCase()} / ${d.model || ''}${lat}${src}`;
+        } else if (d.status === 'auth_failed') {
+          tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-rose-200 bg-rose-50 text-rose-800';
+          tag.textContent = `鉴权失败: ${(d.provider || '').toUpperCase()}（${d.api_key_masked || ''}）`;
+        } else {
+          tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-amber-200 bg-amber-50 text-amber-900';
+          tag.textContent = `不可达: ${(d.provider || '').toUpperCase()}`;
+        }
+      } catch (err) {
+        tag.textContent = 'LLM：检测失败';
+      }
+    }
+
+    function openLlmConfigModal() {
+      document.getElementById('llm-config-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeLlmConfigModal() {
+      document.getElementById('llm-config-modal').classList.add('hidden');
+    }
+    async function saveLlmConfig() {
+      const btn = document.getElementById('btn-llm-config-save');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.textContent = '探测中…';
+      try {
+        const res = await fetch('/api/llm/config', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentAuthToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            provider: document.getElementById('llm-config-provider').value,
+            api_key: document.getElementById('llm-config-key').value,
+            model: document.getElementById('llm-config-model').value,
+            base_url: document.getElementById('llm-config-base').value
+          })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast(d.message || '已保存');
+          document.getElementById('llm-config-key').value = '';
+          closeLlmConfigModal();
+          await refreshLlmStatus(true);
+        } else {
+          showToast(d.message || '保存失败', 'error');
+        }
+      } catch (err) {
+        showToast('保存失败: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
       }
     }
 

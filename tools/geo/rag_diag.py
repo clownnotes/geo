@@ -250,14 +250,26 @@ def diagnose_rag_chunks(project_id: str, text_or_file: str = None, run_crawler: 
         "table_preservation_pct": table_preservation_pct,
         "faq_chunks_count": faq_chunks,
         "qa_pairs_count": qa_pairs_count,
-        "chunks": diagnosed_chunks
+        "chunks": diagnosed_chunks,
+        "cascade_quick_scan": not bool(run_crawler),
     }
 
-    # 6. 落盘 JSON 与 Markdown 报告
+    # 6. 落盘 JSON 与 Markdown 报告（方案 A：run_crawler=False 时回填旧爬虫仿真）
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     os.makedirs(out_dir, exist_ok=True)
 
     json_path = os.path.join(out_dir, "rag_chunks_diagnostic.json")
+    if not result.get("crawler_simulation") and os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                old_diag = json.load(f)
+            old_crawl = old_diag.get("crawler_simulation")
+            if old_crawl:
+                result["crawler_simulation"] = old_crawl
+                result["crawler_simulation_reused_from"] = old_diag.get("analyzed_at") or old_crawl.get("analyzed_at")
+        except Exception:
+            pass
+
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
@@ -301,6 +313,10 @@ def render_rag_diagnostic_markdown(project_id: str, diag: dict) -> str:
 
 """
 
+    reused_from = diag.get("crawler_simulation_reused_from")
+    if reused_from and crawl:
+        md += f"> **说明**：本次为重构级联快检；爬虫仿真沿用 **{reused_from}** 全量诊断结果。\n\n"
+
     if crawl and crawl.get("success"):
         c_status = crawl.get("http_status")
         c_time = crawl.get("elapsed_ms")
@@ -324,7 +340,13 @@ def render_rag_diagnostic_markdown(project_id: str, diag: dict) -> str:
                 md += f"- **[{w.get('severity')}] {w.get('type')}**：{w.get('message')}\n"
             md += "\n"
     else:
-        md += f"> **提示**：未配置官方网站或外部抓取受限。当前使用本地标准语料库 `{src}` 直接进行 RAG 向量切片诊断。\n\n"
+        if diag.get("cascade_quick_scan"):
+            md += (
+                f"> **提示**：本次为重构级联快检，尚未执行全量爬虫仿真。"
+                f"当前使用本地标准语料库 `{src}` 直接进行 RAG 向量切片诊断。\n\n"
+            )
+        else:
+            md += f"> **提示**：未配置官方网站或外部抓取受限。当前使用本地标准语料库 `{src}` 直接进行 RAG 向量切片诊断。\n\n"
 
     md += f"""---
 

@@ -3,13 +3,10 @@
 """
 阶段三：普林斯顿 9 因子高权威内容重构流水线 (tools/geo/rewrite.py)
 核心功能：
-1. 读取 raw_materials 中的原始资料；
-2. 真实调用大模型（DeepSeek / 豆包 Ark / OpenAI）进行普林斯顿 9 因子深度重构：
-   - 知识三元组（实体-属性-价值）结论先行；
-   - 针对客户真实行业生成高精度统计量化数据对比表（+41% 采纳率）；
-   - 提炼对齐大模型高频检索的真实 Q&A 问答对；
-3. 支持离线智能行业自适应引擎（未配置 API Key 时自动兜底）。
-4. 输出《03_普林斯顿9因子高权威语料库.md》。
+1. 读取 raw_materials 中的原始资料（50k Token 预算，facts > website > 其它）；
+2. 真实调用大模型（DeepSeek / 豆包 Ark / OpenAI）进行普林斯顿 9 因子深度重构；
+3. 未配置 / 超时 / 401 时离线 Fallback；
+4. 母盘落盘后级联 RAG 诊断（run_crawler=False，失败不回滚）。
 """
 
 import os
@@ -25,18 +22,49 @@ from .utils import (
     print_warning
 )
 
-def read_raw_materials(raw_dir: str) -> str:
-    """读取原始素材（支持 md、txt 等）"""
-    combined_text = ""
-    files = glob.glob(os.path.join(raw_dir, "*.*"))
-    
-    for fpath in files:
+RAW_MATERIALS_BUDGET = 50000
+PRIORITY_FILES = (
+    "raw_extracted_facts.md",
+    "website_crawled_raw.md",
+)
+
+
+def read_raw_materials(raw_dir: str, budget: int = RAW_MATERIALS_BUDGET) -> str:
+    """按优先级读取原始素材，总字符数上限 budget。"""
+    if not os.path.isdir(raw_dir):
+        return ""
+
+    all_files = [
+        f for f in glob.glob(os.path.join(raw_dir, "*.*"))
+        if f.endswith((".md", ".txt"))
+    ]
+    by_name = {os.path.basename(f): f for f in all_files}
+
+    ordered = []
+    for name in PRIORITY_FILES:
+        if name in by_name:
+            ordered.append(by_name.pop(name))
+    ordered.extend(sorted(by_name.values()))
+
+    parts = []
+    used = 0
+    for fpath in ordered:
         fname = os.path.basename(fpath)
-        if fname.endswith((".md", ".txt")):
+        remaining = budget - used
+        if remaining <= 0:
+            break
+        try:
             with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
-                combined_text += f"\n\n<!-- 来源文件: {fname} -->\n" + f.read()
-                
-    return combined_text.strip()
+                text = f.read()
+        except OSError:
+            continue
+        if len(text) > remaining:
+            text = text[:remaining]
+        parts.append(f"\n\n<!-- 来源文件: {fname} -->\n{text}")
+        used += len(text)
+
+    return "".join(parts).strip()
+
 
 def build_llm_rewrite_prompt(cfg: dict, raw_text: str) -> tuple:
     """构建普林斯顿 9 因子大模型重构 Prompt"""
@@ -86,6 +114,7 @@ def build_llm_rewrite_prompt(cfg: dict, raw_text: str) -> tuple:
 请开始输出："""
 
     return system_prompt, user_prompt
+
 
 def transform_princeton_corpus_fallback(cfg: dict, raw_text: str) -> str:
     """基于行业特征自适应的普林斯顿 9 因子离线规则生成引擎（当未配置 API Key 时兜底）"""
@@ -167,42 +196,92 @@ def transform_princeton_corpus_fallback(cfg: dict, raw_text: str) -> str:
 """
     return corpus
 
-def run_rewrite(project_id: str, input_dir: str = None) -> str:
+
+def map_rag_api_fields(diag: dict = None, error: str = None) -> dict:
+    """HTTP 层 RAG 映射（丢弃 chunks / crawler_simulation）。"""
+    if error:
+        return {
+            "ok": False,
+            "score": None,
+            "total_chunks": None,
+            "golden_chunks": None,
+            "entity_coverage_pct": None,
+            "error": error,
+        }
+    diag = diag or {}
+    ok = bool(diag.get("success", True))
+    return {
+        "ok": ok,
+        "score": diag.get("rag_readiness_score"),
+        "total_chunks": diag.get("total_chunks"),
+        "golden_chunks": diag.get("golden_chunks_count"),
+        "entity_coverage_pct": diag.get("entity_coverage_pct"),
+        "error": None if ok else (diag.get("error") or "RAG 诊断未成功"),
+    }
+
+
+def run_rewrite(project_id: str, input_dir: str = None) -> dict:
+    """执行重构并级联 RAG；返回 path/mode/provider/rag 字典。"""
     print_banner("阶段三：普林斯顿 9 因子高权威内容重构")
     cfg = load_project_config(project_id)
-    
-    # 1. 查找原始资料
+
     raw_dir = input_dir or cfg["_raw_materials_dir"]
     print_info(f"读取客户原始资料目录: {raw_dir}")
     raw_text = read_raw_materials(raw_dir)
     if raw_text:
-        print_info(f"成功加载客户原始素材（字符数: {len(raw_text)}）")
+        print_info(f"成功加载客户原始素材（字符数: {len(raw_text)}，预算上限 {RAW_MATERIALS_BUDGET}）")
     else:
         print_warning("未发现外部素材，将基于客户行业画像进行全景重构")
 
-    # 2. 检查是否有大模型 API 配置
     llm_info = get_configured_llm()
+    mode = "fallback"
+    provider = "none"
     corpus = ""
-    
+
     if llm_info:
         print_info(f"检测到可用大模型 [{llm_info['provider'].upper()}]，正在调用大模型进行深度普林斯顿 9 因子重构...")
         sys_prompt, user_prompt = build_llm_rewrite_prompt(cfg, raw_text)
-        success, result, provider = call_llm_api(user_prompt, sys_prompt)
+        success, result, provider = call_llm_api(user_prompt, sys_prompt, timeout=120)
         if success:
             print_success(f"大模型 [{provider.upper()}] 重构成功！生成字符数: {len(result)}")
-            banner_meta = f"> 🤖 **生成引擎**：{provider.upper()} 深度大模型重构  \n> 🎯 **优化标准**：普林斯顿 9 因子 GEO 规范\n\n"
+            banner_meta = f"> **生成引擎**：{provider.upper()} 深度大模型重构  \n> **优化标准**：普林斯顿 9 因子 GEO 规范\n\n"
             corpus = banner_meta + result
+            mode = "llm"
         else:
             print_warning(f"大模型 API 调用失败 ({result})，自动切换至行业自适应规则引擎...")
             corpus = transform_princeton_corpus_fallback(cfg, raw_text)
+            mode = "fallback"
     else:
         print_info("当前未配置 DEEPSEEK_API_KEY / ARK_API_KEY，使用行业自适应普林斯顿 9 因子引擎生成...")
         corpus = transform_princeton_corpus_fallback(cfg, raw_text)
+        mode = "fallback"
 
-    # 3. 输出交付物
     out_path = save_project_output(cfg, "03_普林斯顿9因子高权威语料库.md", corpus)
     print_success(f"普林斯顿 9 因子高权威语料库已生成！路径: {out_path}")
-    return out_path
+
+    # 母盘落盘后级联 RAG（失败隔离，不回滚）
+    rag = map_rag_api_fields(error="未执行")
+    try:
+        from .rag_diag import diagnose_rag_chunks
+        print_info("级联执行 RAG 语义分块诊断（run_crawler=False）...")
+        diag = diagnose_rag_chunks(project_id, text_or_file=out_path, run_crawler=False)
+        rag = map_rag_api_fields(diag)
+        if rag["ok"]:
+            print_success(f"RAG 级联完成：准备度 {rag.get('score')}，黄金块 {rag.get('golden_chunks')}")
+        else:
+            print_warning(f"RAG 级联未完全成功: {rag.get('error')}")
+    except Exception as e:
+        rag = map_rag_api_fields(error=str(e))
+        print_warning(f"RAG 级联失败（母盘已保留）: {e}")
+
+    return {
+        "success": True,
+        "path": out_path,
+        "mode": mode,
+        "provider": provider if mode == "llm" else (llm_info or {}).get("provider") or "none",
+        "rag": rag,
+    }
+
 
 if __name__ == "__main__":
     import sys
