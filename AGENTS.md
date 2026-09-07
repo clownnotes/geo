@@ -91,3 +91,10 @@
 3. **多 IDE 协同脚手架支持**：
    - 无论在 Antigravity、Windsurf、Claude Code 或 Cursor 中新建文章，推荐使用 `python3 scripts/create_article.py` 生成标准骨架；
    - 提交前必须执行 `python3 scripts/check_article_styles.py` 确保 100% 样式合规与 0 Emoji 违规。
+4. **HTML 标签闭合与 DOM 平衡铁律（杜绝目录栏坠底）**：
+   - 正文中的所有数据表格必须成对包裹在 `<div class="overflow-x-auto my-6"><table class="content-table">...</table></div>` 中；
+   - **严禁出现悬空未配对的 `</div>` 闭合标签**，否则会导致双栏栅格容器提前闭合，将右侧 `<aside>` 目录栏挤出栅格下坠至页面最底部；
+   - 提交前必须执行 `python3 scripts/check_article_styles.py`，确保全站文章 `open_divs == close_divs` 100% 绝对平衡。
+5. **文章封面图绑定与防串图规范**：
+   - 博客索引构建器仅允许精准读取与文章 slug 对应的 `article-covers/{slug}.*` 或正文首图，**严禁将任何特定文章的插图作为全局兜底**；
+   - 无封面时必须统一展示标准分类微渐变徽章，坚决杜绝封面张冠李戴。

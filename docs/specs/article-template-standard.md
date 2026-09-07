@@ -22,6 +22,9 @@
    - 表格必须规范包裹在 `<div class="overflow-x-auto my-6"><table class="content-table">...</table></div>` 中；
    - 严禁出现悬空未配对的 `</div>` 标签，否则会导致双栏栅格容器提前被闭合，致使右侧 `<aside>` 目录栏被挤出栅格下坠至页面底部；
    - 每次提交或生成文章后，必须执行 `scripts/check_article_styles.py` 自动化核验 `open_divs == close_divs`。
+5. **文章封面图绑定与防串图规范**：
+   - 博客列表封面图提取仅允许匹配 `assets/article-covers/{slug}.*` 或正文首图，严禁将某篇特定专文封面作为全局兜底；
+   - 无专属封面的博文统一展示标准微渐变分类卡，坚决杜绝不同文章张冠李戴。
 
 ---
 
