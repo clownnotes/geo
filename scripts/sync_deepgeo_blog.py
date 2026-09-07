@@ -241,8 +241,8 @@ def parse_article(rel_url, html):
     clean_article = clean_article.replace('href="/case-studies/', 'href="./')
     clean_article = clean_article.replace('href="/blog/', 'href="./')
 
-    # 表格美化
-    clean_article = clean_article.replace('<table>', '<div class="overflow-x-auto my-6"><table class="content-table">')
+    # 表格美化（使用正则匹配带类名与属性的 table 标签，避免 </div> 悬空破坏双栏栅格）
+    clean_article = re.sub(r'<table[^>]*>', '<div class="overflow-x-auto my-6"><table class="content-table">', clean_article)
     clean_article = clean_article.replace('</table>', '</table></div>')
 
     # FAQ 容器美化

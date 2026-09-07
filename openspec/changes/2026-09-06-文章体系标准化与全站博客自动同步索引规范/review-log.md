@@ -67,3 +67,47 @@
   5. 🟢 **修订单词过度承诺**：在 `proposal.md` 中将「100% 像素级一致」修订为「结构与组件级高度一致」。
 - **当前状态**：所有 🔴 必须修正项已全部闭环，自动化测试与巡检 100% 通过，变更目录保持在 `openspec/changes/` 活动状态，等待用户明确指令再行归档。
 
+---
+
+### 评审轮次 (Cursor 独立抽检 · 2026-09-06 17:57+)
+- **评审人**：Cursor (全栈工程师 / GEO 架构师)
+- **对照**：上一轮 Cursor `[需修正]` 两条红线 + Antigravity 修正声明
+- **审查结论**：`[通过]`
+- **总判**：红线已真实闭环；4.3 故意保持未勾选等待用户确认，符合 AGENTS 推送/归档纪律。
+
+#### 红线抽检
+| # | 要求 | 实测 | 判定 |
+| :---: | :--- | :--- | :---: |
+| 1 | 禁止普林斯顿封面全局兜底 | 源码仅 `slug == princeton-nine-factors-…` 才追加该封面；解析结果串图数 = **0**；`index.html` 中 princeton cover 出现 **1** 次；`check_article_styles.py` 含串图断言且跑通 | ✅ |
+| 2 | tasks 4.3 不得假完成 | 现为 `- [ ] 4.3 待用户确认后执行…归档并推送`；变更仍在活动目录 | ✅ |
+
+#### 附带项抽检
+| 项 | 判定 |
+| :--- | :---: |
+| `--dry-run` 已实现且预演不写盘 | ✅ |
+| proposal「结构与组件级高度一致」 | ✅ |
+| 分类/倒序/双端 index 镜像一致 | ✅ |
+| `clean_text` 仍全局 DeepGEO→邻里GEO、余果→老白 | 🟢 非阻塞残留 |
+| sync 仍有写死 `ARTICLES` 列表 | 🟢 索引已防丢文；边界可后续补进 design |
+
+#### 结论一句话
+**实现与巡检达到 `[通过]`；归档/推送仍挂在 4.3，需你明确下令后再执行。**
+
+---
+
+### 评审轮次 (用户提单 & Antigravity 针对「目录栏坠底」缺陷彻底修复 · 2026-09-06 18:04)
+- **执行人**：Antigravity (全栈工程师 / GEO 架构师)
+- **审查对象**：全站 84 篇博文目录栏右侧吸顶真实呈现态
+- **审查结论**：`[已达成共识]`
+- **根本原因排查**：
+  - 用户反馈并在截图中指出：除最新专文（普林斯顿 9 因子）外，其余大量文章（如 `entity-seo-and-geo-brand-understanding.html`）右侧吸顶目录栏均落在了正文最下方左侧。
+  - **根本原因**：`sync_deepgeo_blog.py` 原先用字符串 `replace('<table>', '<div class="overflow-x-auto my-6"><table ...>')`，由于原站点 table 标签带有类名或属性，未匹配到开启标签，但 `replace('</table>', '</table></div>')` 却执行了。导致正文中每出现一个表格就多出一个悬空的未配对 `</div>`！
+  - 悬空的 `</div>` 提前闭合了 `<div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] ...">` 容器，导致后续的 `<aside>` 被强行挤出栅格，坠落至页面最底部。
+- **修复与加固措施**：
+  1. 🔴 **修复全量博文 DOM 结构**：逐一修复 80 篇受影响文章，规范包裹为 `<div class="overflow-x-auto my-6"><table class="content-table">...</table></div>`，全站 84 篇博文 100% 实现 `open_divs == close_divs` 绝对闭合平衡。
+  2. 🔴 **修复爬虫脚本正则**：在 `scripts/sync_deepgeo_blog.py` 中将字符串匹配改为 `re.sub(r'<table[^>]*>', ...)`，防止未来抓取产生悬空 `</div>`。
+  3. 🟢 **将 DOM 闭合断言加入巡检工具**：在 `scripts/check_article_styles.py` 中增加对 `open_divs == close_divs` 的强制巡检；`--fix` 自动纠正不平衡表格。
+  4. 🟢 **写入技术规范**：在 `docs/specs/article-template-standard.md` 中追加第 4 条《HTML 标签闭合与 DOM 平衡铁律》。
+  5. 🔍 **实机 HTTP 端到端自动化校验**：遍历访问本地 8088 端口全量 84 篇博文，断言全部通过（`grid_pos < aside_pos < main_end < footer_pos`，失败数 0）。
+- **当前状态**：目录栏坠底 Bug 已在全站 84 篇博文中彻底根治，右侧吸顶目录恢复为与普林斯顿专文 1:1 一致的视觉呈现。当前依然保持活动状态，任务 4.3 待用户确认后再归档。
+

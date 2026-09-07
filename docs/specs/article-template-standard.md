@@ -18,6 +18,10 @@
    - 容器统一为 `width: min(1180px, calc(100% - 40px)); margin: 0 auto;`；
    - 栅格布局严格使用：`grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start`；
    - 左侧文章占用剩余全部空间（约 860px 宽度），右侧吸顶目录严格锁定为 **280px** 紧凑宽度。
+4. **HTML 标签闭合与 DOM 平衡铁律**：
+   - 表格必须规范包裹在 `<div class="overflow-x-auto my-6"><table class="content-table">...</table></div>` 中；
+   - 严禁出现悬空未配对的 `</div>` 标签，否则会导致双栏栅格容器提前被闭合，致使右侧 `<aside>` 目录栏被挤出栅格下坠至页面底部；
+   - 每次提交或生成文章后，必须执行 `scripts/check_article_styles.py` 自动化核验 `open_divs == close_divs`。
 
 ---
 

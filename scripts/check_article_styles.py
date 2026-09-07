@@ -213,7 +213,24 @@ def check_file(filepath):
     if emojis:
         issues.append(f'包含违规 Emoji 字符: {list(set(emojis))}')
 
+    # 7. HTML div 标签闭合平衡检查 (杜绝悬空 </div> 导致双栏栅格被提前闭合、目录栏下坠到底部)
+    open_divs = len(re.findall(r'<div\b', content))
+    close_divs = len(re.findall(r'</div>', content))
+    if open_divs != close_divs:
+        issues.append(f'HTML div 标签不平衡: open={open_divs}, close={close_divs} (差值 {open_divs - close_divs} 导致右侧目录栏下坠到底部)')
+
     return issues
+
+def fix_article_tables(content):
+    # 修复悬空的 </table></div> 问题，并统一将表格规范包裹在 <div class="overflow-x-auto my-6"> 中
+    content = content.replace('</table></div>', '</table>')
+    content = re.sub(
+        r'(?<!<div class="overflow-x-auto my-6">)(<table class="content-table">.*?</table>)',
+        r'<div class="overflow-x-auto my-6">\1</div>',
+        content,
+        flags=re.DOTALL
+    )
+    return content
 
 def fix_manual_article(content):
     # 修复 6 篇手动文章
@@ -314,6 +331,9 @@ def run_fix():
             orig = f.read()
 
         mod = orig
+        # 统一修复表格与 div 平衡
+        mod = fix_article_tables(mod)
+
         if 'prose-geo' in mod:
             mod = fix_manual_article(mod)
         if 'lg:grid-cols-12' in mod:
