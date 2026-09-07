@@ -18,4 +18,4 @@
 ## 4. 验证与归档
 - [x] 4.1 本地 8088 端口核验 `http://localhost:8088/sites/nextgeo/blog/`，确认第一篇为 2026-09-06 最新文章，分类数字精准匹配。
 - [x] 4.2 0 Emoji 违规核查与双端镜像（outputs 与 outputs/site）一致性核查。
-- [ ] 4.3 待用户确认后执行 OpenSpec 归档并推送到 git origin/github main。
+- [x] 4.3 待用户确认后执行 OpenSpec 归档并推送到 git origin/github main。

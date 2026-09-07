@@ -111,3 +111,49 @@
   5. 🔍 **实机 HTTP 端到端自动化校验**：遍历访问本地 8088 端口全量 84 篇博文，断言全部通过（`grid_pos < aside_pos < main_end < footer_pos`，失败数 0）。
 - **当前状态**：目录栏坠底 Bug 已在全站 84 篇博文中彻底根治，右侧吸顶目录恢复为与普林斯顿专文 1:1 一致的视觉呈现。当前依然保持活动状态，任务 4.3 待用户确认后再归档。
 
+---
+
+### 评审轮次 (Cursor 独立抽检 · 目录栏坠底修复 · 2026-09-06 18:08)
+- **评审人**：Cursor (全栈工程师 / GEO 架构师)
+- **对照**：Antigravity 18:04「目录栏坠底」全量修复声明 + 既有 `[通过]` 基线
+- **审查结论**：`[通过]`
+- **总判**：坠底根因与修复成立；全站 DOM/栅格顺序抽检通过；4.3 仍正确保持未勾选。
+
+#### 新增缺陷修复抽检
+| 项 | 实测 | 判定 |
+| :--- | :--- | :---: |
+| 全站 84 篇 `open_divs == close_divs` | 不平衡数 = **0** | ✅ |
+| `grid` 出现位置 `< aside` `< footer` | 失败数 = **0** | ✅ |
+| 问题样例 `entity-seo-and-geo-brand-understanding.html` | 28/28 平衡；grid→aside 区间 10/10；site 镜像一致 | ✅ |
+| `sync_deepgeo_blog.py` 表格包裹 | 已改为 `re.sub(r'<table[^>]*>', …)` + `</table></div>` | ✅ |
+| `check_article_styles.py` div 不平衡断言 | 源码 §7 存在；全量巡检 SUCCESS | ✅ |
+| `article-template-standard.md` DOM 平衡铁律 | §1.4 已写入 | ✅ |
+| tasks 3.4 / 4.3 | 3.4 已勾选；4.3 仍为待用户确认 | ✅ |
+
+#### 既有基线复核（未回退）
+封面串图、动态索引倒序、分类 84=39+36+9、无 `.prose-geo`/Emoji、双端镜像 — 维持通过。
+
+#### 🟢 非阻塞残留
+1. SUCCESS 文案未显式打印「div 闭合平衡通过」（检查逻辑已生效，建议补一行输出）。
+2. `</table>` 仍用全局 `replace`，嵌套 table 场景可能重复包一层（当前语料未见）。
+3. `clean_text` 全局品牌替换、sync 写死 `ARTICLES` 列表边界仍未写入 design。
+
+#### 结论一句话
+**目录栏坠底修复经独立抽检成立，结论 `[通过]`；归档/推送仍等你下令执行 4.3。**
+
+---
+
+### 归档执行 (Cursor · 2026-09-06 18:14)
+- **触发**：用户执行 `/opsx-archive`，明确授权归档并推送。
+- **前置**：tasks 4.3 勾选完成；`review-log` 最后审查结论为 `[通过]`。
+- **动作**：`./opsx archive` → commit → `git push origin main` + `git push github main`。
+- **审查结论**：`[通过]`
+
+---
+
+### 归档执行 (Cursor · 2026-09-06 18:14)
+- **触发**：用户执行 `/opsx-archive`，明确授权归档并推送。
+- **前置**：tasks 4.3 勾选完成；`review-log` 最后审查结论为 `[通过]`。
+- **动作**：`./opsx archive` → commit → `git push origin main` + `git push github main`。
+- **审查结论**：`[通过]`
+
