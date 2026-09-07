@@ -8,15 +8,18 @@
 
 本项目严格遵循 **OpenSpec 规范** 进行任务拆解与多 IDE 协同开发：
 
-1. **发起需求**：通过 `./opsx propose <需求名称>` 创建中文命名变更目录。
+1. **发起需求 (propose)**：通过 `./opsx propose <需求名称>` 创建中文命名变更目录；产出规范文档后**必须立即停步**等待用户或评审方审阅。
 2. **规范文件**：
    - `proposal.md`：需求背景（Why）、改动范围（What）、对外能力（Capabilities）、影响分析（Impact）。
    - `design.md`：架构设计、接口规范、数据模型与组件划分。
    - `tasks.md`：细化任务清单（使用 `- [ ]` 与 `- [x]` 标记）。
    - `review-log.md`：跨 IDE 评审日志与共识记录。
-3. **任务跟踪与归档**：
+3. **严格阶段隔离与单步停步铁律 (Strict Stage Boundary)**：
+   - **`/opsx-review` 阶段**：仅负责跨端审查、对照 Spec 核对、在 `review-log.md` 中记录结论或按讨论订正 proposal/design/tasks。**完成后必须立即停步（STOP）等待用户或对端 IDE 确认，严禁擅自进入编码（apply）或归档（archive）！**
+   - **`/opsx-apply` 阶段**：严格按 `tasks.md` 编码并验证，测试通过后**必须立即停步（STOP）向用户汇报进展**，等待用户人工验收。**严禁擅自执行归档！**
+   - **`/opsx-archive` 归档硬约束**：**只有当用户明确下达归档指令（显式输入 `/opsx-archive` 或文字明确要求“归档”）时，方可执行 `./opsx archive` 归档与推送。任何自动串联归档均为严重违规！**
+4. **任务跟踪**：
    - 使用 `./opsx status` 查看当前进度。
-   - 开发完成且验证通过后，运行 `./opsx archive` 归档。
 
 ---
 
