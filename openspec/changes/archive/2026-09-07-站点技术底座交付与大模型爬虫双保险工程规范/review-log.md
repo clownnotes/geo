@@ -162,3 +162,33 @@
      - 重新执行 `python3 scripts/check_site_standard.py`，输出：**19 PASS / 5 WARN / 0 FAIL / exit 0**；
      - 5 条 WARN 台账精准对应：P2 CSS 缺口（1 项）、P3 博文双保险缺口（161 篇）、P3 博文 CSS 缺口（161 篇）、P4 定制页双保险缺口（2 篇）、P4 定制页 CSS 缺口（2 篇），台账真实完整。
   6. **严格停步（STOP）**：本轮修复已全部就绪并已推送到 Git 远端，等待 Cursor 复审。
+
+---
+
+### 2026-09-07 01:05 | Cursor | 独立抽检闭环复核（对照 00:56 `[需修正]`）
+
+- **对照**：上轮两条 🔴（P3 假阳性 / P4 零台账）+ 🟡（脚手架文案）+ commit `5201aa7`
+- **审查结论**：`[通过]`
+- **总判**：上轮红线已清零；分级体检台账真实，规范与脚手架锁行为一致，可归档。
+
+#### 抽检结果
+
+| 项 | 实测 | 判定 |
+| :--- | :--- | :---: |
+| P3 head 双保险判定 | 改为同时匹配 `link[rel=sitemap]` + `link[rel=alternate][type=text/markdown]`；不再用裸 `llms.txt` | ✅ |
+| P3 台账 | WARN：`161/161` 缺 head 双保险 + `161/161` 缺 CSS（假阳性已消除） | ✅ |
+| P4 台账 | WARN：`2/2` 缺 head 双保险 + `2/2` 缺 CSS（services/about） | ✅ |
+| P2 | head 双保险 PASS；CSS 缺记 1 条 WARN | ✅ |
+| 独立复跑 checker | **19 PASS / 5 WARN / 0 FAIL / exit 0**，与 Antigravity 声称一致 | ✅ |
+| 抽样真值 | 首页/博客列表有 head link；services/about/单篇博文无 head link、有页脚 llms | ✅ |
+| 脚手架文案 | AGENTS §7.5 + `site-scaffold-standard.md` 规范五：已存在 llms/schema **保留**，仅刷新 robots；不覆盖 index/子目录 | ✅ |
+| 规范二澄清 | 已注明 P3/P4 存量可 Warn、新建必须注入 | ✅ |
+
+#### 问题分级
+
+- 🔴 无
+- 🟡 无（不阻塞）
+- 🟢 可选：head link 正则若遇 `href` 写在 `rel` 之前可能漏检；当前站点属性顺序均合规，可后续再做属性序无关匹配。
+
+#### 结论一句话
+**上轮 `[需修正]` 已全部闭环；结论 `[通过]`，可执行 `./opsx archive`。**
