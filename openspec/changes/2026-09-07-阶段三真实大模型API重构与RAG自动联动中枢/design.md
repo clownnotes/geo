@@ -33,9 +33,25 @@
 
 ---
 
-## 2. 接口与组件设计 (Interface & Component Design)
+## 2. 统一大模型分级探测架构 (Unified Multi-Provider Chain)
 
-### 2.1 后端 API 接口
+彻底解决此前各模块各写一套环境变量判断（`utils.py` 与 `llm.py`、`evaluator.py` 逻辑割裂）的问题，确立全站统一的 API Key 解析优先级：
+
+```
+① 第一优先级：本地 .env 持久化配置（由 Web 管理端直接写入或手动配置，gitignored）
+       ↓ 未命中
+② 第二优先级：操作系统环境变量（GEO_*_API_KEY、DEEPSEEK_API_KEY、ARK_API_KEY）
+       ↓ 未命中
+③ 第三优先级：项目级 project.yaml 中的 api_keys 声明（独立客户专用通道）
+       ↓ 未命中或请求失败 (Timeout > 30s / 401 欠费)
+④ 最终兜底：Python 普林斯顿 9 因子行业自适应规则引擎 (100% 离线保障)
+```
+
+---
+
+## 3. 接口与组件设计 (Interface & Component Design)
+
+### 3.1 后端 API 接口
 
 1. **`GET /api/llm/status`**
    - **返回数据**：
@@ -45,6 +61,7 @@
        "provider": "deepseek",
        "model": "deepseek-chat",
        "base_url": "https://api.deepseek.com",
+       "source": ".env",
        "latency_ms": 120,
        "status": "ready"
      }
@@ -60,27 +77,41 @@
      }
      ```
    - **处理逻辑**：
-     - 向模型接口发送轻量 Ping 探针验证连通性；
-     - 验证成功后，写入项目根目录 `.env` 文件并刷新内存配置；
-     - 确保 `.gitignore` 包含 `.env`。
-3. **`POST /api/projects/{id}/rewrite` (增强)**
+     - 向模型接口发送轻量 Ping 探针验证连通性与余额；
+     - 验证成功后，写入项目根目录 `.env` 文件并实时更新进程环境；
+     - 确保 `.gitignore` 包含 `.env`，杜绝密钥泄露。
+3. **`POST /api/projects/{id}/rewrite` (自动级联增强)**
    - **处理逻辑**：
-     - 聚合 `raw_materials/` 所有已提纯素材；
-     - 执行 `run_rewrite(project_id)`；
-     - **自动级联**调用 `diagnose_rag_chunks(project_id)`；
-     - 返回重构后内容与 RAG 诊断关键指标（得分、黄金切片数）。
+     - 聚合 `raw_materials/` 所有已提纯素材与事实清单；
+     - 执行 `run_rewrite(project_id)` 产出 `03_普林斯顿9因子高权威语料库.md`；
+     - **核心级联**：立即触发 `tools.geo.rag_diag.diagnose_rag_chunks(project_id)` 重新切片；
+     - 返回数据：
+       ```json
+       {
+         "success": true,
+         "mode": "llm",
+         "provider": "deepseek",
+         "rag": {
+           "score": 88.5,
+           "total_chunks": 10,
+           "golden_chunks": 7,
+           "entity_coverage_pct": 92.0
+         }
+       }
+       ```
 
-### 2.2 前端组件设计
-1. **阶段三头部 LLM 状态徽标与配置弹窗**：
-   - 在阶段三操作栏中增加轻量指示器：
-     - `🟢 DeepSeek 思考引擎已就绪`（点击可查看/更改模型）；
-     - 或 `🟡 离线规则模式 (点击接入 DeepSeek/豆包 API 开启深度重构)`。
-2. **重构完成后的前端联动**：
-   - 收到后端级联响应后，不仅刷新下方 Markdown 预览，同时将 `openRagDiagModal` 按钮上的分数刷新为最新跑出的实际诊断分。
+### 3.2 前端组件设计
+1. **阶段三头部 LLM 状态徽标与配置入口**：
+   - 增加常驻状态灯与配置按钮：
+     - `🟢 DeepSeek-V3 思考引擎已就绪`（显示延迟，点击打开配置弹窗）；
+     - `🟡 离线规则模式 (点击接入 DeepSeek / 豆包 API 开启真 AI 思考)`。
+2. **母盘更新 ➔ RAG 诊断前端联动**：
+   - 重构完成后，下方 Markdown 预览秒级更新；
+   - 顶部【🧩 RAG 语义分块诊断】按钮即时显示最新诊断徽标（如 `88.5分 极佳`），点开即可直接查阅最新的切片穿透报告。
 
 ---
 
-## 3. 安全与兜底规范 (Security & Graceful Degradation)
+## 4. 安全与兜底规范 (Security & Graceful Degradation)
 
 1. **API Key 安全红线**：
    - 严禁将任何明文 API Key 提交至 Git 仓库；
