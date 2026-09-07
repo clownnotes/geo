@@ -72,3 +72,22 @@
 3. **客户全托管交付**：
    - 客户无需了解底层服务器与代码，全权由我方交付与运维；同时保留整站源码包一键导出功能，作为客户离线资产兜底。
 
+---
+
+## 6. 文章排版与博客自动同步工程规范（多 IDE 协同最高执行标准）
+
+> 详细技术规范与 DOM 模板见：[`docs/specs/article-template-standard.md`](docs/specs/article-template-standard.md)
+
+1. **统一双栏栅格与吸顶目录（对标 DeepGEO 280px 标准）**：
+   - 全站所有博文与案例页面严格遵循 `grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-8 xl:gap-10 items-start`；
+   - 正文使用标准的 `.content-block` 语义化样式，**严禁使用任何 `.prose-geo` 等老旧类名**；
+   - 右侧目录统一为固定 **280px** 宽度的 `.toc-card`，吸顶于 `top-24`，包含“页面结构”标题与平滑滚动锚点；
+   - 页面严格注入 `html { scroll-behavior: smooth; }` 与 `.content-block, [id^="block-"], #faq { scroll-margin-top: 100px; }`。
+2. **博客索引动态自动扫描（杜绝新文章丢失）**：
+   - 新增或编辑文章后，**严禁依赖写死的爬虫数组**；
+   - 必须统一通过 `python3 scripts/build_blog_index.py` 动态扫描 `projects/nextgeo/outputs/blog/*.html` 全量文章；
+   - 必须严格按照发表时间（`datePublished`）由新到旧绝对倒序排列，自动同步更新 `blog/index.html`、`llms.txt` 与 `sitemap.xml`；
+   - 必须严格执行 `outputs/` 到 `outputs/site/` 的双向镜像对齐。
+3. **多 IDE 协同脚手架支持**：
+   - 无论在 Antigravity、Windsurf、Claude Code 或 Cursor 中新建文章，推荐使用 `python3 scripts/create_article.py` 生成标准骨架；
+   - 提交前必须执行 `python3 scripts/check_article_styles.py` 确保 100% 样式合规与 0 Emoji 违规。

@@ -1013,9 +1013,13 @@ def main():
     print(f"\nCompleted processing. Total successfully generated articles: {len(results)} / {len(ARTICLES)}")
     
     if len(results) >= 70:
-        generate_blog_index(results)
-        update_llms_and_sitemap(results)
         sync_to_outputs()
+        print("\n[OK] Crawled articles synced. Calling build_blog_index to dynamically rebuild all indexes...")
+        try:
+            import build_blog_index
+            build_blog_index.main()
+        except ImportError:
+            subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), 'build_blog_index.py')], check=True)
         print("\nAll tasks completed successfully!")
     else:
         print(f"\nWarning: Only {len(results)} articles processed. Please check errors before proceeding.")

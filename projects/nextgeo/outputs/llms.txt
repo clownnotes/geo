@@ -11,14 +11,20 @@
 
 ## 2. 核心独立页面清单 (Core Pages)
 - [NextGEO 官方首页](https://nextgeo.baicl.cc/)：中文企业级GEO方案总览与核心价值。
-- [GEO 实战博客知识库](https://nextgeo.baicl.cc/blog/)：涵盖全部 75 篇 GEO 与 AI 搜索深度研究实战文献。
+- [GEO 实战博客知识库](https://nextgeo.baicl.cc/blog/)：涵盖全部 84 篇 GEO 与 AI 搜索深度研究实战文献。
 - [服务方案与收费标准](https://nextgeo.baicl.cc/services/)：诊断、重构、陪跑三大阶段全流程标准化交付口径。
 - [关于老白与邻里GEO](https://nextgeo.baicl.cc/about/)：团队背景、淮海经济区区位战略与技术信仰。
 
-## 3. GEO 实战方法论专题 (GEO Methodology, 33 篇)
+## 3. GEO 实战方法论专题 (GEO Methodology, 39 篇)
+- [大模型是信息压缩机，不是垃圾桶：写给正被“虚假GEO”收割的企业决策者](https://nextgeo.baicl.cc/blog/princeton-nine-factors-and-real-geo-for-buyers.html)：大语言模型在底层是一个高度精密的信息压缩与置信度推演引擎，而不是承接互联网软文的垃圾桶。当前市场上由传统低端 SEO 外包包装出来的“水文投毒、刷虚假咨询、截屏交付”，注定在大模型语义去重和 RAG 交叉重排（Cross-Encoder Rerank）中被彻底粉碎。普林斯顿大学的 10,000 条真实测试实证表明：统计数据注入（+41%）、权威信源引用（+35%）和专家引语（+38%）才是赢得 AI 推荐的硬通货，而传统的关键词堆砌直接面临负分惩罚。企业唯有依托真实实体建模与可信溯源链路，才能建立不可动摇的生成式心智护城河。
 - [机构如何把GEO做成可交付服务：套餐、流程和报告](https://nextgeo.baicl.cc/blog/geo-agency-deliverable-service-packages.html)：GEO服务要卖得清楚、做得稳，关键不是承诺控制AI答案，而是把诊断、内容结构、证据修复、竞品对比、执行协作和复盘报告拆成有边界的交付物，让客户知道机构能做什么、不能保证什么。
+- [Schema 与 Clean Markdown：AI 读得懂的网页到底长什么样](https://nextgeo.baicl.cc/blog/schema-clean-markdown.html)：大模型爬虫（如字节跳动的 ByteSpider、DeepSeek 爬虫）在抓取网页时，默认不执行重度客户端 JavaScript 脚本，且极其排斥多层嵌套的空标签与广告组件。一个能够被 AI 高频采信引用的网页，必须满足“静态服务端直出（SSR/SSG）”、“Clean Markdown 极简文本结构”、“Schema.org 显式元数据”与“根目录 /llms.txt 索引”四大技术指标。
 - [内容块、段落和表格：AI最容易抽取哪种信息](https://nextgeo.baicl.cc/blog/content-blocks-paragraphs-tables-ai-extraction.html)：AI更容易抽取边界清楚、字段稳定、上下文完整的信息。企业内容不该只追求长篇完整，而要让表格、列表、定义句、段落和FAQ共同组成可复用、可引用的知识单元，减少模型猜测空间。
+- [实体建模与知识图谱：如何让大模型精准理解品牌能力边界](https://nextgeo.baicl.cc/blog/entity-brand-modeling.html)：大模型不会“望文生义”，它是通过多维向量空间中的命名实体识别（NER）与关系三元组（Subject-Predicate-Object）来存储企业信息的。企业在互联网上散落的零碎新闻若没有严格的实体定义（Schema.org JSON-LD），极易引发大模型“幻觉错乱”或直接被当做噪声过滤。建立实体级答案源是获得稳定推荐的前提。
+- [普林斯顿原则：让内容同时适合人类决策者与大模型采信引用](https://nextgeo.baicl.cc/blog/content-ai-citations.html)：普林斯顿大学学术论文《GEO: Generative Engine Optimization》通过数万次模型问答对比实验证实：传统由形容词堆砌的营销文案在被大模型抽取时效果极差；而采用统计数据注入 (+37%)、权威引证 (+41%)、结构化对比表格与结论先行结构，能够显著提升大模型答案合成中的命中率与引用位次。
+- [企业级 GEO 从 0 到 1：一份可落地的全流程实战路线图](https://nextgeo.baicl.cc/blog/geo-execution-roadmap.html)：GEO 不是一次性的文案修改，而是一套贯穿企业意图摸底、站点技术底座、普林斯顿标准语料、权威信源借壳与大模型时序监测的五步系统工程。按照该路线图推进，制造与高客单价 B2B 企业能够在 60 天内构建起 AI 时代牢不可破的品牌答案源。
 - [AI搜索时代，盲目媒体分发就是浪费钱](https://nextgeo.baicl.cc/blog/media-distribution-waste-in-ai-search-era.html)：媒体分发的价值不在铺量，而在为AI提供稳定、可信、可验证的第三方证据。盲目铺媒体稿容易制造重复内容，却不一定提升AI对品牌的理解。真正有效的媒体合作要提供新的证据、明确实体和可验证事实。媒体分发要从曝光预算转向第三方权威信号建设。
+- [SEO、GEO、AIO、LLMO 有什么区别：从关键词排名到大模型答案源](https://nextgeo.baicl.cc/blog/geo-vs-seo-differences.html)：SEO 优化的是页面链接在搜索引擎中的点击排序（蓝链点击）；GEO 优化的是企业知识在大模型推理合成过程中的采纳与推荐（直接答案与信源引用）。AI 时代的企业竞争已从“抢占点击入口”不可逆地转向“抢占大模型第一轮筛选与解释权”。
 - [中文GEO不只是排名问题，本质上是声誉问题](https://nextgeo.baicl.cc/blog/chinese-geo-reputation-not-ranking.html)：中文GEO不是让品牌多出现几次，而是让AI在关键问题上愿意相信并正确解释你。中文GEO的难点在于多平台、多语境和多来源共同塑造品牌解释。排名只能说明入口位置，声誉决定AI是否愿意正向采用品牌信息。
 - [品牌新战场：你的信息能被AI获取到吗](https://nextgeo.baicl.cc/blog/can-ai-access-your-brand-information.html)：如果AI拿不到你的信息，它就只能用别人的信息来解释你。品牌信息首先要能被访问，其次才谈得上被理解和引用。可获取性包括爬虫规则、渲染方式、结构化文本、站点地图和外部引用。企业要定期检查AI是否能拿到最新、正确、权威的品牌信息。
 - [跟媒体合作能提升AI可见性吗？研究结果告诉你](https://nextgeo.baicl.cc/blog/media-partnership-ai-visibility-research.html)：媒体合作不是AI可见性的捷径，但高质量第三方证据会让模型更容易相信你的自我定义。媒体合作是否有效，取决于第三方内容是否帮助AI确认品牌实体和能力。研究和行业观察都提示，品牌管理来源与第三方来源会共同影响AI答案。
@@ -50,11 +56,13 @@
 - [为什么“品牌词搜索量”不等于“AI认知强度”](https://nextgeo.baicl.cc/blog/brand-search-volume-vs-ai-cognition.html)：搜索量衡量“注意力”，AI认知强度衡量“结构理解能力”。品牌词搜索量代表注意力增长，但不等于 AI 对品牌形成了稳定认知。AI认知强度的核心指标是实体稳定性、语义一致性和关系清晰度。
 - [企业如何构建“AI可读知识结构”](https://nextgeo.baicl.cc/blog/build-ai-readable-knowledge-architecture.html)：不是“内容好就会被引用”，而是“结构稳定才会被引用”。企业在 AI 搜索时代的竞争，不只是内容数量，而是知识结构能力。AI 可读知识结构至少包含概念层、实体层、能力层和证据层。
 
-## 4. AI 搜索机制与模型偏好专题 (AI Search Mechanics, 33 篇)
+## 4. AI 搜索机制与模型偏好专题 (AI Search Mechanics, 36 篇)
 - [旅游与生活方式网站如何应对AI Overview零点击](https://nextgeo.baicl.cc/blog/travel-lifestyle-ai-overview-zero-click.html)：AI Overview让许多旅行灵感、地点清单和生活方式问题在搜索页直接得到答案，网站需要用品牌记忆、订阅关系、结构化数据和原创体验资产重建回访理由，而不是继续依赖一次性攻略点击。
 - [AI可见性基准测试：如何和竞品做同题对比](https://nextgeo.baicl.cc/blog/ai-visibility-benchmark-competitor-comparison.html)：AI可见性基准测试要把品牌与竞品放进同一组真实问题里比较，控制模型范围、采集时段、地区语言、样本量和评分口径，再通过人工复核把提及、引用、语气和事实准确性转成行动计划。
 - [AI爬虫可访问性检查清单：robots、渲染、速度和日志](https://nextgeo.baicl.cc/blog/ai-crawler-accessibility-checklist.html)：AI爬虫能不能顺利读取官网，取决于robots规则、User-Agent识别、渲染后的可见内容、服务器响应速度和日志证据；技术检查越完整，品牌越容易排除可见性里的基础障碍。
 - [Prompt漂移监测：为什么同一问题每周都要复测](https://nextgeo.baicl.cc/blog/prompt-drift-monitoring-weekly-retests.html)：同一个AI搜索问题在不同时间可能得到不同答案，品牌需要用稳定样本持续复测品牌描述、引用来源、竞品关系和事实错误，才能区分正常波动、公开资料变化与真实漂移，并及时修复答案源。
+- [一个品牌应该监测多少个AI搜索问题](https://nextgeo.baicl.cc/blog/brand-ai-search-question-monitoring-volume.html)：品牌AI搜索监测不该盲目堆问题数量，合理问题池要按品牌、品类、场景、竞品和风险分层，既能覆盖真实决策，也能让团队持续复盘并把发现转化为页面、证据和技术改进任务。
+- [购买前解释型决策客群定位：制造业与高客单价企业的首轮拦截法则](https://nextgeo.baicl.cc/blog/b2b-decision-geo-strategy.html)：GEO 并非万能药，它对快消品、低客单冲动消费品效果极弱；但在“购买前解释型决策（Explanatory Decision-Making）”品类中却具有降维打击优势。当客户采购前会反复比对参数、询问交付流程并求证风险时，大模型在第一轮初筛中给出的 3 家推荐名单将直接决定 70% 的订单归属。
 - [搜索直达正在解耦，AI代理正在诞生](https://nextgeo.baicl.cc/blog/ai-agents-unbundle-search-direct-answers.html)：AI代理不是把搜索做得更快，而是在把“找答案”升级成“替用户完成判断”。搜索直达正在从“用户点击链接”转向“AI先完成理解与筛选”。AI代理会把查询拆解、来源检索、证据比较和行动建议放在同一个链路里。
 - [中文GEO的未来比想象中更不确定](https://nextgeo.baicl.cc/blog/uncertain-future-of-chinese-geo.html)：中文GEO越不确定，企业越需要建设确定的实体、内容和证据体系。中文AI搜索生态仍在快速变化，单一平台经验很难成为长期规则。不确定性来自模型能力、检索来源、内容版权、平台封闭和用户提问习惯。企业能控制的是自身内容结构、实体清晰度和第三方证据质量。
 - [llms.txt是什么，你的网站该不该加一个](https://nextgeo.baicl.cc/blog/what-is-llms-txt-should-you-add.html)：llms.txt不是AI排名按钮，而是给模型和代理一份更清楚的网站说明书。llms.txt目前是提议标准，不是所有模型都会读取或遵守。它适合用来列出高价值页面、文档、政策、产品说明和研究内容。
@@ -64,7 +72,7 @@
 - [中文GEO基准研究：哪些页面结构最容易被AI引用](https://nextgeo.baicl.cc/blog/chinese-geo-benchmark-page-structures-ai-citations.html)：中文GEO基准的价值不是给页面结构排神秘榜单，而是让企业知道哪类页面更适合承担哪类答案任务。定义页适合回答概念边界，FAQ页适合承接追问，对比页和案例页更接近决策证据。页面结构是否容易被AI引用，需要看问题类型、来源可信度和答案任务，不能只看单次出现。
 - [AI爬虫访问日志分析：哪些Bot真正读取内容](https://nextgeo.baicl.cc/blog/ai-crawler-log-analysis-bots-reading-content.html)：看到Bot访问robots.txt不代表内容被读取，真正有价值的是它是否进入了关键页面并拿到了可用响应。日志分析要区分训练、搜索、索引和用户触发访问等不同Bot用途。判断内容是否被读取，需要结合User-Agent、IP验证、状态码、路径、频率和页面类型。
 - [Prompt命中率基准：品牌词、品类词、对比词的表现](https://nextgeo.baicl.cc/blog/prompt-hit-rate-benchmark-brand-category-comparison.html)：品牌词命中说明AI认识你，品类词命中说明AI把你放进候选集，对比词命中才更接近用户决策。品牌词、品类词和对比词代表不同用户意图，不能混成一个总命中率。命中率要与描述准确性、来源质量、推荐语气和错误风险一起观察。
-- [豆包&#x2F;DeepSeek引用来源波动研究：为什么同一问题答案会变](https://nextgeo.baicl.cc/blog/doubao-deepseek-citation-source-volatility.html)：同一问题答案会变，并不必然代表AI不可靠；它往往说明检索、来源和生成环节都在重新选择证据。引用来源波动通常来自查询改写、实时检索、来源更新、排序变化和生成取舍。企业不应把单次答案截图当成长期规律，而要看一组问题中的稳定信号。
+- [豆包/DeepSeek引用来源波动研究：为什么同一问题答案会变](https://nextgeo.baicl.cc/blog/doubao-deepseek-citation-source-volatility.html)：同一问题答案会变，并不必然代表AI不可靠；它往往说明检索、来源和生成环节都在重新选择证据。引用来源波动通常来自查询改写、实时检索、来源更新、排序变化和生成取舍。企业不应把单次答案截图当成长期规律，而要看一组问题中的稳定信号。
 - [AI为什么更常引用第三方网站，而不是品牌官网](https://nextgeo.baicl.cc/blog/why-ai-cites-third-party-sites-over-brand-websites.html)：AI不是天然不信官网吗；它只是在很多问题里，需要官网之外的外部验证和比较语境。第三方网站常提供外部验证、对比语境和非品牌自述，因此更容易支撑某些AI答案。品牌官网如果只有营销语言、缺少证据和结构化回答，就容易被第三方来源替代。
 - [豆包、DeepSeek、元宝引用来源有什么不同](https://nextgeo.baicl.cc/blog/doubao-deepseek-yuanbao-citation-sources-differences.html)：比较中文AI产品的引用来源，重点不是给平台贴标签，而是找出品牌在哪些来源生态里容易被看见或被误解。不同中文AI产品可能受产品入口、搜索能力、内容生态和答案展示方式影响，引用来源不会完全一致。
 - [模型如何判断可信来源：权威、共识、新鲜度和可验证性](https://nextgeo.baicl.cc/blog/how-models-judge-trustworthy-sources.html)：可信来源不是一个标签，而是权威、共识、新鲜度和可验证性共同形成的证据结构。AI系统通常会在检索、排序和生成阶段降低错误风险，可信来源因此变得重要。权威、共识、新鲜度和可验证性不是孤立指标，需要共同支撑结论。
@@ -79,6 +87,7 @@
 - [robots.txt管不了LLM，我们需要新的AI访问协议](https://nextgeo.baicl.cc/blog/robots-txt-llm-ai-access-protocol.html)：robots.txt可以表达抓取意愿，但它无法完整定义AI如何学习、摘要、引用和再分发内容。robots.txt主要管理爬虫访问路径，但AI场景还涉及训练、摘要、引用和答案展示。企业需要区分搜索索引、AI搜索检索、模型训练、用户触发访问和商业复用等用途。
 - [豆包提示词和SEO：营销人需要知道的事](https://nextgeo.baicl.cc/blog/doubao-prompts-and-seo-for-marketers.html)：提示词不是作弊入口，而是营销人观察AI如何理解用户问题和品牌内容的显微镜。营销人应该把提示词当成用户意图样本，而不是只当内容生成口令。豆包类中文AI问答会放大清晰标题、问答结构和本地语境证据的价值。
 - [怎么让AI引用你：8000次引用数据告诉我们的真相](https://nextgeo.baicl.cc/blog/how-to-get-ai-citations-8000-citation-data.html)：本文基于公开的8000次AI引用分析，结合RAG和AI搜索机制，说明内容被引用更依赖来源可信度、结构清晰度和答案可抽取性，并给出企业官网改写为答案源、提升可引用性的方向。
+- [中文内容怎么才能被AI引用？我们找到了一些规律](https://nextgeo.baicl.cc/blog/chinese-content-ai-citation-patterns.html)：本文总结中文内容被AI引用的关键规律，包括定义稳定性、结构清晰度、证据密度、实体一致性和中文语境下的问答表达方式，并给出企业内容站可直接执行的改写方法与监测建议。
 - [豆包、DeepSeek分别偏爱什么样的内容](https://nextgeo.baicl.cc/blog/doubao-deepseek-content-preferences.html)：多模型GEO优化的核心，不是猜测模型偏好，而是把同一内容改造成不同模型都能稳定理解、验证和引用的答案源。豆包与DeepSeek的内容表现差异，只能作为可观察倾向，不能当成确定的算法结论。
 - [AI Search排名机制：模型凭什么把你的内容排在前面](https://nextgeo.baicl.cc/blog/ai-search-ranking-mechanism.html)：AI Search的排名不是单纯页面排序，而是模型对“谁更适合进入答案”的选择。AI Search排名不是传统蓝色链接排序，而是检索、理解、筛选和答案生成的综合选择。内容能否排在前面，取决于是否能被召回、被理解、被信任、被引用和被组合。
 - [如何监测 AI 是否错误描述你的品牌、产品和价格](https://nextgeo.baicl.cc/blog/monitor-ai-brand-product-price-errors.html)：AI时代的品牌风险，不是“没人说你”，而是“说错你”。AI时代的品牌风险不只是不可见，也包括被错误理解、错误归类和错误引用。品牌身份错误、产品能力错误、价格与商业模式错误是企业必须监测的三类风险。
