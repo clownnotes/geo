@@ -145,6 +145,48 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass
 
+    def _serve_static_file(self, target_path: str, target_rel: str):
+        try:
+            with open(target_path, "rb") as f:
+                content_bytes = f.read()
+
+            mime_type = "application/octet-stream"
+            if target_rel.endswith(".html"):
+                mime_type = "text/html; charset=utf-8"
+            elif target_rel.endswith(".txt"):
+                mime_type = "text/plain; charset=utf-8"
+            elif target_rel.endswith(".xml"):
+                mime_type = "application/xml; charset=utf-8"
+            elif target_rel.endswith(".jsonld") or target_rel.endswith(".json"):
+                mime_type = "application/ld+json; charset=utf-8" if target_rel.endswith(".jsonld") else "application/json; charset=utf-8"
+            elif target_rel.endswith(".svg"):
+                mime_type = "image/svg+xml"
+            elif target_rel.endswith(".jpg") or target_rel.endswith(".jpeg"):
+                mime_type = "image/jpeg"
+            elif target_rel.endswith(".png"):
+                mime_type = "image/png"
+            elif target_rel.endswith(".webp"):
+                mime_type = "image/webp"
+            elif target_rel.endswith(".ico"):
+                mime_type = "image/x-icon"
+            elif target_rel.endswith(".css"):
+                mime_type = "text/css; charset=utf-8"
+            elif target_rel.endswith(".js"):
+                mime_type = "application/javascript; charset=utf-8"
+
+            self.send_response(200)
+            self.send_header("Content-Type", mime_type)
+            self.send_header("Content-Length", str(len(content_bytes)))
+            self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(content_bytes)
+        except Exception as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(f"500 Internal Error: {str(e)}".encode("utf-8"))
+
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -1567,10 +1609,24 @@ core_values:
                 self.wfile.write(b"404 Not Found: Project site not found or not compiled")
                 return
 
+            # 如果访问的是 /sites/{project_id} 且末尾缺少 '/'，强制 301 重定向至 /sites/{project_id}/
+            # 彻底杜绝由于 Base URL 错位为 /sites/ 导致 assets/ 相对路径 404 崩盘的问题
+            if path == f"/sites/{project_id}":
+                self.send_response(301)
+                self.send_header("Location", f"/sites/{project_id}/")
+                self.end_headers()
+                return
+
             # 如果没有子路径或子路径为目录，自动解析 index.html
             target_rel = sub_asset if sub_asset else "index.html"
             target_path = os.path.abspath(os.path.join(site_dir, target_rel))
             if os.path.isdir(target_path):
+                # 如果请求的是子目录且末尾缺少 '/'，强制 301 重定向至 path + '/'
+                if not path.endswith("/"):
+                    self.send_response(301)
+                    self.send_header("Location", path + "/")
+                    self.end_headers()
+                    return
                 target_path = os.path.join(target_path, "index.html")
                 target_rel = os.path.relpath(target_path, site_dir)
 
@@ -1590,50 +1646,8 @@ core_values:
                 return
 
             # 读取静态资源并下发
-            try:
-                with open(target_path, "rb") as f:
-                    content_bytes = f.read()
-
-                # MIME 类型推断
-                mime_type = "application/octet-stream"
-                if target_rel.endswith(".html"):
-                    mime_type = "text/html; charset=utf-8"
-                elif target_rel.endswith(".txt"):
-                    mime_type = "text/plain; charset=utf-8"
-                elif target_rel.endswith(".xml"):
-                    mime_type = "application/xml; charset=utf-8"
-                elif target_rel.endswith(".jsonld") or target_rel.endswith(".json"):
-                    mime_type = "application/ld+json; charset=utf-8" if target_rel.endswith(".jsonld") else "application/json; charset=utf-8"
-                elif target_rel.endswith(".svg"):
-                    mime_type = "image/svg+xml"
-                elif target_rel.endswith(".jpg") or target_rel.endswith(".jpeg"):
-                    mime_type = "image/jpeg"
-                elif target_rel.endswith(".png"):
-                    mime_type = "image/png"
-                elif target_rel.endswith(".webp"):
-                    mime_type = "image/webp"
-                elif target_rel.endswith(".ico"):
-                    mime_type = "image/x-icon"
-                elif target_rel.endswith(".css"):
-                    mime_type = "text/css; charset=utf-8"
-                elif target_rel.endswith(".js"):
-                    mime_type = "application/javascript; charset=utf-8"
-
-                self.send_response(200)
-                self.send_header("Content-Type", mime_type)
-                self.send_header("Content-Length", str(len(content_bytes)))
-                # 开发预览态强制 no-cache 防死锁
-                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(content_bytes)
-                return
-            except Exception as e:
-                self.send_response(500)
-                self.send_header("Content-Type", "text/plain; charset=utf-8")
-                self.end_headers()
-                self.wfile.write(f"500 Internal Error: {str(e)}".encode("utf-8"))
-                return
+            self._serve_static_file(target_path, target_rel)
+            return
 
         # 5. 专属甲方只读交付门户页面路由: /share/{token} 与 /portal/{token}
         if path.startswith("/share/") or path.startswith("/portal/"):
@@ -2016,38 +2030,44 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
-        # 0. AI 原生官网单页直接在线预览: /api/projects/{id}/site/preview (支持独立窗口全屏直接看)
-        if path.startswith("/api/projects/") and path.endswith("/site/preview"):
+        # 0. AI 原生官网在线预览与静态资源直接下发: /api/projects/{id}/site/preview 或 /api/projects/{id}/site/{asset}
+        if path.startswith("/api/projects/") and "/site/" in path and not path.endswith("/site/download"):
             parts = path.split("/")
-            project_id = parts[3]
-            site_html_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "site", "index.html")
-            if not os.path.exists(site_html_path):
-                site_html_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "index.html")
-            if not os.path.exists(site_html_path):
-                try:
-                    from .scaffold import run_scaffold
-                    run_scaffold(project_id)
-                    site_html_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "site", "index.html")
-                except Exception:
-                    pass
+            # /api/projects/<id>/site/...
+            if len(parts) >= 5:
+                project_id = parts[3]
+                sub_path = "/".join(parts[5:]) if len(parts) > 5 else "preview"
+                site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
 
-            if os.path.exists(site_html_path):
-                try:
-                    with open(site_html_path, "rb") as f:
-                        data = f.read()
-                    self.send_response(200)
-                    self.send_header("Content-Type", "text/html; charset=utf-8")
-                    self.send_header("Content-Length", str(len(data)))
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                    self.end_headers()
-                    self.wfile.write(data)
+                if sub_path in ("preview", "preview/", ""):
+                    target_path = os.path.join(site_dir, "index.html")
+                    if not os.path.exists(target_path):
+                        target_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "index.html")
+                    if not os.path.exists(target_path):
+                        try:
+                            from .scaffold import run_scaffold
+                            run_scaffold(project_id)
+                            target_path = os.path.join(site_dir, "index.html")
+                        except Exception:
+                            pass
+                    target_rel = "index.html"
+                else:
+                    target_rel = sub_path
+                    target_path = os.path.abspath(os.path.join(site_dir, target_rel))
+                    if os.path.isdir(target_path):
+                        target_path = os.path.join(target_path, "index.html")
+                        target_rel = os.path.relpath(target_path, site_dir)
+
+                if os.path.exists(target_path) and not os.path.isdir(target_path):
+                    try:
+                        if os.path.commonpath([target_path, site_dir]) == site_dir:
+                            self._serve_static_file(target_path, target_rel)
+                            return
+                    except Exception:
+                        pass
+                elif sub_path in ("preview", "preview/"):
+                    self.send_json({"success": False, "message": "该项目尚未生成官网页面，请先执行阶段二生成！"}, status=404)
                     return
-                except Exception as e:
-                    self.send_json({"success": False, "message": str(e)}, status=500)
-                    return
-            else:
-                self.send_json({"success": False, "message": "该项目尚未生成官网页面，请先执行阶段二生成！"}, status=404)
-                return
 
         # 0. AI 原生交钥匙整站源码包 ZIP 下载: /api/projects/{id}/site/download
         if path.startswith("/api/projects/") and path.endswith("/site/download"):

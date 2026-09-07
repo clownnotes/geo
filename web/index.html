@@ -7984,6 +7984,8 @@ GitHub 开源仓库：https://github.com/company/repo
       } else {
         if (viewSite) viewSite.classList.add('hidden');
         if (viewCode) viewCode.classList.remove('hidden');
+        const fnameElem = document.getElementById('current-filename');
+        if (fnameElem) fnameElem.innerText = filename;
         loadScaffoldTab(filename === 'robots.txt.patch' ? 'robots.txt' : filename);
       }
       updateRouteState();
@@ -8115,7 +8117,8 @@ GitHub 开源仓库：https://github.com/company/repo
         });
         const data = await res.json();
         if (data.success && data.content) {
-          document.getElementById('preview-scaffold-code').innerText = data.content;
+          const codeElem = document.getElementById('code-scaffold');
+          if (codeElem) codeElem.innerText = data.content;
         }
       } catch (e) {
         console.error('加载底座代码失败:', filename, e);
@@ -8123,8 +8126,9 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     function copyCurrentScaffold() {
-      const code = document.getElementById('preview-scaffold-code').innerText;
-      if (!code || code.includes('请点击上方按钮')) {
+      const codeElem = document.getElementById('code-scaffold');
+      const code = codeElem ? codeElem.innerText : '';
+      if (!code || code.includes('请点击上方按钮') || code.includes('点击右上角')) {
         showToast('暂无代码，请先点击生成！', 'error');
         return;
       }
