@@ -635,7 +635,7 @@
                 LLM：检测中…
               </span>
               <button type="button" onclick="refreshLlmStatus(true)" class="text-[11px] text-indigo-700 hover:text-indigo-900 font-medium underline-offset-2 hover:underline">立即检测</button>
-              <button type="button" onclick="openLlmConfigModal()" class="text-[11px] px-2 py-1 rounded-md border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold">配置 API Key</button>
+              <button type="button" onclick="openLlmConfigModal()" class="text-[11px] px-2 py-1 rounded-md border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold">配置 Nextdoor</button>
               <span id="rag-cascade-badge" class="hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">RAG：--</span>
             </div>
           </div>
@@ -3941,13 +3941,13 @@ GitHub 开源仓库：https://github.com/company/repo
   </div>
 
   <!-- ================= 普林斯顿 9 因子量化体检仪模态 ================= -->
-  <!-- ================= LLM 配置弹窗 ================= -->
+  <!-- ================= LLM 配置弹窗（小毛驴 / Nextdoor） ================= -->
   <div id="llm-config-modal" onclick="if(event.target === this) closeLlmConfigModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
       <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
         <div>
-          <h3 class="text-sm font-bold text-slate-900">大模型 API 配置</h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">写入本地 .env（不入库）；探测失败不落盘</p>
+          <h3 class="text-sm font-bold text-slate-900">小毛驴 / Nextdoor 开放 API</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">同机回环调用；厂商 Key 在 Nextdoor 统一管理；探测失败不落盘</p>
         </div>
         <button onclick="closeLlmConfigModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -3955,24 +3955,24 @@ GitHub 开源仓库：https://github.com/company/repo
       </div>
       <div class="p-5 space-y-3">
         <div>
-          <label class="text-[11px] font-semibold text-slate-700">供应商</label>
-          <select id="llm-config-provider" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white">
-            <option value="deepseek">DeepSeek（写入 DEEPSEEK_API_KEY）</option>
-            <option value="doubao">豆包 / 火山方舟（写入 ARK_API_KEY）</option>
-            <option value="openai_compatible">OpenAI 兼容代理（写入 GEO_LLM_API_KEY）</option>
+          <label class="text-[11px] font-semibold text-slate-700">Base URL</label>
+          <input id="llm-config-base" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="http://127.0.0.1:3001" value="http://127.0.0.1:3001" />
+        </div>
+        <div>
+          <label class="text-[11px] font-semibold text-slate-700">JWT Token</label>
+          <input id="llm-config-key" type="password" autocomplete="off" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="Bearer 后的 JWT（仅存本地 .env）" />
+        </div>
+        <div>
+          <label class="text-[11px] font-semibold text-slate-700">品牌标识（vio-source-client）</label>
+          <input id="llm-config-brand" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="geo" value="geo" />
+        </div>
+        <div>
+          <label class="text-[11px] font-semibold text-slate-700">Chat mode（计费/回落；专属链不改梯队）</label>
+          <select id="llm-config-mode" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white">
+            <option value="flash" selected>flash</option>
+            <option value="think">think</option>
+            <option value="auto">auto</option>
           </select>
-        </div>
-        <div>
-          <label class="text-[11px] font-semibold text-slate-700">API Key</label>
-          <input id="llm-config-key" type="password" autocomplete="off" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="sk-..." />
-        </div>
-        <div>
-          <label class="text-[11px] font-semibold text-slate-700">模型（可选）</label>
-          <input id="llm-config-model" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="deepseek-chat / doubao-pro-32k" />
-        </div>
-        <div>
-          <label class="text-[11px] font-semibold text-slate-700">Base URL（可选）</label>
-          <input id="llm-config-base" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="留空使用默认" />
         </div>
         <button id="btn-llm-config-save" onclick="saveLlmConfig()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg">探测并保存</button>
       </div>
@@ -5864,20 +5864,24 @@ GitHub 开源仓库：https://github.com/company/repo
         }
         if (!d.configured || d.status === 'offline') {
           tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-slate-300 bg-slate-100 text-slate-700';
-          tag.textContent = '离线: 规则兜底';
+          tag.textContent = '未配置: Nextdoor';
           return;
         }
         if (d.status === 'ready') {
-          const lat = d.latency_ms != null ? ` ${d.latency_ms}ms` : '';
-          const src = d.source ? ` · ${d.source}` : '';
-          tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800';
-          tag.textContent = `在线: ${(d.provider || '').toUpperCase()} / ${d.model || ''}${lat}${src}`;
+          const lat = d.latency_ms != null ? ` · ${d.latency_ms}ms` : '';
+          if ((d.provider || '') === 'nextdoor') {
+            tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800';
+            tag.textContent = `Nextdoor · ${d.brand || 'geo'} · ${d.mode || d.model || 'flash'}${lat}`;
+          } else {
+            tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800';
+            tag.textContent = `直连: ${(d.provider || '').toUpperCase()} / ${d.model || ''}${lat}`;
+          }
         } else if (d.status === 'auth_failed') {
           tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-rose-200 bg-rose-50 text-rose-800';
-          tag.textContent = `鉴权失败: ${(d.provider || '').toUpperCase()}（${d.api_key_masked || ''}）`;
+          tag.textContent = `鉴权失败: ${(d.provider || 'Nextdoor').toUpperCase()}（${d.api_key_masked || ''}）`;
         } else {
           tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-amber-200 bg-amber-50 text-amber-900';
-          tag.textContent = `不可达: ${(d.provider || '').toUpperCase()}`;
+          tag.textContent = `不可达: ${(d.provider || 'Nextdoor').toUpperCase()}`;
         }
       } catch (err) {
         tag.textContent = 'LLM：检测失败';
@@ -5904,10 +5908,11 @@ GitHub 开源仓库：https://github.com/company/repo
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            provider: document.getElementById('llm-config-provider').value,
-            api_key: document.getElementById('llm-config-key').value,
-            model: document.getElementById('llm-config-model').value,
-            base_url: document.getElementById('llm-config-base').value
+            provider: 'nextdoor',
+            jwt_token: document.getElementById('llm-config-key').value,
+            base_url: document.getElementById('llm-config-base').value,
+            source_client: document.getElementById('llm-config-brand').value,
+            mode: document.getElementById('llm-config-mode').value
           })
         });
         const d = await res.json();

@@ -170,50 +170,13 @@ def get_configured_llm() -> dict:
 
 def call_llm_api(prompt: str, system_prompt: str = None, model: str = None, timeout: int = 30) -> tuple:
     """
-    零依赖调用大模型 OpenAI 兼容接口 (/chat/completions)
+    统一大模型调用：默认 Nextdoor 开放 API；GEO_LLM_DIRECT=1 时厂商直连。
     返回 (success: bool, result_text: str, provider_name: str)
     """
-    import json
-    import urllib.request
-    import urllib.error
+    from .llm import call_via_runtime, resolve_llm_runtime
 
-    llm_info = get_configured_llm()
+    llm_info = resolve_llm_runtime()
     if not llm_info:
-        return False, "未配置大模型 API Key（DEEPSEEK_API_KEY / ARK_API_KEY / OPENAI_API_KEY）", "none"
-
-    # 只有当 model 看起来是真实的模型名（含 "-"）时才覆盖，避免传入 "deepseek"/"doubao" 等简写导致 API 报错
-    _PROVIDER_SHORTHANDS = {"deepseek", "doubao", "openai", "gpt", "ark", "qwen", "ernie", "openai_compatible"}
-    target_model = llm_info["model"]
-    if model and model.lower() not in _PROVIDER_SHORTHANDS:
-        target_model = model
-    base_url = llm_info["base_url"]
-    endpoint = f"{base_url}/chat/completions" if not base_url.endswith("/chat/completions") else base_url
-
-    messages = []
-    if system_prompt:
-        messages.append({"role": "system", "content": system_prompt})
-    messages.append({"role": "user", "content": prompt})
-
-    payload = {
-        "model": target_model,
-        "messages": messages,
-        "temperature": 0.3
-    }
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {llm_info['api_key']}"
-    }
-
-    try:
-        req = urllib.request.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers=headers)
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            content = data["choices"][0]["message"]["content"]
-            return True, content.strip(), llm_info["provider"]
-    except urllib.error.HTTPError as e:
-        err_msg = f"HTTP {e.code}: {e.read().decode('utf-8', errors='ignore')}"
-        return False, err_msg, llm_info["provider"]
-    except Exception as e:
-        return False, str(e), llm_info["provider"]
+        return False, "未配置 Nextdoor JWT（NEXTDOOR_JWT_TOKEN）；应急直连需 GEO_LLM_DIRECT=1", "none"
+    return call_via_runtime(llm_info, prompt, system_prompt=system_prompt, timeout=timeout, model_override=model)
 

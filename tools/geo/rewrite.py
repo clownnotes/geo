@@ -306,7 +306,7 @@ def run_rewrite(project_id: str, input_dir: str = None, mode: str = "incremental
                 corpus = transform_princeton_corpus_fallback(cfg, raw_text)
                 gen_mode = "fallback"
         else:
-            print_info("当前未配置 DEEPSEEK_API_KEY / ARK_API_KEY，使用行业自适应普林斯顿 9 因子引擎生成...")
+            print_info("当前未配置 NEXTDOOR_JWT_TOKEN（且未开启 GEO_LLM_DIRECT），使用行业自适应普林斯顿 9 因子引擎生成...")
             corpus = transform_princeton_corpus_fallback(cfg, raw_text)
             gen_mode = "fallback"
         if fact_bundle.get("warnings"):

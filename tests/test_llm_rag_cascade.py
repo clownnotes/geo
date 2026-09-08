@@ -43,6 +43,7 @@ class TestLlmRuntime(unittest.TestCase):
                 atomic_write_env({"EVIL_KEY": "x"}, path=os.path.join(tmp, ".env"))
 
     def test_status_whitelist_no_plaintext_key(self):
+        os.environ["GEO_LLM_DIRECT"] = "1"
         os.environ["DEEPSEEK_API_KEY"] = "sk-test-key-abcdef"
         os.environ["DEEPSEEK_MODEL"] = "deepseek-chat"
         with mock.patch("tools.geo.llm.ping_llm", return_value=("ready", 12)):
@@ -53,10 +54,11 @@ class TestLlmRuntime(unittest.TestCase):
         self.assertEqual(payload["provider"], "deepseek")
 
     def test_web_write_key_visible_to_utils(self):
-        """Web 写入 DEEPSEEK_API_KEY 后，utils 与 llm 两侧同见。"""
+        """DIRECT 模式下 DEEPSEEK_API_KEY 两侧同见。"""
         for k in list(os.environ.keys()):
-            if "DEEPSEEK" in k or "ARK" in k or "DOUBAO" in k or "GEO_LLM" in k or "OPENAI" in k:
+            if "DEEPSEEK" in k or "ARK" in k or "DOUBAO" in k or "GEO_LLM" in k or "OPENAI" in k or "NEXTDOOR" in k:
                 os.environ.pop(k, None)
+        os.environ["GEO_LLM_DIRECT"] = "1"
         os.environ["DEEPSEEK_API_KEY"] = "sk-shared-key-12345678"
         rt = resolve_llm_runtime()
         util = get_configured_llm()
@@ -76,9 +78,11 @@ class TestLlmRuntime(unittest.TestCase):
                 res = save_llm_config({
                     "provider": "deepseek",
                     "api_key": "sk-fake-bad-key",
+                    "force_direct": True,
                 })
             self.assertFalse(res["success"])
-            content = open(env_path).read()
+            with open(env_path, "r", encoding="utf-8") as f:
+                content = f.read()
             self.assertNotIn("sk-fake-bad-key", content)
 
     def test_config_success_clears_ttl(self):
@@ -93,7 +97,11 @@ class TestLlmRuntime(unittest.TestCase):
                 # seed cache
                 llm_mod._STATUS_CACHE["payload"] = {"configured": False, "status": "offline"}
                 llm_mod._STATUS_CACHE["ts"] = 9999999999
-                res = save_llm_config({"provider": "deepseek", "api_key": "sk-good-key-abcdefg"})
+                res = save_llm_config({
+                    "provider": "deepseek",
+                    "api_key": "sk-good-key-abcdefg",
+                    "force_direct": True,
+                })
             self.assertTrue(res["success"])
             self.assertIsNone(llm_mod._STATUS_CACHE["payload"])
 
