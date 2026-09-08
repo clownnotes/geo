@@ -478,6 +478,79 @@ core_values:
                 self.send_json({"success": False, "message": f"素材写入提纯失败: {str(e)}"}, status=500)
             return
 
+        # 6b. 真相源：一键确认无冲突项
+        if path.startswith("/api/projects/") and path.endswith("/facts/confirm-all"):
+            project_id = path.split("/")[3]
+            try:
+                from .utils import load_project_config
+                from .ledger import confirm_all_non_conflict, migrate_legacy_raw_materials, load_facts
+                cfg = load_project_config(project_id)
+                migrate_legacy_raw_materials(cfg)
+                res = confirm_all_non_conflict(cfg)
+                res["facts"] = load_facts(cfg)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 6b2. 钉住母盘
+        if path.startswith("/api/projects/") and path.endswith("/corpus/pin"):
+            project_id = path.split("/")[3]
+            try:
+                from .utils import load_project_config
+                from .corpus import pin_corpus
+                cfg = load_project_config(project_id)
+                res = pin_corpus(cfg)
+                self.send_json(res, status=200 if res.get("success") else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 6c. 真相源：仲裁冲突
+        if path.startswith("/api/projects/") and path.endswith("/facts/resolve-conflict"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            fact_key = (body.get("fact_key") or "").strip()
+            chosen = body.get("chosen_value", "")
+            note = body.get("note")
+            if not fact_key:
+                self.send_json({"success": False, "message": "缺少 fact_key"}, status=400)
+                return
+            try:
+                from .utils import load_project_config
+                from .ledger import resolve_conflict, migrate_legacy_raw_materials
+                cfg = load_project_config(project_id)
+                migrate_legacy_raw_materials(cfg)
+                res = resolve_conflict(cfg, fact_key, str(chosen), note=note)
+                self.send_json(res, status=200 if res.get("success") else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 6d. 真相源：确认单条 /api/projects/{id}/facts/{fact_key}/confirm
+        if path.startswith("/api/projects/") and "/facts/" in path and path.endswith("/confirm"):
+            parts = path.split("/")
+            # ['', 'api', 'projects', id, 'facts', fact_key..., 'confirm']
+            try:
+                facts_idx = parts.index("facts")
+                project_id = parts[3]
+                fact_key = "/".join(parts[facts_idx + 1:-1])
+                from urllib.parse import unquote
+                fact_key = unquote(fact_key)
+            except Exception:
+                self.send_json({"success": False, "message": "路径无效"}, status=400)
+                return
+            try:
+                from .utils import load_project_config
+                from .ledger import confirm_fact, migrate_legacy_raw_materials
+                cfg = load_project_config(project_id)
+                migrate_legacy_raw_materials(cfg)
+                res = confirm_fact(cfg, fact_key)
+                self.send_json(res, status=200 if res.get("success") else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 7. 生成竞品反向压制策略 API: /api/projects/{id}/defense/generate
         if path.startswith("/api/projects/") and path.endswith("/defense/generate"):
             project_id = path.split("/")[3]
@@ -570,13 +643,21 @@ core_values:
                     run_scaffold(project_id)
                     msg = "阶段 2：站点技术底座改造包已生成！"
                 elif step == "rewrite":
-                    rewrite_res = run_rewrite(project_id)
-                    msg = "阶段 3：普林斯顿 9 因子内容重构已完成！"
+                    body = {}
+                    try:
+                        body = self.read_json_body() or {}
+                    except Exception:
+                        body = {}
+                    rmode = (body.get("mode") or "incremental").strip().lower()
+                    rewrite_res = run_rewrite(project_id, mode=rmode)
+                    msg = rewrite_res.get("message") or "阶段 3：普林斯顿 9 因子内容重构已完成！"
                     self.send_json({
                         "success": True,
                         "step": step,
                         "message": msg,
                         "mode": rewrite_res.get("mode", "fallback"),
+                        "rewrite_mode": rewrite_res.get("rewrite_mode"),
+                        "dirty_blocks": rewrite_res.get("dirty_blocks") or [],
                         "provider": rewrite_res.get("provider", "none"),
                         "rag": rewrite_res.get("rag") or {
                             "ok": False,
@@ -586,6 +667,7 @@ core_values:
                             "entity_coverage_pct": None,
                             "error": "无 RAG 结果",
                         },
+                        "facts": rewrite_res.get("facts"),
                     })
                     return
                 elif step == "distribute":
@@ -1491,6 +1573,31 @@ core_values:
             self.send_json({"success": ok, "message": "分享链接已成功作废！" if ok else "未找到该链接"})
             return
 
+        # 删除证据 /api/projects/{id}/evidence/{source_id}
+        if path.startswith("/api/projects/") and "/evidence/" in path:
+            parts = path.split("/")
+            try:
+                ev_idx = parts.index("evidence")
+                project_id = parts[3]
+                from urllib.parse import unquote
+                source_id = unquote("/".join(parts[ev_idx + 1:]))
+            except Exception:
+                self.send_json({"success": False, "message": "路径无效"}, status=400)
+                return
+            try:
+                from .utils import load_project_config
+                from .ledger import delete_evidence, migrate_legacy_raw_materials
+                cfg = load_project_config(project_id)
+                migrate_legacy_raw_materials(cfg)
+                ok = delete_evidence(cfg, source_id)
+                if not ok:
+                    self.send_json({"success": False, "message": "证据不存在"}, status=404)
+                    return
+                self.send_json({"success": True, "deleted": source_id})
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 删除客户项目 API: /api/projects/{id}
         if path.startswith("/api/projects/") and len(path.split("/")) == 4:
             project_id = path.split("/")[3]
@@ -2351,12 +2458,14 @@ server {{
                 project_id = path.split("/")[3]
                 try:
                     cfg = load_project_config(project_id)
+                    from .ledger import migrate_legacy_raw_materials, list_evidence, load_facts
+                    migrate_legacy_raw_materials(cfg)
                     raw_dir = os.path.join(cfg["_project_dir"], "raw_materials")
                     files = []
                     total_size = 0
                     if os.path.exists(raw_dir):
                         for fname in sorted(os.listdir(raw_dir)):
-                            if fname.startswith("."):
+                            if fname.startswith(".") or fname in ("evidence", "ledger"):
                                 continue
                             fpath = os.path.join(raw_dir, fname)
                             if os.path.isfile(fpath):
@@ -2367,13 +2476,121 @@ server {{
                                     "size": sz,
                                     "is_facts": fname == "raw_extracted_facts.md"
                                 })
+                    evidence = list_evidence(cfg)
+                    for e in evidence:
+                        total_size += int(e.get("chars") or 0)
+                    facts = load_facts(cfg)
                     self.send_json({
                         "success": True,
                         "project_id": project_id,
                         "files": files,
-                        "total_files": len(files),
-                        "total_size": total_size
+                        "total_files": len(files) + len(evidence),
+                        "total_size": total_size,
+                        "evidence": evidence,
+                        "facts_summary": {
+                            "total": len(facts),
+                            "confirmed": sum(1 for f in facts if f.get("status") == "confirmed"),
+                            "proposed": sum(1 for f in facts if f.get("status") == "proposed"),
+                            "conflict": sum(1 for f in facts if f.get("status") == "conflict"),
+                        }
                     })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 证据列表 /api/projects/{id}/evidence
+            if path.startswith("/api/projects/") and path.endswith("/evidence"):
+                project_id = path.split("/")[3]
+                try:
+                    cfg = load_project_config(project_id)
+                    from .ledger import migrate_legacy_raw_materials, list_evidence
+                    migrate_legacy_raw_materials(cfg)
+                    evidence = list_evidence(cfg)
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "evidence": evidence,
+                        "total": len(evidence),
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 单份证据 /api/projects/{id}/evidence/{source_id}
+            if path.startswith("/api/projects/") and "/evidence/" in path:
+                parts = path.split("/")
+                try:
+                    ev_idx = parts.index("evidence")
+                    project_id = parts[3]
+                    from urllib.parse import unquote
+                    source_id = unquote("/".join(parts[ev_idx + 1:]))
+                except Exception:
+                    self.send_json({"success": False, "message": "路径无效"}, status=400)
+                    return
+                try:
+                    cfg = load_project_config(project_id)
+                    from .ledger import migrate_legacy_raw_materials, read_evidence_body, list_evidence
+                    migrate_legacy_raw_materials(cfg)
+                    body = read_evidence_body(cfg, source_id)
+                    if body is None:
+                        self.send_json({"success": False, "message": "证据不存在"}, status=404)
+                        return
+                    meta = next((e for e in list_evidence(cfg) if e.get("source_id") == source_id), {})
+                    self.send_json({
+                        "success": True,
+                        "source_id": source_id,
+                        "meta": meta,
+                        "content": body,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 真相源列表 /api/projects/{id}/facts
+            if path.startswith("/api/projects/") and path.endswith("/facts"):
+                project_id = path.split("/")[3]
+                try:
+                    cfg = load_project_config(project_id)
+                    from .ledger import migrate_legacy_raw_materials, load_facts, get_rewrite_fact_bundle
+                    from .corpus import detect_duplicate_clusters, detect_logic_conflicts
+                    migrate_legacy_raw_materials(cfg)
+                    facts = load_facts(cfg)
+                    bundle = get_rewrite_fact_bundle(cfg)
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "facts": facts,
+                        "confirmed_count": bundle.get("confirmed_count", 0),
+                        "conflict_count": bundle.get("conflict_count", 0),
+                        "proposed_count": bundle.get("proposed_count", 0),
+                        "warnings": bundle.get("warnings") or [],
+                        "duplicates": detect_duplicate_clusters(facts),
+                        "logic_conflicts": detect_logic_conflicts(facts),
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 脏块 /api/projects/{id}/corpus/dirty-blocks
+            if path.startswith("/api/projects/") and path.endswith("/corpus/dirty-blocks"):
+                project_id = path.split("/")[3]
+                try:
+                    cfg = load_project_config(project_id)
+                    from .corpus import compute_dirty_blocks
+                    self.send_json(compute_dirty_blocks(cfg))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 发前对照 /api/projects/{id}/corpus/diff
+            if path.startswith("/api/projects/") and path.endswith("/corpus/diff"):
+                project_id = path.split("/")[3]
+                try:
+                    cfg = load_project_config(project_id)
+                    from .corpus import corpus_diff
+                    q = parse_qs(parsed.query)
+                    against = (q.get("against") or ["pinned"])[0]
+                    self.send_json(corpus_diff(cfg, against=against))
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

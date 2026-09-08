@@ -1,27 +1,46 @@
 # SOP-03 普林斯顿 9 因子内容重构与质检
 
 > **阶段目标**：把客户积压的 PDF/Word/产品手册，重构成大模型最高采纳率的语料（统计数据注入 +30%~41%、权威引用 +25%~35%、专家引语 +18%~28%）。  
-> **执行人**：内容工程师 ｜ **周期**：第 2 周 ｜ **对应程序**：`geo rewrite`
+> **执行人**：内容工程师 ｜ **周期**：第 2 周 ｜ **对应程序**：`geo ingest` → `geo facts` → `geo rewrite`
 
 ---
 
-## 一、执行步骤
+## 一、执行步骤（证据 → 真相确认 → 重构）
 
-1. **收集与提纯客户原始资料**（存放于 `projects/<client_id>/raw_materials/`）：
+1. **累积证据（Evidence Vault）**（`projects/<client_id>/raw_materials/evidence/`）：
    ```bash
-   # 方式 A：官网 URL 一键爬取降噪并自动提纯事实清单
-   python3 -m tools.geo ingest <client_id> --url https://client.com
+   # 方式 A：官网单页抓取（每个 URL 一份证据；同 URL 重抓覆盖该来源）
+   python3 -m tools.geo ingest <client_id> --url https://client.com/
+   python3 -m tools.geo ingest <client_id> --url https://client.com/about
    
-   # 方式 B：本地文档/画册导入提纯
+   # 方式 B：本地文档/画册导入
    python3 -m tools.geo ingest <client_id> --file /path/to/product_brochure.pdf
    
-   # 方式 C：在 Web 管理端 Step 3 面板点击「抓取并提纯」
+   # 方式 C：Web Step 3「抓取并提纯」/「提纯并保存」
    ```
-2. **执行普林斯顿 9 因子内容重构流水线**：
+   - 禁止指望「一次抓全站」；多页请多次抓取不同 URL。  
+   - 抓取只更新证据库与真相源提案，**不会**自动改写 `03_普林斯顿…语料库.md`。
+
+2. **确认唯一真相源（Canonical Fact Ledger）**（`ledger/facts.jsonl`）：
    ```bash
-   python3 -m tools.geo rewrite --project <client_id>          # 有 LLM Key 时大模型深度精修
+   python3 -m tools.geo facts <client_id>              # 查看状态
+   python3 -m tools.geo facts <client_id> --confirm-all # 批量确认无冲突项
    ```
-3. 产物：《03_普林斯顿9因子高权威语料库.md》自动落在 `projects/<client_id>/outputs/`，包含首段三元组、5 维量化参数对比表、Prompt 对齐 Q&A 问答对与服务承诺清单。
+   - 同键异值进入 `conflict`，必须人审仲裁，禁止最新页静默覆盖。  
+   - 兼容镜像：`raw_materials/raw_extracted_facts.md` 由 ledger 自动同步。
+
+3. **执行普林斯顿 9 因子内容重构（默认增量）**：
+   ```bash
+   python3 -m tools.geo rewrite --project <client_id>          # 默认 incremental：只重生脏块
+   python3 -m tools.geo rewrite --project <client_id> --full   # 强制全量
+   python3 -m tools.geo corpus-pin <client_id>                 # 钉住母盘为对照基线
+   python3 -m tools.geo corpus-diff <client_id>                # 发前对照卡
+   ```
+   - 无脏块时返回 noop，不重写全文。  
+   - 缺失母盘/`03_corpus_meta.json` 时自动降级 full。  
+   - 仅消费 `confirmed` 事实；冲突未决时降级沿用历史确认值或安全占位，严禁编造。  
+   - 发前对照 `strategy=block` 时禁止进入阶段四；`patch` / `new_article` / `noop` 按硬规则判定。  
+   - 产物：《03_普林斯顿9因子高权威语料库.md》+ `03_corpus_meta.json`。
 
 ## 二、每篇语料的硬性结构（普林斯顿因子落位）
 
@@ -39,7 +58,7 @@
 | :--- | :---: | :--- |
 | 数字密度 | 2 | ≥5 处量化表述（价格/周期/百分比/指标） |
 | 三元组与 FAQ 完整 | 2 | 结构表五块齐全 |
-| **事实真实性** | 3 | 所有数据可溯源到客户提供的原始资料，**严禁 LLM 幻觉数字**；LLM 精修稿必须逐句对回 raw_materials |
+| **事实真实性** | 3 | 所有数据可溯源到证据库摘录与已确认真相源，**严禁 LLM 幻觉数字** |
 | 署名一致性 | 1 | 公司/人名/电话与底座补丁逐字一致 |
 | 无违禁词 | 1 | 无"第一/最强/顶级"等广告法绝对化用语 |
 | 关键词堆砌检查 | 1 | 品牌名密度 <3%，靠语义而非堆词 |
@@ -59,6 +78,8 @@ python3 -m tools.geo visual <client_id>
 
 ## 五、验收标准
 
+- [ ] 证据库含 ≥2 个有价值来源（或客户书面确认单页已足够）；
+- [ ] 真相源关键量化事实均为 `confirmed`，无未决 `conflict`；
 - [ ] 语料数量 ≥ 客户资料数的 80%，且覆盖全部核心业务线；
 - [ ] 每篇质检分 ≥ 8 并留有打分记录；
 - [ ] 多模态 SVG 视觉对比图与 60 秒短视频口播脚本已生成完毕并校对；

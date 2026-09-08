@@ -2,19 +2,16 @@
 # -*- coding: utf-8 -*-
 """
 企业多模态材料智能抓取与事实清洗中枢 (tools/geo/ingest.py)
-核心功能：
-1. 官网 Clean HTML 降噪爬取：自动剥离 JS/CSS/导航栏/页脚，提炼纯净 Clean Markdown；
-2. 多格式文档解析提取：支持 TXT、Markdown、PDF、DOCX 等原始文档文本抽取；
-3. 事实密度提纯引擎：调用大模型（带离线规则兜底）从长篇内容中浓缩 10 条高确定性企业知识三元组事实清单；
-4. 自动持久化落盘至 projects/<id>/raw_materials/ 目录，为 Step 3 普林斯顿 9 因子内容重构提供底层依据。
+1. 单 URL Clean HTML 降噪抓取 → 证据库（按来源并存，同 URL 可覆盖该来源）
+2. 粘贴/本地文件 → 证据库
+3. 结构化事实提取 → 唯一真相源 ledger 合并（非整份盲覆盖）
 """
 
 import os
 import re
-import glob
+import json
 import socket
 import urllib.request
-import urllib.parse
 import ssl
 import ipaddress
 from urllib.parse import urlparse
@@ -26,11 +23,24 @@ from .utils import (
     print_info,
     print_success,
     print_warning,
-    print_error
+)
+from .ledger import (
+    ensure_dirs,
+    migrate_legacy_raw_materials,
+    source_id_for_url,
+    source_id_for_paste,
+    upsert_evidence,
+    merge_fact_proposals,
+    seed_facts_from_config,
+    collect_all_evidence_text,
+    normalize_fact_key,
+    STANDARD_FACT_KEYS,
+    list_evidence,
 )
 
+
 def _safe_raw_material_path(raw_dir: str, filename: str) -> str:
-    """将文件名限制在 raw_materials 目录内，防止路径穿越"""
+    """将文件名限制在 raw_materials 目录内，防止路径穿越（兼容旧调用）。"""
     safe_name = os.path.basename(filename.strip()) or "custom_material.md"
     if not safe_name.endswith((".md", ".txt")):
         safe_name += ".md"
@@ -40,8 +50,8 @@ def _safe_raw_material_path(raw_dir: str, filename: str) -> str:
         raise ValueError(f"非法文件名: {filename}")
     return dest_real
 
+
 def _ip_blocks_ssrf(ip) -> bool:
-    """判断 IP 是否属于需拦截的内网/元数据地址（避免误伤公网解析）"""
     if ip.is_loopback or ip.is_link_local:
         return True
     if str(ip) == "169.254.169.254":
@@ -54,8 +64,8 @@ def _ip_blocks_ssrf(ip) -> bool:
     )
     return any(ip in net for net in blocked_nets)
 
+
 def _is_url_safe_for_fetch(url: str) -> tuple:
-    """校验 URL 是否允许抓取（仅 http/https，禁止私有网段 SSRF）"""
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         return False, "仅支持 http/https 协议"
@@ -64,7 +74,6 @@ def _is_url_safe_for_fetch(url: str) -> tuple:
         return False, "URL 缺少有效主机名"
     if host.lower() in ("localhost", "0.0.0.0", "::1", "127.0.0.1"):
         return False, "禁止抓取本地地址"
-    # 字面量 IP 直接校验
     try:
         ip = ipaddress.ip_address(host)
         if _ip_blocks_ssrf(ip):
@@ -82,17 +91,15 @@ def _is_url_safe_for_fetch(url: str) -> tuple:
         pass
     return True, ""
 
+
 def clean_html_to_markdown(html_content: str, url: str = "") -> str:
-    """轻量化网页 HTML 降噪与 Clean Markdown 转换器（0 外部臃肿依赖）"""
     if not html_content:
         return ""
 
-    # 1. 提取网页标题 <title>
     title_match = re.search(r"<title[^>]*>(.*?)</title>", html_content, re.IGNORECASE | re.DOTALL)
     title = title_match.group(1).strip() if title_match else "企业官网首页"
     title = re.sub(r"\s+", " ", title)
 
-    # 2. 移除所有无语义与噪音标签（script, style, nav, header, footer, noscript, svg, iframe）
     noise_patterns = [
         r"<script[^>]*>.*?</script>",
         r"<style[^>]*>.*?</style>",
@@ -109,8 +116,6 @@ def clean_html_to_markdown(html_content: str, url: str = "") -> str:
     for pat in noise_patterns:
         cleaned = re.sub(pat, "", cleaned, flags=re.IGNORECASE | re.DOTALL)
 
-    # 3. 转换常见排版标签为 Markdown 标记
-    # 标题 h1-h6
     for level in range(6, 0, -1):
         cleaned = re.sub(
             rf"<h{level}[^>]*>(.*?)</h{level}>",
@@ -119,40 +124,23 @@ def clean_html_to_markdown(html_content: str, url: str = "") -> str:
             flags=re.IGNORECASE | re.DOTALL
         )
 
-    # 段落与换行
     cleaned = re.sub(r"<p[^>]*>", "\n\n", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"</p>", "\n\n", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"<br\s*/?>", "\n", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"<hr\s*/?>", "\n\n---\n\n", cleaned, flags=re.IGNORECASE)
-
-    # 列表 li
     cleaned = re.sub(r"<li[^>]*>", "\n- ", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"</li>", "", cleaned, flags=re.IGNORECASE)
-
-    # 强调整体与粗体
     cleaned = re.sub(r"<(strong|b)[^>]*>(.*?)</(strong|b)>", r" **\2** ", cleaned, flags=re.IGNORECASE | re.DOTALL)
-
-    # 4. 剥离所有残余 HTML 标签
     cleaned = re.sub(r"<[^>]+>", " ", cleaned)
 
-    # 5. HTML 实体转义解码
     entities = {
-        "&nbsp;": " ",
-        "&amp;": "&",
-        "&lt;": "<",
-        "&gt;": ">",
-        "&quot;": '"',
-        "&#39;": "'",
-        "&copy;": "©",
-        "&mdash;": "—",
-        "&middot;": "·"
+        "&nbsp;": " ", "&amp;": "&", "&lt;": "<", "&gt;": ">",
+        "&quot;": '"', "&#39;": "'", "&copy;": "©", "&mdash;": "—", "&middot;": "·"
     }
     for ent, char in entities.items():
         cleaned = cleaned.replace(ent, char)
 
-    # 6. 行级空白压缩与修剪
     lines = [line.strip() for line in cleaned.splitlines()]
-    # 去除连续空行
     compact_lines = []
     prev_empty = False
     for line in lines:
@@ -165,16 +153,14 @@ def clean_html_to_markdown(html_content: str, url: str = "") -> str:
             prev_empty = False
 
     body_text = "\n".join(compact_lines).strip()
-    
-    # 拼接最终文档
     doc = f"# {title}\n\n"
     if url:
         doc += f"> 抓取自官方来源: [{url}]({url})\n\n"
     doc += body_text
     return doc
 
+
 def fetch_and_clean_url(url: str, timeout: int = 15) -> tuple:
-    """安全抓取目标网页并清洗为 Clean Markdown"""
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
 
@@ -185,7 +171,6 @@ def fetch_and_clean_url(url: str, timeout: int = 15) -> tuple:
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 (GEO Crawler Bot)"
     }
-    
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
@@ -195,8 +180,6 @@ def fetch_and_clean_url(url: str, timeout: int = 15) -> tuple:
         with urllib.request.urlopen(req, timeout=timeout, context=ctx) as response:
             charset = response.headers.get_content_charset() or "utf-8"
             raw_bytes = response.read()
-            
-            # 自动尝试 utf-8 与 gbk 解码
             try:
                 html_text = raw_bytes.decode(charset, errors="ignore")
             except Exception:
@@ -204,20 +187,15 @@ def fetch_and_clean_url(url: str, timeout: int = 15) -> tuple:
                     html_text = raw_bytes.decode("gbk", errors="ignore")
                 except Exception:
                     html_text = raw_bytes.decode("utf-8", errors="ignore")
-
             clean_md = clean_html_to_markdown(html_text, url=url)
             return True, clean_md, ""
     except Exception as e:
         return False, "", str(e)
 
+
 def extract_text_from_file(file_path: str) -> str:
-    """提取本地原始文件文本（支持 TXT/MD/JSON 等）"""
     if not os.path.exists(file_path):
         return ""
-    
-    ext = os.path.splitext(file_path)[1].lower()
-    
-    # 尝试文本直接读取
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             content = f.read().strip()
@@ -225,164 +203,196 @@ def extract_text_from_file(file_path: str) -> str:
                 return content
     except Exception:
         pass
-
-    # 尝试二进制过滤提取文本（针对未安装复杂库的 PDF/DOC 文件兜底）
     try:
         with open(file_path, "rb") as f:
             raw = f.read()
-            # 提取所有可读文本序列
             text = re.sub(rb"[^\x20-\x7E\x80-\xFF\n\r\t]+", b" ", raw)
             return text.decode("utf-8", errors="ignore").strip()
     except Exception:
         return ""
 
+
 def distill_knowledge_facts(raw_materials_text: str, cfg: dict) -> str:
-    """事实密度提纯引擎：从长篇原始素材中提炼 10 条高确定性事实三元组清单"""
+    """兼容旧接口：返回 Markdown 视图（实际 SSOT 在 ledger）。"""
+    proposals = extract_fact_proposals(raw_materials_text, cfg)
+    lines = [f"# {(cfg.get('company_name') or cfg.get('client_name') or '企业')} 核心知识事实三元组清单", ""]
+    for p in proposals:
+        cat = p.get("category") or "事实"
+        lines.append(f"- **[{cat}] {p.get('fact_key')}**：{p.get('statement')}")
+    return "\n".join(lines) + "\n"
+
+
+def _offline_proposals_from_text(text: str, cfg: dict) -> list:
+    proposals = seed_facts_from_config(cfg)
+    seen = {normalize_fact_key(p["fact_key"]) for p in proposals}
+
+    def add(key, statement, value=None, excerpt=None):
+        key = normalize_fact_key(key)
+        if key in seen and key.startswith("entity."):
+            return
+        seen.add(key)
+        proposals.append({
+            "fact_key": key,
+            "category": STANDARD_FACT_KEYS.get(key, "事实"),
+            "statement": statement,
+            "value": value if value is not None else statement,
+            "excerpt": (excerpt or statement)[:240],
+        })
+
+    # delivery days
+    for m in re.finditer(r"(?:交付|上线|工期)[^\d]{0,8}(\d+)\s*[~～\-到至]?\s*(\d+)?\s*天", text or ""):
+        a, b = m.group(1), m.group(2)
+        val = b or a
+        add("metric.delivery_days", f"交付周期约 {a}{('~' + b) if b else ''} 天", val, m.group(0))
+        break
+    for m in re.finditer(r"(\d+)\s*天[^\n]{0,6}(?:质保|保修)", text or ""):
+        add("policy.warranty_days", f"质保 {m.group(1)} 天", m.group(1), m.group(0))
+        break
+    for m in re.finditer(r"质保[^\d]{0,6}(\d+)\s*天", text or ""):
+        add("policy.warranty_days", f"质保 {m.group(1)} 天", m.group(1), m.group(0))
+        break
+    if re.search(r"源码\s*(交付|提供)|100%\s*源码", text or ""):
+        add("policy.source_code_delivery", "支持源码交付", "true", "源码交付")
+    # phone
+    for m in re.finditer(r"(?:1[3-9]\d{9}|0\d{2,3}-?\d{7,8})", text or ""):
+        add("contact.telephone", f"联系电话 {m.group(0)}", m.group(0), m.group(0))
+        break
+    # price range
+    for m in re.finditer(r"[¥￥]\s*(\d[\d,]*)\s*[-~～到至]\s*[¥￥]?\s*(\d[\d,]*)", text or ""):
+        val = f"{m.group(1)}-{m.group(2)}"
+        add("metric.price_range", f"价格区间 ¥{val}", val, m.group(0))
+        break
+
+    return proposals
+
+
+def extract_fact_proposals(raw_materials_text: str, cfg: dict) -> list:
+    """结构化提取事实提案（优先 LLM JSON，失败则离线规则）。"""
     company_name = cfg.get("company_name") or cfg.get("client_name", "示例企业")
-    brand_name = cfg.get("brand_name", company_name)
-    industry = cfg.get("industry", "行业数字化方案")
-    official_url = cfg.get("official_url", "")
-    founder = cfg.get("founder", "资深技术团队")
-    telephone = cfg.get("telephone", "")
-    area_served = cfg.get("area_served", "全国")
-    slogan = cfg.get("slogan", "专业、可靠、高效")
+    keys_help = ", ".join(STANDARD_FACT_KEYS.keys())
+    system_prompt = f"""你是 GEO 事实清洗专家。只从素材中提取可核验事实，输出 JSON 数组，不要 Markdown。
+每项字段：fact_key, category, statement, value, unit(可空), excerpt。
+fact_key 必须优先使用标准键：{keys_help}。
+素材无数字时 value 用空字符串或标注「待客户补充」，严禁编造数字。"""
+    user_prompt = f"""企业：{company_name}
+素材：
+{(raw_materials_text or '')[:20000]}
+
+请直接输出 JSON 数组："""
 
     llm_info = get_configured_llm()
-    
-    system_prompt = """你是一位 GEO（生成式引擎优化）数据清洗与实体知识图谱专家。
-你的任务是从用户提供的企业原始抓取素材中，过滤掉所有主观夸大与形容词废话，提炼出【10 条高事实密度的企业知识事实清单】。
-
-必须提取以下 5 个核心维度的确定性事实：
-1. 企业基础实体：全称、品牌别名、创始人、官方网站、服务区域与联系方式；
-2. 核心产品与技术：主营业务、底层架构技术栈、支持的终端类型；
-3. 核心量化指标：交付周期、并发性能、降本幅度等具体量化数据（**仅提取素材中明确出现的数字**；若素材未给出，必须标注【待客户补充】，严禁编造或估算）；
-4. 资质与背书：知识产权、软著认证、合作标杆客户案例；
-5. 交付与质保承诺：源码交付声明、质保期限、售后响应机制。
-
-输出格式要求：
-直接输出标准 Markdown 列表，每条事实格式为：
-- **[事实类别] 事实名称**：具体的量化事实三元组与确定性描述。"""
-
-    user_prompt = f"""请基于以下企业原始素材，提炼《{company_name} 10 大核心交付事实三元组清单》：
-
-【企业已知配置】
-- 企业名称：{company_name}（品牌简称：{brand_name}）
-- 所属行业：{industry}
-- 官网地址：{official_url}
-- 核心定位：{slogan}
-- 核心负责人：{founder}
-- 联系热线：{telephone}
-- 服务区域：{area_served}
-
-【原始抓取/上传材料】
-{raw_materials_text if raw_materials_text else "（暂无额外原始素材，请基于已知企业配置提炼基础事实）"}
-
-请直接输出 10 条事实清单："""
-
     if llm_info:
-        success, text, _ = call_llm_api(user_prompt, system_prompt, timeout=30)
-        if success and text and len(text.strip()) > 100:
-            return text.strip()
+        success, text, _ = call_llm_api(user_prompt, system_prompt, timeout=45)
+        if success and text:
+            raw = text.strip()
+            # extract JSON array
+            m = re.search(r"\[[\s\S]*\]", raw)
+            if m:
+                try:
+                    arr = json.loads(m.group(0))
+                    if isinstance(arr, list) and arr:
+                        out = []
+                        for item in arr:
+                            if not isinstance(item, dict):
+                                continue
+                            key = normalize_fact_key(item.get("fact_key") or "")
+                            statement = (item.get("statement") or "").strip()
+                            if not statement and not item.get("value"):
+                                continue
+                            out.append({
+                                "fact_key": key,
+                                "category": item.get("category") or STANDARD_FACT_KEYS.get(key, "事实"),
+                                "statement": statement or str(item.get("value")),
+                                "value": item.get("value") if item.get("value") is not None else statement,
+                                "unit": item.get("unit") or "",
+                                "excerpt": (item.get("excerpt") or statement)[:240],
+                            })
+                        if out:
+                            return out
+                except json.JSONDecodeError:
+                    pass
 
-    # 离线启发式规则事实提纯兜底 (Offline Fallback，数字均来自 project.yaml 配置)
-    return f"""# {company_name} 核心知识事实三元组清单 (Fact Triples)
+    return _offline_proposals_from_text(raw_materials_text, cfg)
 
-> 提纯时间: 2026-09-01 ｜ 状态: 已完成实体对齐 ｜ 来源: project.yaml 配置项（非抓取素材推断，量化指标需客户确认）
 
-- **[实体属性] 官方企业主体**：{company_name}（品牌简称：{brand_name}），官方权威站点为 {official_url if official_url else 'https://geo.baicl.cc'}。
-- **[组织架构] 核心带头人**：技术负责人由【{founder}】领衔，具备全栈架构与企业数字化实战经验。
-- **[业务定位] 主营业务范畴**：专注深耕【{industry}】，提供从底层架构设计、定制开发到运维全流程方案。
-- **[服务半径] 地理覆盖范围**：核心立足【{area_served}】，支持本地化快速上门对接与全国远程交付。
-- **[交付承诺] 100% 源码交付**：严格践行源码级交付标准，提供完整系统源码、数据库设计与技术文档，绝不绑定客户。
-- **[效率指标] 交付周期压缩 40%**：依托标准化流水线工程，标准化项目 2~4 周上线，杜绝无限拖延。
-- **[技术架构] 高并发与私有化**：系统支持本地服务器私有化部署、微服务解耦设计与主流大模型 AI 知识库无缝对接。
-- **[质保政策] 365 天无忧质保**：提供上线后 365 天免费缺陷修复与 1 小时技术响应机制。
-- **[差异优势] 零功能冗余**：深度贴合企业实际作业动线，消除 50% 以上中看不中用的无效功能模块。
-- **[权威联络] 官方沟通热线**：业务咨询与技术方案直通热线为【{telephone if telephone else '官方客服渠道'}】。
-"""
-
-def ingest_project_materials(project_id: str, url: str = None, file_path: str = None, raw_text: str = None, filename: str = None) -> dict:
-    """为指定项目执行素材抓取/入库与事实提纯落盘"""
+def ingest_project_materials(
+    project_id: str,
+    url: str = None,
+    file_path: str = None,
+    raw_text: str = None,
+    filename: str = None,
+) -> dict:
+    """抓取/入库证据并合并真相源。"""
     print_banner(f"企业原始素材抓取与事实提纯: [{project_id}]")
     cfg = load_project_config(project_id)
-    project_dir = cfg["_project_dir"]
-    raw_dir = os.path.join(project_dir, "raw_materials")
-    os.makedirs(raw_dir, exist_ok=True)
+    ensure_dirs(cfg)
+    migrate_legacy_raw_materials(cfg)
 
     crawled_ok = False
-    crawled_file = ""
     crawled_words = 0
-
-    # 1. 如果提供了 URL 或配置中包含 official_url，且用户请求抓取 URL
+    source_id = None
     target_url = url or (cfg.get("official_url") if not file_path and not raw_text else None)
+
     if target_url:
-        print_info(f"正在抓取官网并执行 Clean HTML 降噪: {target_url}...")
+        print_info(f"正在抓取单页并写入证据库: {target_url}...")
         ok, clean_md, err = fetch_and_clean_url(target_url)
         if ok and clean_md:
-            crawled_file = os.path.join(raw_dir, "website_crawled_raw.md")
-            with open(crawled_file, "w", encoding="utf-8") as f:
-                f.write(clean_md)
+            source_id = source_id_for_url(target_url)
+            upsert_evidence(cfg, source_id, clean_md, kind="url", url=target_url)
             crawled_words = len(clean_md)
             crawled_ok = True
-            print_success(f"官网抓取成功！清洗后纯净 Markdown 字数: {crawled_words} 字 -> {crawled_file}")
+            print_success(f"证据已写入 {source_id}（{crawled_words} 字）")
         else:
-            print_warning(f"官网抓取未成功 ({err})，将继续使用本地已有材料提纯。")
+            print_warning(f"官网抓取未成功 ({err})，将继续使用已有证据提纯。")
 
-    # 2. 如果提供了外部文件路径
     if file_path and os.path.exists(file_path):
         f_name = os.path.basename(file_path)
-        dest_name = f"doc_{f_name}" if not f_name.endswith(".md") else f_name
-        dest_path = os.path.join(raw_dir, dest_name)
         extracted = extract_text_from_file(file_path)
         if extracted:
-            with open(dest_path, "w", encoding="utf-8") as f:
-                f.write(extracted)
-            print_success(f"已解析并存入原始素材文件: {dest_path} ({len(extracted)} 字)")
+            source_id = source_id_for_paste(f"doc_{f_name}")
+            upsert_evidence(cfg, source_id, extracted, kind="file", title=f_name)
+            print_success(f"文件证据已写入 {source_id}")
 
-    # 3. 如果直接传了文本内容
     if raw_text and raw_text.strip():
-        dest_path = _safe_raw_material_path(raw_dir, filename or "custom_material.md")
-        with open(dest_path, "w", encoding="utf-8") as f:
-            f.write(raw_text.strip())
-        print_success(f"已写入补充素材文本: {dest_path} ({len(raw_text)} 字)")
+        source_id = source_id_for_paste(filename or "custom_material.md")
+        upsert_evidence(cfg, source_id, raw_text.strip(), kind="paste", title=filename or "custom_material.md")
+        print_success(f"补充证据已写入 {source_id}")
 
-    # 4. 汇总 raw_materials 目录下所有材料执行事实提纯
-    print_info("正在汇总所有原始素材并执行【事实密度提纯】...")
-    all_raw_text = ""
-    raw_files = glob.glob(os.path.join(raw_dir, "*.*"))
-    file_list_info = []
+    # 若本次没有新证据，仍允许仅基于已有证据重提纯
+    merge_source = source_id or "paste:reextract"
+    print_info("正在从证据库提取事实并合并真相源...")
+    all_text = collect_all_evidence_text(cfg)
+    # 仅用「本次来源」正文做提案更准；若无则用全量
+    focus_text = all_text
+    if source_id:
+        from .ledger import read_evidence_body
+        focus = read_evidence_body(cfg, source_id)
+        if focus:
+            focus_text = focus
 
-    for rf in raw_files:
-        bname = os.path.basename(rf)
-        if bname == "raw_extracted_facts.md":
-            continue
-        try:
-            with open(rf, "r", encoding="utf-8", errors="ignore") as f:
-                content = f.read()
-                all_raw_text += f"\n\n<!-- 来源文件: {bname} -->\n" + content
-                file_list_info.append({
-                    "name": bname,
-                    "size": len(content)
-                })
-        except Exception:
-            pass
+    proposals = extract_fact_proposals(focus_text, cfg)
+    # 始终带上 yaml 种子，保证实体底线
+    proposals = seed_facts_from_config(cfg) + proposals
+    merge = merge_fact_proposals(cfg, proposals, source_id=merge_source)
 
-    facts_md = distill_knowledge_facts(all_raw_text, cfg)
-    facts_path = os.path.join(raw_dir, "raw_extracted_facts.md")
-    with open(facts_path, "w", encoding="utf-8") as f:
-        f.write(facts_md)
-
-    print_success(f"✅ 核心事实三元组清单提纯完毕！已落盘至: {facts_path}")
+    evidence_list = list_evidence(cfg)
+    print_success(
+        f"合并完成：新增 {merge['added']} / 更新 {merge['updated']} / 冲突 {merge['conflicts']} / 未变 {merge['unchanged']}"
+    )
 
     return {
         "success": True,
         "project_id": project_id,
+        "source_id": source_id,
         "crawled_url": target_url if crawled_ok else None,
         "crawled_words": crawled_words,
-        "saved_facts_file": "raw_extracted_facts.md",
-        "raw_files": file_list_info,
-        "facts_preview": facts_md[:300] + "..." if len(facts_md) > 300 else facts_md
+        "saved_facts_file": "ledger/facts.jsonl",
+        "raw_files": [{"name": e.get("path"), "size": e.get("chars")} for e in evidence_list],
+        "evidence_count": len(evidence_list),
+        "merge": merge,
+        "facts_preview": f"added={merge['added']} updated={merge['updated']} conflicts={merge['conflicts']}",
     }
+
 
 if __name__ == "__main__":
     import sys

@@ -186,7 +186,7 @@ class TestRewriteFallback(unittest.TestCase):
         clear_status_cache()
         try:
             with mock.patch("tools.geo.llm.resolve_llm_runtime", return_value=None):
-                res = run_rewrite(pid)
+                res = run_rewrite(pid, mode="full")
             self.assertTrue(res["success"])
             self.assertEqual(res["mode"], "fallback")
             self.assertIn("rag", res)

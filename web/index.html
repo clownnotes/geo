@@ -652,23 +652,19 @@
               <i data-lucide="palette" class="w-4 h-4"></i>
               <span>视觉资产</span>
             </button>
-            <button onclick="runSingleStep(event, 'rewrite')" id="btn-step-3" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
-              <i data-lucide="sparkles" class="w-4 h-4"></i>
-              <span>执行普林斯顿重构</span>
-            </button>
           </div>
         </div>
 
-        <!-- 📥 原始素材智能抓取与事实清洗中枢 -->
+        <!-- 证据库与事实清洗中枢 -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <div class="flex items-center gap-2">
               <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs shadow-sm">
-                📥
+                <i data-lucide="inbox" class="w-3.5 h-3.5"></i>
               </div>
               <div>
-                <h3 class="text-xs font-bold text-slate-800">原始多模态素材抓取与事实清洗中枢</h3>
-                <p class="text-[11px] text-slate-500">支持官网 Clean HTML 降噪爬取与客户材料提纯，自动浓缩为 10 条高确定性三元组事实清单。</p>
+                <h3 class="text-xs font-bold text-slate-800">证据库与事实清洗中枢</h3>
+                <p class="text-[11px] text-slate-500">单页抓取写入证据库（多 URL 并存）；合并进唯一真相源后，再执行普林斯顿重构。</p>
               </div>
             </div>
             <div id="raw-materials-badge" class="text-[11px] text-indigo-700 bg-indigo-50 py-1 px-3 rounded-full font-medium border border-indigo-100">
@@ -677,23 +673,21 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- 官网抓取 -->
             <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
-              <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <i data-lucide="globe" class="w-3.5 h-3.5 text-indigo-600"></i>
-                <span>方式一：企业官网 URL 一键爬取与降噪</span>
-              </div>
-              <div class="flex gap-2">
-                <input id="ingest-url-input" type="url" placeholder="https://client-domain.com" class="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                <button type="button" id="btn-ingest-url" onclick="handleIngestUrl(event)" class="py-1.5 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition shrink-0 flex items-center gap-1 shadow-sm">
-                  <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
+              <div class="flex items-center justify-between">
+                <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <i data-lucide="globe" class="w-3.5 h-3.5 text-indigo-600"></i>
+                  <span>方式一：企业官网 URL 单页抓取</span>
+                </div>
+                <button type="button" id="btn-ingest-url" onclick="handleIngestUrl(event)" class="py-1 px-3 bg-white hover:bg-indigo-50 text-indigo-600 text-[11px] font-semibold rounded-lg border border-slate-200 transition flex items-center gap-1 shrink-0">
+                  <i data-lucide="download-cloud" class="w-3 h-3"></i>
                   <span>抓取并提纯</span>
                 </button>
               </div>
-              <p class="text-[10px] text-slate-400">自动过滤导航栏/页脚/JS脚本，抽取正文并提炼 10 大事实三元组。</p>
+              <input id="ingest-url-input" type="url" placeholder="https://client-domain.com" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <p class="text-[10px] text-slate-400">只抓当前填写的这一页；同一 URL 重抓覆盖该来源，不同 URL 各存一份。</p>
             </div>
 
-            <!-- 粘贴/上传补充材料 -->
             <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
               <div class="flex items-center justify-between">
                 <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
@@ -708,19 +702,91 @@
               <textarea id="raw-materials-editor" rows="2" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-mono text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="可在此粘贴客户的产品手册、PPT卖点或技术白皮书文本..."></textarea>
             </div>
           </div>
+
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <i data-lucide="library" class="w-3.5 h-3.5 text-indigo-600"></i>
+                证据库
+              </span>
+              <span id="evidence-empty-hint" class="text-[10px] text-slate-400">建议先抓首页，再抓关于我们 / 产品页</span>
+            </div>
+            <div id="evidence-list" class="divide-y divide-slate-100 max-h-48 overflow-y-auto text-xs">
+              <div class="p-4 text-center text-slate-400 text-[11px]">暂无证据。请先抓取官网单页或粘贴补充材料。</div>
+            </div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
+              <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                唯一真相源
+                <span id="facts-count-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600">0 已确认</span>
+              </span>
+              <button type="button" onclick="handleConfirmAllFacts()" class="py-1 px-2.5 text-[11px] font-semibold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 flex items-center gap-1">
+                <i data-lucide="check-check" class="w-3 h-3"></i>
+                一键确认无冲突项
+              </button>
+            </div>
+            <div id="facts-list" class="divide-y divide-slate-100 max-h-64 overflow-y-auto text-xs">
+              <div class="p-4 text-center text-slate-400 text-[11px]">暂无事实。抓取证据后将自动提案合并。</div>
+            </div>
+          </div>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700">
-            <span>📄 交付物：03_普林斯顿9因子高权威语料库.md</span>
-            <button onclick="copyOutput('03_普林斯顿9因子高权威语料库.md')" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span>复制全文</span>
-            </button>
+          <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700 flex-wrap gap-2">
+            <span class="flex items-center gap-2 flex-wrap">
+              <span>交付物：03_普林斯顿9因子高权威语料库.md</span>
+              <span id="rewrite-facts-hint" class="text-[10px] font-medium text-slate-500">默认增量；无脏块则跳过</span>
+              <span id="dirty-blocks-badge" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-900"></span>
+            </span>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button type="button" onclick="runRewriteStep(event, 'incremental')" id="btn-step-3" class="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold rounded-lg shadow-sm flex items-center gap-1 transition">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>增量重构</span>
+              </button>
+              <button type="button" onclick="runRewriteStep(event, 'full')" id="btn-step-3-full" class="py-1.5 px-2.5 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-lg border border-slate-300 flex items-center gap-1 transition">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>强制全量</span>
+              </button>
+              <button onclick="copyOutput('03_普林斯顿9因子高权威语料库.md')" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>复制全文</span>
+              </button>
+            </div>
           </div>
           <div id="preview-step-3" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
-            <div class="text-center py-12 text-slate-400 text-sm">点击右上角【执行普林斯顿重构】开始生成语料库...</div>
+            <div class="text-center py-12 text-slate-400 text-sm">点击【增量重构】生成或更新语料库...</div>
           </div>
+        </div>
+
+        <!-- 发前对照卡 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="git-compare" class="w-4 h-4 text-indigo-600"></i>
+              <h3 class="text-xs font-bold text-slate-800">发前对照卡</h3>
+              <span id="corpus-strategy-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600">strategy: --</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="handleCorpusDiff()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 flex items-center gap-1">
+                <i data-lucide="scan-search" class="w-3.5 h-3.5"></i>
+                刷新对照
+              </button>
+              <button type="button" onclick="handleCorpusPin()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 flex items-center gap-1">
+                <i data-lucide="pin" class="w-3.5 h-3.5"></i>
+                钉住当前母盘
+              </button>
+            </div>
+          </div>
+          <div id="corpus-diff-summary" class="text-[11px] text-slate-600 leading-relaxed">
+            相对上一钉住版本，检查事实差量、脏块与逻辑矛盾。strategy=block 时勿进入阶段四。
+          </div>
+          <div id="corpus-diff-details" class="text-[11px] space-y-1"></div>
+          <button id="btn-goto-step4" type="button" onclick="switchStep(4)" class="hidden py-2 px-4 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
+            策略允许，进入阶段四
+          </button>
         </div>
       </div>
 
@@ -734,11 +800,11 @@
           <div class="flex items-center gap-2.5 flex-wrap">
             <button onclick="openComplianceModal()" class="py-2.5 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="shield-check" class="w-4 h-4 text-amber-600"></i>
-              <span>🛡️ 内容合规与广告法风控</span>
+              <span>内容合规与广告法风控</span>
             </button>
             <button onclick="openInjectionGuardModal()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold rounded-lg border border-rose-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="shield" class="w-4 h-4 text-rose-600"></i>
-              <span>🛡️ 提示词注入防御</span>
+              <span>提示词注入防御</span>
             </button>
             <button onclick="openGuardModal()" class="py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 shadow-sm flex items-center gap-1.5 transition">
               <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
@@ -5298,7 +5364,7 @@ GitHub 开源仓库：https://github.com/company/repo
       loadProjectsList();
     }
 
-    // 加载原始素材与提纯清单状态
+    // 加载证据库 / 真相源状态
     async function loadRawMaterialsEditor() {
       if (!currentProjectId) return;
       if (currentProjectData && currentProjectData.official_url) {
@@ -5311,12 +5377,198 @@ GitHub 开源仓库：https://github.com/company/repo
         });
         const data = await res.json();
         const badge = document.getElementById('raw-materials-badge');
-        if (data.success && data.files) {
-          const factsFile = data.files.find(f => f.is_facts);
-          badge.innerText = `已就绪 ${data.total_files} 份素材 (${Math.round(data.total_size / 1024 * 10) / 10} KB)` + (factsFile ? ' · 已提纯事实' : '');
+        if (data.success) {
+          const evN = (data.evidence || []).length;
+          const fs = data.facts_summary || {};
+          badge.innerText = `证据 ${evN} 份 · 已确认 ${fs.confirmed || 0} · 冲突 ${fs.conflict || 0}`;
           badge.className = "text-[11px] text-emerald-700 bg-emerald-50 py-1 px-3 rounded-full font-semibold border border-emerald-200";
+          renderEvidenceList(data.evidence || []);
         }
       } catch (e) {}
+      await loadFactsPanel();
+    }
+
+    function renderEvidenceList(evidence) {
+      const list = document.getElementById('evidence-list');
+      const hint = document.getElementById('evidence-empty-hint');
+      if (!list) return;
+      if (!evidence.length) {
+        list.innerHTML = '<div class="p-4 text-center text-slate-400 text-[11px]">暂无证据。请先抓取官网单页或粘贴补充材料。</div>';
+        if (hint) hint.classList.remove('hidden');
+        return;
+      }
+      if (hint) hint.classList.add('hidden');
+      list.innerHTML = evidence.map(e => {
+        const sid = e.source_id || '';
+        const title = e.title || sid;
+        const meta = e.url || e.kind || '';
+        const chars = e.chars != null ? `${e.chars} 字` : '';
+        const when = (e.fetched_at || '').replace('T', ' ').replace('Z', '');
+        return `<div class="px-4 py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50">
+          <div class="min-w-0">
+            <div class="font-semibold text-slate-800 truncate">${title}</div>
+            <div class="text-[10px] text-slate-500 truncate font-mono">${sid} · ${meta} · ${chars} · ${when}</div>
+          </div>
+          <button type="button" onclick="handleDeleteEvidence('${sid.replace(/'/g, "\\'")}')" class="shrink-0 text-[11px] text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 rounded border border-rose-100 bg-rose-50">删除</button>
+        </div>`;
+      }).join('');
+    }
+
+    async function loadFactsPanel() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/facts`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success) return;
+        const badge = document.getElementById('facts-count-badge');
+        const hint = document.getElementById('rewrite-facts-hint');
+        if (badge) badge.textContent = `${data.confirmed_count || 0} 已确认 · ${data.conflict_count || 0} 冲突`;
+        if (hint) {
+          hint.textContent = `将使用 ${data.confirmed_count || 0} 条已确认事实` +
+            ((data.conflict_count || 0) > 0 ? `（${data.conflict_count} 项冲突未解决将告警降级）` : '') +
+            '；抓取不会自动改语料';
+        }
+        renderFactsList(data.facts || []);
+      } catch (e) {}
+    }
+
+    function factStatusTag(status) {
+      const map = {
+        confirmed: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        proposed: 'bg-amber-50 text-amber-900 border-amber-200',
+        conflict: 'bg-rose-50 text-rose-800 border-rose-200',
+        rejected: 'bg-slate-100 text-slate-600 border-slate-200'
+      };
+      const cls = map[status] || map.proposed;
+      return `<span class="px-1.5 py-0.5 rounded border text-[10px] font-bold ${cls}">${status}</span>`;
+    }
+
+    function renderFactsList(facts) {
+      const list = document.getElementById('facts-list');
+      if (!list) return;
+      if (!facts.length) {
+        list.innerHTML = '<div class="p-4 text-center text-slate-400 text-[11px]">暂无事实。抓取证据后将自动提案合并。</div>';
+        return;
+      }
+      list.innerHTML = facts.map(f => {
+        const key = f.fact_key || '';
+        const enc = encodeURIComponent(key);
+        let actions = '';
+        if (f.status === 'proposed') {
+          actions = `<button type="button" onclick="handleConfirmFact('${enc}')" class="text-[11px] px-2 py-1 rounded border border-emerald-200 bg-emerald-50 text-emerald-800 font-semibold">确认</button>`;
+        } else if (f.status === 'conflict') {
+          const opts = [];
+          if (f.confirmed_snapshot) {
+            const v = f.confirmed_snapshot.value || f.confirmed_snapshot.statement || '';
+            opts.push(`<option value="${String(v).replace(/"/g, '&quot;')}">历史确认: ${v}</option>`);
+          }
+          (f.candidates || []).forEach(c => {
+            const v = c.value || c.statement || '';
+            opts.push(`<option value="${String(v).replace(/"/g, '&quot;')}">候选: ${v}</option>`);
+          });
+          opts.push(`<option value="${String(f.value || '').replace(/"/g, '&quot;')}">当前: ${f.value || f.statement || ''}</option>`);
+          actions = `<div class="flex items-center gap-1">
+            <select id="resolve-${enc}" class="text-[10px] border border-slate-200 rounded px-1 py-1 max-w-[160px]">${opts.join('')}</select>
+            <button type="button" onclick="handleResolveConflict('${enc}')" class="text-[11px] px-2 py-1 rounded border border-rose-200 bg-rose-50 text-rose-800 font-semibold">仲裁</button>
+          </div>`;
+        }
+        return `<div class="px-4 py-2.5 flex items-start justify-between gap-3 hover:bg-slate-50">
+          <div class="min-w-0 space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">${factStatusTag(f.status)} <span class="font-mono text-[10px] text-slate-500">${key}</span></div>
+            <div class="text-slate-800">${f.statement || f.value || ''}</div>
+            <div class="text-[10px] text-slate-400">来源 ${(f.sources || []).length} · ${f.category || ''}</div>
+          </div>
+          <div class="shrink-0">${actions}</div>
+        </div>`;
+      }).join('');
+    }
+
+    async function handleConfirmFact(encodedKey) {
+      const key = decodeURIComponent(encodedKey);
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/facts/${encodeURIComponent(key)}/confirm`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`已确认 ${key}`);
+          loadRawMaterialsEditor();
+        } else {
+          showToast(data.message || '确认失败', 'error');
+        }
+      } catch (e) {
+        showToast('确认请求异常', 'error');
+      }
+    }
+
+    async function handleConfirmAllFacts() {
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/facts/confirm-all`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`已确认 ${data.confirmed_count || 0} 条无冲突事实`);
+          loadRawMaterialsEditor();
+        } else {
+          showToast(data.message || '批量确认失败', 'error');
+        }
+      } catch (e) {
+        showToast('批量确认异常', 'error');
+      }
+    }
+
+    async function handleResolveConflict(encodedKey) {
+      const key = decodeURIComponent(encodedKey);
+      const sel = document.getElementById(`resolve-${encodedKey}`);
+      const chosen = sel ? sel.value : '';
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/facts/resolve-conflict`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ fact_key: key, chosen_value: chosen })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`已仲裁 ${key}`);
+          loadRawMaterialsEditor();
+        } else {
+          showToast(data.message || '仲裁失败', 'error');
+        }
+      } catch (e) {
+        showToast('仲裁请求异常', 'error');
+      }
+    }
+
+    async function handleDeleteEvidence(sourceId) {
+      if (!sourceId || !confirm(`确认删除证据 ${sourceId}？`)) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/evidence/${encodeURIComponent(sourceId)}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('证据已删除');
+          loadRawMaterialsEditor();
+        } else {
+          showToast(data.message || '删除失败', 'error');
+        }
+      } catch (e) {
+        showToast('删除请求异常', 'error');
+      }
+    }
+
+    function formatMergeToast(data, prefix) {
+      const m = data.merge || {};
+      return `${prefix} 新增${m.added || 0}/更新${m.updated || 0}/冲突${m.conflicts || 0}/未变${m.unchanged || 0}`;
     }
 
     // 官网 URL 一键爬取并提纯
@@ -5331,7 +5583,8 @@ GitHub 开源仓库：https://github.com/company/repo
 
       const origHTML = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 抓取降噪中...`;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>抓取中...</span>`;
+      lucide.createIcons();
 
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/ingest/url`, {
@@ -5344,7 +5597,7 @@ GitHub 开源仓库：https://github.com/company/repo
         });
         const data = await res.json();
         if (data.success) {
-          showToast(`✅ 官网抓取并提纯成功！清洗正文: ${data.crawled_words} 字`);
+          showToast(formatMergeToast(data, `抓取成功 ${data.crawled_words || 0} 字`));
           loadRawMaterialsEditor();
         } else {
           showToast(data.message || '抓取失败', 'error');
@@ -5370,7 +5623,8 @@ GitHub 开源仓库：https://github.com/company/repo
 
       const origHTML = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 提纯中...`;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i><span>提纯中...</span>`;
+      lucide.createIcons();
 
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/ingest/text`, {
@@ -5383,7 +5637,7 @@ GitHub 开源仓库：https://github.com/company/repo
         });
         const data = await res.json();
         if (data.success) {
-          showToast('✅ 补充素材已入库并提纯事实清单！');
+          showToast(formatMergeToast(data, '补充素材已入库'));
           document.getElementById('raw-materials-editor').value = '';
           loadRawMaterialsEditor();
         } else {
@@ -5424,6 +5678,9 @@ GitHub 开源仓库：https://github.com/company/repo
       }
       if (step === 3) {
         refreshLlmStatus(false);
+        loadRawMaterialsEditor();
+        loadCorpusStatus();
+        handleCorpusDiff();
       }
       updateRouteState();
       lucide.createIcons();
@@ -5433,7 +5690,11 @@ GitHub 开源仓库：https://github.com/company/repo
     function nextStep() { if (currentStep < 5) switchStep(currentStep + 1); }
 
     // 运行单步流水线
-    async function runSingleStep(e, stepName) {
+    async function runRewriteStep(e, mode) {
+      return runSingleStep(e, 'rewrite', { mode: mode || 'incremental' });
+    }
+
+    async function runSingleStep(e, stepName, bodyExtra) {
       const btn = (e && e.currentTarget) ? e.currentTarget : (window.event ? window.event.currentTarget : null);
       const originalText = btn ? btn.innerHTML : '';
       if (btn) {
@@ -5447,19 +5708,23 @@ GitHub 开源仓库：https://github.com/company/repo
       const timer = setTimeout(() => controller.abort(), timeoutMs);
 
       try {
-        const res = await fetch(`/api/projects/${currentProjectId}/run/${stepName}`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${currentAuthToken}` },
-          signal: controller.signal
-        });
+        const headers = { 'Authorization': `Bearer ${currentAuthToken}` };
+        const opts = { method: 'POST', headers, signal: controller.signal };
+        if (stepName === 'rewrite') {
+          headers['Content-Type'] = 'application/json';
+          opts.body = JSON.stringify(Object.assign({ mode: 'incremental' }, bodyExtra || {}));
+        }
+        const res = await fetch(`/api/projects/${currentProjectId}/run/${stepName}`, opts);
         const data = await res.json();
         if (data.success) {
           await loadStepPreviews();
           if (stepName === 'rewrite') {
             updateRagCascadeBadge(data.rag);
-            const modeLabel = data.mode === 'llm' ? `在线:${(data.provider || '').toUpperCase()}` : '离线:规则兜底';
-            showToast(`${data.message || '步骤执行完成'}（${modeLabel}）`);
+            const rm = data.rewrite_mode || data.mode || '';
+            showToast(`${data.message || '步骤执行完成'}（${rm}）`);
             refreshLlmStatus(false);
+            loadCorpusStatus();
+            handleCorpusDiff();
           } else {
             showToast(data.message || '步骤执行完成！');
           }
@@ -5475,6 +5740,94 @@ GitHub 开源仓库：https://github.com/company/repo
           btn.innerHTML = originalText;
           lucide.createIcons();
         }
+      }
+    }
+
+    async function loadCorpusStatus() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/corpus/dirty-blocks`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        const badge = document.getElementById('dirty-blocks-badge');
+        if (!badge || !d.success) return;
+        if (d.noop) {
+          badge.classList.remove('hidden');
+          badge.textContent = '无脏块';
+          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-800';
+        } else {
+          badge.classList.remove('hidden');
+          badge.textContent = `脏块 ${(d.dirty_blocks || []).length}`;
+          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-900';
+        }
+      } catch (e) {}
+    }
+
+    function strategyBadgeClass(strategy) {
+      const map = {
+        block: 'border-rose-200 bg-rose-50 text-rose-800',
+        new_article: 'border-purple-200 bg-purple-50 text-purple-800',
+        patch: 'border-blue-200 bg-blue-50 text-blue-800',
+        noop: 'border-slate-200 bg-slate-50 text-slate-600'
+      };
+      return map[strategy] || map.noop;
+    }
+
+    async function handleCorpusDiff() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/corpus/diff?against=pinned`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        const badge = document.getElementById('corpus-strategy-badge');
+        const summary = document.getElementById('corpus-diff-summary');
+        const details = document.getElementById('corpus-diff-details');
+        const goto4 = document.getElementById('btn-goto-step4');
+        if (!d.success) return;
+        const st = d.strategy || '--';
+        if (badge) {
+          badge.textContent = `strategy: ${st}`;
+          badge.className = `text-[10px] font-bold px-2 py-0.5 rounded-full border ${strategyBadgeClass(st)}`;
+        }
+        const fd = d.facts_diff || {};
+        if (summary) {
+          summary.textContent = d.against === 'none'
+            ? (d.message || '尚无 pinned 基线，请先钉住当前母盘。')
+            : `against=pinned · 事实 +${(fd.added||[]).length} ~${(fd.changed||[]).length} -${(fd.removed||[]).length} · 脏块 ${(d.dirty_blocks||[]).length}`;
+        }
+        let html = '';
+        (d.logic_conflicts || []).forEach(c => {
+          html += `<div class="px-2 py-1 rounded border border-rose-200 bg-rose-50 text-rose-800">逻辑矛盾 [${c.rule_id}] ${c.message}</div>`;
+        });
+        (d.duplicates || []).slice(0, 5).forEach(c => {
+          html += `<div class="px-2 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700">重复提示：${c.message}</div>`;
+        });
+        if (details) details.innerHTML = html || '<div class="text-slate-400">无额外矛盾/重复提示</div>';
+        if (goto4) {
+          if (st === 'block') goto4.classList.add('hidden');
+          else goto4.classList.remove('hidden');
+        }
+      } catch (e) {}
+    }
+
+    async function handleCorpusPin() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/corpus/pin`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('已钉住当前母盘为对照基线');
+          handleCorpusDiff();
+        } else {
+          showToast(d.message || '钉住失败', 'error');
+        }
+      } catch (e) {
+        showToast('钉住请求异常', 'error');
       }
     }
 

@@ -1,0 +1,20 @@
+[
+  {
+    "source_id": "url:aa710bd1deb8",
+    "kind": "url",
+    "url": "https://nextgeo.baicl.cc",
+    "title": "迁自 website_crawled_raw.md",
+    "path": "evidence/url_aa710bd1deb8.md",
+    "chars": 2379,
+    "fetched_at": "2026-09-08T09:33:35Z"
+  },
+  {
+    "source_id": "paste:brand_profile",
+    "kind": "paste",
+    "url": null,
+    "title": "brand_profile.md",
+    "path": "evidence/paste_brand_profile.md",
+    "chars": 1042,
+    "fetched_at": "2026-09-08T09:33:35Z"
+  }
+]

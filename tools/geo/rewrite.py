@@ -29,10 +29,46 @@ PRIORITY_FILES = (
 )
 
 
-def read_raw_materials(raw_dir: str, budget: int = RAW_MATERIALS_BUDGET) -> str:
-    """按优先级读取原始素材，总字符数上限 budget。"""
+def read_raw_materials(raw_dir: str, budget: int = RAW_MATERIALS_BUDGET, cfg: dict = None) -> str:
+    """按优先级读取原始素材，总字符数上限 budget。优先注入 ledger 已确认事实。"""
+    parts = []
+    used = 0
+
+    # L2 真相源优先（confirmed + 冲突降级）
+    try:
+        from .ledger import get_rewrite_fact_bundle, migrate_legacy_raw_materials
+        from .utils import load_project_config
+        target_cfg = cfg
+        if target_cfg is None:
+            project_id = os.path.basename(os.path.dirname(raw_dir.rstrip(os.sep)))
+            try:
+                target_cfg = load_project_config(project_id)
+            except Exception:
+                target_cfg = None
+        if target_cfg:
+            migrate_legacy_raw_materials(target_cfg)
+            bundle = get_rewrite_fact_bundle(target_cfg)
+            ledger_md = bundle.get("markdown") or ""
+            if ledger_md:
+                take = ledger_md[: max(0, budget - used)]
+                parts.append(f"\n\n<!-- 来源: ledger/confirmed -->\n{take}")
+                used += len(take)
+                for w in bundle.get("warnings") or []:
+                    print_warning(f"真相源: {w}")
+    except Exception as e:
+        print_warning(f"读取真相源失败，回退旧素材文件: {e}")
+
     if not os.path.isdir(raw_dir):
-        return ""
+        return "".join(parts).strip()
+
+    # 证据库
+    evidence_dir = os.path.join(raw_dir, "evidence")
+    evidence_files = []
+    if os.path.isdir(evidence_dir):
+        evidence_files = sorted(
+            f for f in glob.glob(os.path.join(evidence_dir, "*.*"))
+            if f.endswith((".md", ".txt"))
+        )
 
     all_files = [
         f for f in glob.glob(os.path.join(raw_dir, "*.*"))
@@ -44,10 +80,10 @@ def read_raw_materials(raw_dir: str, budget: int = RAW_MATERIALS_BUDGET) -> str:
     for name in PRIORITY_FILES:
         if name in by_name:
             ordered.append(by_name.pop(name))
+    # skip ledger dirs already handled
+    ordered.extend(evidence_files)
     ordered.extend(sorted(by_name.values()))
 
-    parts = []
-    used = 0
     for fpath in ordered:
         fname = os.path.basename(fpath)
         remaining = budget - used
@@ -220,72 +256,130 @@ def map_rag_api_fields(diag: dict = None, error: str = None) -> dict:
     }
 
 
-def run_rewrite(project_id: str, input_dir: str = None) -> dict:
-    """执行重构并级联 RAG；返回 path/mode/provider/rag 字典。"""
+def run_rewrite(project_id: str, input_dir: str = None, mode: str = "incremental") -> dict:
+    """执行重构并级联 RAG。mode: incremental(默认) | full。"""
     print_banner("阶段三：普林斯顿 9 因子高权威内容重构")
     cfg = load_project_config(project_id)
+    rewrite_mode = (mode or "incremental").strip().lower()
+    if rewrite_mode not in ("incremental", "full"):
+        rewrite_mode = "incremental"
 
     raw_dir = input_dir or cfg["_raw_materials_dir"]
-    print_info(f"读取客户原始资料目录: {raw_dir}")
-    raw_text = read_raw_materials(raw_dir)
+    print_info(f"读取客户原始资料目录: {raw_dir}｜重构模式: {rewrite_mode}")
+
+    from .ledger import get_rewrite_fact_bundle, migrate_legacy_raw_materials
+    from .corpus import apply_incremental_rewrite, inject_block_anchors_into_full_corpus
+
+    migrate_legacy_raw_materials(cfg)
+    fact_bundle = get_rewrite_fact_bundle(cfg)
+    if fact_bundle.get("confirmed_count", 0) == 0:
+        print_warning("尚无已确认事实：将降级使用证据原文 + project.yaml 画像（冲突未决值不会被采用）")
+    else:
+        print_info(
+            f"真相源：已确认 {fact_bundle['confirmed_count']} 条"
+            f"｜冲突 {fact_bundle.get('conflict_count', 0)} ｜待确认 {fact_bundle.get('proposed_count', 0)}"
+        )
+
+    raw_text = read_raw_materials(raw_dir, cfg=cfg)
     if raw_text:
         print_info(f"成功加载客户原始素材（字符数: {len(raw_text)}，预算上限 {RAW_MATERIALS_BUDGET}）")
     else:
         print_warning("未发现外部素材，将基于客户行业画像进行全景重构")
 
     llm_info = get_configured_llm()
-    mode = "fallback"
+    gen_mode = "fallback"
     provider = "none"
-    corpus = ""
 
-    if llm_info:
-        print_info(f"检测到可用大模型 [{llm_info['provider'].upper()}]，正在调用大模型进行深度普林斯顿 9 因子重构...")
-        sys_prompt, user_prompt = build_llm_rewrite_prompt(cfg, raw_text)
-        success, result, provider = call_llm_api(user_prompt, sys_prompt, timeout=120)
-        if success:
-            print_success(f"大模型 [{provider.upper()}] 重构成功！生成字符数: {len(result)}")
-            banner_meta = f"> **生成引擎**：{provider.upper()} 深度大模型重构  \n> **优化标准**：普林斯顿 9 因子 GEO 规范\n\n"
-            corpus = banner_meta + result
-            mode = "llm"
+    def _generate_full_corpus() -> str:
+        nonlocal gen_mode, provider
+        if llm_info:
+            print_info(f"检测到可用大模型 [{llm_info['provider'].upper()}]，正在调用大模型进行深度普林斯顿 9 因子重构...")
+            sys_prompt, user_prompt = build_llm_rewrite_prompt(cfg, raw_text)
+            success, result, provider = call_llm_api(user_prompt, sys_prompt, timeout=120)
+            if success:
+                print_success(f"大模型 [{provider.upper()}] 重构成功！生成字符数: {len(result)}")
+                banner_meta = f"> **生成引擎**：{provider.upper()} 深度大模型重构  \n> **优化标准**：普林斯顿 9 因子 GEO 规范\n\n"
+                corpus = banner_meta + result
+                gen_mode = "llm"
+            else:
+                print_warning(f"大模型 API 调用失败 ({result})，自动切换至行业自适应规则引擎...")
+                corpus = transform_princeton_corpus_fallback(cfg, raw_text)
+                gen_mode = "fallback"
         else:
-            print_warning(f"大模型 API 调用失败 ({result})，自动切换至行业自适应规则引擎...")
+            print_info("当前未配置 DEEPSEEK_API_KEY / ARK_API_KEY，使用行业自适应普林斯顿 9 因子引擎生成...")
             corpus = transform_princeton_corpus_fallback(cfg, raw_text)
-            mode = "fallback"
+            gen_mode = "fallback"
+        if fact_bundle.get("warnings"):
+            warn_block = "\n".join(f"> - {w}" for w in fact_bundle["warnings"])
+            corpus = f"> **真相源告警**\n{warn_block}\n\n" + corpus
+        return inject_block_anchors_into_full_corpus(corpus)
+
+    if rewrite_mode == "full":
+        corpus = _generate_full_corpus()
+        out_path = save_project_output(cfg, "03_普林斯顿9因子高权威语料库.md", corpus)
+        from .corpus import compute_dirty_blocks, save_corpus_meta
+        d = compute_dirty_blocks(cfg)
+        save_corpus_meta(cfg, {
+            "facts_hash": d.get("facts_hash"),
+            "block_hashes": d.get("block_hashes"),
+            "mode": "full",
+            "updated_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "dirty_blocks_written": d.get("dirty_blocks") or [],
+        })
+        inc = {
+            "success": True,
+            "rewrite_mode": "full",
+            "message": "已强制全量重构",
+            "dirty_blocks": d.get("dirty_blocks") or [],
+            "path": out_path,
+            "facts_hash": d.get("facts_hash"),
+        }
     else:
-        print_info("当前未配置 DEEPSEEK_API_KEY / ARK_API_KEY，使用行业自适应普林斯顿 9 因子引擎生成...")
-        corpus = transform_princeton_corpus_fallback(cfg, raw_text)
-        mode = "fallback"
-
-    out_path = save_project_output(cfg, "03_普林斯顿9因子高权威语料库.md", corpus)
-    print_success(f"普林斯顿 9 因子高权威语料库已生成！路径: {out_path}")
-
-    # 母盘落盘后级联 RAG（失败隔离，不回滚）
-    rag = map_rag_api_fields(error="未执行")
-    try:
-        from .rag_diag import diagnose_rag_chunks
-        print_info("级联执行 RAG 语义分块诊断（run_crawler=False）...")
-        diag = diagnose_rag_chunks(project_id, text_or_file=out_path, run_crawler=False)
-        rag = map_rag_api_fields(diag)
-        if rag["ok"]:
-            print_success(f"RAG 级联完成：准备度 {rag.get('score')}，黄金块 {rag.get('golden_chunks')}")
+        inc = apply_incremental_rewrite(cfg, _generate_full_corpus)
+        out_path = inc.get("path")
+        if inc.get("rewrite_mode") == "noop":
+            print_info(inc.get("message") or "无脏块，跳过重构")
         else:
-            print_warning(f"RAG 级联未完全成功: {rag.get('error')}")
-    except Exception as e:
-        rag = map_rag_api_fields(error=str(e))
-        print_warning(f"RAG 级联失败（母盘已保留）: {e}")
+            print_success(f"{inc.get('message')} → {out_path}")
+
+    # 母盘落盘后级联 RAG（noop 也允许诊断现有母盘；失败隔离）
+    rag = map_rag_api_fields(error="未执行")
+    if out_path and os.path.isfile(out_path):
+        try:
+            from .rag_diag import diagnose_rag_chunks
+            print_info("级联执行 RAG 语义分块诊断（run_crawler=False）...")
+            diag = diagnose_rag_chunks(project_id, text_or_file=out_path, run_crawler=False)
+            rag = map_rag_api_fields(diag)
+            if rag["ok"]:
+                print_success(f"RAG 级联完成：准备度 {rag.get('score')}，黄金块 {rag.get('golden_chunks')}")
+            else:
+                print_warning(f"RAG 级联未完全成功: {rag.get('error')}")
+        except Exception as e:
+            rag = map_rag_api_fields(error=str(e))
+            print_warning(f"RAG 级联失败（母盘已保留）: {e}")
 
     return {
         "success": True,
         "path": out_path,
-        "mode": mode,
-        "provider": provider if mode == "llm" else (llm_info or {}).get("provider") or "none",
+        "mode": gen_mode if inc.get("rewrite_mode") in ("full",) else (inc.get("rewrite_mode") or gen_mode),
+        "rewrite_mode": inc.get("rewrite_mode"),
+        "dirty_blocks": inc.get("dirty_blocks") or [],
+        "message": inc.get("message"),
+        "provider": provider if gen_mode == "llm" else (llm_info or {}).get("provider") or "none",
         "rag": rag,
+        "facts": {
+            "confirmed_count": fact_bundle.get("confirmed_count", 0),
+            "conflict_count": fact_bundle.get("conflict_count", 0),
+            "proposed_count": fact_bundle.get("proposed_count", 0),
+            "warnings": fact_bundle.get("warnings") or [],
+        },
     }
 
 
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
-        run_rewrite(sys.argv[1])
+        m = "full" if "--full" in sys.argv else "incremental"
+        run_rewrite(sys.argv[1], mode=m)
     else:
-        print("用法: python3 -m tools.geo.rewrite <project_id>")
+        print("用法: python3 -m tools.geo.rewrite <project_id> [--full]")

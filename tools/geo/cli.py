@@ -106,10 +106,19 @@ def main():
     p_scaffold.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
     # rewrite
-    p_rewrite = subparsers.add_parser("rewrite", help="阶段3: 普林斯顿 9 因子内容重构")
+    p_rewrite = subparsers.add_parser("rewrite", help="阶段3: 普林斯顿 9 因子内容重构（默认增量）")
     p_rewrite.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_rewrite.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_rewrite.add_argument("--input-dir", "-i", help="原始素材目录")
+    p_rewrite.add_argument("--full", action="store_true", help="强制全量重构（忽略脏块增量）")
+
+    # corpus pin / diff
+    p_cpin = subparsers.add_parser("corpus-pin", help="钉住当前母盘为发前对照基线")
+    p_cpin.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_cpin.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_cdiff = subparsers.add_parser("corpus-diff", help="发前对照卡（相对 pinned）")
+    p_cdiff.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_cdiff.add_argument("--project", "-p", default=None, help="客户项目 ID")
 
     # distribute
     p_dist = subparsers.add_parser("distribute", help="阶段4: 多平台矩阵分发包导出")
@@ -134,6 +143,12 @@ def main():
     p_ingest.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_ingest.add_argument("--url", "-u", help="目标官网 URL")
     p_ingest.add_argument("--file", "-f", help="本地素材文件路径")
+
+    # facts ledger
+    p_facts = subparsers.add_parser("facts", help="唯一真相源：列出 / 批量确认事实")
+    p_facts.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_facts.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_facts.add_argument("--confirm-all", action="store_true", help="批量确认所有无冲突 proposed 事实")
 
     # defense
     p_def = subparsers.add_parser("defense", help="生成竞品权威信源反向包抄与压制策略")
@@ -496,6 +511,29 @@ def main():
     elif args.command == "ingest":
         from .ingest import ingest_project_materials
         ingest_project_materials(get_pid(args), url=args.url, file_path=args.file)
+    elif args.command == "facts":
+        from .utils import load_project_config
+        from .ledger import (
+            migrate_legacy_raw_materials,
+            load_facts,
+            confirm_all_non_conflict,
+            get_rewrite_fact_bundle,
+        )
+        pid = get_pid(args)
+        cfg = load_project_config(pid)
+        migrate_legacy_raw_materials(cfg)
+        print_banner(f"唯一真相源: [{pid}]")
+        if getattr(args, "confirm_all", False):
+            res = confirm_all_non_conflict(cfg)
+            print_success(f"已批量确认 {res.get('confirmed_count', 0)} 条无冲突事实")
+        facts = load_facts(cfg)
+        bundle = get_rewrite_fact_bundle(cfg)
+        print_info(
+            f"合计 {len(facts)} ｜已确认 {bundle.get('confirmed_count')} ｜"
+            f"待确认 {bundle.get('proposed_count')} ｜冲突 {bundle.get('conflict_count')}"
+        )
+        for f in facts:
+            print(f"  [{f.get('status')}] {f.get('fact_key')}: {f.get('statement') or f.get('value')}")
     elif args.command == "defense":
         from .defense import run_defense
         run_defense(get_pid(args))
@@ -820,7 +858,30 @@ def main():
     elif args.command == "scaffold":
         run_scaffold(get_pid(args))
     elif args.command == "rewrite":
-        run_rewrite(get_pid(args), input_dir=args.input_dir)
+        run_rewrite(get_pid(args), input_dir=args.input_dir, mode="full" if getattr(args, "full", False) else "incremental")
+    elif args.command == "corpus-pin":
+        from .utils import load_project_config
+        from .corpus import pin_corpus
+        pid = get_pid(args)
+        res = pin_corpus(load_project_config(pid))
+        if res.get("success"):
+            print_success(f"已钉住母盘: {res.get('path')} @ {res.get('pinned_at')}")
+        else:
+            print_error(res.get("message") or "钉住失败")
+    elif args.command == "corpus-diff":
+        from .utils import load_project_config
+        from .corpus import corpus_diff
+        pid = get_pid(args)
+        d = corpus_diff(load_project_config(pid))
+        print_banner(f"发前对照卡: [{pid}]")
+        print_info(f"against={d.get('against')} ｜ strategy={d.get('strategy')} ｜ dirty={d.get('dirty_blocks')}")
+        if d.get("logic_conflicts"):
+            for c in d["logic_conflicts"]:
+                print_warning(f"逻辑矛盾 [{c.get('rule_id')}]: {c.get('message')}")
+        fd = d.get("facts_diff") or {}
+        print_info(f"事实差量: +{len(fd.get('added') or [])} ~{len(fd.get('changed') or [])} -{len(fd.get('removed') or [])}")
+        if d.get("recommend_pin"):
+            print_info("建议先执行: python3 -m tools.geo corpus-pin <id>")
     elif args.command == "distribute":
         run_distribute(get_pid(args))
     elif args.command == "monitor":
