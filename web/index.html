@@ -92,54 +92,18 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 flex-wrap justify-end">
         <button onclick="openEdiCustomerModal()" class="text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-blue-200 shadow-sm" title="购买前解释型决策客群画像透视与真实问法拦截">
           <i data-lucide="crosshair" class="w-3.5 h-3.5 text-blue-600"></i>
           <span>适合客群 (EDI)</span>
         </button>
-        <button onclick="openMoatSandboxModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm" title="26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演">
-          <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-indigo-600"></i>
-          <span>⚔️ 护城河推演 (26)</span>
-        </button>
-        <button onclick="openRobustnessTestModal()" class="text-xs text-rose-700 bg-rose-50 hover:bg-rose-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-rose-200 shadow-sm" title="25 号大模型提示词敏感度扰动与生成鲁棒性压力测试">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-rose-600"></i>
-          <span>🛡️ 鲁棒抗震 (25)</span>
-        </button>
-        <button onclick="openFunnelSimModal()" class="text-xs text-orange-700 bg-orange-50 hover:bg-orange-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-orange-200 shadow-sm" title="24 号大模型商业多轮追问决策漏斗与意图转化路径推演">
-          <i data-lucide="filter" class="w-3.5 h-3.5 text-orange-600"></i>
-          <span>🌪️ 决策漏斗 (24)</span>
-        </button>
-        <button onclick="openCausalAttrModal()" class="text-xs text-teal-700 bg-teal-50 hover:bg-teal-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-teal-200 shadow-sm" title="23 号大模型商业推荐因果归因与信源边际贡献度量化审计">
-          <i data-lucide="git-fork" class="w-3.5 h-3.5 text-teal-600"></i>
-          <span>🧬 因果归因 (23)</span>
-        </button>
-        <button onclick="openRerankSimModal()" class="text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-blue-200 shadow-sm" title="22 号跨大模型 RAG 混合检索召回与重排序挤占演习沙盘">
-          <i data-lucide="shuffle" class="w-3.5 h-3.5 text-blue-600"></i>
-          <span>🔀 RAG 重排 (22)</span>
-        </button>
-        <button onclick="openMindshareAuditModal()" class="text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-purple-200 shadow-sm" title="21 号大模型品牌商业心智渗透与商业转化价值量化审计">
-          <i data-lucide="gem" class="w-3.5 h-3.5 text-purple-600"></i>
-          <span>💎 心智价值 (21)</span>
-        </button>
-        <button onclick="openDecayMonitorModal()" class="text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-amber-200 shadow-sm" title="20 号大模型知识半衰期衰减监测与长效自愈">
-          <i data-lucide="hourglass" class="w-3.5 h-3.5 text-amber-600"></i>
-          <span>⏳ 知识衰减 (20)</span>
-        </button>
-        <button onclick="openSentimentGuardModal()" class="text-xs text-rose-700 bg-rose-50 hover:bg-rose-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-rose-200 shadow-sm">
-          <i data-lucide="shield" class="w-3.5 h-3.5 text-rose-600"></i>
-          <span>🛡️ 声誉排查 (19)</span>
-        </button>
-        <button onclick="openProbingModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm">
-          <i data-lucide="crosshair" class="w-3.5 h-3.5 text-indigo-600"></i>
-          <span>🎯 Citation 溯源对账</span>
-        </button>
-        <button onclick="openPrincetonModal()" class="text-xs text-violet-700 bg-violet-50 hover:bg-violet-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-violet-200 shadow-sm">
-          <i data-lucide="radar" class="w-3.5 h-3.5 text-violet-600"></i>
-          <span>🔬 普林斯顿体检仪</span>
+        <button onclick="openPitchModal()" class="text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-purple-200 shadow-sm" title="售前商业 Pitch">
+          <i data-lucide="presentation" class="w-3.5 h-3.5 text-purple-600"></i>
+          <span>售前 Pitch</span>
         </button>
         <button onclick="openPortfolioModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm">
           <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-indigo-600"></i>
-          <span>📊 全域大盘驾驶舱</span>
+          <span>全域大盘驾驶舱</span>
         </button>
         <button onclick="showBenchmarkModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm">
           <i data-lucide="scale" class="w-3.5 h-3.5 text-indigo-600"></i>
@@ -332,15 +296,7 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <button onclick="openPrincetonModal()" class="py-2 px-3.5 bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
-          <i data-lucide="radar" class="w-3.5 h-3.5"></i>
-          <span>🔬 普林斯顿体检仪</span>
-        </button>
-        <button onclick="openShareModal()" class="py-2 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
-          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-          <span>🔗 客户专属交付链接</span>
-        </button>
+      <div class="flex items-center gap-2">
         <button onclick="runPipelineAll()" id="btn-run-all" class="py-2 px-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition">
           <i data-lucide="play" class="w-3.5 h-3.5"></i>
           <span>一键跑通 5 步流水线</span>
@@ -352,13 +308,24 @@
       </div>
     </header>
 
+    <!-- 三场景 Tab -->
+    <div id="scene-tabs" class="bg-white border-b border-slate-200 px-8">
+      <div class="max-w-5xl mx-auto flex items-center gap-1 py-2">
+        <button type="button" id="scene-tab-delivery" onclick="switchScene('delivery')" class="px-4 py-2 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200">初步交付</button>
+        <button type="button" id="scene-tab-boost" onclick="switchScene('boost')" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-transparent">二次提升</button>
+        <button type="button" id="scene-tab-ops" onclick="switchScene('ops')" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-transparent">日常维护</button>
+        <span class="ml-3 text-[11px] text-slate-400 hidden sm:inline">按场景找工具：交付主路径 / 进阶武器 / 运维报表</span>
+      </div>
+    </div>
+
+    <div id="scene-delivery" class="flex-1 flex flex-col min-h-0 overflow-y-auto">
     <!-- 步骤条条栏 -->
     <div class="bg-white border-b border-slate-200 px-8 py-3">
       <div class="max-w-5xl mx-auto flex items-center justify-between text-xs font-medium">
         <!-- 步骤 1 -->
         <button onclick="switchStep(1)" id="step-tab-1" class="flex items-center gap-2 text-indigo-600 font-bold focus:outline-none">
           <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">1</span>
-          <span>① 现状诊断体检</span>
+          <span>① 测算诊断</span>
         </button>
         <div class="flex-1 h-0.5 bg-slate-200 mx-3"></div>
 
@@ -386,7 +353,7 @@
         <!-- 步骤 5 -->
         <button onclick="switchStep(5)" id="step-tab-5" class="flex items-center gap-2 text-slate-400 focus:outline-none">
           <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">5</span>
-          <span>⑤ 声量监测周报</span>
+          <span>⑤ 首轮监测验收</span>
         </button>
       </div>
     </div>
@@ -398,29 +365,14 @@
       <div id="step-panel-1" class="space-y-6">
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <h2 class="text-base font-bold text-slate-900">阶段一：客户现状体检与商业诊断</h2>
-            <p class="text-xs text-slate-500 mt-1">模拟 AI 爬虫抓取官网，检测 SSR 渲染、/llms.txt、JSON-LD 及文本密度，生成签单体检报告。</p>
+            <h2 class="text-base font-bold text-slate-900">阶段一：测算诊断（客户现状体检）</h2>
+            <p class="text-xs text-slate-500 mt-1">先测算再交付：模拟 AI 爬虫抓取官网，检测 SSR、/llms.txt、JSON-LD 与文本密度，生成签单体检报告。进阶工具见「二次提升」。</p>
+            <p class="text-[11px] text-slate-400 mt-1.5">次要入口：<button type="button" onclick="openCrawlerSimModal()" class="text-indigo-600 hover:underline font-medium">爬虫抓取仿真</button></p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
-            <button onclick="openCompetitorGapModal()" class="py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="swords" class="w-4 h-4 text-red-600"></i>
-              <span>⚔️ 竞对差距与反超沙盘</span>
-            </button>
-            <button onclick="openCrawlerSimModal()" class="py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="bot" class="w-4 h-4 text-blue-600"></i>
-              <span>🕷️ 爬虫抓取仿真</span>
-            </button>
-            <button onclick="openPitchModal()" class="py-2.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="presentation" class="w-4 h-4 text-purple-600"></i>
-              <span>🎯 售前 Pitch</span>
-            </button>
-            <button onclick="openEvolutionModal()" class="py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
-              <span>🌱 词库演进</span>
-            </button>
             <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="scan" class="w-4 h-4"></i>
-              <span>执行体检诊断</span>
+              <span>执行测算体检</span>
             </button>
           </div>
         </div>
@@ -517,14 +469,6 @@
             <p class="text-xs text-slate-500 mt-1">专为大模型打造的 100% 静态极速官网（含 index.html + /llms.txt + JSON-LD + 爬虫放行），无需触碰客户任何老旧系统。</p>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="openIntentMatrixModal()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="target" class="w-4 h-4 text-emerald-600"></i>
-              <span>🎯 三级搜索意图拓扑</span>
-            </button>
-            <button onclick="openGraphModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="network" class="w-4 h-4 text-purple-600"></i>
-              <span>🕸️ 实体知识图谱拓扑</span>
-            </button>
             <button onclick="runSingleStep(event, 'scaffold')" id="btn-step-2" class="py-2.5 px-5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-2 transition">
               <i data-lucide="sparkles" class="w-4 h-4"></i>
               <span>一键编译交钥匙整站</span>
@@ -626,6 +570,71 @@
 
       <!-- ===== STEP 3 PANEL ===== -->
       <div id="step-panel-3" class="hidden space-y-6">
+
+        <!-- 使用说明折叠抽屉（对齐阶段二交互） -->
+        <div id="step3-guidance-card" class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 shadow-sm transition-all duration-300">
+          <div onclick="toggleStep3Guide()" class="flex items-center justify-between cursor-pointer select-none">
+            <div class="flex items-center gap-2">
+              <span class="text-xs sm:text-sm font-bold text-indigo-950">使用说明 · 阶段三：证据 → 真相 → 母盘语料 · 怎么落地上线</span>
+            </div>
+            <button type="button" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition">
+              <span id="step3-guide-toggle-text">点击收起</span>
+              <span id="step3-guide-toggle-icon">▲</span>
+            </button>
+          </div>
+
+          <div id="step3-guide-content" class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-3.5 pt-3.5 border-t border-indigo-100/80 text-xs">
+            <div class="bg-white p-3.5 rounded-xl border border-indigo-100/70 shadow-xs flex flex-col justify-between space-y-2">
+              <div>
+                <div class="flex items-center gap-1.5 font-bold text-slate-900 mb-1">
+                  <span>这页在干嘛（核心价值）</span>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">
+                  先把客户官网/手册收进<strong>证据库</strong>，再整理成可核对的<strong>真相源</strong>，最后写成一篇给大模型看的正式稿——也就是<strong>母盘</strong>（誊清本）。算力默认走小毛驴 Nextdoor；模型梯队在管理台配，这里只负责连上并生产。
+                </p>
+              </div>
+              <div class="text-[10px] text-indigo-600 font-medium bg-indigo-50 px-2 py-1 rounded">
+                模式：先存证据，再认事实，再写正式稿
+              </div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-xl border border-indigo-100/70 shadow-xs flex flex-col justify-between space-y-2">
+              <div>
+                <div class="flex items-center gap-1.5 font-bold text-slate-900 mb-1">
+                  <span>几个按钮各干什么</span>
+                </div>
+                <div class="text-slate-600 text-[11px] space-y-1 leading-relaxed">
+                  <p><strong>抓取并提纯 / 提纯并保存</strong>：收材料；连上 Nextdoor 时会帮抽事实进真相源。</p>
+                  <p><strong>预检冲突并确认安全项</strong>：先查说法打架，再批量认下没冲突的项。</p>
+                  <p><strong>增量重构 / 强制全量</strong>：按已确认真相写或整篇重写母盘。</p>
+                  <p><strong>钉住母盘</strong>：把当前正式稿存成对照复印件；<strong>刷新对照</strong>再算差在哪。</p>
+                </div>
+              </div>
+              <div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">
+                预检后仍标红的冲突，要你点仲裁，不要硬认
+              </div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-xl border border-indigo-100/70 shadow-xs flex flex-col justify-between space-y-2">
+              <div>
+                <div class="flex items-center gap-1.5 font-bold text-slate-900 mb-1">
+                  <span>操作指引（证据 → 真相 → 母盘）</span>
+                </div>
+                <div class="text-slate-600 text-[11px] space-y-1 leading-relaxed">
+                  <p><strong>第一步</strong>：右上角【配置 Nextdoor】连上小毛驴，Tag 显示在线；</p>
+                  <p><strong>第二步</strong>：抓首页/关于我们，或粘贴手册 → 提纯进证据库；</p>
+                  <p><strong>第三步</strong>：看真相源；有红冲突先仲裁，再点【预检冲突并确认安全项】；</p>
+                  <p><strong>第四步</strong>：点【增量重构】生成母盘（首次或大改用【强制全量】）；</p>
+                  <p><strong>第五步</strong>：满意就【钉住母盘】→【刷新对照】；strategy 不是 block 再进阶段四。</p>
+                </div>
+              </div>
+              <div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">
+                strategy=block 时先清冲突，不要硬进阶段四
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between flex-wrap gap-3">
           <div>
             <h2 class="text-base font-bold text-slate-900">阶段三：普林斯顿 9 因子高权威内容重构</h2>
@@ -640,18 +649,7 @@
             </div>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
-            <button onclick="openRagDiagModal()" class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="puzzle" class="w-4 h-4 text-emerald-600"></i>
-              <span>RAG 语义分块诊断</span>
-            </button>
-            <button onclick="openGraphModal()" class="py-2.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="network" class="w-4 h-4 text-indigo-600"></i>
-              <span>实体图谱</span>
-            </button>
-            <button onclick="openVisualModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="palette" class="w-4 h-4"></i>
-              <span>视觉资产</span>
-            </button>
+            <span class="text-[11px] text-slate-400">RAG / 图谱 / 视觉已迁至「二次提升」</span>
           </div>
         </div>
 
@@ -798,300 +796,210 @@
             <p class="text-xs text-slate-500 mt-1">自适应适配今日头条（打豆包）、知乎长文（打DeepSeek）、微信公众号（内联HTML）与 GitHub 开源技术专版。</p>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
-            <button onclick="openComplianceModal()" class="py-2.5 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="shield-check" class="w-4 h-4 text-amber-600"></i>
-              <span>内容合规与广告法风控</span>
-            </button>
-            <button onclick="openInjectionGuardModal()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold rounded-lg border border-rose-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="shield" class="w-4 h-4 text-rose-600"></i>
-              <span>提示词注入防御</span>
-            </button>
-            <button onclick="openGuardModal()" class="py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
-              <span>🛡️ 幻觉防御</span>
-            </button>
-            <button onclick="openVisualModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 shadow-sm flex items-center gap-1.5 transition">
-              <i data-lucide="palette" class="w-4 h-4"></i>
-              <span>🎨 视觉资产</span>
-            </button>
             <button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="share-2" class="w-4 h-4"></i>
-              <span>生成 4 平台发布包</span>
+              <span>生成矩阵发布包</span>
             </button>
           </div>
         </div>
 
-        </div>
-
-        <!-- 五大本土模型全景极速发稿中心: 今日头条(豆包 50%+) + 知乎/GitHub(DeepSeek 25%+) + 微信生态(元宝 10%+) + Kimi(8%) + 百度文心(7%) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- 头条极速发稿中心 -->
-          <div class="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-xl border border-red-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-red-900">📰 头条发稿（豆包 50%+）</h3>
-                <span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white/80 px-2 py-0.5 rounded-full border border-red-100">待发稿包</span>
-              </div>
-              <p class="text-xs text-red-700/80 mb-2.5">9 因子富文本长文，10 秒粘贴 mp.toutiao.com，含微头条与 SEO 标签。</p>
+        <!-- 渠道进度跳转条（非说明书） -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button type="button" onclick="document.getElementById('pack-card-toutiao').scrollIntoView({behavior:'smooth',block:'start'})" class="bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 text-left hover:bg-red-100 transition">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-red-900">头条 / 豆包</span>
+              <span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white px-1.5 py-0.5 rounded-full border border-red-100">待发稿包</span>
             </div>
-            <div class="grid grid-cols-2 gap-1 text-center text-[10px] text-red-800">
-              <div class="bg-white/70 rounded p-1 border border-red-100">01 富文本长文 HTML</div>
-              <div class="bg-white/70 rounded p-1 border border-red-100">02 微头条 ×3</div>
+          </button>
+          <button type="button" onclick="document.getElementById('pack-card-zhihu').scrollIntoView({behavior:'smooth',block:'start'})" class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-left hover:bg-blue-100 transition">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-blue-900">知乎 / DeepSeek</span>
+              <span id="deepseek-pack-status" class="text-[10px] font-semibold text-blue-600 bg-white px-1.5 py-0.5 rounded-full border border-blue-100">待发稿包</span>
             </div>
-          </div>
-
-          <!-- DeepSeek / 知乎 / GitHub 极速发稿中心 -->
-          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-blue-900">🎯 DeepSeek 发稿（决策 25%+）</h3>
-                <span id="deepseek-pack-status" class="text-[10px] font-semibold text-blue-600 bg-white/80 px-2 py-0.5 rounded-full border border-blue-100">待发稿包</span>
-              </div>
-              <p class="text-xs text-blue-700/80 mb-2.5">GitHub 开源 README + 知乎深度选型长文 + 压缩版 llms-deepseek.txt。</p>
+          </button>
+          <button type="button" onclick="document.getElementById('pack-card-wechat').scrollIntoView({behavior:'smooth',block:'start'})" class="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5 text-left hover:bg-emerald-100 transition">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-emerald-900">微信 / 元宝</span>
+              <span id="wechat-pack-status" class="text-[10px] font-semibold text-emerald-600 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100">待发稿包</span>
             </div>
-            <div class="grid grid-cols-2 gap-1 text-center text-[10px] text-blue-800">
-              <div class="bg-white/70 rounded p-1 border border-blue-100">01 GitHub README</div>
-              <div class="bg-white/70 rounded p-1 border border-blue-100">02 知乎深度选型长文</div>
+          </button>
+          <button type="button" onclick="document.getElementById('pack-card-kimi').scrollIntoView({behavior:'smooth',block:'start'})" class="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2.5 text-left hover:bg-purple-100 transition">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-purple-900">Kimi / 百度</span>
+              <span id="kimi-baidu-pack-status" class="text-[10px] font-semibold text-purple-600 bg-white px-1.5 py-0.5 rounded-full border border-purple-100">待发稿包</span>
             </div>
-          </div>
-
-          <!-- 微信公众号与视频号极速发稿中心 -->
-          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl border border-emerald-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-emerald-900">💬 微信发稿（腾讯元宝 10%+）</h3>
-                <span id="wechat-pack-status" class="text-[10px] font-semibold text-emerald-600 bg-white/80 px-2 py-0.5 rounded-full border border-emerald-100">待发稿包</span>
-              </div>
-              <p class="text-xs text-emerald-700/80 mb-2.5">100% 纯内联 CSS，微信后台无损粘贴；配套 60 秒视频号脚本与搜一搜词库。</p>
-            </div>
-            <div class="grid grid-cols-2 gap-1 text-center text-[10px] text-emerald-800">
-              <div class="bg-white/70 rounded p-1 border border-emerald-100">01 微信原生富文本</div>
-              <div class="bg-white/70 rounded p-1 border border-emerald-100">02 视频号 60s 脚本</div>
-            </div>
-          </div>
-
-          <!-- Kimi 研报与百度文心发稿中心 -->
-          <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-purple-900">📑 Kimi & 百度（长文本/百科 15%）</h3>
-                <span id="kimi-baidu-pack-status" class="text-[10px] font-semibold text-purple-600 bg-white/80 px-2 py-0.5 rounded-full border border-purple-100">待发稿包</span>
-              </div>
-              <p class="text-xs text-purple-700/80 mb-2.5">Kimi 超长研报白皮书 + 百度百科标准词条草案 + 百度文库权威 Q&A。</p>
-            </div>
-            <div class="grid grid-cols-2 gap-1 text-center text-[10px] text-purple-800">
-              <div class="bg-white/70 rounded p-1 border border-purple-100">01 Kimi 研报白皮书</div>
-              <div class="bg-white/70 rounded p-1 border border-purple-100">02 百度百科词条草案</div>
-            </div>
-          </div>
+          </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <!-- 1. 今日头条 (豆包 50%+) -->
-          <!-- 1. 今日头条 (豆包 50%+) -->
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <!-- 1. 今日头条 -->
+          <div id="pack-card-toutiao" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between scroll-mt-24">
             <div>
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2 text-red-600 font-bold text-sm">
                   <i data-lucide="file-text" class="w-4 h-4"></i>
                   <span>今日头条 / 豆包生态 (50%+)</span>
                 </div>
-                <span id="toutiao-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">🟢 爬虫保真度: 97.5分</span>
+                <span id="toutiao-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">保真度: 97.5</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">攻占字节跳动 Bytespider 检索信任池，附微头条短动态，24h 内快速收录。</p>
+              <p class="text-xs text-slate-500 mb-4">攻占字节 Bytespider 检索信任池，附微头条短动态。</p>
             </div>
             <div class="space-y-2">
               <button onclick="buildToutiaoPack()" class="w-full py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-red-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i>
-                <span>生成头条发稿包</span>
+                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成头条发稿包</span>
               </button>
               <button onclick="copyToutiaoRichHtml()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
-                <span>一键复制富文本长文</span>
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制富文本长文</span>
               </button>
-              <button onclick="openCleanMarkdownDrawer('toutiao')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-amber-200">
-                <i data-lucide="scan-eye" class="w-3.5 h-3.5"></i>
-                <span>🧪 爬虫保真度透视 (Clean MD)</span>
-              </button>
-              <button onclick="copyToutiaoMicroPosts()" class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                <span>复制微头条 3 组文案</span>
-              </button>
-              <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-200">
-                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                <span>复制 Markdown 分发稿</span>
-              </button>
-              <a href="https://mp.toutiao.com/" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
-                <span>直达头条号后台</span>
-                <i data-lucide="external-link" class="w-3 h-3"></i>
-              </a>
+              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
+                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                <div class="px-2 pb-2 space-y-1.5">
+                  <button onclick="openCleanMarkdownDrawer('toutiao')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span></button>
+                  <button onclick="copyToutiaoMicroPosts()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制微头条 3 组文案</span></button>
+                  <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制 Markdown 分发稿</span></button>
+                  <a href="https://mp.toutiao.com/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达头条号后台</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+              </details>
             </div>
           </div>
 
-          <!-- 2. 知乎专栏 (DeepSeek 25%+) -->
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <!-- 2. 知乎 -->
+          <div id="pack-card-zhihu" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between scroll-mt-24">
             <div>
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2 text-blue-600 font-bold text-sm">
                   <i data-lucide="book-open" class="w-4 h-4"></i>
                   <span>知乎专栏 / DeepSeek (25%+)</span>
                 </div>
-                <span id="zhihu-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">🟢 爬虫保真度: 97.5分</span>
+                <span id="zhihu-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">保真度: 97.5</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">攻占 CTO 与架构师技术深度池，包含硬核架构设计、因果推理与对比表。</p>
+              <p class="text-xs text-slate-500 mb-4">攻占 CTO 与架构师技术深度池。</p>
             </div>
             <div class="space-y-2">
               <button onclick="buildDeepseekPack()" class="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-blue-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i>
-                <span>生成 DeepSeek 技术包</span>
+                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成 DeepSeek 技术包</span>
               </button>
               <button onclick="copyZhihuRichHtml()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
-                <span>一键复制知乎富文本长文</span>
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制知乎富文本长文</span>
               </button>
-              <button onclick="openCleanMarkdownDrawer('zhihu')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-amber-200">
-                <i data-lucide="scan-eye" class="w-3.5 h-3.5"></i>
-                <span>🧪 爬虫保真度透视 (Clean MD)</span>
-              </button>
-              <button onclick="copyDeepseekZhihu()" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-200">
-                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                <span>复制 Markdown 选型稿</span>
-              </button>
-              <button onclick="copyDeepseekLlms()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-indigo-200">
-                <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
-                <span>复制 DeepSeek 极简底座</span>
-              </button>
-              <a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
-                <span>直达知乎创作中心</span>
-                <i data-lucide="external-link" class="w-3 h-3"></i>
-              </a>
+              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
+                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                <div class="px-2 pb-2 space-y-1.5">
+                  <button onclick="openCleanMarkdownDrawer('zhihu')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span></button>
+                  <button onclick="copyDeepseekZhihu()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制 Markdown 选型稿</span></button>
+                  <button onclick="copyDeepseekLlms()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg border border-indigo-200 flex items-center justify-center gap-1.5"><i data-lucide="cpu" class="w-3.5 h-3.5"></i><span>复制 DeepSeek 极简底座</span></button>
+                  <a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达知乎创作中心</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+              </details>
             </div>
           </div>
 
-          <!-- 3. 微信公众号与视频号 (腾讯元宝 10%+) -->
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <!-- 3. 微信 -->
+          <div id="pack-card-wechat" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between scroll-mt-24">
             <div>
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2 text-emerald-600 font-bold text-sm">
                   <i data-lucide="message-square" class="w-4 h-4"></i>
                   <span>微信生态 / 腾讯元宝 (10%+)</span>
                 </div>
-                <span id="wechat-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">🟢 爬虫保真度: 91.7分</span>
+                <span id="wechat-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">保真度: 91.7</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">100% 纯内联富文本 + 视频号 60 秒口播 + 私域直营引流名片。</p>
+              <p class="text-xs text-slate-500 mb-4">内联富文本 + 视频号 60 秒口播 + 私域名片。</p>
             </div>
             <div class="space-y-2">
               <button onclick="buildWechatPack()" class="w-full py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-emerald-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i>
-                <span>生成微信发稿包</span>
+                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成微信发稿包</span>
               </button>
               <button onclick="copyWechatRichHtml()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
-                <span>一键复制微信富文本</span>
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制微信富文本</span>
               </button>
-              <button onclick="openCleanMarkdownDrawer('wechat')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-amber-200">
-                <i data-lucide="scan-eye" class="w-3.5 h-3.5"></i>
-                <span>🧪 爬虫保真度透视 (Clean MD)</span>
-              </button>
-              <button onclick="copyWechatVideoScript()" class="w-full py-2 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="video" class="w-3.5 h-3.5"></i>
-                <span>复制视频号 60s 脚本</span>
-              </button>
-              <button onclick="copyWechatSop()" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-200">
-                <i data-lucide="tag" class="w-3.5 h-3.5"></i>
-                <span>复制搜一搜词库与 SOP</span>
-              </button>
-              <a href="https://mp.weixin.qq.com/" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
-                <span>直达公众号平台</span>
-                <i data-lucide="external-link" class="w-3 h-3"></i>
-              </a>
+              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
+                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                <div class="px-2 pb-2 space-y-1.5">
+                  <button onclick="openCleanMarkdownDrawer('wechat')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span></button>
+                  <button onclick="copyWechatVideoScript()" class="w-full py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="video" class="w-3.5 h-3.5"></i><span>复制视频号 60s 脚本</span></button>
+                  <button onclick="copyWechatSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制搜一搜词库与 SOP</span></button>
+                  <a href="https://mp.weixin.qq.com/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达公众号平台</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+              </details>
             </div>
           </div>
 
-          <!-- 4. GitHub 开源生态 -->
+          <!-- 4. GitHub -->
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-2 text-slate-800 font-bold text-sm mb-2">
                 <i data-lucide="github" class="w-4 h-4"></i>
                 <span>GitHub 开源生态</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">最高权重开发者索引，带 Shields 徽标与 Mermaid 架构流向图。</p>
+              <p class="text-xs text-slate-500 mb-4">开发者索引：Shields 徽标与 Mermaid 架构图。</p>
             </div>
             <div class="space-y-2">
               <button onclick="buildDeepseekPack()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-300">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i>
-                <span>生成 GitHub 技术包</span>
+                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成 GitHub 技术包</span>
               </button>
               <button onclick="copyDeepseekReadme()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
-                <span>一键复制开源 README</span>
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制开源 README</span>
               </button>
-              <button onclick="copyDeepseekSop()" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-200">
-                <i data-lucide="tag" class="w-3.5 h-3.5"></i>
-                <span>复制开源分发 SOP</span>
-              </button>
-              <a href="https://github.com/new" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
-                <span>直达 GitHub New</span>
-                <i data-lucide="external-link" class="w-3 h-3"></i>
-              </a>
+              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
+                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                <div class="px-2 pb-2 space-y-1.5">
+                  <button onclick="copyDeepseekSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制开源分发 SOP</span></button>
+                  <a href="https://github.com/new" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达 GitHub New</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+              </details>
             </div>
           </div>
 
-          <!-- 5. Kimi (Moonshot 8%) -->
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <!-- 5. Kimi -->
+          <div id="pack-card-kimi" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between scroll-mt-24">
             <div>
               <div class="flex items-center gap-2 text-purple-600 font-bold text-sm mb-2">
                 <i data-lucide="file-check" class="w-4 h-4"></i>
                 <span>Kimi 研报与长文本 (8%)</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">结构化行业深度选型白皮书，专为 Kimi 长文本分析与案例抽取设计。</p>
+              <p class="text-xs text-slate-500 mb-4">行业深度选型白皮书，适配 Kimi 长文本抽取。</p>
             </div>
             <div class="space-y-2">
               <button onclick="buildKimiBaiduPack()" class="w-full py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-purple-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i>
-                <span>生成 Kimi/百度包</span>
+                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成 Kimi/百度包</span>
               </button>
               <button onclick="copyKimiWhitepaper()" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
-                <span>一键复制行业白皮书</span>
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制行业白皮书</span>
               </button>
-              <button onclick="copyKimiBaiduSop()" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-200">
-                <i data-lucide="tag" class="w-3.5 h-3.5"></i>
-                <span>复制长文本分发 SOP</span>
-              </button>
-              <a href="https://kimi.moonshot.cn/" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
-                <span>直达 Kimi 平台</span>
-                <i data-lucide="external-link" class="w-3 h-3"></i>
-              </a>
+              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
+                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                <div class="px-2 pb-2 space-y-1.5">
+                  <button onclick="copyKimiBaiduSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制长文本分发 SOP</span></button>
+                  <a href="https://kimi.moonshot.cn/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达 Kimi 平台</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+              </details>
             </div>
           </div>
 
-          <!-- 6. 百度百科与文库 (文心一言 7%) -->
+          <!-- 6. 百度 -->
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-2 text-sky-600 font-bold text-sm mb-2">
                 <i data-lucide="award" class="w-4 h-4"></i>
                 <span>百度百科与文库 (7%)</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">标准百度百科词条 Infobox 草案 + 百度文库/知道高权重权威 Q&A 对。</p>
+              <p class="text-xs text-slate-500 mb-4">百科词条草案 + 文库/知道权威 Q&A。</p>
             </div>
             <div class="space-y-2">
               <button onclick="buildKimiBaiduPack()" class="w-full py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-sky-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i>
-                <span>生成百度/Kimi包</span>
+                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成百度/Kimi包</span>
               </button>
               <button onclick="copyBaiduBaike()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
-                <span>一键复制百度百科草案</span>
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制百度百科草案</span>
               </button>
-              <button onclick="copyBaiduQa()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 border border-indigo-200">
-                <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
-                <span>复制百度文库 Q&A 对</span>
-              </button>
-              <a href="https://baike.baidu.com/create" target="_blank" class="w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 border border-slate-200">
-                <span>直达百度百科创建</span>
-                <i data-lucide="external-link" class="w-3 h-3"></i>
-              </a>
+              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
+                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                <div class="px-2 pb-2 space-y-1.5">
+                  <button onclick="copyBaiduQa()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg border border-indigo-200 flex items-center justify-center gap-1.5"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i><span>复制百度文库 Q&A 对</span></button>
+                  <a href="https://baike.baidu.com/create" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达百度百科创建</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+              </details>
             </div>
           </div>
         </div>
@@ -1149,99 +1057,23 @@
 
       <!-- ===== STEP 5 PANEL ===== -->
       <div id="step-panel-5" class="hidden space-y-6">
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h2 class="text-base font-bold text-slate-900">阶段五：AI 可见度监控大盘与竞品反向包抄作战</h2>
-            <p class="text-xs text-slate-500 mt-1">并发探测主流大模型，计算 SOV 声量、Citation 权威信源加权得分并一键生成竞品包抄策略。</p>
+            <h2 class="text-base font-bold text-slate-900">阶段五：首轮监测与验收</h2>
+            <p class="text-xs text-slate-500 mt-1">交付收口：跑一轮声量监测、出周报、开验收单。进阶沙盘见「二次提升」，日常复测见「日常维护」。</p>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
-            <button onclick="openInjectionGuardModal()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold rounded-lg border border-rose-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="shield-check" class="w-4 h-4 text-rose-600"></i>
-              <span>🛡️ 提示词注入防御盾</span>
-            </button>
-            <button onclick="openCitationAuthModal()" class="py-2.5 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
-              <span>🏆 Citation 信源权威度矩阵</span>
-            </button>
-            <button onclick="openIntentMatrixModal()" class="py-2.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="target" class="w-4 h-4 text-emerald-600"></i>
-              <span>🎯 三级搜索意图拓扑</span>
-            </button>
-            <button onclick="openEvalModal()" class="py-2.5 px-3.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition flex items-center gap-1.5 shadow-sm" title="06 号全案综合 AI 可见度与竞对对比沙盘">
-              <i data-lucide="cpu" class="w-4 h-4 text-blue-600"></i>
-              <span>🤖 宏观 AI 评测沙盘 (06)</span>
-            </button>
-            <button onclick="openProbingModal()" class="py-2.5 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm" title="18 号多模型 Citation 角标解析与 04 台账真实发布文章闭环比对">
-              <i data-lucide="crosshair" class="w-4 h-4 text-indigo-600"></i>
-              <span>🎯 Citation 信源溯源对账 (18)</span>
-            </button>
-            <button onclick="openSentimentGuardModal()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg border border-rose-200 transition flex items-center gap-1.5 shadow-sm" title="19 号对抗性负面探针、BRS 声誉分与危机清洗压制（与幻觉防御并列区分）">
-              <i data-lucide="shield" class="w-4 h-4 text-rose-600"></i>
-              <span>🛡️ 品牌声誉排查与危机清洗 (19)</span>
-            </button>
-            <button onclick="openDecayMonitorModal()" class="py-2.5 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm" title="20 号大模型知识半衰期衰减监测与长效自愈补量刷新">
-              <i data-lucide="hourglass" class="w-4 h-4 text-amber-600"></i>
-              <span>⏳ 知识半衰期与自愈 (20)</span>
-            </button>
-            <button onclick="openMindshareAuditModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 transition flex items-center gap-1.5 shadow-sm" title="21 号大模型商业心智渗透率与商业转化价值量化审计中枢">
-              <i data-lucide="gem" class="w-4 h-4 text-purple-600"></i>
-              <span>💎 商业心智与价值审计 (21)</span>
-            </button>
-            <button onclick="openRerankSimModal()" class="py-2.5 px-3.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition flex items-center gap-1.5 shadow-sm" title="22 号跨大模型 RAG 混合检索召回与重排序挤占演习沙盘">
-              <i data-lucide="shuffle" class="w-4 h-4 text-blue-600"></i>
-              <span>🔀 RAG 重排演习沙盘 (22)</span>
-            </button>
-            <button onclick="openCausalAttrModal()" class="py-2.5 px-3.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg border border-teal-200 transition flex items-center gap-1.5 shadow-sm" title="23 号大模型商业推荐因果归因与信源边际贡献度量化审计中枢">
-              <i data-lucide="git-fork" class="w-4 h-4 text-teal-600"></i>
-              <span>🧬 因果归因与信源审计 (23)</span>
-            </button>
-            <button onclick="openFunnelSimModal()" class="py-2.5 px-3.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-semibold rounded-lg border border-orange-200 transition flex items-center gap-1.5 shadow-sm" title="24 号大模型商业多轮追问决策漏斗与意图转化路径推演中枢">
-              <i data-lucide="filter" class="w-4 h-4 text-orange-600"></i>
-              <span>🌪️ 多轮决策漏斗推演 (24)</span>
-            </button>
-            <button onclick="openRobustnessTestModal()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg border border-rose-200 transition flex items-center gap-1.5 shadow-sm" title="25 号大模型提示词敏感度扰动与生成鲁棒性压力测试中枢">
-              <i data-lucide="shield-check" class="w-4 h-4 text-rose-600"></i>
-              <span>🛡️ 提示词压力测试 (25)</span>
-            </button>
-            <button onclick="openMoatSandboxModal()" class="py-2.5 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm" title="26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演中枢">
-              <i data-lucide="shield-alert" class="w-4 h-4 text-indigo-600"></i>
-              <span>⚔️ 护城河博弈推演 (26)</span>
-            </button>
-            <button onclick="openGuardModal()" class="py-2.5 px-3.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
-              <span>🛡️ 幻觉防御与反击</span>
-            </button>
-            <button onclick="openPlaygroundModal()" class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg border border-purple-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="flask-conical" class="w-4 h-4 text-purple-600"></i>
-              <span>🧪 AI 测序沙箱</span>
-            </button>
-            <button onclick="openEvolutionModal()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
-              <span>🌱 词库演进裂变</span>
-            </button>
-            <button onclick="handleGenerateDefense(event)" id="btn-step-defense" class="py-2.5 px-4 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600"></i>
-              <span>⚔️ 竞品反向包抄策略</span>
-            </button>
-            <button onclick="handlePrintReport(event)" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200">
-              <i data-lucide="printer" class="w-4 h-4"></i>
-              <span>🖨️ 导出美化周报</span>
-            </button>
-            <button onclick="handlePrintAcceptance()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="file-check-2" class="w-4 h-4 text-emerald-600"></i>
-              <span>📜 结案验收单</span>
-            </button>
-            <button onclick="handlePrintCertificate()" class="py-2.5 px-4 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
-              <span>🎖️ 资产移交证书</span>
-            </button>
-            <button onclick="handleDownloadZip()" class="py-2.5 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="folder-archive" class="w-4 h-4 text-indigo-600"></i>
-              <span>📦 归档 ZIP</span>
-            </button>
             <button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="line-chart" class="w-4 h-4"></i>
               <span>执行实时声量监测</span>
+            </button>
+            <button onclick="handlePrintReport(event)" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200">
+              <i data-lucide="printer" class="w-4 h-4"></i>
+              <span>导出美化周报</span>
+            </button>
+            <button onclick="handlePrintAcceptance()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="file-check-2" class="w-4 h-4 text-emerald-600"></i>
+              <span>结案验收单</span>
             </button>
           </div>
         </div>
@@ -1653,7 +1485,111 @@
         </div>
       </div>
     </main>
-  </div>
+    </div><!-- /scene-delivery -->
+
+    <!-- ===== 场景：二次提升 ===== -->
+    <div id="scene-boost" class="hidden flex-1 overflow-y-auto">
+      <main class="max-w-5xl w-full mx-auto p-8 space-y-6">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">进阶</span>
+            <h2 class="text-base font-bold text-slate-900">二次提升武器库</h2>
+          </div>
+          <p class="text-xs text-slate-500">5 步交付跑通后，按主题继续打分、打竞品、补检索与对抗。不替代主路径。</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="swords" class="w-4 h-4 text-red-600"></i>竞品与护城河</h3>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="openCompetitorGapModal()" class="w-full py-2 px-3 bg-red-50 hover:bg-red-100 text-red-800 text-xs font-semibold rounded-lg border border-red-200 text-left flex items-center gap-2"><i data-lucide="swords" class="w-3.5 h-3.5"></i>竞对差距与反超沙盘</button>
+              <button id="btn-step-defense" onclick="handleGenerateDefense(event)" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200 text-left flex items-center gap-2"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>竞品反向包抄策略</button>
+              <button onclick="openMoatSandboxModal()" class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-lg border border-indigo-200 text-left flex items-center gap-2"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>护城河博弈推演 (26)</button>
+              <button onclick="openEvalModal()" class="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-semibold rounded-lg border border-blue-200 text-left flex items-center gap-2"><i data-lucide="cpu" class="w-3.5 h-3.5"></i>宏观 AI 评测沙盘 (06)</button>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-emerald-600"></i>检索与内容增益</h3>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="openIntentMatrixModal()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="target" class="w-3.5 h-3.5"></i>三级搜索意图拓扑</button>
+              <button onclick="openGraphModal()" class="w-full py-2 px-3 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg border border-purple-200 text-left flex items-center gap-2"><i data-lucide="network" class="w-3.5 h-3.5"></i>实体知识图谱拓扑</button>
+              <button onclick="openEvolutionModal()" class="w-full py-2 px-3 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-semibold rounded-lg border border-teal-200 text-left flex items-center gap-2"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i>词库演进裂变</button>
+              <button onclick="openRagDiagModal()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="puzzle" class="w-3.5 h-3.5"></i>RAG 语义分块诊断</button>
+              <button onclick="openRerankSimModal()" class="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-semibold rounded-lg border border-blue-200 text-left flex items-center gap-2"><i data-lucide="shuffle" class="w-3.5 h-3.5"></i>RAG 重排演习 (22)</button>
+              <button onclick="openVisualModal()" class="w-full py-2 px-3 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg border border-purple-200 text-left flex items-center gap-2"><i data-lucide="palette" class="w-3.5 h-3.5"></i>视觉资产包</button>
+              <button onclick="openComplianceModal()" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200 text-left flex items-center gap-2"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i>内容合规与广告法风控</button>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="award" class="w-4 h-4 text-amber-600"></i>信源与归因加深</h3>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="openCitationAuthModal()" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200 text-left flex items-center gap-2"><i data-lucide="award" class="w-3.5 h-3.5"></i>Citation 信源权威度矩阵</button>
+              <button onclick="openCausalAttrModal()" class="w-full py-2 px-3 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-semibold rounded-lg border border-teal-200 text-left flex items-center gap-2"><i data-lucide="git-fork" class="w-3.5 h-3.5"></i>因果归因与信源审计 (23)</button>
+              <button onclick="openFunnelSimModal()" class="w-full py-2 px-3 bg-orange-50 hover:bg-orange-100 text-orange-900 text-xs font-semibold rounded-lg border border-orange-200 text-left flex items-center gap-2"><i data-lucide="filter" class="w-3.5 h-3.5"></i>多轮决策漏斗推演 (24)</button>
+              <button onclick="openMindshareAuditModal()" class="w-full py-2 px-3 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg border border-purple-200 text-left flex items-center gap-2"><i data-lucide="gem" class="w-3.5 h-3.5"></i>商业心智与价值审计 (21)</button>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4 text-rose-600"></i>对抗与鲁棒</h3>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="openGuardModal()" class="w-full py-2 px-3 bg-red-50 hover:bg-red-100 text-red-800 text-xs font-semibold rounded-lg border border-red-200 text-left flex items-center gap-2"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>幻觉防御与反击</button>
+              <button onclick="openInjectionGuardModal()" class="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold rounded-lg border border-rose-200 text-left flex items-center gap-2"><i data-lucide="shield" class="w-3.5 h-3.5"></i>提示词注入防御盾</button>
+              <button onclick="openRobustnessTestModal()" class="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold rounded-lg border border-rose-200 text-left flex items-center gap-2"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i>提示词压力测试 (25)</button>
+              <button onclick="openPlaygroundModal()" class="w-full py-2 px-3 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg border border-purple-200 text-left flex items-center gap-2"><i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>AI 测序沙箱</button>
+              <button onclick="openCleanMarkdownDrawer('toutiao')" class="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 text-left flex items-center gap-2"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i>爬虫保真度透视 (Clean MD)</button>
+              <button onclick="openCrawlerSimModal()" class="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-semibold rounded-lg border border-blue-200 text-left flex items-center gap-2"><i data-lucide="bot" class="w-3.5 h-3.5"></i>爬虫抓取仿真</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div><!-- /scene-boost -->
+
+    <!-- ===== 场景：日常维护 ===== -->
+    <div id="scene-ops" class="hidden flex-1 overflow-y-auto">
+      <main class="max-w-5xl w-full mx-auto p-8 space-y-6">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">运维</span>
+            <h2 class="text-base font-bold text-slate-900">日常维护工作台</h2>
+          </div>
+          <p class="text-xs text-slate-500">客户续费后按周/按月：给客户看结果、巡检台账、危机排查与复检。</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="share-2" class="w-4 h-4 text-emerald-600"></i>给客户看的</h3>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="openShareModal()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="share-2" class="w-3.5 h-3.5"></i>客户专属交付链接</button>
+              <button onclick="handlePrintReport(event)" class="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 text-left flex items-center gap-2"><i data-lucide="printer" class="w-3.5 h-3.5"></i>导出美化周报</button>
+              <button onclick="handlePrintAcceptance()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="file-check-2" class="w-3.5 h-3.5"></i>结案验收单</button>
+              <button onclick="handlePrintCertificate()" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200 text-left flex items-center gap-2"><i data-lucide="award" class="w-3.5 h-3.5"></i>资产移交证书</button>
+              <button onclick="handleDownloadZip()" class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-lg border border-indigo-200 text-left flex items-center gap-2"><i data-lucide="folder-archive" class="w-3.5 h-3.5"></i>归档 ZIP</button>
+              <button onclick="downloadDeliverables()" class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg text-left flex items-center gap-2"><i data-lucide="download" class="w-3.5 h-3.5"></i>一键打包导出 (.zip)</button>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-indigo-600"></i>每周巡检</h3>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="runSingleStep(event, 'monitor')" class="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg text-left flex items-center gap-2"><i data-lucide="line-chart" class="w-3.5 h-3.5"></i>执行实时声量监测</button>
+              <button onclick="openProbingModal()" class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-lg border border-indigo-200 text-left flex items-center gap-2"><i data-lucide="crosshair" class="w-3.5 h-3.5"></i>Citation 信源溯源对账 (18)</button>
+              <button onclick="handleVerifyAllDistUrls()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="activity" class="w-3.5 h-3.5"></i>一键全网探活</button>
+              <button onclick="openDecayMonitorModal()" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200 text-left flex items-center gap-2"><i data-lucide="hourglass" class="w-3.5 h-3.5"></i>知识半衰期与自愈 (20)</button>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4 text-rose-600"></i>危机与声誉</h3>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="openSentimentGuardModal()" class="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold rounded-lg border border-rose-200 text-left flex items-center gap-2"><i data-lucide="shield" class="w-3.5 h-3.5"></i>品牌声誉排查与危机清洗 (19)</button>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="radar" class="w-4 h-4 text-violet-600"></i>普林斯顿复检</h3>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="openPrincetonModal()" class="w-full py-2 px-3 bg-violet-50 hover:bg-violet-100 text-violet-800 text-xs font-semibold rounded-lg border border-violet-200 text-left flex items-center gap-2"><i data-lucide="radar" class="w-3.5 h-3.5"></i>普林斯顿体检仪</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div><!-- /scene-ops -->
+  </div><!-- /wizard-view -->
 
   <!-- ================= 4. 新建客户项目模态弹窗 ================= -->
   <div id="new-project-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
@@ -5331,6 +5267,7 @@ GitHub 开源仓库：https://github.com/company/repo
       currentProjectId = projectId;
       document.getElementById('dashboard-view').classList.add('hidden');
       document.getElementById('wizard-view').classList.remove('hidden');
+      switchScene('delivery');
 
       try {
         const res = await fetch(`/api/projects/${projectId}`, {
@@ -5662,8 +5599,30 @@ GitHub 开源仓库：https://github.com/company/repo
       }
     }
 
+    // 三场景切换：初步交付 / 二次提升 / 日常维护
+    let currentScene = 'delivery';
+    function switchScene(scene) {
+      currentScene = scene || 'delivery';
+      const scenes = ['delivery', 'boost', 'ops'];
+      scenes.forEach((s) => {
+        const panel = document.getElementById(`scene-${s}`);
+        const tab = document.getElementById(`scene-tab-${s}`);
+        if (!panel || !tab) return;
+        const active = s === currentScene;
+        panel.classList.toggle('hidden', !active);
+        if (active) {
+          tab.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200';
+        } else {
+          tab.className = 'px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-transparent';
+        }
+      });
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
     // 步骤切换
     function switchStep(step) {
+      if (currentScene !== 'delivery') switchScene('delivery');
+
       currentStep = step;
       for (let i = 1; i <= 5; i++) {
         const tab = document.getElementById(`step-tab-${i}`);
@@ -5687,6 +5646,7 @@ GitHub 开源仓库：https://github.com/company/repo
         switchScaffoldTab(currentScaffoldTab || 'site.html');
       }
       if (step === 3) {
+        restoreStep3GuideState();
         refreshLlmStatus(false);
         loadRawMaterialsEditor();
         loadCorpusStatus();
@@ -6055,10 +6015,14 @@ GitHub 开源仓库：https://github.com/company/repo
     // 竞品反向包抄策略生成
     async function handleGenerateDefense(e) {
       if (e) e.preventDefault();
-      const btn = document.getElementById('btn-step-defense');
-      const origHTML = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 正在生成包抄策略...`;
+      const btn = (e && e.currentTarget && e.currentTarget.tagName === 'BUTTON')
+        ? e.currentTarget
+        : document.getElementById('btn-step-defense');
+      const origHTML = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="inline-block animate-spin mr-1">...</span> 正在生成包抄策略...`;
+      }
 
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/defense/generate`, {
@@ -6067,7 +6031,7 @@ GitHub 开源仓库：https://github.com/company/repo
         });
         const data = await res.json();
         if (data.success) {
-          showToast(data.message || '✅ 竞品反向包抄策略已生成！');
+          showToast(data.message || '竞品反向包抄策略已生成');
           loadDefensePreview();
         } else {
           showToast('生成失败: ' + data.message, 'error');
@@ -6075,8 +6039,10 @@ GitHub 开源仓库：https://github.com/company/repo
       } catch (err) {
         showToast('请求异常', 'error');
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = origHTML;
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = origHTML;
+        }
         lucide.createIcons();
       }
     }
@@ -8476,6 +8442,43 @@ GitHub 开源仓库：https://github.com/company/repo
         if (text) text.innerText = '点击展开';
         if (icon) icon.innerText = '▼';
         localStorage.setItem('geo_step2_guide_collapsed', 'true');
+      }
+    }
+
+    // 阶段三：折叠使用说明（同阶段二交互）
+    function restoreStep3GuideState() {
+      const isCollapsed = localStorage.getItem('geo_step3_guide_collapsed') === 'true';
+      const content = document.getElementById('step3-guide-content');
+      const text = document.getElementById('step3-guide-toggle-text');
+      const icon = document.getElementById('step3-guide-toggle-icon');
+      if (!content) return;
+      if (isCollapsed) {
+        content.classList.add('hidden');
+        if (text) text.innerText = '点击展开';
+        if (icon) icon.innerText = '▼';
+      } else {
+        content.classList.remove('hidden');
+        if (text) text.innerText = '点击收起';
+        if (icon) icon.innerText = '▲';
+      }
+    }
+
+    function toggleStep3Guide() {
+      const content = document.getElementById('step3-guide-content');
+      const text = document.getElementById('step3-guide-toggle-text');
+      const icon = document.getElementById('step3-guide-toggle-icon');
+      if (!content) return;
+      const isHidden = content.classList.contains('hidden');
+      if (isHidden) {
+        content.classList.remove('hidden');
+        if (text) text.innerText = '点击收起';
+        if (icon) icon.innerText = '▲';
+        localStorage.setItem('geo_step3_guide_collapsed', 'false');
+      } else {
+        content.classList.add('hidden');
+        if (text) text.innerText = '点击展开';
+        if (icon) icon.innerText = '▼';
+        localStorage.setItem('geo_step3_guide_collapsed', 'true');
       }
     }
 
