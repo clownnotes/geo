@@ -448,6 +448,263 @@ def confirm_fact(cfg: dict, fact_key: str) -> dict:
 
 
 def confirm_all_non_conflict(cfg: dict) -> dict:
+    """兼容旧调用：默认开启语义预检。"""
+    return confirm_all_with_semantic_precheck(cfg, semantic=True)
+
+
+def _fact_label(fact: dict) -> str:
+    return (fact.get("statement") or fact.get("value") or "").strip()
+
+
+def _rule_based_semantic_pairs(facts: list) -> list:
+    """
+    轻量规则预检（不依赖 LLM）：同键已在 merge 处理；此处抓跨键明显互斥。
+    返回 [{key_a, key_b, reason, statement_a, statement_b}, ...]
+    """
+    by_key = {f.get("fact_key"): f for f in facts if f.get("fact_key")}
+    pairs = []
+
+    def add(ka, kb, reason):
+        if ka not in by_key or kb not in by_key:
+            return
+        if by_key[ka].get("status") == STATUS_REJECTED or by_key[kb].get("status") == STATUS_REJECTED:
+            return
+        pairs.append({
+            "key_a": ka,
+            "key_b": kb,
+            "reason": reason,
+            "statement_a": _fact_label(by_key[ka]),
+            "statement_b": _fact_label(by_key[kb]),
+        })
+
+    price = _fact_label(by_key.get("metric.price_range") or {})
+    delivery = _fact_label(by_key.get("metric.delivery_days") or {})
+    area = _fact_label(by_key.get("service.area") or {})
+    code = _fact_label(by_key.get("policy.source_code_delivery") or {})
+
+    free_pat = re.compile(r"(免费|0\s*元|零费用|不要钱)")
+    paid_pat = re.compile(r"(收费|付费|\d+\s*元|万元|报价|套餐价)")
+    if free_pat.search(price) and paid_pat.search(price):
+        add("metric.price_range", "metric.price_range", "同一价格事实同时含免费与收费表述")
+    if free_pat.search(price) and paid_pat.search(delivery):
+        add("metric.price_range", "metric.delivery_days", "价格宣称免费但交付/周期文案含收费口径")
+    if re.search(r"不提供|不交付|不给源码|闭源", code) and re.search(r"交付源码|提供源码|开源|附源码", code + " " + delivery):
+        add("policy.source_code_delivery", "metric.delivery_days", "源码交付承诺与否定表述并存")
+
+    # 服务区域互斥词（简化）
+    exclusive = [("仅限徐州", "全国"), ("仅徐州", "全国"), ("本地专属", "全国")]
+    for a, b in exclusive:
+        if a in area and b in area:
+            add("service.area", "service.area", f"服务区域同时出现互斥口径「{a}」与「{b}」")
+
+    # 同 category 多条 proposed：数值明显不同（抽取数字集合不相交）
+    proposed = [f for f in facts if f.get("status") == STATUS_PROPOSED]
+    for i, fa in enumerate(proposed):
+        for fb in proposed[i + 1 :]:
+            if (fa.get("category") or "") != (fb.get("category") or ""):
+                continue
+            if fa.get("fact_key") == fb.get("fact_key"):
+                continue
+            sa, sb = _fact_label(fa), _fact_label(fb)
+            nums_a = set(re.findall(r"\d+(?:\.\d+)?", sa))
+            nums_b = set(re.findall(r"\d+(?:\.\d+)?", sb))
+            if nums_a and nums_b and nums_a.isdisjoint(nums_b) and len(sa) < 80 and len(sb) < 80:
+                # 同类别且数字完全无交集，提示人工（例如两个不同交付天数键）
+                if (fa.get("category") or "") == "量化指标":
+                    pairs.append({
+                        "key_a": fa.get("fact_key"),
+                        "key_b": fb.get("fact_key"),
+                        "reason": "同属量化指标但数字口径互不重叠，可能互相矛盾",
+                        "statement_a": sa,
+                        "statement_b": sb,
+                    })
+
+    # 去重
+    seen = set()
+    out = []
+    for p in pairs:
+        k = tuple(sorted([p["key_a"], p["key_b"]])) + (p["reason"],)
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(p)
+    return out
+
+
+def _llm_semantic_conflict_pairs(facts: list) -> list:
+    """调用 Nextdoor/LLM 做跨事实语义冲突扫描；失败则返回空列表。"""
+    from .utils import call_llm_api, get_configured_llm
+
+    if not get_configured_llm():
+        return []
+    active = [
+        f for f in facts
+        if f.get("status") in (STATUS_PROPOSED, STATUS_CONFIRMED) and _fact_label(f)
+    ]
+    if len(active) < 2:
+        return []
+    lines = []
+    for f in active[:40]:
+        lines.append(f"- key={f.get('fact_key')} status={f.get('status')} | {_fact_label(f)[:160]}")
+    system = (
+        "你是 GEO 事实一致性审核员。只找出互相矛盾、无法同时成立的事实对。"
+        "忽略单纯互补信息。输出 JSON 数组，每项："
+        '{"key_a":"...","key_b":"...","reason":"一句话中文原因"}。'
+        "无冲突输出 []。不要 Markdown。"
+    )
+    user = "事实清单：\n" + "\n".join(lines) + "\n\n请输出冲突对 JSON 数组："
+    ok, text, _ = call_llm_api(user, system, timeout=45)
+    if not ok or not text:
+        return []
+    m = re.search(r"\[[\s\S]*\]", text.strip())
+    if not m:
+        return []
+    try:
+        arr = json.loads(m.group(0))
+    except json.JSONDecodeError:
+        return []
+    out = []
+    by_key = {f.get("fact_key"): f for f in active}
+    for item in arr if isinstance(arr, list) else []:
+        if not isinstance(item, dict):
+            continue
+        ka = normalize_fact_key(item.get("key_a") or "")
+        kb = normalize_fact_key(item.get("key_b") or "")
+        if ka not in by_key or kb not in by_key:
+            continue
+        out.append({
+            "key_a": ka,
+            "key_b": kb,
+            "reason": (item.get("reason") or "语义冲突").strip()[:200],
+            "statement_a": _fact_label(by_key[ka]),
+            "statement_b": _fact_label(by_key[kb]),
+        })
+    return out
+
+
+def _apply_cross_conflict(facts: list, pair: dict) -> bool:
+    """将冲突对中涉及的 proposed（及双确认互斥）标为 conflict。返回是否改动。"""
+    by_key = {f.get("fact_key"): f for f in facts}
+    ka, kb = pair.get("key_a"), pair.get("key_b")
+    fa, fb = by_key.get(ka), by_key.get(kb)
+    if not fa or not fb:
+        return False
+
+    reason = pair.get("reason") or "语义冲突"
+    now = _now_iso()
+    changed = False
+
+    def bump(target, other, other_key: str):
+        nonlocal changed
+        if target.get("status") == STATUS_REJECTED:
+            return
+        # 提案：必须标冲突；已确认仅当对方也是已确认（双确认互斥）时才降级
+        if target.get("status") == STATUS_CONFIRMED and other.get("status") != STATUS_CONFIRMED:
+            return
+        cand = {
+            "value": _fact_label(other),
+            "statement": f"[语义冲突↔{other_key}] {reason}｜对方：{_fact_label(other)[:120]}",
+            "source_id": "semantic_precheck",
+            "fetched_at": now,
+        }
+        cands = target.get("candidates") or []
+        if not any((c.get("statement") or "") == cand["statement"] for c in cands):
+            cands.append(cand)
+            target["candidates"] = cands
+            changed = True
+        if target.get("status") != STATUS_CONFLICT:
+            if target.get("status") == STATUS_CONFIRMED:
+                target["confirmed_snapshot"] = {
+                    "value": target.get("value"),
+                    "statement": target.get("statement"),
+                }
+            target["status"] = STATUS_CONFLICT
+            target["updated_at"] = now
+            changed = True
+
+    if ka == kb:
+        # 单条事实内部互斥（如价格同时写免费与收费）
+        if fa.get("status") == STATUS_PROPOSED or fa.get("status") == STATUS_CONFIRMED:
+            cand = {
+                "value": _fact_label(fa),
+                "statement": f"[语义自检] {reason}",
+                "source_id": "semantic_precheck",
+                "fetched_at": now,
+            }
+            cands = fa.get("candidates") or []
+            if not any((c.get("statement") or "") == cand["statement"] for c in cands):
+                cands.append(cand)
+                fa["candidates"] = cands
+                changed = True
+            if fa.get("status") != STATUS_CONFLICT:
+                if fa.get("status") == STATUS_CONFIRMED:
+                    fa["confirmed_snapshot"] = {
+                        "value": fa.get("value"),
+                        "statement": fa.get("statement"),
+                    }
+                fa["status"] = STATUS_CONFLICT
+                fa["updated_at"] = now
+                changed = True
+        return changed
+
+    bump(fa, fb, kb)
+    bump(fb, fa, ka)
+    return changed
+
+
+def scan_and_flag_semantic_conflicts(cfg: dict, use_llm: bool = True) -> dict:
+    """规则 + 可选 LLM 预检，把冲突提案标为 conflict。"""
+    ensure_dirs(cfg)
+    facts = load_facts(cfg)
+    pairs = _rule_based_semantic_pairs(facts)
+    llm_pairs = []
+    if use_llm:
+        try:
+            llm_pairs = _llm_semantic_conflict_pairs(facts)
+        except Exception:
+            llm_pairs = []
+    # merge pairs
+    all_pairs = []
+    seen = set()
+    for p in pairs + llm_pairs:
+        k = tuple(sorted([p["key_a"], p["key_b"]]))
+        if k in seen:
+            continue
+        seen.add(k)
+        all_pairs.append(p)
+
+    flagged = 0
+    for p in all_pairs:
+        if _apply_cross_conflict(facts, p):
+            flagged += 1
+    if flagged:
+        save_facts(cfg, facts)
+    return {
+        "success": True,
+        "flagged_pairs": len(all_pairs),
+        "flagged_applied": flagged,
+        "pairs": all_pairs,
+        "llm_used": bool(llm_pairs) or (use_llm and bool(get_configured_llm_safe())),
+    }
+
+
+def get_configured_llm_safe() -> bool:
+    try:
+        from .utils import get_configured_llm
+        return bool(get_configured_llm())
+    except Exception:
+        return False
+
+
+def confirm_all_with_semantic_precheck(cfg: dict, semantic: bool = True, use_llm: bool = True) -> dict:
+    """
+    一键确认前先做语义/规则冲突预检：命中则标 conflict 并跳过；
+    仅确认剩余 proposed。
+    """
+    pre = {"flagged_pairs": 0, "flagged_applied": 0, "pairs": [], "llm_used": False}
+    if semantic:
+        pre = scan_and_flag_semantic_conflicts(cfg, use_llm=use_llm)
+
     facts = load_facts(cfg)
     n = 0
     for fact in facts:
@@ -461,7 +718,15 @@ def confirm_all_non_conflict(cfg: dict) -> dict:
             fact["updated_at"] = _now_iso()
             n += 1
     save_facts(cfg, facts)
-    return {"success": True, "confirmed_count": n}
+    return {
+        "success": True,
+        "confirmed_count": n,
+        "semantic_precheck": semantic,
+        "flagged_pairs": pre.get("flagged_pairs", 0),
+        "flagged_applied": pre.get("flagged_applied", 0),
+        "conflict_pairs": pre.get("pairs") or [],
+        "llm_used": pre.get("llm_used", False),
+    }
 
 
 def resolve_conflict(cfg: dict, fact_key: str, chosen_value: str, note: str = None) -> dict:

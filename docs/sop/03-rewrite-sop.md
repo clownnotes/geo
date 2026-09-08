@@ -27,6 +27,7 @@
    python3 -m tools.geo facts <client_id> --confirm-all # 批量确认无冲突项
    ```
    - 同键异值进入 `conflict`，必须人审仲裁，禁止最新页静默覆盖。  
+   - **「预检冲突并确认安全项」**：先做规则 +（有 Nextdoor 时）大模型语义预检，把互相矛盾的提案标成冲突并跳过；仅批量确认剩余安全提案。  
    - 兼容镜像：`raw_materials/raw_extracted_facts.md` 由 ledger 自动同步。
 
 3. **执行普林斯顿 9 因子内容重构（默认增量）**：

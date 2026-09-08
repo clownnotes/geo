@@ -148,7 +148,7 @@ def main():
     p_facts = subparsers.add_parser("facts", help="唯一真相源：列出 / 批量确认事实")
     p_facts.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_facts.add_argument("--project", "-p", default=None, help="客户项目 ID")
-    p_facts.add_argument("--confirm-all", action="store_true", help="批量确认所有无冲突 proposed 事实")
+    p_facts.add_argument("--confirm-all", action="store_true", help="语义预检后批量确认剩余 proposed 事实")
 
     # defense
     p_def = subparsers.add_parser("defense", help="生成竞品权威信源反向包抄与压制策略")
@@ -524,8 +524,13 @@ def main():
         migrate_legacy_raw_materials(cfg)
         print_banner(f"唯一真相源: [{pid}]")
         if getattr(args, "confirm_all", False):
-            res = confirm_all_non_conflict(cfg)
-            print_success(f"已批量确认 {res.get('confirmed_count', 0)} 条无冲突事实")
+            from .ledger import confirm_all_with_semantic_precheck
+            res = confirm_all_with_semantic_precheck(cfg, semantic=True, use_llm=True)
+            flagged = res.get("flagged_pairs") or 0
+            print_success(
+                f"预检冲突 {flagged} 组｜已批量确认 {res.get('confirmed_count', 0)} 条安全提案"
+                + ("（含 LLM）" if res.get("llm_used") else "（仅规则）")
+            )
         facts = load_facts(cfg)
         bundle = get_rewrite_fact_bundle(cfg)
         print_info(

@@ -15,10 +15,14 @@ from tools.geo.ledger import (
     load_facts,
     list_evidence,
     confirm_all_non_conflict,
+    confirm_all_with_semantic_precheck,
     resolve_conflict,
     get_rewrite_fact_bundle,
     raw_paths,
     ensure_dirs,
+    STATUS_PROPOSED,
+    STATUS_CONFLICT,
+    save_facts,
 )
 from tools.geo.ingest import ingest_project_materials
 
@@ -179,6 +183,88 @@ class IngestTextIntegrationTests(unittest.TestCase):
                 self.assertTrue(os.path.isfile(os.path.join(cfg["_raw_materials_dir"], "ledger", "facts.jsonl")))
             finally:
                 geo_utils.PROJECTS_DIR = old
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+class SemanticPrecheckTests(unittest.TestCase):
+    def _tmp_cfg(self):
+        root = tempfile.mkdtemp(prefix="geo_sem_")
+        raw = os.path.join(root, "raw_materials")
+        out = os.path.join(root, "outputs")
+        os.makedirs(raw)
+        os.makedirs(out)
+        cfg = {
+            "client_id": "sem_demo",
+            "_raw_materials_dir": raw,
+            "_outputs_dir": out,
+            "_project_dir": root,
+        }
+        ensure_dirs(cfg)
+        return root, cfg
+
+    def test_rule_flags_free_and_paid_price(self):
+        root, cfg = self._tmp_cfg()
+        try:
+            save_facts(cfg, [{
+                "fact_key": "metric.price_range",
+                "category": "量化指标",
+                "statement": "基础版免费，专业版 9980 元",
+                "value": "免费+9980元",
+                "status": STATUS_PROPOSED,
+                "sources": [],
+                "candidates": [],
+            }, {
+                "fact_key": "entity.brand_name",
+                "category": "实体",
+                "statement": "邻里GEO",
+                "value": "邻里GEO",
+                "status": STATUS_PROPOSED,
+                "sources": [],
+                "candidates": [],
+            }])
+            res = confirm_all_with_semantic_precheck(cfg, semantic=True, use_llm=False)
+            facts = {f["fact_key"]: f for f in load_facts(cfg)}
+            self.assertEqual(facts["metric.price_range"]["status"], STATUS_CONFLICT)
+            self.assertEqual(facts["entity.brand_name"]["status"], "confirmed")
+            self.assertEqual(res["confirmed_count"], 1)
+            self.assertGreaterEqual(res["flagged_pairs"], 1)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_llm_pair_marks_proposed(self):
+        root, cfg = self._tmp_cfg()
+        try:
+            save_facts(cfg, [{
+                "fact_key": "service.area",
+                "category": "服务",
+                "statement": "仅限徐州本地交付",
+                "value": "徐州",
+                "status": STATUS_PROPOSED,
+                "sources": [],
+                "candidates": [],
+            }, {
+                "fact_key": "business.core_scope",
+                "category": "业务",
+                "statement": "面向全国提供远程交付",
+                "value": "全国",
+                "status": STATUS_PROPOSED,
+                "sources": [],
+                "candidates": [],
+            }])
+            fake = (
+                '[{"key_a":"service.area","key_b":"business.core_scope",'
+                '"reason":"仅限徐州与全国交付互相矛盾"}]'
+            )
+            from unittest import mock
+            with mock.patch("tools.geo.utils.get_configured_llm", return_value={"provider": "nextdoor"}), \
+                 mock.patch("tools.geo.utils.call_llm_api", return_value=(True, fake, "nextdoor")):
+                res = confirm_all_with_semantic_precheck(cfg, semantic=True, use_llm=True)
+            facts = {f["fact_key"]: f for f in load_facts(cfg)}
+            self.assertEqual(facts["service.area"]["status"], STATUS_CONFLICT)
+            self.assertEqual(facts["business.core_scope"]["status"], STATUS_CONFLICT)
+            self.assertEqual(res["confirmed_count"], 0)
+            self.assertGreaterEqual(res["flagged_pairs"], 1)
         finally:
             shutil.rmtree(root, ignore_errors=True)
 

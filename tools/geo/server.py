@@ -478,15 +478,26 @@ core_values:
                 self.send_json({"success": False, "message": f"素材写入提纯失败: {str(e)}"}, status=500)
             return
 
-        # 6b. 真相源：一键确认无冲突项
+        # 6b. 真相源：语义预检后一键确认无冲突项
         if path.startswith("/api/projects/") and path.endswith("/facts/confirm-all"):
             project_id = path.split("/")[3]
             try:
                 from .utils import load_project_config
-                from .ledger import confirm_all_non_conflict, migrate_legacy_raw_materials, load_facts
+                from .ledger import confirm_all_with_semantic_precheck, migrate_legacy_raw_materials, load_facts
                 cfg = load_project_config(project_id)
                 migrate_legacy_raw_materials(cfg)
-                res = confirm_all_non_conflict(cfg)
+                body = {}
+                try:
+                    body = self.read_json_body() or {}
+                except Exception:
+                    body = {}
+                semantic = body.get("semantic", True)
+                use_llm = body.get("use_llm", True)
+                if isinstance(semantic, str):
+                    semantic = semantic.lower() not in ("0", "false", "no")
+                if isinstance(use_llm, str):
+                    use_llm = use_llm.lower() not in ("0", "false", "no")
+                res = confirm_all_with_semantic_precheck(cfg, semantic=bool(semantic), use_llm=bool(use_llm))
                 res["facts"] = load_facts(cfg)
                 self.send_json(res)
             except Exception as e:
