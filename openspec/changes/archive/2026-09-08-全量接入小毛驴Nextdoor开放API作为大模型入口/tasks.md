@@ -20,7 +20,7 @@
   - [x] 4.1 确认 `rewrite` / `ingest` / `distribute` 等无需改签名即可走新入口
   - [x] 4.2 单测：mock SSE 聚合成功；401/超时失败；无 JWT → none；DIRECT 开关行为
   - [x] 4.3 扩展 `tests/test_llm_rag_cascade.py`：母盘路径在 mock Nextdoor 下仍级联 RAG（或保持 full 模式断言）
-  - [ ] 4.4 本地手工：配置 JWT → status ready → 增量/全量重构一次（有算力账号）
+  - [x] 4.4 本地手工：配置 JWT → status ready → 增量/全量重构一次（有算力账号）
 
 - [x] 5. 协同与停步
   - [x] 5.1 在 `review-log.md` 等待跨 IDE / 用户审查结论为 `[已达成共识]` 或 `[通过]` 后再 `/opsx-apply`

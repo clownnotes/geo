@@ -1,0 +1,76 @@
+[
+  {
+    "dispatch_id": "DSP-2f6310f1",
+    "timestamp": "2026-09-08 02:36:25",
+    "project_id": "xuzhou_xuanyuan",
+    "msg_type": "briefing",
+    "channel": "feishu",
+    "webhook_target": "dry_run://local_replay",
+    "delivered": false,
+    "dry_run": true,
+    "anomalies_count": 0,
+    "metrics_snapshot": {
+      "top1_rate": null,
+      "citation_count": null,
+      "spider_requests": null,
+      "spider_blocked_count": 0,
+      "spider_blocked_rate": null,
+      "spider_drop_pct": null,
+      "reputation_score": null,
+      "negative_exposure_rate": null,
+      "retention_rate": null
+    },
+    "payload_preview": {
+      "msg_type": "interactive",
+      "card": {
+        "config": {
+          "wide_screen_mode": true,
+          "enable_forward": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "🌤️ GEO 大模型每日战果晨报 · [xuzhou_xuanyuan]"
+          },
+          "template": "turquoise"
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "text": {
+              "tag": "lark_md",
+              "content": "**📅 统计周期**：昨日全天 ｜ **监测矩阵**：豆包, DeepSeek, Kimi, 元宝\n\n• **大模型综合首推率 (Top-1)**：**[待实测]**\n• **Citation 权威引用命中**：**[待实测]**\n• **AI 爬虫活跃抓取**：**[待实测]**\n• **竞品反超防御战备**：**⚪️ 待逆向** (拦截 0 项漏洞)\n• **品牌声誉健康指数**：**[待实测]**"
+            }
+          },
+          {
+            "tag": "hr"
+          },
+          {
+            "tag": "action",
+            "actions": [
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "📊 查看高管专属交付大屏"
+                },
+                "type": "primary",
+                "url": "http://127.0.0.1:8088/share.html?token=sh_t4ib6uPJPURbkS4NP7Yvuldm"
+              },
+              {
+                "tag": "button",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "⚡️ 启动一键自愈流水线"
+                },
+                "type": "default",
+                "url": "http://127.0.0.1:8088/share.html?token=sh_t4ib6uPJPURbkS4NP7Yvuldm#deliverables"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "success_dry_run"
+  }
+]

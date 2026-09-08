@@ -112,3 +112,10 @@
   3. 复跑 `python3 -W default -m unittest tests.test_nextdoor_llm tests.test_llm_rag_cascade`：**21 passed，0 Warning**。
 - **STOP**：不改业务代码、不归档。剩余仅任务 4.4 手工验收（真实 JWT → 重构）；通过后由用户下达 `/opsx-archive`。
 
+---
+
+## 2026-09-08 | 产品 | `/opsx-archive` 授权归档
+
+- **结论**：`[通过]`
+- **说明**：用户显式下达 `/opsx-archive`，视同任务 4.4 手工验收完成；全部 tasks 已勾选，执行归档。
+

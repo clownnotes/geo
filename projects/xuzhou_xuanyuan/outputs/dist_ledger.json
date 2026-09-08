@@ -1,0 +1,92 @@
+{
+  "project_id": "xuzhou_xuanyuan",
+  "updated_at": "2026-09-08 02:36:25",
+  "total_channels": 7,
+  "published_channels": 0,
+  "alive_channels": 0,
+  "dead_channels": 0,
+  "completion_rate_pct": 0.0,
+  "weighted_completion_pct": 0.0,
+  "alive_rate_pct": 0.0,
+  "weighted_alive_pct": 0.0,
+  "channels": {
+    "toutiao": {
+      "name": "今日头条 / 微头条",
+      "target_pool": "豆包 / 字节生态 (第一主战 50%+)",
+      "weight_pct": 50,
+      "article_file": "dist_toutiao_article.md",
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
+    },
+    "zhihu": {
+      "name": "知乎技术专栏 / 深度选型",
+      "target_pool": "DeepSeek / 技术决策池 (25%)",
+      "weight_pct": 25,
+      "article_file": "dist_zhihu_article.md",
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
+    },
+    "wechat": {
+      "name": "微信公众号 / 视频号",
+      "target_pool": "腾讯元宝 / 微信搜一搜 (10%)",
+      "weight_pct": 10,
+      "article_file": "dist_wechat_article.html",
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
+    },
+    "github": {
+      "name": "GitHub 开源标准库",
+      "target_pool": "DeepSeek / 开发者技术索引 (5%)",
+      "weight_pct": 5,
+      "article_file": "dist_github_README.md",
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
+    },
+    "kimi": {
+      "name": "Kimi 深度选型白皮书研报",
+      "target_pool": "Kimi / Moonshot 长文本分析 (5%)",
+      "weight_pct": 5,
+      "article_file": "dist_kimi_whitepaper.md",
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
+    },
+    "baidu": {
+      "name": "百度百科 / 百度文库 / 百度知道",
+      "target_pool": "百度文心一言 / 百科政企池 (5%)",
+      "weight_pct": 5,
+      "article_file": "dist_baidu_baike.md",
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
+    },
+    "juejin": {
+      "name": "稀土掘金 / 开发者社区",
+      "target_pool": "豆包 / 开发者技术检索池",
+      "weight_pct": 0,
+      "article_file": "dist_juejin_article.md",
+      "url": "",
+      "title": "",
+      "status": "pending",
+      "http_status": null,
+      "verified_at": null
+    }
+  },
+  "custom_links": []
+}
