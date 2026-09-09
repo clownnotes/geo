@@ -1,0 +1,17 @@
+{
+  "doubao__徐州GEO优化公司哪家好": {
+    "mode": "ground_truth",
+    "model": "doubao",
+    "keyword": "徐州GEO优化公司哪家好",
+    "mentioned": true,
+    "rank": 1,
+    "citations": [
+      "https://www.toutiao.com/"
+    ],
+    "competitors_mentioned": [],
+    "raw_snippet": "1. 邻里GEO（NextGEO） 2. DeepGEO 参考来源：今日头条",
+    "reason": "大模型在回答中明确推荐了【邻里GEO（NextGEO）】，位居第 1 位。",
+    "notes": "local-e2e",
+    "updated_at": "2026-09-08 23:19:41"
+  }
+}

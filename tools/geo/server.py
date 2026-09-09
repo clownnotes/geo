@@ -583,6 +583,26 @@ core_values:
                 self.send_json({"success": False, "message": f"策略生成失败: {str(e)}"}, status=500)
             return
 
+        # 7b. 真机实测回答回填解析: /api/projects/{id}/monitor/manual-ingest
+        if path.startswith("/api/projects/") and path.endswith("/monitor/manual-ingest"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() or {}
+            try:
+                from .monitor import ingest_manual_probe_result, ManualProbeValidationError
+                res = ingest_manual_probe_result(
+                    project_id,
+                    keyword=body.get("keyword", ""),
+                    model=body.get("model", ""),
+                    content=body.get("content", ""),
+                    notes=body.get("notes", ""),
+                )
+                self.send_json(res)
+            except ManualProbeValidationError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": f"真机回填失败: {str(e)}"}, status=500)
+            return
+
         # 8. 保存通知与告警设置 API: /api/settings/notifications
         if path == "/api/settings/notifications":
             body = self.read_json_body()
@@ -2738,6 +2758,16 @@ server {{
                     from .monitor import extract_monitor_metrics
                     metrics = extract_monitor_metrics(project_id)
                     self.send_json(metrics)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 真机实测提问词列表: /api/projects/{id}/monitor/prompts
+            if path.startswith("/api/projects/") and path.endswith("/monitor/prompts"):
+                project_id = path.split("/")[3]
+                try:
+                    from .monitor import get_project_monitor_prompts
+                    self.send_json(get_project_monitor_prompts(project_id))
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

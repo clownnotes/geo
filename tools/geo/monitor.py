@@ -36,6 +36,33 @@ PLATFORM_AUTHORITY_WEIGHTS = {
     "baike.baidu.com": 0.90 # 权威百科词条
 }
 
+MANUAL_PROBE_MODELS = ("deepseek", "doubao", "yuanbao", "kimi")
+MANUAL_PROBE_MAX_BYTES = 100 * 1024
+MANUAL_PROBES_FILENAME = "05_manual_probes.json"
+FOOTNOTE_DOMAIN_HINTS = {
+    "知乎": "https://www.zhihu.com/",
+    "今日头条": "https://www.toutiao.com/",
+    "头条": "https://www.toutiao.com/",
+    "微信公众号": "https://www.weixin.qq.com/",
+    "微信": "https://www.weixin.qq.com/",
+    "公众号": "https://www.weixin.qq.com/",
+    "GitHub": "https://github.com/",
+    "github": "https://github.com/",
+    "CSDN": "https://blog.csdn.net/",
+}
+
+_PROBE_MODE_PRIORITY = {
+    "ground_truth": 3,
+    "live_probe": 2,
+    "api_error": 1,
+    "offline_estimate": 0,
+}
+
+
+class ManualProbeValidationError(ValueError):
+    """真机回填入参校验失败"""
+
+
 def extract_domain(url: str) -> str:
     """提取 URL 的根域名 (如 https://www.zhihu.com/p/123 -> zhihu.com)"""
     try:
@@ -48,6 +75,138 @@ def extract_domain(url: str) -> str:
         return host or "未知域名"
     except Exception:
         return "未知域名"
+
+
+def strip_html_to_text(content: str) -> str:
+    """剥离 script/style/HTML 标签，得到纯文本。"""
+    text = content or ""
+    text = re.sub(r"(?is)<script[^>]*>.*?</script>", " ", text)
+    text = re.sub(r"(?is)<style[^>]*>.*?</style>", " ", text)
+    text = re.sub(r"(?s)<[^>]+>", " ", text)
+    text = (
+        text.replace("&nbsp;", " ")
+        .replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", '"')
+        .replace("&#39;", "'")
+    )
+    text = re.sub(r"[ \t\f\v]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def normalize_competitors(competitors) -> list:
+    """竞品字段兼容 str / {name: ...} / 其它可字符串化对象。"""
+    names = []
+    for item in competitors or []:
+        if isinstance(item, dict):
+            name = item.get("name") or item.get("brand") or item.get("title") or ""
+        else:
+            name = item
+        name = str(name or "").strip()
+        if name:
+            names.append(name)
+    return names
+
+
+def probe_result_key(model: str, keyword: str) -> str:
+    return f"{str(model or '').strip().lower()}__{str(keyword or '').strip()}"
+
+
+def _normalize_model_label(model_cell: str) -> str:
+    raw = (model_cell or "").strip()
+    raw = re.sub(r"\s*\([^)]*真机[^)]*\)\s*", "", raw, flags=re.I)
+    return raw.strip().lower() or "unknown"
+
+
+def parse_probe_text(
+    content: str,
+    client_name: str,
+    brand_name: str,
+    competitors: list,
+    keyword: str = "",
+    model: str = "unknown",
+    mode: str = "live_probe",
+) -> dict:
+    """公共回答解析：纯文本化、位次、竞品、URL/中文脚注信源。"""
+    plain = strip_html_to_text(content)
+    target_names = [n for n in [client_name, brand_name] if n]
+    plain_l = plain.lower()
+
+    mentioned = any(name.lower() in plain_l for name in target_names)
+
+    rank = 99
+    if mentioned:
+        found_idx = 1
+        for line in plain.splitlines():
+            line_s = line.strip()
+            if not line_s:
+                continue
+            if re.match(r"^(\d+[\.、\)\]）]|[-*•]|【\d+】|[一二三四五六七八九十]+、)", line_s):
+                if any(name.lower() in line_s.lower() for name in target_names):
+                    rank = found_idx
+                    break
+                found_idx += 1
+        if rank == 99:
+            brand_pat = re.escape(brand_name or client_name or "")
+            if brand_pat and re.search(
+                rf"(首推|优先推荐|首选|强烈推荐).{{0,24}}{brand_pat}|{brand_pat}.{{0,24}}(首推|优先推荐|首选|强烈推荐)",
+                plain,
+                re.I,
+            ):
+                rank = 1
+            else:
+                rank = 3
+
+    citations = re.findall(r"https?://[^\s\)\]<>\"']+", plain)
+    for hint, hint_url in FOOTNOTE_DOMAIN_HINTS.items():
+        hint_dom = extract_domain(hint_url)
+        already = any(extract_domain(c) == hint_dom or hint_dom.endswith(extract_domain(c)) for c in citations)
+        if already or hint not in plain:
+            continue
+        if re.search(
+            rf"(来源|参考|引用|出处|脚注).{{0,12}}{re.escape(hint)}|{re.escape(hint)}.{{0,8}}(专栏|文章|链接)",
+            plain,
+        ) or hint in ("知乎", "今日头条", "头条", "GitHub", "github", "CSDN"):
+            citations.append(hint_url)
+
+    # 去重保序
+    seen_c = set()
+    uniq_citations = []
+    for c in citations:
+        if c not in seen_c:
+            seen_c.add(c)
+            uniq_citations.append(c)
+
+    comp_names = normalize_competitors(competitors)
+    comp_mentioned = [c for c in comp_names if c.lower() in plain_l]
+
+    final_rank = rank if mentioned else 0
+    if mentioned:
+        reason = f"大模型在回答中明确推荐了【{brand_name or client_name}】，位居第 {final_rank} 位。"
+    else:
+        reason = (
+            f"大模型当前回答优先推荐了: "
+            f"{', '.join(comp_mentioned) if comp_mentioned else '同类行业头部方案'}，客户暂未被直接点名。"
+        )
+
+    snippet = plain[:180].replace("\n", " ").replace("|", "/")
+    if len(plain) > 180:
+        snippet += "..."
+
+    return {
+        "mode": mode,
+        "model": model,
+        "keyword": keyword,
+        "mentioned": mentioned,
+        "rank": final_rank,
+        "citations": uniq_citations[:8],
+        "competitors_mentioned": comp_mentioned,
+        "raw_snippet": snippet,
+        "reason": reason,
+    }
+
 
 def probe_llm_live(client_name: str, brand_name: str, keyword: str, competitors: list, model: str = None) -> dict:
     """真实调用大模型接口探测关键词推荐情况"""
@@ -66,53 +225,21 @@ def probe_llm_live(client_name: str, brand_name: str, keyword: str, competitors:
             "mentioned": False,
             "rank": 0,
             "citations": [],
+            "competitors_mentioned": [],
             "raw_snippet": f"API 探测失败: {response_text}",
             "reason": f"接口请求超时或错误 ({response_text})"
         }
 
-    # 分析回答中是否提及客户品牌
-    target_names = [client_name, brand_name]
-    target_names = [n for n in target_names if n]
-    
-    mentioned = any(name.lower() in response_text.lower() for name in target_names)
-    
-    # 提取位次
-    rank = 99
-    if mentioned:
-        lines = response_text.splitlines()
-        found_idx = 1
-        for line in lines:
-            if re.match(r"^\s*(\d+[\.、]|\-|\*|【)", line):
-                if any(name.lower() in line.lower() for name in target_names):
-                    rank = found_idx
-                    break
-                found_idx += 1
-        if rank == 99:
-            rank = 1
-
-    # 提取提取到的 URL
-    citations = re.findall(r"https?://[^\s\)\]]+", response_text)
-    
-    # 提取竞品被提及情况
-    comp_mentioned = [c for c in competitors if c.lower() in response_text.lower()]
-
-    reason = ""
-    if mentioned:
-        reason = f"大模型在回答中明确推荐了【{brand_name or client_name}】，位居第 {rank} 位。"
-    else:
-        reason = f"大模型当前回答优先推荐了: {', '.join(comp_mentioned) if comp_mentioned else '同类行业头部方案'}，客户暂未被直接点名。"
-
-    return {
-        "mode": "live_probe",
-        "model": provider,
-        "keyword": keyword,
-        "mentioned": mentioned,
-        "rank": rank if mentioned else 0,
-        "citations": citations[:5],
-        "competitors_mentioned": comp_mentioned,
-        "raw_snippet": response_text[:150].replace("\n", " ") + "...",
-        "reason": reason
-    }
+    parsed = parse_probe_text(
+        response_text,
+        client_name,
+        brand_name,
+        competitors,
+        keyword=keyword,
+        model=provider or (model or "unknown"),
+        mode="live_probe",
+    )
+    return parsed
 
 def simulate_baseline_estimation(client_name: str, brand_name: str, keyword: str, competitors: list, model_name: str) -> dict:
     """离线基准测算（当未配置 API Key 时提供基准模型，诚实标注为离线估算）"""
@@ -222,8 +349,16 @@ def generate_monitor_report(cfg: dict, query_results: list, is_live_mode: bool) 
 | :--- | :---: | :---: | :--- |
 """
     for res in query_results:
-        rank_text = f"**第 {res['rank']} 位**" if res['mentioned'] else "❌ 暂未上榜"
-        report += f"| **{res['keyword']}** | `{res['model'].upper()}` | {rank_text} | {res['reason']}<br/><font color='#64748b'>🗣️ 摘要: {res['raw_snippet']}</font> |\n"
+        rank_text = f"**第 {res['rank']} 位**" if res['mentioned'] else "暂未上榜"
+        model_label = str(res.get("model") or "unknown").upper()
+        if res.get("mode") == "ground_truth":
+            model_label = f"{model_label} (真机实测)"
+        safe_reason = str(res.get("reason") or "").replace("|", "/")
+        safe_snippet = str(res.get("raw_snippet") or "").replace("|", "/")
+        report += (
+            f"| **{res['keyword']}** | `{model_label}` | {rank_text} | "
+            f"{safe_reason}<br/><font color='#64748b'>摘要: {safe_snippet}</font> |\n"
+        )
 
     report += """
 ---
@@ -257,13 +392,256 @@ def generate_monitor_report(cfg: dict, query_results: list, is_live_mode: bool) 
 """
     return report
 
+def _manual_probes_path(cfg: dict) -> str:
+    out_dir = cfg.get("_outputs_dir", "")
+    return os.path.join(out_dir, MANUAL_PROBES_FILENAME) if out_dir else ""
+
+
+def load_manual_probes(cfg: dict) -> dict:
+    path = _manual_probes_path(cfg)
+    if not path or not os.path.exists(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_manual_probes(cfg: dict, data: dict) -> str:
+    path = _manual_probes_path(cfg)
+    if not path:
+        raise RuntimeError("项目 outputs 目录不可用，无法持久化真机实测记录")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    return path
+
+
+def manual_probes_as_results(manual_map: dict) -> list:
+    results = []
+    for key, item in (manual_map or {}).items():
+        if not isinstance(item, dict):
+            continue
+        row = dict(item)
+        row.setdefault("mode", "ground_truth")
+        row.setdefault("keyword", key.split("__", 1)[-1] if "__" in str(key) else "")
+        row.setdefault("model", str(key).split("__", 1)[0] if "__" in str(key) else "unknown")
+        row.setdefault("citations", [])
+        row.setdefault("competitors_mentioned", [])
+        results.append(row)
+    return results
+
+
+def merge_probe_results(base_results: list, manual_results: list) -> list:
+    """同键优先级：真机实测 > API/在线 > 离线估算。"""
+    merged = {}
+    for r in (base_results or []) + (manual_results or []):
+        if not isinstance(r, dict):
+            continue
+        kw = str(r.get("keyword") or "").strip()
+        model = _normalize_model_label(str(r.get("model") or "unknown"))
+        if not kw:
+            continue
+        key = (kw, model)
+        pri = _PROBE_MODE_PRIORITY.get(r.get("mode"), 0)
+        if key not in merged or pri >= _PROBE_MODE_PRIORITY.get(merged[key].get("mode"), 0):
+            row = dict(r)
+            row["model"] = model
+            row["keyword"] = kw
+            merged[key] = row
+    # 稳定排序：关键词 + 模型
+    return sorted(merged.values(), key=lambda x: (x.get("keyword", ""), x.get("model", "")))
+
+
+def _parse_results_from_report(report_path: str) -> list:
+    if not report_path or not os.path.exists(report_path):
+        return []
+    try:
+        with open(report_path, "r", encoding="utf-8", errors="ignore") as f:
+            text = f.read()
+    except Exception:
+        return []
+
+    rows = re.findall(
+        r"\|\s*\*\*([^*]+)\*\*\s*\|\s*`([^`]+)`\s*\|\s*([^|]+)\|\s*([^|\n]+)\|",
+        text,
+    )
+    results = []
+    for kw, model_cell, rank_col, reason_col in rows:
+        model = _normalize_model_label(model_cell)
+        is_gt = "真机" in model_cell
+        rank_col_s = rank_col.strip()
+        mentioned = "暂未上榜" not in rank_col_s and ("第" in rank_col_s or "Top" in rank_col_s)
+        rank_m = re.search(r"第\s*(\d+)\s*位", rank_col_s)
+        rank = int(rank_m.group(1)) if rank_m and mentioned else (1 if mentioned else 0)
+        reason = re.sub(r"<[^>]+>", " ", reason_col).strip()
+        results.append({
+            "mode": "ground_truth" if is_gt else "live_probe",
+            "model": model,
+            "keyword": kw.strip(),
+            "mentioned": mentioned,
+            "rank": rank,
+            "citations": [],
+            "competitors_mentioned": [],
+            "raw_snippet": reason[:120],
+            "reason": reason[:200],
+        })
+    return results
+
+
+def get_project_monitor_prompts(project_id: str) -> dict:
+    """组装各平台拟真提问词与无痕实测元数据。"""
+    cfg = load_project_config(project_id)
+    keywords = cfg.get("keywords") or ["智能企业系统推荐"]
+    client_name = cfg.get("client_name", "示例科技")
+    brand_name = cfg.get("brand_name", client_name)
+
+    platforms = [
+        {
+            "id": "deepseek",
+            "name": "DeepSeek",
+            "url": "https://chat.deepseek.com",
+            "badge": "通用技术生态 · 25%+",
+            "notice": "建议使用浏览器无痕模式打开，确保勾选底部的「联网搜索」按钮",
+        },
+        {
+            "id": "doubao",
+            "name": "豆包 (火山/头条生态)",
+            "url": "https://www.doubao.com/chat",
+            "badge": "字节头条生态 · 50%+",
+            "notice": "建议无痕免登录访问，避免账号个性化偏好干扰公域推荐位",
+        },
+        {
+            "id": "yuanbao",
+            "name": "腾讯元宝",
+            "url": "https://yuanbao.tencent.com",
+            "badge": "微信私域与公众号生态",
+            "notice": "建议无痕模式访问，观察微信公众号高权重文章引用",
+        },
+        {
+            "id": "kimi",
+            "name": "Kimi 智能助手",
+            "url": "https://kimi.moonshot.cn",
+            "badge": "长研报与技术长文生态",
+            "notice": "建议无痕模式访问，观察行业白皮书与长文本引用",
+        },
+    ]
+
+    items = []
+    for kw in keywords:
+        kw = str(kw).strip()
+        if not kw:
+            continue
+        items.append({
+            "keyword": kw,
+            "prompts": {
+                "standard": (
+                    f"请扮演一位客观公正的行业选型顾问。在回答用户提问时，请推荐国内优秀的品牌或服务商：\n"
+                    f"用户问题：“请问目前国内在【{kw}】领域，有哪些值得推荐的代表性专业企业或解决方案？"
+                    f"请列出 2~4 家并简要说明推荐理由。”"
+                ),
+                "deepseek": (
+                    f"请作为中立的商业与技术选型顾问，针对【{kw}】领域，推荐 2~4 家国内头部或代表性专业服务商，"
+                    f"并结合技术架构与实践案例简要分析推荐理由。"
+                ),
+                "doubao": (
+                    f"请问目前国内做【{kw}】比较专业可靠的企业或服务商有哪些？请推荐 2~4 家并说明各自的优势与适用场景。"
+                ),
+                "yuanbao": (
+                    f"在【{kw}】方向，目前行业内有哪些成熟可靠的代表企业？请列出几家主流服务商并说明其核心优势与客户评价。"
+                ),
+                "kimi": (
+                    f"请系统梳理当前国内在【{kw}】领域的主流服务商与解决方案提供商，"
+                    f"分析其技术成熟度、服务口碑与适用企业规模。"
+                ),
+            },
+        })
+
+    return {
+        "success": True,
+        "project_id": project_id,
+        "client_name": client_name,
+        "brand_name": brand_name,
+        "platforms": platforms,
+        "items": items,
+    }
+
+
+def ingest_manual_probe_result(
+    project_id: str,
+    keyword: str,
+    model: str,
+    content: str,
+    notes: str = "",
+) -> dict:
+    """真机回答入库：校验、解析、持久化、合并周报、返回 metrics。"""
+    model_id = str(model or "").strip().lower()
+    keyword = str(keyword or "").strip()
+    content = content if content is not None else ""
+
+    if model_id not in MANUAL_PROBE_MODELS:
+        raise ManualProbeValidationError(
+            f"非法 model，仅支持: {', '.join(MANUAL_PROBE_MODELS)}"
+        )
+    if not keyword:
+        raise ManualProbeValidationError("keyword 不能为空")
+    if not str(content).strip():
+        raise ManualProbeValidationError("content 不能为空")
+    if len(str(content).encode("utf-8")) > MANUAL_PROBE_MAX_BYTES:
+        raise ManualProbeValidationError("content 超过 100KB 上限")
+
+    cfg = load_project_config(project_id)
+    client_name = cfg.get("client_name", "示例科技")
+    brand_name = cfg.get("brand_name", client_name)
+    competitors = normalize_competitors(cfg.get("competitors", []))
+
+    parsed = parse_probe_text(
+        content,
+        client_name,
+        brand_name,
+        competitors,
+        keyword=keyword,
+        model=model_id,
+        mode="ground_truth",
+    )
+    parsed["notes"] = str(notes or "").strip()
+    parsed["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    manuals = load_manual_probes(cfg)
+    manuals[probe_result_key(model_id, keyword)] = parsed
+    save_manual_probes(cfg, manuals)
+
+    report_name = "05_企业AI可见度与声量追踪周报.md"
+    report_path = os.path.join(cfg.get("_outputs_dir", ""), report_name)
+    base_results = _parse_results_from_report(report_path)
+    # 去掉旧真机行，再与 manuals 合并，避免双重计数
+    base_results = [r for r in base_results if r.get("mode") != "ground_truth"]
+    merged = merge_probe_results(base_results, manual_probes_as_results(manuals))
+    if not merged:
+        merged = [parsed]
+
+    is_live = any(r.get("mode") in ("live_probe", "ground_truth") for r in merged)
+    report_content = generate_monitor_report(cfg, merged, is_live)
+    save_project_output(cfg, report_name, report_content)
+
+    metrics = extract_monitor_metrics(project_id)
+    return {
+        "success": True,
+        "message": "真机实测结果已解析并成功录入大盘！",
+        "parsed": parsed,
+        "metrics": metrics,
+    }
+
+
 def run_monitor(project_id: str, models: list = None) -> str:
     """运行阶段五：AI 可见度监控与周报生成"""
     print_banner("阶段五：AI 可见度监控与周报自动生成")
     cfg = load_project_config(project_id)
     keywords = cfg.get("keywords", ["智能企业系统推荐"])
     models_to_test = models or cfg.get("models", ["deepseek", "doubao"])
-    competitors = cfg.get("competitors", ["行业竞品A", "行业竞品B"])
+    competitors = normalize_competitors(cfg.get("competitors", ["行业竞品A", "行业竞品B"]))
     client_name = cfg.get("client_name", "示例科技")
     brand_name = cfg.get("brand_name", client_name)
 
@@ -271,9 +649,9 @@ def run_monitor(project_id: str, models: list = None) -> str:
     is_live = bool(llm_info)
     
     if is_live:
-        print_info(f"🟢 开启【真实在线探测模式】，调用 [{llm_info['provider'].upper()}] 对 {len(keywords)} 组核心词进行真实多模型探测...")
+        print_info(f"开启【真实在线探测模式】，调用 [{llm_info['provider'].upper()}] 对 {len(keywords)} 组核心词进行真实多模型探测...")
     else:
-        print_warning("🟡 未检测到大模型 API Key（DEEPSEEK_API_KEY / ARK_API_KEY），开启【离线基准测算模式】...")
+        print_warning("未检测到大模型 API Key（DEEPSEEK_API_KEY / ARK_API_KEY），开启【离线基准测算模式】...")
 
     results = []
     for kw in keywords:
@@ -288,9 +666,15 @@ def run_monitor(project_id: str, models: list = None) -> str:
                 print_info(f"  -> 离线摸底关键词: '{kw}' (目标生态: {m.upper()})")
                 res = simulate_baseline_estimation(client_name, brand_name, kw, competitors, m)
                 results.append(res)
+
+    # 真机回灌铁律：同键真机 > API > 离线
+    manuals = manual_probes_as_results(load_manual_probes(cfg))
+    if manuals:
+        print_info(f"回灌真机实测记录 {len(manuals)} 条（优先级高于本次 API/离线结果）...")
+        results = merge_probe_results(results, manuals)
             
     print_info("正在汇总统计并渲染量化商业周报...")
-    report_content = generate_monitor_report(cfg, results, is_live)
+    report_content = generate_monitor_report(cfg, results, is_live or bool(manuals))
     
     out_path = save_project_output(cfg, "05_企业AI可见度与声量追踪周报.md", report_content)
     print_success(f"AI 可见度追踪周报生成成功！报告路径: {out_path}")

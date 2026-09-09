@@ -957,6 +957,8 @@
 <div class="flex items-center gap-2.5 flex-wrap">
 <button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition"><i data-lucide="line-chart" class="w-4 h-4"></i><span>执行实时声量监测</span>
 </button>
+<button type="button" onclick="openManualProbeModal()" id="btn-manual-probe" class="py-2.5 px-4 bg-[rgba(124,91,245,0.08)] hover:bg-[#efeafc] text-[#7c5bf5] text-xs font-semibold rounded-lg border border-[#d4c8fa] transition flex items-center gap-1.5 shadow-sm"><i data-lucide="clipboard-check" class="w-4 h-4 text-[#7c5bf5]"></i><span>真机实测回填</span>
+</button>
 <button onclick="handlePrintReport(event)" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200"><i data-lucide="printer" class="w-4 h-4"></i><span>导出美化周报</span>
 </button>
 <button onclick="handlePrintAcceptance()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm"><i data-lucide="file-check-2" class="w-4 h-4 text-emerald-600"></i><span>结案验收单</span>
@@ -2259,6 +2261,58 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+</div>
+<!-- 真机无痕实测与回填助手 -->
+<div id="manual-probe-modal" onclick="if(event.target===this)closeManualProbeModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+<div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[rgba(124,91,245,0.12)] text-[#7c5bf5] flex items-center justify-center shrink-0"><i data-lucide="clipboard-check" class="w-4 h-4"></i></div>
+<div class="min-w-0">
+<h3 class="text-sm font-bold text-slate-900 truncate">真机无痕实测与回填助手</h3>
+<p class="text-[11px] text-slate-500 truncate">分平台复制提问词 · 免登录无痕实测 · 粘贴回答解析入库</p>
+</div>
+</div>
+<button type="button" onclick="closeManualProbeModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-0 flex-1 min-h-0 overflow-hidden">
+<div class="border-b lg:border-b-0 lg:border-r border-slate-200 p-4 sm:p-5 space-y-3 overflow-y-auto">
+<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">步骤 1 · 选词与定制 Prompt</div>
+<input id="mp-kw-search" type="search" placeholder="搜索关键词…" oninput="renderManualProbeKeywordList()" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c5bf5]/30" />
+<div id="mp-kw-list" class="max-h-40 overflow-y-auto border border-slate-100 rounded-lg divide-y divide-slate-100 bg-slate-50/50"></div>
+<div class="flex flex-wrap gap-1.5" id="mp-platform-tabs"></div>
+<p id="mp-platform-notice" class="text-[11px] text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-2"></p>
+<textarea id="mp-prompt-preview" readonly class="w-full h-36 text-xs px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 font-mono leading-relaxed resize-none"></textarea>
+<div class="flex flex-wrap gap-2">
+<button type="button" id="mp-btn-copy" onclick="copyManualProbePrompt()" class="py-2 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>一键复制提问词</span></button>
+<a id="mp-open-platform" href="#" target="_blank" rel="noopener noreferrer" class="py-2 px-3.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 flex items-center gap-1.5"><i data-lucide="external-link" class="w-3.5 h-3.5"></i><span>免登录打开平台</span></a>
+<span class="text-[10px] text-slate-400 self-center">建议右键「新建无痕窗口」体验最佳</span>
+</div>
+</div>
+<div class="p-4 sm:p-5 space-y-3 overflow-y-auto">
+<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">步骤 2 · 回填网页端回答</div>
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div>
+<label class="block text-slate-600 font-medium mb-1">当前平台</label>
+<select id="mp-ingest-model" onchange="onManualProbeIngestModelChange()" class="w-full px-2.5 py-2 border border-slate-200 rounded-lg bg-white"></select>
+</div>
+<div>
+<label class="block text-slate-600 font-medium mb-1">当前关键词</label>
+<input id="mp-ingest-keyword" type="text" readonly class="w-full px-2.5 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-700" />
+</div>
+</div>
+<textarea id="mp-answer-input" oninput="updateManualProbeCharCount()" placeholder="将大模型网页端完整回答粘贴于此（支持正文与引用来源）…" class="w-full h-48 text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c5bf5]/30 leading-relaxed resize-y"></textarea>
+<div class="flex items-center justify-between gap-2 text-[11px] text-slate-500">
+<span id="mp-char-count">0 字符</span>
+<div class="flex gap-2">
+<button type="button" onclick="clearManualProbeAnswer()" class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 font-semibold">清空</button>
+<button type="button" onclick="fillManualProbeSample()" class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 font-semibold">填充测试样例</button>
+</div>
+</div>
+<button type="button" id="mp-btn-ingest" onclick="submitManualProbeIngest()" class="w-full py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center justify-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>解析并录入大盘</span></button>
 </div>
 </div>
 </div>
@@ -5768,6 +5822,247 @@ GitHub 开源仓库：https://github.com/company/repo
           }
         }
       } catch (e) {}
+    }
+
+    // ========== 真机无痕实测回填 ==========
+    let manualProbeState = {
+      platforms: [],
+      items: [],
+      selectedKeyword: '',
+      selectedModel: 'deepseek',
+      brandName: ''
+    };
+
+    function closeManualProbeModal() {
+      const el = document.getElementById('manual-probe-modal');
+      if (el) el.classList.add('hidden');
+    }
+
+    async function openManualProbeModal() {
+      if (!currentProjectId) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const modal = document.getElementById('manual-probe-modal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/monitor/prompts`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || '加载提问词失败', 'error');
+          return;
+        }
+        manualProbeState.platforms = data.platforms || [];
+        manualProbeState.items = data.items || [];
+        manualProbeState.brandName = data.brand_name || data.client_name || '';
+        if (!manualProbeState.selectedKeyword && manualProbeState.items.length) {
+          manualProbeState.selectedKeyword = manualProbeState.items[0].keyword;
+        }
+        if (!manualProbeState.platforms.find(p => p.id === manualProbeState.selectedModel)) {
+          manualProbeState.selectedModel = (manualProbeState.platforms[0] || {}).id || 'deepseek';
+        }
+        renderManualProbePlatformTabs();
+        renderManualProbeKeywordList();
+        syncManualProbePromptUI();
+        lucide.createIcons();
+      } catch (e) {
+        showToast('加载提问词失败', 'error');
+      }
+    }
+
+    function renderManualProbePlatformTabs() {
+      const tabs = document.getElementById('mp-platform-tabs');
+      const sel = document.getElementById('mp-ingest-model');
+      if (!tabs || !sel) return;
+      tabs.innerHTML = '';
+      sel.innerHTML = '';
+      (manualProbeState.platforms || []).forEach(p => {
+        const active = p.id === manualProbeState.selectedModel;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = active
+          ? 'px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#7c5bf5] text-white'
+          : 'px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50';
+        btn.textContent = p.name;
+        btn.onclick = () => {
+          manualProbeState.selectedModel = p.id;
+          renderManualProbePlatformTabs();
+          syncManualProbePromptUI();
+        };
+        tabs.appendChild(btn);
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        if (active) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function renderManualProbeKeywordList() {
+      const box = document.getElementById('mp-kw-list');
+      const searchEl = document.getElementById('mp-kw-search');
+      if (!box) return;
+      const q = ((searchEl && searchEl.value) || '').trim().toLowerCase();
+      let list = manualProbeState.items || [];
+      if (q) {
+        list = list.filter(it => (it.keyword || '').toLowerCase().includes(q));
+      } else {
+        list = list.slice(0, 30);
+      }
+      box.innerHTML = '';
+      if (!list.length) {
+        box.innerHTML = '<div class="px-3 py-4 text-[11px] text-slate-400 text-center">无匹配关键词</div>';
+        return;
+      }
+      list.forEach(it => {
+        const active = it.keyword === manualProbeState.selectedKeyword;
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = active
+          ? 'w-full text-left px-3 py-2 text-xs font-semibold bg-[rgba(124,91,245,0.08)] text-[#7c5bf5]'
+          : 'w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-white';
+        row.textContent = it.keyword;
+        row.onclick = () => {
+          manualProbeState.selectedKeyword = it.keyword;
+          renderManualProbeKeywordList();
+          syncManualProbePromptUI();
+        };
+        box.appendChild(row);
+      });
+    }
+
+    function syncManualProbePromptUI() {
+      const item = (manualProbeState.items || []).find(it => it.keyword === manualProbeState.selectedKeyword)
+        || (manualProbeState.items || [])[0];
+      const platform = (manualProbeState.platforms || []).find(p => p.id === manualProbeState.selectedModel)
+        || (manualProbeState.platforms || [])[0];
+      const preview = document.getElementById('mp-prompt-preview');
+      const notice = document.getElementById('mp-platform-notice');
+      const openLink = document.getElementById('mp-open-platform');
+      const kwInput = document.getElementById('mp-ingest-keyword');
+      const modelSel = document.getElementById('mp-ingest-model');
+      if (item && preview) {
+        const prompts = item.prompts || {};
+        preview.value = prompts[manualProbeState.selectedModel] || prompts.standard || '';
+      }
+      if (notice && platform) notice.textContent = platform.notice || '';
+      if (openLink && platform) {
+        openLink.href = platform.url || '#';
+      }
+      if (kwInput) kwInput.value = (item && item.keyword) || manualProbeState.selectedKeyword || '';
+      if (modelSel) modelSel.value = manualProbeState.selectedModel;
+    }
+
+    function onManualProbeIngestModelChange() {
+      const sel = document.getElementById('mp-ingest-model');
+      if (!sel) return;
+      manualProbeState.selectedModel = sel.value;
+      renderManualProbePlatformTabs();
+      syncManualProbePromptUI();
+    }
+
+    async function copyManualProbePrompt() {
+      const preview = document.getElementById('mp-prompt-preview');
+      const btn = document.getElementById('mp-btn-copy');
+      const text = (preview && preview.value) || '';
+      if (!text) {
+        showToast('暂无提问词可复制', 'error');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        if (btn) {
+          const old = btn.innerHTML;
+          btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>已复制</span>`;
+          lucide.createIcons();
+          setTimeout(() => {
+            btn.innerHTML = old;
+            lucide.createIcons();
+          }, 1500);
+        }
+        showToast('提问词已复制');
+      } catch (e) {
+        showToast('复制失败，请手动选择文本', 'error');
+      }
+    }
+
+    function updateManualProbeCharCount() {
+      const ta = document.getElementById('mp-answer-input');
+      const el = document.getElementById('mp-char-count');
+      if (el && ta) el.textContent = `${(ta.value || '').length} 字符`;
+    }
+
+    function clearManualProbeAnswer() {
+      const ta = document.getElementById('mp-answer-input');
+      if (ta) ta.value = '';
+      updateManualProbeCharCount();
+    }
+
+    function fillManualProbeSample() {
+      const brand = manualProbeState.brandName || '示例科技';
+      const ta = document.getElementById('mp-answer-input');
+      if (!ta) return;
+      ta.value = `根据近期行业评测，推荐以下代表性企业：\n1. ${brand}（首推，技术底座扎实，交付闭环完整）\n2. 行业竞品A（覆盖面广）\n3. 行业竞品B（价格优势）\n\n参考来源：知乎专栏；今日头条相关评测文章。\nhttps://www.zhihu.com/question/123456\nhttps://www.toutiao.com/article/7890`;
+      updateManualProbeCharCount();
+    }
+
+    async function submitManualProbeIngest() {
+      if (!currentProjectId) return;
+      const keyword = (document.getElementById('mp-ingest-keyword') || {}).value || manualProbeState.selectedKeyword;
+      const model = (document.getElementById('mp-ingest-model') || {}).value || manualProbeState.selectedModel;
+      const content = (document.getElementById('mp-answer-input') || {}).value || '';
+      const btn = document.getElementById('mp-btn-ingest');
+      if (!content.trim()) {
+        showToast('请先粘贴大模型回答', 'error');
+        return;
+      }
+      const oldHTML = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="inline-block animate-spin mr-1">...</span> 正在解析录入...`;
+      }
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/monitor/manual-ingest`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentAuthToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            keyword,
+            model,
+            content,
+            notes: '无痕模式实测'
+          })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || '录入失败', 'error');
+          return;
+        }
+        const rank = data.parsed && data.parsed.rank;
+        const mentioned = data.parsed && data.parsed.mentioned;
+        if (mentioned && rank) {
+          showToast(`真机实测结果已录入！【${keyword}】位居第 ${rank} 位`);
+        } else {
+          showToast(data.message || '真机实测结果已录入');
+        }
+        await loadMonitorDashboardMetrics();
+        loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
+        if (typeof loadProjectRoiEvaluation === 'function') loadProjectRoiEvaluation();
+        if (typeof loadAcceptanceData === 'function') loadAcceptanceData();
+      } catch (e) {
+        showToast('请求异常', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = oldHTML;
+          lucide.createIcons();
+        }
+      }
     }
 
     // 竞品反向包抄策略生成
