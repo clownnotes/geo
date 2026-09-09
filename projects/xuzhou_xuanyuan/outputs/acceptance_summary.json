@@ -1,6 +1,6 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "generated_at": "2026-09-08T17:29:42Z",
+  "generated_at": "2026-09-08T21:45:32Z",
   "fulfillment_rate": 89.3,
   "manifest_summary": {
     "total_files": 16,
@@ -71,7 +71,7 @@
       "file": "07_大模型事实幻觉纠偏与信源反击策略.md",
       "stage": "S4/S5 事实防御",
       "exists": true,
-      "size": 8693
+      "size": 8705
     },
     {
       "index": "08",
@@ -107,7 +107,7 @@
       "file": "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md",
       "stage": "S1/S3 意图拓扑",
       "exists": true,
-      "size": 6730
+      "size": 6733
     },
     {
       "index": "12",
@@ -116,7 +116,7 @@
       "file": "12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md",
       "stage": "S2/S3 命中诊断",
       "exists": true,
-      "size": 7375
+      "size": 7393
     },
     {
       "index": "13",
