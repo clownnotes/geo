@@ -58,159 +58,231 @@
 </form>
 </div>
 </div>
-<!-- ================= 2. 项目管理大盘视图 ================= -->
-<div id="dashboard-view" class="hidden flex-1 flex flex-col">
-<!-- 顶部导航 -->
-<header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
-<div class="flex items-center gap-3">
-<div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md shadow-indigo-500/20"><i data-lucide="layers" class="w-5 h-5"></i>
+<!-- ================= 2. 管理端全局壳（仪表盘 / 企业 / 洞察 / 运维 / 设置） ================= -->
+<div id="dashboard-view" class="hidden flex-1 flex h-screen overflow-hidden bg-[var(--geo-page-bg)]">
+<aside id="home-sidebar" class="flex flex-col h-full shrink-0">
+<div class="geo-brand">
+<span class="geo-brand-title">GEO</span>
+<span class="geo-brand-sub">交付工作台</span>
 </div>
+<nav class="flex-1 overflow-y-auto sidebar-nav-scroll">
+<div class="accordion-group sidebar-group" data-group="home-main">
+<button type="button" class="accordion-header" onclick="toggleHomeSidebarGroup('home-main')"><span class="category-title">工作台</span><span class="arrow-indicator" data-home-arrow="home-main">▼</span>
+</button>
+<div id="home-group-home-main" class="submenu-list">
+<button type="button" id="nav-home-dashboard" onclick="switchHomeView('home-dashboard')" class="sidebar-nav-item active"><span class="truncate">仪表盘</span></button>
+<button type="button" id="nav-home-enterprises" onclick="switchHomeView('home-enterprises')" class="sidebar-nav-item"><span class="truncate">企业管理</span></button>
+<button type="button" id="nav-home-insights" onclick="switchHomeView('home-insights')" class="sidebar-nav-item"><span class="truncate">商业洞察</span></button>
+<button type="button" id="nav-home-ops" onclick="switchHomeView('home-ops')" class="sidebar-nav-item"><span class="truncate">运维告警</span></button>
+<button type="button" id="nav-home-settings" onclick="switchHomeView('home-settings')" class="sidebar-nav-item"><span class="truncate">系统设置</span></button>
+</div>
+</div>
+<button type="button" onclick="handleLogout()" class="logout-nav">退出登录</button>
+</nav>
+<div class="border-t border-slate-100 px-3 py-2.5 text-[11px] text-slate-400">
+<div id="home-sidebar-user" class="text-slate-500 truncate">管理员</div>
+<div>GEO Console</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col min-w-0 h-full">
+<header class="h-[52px] shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-20">
+<div class="text-sm font-semibold text-slate-800 truncate" id="home-topbar-title">仪表盘</div>
+<div class="flex items-center gap-2 text-xs text-slate-600"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>操作员: <strong id="current-user-name" class="text-slate-800">admin</strong></span></div>
+</header>
+<main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+
+<!-- 仪表盘 -->
+<section id="panel-home-dashboard" class="home-panel space-y-6">
+<header class="geo-page-head">
 <div>
-<h1 class="text-lg font-bold text-slate-900 leading-tight">GEO 商业交付生产工作台</h1>
-<p class="text-xs text-slate-500">普林斯顿 9 因子标准流水线体系（豆包 & DeepSeek 专属适配）</p>
-</div>
-</div>
-<div class="flex items-center gap-3 flex-wrap justify-end">
-<button onclick="openEdiCustomerModal()" class="text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-blue-200 shadow-sm" title="购买前解释型决策客群画像透视与真实问法拦截"><i data-lucide="crosshair" class="w-3.5 h-3.5 text-blue-600"></i><span>适合客群 (EDI)</span>
-</button>
-<button onclick="openPitchModal()" class="text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-purple-200 shadow-sm" title="售前商业 Pitch"><i data-lucide="presentation" class="w-3.5 h-3.5 text-purple-600"></i><span>售前 Pitch</span>
-</button>
-<button onclick="openPortfolioModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-indigo-600"></i><span>全域大盘驾驶舱</span>
-</button>
-<button onclick="showBenchmarkModal()" class="text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-full font-semibold flex items-center gap-1.5 transition border border-indigo-200 shadow-sm"><i data-lucide="scale" class="w-3.5 h-3.5 text-indigo-600"></i><span>工业化对标透视</span>
-</button>
-<button onclick="openNotificationModal()" class="py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition"><i data-lucide="bell" class="w-3.5 h-3.5 text-indigo-600"></i><span>告警与通知设置</span>
-</button>
-<div class="flex items-center gap-2 text-xs text-slate-600 bg-slate-100 py-1.5 px-3 rounded-full"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>操作员: <strong id="current-user-name" class="text-slate-800">admin</strong></span>
-</div>
-<button onclick="handleLogout()" class="text-xs text-slate-500 hover:text-red-600 font-medium flex items-center gap-1 transition"><i data-lucide="log-out" class="w-3.5 h-3.5"></i><span>退出</span>
-</button>
+<h1 class="geo-page-title">仪表盘</h1>
+<p class="geo-page-desc">一眼看全局健康与商业数字；客户档案请到「企业管理」。</p>
 </div>
 </header>
-<!-- 主体内容 -->
-<main class="flex-1 max-w-7xl w-full mx-auto p-8 space-y-6">
-<!-- 统计指标 -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-4">
-<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-<div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center"><i data-lucide="folder-kanban" class="w-6 h-6"></i>
-</div>
+<div id="home-patrol-alert" class="geo-alert flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-start gap-3 min-w-0">
+<span class="geo-status-dot geo-status-warn shrink-0 mt-1"></span>
 <div>
+<div class="text-sm font-semibold text-slate-900">自动化巡检与告警</div>
+<p class="text-xs text-slate-600 mt-0.5">最近全量巡检：<span id="patrol-last-time" class="font-semibold text-slate-800">尚未执行</span>
+ · 告警：<span id="patrol-alert-status" class="font-semibold text-slate-800">加载中...</span></p>
+</div>
+</div>
+<button type="button" class="geo-btn shrink-0" onclick="switchHomeView('home-ops')">运维详情</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
 <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">托管商业项目</div>
-<div id="stat-total-projects" class="text-2xl font-bold text-slate-900 mt-0.5">0</div>
+<div id="stat-total-projects" class="text-2xl font-bold text-slate-900 mt-1">0</div>
 </div>
-</div>
-<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-<div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center"><i data-lucide="check-circle-2" class="w-6 h-6"></i>
-</div>
-<div>
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
 <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">全套交付完成</div>
-<div id="stat-completed-projects" class="text-2xl font-bold text-slate-900 mt-0.5">0</div>
+<div id="stat-completed-projects" class="text-2xl font-bold text-slate-900 mt-1">0</div>
 </div>
-</div>
-<div onclick="openPortfolioModal()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-emerald-300 hover:shadow-md transition">
-<div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center shrink-0"><i data-lucide="trending-up" class="w-6 h-6"></i>
-</div>
-<div class="overflow-hidden">
-<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">全域商业总价值</div>
-<div id="stat-portfolio-total-value" class="text-xl font-bold text-emerald-600 mt-0.5">¥0</div>
+<div onclick="switchHomeView('home-insights'); openPortfolioModal();" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-emerald-300 transition">
+<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">全域商业总价值</div>
+<div id="stat-portfolio-total-value" class="text-xl font-bold text-emerald-600 mt-1">¥0</div>
 <div id="stat-portfolio-roi" class="text-[11px] font-semibold text-slate-500 mt-0.5">组合 ROI: +0.0%</div>
 </div>
-</div>
-<div onclick="openIndustryBenchmarkModal()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-indigo-300 hover:shadow-md transition">
-<div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center"><i data-lucide="bar-chart-3" class="w-6 h-6"></i>
-</div>
-<div>
-<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">行业大盘基准</div>
-<div class="text-xs font-bold text-indigo-600 mt-1 flex items-center gap-1"><span>点击查看行业均值</span><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+<div onclick="switchHomeView('home-enterprises')" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-indigo-300 transition flex flex-col justify-center">
+<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">企业管理</div>
+<div class="text-sm font-bold text-indigo-600 mt-2">搜索 / 筛选 / 新建客户</div>
 </div>
 </div>
-</div>
-<div onclick="openGroupMatrixModal()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-emerald-300 hover:shadow-md transition">
-<div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center"><i data-lucide="building-2" class="w-6 h-6"></i>
-</div>
-<div>
-<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">集团多品牌矩阵</div>
-<div class="text-xs font-bold text-emerald-600 mt-1 flex items-center gap-1"><span>母子协同大盘</span><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-</div>
-</div>
-</div>
-<div onclick="openPlaygroundFromDashboard()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-purple-300 hover:shadow-md transition">
-<div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center"><i data-lucide="flask-conical" class="w-6 h-6"></i>
-</div>
-<div>
-<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">AI 测序沙箱</div>
-<div class="text-xs font-bold text-purple-600 mt-1 flex items-center gap-1"><span>Before/After 双轨演示</span><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-</div>
-</div>
-</div>
-<div onclick="openRoiFromDashboard()" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 cursor-pointer hover:border-amber-300 hover:shadow-md transition">
-<div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center"><i data-lucide="coins" class="w-6 h-6"></i>
-</div>
-<div>
-<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">商业 ROI 测算</div>
-<div class="text-xs font-bold text-amber-600 mt-1 flex items-center gap-1"><span>续约预测与财务估值</span><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-</div>
-</div>
-</div>
-</div>
-<!-- 自动化巡检与告警状态面板 -->
-<div id="patrol-status-panel" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-<div class="flex items-start gap-3">
-<div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><i data-lucide="clock" class="w-5 h-5"></i>
-</div>
-<div>
-<h2 class="text-sm font-bold text-slate-900">⏰ 自动化巡检与告警状态</h2>
-<p class="text-xs text-slate-500 mt-0.5">最近全量巡检：<span id="patrol-last-time" class="font-semibold text-slate-700">尚未执行</span>
-</p>
-<p class="text-xs text-slate-500 mt-0.5">告警推送：<span id="patrol-alert-status" class="font-semibold text-slate-700">加载中...</span>
-</p>
-</div>
-</div>
-<div class="text-[11px] text-slate-400 md:text-right">
-<div>Crontab: <code class="bg-slate-100 px-1 rounded">0 3 * * 1 geo patrol --all</code>
-</div>
-<div class="mt-1">异动规则：SOV 跌破安全线 / 单周突降 / 竞品拦截 / 占位词失守</div>
-</div>
-</div>
-<!-- 项目管理表头与操作 -->
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-<div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+<h2 class="text-sm font-bold text-slate-900">需关注</h2>
+<button type="button" class="text-xs text-indigo-600 font-semibold" onclick="switchHomeView('home-enterprises')">全部企业</button>
+</div>
+<div id="attention-list" class="divide-y divide-slate-100 text-sm">
+<div class="px-5 py-4 text-slate-400 text-xs">加载中...</div>
+</div>
+</div>
+</section>
+
+<!-- 企业管理 -->
+<section id="panel-home-enterprises" class="home-panel hidden space-y-4">
+<header class="geo-page-head">
 <div>
-<h2 class="text-base font-bold text-slate-900">客户项目档案列表</h2>
-<p class="text-xs text-slate-500 mt-0.5">点击项目直接进入向导生产流水线，支持一键打包下载全部成果</p>
+<h1 class="geo-page-title">企业管理</h1>
+<p class="geo-page-desc">客户档案、归属合作方、进入交付流水线。</p>
 </div>
-<div class="flex items-center gap-3">
-<button onclick="openPitchModal()" class="py-2.5 px-3.5 bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold rounded-lg text-xs transition flex items-center gap-1.5 border border-purple-200 shadow-sm"><i data-lucide="presentation" class="w-3.5 h-3.5 text-purple-600"></i><span>售前 Pitch Deck</span>
-</button>
-<button onclick="openBatchModal()" class="py-2.5 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg text-xs transition flex items-center gap-1.5 border border-indigo-200 shadow-sm"><i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-600"></i><span>批量并发生产</span>
-</button>
-<button onclick="handleTriggerPatrolAll(event)" id="btn-patrol-all" class="py-2.5 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition flex items-center gap-1.5 border border-slate-200"><i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-600"></i><span>全量巡检</span>
-</button>
-<button onclick="openNewProjectModal()" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition"><i data-lucide="plus-circle" class="w-4 h-4"></i><span>+ 新建客户项目</span>
-</button>
+<div class="flex flex-wrap gap-2">
+<button type="button" onclick="openBatchModal()" class="geo-btn"><i data-lucide="layers" class="w-3.5 h-3.5"></i>批量并发</button>
+<button type="button" onclick="openNewProjectModal()" class="geo-btn geo-btn-primary"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>新建客户</button>
+</div>
+</header>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col lg:flex-row lg:items-end gap-3">
+<div class="flex-1 min-w-[160px]"><label class="text-[10px] font-semibold text-slate-400">搜索</label>
+<input id="ent-search" type="search" placeholder="名称 / ID / 域名" oninput="applyEnterpriseFilters()" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7c5bf5]/30">
+</div>
+<div class="w-full lg:w-40"><label class="text-[10px] font-semibold text-slate-400">行业</label>
+<select id="ent-filter-industry" onchange="applyEnterpriseFilters()" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-white">
+<option value="">全部行业</option>
+</select>
+</div>
+<div class="w-full lg:w-36"><label class="text-[10px] font-semibold text-slate-400">SOP</label>
+<select id="ent-filter-sop" onchange="applyEnterpriseFilters()" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-white">
+<option value="">全部进度</option>
+<option value="pending">未完成</option>
+<option value="done">已完成</option>
+</select>
+</div>
+<div class="w-full lg:w-44"><label class="text-[10px] font-semibold text-slate-400">合作方</label>
+<select id="ent-filter-partner" onchange="applyEnterpriseFilters()" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-white">
+<option value="">全部合作方</option>
+<option value="__none__">未分配</option>
+</select>
 </div>
 </div>
-<!-- 表格 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
 <div class="overflow-x-auto">
 <table class="w-full text-left text-sm">
 <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
 <tr>
-<th class="px-6 py-3.5">客户名称 / ID</th>
-<th class="px-6 py-3.5">所属行业</th>
-<th class="px-6 py-3.5">官网域名</th>
-<th class="px-6 py-3.5 text-center">核心词库</th>
-<th class="px-6 py-3.5">SOP 交付进度</th>
-<th class="px-6 py-3.5 text-right">操作</th>
+<th class="px-5 py-3">客户名称 / ID</th>
+<th class="px-5 py-3">行业</th>
+<th class="px-5 py-3">合作方</th>
+<th class="px-5 py-3">官网</th>
+<th class="px-5 py-3 text-center">词库</th>
+<th class="px-5 py-3">SOP</th>
+<th class="px-5 py-3 text-right">操作</th>
 </tr>
 </thead>
-<tbody id="projects-table-body" class="divide-y divide-slate-200 text-slate-700">
-<!-- JS 动态注入 -->
-</tbody>
+<tbody id="projects-table-body" class="divide-y divide-slate-200 text-slate-700"></tbody>
 </table>
 </div>
 </div>
+</section>
+
+<!-- 商业洞察 -->
+<section id="panel-home-insights" class="home-panel hidden space-y-6">
+<header class="geo-page-head">
+<div>
+<h1 class="geo-page-title">商业洞察</h1>
+<p class="geo-page-desc">售前、对标与组合分析。需绑定客户的能力请先选演示项目。</p>
+</div>
+<div class="w-full max-w-xs"><label class="text-[10px] font-semibold text-slate-400">演示项目（沙箱 / ROI）</label>
+<select id="insights-project-select" onchange="onInsightsProjectChange(this.value)" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-white"></select>
+</div>
+</header>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+<button type="button" onclick="openEdiCustomerModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition"><div class="text-sm font-bold text-slate-900">适合客群 (EDI)</div><p class="text-xs text-slate-500 mt-1">购买前解释型决策客群画像</p></button>
+<button type="button" onclick="openPitchModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition"><div class="text-sm font-bold text-slate-900">售前 Pitch</div><p class="text-xs text-slate-500 mt-1">商业 Pitch Deck</p></button>
+<button type="button" onclick="openPortfolioModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition"><div class="text-sm font-bold text-slate-900">全域大盘驾驶舱</div><p class="text-xs text-slate-500 mt-1">多项目组合价值</p></button>
+<button type="button" onclick="showBenchmarkModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition"><div class="text-sm font-bold text-slate-900">工业化对标透视</div><p class="text-xs text-slate-500 mt-1">流水线 vs 手工代运营</p></button>
+<button type="button" onclick="openIndustryBenchmarkModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition"><div class="text-sm font-bold text-slate-900">行业大盘基准</div><p class="text-xs text-slate-500 mt-1">行业均值对照</p></button>
+<button type="button" onclick="openGroupMatrixModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition"><div class="text-sm font-bold text-slate-900">集团多品牌矩阵</div><p class="text-xs text-slate-500 mt-1">母子协同大盘</p></button>
+<button type="button" onclick="openPlaygroundFromDashboard()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition"><div class="text-sm font-bold text-slate-900">AI 测序沙箱</div><p class="text-xs text-slate-500 mt-1">Before/After 双轨（需演示项目）</p></button>
+<button type="button" onclick="openRoiFromDashboard()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition"><div class="text-sm font-bold text-slate-900">商业 ROI 测算</div><p class="text-xs text-slate-500 mt-1">续约预测（需演示项目）</p></button>
+</div>
+</section>
+
+<!-- 运维告警 -->
+<section id="panel-home-ops" class="home-panel hidden space-y-6">
+<header class="geo-page-head">
+<div>
+<h1 class="geo-page-title">运维告警</h1>
+<p class="geo-page-desc">全量巡检、异动规则与通知渠道。</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<button type="button" onclick="handleTriggerPatrolAll(event)" id="btn-patrol-all" class="geo-btn"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>全量巡检</button>
+<button type="button" onclick="openNotificationModal()" class="geo-btn geo-btn-primary"><i data-lucide="bell" class="w-3.5 h-3.5"></i>告警与通知设置</button>
+</div>
+</header>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+<div class="geo-row"><span class="geo-status-dot geo-status-warn"></span><div class="flex-1"><div class="text-sm font-semibold text-slate-900">巡检状态</div><p class="text-xs text-slate-500 mt-0.5">最近全量巡检：<span id="ops-patrol-last-time" class="font-semibold text-slate-700">尚未执行</span></p><p class="text-xs text-slate-500 mt-0.5">告警推送：<span id="ops-patrol-alert-status" class="font-semibold text-slate-700">加载中...</span></p></div></div>
+<div class="text-[11px] text-slate-400 border-t border-slate-100 pt-3">
+<div>Crontab: <code class="bg-slate-100 px-1 rounded">0 3 * * 1 geo patrol --all</code></div>
+<div class="mt-1">异动规则：SOV 跌破安全线 / 单周突降 / 竞品拦截 / 占位词失守</div>
+</div>
+</div>
+</section>
+
+<!-- 系统设置 -->
+<section id="panel-home-settings" class="home-panel hidden space-y-6">
+<header class="geo-page-head">
+<div>
+<h1 class="geo-page-title">系统设置</h1>
+<p class="geo-page-desc">大模型密钥、合作方名册；单项目 ZIP 导出请在流水线内操作。</p>
+</div>
+</header>
+<nav class="geo-tabs" id="home-settings-tabs">
+<button type="button" class="active" data-home-set="llm" onclick="switchHomeSettingsTab('llm')">大模型中枢</button>
+<button type="button" data-home-set="partners" onclick="switchHomeSettingsTab('partners')">合作方名册</button>
+<button type="button" data-home-set="export" onclick="switchHomeSettingsTab('export')">离线导出说明</button>
+</nav>
+<div id="home-set-llm" class="home-set-panel bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-3 max-w-2xl">
+<p class="text-xs text-slate-500">配置 Nextdoor / 小毛驴入口，并检测连通状态。</p>
+<div class="flex flex-wrap gap-2">
+<button type="button" onclick="refreshLlmStatus(true)" class="geo-btn">立即检测</button>
+<button type="button" onclick="openLlmConfigModal()" class="geo-btn geo-btn-primary">配置 Nextdoor</button>
+</div>
+<div id="home-settings-llm-hint" class="text-xs text-slate-500">检测结果与流水线内「大模型中枢」同源。</div>
+</div>
+<div id="home-set-partners" class="home-set-panel hidden bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-4 max-w-3xl">
+<form id="partner-create-form" onsubmit="handleCreatePartner(event)" class="flex flex-col sm:flex-row gap-2 items-end">
+<div class="flex-1 w-full"><label class="text-[10px] font-semibold text-slate-400">新增合作方 / 业务员名称</label>
+<input id="partner-new-name" required placeholder="如：张三（渠道）" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2">
+</div>
+<button type="submit" class="geo-btn geo-btn-primary shrink-0">添加</button>
+</form>
+<div class="overflow-x-auto border border-slate-100 rounded-lg">
+<table class="w-full text-sm">
+<thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-3 py-2 text-left">名称</th><th class="px-3 py-2 text-left">ID</th><th class="px-3 py-2 text-left">状态</th><th class="px-3 py-2 text-right">操作</th></tr></thead>
+<tbody id="partners-admin-body"></tbody>
+</table>
+</div>
+</div>
+<div id="home-set-export" class="home-set-panel hidden bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-3 max-w-2xl">
+<p class="text-xs text-slate-600">全案 ZIP / 归档包依赖「当前客户项目」。请到 <button type="button" class="text-indigo-600 font-semibold" onclick="switchHomeView('home-enterprises')">企业管理</button> 进入流水线后，使用顶栏「导出 ZIP」或侧栏「离线资产打包导出」。</p>
+</div>
+</section>
+
 </main>
 </div>
+</div>
+
 <!-- ================= 3. 5 步向导式生产流水线视图 ================= -->
 <div id="wizard-view" class="hidden flex-1 flex h-screen overflow-hidden bg-[var(--geo-page-bg)]">
 <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 z-30 md:hidden" onclick="closeSidebarDrawer()">
@@ -223,7 +295,7 @@
 <div class="px-3 py-2.5 border-b border-slate-100"><label class="text-[10px] font-semibold text-slate-400">当前项目</label>
 <select id="sidebar-project-select" onchange="onSidebarProjectChange(this.value)" class="mt-1.5 w-full text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7c5bf5]/30">
 </select>
-<button type="button" onclick="backToDashboard()" class="mt-2 w-full text-[11px] text-slate-500 hover:text-[#7c5bf5] text-left px-1">返回项目列表</button>
+<button type="button" onclick="backToEnterprises()" class="mt-2 w-full text-[11px] text-slate-500 hover:text-[#7c5bf5] text-left px-1">返回企业管理</button>
 </div>
 <nav class="flex-1 overflow-y-auto sidebar-nav-scroll">
 <div class="accordion-group sidebar-group" data-group="overview">
@@ -1550,6 +1622,11 @@
 </div>
 <div><label class="block font-semibold text-slate-700 mb-1">所属行业领域</label>
 <input id="np-industry" type="text" required placeholder="如: 工业排产MES与协同系统" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+</div>
+<div><label class="block font-semibold text-slate-700 mb-1">归属合作方（可选）</label>
+<select id="np-partner" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+<option value="">未分配 / 直营</option>
+</select>
 </div>
 <div>
 <div class="flex items-center justify-between mb-1"><label class="block font-semibold text-slate-700">核心业务意图词库 (每行一个)</label>
@@ -4701,6 +4778,10 @@ GitHub 开源仓库：https://github.com/company/repo
           if (!view) view = 'overview';
           return { view: 'wizard', projectId, step: (VIEW_META[view] && VIEW_META[view].step) || step || 1, tab, viewId: view };
         }
+        const homeView = params.get('home');
+        if (homeView && String(homeView).startsWith('home-')) {
+          return { view: 'dashboard', homeView };
+        }
       }
       const activeView = localStorage.getItem('geo_active_view');
       const savedProject = localStorage.getItem('geo_active_project');
@@ -4710,7 +4791,8 @@ GitHub 开源仓库：https://github.com/company/repo
         const tab = localStorage.getItem('geo_active_scaffold_tab') || 'site.html';
         return { view: 'wizard', projectId: savedProject, step, tab, viewId: savedView };
       }
-      return { view: 'dashboard' };
+      const savedHome = localStorage.getItem('geo_active_home_view') || 'home-dashboard';
+      return { view: 'dashboard', homeView: savedHome };
     }
 
     // 状态与路由同步：实时同步到 URL Hash 及 localStorage，页面刷新时原位还原
@@ -4731,12 +4813,14 @@ GitHub 开源仓库：https://github.com/company/repo
         }
       } else {
         localStorage.setItem('geo_active_view', 'dashboard');
+        localStorage.setItem('geo_active_home_view', currentHomeView || 'home-dashboard');
         localStorage.removeItem('geo_active_project');
         localStorage.removeItem('geo_active_step');
         localStorage.removeItem('geo_active_view_id');
         localStorage.removeItem('geo_active_scaffold_tab');
-        if (window.location.hash && window.location.hash !== '#dashboard') {
-          history.replaceState(null, '', window.location.pathname);
+        const hash = `#home=${encodeURIComponent(currentHomeView || 'home-dashboard')}`;
+        if (window.location.hash !== hash) {
+          history.replaceState(null, '', hash);
         }
       }
     }
@@ -4774,10 +4858,13 @@ GitHub 开源仓库：https://github.com/company/repo
 
     async function showDashboard(username) {
       document.getElementById('login-view').classList.add('hidden');
-      if (username) document.getElementById('current-user-name').innerText = username;
+      if (username) {
+        document.getElementById('current-user-name').innerText = username;
+        const homeUser = document.getElementById('home-sidebar-user');
+        if (homeUser) homeUser.innerText = username;
+      }
       lucide.createIcons();
 
-      // 检查刷新前所在位置，如果在项目流水线内部，直接精准还原到对应项目、步骤与选项卡！
       const route = parseCurrentRoute();
       if (route.view === 'wizard' && route.projectId) {
         await enterWizard(route.projectId, route.viewId || route.step, route.tab);
@@ -4787,29 +4874,129 @@ GitHub 开源仓库：https://github.com/company/repo
 
       document.getElementById('dashboard-view').classList.remove('hidden');
       document.getElementById('wizard-view').classList.add('hidden');
-      loadProjectsList();
-      loadPatrolStatus();
+      const homeView = (route.homeView && String(route.homeView).startsWith('home-'))
+        ? route.homeView
+        : 'home-dashboard';
+      await switchHomeView(homeView, true);
       lucide.createIcons();
     }
 
+    let currentHomeView = 'home-dashboard';
+    let projectsCache = [];
+    let partnersCache = [];
+    let groupMapCache = {};
+
+    const HOME_VIEW_TITLES = {
+      'home-dashboard': '仪表盘',
+      'home-enterprises': '企业管理',
+      'home-insights': '商业洞察',
+      'home-ops': '运维告警',
+      'home-settings': '系统设置',
+    };
+
+    function toggleHomeSidebarGroup(groupId) {
+      const list = document.getElementById(`home-group-${groupId}`);
+      const arrow = document.querySelector(`[data-home-arrow="${groupId}"]`);
+      if (!list) return;
+      const open = list.classList.contains('hidden');
+      list.classList.toggle('hidden', !open);
+      if (arrow) arrow.textContent = open ? '▼' : '▶';
+    }
+
+    async function switchHomeView(viewId, skipRoute) {
+      currentHomeView = viewId || 'home-dashboard';
+      document.querySelectorAll('.home-panel').forEach(el => el.classList.add('hidden'));
+      const panel = document.getElementById(`panel-${currentHomeView}`);
+      if (panel) panel.classList.remove('hidden');
+      document.querySelectorAll('#home-sidebar .sidebar-nav-item').forEach(btn => {
+        btn.classList.toggle('active', btn.id === `nav-${currentHomeView}`);
+      });
+      const title = document.getElementById('home-topbar-title');
+      if (title) title.innerText = HOME_VIEW_TITLES[currentHomeView] || '工作台';
+
+      await loadPartnersCache();
+      await loadProjectsList();
+      loadPatrolStatus();
+      if (currentHomeView === 'home-settings') {
+        switchHomeSettingsTab('partners');
+        renderPartnersAdmin();
+      }
+      if (currentHomeView === 'home-insights') fillInsightsProjectSelect();
+      if (!skipRoute) updateRouteState();
+      lucide.createIcons();
+    }
+
+    function switchHomeSettingsTab(tab) {
+      document.querySelectorAll('#home-settings-tabs button').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-home-set') === tab);
+      });
+      document.querySelectorAll('.home-set-panel').forEach(el => el.classList.add('hidden'));
+      const panel = document.getElementById(`home-set-${tab}`);
+      if (panel) panel.classList.remove('hidden');
+      if (tab === 'partners') renderPartnersAdmin();
+      if (tab === 'llm') refreshLlmStatus(false);
+    }
+
+    async function loadPartnersCache() {
+      try {
+        const res = await fetch('/api/partners?include_archived=1', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        partnersCache = (data.success && data.partners) ? data.partners : [];
+      } catch (e) {
+        partnersCache = [];
+      }
+      fillPartnerSelects();
+    }
+
+    function fillPartnerSelects() {
+      const active = partnersCache.filter(p => p.status !== 'archived');
+      const opts = active.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      const filter = document.getElementById('ent-filter-partner');
+      if (filter) {
+        const cur = filter.value;
+        filter.innerHTML = `<option value="">全部合作方</option><option value="__none__">未分配</option>${opts}`;
+        filter.value = cur || '';
+      }
+      const np = document.getElementById('np-partner');
+      if (np) {
+        const cur = np.value;
+        np.innerHTML = `<option value="">未分配 / 直营</option>${opts}`;
+        np.value = cur || '';
+      }
+    }
+
     async function loadPatrolStatus() {
-      const lastEl = document.getElementById('patrol-last-time');
-      const alertEl = document.getElementById('patrol-alert-status');
-      if (!lastEl || !alertEl) return;
+      const targets = [
+        ['patrol-last-time', 'patrol-alert-status'],
+        ['ops-patrol-last-time', 'ops-patrol-alert-status'],
+      ];
       try {
         const res = await fetch('/api/settings/notifications', {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
+        let lastText = '尚未执行';
+        let alertHtml = '加载中...';
         if (data.success && data.settings) {
           const s = data.settings;
-          lastEl.innerText = s.last_patrol_time || '尚未执行';
-          alertEl.innerHTML = s.enabled
+          lastText = s.last_patrol_time || '尚未执行';
+          alertHtml = s.enabled
             ? `<span class="text-emerald-600">已开启</span>（安全线 ${s.min_sov_threshold || 50}% / 突降 ${s.drop_threshold_pct || 15}%）`
             : '<span class="text-slate-500">未开启</span>';
         }
+        targets.forEach(([lastId, alertId]) => {
+          const lastEl = document.getElementById(lastId);
+          const alertEl = document.getElementById(alertId);
+          if (lastEl) lastEl.innerText = lastText;
+          if (alertEl) alertEl.innerHTML = alertHtml;
+        });
       } catch (e) {
-        alertEl.innerText = '读取失败';
+        targets.forEach(([, alertId]) => {
+          const alertEl = document.getElementById(alertId);
+          if (alertEl) alertEl.innerText = '读取失败';
+        });
       }
     }
 
@@ -4862,7 +5049,7 @@ GitHub 开源仓库：https://github.com/company/repo
       showToast('已安全退出登录');
     }
 
-    // 加载项目列表
+    // 加载项目列表（仪表盘统计 + 企业管理表）
     async function loadProjectsList() {
       try {
         const [res, grpRes] = await Promise.all([
@@ -4870,13 +5057,13 @@ GitHub 开源仓库：https://github.com/company/repo
           fetch('/api/groups', { headers: { 'Authorization': `Bearer ${currentAuthToken}` } }).catch(() => ({ json: () => ({ success: false }) }))
         ]);
         const data = await res.json();
-        let groupMap = {};
+        groupMapCache = {};
         try {
           const gData = await grpRes.json();
           if (gData.success && gData.groups) {
             gData.groups.forEach(g => {
               (g.children || []).forEach(c => {
-                groupMap[c.project_id] = {
+                groupMapCache[c.project_id] = {
                   group_id: g.group_id,
                   group_name: g.group_name.split(' ')[0],
                   role: c.role
@@ -4886,32 +5073,241 @@ GitHub 开源仓库：https://github.com/company/repo
           }
         } catch (e) {}
 
-        if (data.success) {
-          const list = data.projects || [];
-          document.getElementById('stat-total-projects').innerText = list.length;
-          document.getElementById('stat-completed-projects').innerText = list.filter(p => p.steps_done === 5).length;
-          loadPortfolioSummaryForDashboard();
-          
-          const tbody = document.getElementById('projects-table-body');
-          if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">暂无项目，点击右上角【+ 新建客户项目】快速创建</td></tr>`;
-            return;
-          }
-
-          tbody.innerHTML = list.map(p => {
-            const grp = groupMap[p.client_id];
-            const grpHtml = grp ? `
-              <span onclick="event.stopPropagation(); openGroupMatrixModal('${grp.group_id}')" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${grp.role.includes('母公司') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200'} cursor-pointer hover:bg-indigo-100 transition mt-1" title="点击查看集团协同大盘"><span> ${grp.group_name} · ${grp.role.split('/')[0].trim()}</span></span>` : '';
-
-            return `
-              <tr class="hover:bg-slate-50/80 transition"><td class="px-6 py-4"><div class="font-bold text-slate-900 flex items-center gap-2"><span>${p.client_name}</span></div><div class="text-xs text-slate-400 font-mono">${p.client_id}</div>${grpHtml}
-                </td><td class="px-6 py-4 text-xs font-medium text-slate-600">${p.industry || '通用'}</td><td class="px-6 py-4 text-xs text-slate-500"><a href="${p.official_url}" target="_blank" class="hover:text-indigo-600 underline">${p.official_url}</a></td><td class="px-6 py-4 text-xs text-center font-semibold text-slate-700">${p.keywords_count} 组</td><td class="px-6 py-4"><div class="w-full bg-slate-200 rounded-full h-2 max-w-[120px] overflow-hidden"><div class="bg-indigo-600 h-2 rounded-full" style="width: ${p.progress_pct}%"></div></div><div class="text-[11px] text-slate-500 mt-1">${p.steps_done}/5 阶段完成 (${p.progress_pct}%)</div></td><td class="px-6 py-4 text-right flex items-center justify-end gap-2"><button onclick="enterWizard('${p.client_id}')" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition">进入流水线 
-                  </button><button onclick="downloadProjectZip('${p.client_id}')" title="下载交付包ZIP" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition"><i data-lucide="download" class="w-3.5 h-3.5"></i></button><button onclick="confirmDeleteProject('${p.client_id}')" title="删除项目" class="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`;
-          }).join('');
-          lucide.createIcons();
-        }
+        if (!data.success) return;
+        projectsCache = data.projects || [];
+        const list = projectsCache;
+        const totalEl = document.getElementById('stat-total-projects');
+        const doneEl = document.getElementById('stat-completed-projects');
+        if (totalEl) totalEl.innerText = list.length;
+        if (doneEl) doneEl.innerText = list.filter(p => p.steps_done === 5).length;
+        loadPortfolioSummaryForDashboard();
+        renderAttentionList(list);
+        fillIndustryFilter(list);
+        fillInsightsProjectSelect();
+        applyEnterpriseFilters();
       } catch (err) {
         console.error(err);
+      }
+    }
+
+    function fillIndustryFilter(list) {
+      const sel = document.getElementById('ent-filter-industry');
+      if (!sel) return;
+      const cur = sel.value;
+      const industries = [...new Set(list.map(p => p.industry).filter(Boolean))].sort();
+      sel.innerHTML = `<option value="">全部行业</option>` + industries.map(i => `<option value="${i.replace(/"/g, '&quot;')}">${i}</option>`).join('');
+      sel.value = industries.includes(cur) ? cur : '';
+    }
+
+    function fillInsightsProjectSelect() {
+      const sel = document.getElementById('insights-project-select');
+      if (!sel) return;
+      const cur = sel.value || currentProjectId || '';
+      sel.innerHTML = `<option value="">选择演示项目...</option>` + projectsCache.map(p =>
+        `<option value="${p.client_id}">${p.client_name} (${p.client_id})</option>`
+      ).join('');
+      if (cur && projectsCache.some(p => p.client_id === cur)) sel.value = cur;
+    }
+
+    function onInsightsProjectChange(id) {
+      currentProjectId = id || '';
+    }
+
+    function renderAttentionList(list) {
+      const box = document.getElementById('attention-list');
+      if (!box) return;
+      const attention = list.filter(p => (p.steps_done || 0) < 5).slice(0, 8);
+      if (!attention.length) {
+        box.innerHTML = `<div class="px-5 py-4 text-slate-400 text-xs">暂无未完成交付的项目。</div>`;
+        return;
+      }
+      box.innerHTML = attention.map(p => `
+        <div class="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50">
+          <div class="min-w-0">
+            <div class="font-semibold text-slate-800 truncate">${p.client_name}</div>
+            <div class="text-[11px] text-slate-500">${p.steps_done}/5 阶段 · ${p.partner_name || '未分配'}</div>
+          </div>
+          <button type="button" onclick="enterWizard('${p.client_id}')" class="geo-btn shrink-0">进入流水线</button>
+        </div>`).join('');
+    }
+
+    function applyEnterpriseFilters() {
+      const q = (document.getElementById('ent-search')?.value || '').trim().toLowerCase();
+      const industry = document.getElementById('ent-filter-industry')?.value || '';
+      const sop = document.getElementById('ent-filter-sop')?.value || '';
+      const partner = document.getElementById('ent-filter-partner')?.value || '';
+      let list = [...projectsCache];
+      if (q) {
+        list = list.filter(p => {
+          const blob = [p.client_id, p.client_name, p.official_url, p.brand_name].join(' ').toLowerCase();
+          return blob.includes(q);
+        });
+      }
+      if (industry) list = list.filter(p => (p.industry || '') === industry);
+      if (sop === 'done') list = list.filter(p => p.steps_done === 5);
+      if (sop === 'pending') list = list.filter(p => p.steps_done < 5);
+      if (partner === '__none__') list = list.filter(p => !p.partner_id);
+      else if (partner) list = list.filter(p => p.partner_id === partner);
+      renderEnterprisesTable(list);
+    }
+
+    function renderEnterprisesTable(list) {
+      const tbody = document.getElementById('projects-table-body');
+      if (!tbody) return;
+      if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">没有匹配的客户，试试清空筛选或新建项目</td></tr>`;
+        lucide.createIcons();
+        return;
+      }
+      const partnerOpts = partnersCache.filter(p => p.status !== 'archived')
+        .map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      tbody.innerHTML = list.map(p => {
+        const grp = groupMapCache[p.client_id];
+        const grpHtml = grp ? `
+          <span onclick="event.stopPropagation(); openGroupMatrixModal('${grp.group_id}')" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${grp.role.includes('母公司') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200'} cursor-pointer hover:bg-indigo-100 transition mt-1" title="点击查看集团协同大盘"><span> ${grp.group_name} · ${grp.role.split('/')[0].trim()}</span></span>` : '';
+        const pid = p.partner_id || '';
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="px-5 py-3"><div class="font-bold text-slate-900">${p.client_name}</div><div class="text-xs text-slate-400 font-mono">${p.client_id}</div>${grpHtml}</td>
+            <td class="px-5 py-3 text-xs font-medium text-slate-600">${p.industry || '通用'}</td>
+            <td class="px-5 py-3">
+              <select onchange="changeProjectPartner('${p.client_id}', this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white max-w-[140px]">
+                <option value="">未分配</option>${partnerOpts.replace(`value="${pid}"`, `value="${pid}" selected`)}
+              </select>
+            </td>
+            <td class="px-5 py-3 text-xs text-slate-500"><a href="${p.official_url}" target="_blank" class="hover:text-indigo-600 underline">${p.official_url || '-'}</a></td>
+            <td class="px-5 py-3 text-xs text-center font-semibold text-slate-700">${p.keywords_count} 组</td>
+            <td class="px-5 py-3"><div class="w-full bg-slate-200 rounded-full h-2 max-w-[120px] overflow-hidden"><div class="bg-indigo-600 h-2 rounded-full" style="width: ${p.progress_pct}%"></div></div><div class="text-[11px] text-slate-500 mt-1">${p.steps_done}/5 (${p.progress_pct}%)</div></td>
+            <td class="px-5 py-3 text-right whitespace-nowrap">
+              <button onclick="enterWizard('${p.client_id}')" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition">进入流水线</button>
+              <button onclick="downloadProjectZip('${p.client_id}')" title="下载交付包ZIP" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition inline-flex align-middle"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
+              <button onclick="confirmDeleteProject('${p.client_id}')" title="删除项目" class="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition inline-flex align-middle"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </td>
+          </tr>`;
+      }).join('');
+      // Fix selected attribute properly
+      tbody.querySelectorAll('select').forEach((sel, idx) => {
+        const p = list[idx];
+        if (p) sel.value = p.partner_id || '';
+      });
+      lucide.createIcons();
+    }
+
+    async function changeProjectPartner(projectId, partnerId) {
+      try {
+        const res = await fetch(`/api/projects/${projectId}/meta`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ partner_id: partnerId || '' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('归属已更新');
+          await loadProjectsList();
+        } else {
+          showToast(data.message || '更新失败', 'error');
+        }
+      } catch (e) {
+        showToast('更新归属异常', 'error');
+      }
+    }
+
+    function renderPartnersAdmin() {
+      const body = document.getElementById('partners-admin-body');
+      if (!body) return;
+      if (!partnersCache.length) {
+        body.innerHTML = `<tr><td colspan="4" class="px-3 py-6 text-center text-slate-400 text-xs">暂无合作方，请上方添加业务员或渠道名称</td></tr>`;
+        return;
+      }
+      body.innerHTML = partnersCache.map(p => {
+        const archived = p.status === 'archived';
+        return `<tr class="border-t border-slate-100">
+          <td class="px-3 py-2 font-semibold text-slate-800">${p.name}</td>
+          <td class="px-3 py-2 text-xs font-mono text-slate-500">${p.id}</td>
+          <td class="px-3 py-2 text-xs">${archived ? '<span class="text-slate-400">已归档</span>' : '<span class="text-emerald-600">启用</span>'}</td>
+          <td class="px-3 py-2 text-right space-x-1">
+            ${archived ? '' : `<button type="button" class="geo-btn" onclick="renamePartner('${p.id}', '${String(p.name).replace(/'/g, "\\'")}')">改名</button>
+            <button type="button" class="geo-btn geo-btn-danger" onclick="archivePartner('${p.id}')">归档</button>`}
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function handleCreatePartner(e) {
+      e.preventDefault();
+      const name = document.getElementById('partner-new-name').value.trim();
+      if (!name) return;
+      try {
+        const res = await fetch('/api/partners', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('partner-new-name').value = '';
+          showToast('合作方已添加');
+          await loadPartnersCache();
+          renderPartnersAdmin();
+          applyEnterpriseFilters();
+        } else {
+          showToast(data.message || '添加失败', 'error');
+        }
+      } catch (err) {
+        showToast('添加合作方异常', 'error');
+      }
+    }
+
+    async function renamePartner(id, oldName) {
+      const name = prompt('新的合作方名称', oldName);
+      if (!name || name === oldName) return;
+      try {
+        const res = await fetch(`/api/partners/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('已改名');
+          await loadPartnersCache();
+          renderPartnersAdmin();
+          await loadProjectsList();
+        } else showToast(data.message || '失败', 'error');
+      } catch (e) {
+        showToast('改名异常', 'error');
+      }
+    }
+
+    async function archivePartner(id) {
+      if (!confirm('归档后，挂在该合作方下的企业将变为「未分配」。确认？')) return;
+      try {
+        const res = await fetch(`/api/partners/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ status: 'archived' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('已归档');
+          await loadPartnersCache();
+          renderPartnersAdmin();
+          await loadProjectsList();
+        } else showToast(data.message || '失败', 'error');
+      } catch (e) {
+        showToast('归档异常', 'error');
       }
     }
 
@@ -4940,7 +5336,11 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     // 新建项目模态框
-    function openNewProjectModal() { document.getElementById('new-project-modal').classList.remove('hidden'); lucide.createIcons(); }
+    function openNewProjectModal() {
+      fillPartnerSelects();
+      document.getElementById('new-project-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
     function closeNewProjectModal() { document.getElementById('new-project-modal').classList.add('hidden'); }
 
     async function handleCreateProject(e) {
@@ -4950,6 +5350,7 @@ GitHub 开源仓库：https://github.com/company/repo
         client_name: document.getElementById('np-name').value.trim(),
         official_url: document.getElementById('np-url').value.trim(),
         industry: document.getElementById('np-industry').value.trim(),
+        partner_id: document.getElementById('np-partner')?.value || '',
         keywords: document.getElementById('np-keywords').value.trim(),
         competitors: document.getElementById('np-competitors').value.trim()
       };
@@ -5020,11 +5421,15 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     function backToDashboard() {
+      backToEnterprises();
+    }
+
+    function backToEnterprises() {
       currentProjectId = '';
       updateRouteState();
       document.getElementById('wizard-view').classList.add('hidden');
       document.getElementById('dashboard-view').classList.remove('hidden');
-      loadProjectsList();
+      switchHomeView('home-enterprises');
     }
 
     // 加载证据库 / 真相源状态
@@ -7102,19 +7507,25 @@ GitHub 开源仓库：https://github.com/company/repo
 
     // ===== 大模型实时测序沙箱 (Playground) 控制器 =====
     function openPlaygroundFromDashboard() {
+      const sel = document.getElementById('insights-project-select');
+      if (sel && sel.value) currentProjectId = sel.value;
       if (!currentProjectId) {
-        showToast('请先从下方项目列表进入某个客户项目，再打开 AI 测序沙箱', 'error');
+        showToast('请先在商业洞察页选择演示项目', 'error');
+        switchHomeView('home-insights');
         return;
       }
       openPlaygroundModal();
     }
 
     /**
-     * 从 Dashboard 顶部卡片进入商业 ROI 参数配置与测算
+     * 从商业洞察进入商业 ROI 参数配置与测算
      */
     function openRoiFromDashboard() {
+      const sel = document.getElementById('insights-project-select');
+      if (sel && sel.value) currentProjectId = sel.value;
       if (!currentProjectId) {
-        showToast('请先从下方项目列表进入某个客户项目，再打开商业 ROI 测算', 'error');
+        showToast('请先在商业洞察页选择演示项目', 'error');
+        switchHomeView('home-insights');
         return;
       }
       openRoiSettingsModal();

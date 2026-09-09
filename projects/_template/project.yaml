@@ -22,3 +22,7 @@ competitors:
 models:
   - "deepseek"
   - "doubao"
+
+# 代理合作归属（可选；空或省略=未分配）
+partner_id: ""
+

@@ -443,10 +443,63 @@ core_values:
 
             yaml_content += "\nmodels:\n  - \"deepseek\"\n  - \"doubao\"\n"
 
+            partner_id = str(body.get("partner_id") or "").strip()
+            yaml_content += f'\n# 代理合作归属（可选；空=未分配）\npartner_id: "{e(partner_id)}"\n'
+
             with open(config_file, "w", encoding="utf-8") as f:
                 f.write(yaml_content)
 
             self.send_json({"success": True, "client_id": client_id, "message": f"项目 [{client_id}] 创建成功！"})
+            return
+
+        # 合作方名册：创建
+        if path == "/api/partners":
+            body = self.read_json_body()
+            try:
+                from .partners import create_partner
+                row = create_partner(body.get("name", ""), body.get("id"))
+                self.send_json({"success": True, "partner": row})
+            except ValueError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 合作方名册：改名 / 归档
+        if path.startswith("/api/partners/") and len(path.split("/")) == 4:
+            partner_id = unquote(path.split("/")[3])
+            body = self.read_json_body()
+            try:
+                from .partners import update_partner
+                row = update_partner(
+                    partner_id,
+                    name=body.get("name"),
+                    status=body.get("status"),
+                )
+                self.send_json({"success": True, "partner": row})
+            except ValueError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 项目元数据：改挂合作方等
+        if path.startswith("/api/projects/") and path.endswith("/meta"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body()
+            try:
+                from .partners import set_project_partner_id, resolve_partner_name
+                if "partner_id" in body:
+                    pid = set_project_partner_id(project_id, body.get("partner_id"))
+                    self.send_json({
+                        "success": True,
+                        "partner_id": pid,
+                        "partner_name": resolve_partner_name(pid),
+                    })
+                else:
+                    self.send_json({"success": False, "message": "无有效字段"}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
         # 5. 素材智能抓取与提纯 API: /api/projects/{id}/ingest/url
@@ -3336,9 +3389,32 @@ server {{
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
+            # 合作方名册
+            if path == "/api/partners":
+                try:
+                    from .partners import load_partners
+                    query = parse_qs(parsed.query)
+                    include_archived = query.get("include_archived", ["1"])[0] != "0"
+                    partners = load_partners(include_archived=include_archived)
+                    self.send_json({"success": True, "partners": partners})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e), "partners": []}, status=500)
+                return
+
             # 获取项目列表 API
             if path == "/api/projects":
                 projects = []
+                try:
+                    from .partners import partner_map, resolve_partner_name
+                    pmap = partner_map(include_archived=True)
+                except Exception:
+                    pmap = {}
+                query = parse_qs(parsed.query)
+                q = (query.get("q", [""])[0] or "").strip().lower()
+                filter_partner = query.get("partner_id", [None])[0]
+                filter_industry = (query.get("industry", [""])[0] or "").strip()
+                filter_sop = (query.get("sop_status", [""])[0] or "").strip()  # done|pending|""
+
                 if os.path.exists(PROJECTS_DIR):
                     for item in os.listdir(PROJECTS_DIR):
                         if item.startswith(".") or item == "_template":
@@ -3358,16 +3434,45 @@ server {{
                                 if any("04_" in f for f in outputs): steps_done += 1
                                 if any("05_" in f for f in outputs): steps_done += 1
 
-                                projects.append({
+                                partner_id = str(cfg.get("partner_id") or "").strip()
+                                brand = str(cfg.get("brand_name") or "")
+                                row = {
                                     "client_id": item,
                                     "client_name": cfg.get("client_name", item),
                                     "official_url": cfg.get("official_url", ""),
                                     "industry": cfg.get("industry", ""),
+                                    "brand_name": brand,
                                     "keywords_count": len(cfg.get("keywords", [])),
                                     "steps_done": steps_done,
                                     "progress_pct": int((steps_done / 5) * 100),
-                                    "outputs_count": len(outputs)
-                                })
+                                    "outputs_count": len(outputs),
+                                    "partner_id": partner_id,
+                                    "partner_name": resolve_partner_name(partner_id, pmap),
+                                }
+
+                                if filter_partner is not None:
+                                    if filter_partner == "__none__":
+                                        if partner_id:
+                                            continue
+                                    elif filter_partner != "" and partner_id != filter_partner:
+                                        continue
+                                if filter_industry and (row["industry"] or "") != filter_industry:
+                                    continue
+                                if filter_sop == "done" and steps_done < 5:
+                                    continue
+                                if filter_sop == "pending" and steps_done >= 5:
+                                    continue
+                                if q:
+                                    blob = " ".join([
+                                        row["client_id"],
+                                        str(row["client_name"] or ""),
+                                        str(row["official_url"] or ""),
+                                        brand,
+                                    ]).lower()
+                                    if q not in blob:
+                                        continue
+
+                                projects.append(row)
                             except Exception:
                                 pass
 
