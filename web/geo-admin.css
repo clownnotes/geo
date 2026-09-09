@@ -122,6 +122,12 @@
   display: none;
 }
 
+/* 企业管理二级：合作方过多时内部滚动 */
+#home-sidebar .home-ent-submenu {
+  max-height: min(42vh, 340px);
+  overflow-y: auto;
+}
+
 /* 二级项：对齐 .job-item */
 #app-sidebar, #home-sidebar .sidebar-nav-item,
 #app-sidebar, #home-sidebar .job-item {
