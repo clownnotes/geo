@@ -69,3 +69,48 @@
   - 导航项与产品分类偏好已对齐，**可以进入 `/opsx-apply`**。
   - 按铁律停步，不归档、不开工编码，等待显式 apply 指令。
 
+---
+
+### 2026-09-08 | Cursor | apply 阶段（侧边栏管理台落地）
+
+- **执行内容**：
+  1. `web/index.html` 落地双栏布局：`#app-sidebar`（240px 一级折叠 + 二级菜单）+ `#app-topbar` 面包屑 + `#app-workspace` 独立 Panel；
+  2. 路由 `switchView` / `parseCurrentRoute` / `updateRouteState`：`#project=&view=`，兼容旧 `step`/`tab`；
+  3. 监测运维 7 项、进阶攻防 4 主题面板承接原 boost/ops Modal 入口；主色 `#7c5bf5`；
+  4. 清除界面彩色 Emoji；补 `let currentScene`；文案「二次提升/日常维护」改为侧栏分类名。
+- **验证**：
+  - `unittest`：`test_distribute_run_log` + `test_rich_publisher` + `test_dist_bot_ledger` 共 16 项 OK；
+  - DOM：`open_div == close_div == 1887`；Emoji 静态扫描 0；
+  - 本地 8088：侧栏二级点击后 Hash 变为 `#project=xuzhou_xuanyuan&view=mon-weekly`，阶段四分发页与面包屑正常。
+- **结论**：`[已修正]`
+  - tasks.md 10/10 已勾选；**等待用户验收**。按铁律停步，**未归档**。
+
+---
+
+### 2026-09-08 | Antigravity | review 阶段（跨端联合验收核对）
+
+- **审查对象**：`web/index.html` 落地实现、`tasks.md` 完成项、相关自动化测试
+- **对照基线与规范核对**：
+  1. 结构与视觉布局：
+     - 左侧固定 240px `#app-sidebar` 实现 5 组一级折叠分类（项目概览、交付流水线、监测运维、进阶攻防、系统设置），各分组带 Chevron 折叠动效与纯色 Lucide 图标；
+     - 二级菜单作为唯一业务操作项，激活态精准呈现小毛驴紫 `#7c5bf5` 背景微浅色底与右侧 2px 高亮条；
+     - 顶部 52px `#app-topbar` 包含动态三级面包屑（`客户名 / 一级分类 / 二级功能`）、一键流水线、导出 ZIP 及刷新操作；
+     - 窄屏环境下自动降级为抽屉遮罩模式（`sidebar-backdrop`），交互平滑。
+  2. 路由与状态保持：
+     - 新路由模型采用 `#project={id}&view={viewId}`，无前导 `/` 破坏性解析隐患；
+     - 完整保留向前兼容性，旧路由 `#project=&step=&tab=` 自动映射至对应二级视图 Panel；
+     - 页面刷新、项目下拉切换及浏览历史均可原位记忆还原。
+  3. 功能与入口无损覆盖：
+     - 5 步交付流水线（01 诊断、02 底座、03 普林斯顿语料、04 矩阵分发与外链探活、05 商业验收）100% 完整保留；
+     - 监测运维 7 项子模块与进阶攻防 4 大主题面板完整承接原 Modal 工具与核心交互；
+     - 后端 API 无需任何耦合变更。
+  4. 规则合规性核验：
+     - DOM 标签平衡：`open_divs == close_divs == 1887`，差值为 0；
+     - 0 彩色 Emoji 铁律：基于官方正则全量扫描通过（0 处违规字符）；
+     - 自动化回归测试：`test_distribute_run_log.py`、`test_rich_publisher.py`、`test_dist_bot_ledger.py` 16 项测试用例全部通过。
+- **结论**：`[通过]`
+  - 代码改动与设计规范 100% 吻合，技术底座与交互体验升级达标；
+  - 任务清单 10/10 全部落实，建议进入产品最终人工验收阶段；
+  - 遵循严格阶段隔离与单步停步铁律，**严禁自动归档与推生产**，等待用户人工验收。
+
+
