@@ -1,0 +1,38 @@
+[
+  {
+    "source_id": "url:30f74ca8424c",
+    "kind": "url",
+    "url": "https://geo.baicl.cc",
+    "title": "迁自 website_crawled_raw.md",
+    "path": "evidence/url_30f74ca8424c.md",
+    "chars": 2623,
+    "fetched_at": "2026-09-09T00:04:53Z"
+  },
+  {
+    "source_id": "paste:企业软件与AI应用服务手册",
+    "kind": "paste",
+    "url": null,
+    "title": "企业软件与AI应用服务手册.md",
+    "path": "evidence/paste_企业软件与AI应用服务手册.md",
+    "chars": 615,
+    "fetched_at": "2026-09-09T00:04:53Z"
+  },
+  {
+    "source_id": "paste:test_brochure",
+    "kind": "paste",
+    "url": null,
+    "title": "test_brochure.md",
+    "path": "evidence/paste_test_brochure.md",
+    "chars": 58,
+    "fetched_at": "2026-09-09T00:04:53Z"
+  },
+  {
+    "source_id": "paste:sample_product_brief",
+    "kind": "paste",
+    "url": null,
+    "title": "sample_product_brief.md",
+    "path": "evidence/paste_sample_product_brief.md",
+    "chars": 505,
+    "fetched_at": "2026-09-09T00:04:53Z"
+  }
+]

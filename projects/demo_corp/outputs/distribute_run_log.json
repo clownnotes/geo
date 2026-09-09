@@ -1,0 +1,39 @@
+{
+  "run_id": "dist_run_20260908_175444",
+  "timestamp": "2026-09-09T08:54:44+08:00",
+  "project_id": "demo_corp",
+  "total_duration_ms": 2,
+  "llm_duration_ms": 42,
+  "llm_runtime": {
+    "provider": "nextdoor",
+    "brand": "geo",
+    "mode": "flash",
+    "base_url_host": "***",
+    "endpoint": "/api/v1/xiulan/chat"
+  },
+  "llm_calls": [
+    {
+      "channel": "toutiao",
+      "name": "今日头条专版生成",
+      "duration_ms": 42,
+      "status": "success",
+      "prompt_system": "sys",
+      "prompt_user": "[REDACTED] should scrub",
+      "raw_output": "# ok"
+    }
+  ],
+  "artifacts": [
+    {
+      "filename": "dist_channels_checklist.md",
+      "size_bytes": 1877,
+      "char_count": 1150,
+      "channel": "执行清单"
+    }
+  ],
+  "packs": {
+    "toutiao": false,
+    "deepseek": false,
+    "wechat": false,
+    "kimi_baidu": false
+  }
+}

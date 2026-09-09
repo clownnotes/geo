@@ -248,7 +248,13 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
     def check_auth(self) -> bool:
         token = self.get_auth_token()
-        return is_authenticated(token)
+        if is_authenticated(token):
+            return True
+        # 本机开发直连：token 缺失或重启后失效时自动放行，避免工作台复制/拉产出反复 401
+        # （与 /api/auth/status 的 localhost 免密策略对齐；公网反代不会命中 is_local_dev_request）
+        if self.is_local_dev_request():
+            return True
+        return False
 
     def read_json_body(self) -> dict:
         content_length = int(self.headers.get("Content-Length", 0))
@@ -546,7 +552,6 @@ core_values:
                 facts_idx = parts.index("facts")
                 project_id = parts[3]
                 fact_key = "/".join(parts[facts_idx + 1:-1])
-                from urllib.parse import unquote
                 fact_key = unquote(fact_key)
             except Exception:
                 self.send_json({"success": False, "message": "路径无效"}, status=400)
@@ -683,7 +688,37 @@ core_values:
                     return
                 elif step == "distribute":
                     run_distribute(project_id)
-                    msg = "阶段 4：多平台矩阵借壳分发包已就绪！"
+                    pack_payload = {"packs": None, "pack_error": None}
+                    packs_ok = False
+                    try:
+                        from .publisher import package_all_channels
+                        pack_res = package_all_channels(project_id, verify=False)
+                        packs_ok = True
+                        pack_payload["packs"] = {
+                            "toutiao": {
+                                "ready": True,
+                                "article_char_count": (pack_res.get("toutiao") or {}).get("article_char_count"),
+                            },
+                            "deepseek": {"ready": True},
+                            "wechat": {"ready": True},
+                            "kimi_baidu": {"ready": True},
+                        }
+                        msg = "阶段 4：矩阵 Markdown 与全渠道发稿包已生成"
+                    except Exception as pack_exc:
+                        pack_payload["pack_error"] = str(pack_exc)
+                        msg = "阶段 4：矩阵 Markdown 已就绪（发稿包级联失败，可单渠道补打）"
+                    try:
+                        from .distribute import enrich_distribute_run_log_packs
+                        enrich_distribute_run_log_packs(project_id, packs_ok=packs_ok)
+                    except Exception:
+                        pass
+                    self.send_json({
+                        "success": True,
+                        "step": step,
+                        "message": msg,
+                        **pack_payload,
+                    })
+                    return
                 elif step == "monitor":
                     run_monitor(project_id)
                     msg = "阶段 5：AI 可见度监控与周报已生成！"
@@ -692,8 +727,20 @@ core_values:
                     run_scaffold(project_id)
                     run_rewrite(project_id)
                     run_distribute(project_id)
+                    packs_ok = False
+                    try:
+                        from .publisher import package_all_channels
+                        package_all_channels(project_id, verify=False)
+                        packs_ok = True
+                    except Exception:
+                        pass
+                    try:
+                        from .distribute import enrich_distribute_run_log_packs
+                        enrich_distribute_run_log_packs(project_id, packs_ok=packs_ok)
+                    except Exception:
+                        pass
                     run_monitor(project_id)
-                    msg = "🎉 全套 5 步商业交付流水线一键执行完毕！"
+                    msg = "全套 5 步商业交付流水线一键执行完毕！"
                 else:
                     self.send_json({"success": False, "message": f"未知步骤: {step}"}, status=400)
                     return
@@ -934,6 +981,17 @@ core_values:
             try:
                 from .evaluator import run_live_llm_evaluation
                 res = run_live_llm_evaluation(project_id, models=models, limit=limit)
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 一键生成今日头条/微头条发稿包: /api/projects/{id}/toutiao/build
+        if path.startswith("/api/projects/") and path.endswith("/toutiao/build"):
+            project_id = path.split("/")[3]
+            try:
+                from .publisher import package_toutiao_assets
+                res = package_toutiao_assets(project_id)
                 self.send_json(res)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
@@ -1590,7 +1648,6 @@ core_values:
             try:
                 ev_idx = parts.index("evidence")
                 project_id = parts[3]
-                from urllib.parse import unquote
                 source_id = unquote("/".join(parts[ev_idx + 1:]))
             except Exception:
                 self.send_json({"success": False, "message": "路径无效"}, status=400)
@@ -2533,7 +2590,6 @@ server {{
                 try:
                     ev_idx = parts.index("evidence")
                     project_id = parts[3]
-                    from urllib.parse import unquote
                     source_id = unquote("/".join(parts[ev_idx + 1:]))
                 except Exception:
                     self.send_json({"success": False, "message": "路径无效"}, status=400)
@@ -2708,6 +2764,27 @@ server {{
                     self.send_json(res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+            # 各渠道发稿包就绪状态: /api/projects/{id}/publish/pack-status
+            if path.startswith("/api/projects/") and path.endswith("/publish/pack-status"):
+                project_id = path.split("/")[3]
+                try:
+                    from .publisher import get_channel_pack_statuses
+                    self.send_json(get_channel_pack_statuses(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 阶段四最新工作日志: /api/projects/{id}/distribute/latest-log
+            if path.startswith("/api/projects/") and path.endswith("/distribute/latest-log"):
+                project_id = path.split("/")[3]
+                try:
+                    from .distribute import get_latest_distribute_run_log
+                    self.send_json(get_latest_distribute_run_log(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "has_log": False, "message": str(e)}, status=500)
+                return
+
             # 统一全渠道富文本预览与保真度核验接口: /api/projects/{id}/publish/preview?channel=wechat|toutiao|zhihu|all
             if path.startswith("/api/projects/") and "/publish/preview" in path:
                 project_id = path.split("/")[3]
@@ -3308,6 +3385,7 @@ server {{
                     self.send_json({"success": True, "filename": filename, "content": content})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
+                return
             # 获取 RAG 语义分块切片诊断数据: /api/projects/{id}/rag/diagnose (GET)
             if path.startswith("/api/projects/") and path.endswith("/rag/diagnose"):
                 project_id = path.split("/")[3]
@@ -3961,6 +4039,7 @@ server {{
                     })
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
+                return
             # 26 号护城河推演状态: GET /api/projects/{id}/moat/status
             if path.startswith("/api/projects/") and path.endswith("/moat/status"):
                 project_id = path.split("/")[3]

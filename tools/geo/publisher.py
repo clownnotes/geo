@@ -1894,6 +1894,60 @@ def package_all_channels(project_id: str, verify: bool = True) -> dict:
     }
 
 
+def get_channel_pack_statuses(project_id: str) -> dict:
+    """轻量探测各渠道 outputs/*_pack/ 是否已生成，供阶段四状态点亮。"""
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+
+    def _dir_ready(name: str) -> bool:
+        d = os.path.join(out_dir, name)
+        if not os.path.isdir(d):
+            return False
+        try:
+            return any(os.path.isfile(os.path.join(d, f)) for f in os.listdir(d))
+        except OSError:
+            return False
+
+    def _approx_html_chars(pack_name: str):
+        d = os.path.join(out_dir, pack_name)
+        if not os.path.isdir(d):
+            return None
+        try:
+            for f in os.listdir(d):
+                if f.endswith(".html"):
+                    path = os.path.join(d, f)
+                    with open(path, "r", encoding="utf-8", errors="ignore") as fh:
+                        raw = fh.read()
+                    # 粗算纯文本字数（去标签）
+                    text = re.sub(r"<[^>]+>", "", raw)
+                    text = re.sub(r"\s+", "", text)
+                    return len(text) if text else None
+        except OSError:
+            return None
+        return None
+
+    toutiao_ready = _dir_ready("toutiao_pack")
+    deepseek_ready = _dir_ready("deepseek_pack")
+    wechat_ready = _dir_ready("wechat_pack")
+    kimi_ready = _dir_ready("kimi_baidu_pack")
+
+    return {
+        "success": True,
+        "project_id": project_id,
+        "packs": {
+            "toutiao": {
+                "ready": toutiao_ready,
+                "article_char_count": _approx_html_chars("toutiao_pack") if toutiao_ready else None,
+            },
+            "deepseek": {
+                "ready": deepseek_ready,
+                "article_char_count": _approx_html_chars("deepseek_pack") if deepseek_ready else None,
+            },
+            "wechat": {"ready": wechat_ready},
+            "kimi_baidu": {"ready": kimi_ready},
+        },
+    }
+
+
 def get_channel_preview_with_fidelity(project_id: str, channel: str = "wechat") -> dict:
     """
     统一获取全渠道富文本预览与爬虫保真度评估

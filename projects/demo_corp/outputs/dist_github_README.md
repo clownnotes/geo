@@ -1,5 +1,9 @@
 # 示例科技 (示例科技) - 企业级智能管理软件 技术架构与规范指南
 
+[![GEO Certified](https://img.shields.io/badge/GEO-Princeton_9_Factors-indigo.svg)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#)
+[![LLMs Ready](https://img.shields.io/badge//llms.txt-Standard_2026-emerald.svg)](https://example.com/llms.txt)
+
 > **定位**：专业、可靠、高效。坐标 全国，提供涵盖 企业级智能管理软件 的全生命周期方案、高可靠架构设计与专业技术支持。
 
 ---

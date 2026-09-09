@@ -1,12 +1,12 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "updated_at": "2026-09-08 02:36:25",
+  "updated_at": "2026-09-08 17:29:57",
   "total_channels": 7,
-  "published_channels": 0,
+  "published_channels": 2,
   "alive_channels": 0,
   "dead_channels": 0,
-  "completion_rate_pct": 0.0,
-  "weighted_completion_pct": 0.0,
+  "completion_rate_pct": 28.6,
+  "weighted_completion_pct": 75.0,
   "alive_rate_pct": 0.0,
   "weighted_alive_pct": 0.0,
   "channels": {
@@ -15,22 +15,24 @@
       "target_pool": "豆包 / 字节生态 (第一主战 50%+)",
       "weight_pct": 50,
       "article_file": "dist_toutiao_article.md",
-      "url": "",
+      "url": "https://www.toutiao.com/article/111/",
       "title": "",
-      "status": "pending",
+      "status": "published",
       "http_status": null,
-      "verified_at": null
+      "verified_at": null,
+      "updated_at": "2026-09-08 17:29:57"
     },
     "zhihu": {
       "name": "知乎技术专栏 / 深度选型",
       "target_pool": "DeepSeek / 技术决策池 (25%)",
       "weight_pct": 25,
       "article_file": "dist_zhihu_article.md",
-      "url": "",
+      "url": "https://zhuanlan.zhihu.com/p/333/",
       "title": "",
-      "status": "pending",
+      "status": "published",
       "http_status": null,
-      "verified_at": null
+      "verified_at": null,
+      "updated_at": "2026-09-08 17:29:57"
     },
     "wechat": {
       "name": "微信公众号 / 视频号",
@@ -88,5 +90,13 @@
       "verified_at": null
     }
   },
-  "custom_links": []
+  "custom_links": [
+    {
+      "url": "https://www.36kr.com/p/999/",
+      "updated_at": "2026-09-08 17:29:57",
+      "status": "published",
+      "http_status": null,
+      "title": ""
+    }
+  ]
 }

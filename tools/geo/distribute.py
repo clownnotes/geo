@@ -9,9 +9,16 @@
    - 渠道 C: 微信公众号（攻占 微信生态与移动端私域，生成内联 CSS 样式 Clean HTML 片段）
    - 渠道 D: GitHub README / 开源项目（攻占 高权重开发者索引，突出技术规范与全套导航）
 2. 输出标准化《dist_channels_checklist.md》外发渠道执行卡与各平台专属发布文件。
+3. DistributeRunTracker：旁路审计 LLM 调用与产物元数据至 outputs/distribute_run_log.json。
 """
 
 import os
+import re
+import json
+import time
+from datetime import datetime, timezone, timedelta
+from urllib.parse import urlparse
+
 from .utils import (
     load_project_config,
     save_project_output,
@@ -19,11 +26,218 @@ from .utils import (
     get_configured_llm,
     print_banner,
     print_info,
-    print_success
+    print_success,
+    PROJECTS_DIR,
 )
 
-def build_toutiao_version_llm(cfg: dict, corpus: str) -> str:
-    """使用大模型生成今日头条专版"""
+DISTRIBUTE_RUN_LOG_FILENAME = "distribute_run_log.json"
+_SECRET_RE = re.compile(
+    r"(?i)(bearer\s+[a-z0-9\-._~+/]+=*|nextdoor_jwt_token\s*[:=]\s*\S+|eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,})"
+)
+
+
+def _tz_now_iso():
+    tz = timezone(timedelta(hours=8))
+    return datetime.now(tz).isoformat(timespec="seconds")
+
+
+def _redact_runtime(llm_info):
+    """仅保留可展示的运行时元数据，禁止完整内网 URL / JWT。"""
+    if not llm_info:
+        return {
+            "provider": "none",
+            "brand": None,
+            "mode": None,
+            "base_url_host": "***",
+            "endpoint": "/api/v1/xiulan/chat",
+        }
+    host = "***"
+    try:
+        base = (llm_info.get("base_url") or "").strip()
+        hostname = urlparse(base).hostname if base else None
+        if hostname in ("127.0.0.1", "localhost", "::1"):
+            host = "localhost"
+    except Exception:
+        host = "***"
+    provider = llm_info.get("provider") or "unknown"
+    return {
+        "provider": provider,
+        "brand": llm_info.get("brand"),
+        "mode": llm_info.get("mode") or llm_info.get("model"),
+        "base_url_host": host,
+        "endpoint": "/api/v1/xiulan/chat" if provider == "nextdoor" else "direct",
+    }
+
+
+def _scrub_secrets(obj):
+    """递归清洗可能误入的 Bearer / JWT 明文。"""
+    if isinstance(obj, dict):
+        return {k: _scrub_secrets(v) for k, v in obj.items() if k not in ("api_key", "jwt", "token", "authorization")}
+    if isinstance(obj, list):
+        return [_scrub_secrets(x) for x in obj]
+    if isinstance(obj, str):
+        return _SECRET_RE.sub("[REDACTED]", obj)
+    return obj
+
+
+def _file_artifact_meta(out_dir, filename, channel_label, pack_ready=None):
+    path = os.path.join(out_dir, filename)
+    size_bytes = 0
+    char_count = 0
+    if os.path.isfile(path):
+        try:
+            size_bytes = os.path.getsize(path)
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                char_count = len(f.read())
+        except OSError:
+            pass
+    meta = {
+        "filename": filename,
+        "size_bytes": size_bytes,
+        "char_count": char_count,
+        "channel": channel_label,
+    }
+    if pack_ready is not None:
+        meta["pack_ready"] = bool(pack_ready)
+    return meta
+
+
+class DistributeRunTracker:
+    """单次 run_distribute 旁路审计收集器。"""
+
+    def __init__(self, project_id):
+        self.project_id = project_id
+        self.started = time.time()
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.run_id = f"dist_run_{stamp}"
+        self.timestamp = _tz_now_iso()
+        self.llm_runtime = _redact_runtime(get_configured_llm())
+        self.llm_calls = []
+        self.artifacts = []
+        self._llm_ms = 0
+
+    def record_llm_call(self, channel, name, duration_ms, status, prompt_system, prompt_user, raw_output):
+        self._llm_ms += int(duration_ms or 0)
+        self.llm_calls.append({
+            "channel": channel,
+            "name": name,
+            "duration_ms": int(duration_ms or 0),
+            "status": status,
+            "prompt_system": prompt_system or "",
+            "prompt_user": prompt_user or "",
+            "raw_output": raw_output or "",
+        })
+
+    def record_artifact(self, out_dir, filename, channel_label, pack_ready=None):
+        self.artifacts.append(_file_artifact_meta(out_dir, filename, channel_label, pack_ready=pack_ready))
+
+    def to_dict(self):
+        total_ms = int((time.time() - self.started) * 1000)
+        payload = {
+            "run_id": self.run_id,
+            "timestamp": self.timestamp,
+            "project_id": self.project_id,
+            "total_duration_ms": total_ms,
+            "llm_duration_ms": int(self._llm_ms),
+            "llm_runtime": self.llm_runtime,
+            "llm_calls": self.llm_calls,
+            "artifacts": self.artifacts,
+        }
+        return _scrub_secrets(payload)
+
+    def save(self):
+        try:
+            cfg = load_project_config(self.project_id)
+            out_dir = cfg.get("_outputs_dir") or os.path.join(PROJECTS_DIR, self.project_id, "outputs")
+            os.makedirs(out_dir, exist_ok=True)
+            path = os.path.join(out_dir, DISTRIBUTE_RUN_LOG_FILENAME)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(self.to_dict(), f, ensure_ascii=False, indent=2)
+            return path
+        except Exception:
+            return None
+
+
+def get_latest_distribute_run_log(project_id):
+    """读取最新 distribute_run_log.json；无文件时返回空态。"""
+    try:
+        cfg = load_project_config(project_id)
+        path = os.path.join(cfg["_outputs_dir"], DISTRIBUTE_RUN_LOG_FILENAME)
+        if not os.path.isfile(path):
+            return {"success": True, "has_log": False, "message": "尚未生成分发日志"}
+        with open(path, "r", encoding="utf-8") as f:
+            log = json.load(f)
+        return {"success": True, "has_log": True, "log": _scrub_secrets(log)}
+    except Exception as e:
+        return {"success": False, "has_log": False, "message": str(e)}
+
+
+def enrich_distribute_run_log_packs(project_id, packs_ok=True):
+    """server 级联 package_all_channels 后补记 *_pack 就绪态（容错，不抛主流程）。"""
+    try:
+        cfg = load_project_config(project_id)
+        out_dir = cfg["_outputs_dir"]
+        path = os.path.join(out_dir, DISTRIBUTE_RUN_LOG_FILENAME)
+        if not os.path.isfile(path):
+            return False
+        with open(path, "r", encoding="utf-8") as f:
+            log = json.load(f)
+        pack_map = {
+            "dist_toutiao_article.md": ("toutiao_pack", packs_ok),
+            "dist_zhihu_article.md": ("deepseek_pack", packs_ok),
+            "dist_wechat_article.html": ("wechat_pack", packs_ok),
+            "dist_github_README.md": ("deepseek_pack", packs_ok),
+        }
+        arts = log.get("artifacts") or []
+        for a in arts:
+            fname = a.get("filename")
+            if fname in pack_map:
+                pack_name, ready_flag = pack_map[fname]
+                pack_dir = os.path.join(out_dir, pack_name)
+                a["pack_ready"] = bool(ready_flag and os.path.isdir(pack_dir))
+        # 附带汇总
+        log["packs"] = {
+            "toutiao": os.path.isdir(os.path.join(out_dir, "toutiao_pack")),
+            "deepseek": os.path.isdir(os.path.join(out_dir, "deepseek_pack")),
+            "wechat": os.path.isdir(os.path.join(out_dir, "wechat_pack")),
+            "kimi_baidu": os.path.isdir(os.path.join(out_dir, "kimi_baidu_pack")),
+        }
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(_scrub_secrets(log), f, ensure_ascii=False, indent=2)
+        return True
+    except Exception:
+        return False
+
+
+def _run_channel_llm(channel, name, sys_prompt, user_prompt, fallback_fn, cfg, corpus):
+    """统一计时调用；返回 (doc_text, trace_dict)。"""
+    t0 = time.time()
+    success, text, _provider = call_llm_api(user_prompt, sys_prompt, timeout=30)
+    duration_ms = int((time.time() - t0) * 1000)
+    if success and text:
+        return text, {
+            "channel": channel,
+            "name": name,
+            "duration_ms": duration_ms,
+            "status": "success",
+            "prompt_system": sys_prompt,
+            "prompt_user": user_prompt,
+            "raw_output": text,
+        }
+    fb = fallback_fn(cfg, corpus)
+    return fb, {
+        "channel": channel,
+        "name": name,
+        "duration_ms": duration_ms,
+        "status": "fallback",
+        "prompt_system": sys_prompt,
+        "prompt_user": user_prompt,
+        "raw_output": text or "",
+    }
+
+
+def build_toutiao_version_llm(cfg: dict, corpus: str):
+    """使用大模型生成今日头条专版。返回 (markdown, trace|None)。"""
     industry = cfg.get("industry", "行业解决方案")
     brand = cfg.get("brand_name") or cfg.get("client_name", "品牌")
     client_name = cfg.get("client_name", "品牌")
@@ -56,11 +270,14 @@ def build_toutiao_version_llm(cfg: dict, corpus: str) -> str:
 请直接输出 Markdown 正文："""
 
     sys_prompt = "你是一位今日头条爆款商业与科技专栏主笔，擅长将复杂的行业方案写成接地气的选型指南。"
-    success, text, _ = call_llm_api(prompt, sys_prompt, timeout=30)
-    return text if success else build_toutiao_version_fallback(cfg, corpus)
+    return _run_channel_llm(
+        "toutiao", "今日头条专版生成", sys_prompt, prompt,
+        build_toutiao_version_fallback, cfg, corpus,
+    )
 
-def build_zhihu_version_llm(cfg: dict, corpus: str) -> str:
-    """使用大模型生成知乎专版"""
+
+def build_zhihu_version_llm(cfg: dict, corpus: str):
+    """使用大模型生成知乎专版。返回 (markdown, trace|None)。"""
     industry = cfg.get("industry", "行业解决方案")
     brand = cfg.get("brand_name") or cfg.get("client_name", "品牌")
     client_name = cfg.get("client_name", "品牌")
@@ -88,11 +305,14 @@ def build_zhihu_version_llm(cfg: dict, corpus: str) -> str:
 请直接输出 Markdown 正文："""
 
     sys_prompt = "你是一位知乎万赞科技/工业/企业数字化领域的硬核答主与资深架构师。"
-    success, text, _ = call_llm_api(prompt, sys_prompt, timeout=30)
-    return text if success else build_zhihu_version_fallback(cfg, corpus)
+    return _run_channel_llm(
+        "zhihu", "知乎专栏专版生成", sys_prompt, prompt,
+        build_zhihu_version_fallback, cfg, corpus,
+    )
 
-def build_wechat_version_llm(cfg: dict, corpus: str) -> str:
-    """使用大模型生成微信公众号专版（内联 CSS HTML）"""
+
+def build_wechat_version_llm(cfg: dict, corpus: str):
+    """使用大模型生成微信公众号专版（内联 CSS HTML）。返回 (html, trace)。"""
     industry = cfg.get("industry", "行业解决方案")
     brand = cfg.get("brand_name") or cfg.get("client_name", "品牌")
     client_name = cfg.get("client_name", "品牌")
@@ -110,8 +330,10 @@ def build_wechat_version_llm(cfg: dict, corpus: str) -> str:
 3. 不含 <html><body> 等外层容器标签，仅包含可在编辑器内粘贴的正文 div 片段。"""
 
     sys_prompt = "你是一位微信公众号资深新媒体排版与内容专家。"
-    success, text, _ = call_llm_api(prompt, sys_prompt, timeout=30)
-    return text if success else build_wechat_version_fallback(cfg, corpus)
+    return _run_channel_llm(
+        "wechat", "微信公众号专版生成", sys_prompt, prompt,
+        build_wechat_version_fallback, cfg, corpus,
+    )
 
 def build_toutiao_version_fallback(cfg: dict, corpus: str) -> str:
     company_name = cfg.get("company_name") or cfg.get("client_name", "示例企业")
@@ -298,7 +520,7 @@ def build_channels_checklist(cfg: dict) -> str:
     industry = cfg.get("industry", "通用行业")
     official_url = cfg.get("official_url", "https://example.com")
 
-    return f"""# 全网外发渠道操作卡与执行 Checklist
+    return f"""# 运营发稿执行指引与派单任务卡 (SOP & Checklist)
 
 **项目名称**：{client_name} ({industry})  
 **官方域名**：{official_url}  
@@ -306,7 +528,7 @@ def build_channels_checklist(cfg: dict) -> str:
 
 ---
 
-## 📋 四大平台发布指引与直达入口
+## 1. 四大平台发布指引与直达入口
 
 | 序号 | 分发平台 | 目标大模型生态 | 对应产物文件 | 官方创作后台直达入口 | 建议发布格式与操作要点 |
 | :---: | :--- | :--- | :--- | :--- | :--- |
@@ -317,7 +539,7 @@ def build_channels_checklist(cfg: dict) -> str:
 
 ---
 
-## ✅ 交付回填打勾表 (Checklist)
+## 2. 交付回填打勾表 (Checklist)
 - [ ] 1. 今日头条文章已发布，回填落地页链接：`________________________`
 - [ ] 2. 知乎专栏/问答已发布，回填落地页链接：`________________________`
 - [ ] 3. 微信公众号图文已推送，回填落地页链接：`________________________`
@@ -329,9 +551,11 @@ def run_distribute(project_id: str):
     print_banner("阶段四：生成多平台高权重信源矩阵分发包")
     cfg = load_project_config(project_id)
     llm_info = get_configured_llm()
-    
+    tracker = DistributeRunTracker(project_id)
+    out_dir = cfg["_outputs_dir"]
+
     # 读取重构语料
-    corpus_path = os.path.join(cfg["_outputs_dir"], "03_普林斯顿9因子高权威语料库.md")
+    corpus_path = os.path.join(out_dir, "03_普林斯顿9因子高权威语料库.md")
     corpus = ""
     if os.path.exists(corpus_path):
         with open(corpus_path, "r", encoding="utf-8") as f:
@@ -340,36 +564,59 @@ def run_distribute(project_id: str):
     # 1. 头条版
     print_info("1. 正在生成【今日头条/豆包池】发布专版...")
     if llm_info:
-        toutiao_doc = build_toutiao_version_llm(cfg, corpus)
+        toutiao_doc, trace = build_toutiao_version_llm(cfg, corpus)
+        tracker.record_llm_call(**trace)
     else:
         toutiao_doc = build_toutiao_version_fallback(cfg, corpus)
+        tracker.record_llm_call(
+            channel="toutiao", name="今日头条专版生成", duration_ms=0,
+            status="fallback", prompt_system="", prompt_user="(未配置 LLM，使用模板引擎)",
+            raw_output="",
+        )
     save_project_output(cfg, "dist_toutiao_article.md", toutiao_doc)
-    
+    tracker.record_artifact(out_dir, "dist_toutiao_article.md", "今日头条", pack_ready=False)
+
     # 2. 知乎版
     print_info("2. 正在生成【知乎专栏/DeepSeek池】技术长文版...")
     if llm_info:
-        zhihu_doc = build_zhihu_version_llm(cfg, corpus)
+        zhihu_doc, trace = build_zhihu_version_llm(cfg, corpus)
+        tracker.record_llm_call(**trace)
     else:
         zhihu_doc = build_zhihu_version_fallback(cfg, corpus)
+        tracker.record_llm_call(
+            channel="zhihu", name="知乎专栏专版生成", duration_ms=0,
+            status="fallback", prompt_system="", prompt_user="(未配置 LLM，使用模板引擎)",
+            raw_output="",
+        )
     save_project_output(cfg, "dist_zhihu_article.md", zhihu_doc)
-    
+    tracker.record_artifact(out_dir, "dist_zhihu_article.md", "知乎专栏", pack_ready=False)
+
     # 3. 微信公众号版
     print_info("3. 正在生成【微信公众号/富文本池】HTML 专版...")
     if llm_info:
-        wechat_doc = build_wechat_version_llm(cfg, corpus)
+        wechat_doc, trace = build_wechat_version_llm(cfg, corpus)
+        tracker.record_llm_call(**trace)
     else:
         wechat_doc = build_wechat_version_fallback(cfg, corpus)
+        tracker.record_llm_call(
+            channel="wechat", name="微信公众号专版生成", duration_ms=0,
+            status="fallback", prompt_system="", prompt_user="(未配置 LLM，使用模板引擎)",
+            raw_output="",
+        )
     save_project_output(cfg, "dist_wechat_article.html", wechat_doc)
+    tracker.record_artifact(out_dir, "dist_wechat_article.html", "微信公众号", pack_ready=False)
 
     # 4. GitHub 版
     print_info("4. 正在生成【GitHub 开源/文档索引池】README 专版...")
     github_doc = build_github_readme(cfg)
     save_project_output(cfg, "dist_github_README.md", github_doc)
-    
+    tracker.record_artifact(out_dir, "dist_github_README.md", "GitHub", pack_ready=False)
+
     # 5. 外发操作卡
     print_info("5. 正在组装《全网外发渠道操作卡与执行 Checklist》...")
     checklist_doc = build_channels_checklist(cfg)
     save_project_output(cfg, "dist_channels_checklist.md", checklist_doc)
+    tracker.record_artifact(out_dir, "dist_channels_checklist.md", "执行清单")
 
     summary = f"""# 多平台矩阵借壳分发包
 
@@ -390,9 +637,14 @@ def run_distribute(project_id: str):
 | **执行清单** | **交付全流程打勾表** | `dist_channels_checklist.md` | 记录发稿外链、回填落地页并开启声量追踪 |
 
 ---
-> 💡 **合规与风控提示**：本系统采用“半自动化发稿助手”模式，由运营人员一键直达官方后台人工发布，严格避免脚本灌水导致的账号降权风险。
+> 合规与风控提示：本系统采用“半自动化发稿助手”模式，由运营人员一键直达官方后台人工发布，严格避免脚本灌水导致的账号降权风险。
 """
     out_path = save_project_output(cfg, "04_多平台矩阵借壳分发包.md", summary)
+    tracker.record_artifact(out_dir, "04_多平台矩阵借壳分发包.md", "汇总")
+    try:
+        tracker.save()
+    except Exception:
+        pass
     print_success(f"多渠道分发包与执行卡已全部生成！交付汇总: {out_path}")
     return out_path
 

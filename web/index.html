@@ -790,40 +790,86 @@
 
       <!-- ===== STEP 4 PANEL ===== -->
       <div id="step-panel-4" class="hidden space-y-6">
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h2 class="text-base font-bold text-slate-900">阶段四：多平台高权重信源矩阵半自动化分发</h2>
-            <p class="text-xs text-slate-500 mt-1">自适应适配今日头条（打豆包）、知乎长文（打DeepSeek）、微信公众号（内联HTML）与 GitHub 开源技术专版。</p>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 class="text-base font-bold text-slate-900">阶段四：多平台高权重信源矩阵分发</h2>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">MVP · 75%+ 本土 AI 信任池</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">先打透豆包（头条 50%+）与 DeepSeek（知乎 25%+）；微信 / GitHub / Kimi / 百度按客单与行业按需展开。</p>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
             <button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition">
               <i data-lucide="share-2" class="w-4 h-4"></i>
-              <span>生成矩阵发布包</span>
+              <span>一键生成核心矩阵发布包</span>
             </button>
           </div>
         </div>
 
-        <!-- 渠道进度跳转条（非说明书） -->
+        <!-- 阶段四工作日志状态条 -->
+        <div id="distribute-run-status-bar" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 flex items-center justify-center shrink-0">
+              <i data-lucide="scroll-text" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-slate-800">最新工作日志 / 大模型调用轨迹</div>
+              <p id="distribute-run-status-text" class="text-[11px] text-slate-500 mt-0.5 truncate">尚未执行。生成矩阵发布包后，将在此显示耗时、模型与产物摘要。</p>
+            </div>
+          </div>
+          <button type="button" id="btn-open-distribute-log" onclick="openDistributeLogModal()" disabled
+            class="py-2 px-3.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-400 cursor-not-allowed shrink-0 flex items-center gap-1.5">
+            <i data-lucide="panel-right-open" class="w-3.5 h-3.5"></i>
+            <span>查看完整工作日志</span>
+          </button>
+        </div>
+
+        <!-- 新客交付 3 步指引 -->
+        <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4 text-xs text-slate-700 space-y-2.5">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
+              <i data-lucide="compass" class="w-4 h-4 text-indigo-600"></i>
+              <span>新客交付 3 步走动线引导</span>
+            </span>
+            <span class="text-[10px] text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-full font-semibold">标准化闭环</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+            <div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">1</span>
+              <span><strong>一键生成</strong>：顶部生成 Markdown + 全渠道发稿包</span>
+            </div>
+            <div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">2</span>
+              <span><strong>直达发稿</strong>：复制头条 / 知乎富文本，直达后台粘贴</span>
+            </div>
+            <div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+              <span><strong>回填探活</strong>：下方贴入已发布外链，一键检测 200 存活</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 渠道进度跳转条 -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <button type="button" onclick="document.getElementById('pack-card-toutiao').scrollIntoView({behavior:'smooth',block:'start'})" class="bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 text-left hover:bg-red-100 transition">
+          <button type="button" onclick="scrollToPackCard('pack-card-toutiao')" class="bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 text-left hover:bg-red-100 transition">
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs font-bold text-red-900">头条 / 豆包</span>
               <span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white px-1.5 py-0.5 rounded-full border border-red-100">待发稿包</span>
             </div>
           </button>
-          <button type="button" onclick="document.getElementById('pack-card-zhihu').scrollIntoView({behavior:'smooth',block:'start'})" class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-left hover:bg-blue-100 transition">
+          <button type="button" onclick="scrollToPackCard('pack-card-zhihu')" class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-left hover:bg-blue-100 transition">
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs font-bold text-blue-900">知乎 / DeepSeek</span>
               <span id="deepseek-pack-status" class="text-[10px] font-semibold text-blue-600 bg-white px-1.5 py-0.5 rounded-full border border-blue-100">待发稿包</span>
             </div>
           </button>
-          <button type="button" onclick="document.getElementById('pack-card-wechat').scrollIntoView({behavior:'smooth',block:'start'})" class="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5 text-left hover:bg-emerald-100 transition">
+          <button type="button" onclick="scrollToPackCard('pack-card-wechat')" class="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5 text-left hover:bg-emerald-100 transition">
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs font-bold text-emerald-900">微信 / 元宝</span>
               <span id="wechat-pack-status" class="text-[10px] font-semibold text-emerald-600 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100">待发稿包</span>
             </div>
           </button>
-          <button type="button" onclick="document.getElementById('pack-card-kimi').scrollIntoView({behavior:'smooth',block:'start'})" class="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2.5 text-left hover:bg-purple-100 transition">
+          <button type="button" onclick="scrollToPackCard('pack-card-kimi')" class="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2.5 text-left hover:bg-purple-100 transition">
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs font-bold text-purple-900">Kimi / 百度</span>
               <span id="kimi-baidu-pack-status" class="text-[10px] font-semibold text-purple-600 bg-white px-1.5 py-0.5 rounded-full border border-purple-100">待发稿包</span>
@@ -831,189 +877,213 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <!-- 1. 今日头条 -->
-          <div id="pack-card-toutiao" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between scroll-mt-24">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2 text-red-600 font-bold text-sm">
-                  <i data-lucide="file-text" class="w-4 h-4"></i>
-                  <span>今日头条 / 豆包生态 (50%+)</span>
-                </div>
-                <span id="toutiao-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">保真度: 97.5</span>
-              </div>
-              <p class="text-xs text-slate-500 mb-4">攻占字节 Bytespider 检索信任池，附微头条短动态。</p>
-            </div>
-            <div class="space-y-2">
-              <button onclick="buildToutiaoPack()" class="w-full py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-red-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成头条发稿包</span>
-              </button>
-              <button onclick="copyToutiaoRichHtml()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制富文本长文</span>
-              </button>
-              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
-                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
-                <div class="px-2 pb-2 space-y-1.5">
-                  <button onclick="openCleanMarkdownDrawer('toutiao')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span></button>
-                  <button onclick="copyToutiaoMicroPosts()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制微头条 3 组文案</span></button>
-                  <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制 Markdown 分发稿</span></button>
-                  <a href="https://mp.toutiao.com/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达头条号后台</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
-                </div>
-              </details>
-            </div>
+        <!-- MVP 核心主战区 -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-sm font-bold text-slate-800">MVP 核心主战区</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">必做 · 豆包 + DeepSeek</span>
           </div>
-
-          <!-- 2. 知乎 -->
-          <div id="pack-card-zhihu" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between scroll-mt-24">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2 text-blue-600 font-bold text-sm">
-                  <i data-lucide="book-open" class="w-4 h-4"></i>
-                  <span>知乎专栏 / DeepSeek (25%+)</span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- 今日头条 -->
+            <div id="pack-card-toutiao" class="bg-white p-5 rounded-xl border border-red-200 shadow-sm flex flex-col justify-between scroll-mt-24 ring-1 ring-red-50">
+              <div>
+                <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                  <div class="flex items-center gap-2 text-red-600 font-bold text-sm">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span>今日头条 / 豆包生态 (50%+)</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span id="toutiao-card-pack-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">待发稿包</span>
+                    <span id="toutiao-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">保真度: --</span>
+                  </div>
                 </div>
-                <span id="zhihu-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">保真度: 97.5</span>
+                <p class="text-xs text-slate-500 mb-4">攻占字节 Bytespider 检索信任池；发稿后回填 URL 到下方台账。</p>
               </div>
-              <p class="text-xs text-slate-500 mb-4">攻占 CTO 与架构师技术深度池。</p>
-            </div>
-            <div class="space-y-2">
-              <button onclick="buildDeepseekPack()" class="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-blue-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成 DeepSeek 技术包</span>
-              </button>
-              <button onclick="copyZhihuRichHtml()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制知乎富文本长文</span>
-              </button>
-              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
-                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
-                <div class="px-2 pb-2 space-y-1.5">
-                  <button onclick="openCleanMarkdownDrawer('zhihu')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span></button>
-                  <button onclick="copyDeepseekZhihu()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制 Markdown 选型稿</span></button>
-                  <button onclick="copyDeepseekLlms()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg border border-indigo-200 flex items-center justify-center gap-1.5"><i data-lucide="cpu" class="w-3.5 h-3.5"></i><span>复制 DeepSeek 极简底座</span></button>
-                  <a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达知乎创作中心</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
-                </div>
-              </details>
-            </div>
-          </div>
-
-          <!-- 3. 微信 -->
-          <div id="pack-card-wechat" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between scroll-mt-24">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2 text-emerald-600 font-bold text-sm">
-                  <i data-lucide="message-square" class="w-4 h-4"></i>
-                  <span>微信生态 / 腾讯元宝 (10%+)</span>
-                </div>
-                <span id="wechat-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">保真度: 91.7</span>
+              <div class="space-y-2">
+                <button onclick="copyToutiaoRichHtml()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制富文本长文</span>
+                </button>
+                <a href="https://mp.toutiao.com/" target="_blank" class="w-full py-2 bg-white hover:bg-red-50 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center justify-center gap-1.5">
+                  <span>直达头条号后台</span><i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+                <details class="rounded-lg border border-slate-200 bg-slate-50/80">
+                  <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                  <div class="px-2 pb-2 space-y-1.5">
+                    <button onclick="buildToutiaoPack()" class="w-full py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>单独生成头条发稿包</span></button>
+                    <button onclick="openCleanMarkdownDrawer('toutiao')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span></button>
+                    <button onclick="copyToutiaoMicroPosts()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制微头条 3 组文案</span></button>
+                    <button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制 Markdown 分发稿</span></button>
+                  </div>
+                </details>
               </div>
-              <p class="text-xs text-slate-500 mb-4">内联富文本 + 视频号 60 秒口播 + 私域名片。</p>
             </div>
-            <div class="space-y-2">
-              <button onclick="buildWechatPack()" class="w-full py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-emerald-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成微信发稿包</span>
-              </button>
-              <button onclick="copyWechatRichHtml()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制微信富文本</span>
-              </button>
-              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
-                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
-                <div class="px-2 pb-2 space-y-1.5">
-                  <button onclick="openCleanMarkdownDrawer('wechat')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span></button>
-                  <button onclick="copyWechatVideoScript()" class="w-full py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="video" class="w-3.5 h-3.5"></i><span>复制视频号 60s 脚本</span></button>
-                  <button onclick="copyWechatSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制搜一搜词库与 SOP</span></button>
-                  <a href="https://mp.weixin.qq.com/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达公众号平台</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
-                </div>
-              </details>
-            </div>
-          </div>
 
-          <!-- 4. GitHub -->
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center gap-2 text-slate-800 font-bold text-sm mb-2">
-                <i data-lucide="github" class="w-4 h-4"></i>
-                <span>GitHub 开源生态</span>
-              </div>
-              <p class="text-xs text-slate-500 mb-4">开发者索引：Shields 徽标与 Mermaid 架构图。</p>
-            </div>
-            <div class="space-y-2">
-              <button onclick="buildDeepseekPack()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-slate-300">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成 GitHub 技术包</span>
-              </button>
-              <button onclick="copyDeepseekReadme()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制开源 README</span>
-              </button>
-              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
-                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
-                <div class="px-2 pb-2 space-y-1.5">
-                  <button onclick="copyDeepseekSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制开源分发 SOP</span></button>
-                  <a href="https://github.com/new" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达 GitHub New</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+            <!-- 知乎 -->
+            <div id="pack-card-zhihu" class="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-between scroll-mt-24 ring-1 ring-blue-50">
+              <div>
+                <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                  <div class="flex items-center gap-2 text-blue-600 font-bold text-sm">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    <span>知乎专栏 / DeepSeek (25%+)</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span id="deepseek-card-pack-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">待发稿包</span>
+                    <span id="zhihu-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">保真度: --</span>
+                  </div>
                 </div>
-              </details>
-            </div>
-          </div>
-
-          <!-- 5. Kimi -->
-          <div id="pack-card-kimi" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between scroll-mt-24">
-            <div>
-              <div class="flex items-center gap-2 text-purple-600 font-bold text-sm mb-2">
-                <i data-lucide="file-check" class="w-4 h-4"></i>
-                <span>Kimi 研报与长文本 (8%)</span>
+                <p class="text-xs text-slate-500 mb-4">攻占 CTO 与架构师技术深度池；发稿后回填 URL 到下方台账。</p>
               </div>
-              <p class="text-xs text-slate-500 mb-4">行业深度选型白皮书，适配 Kimi 长文本抽取。</p>
-            </div>
-            <div class="space-y-2">
-              <button onclick="buildKimiBaiduPack()" class="w-full py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-purple-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成 Kimi/百度包</span>
-              </button>
-              <button onclick="copyKimiWhitepaper()" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制行业白皮书</span>
-              </button>
-              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
-                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
-                <div class="px-2 pb-2 space-y-1.5">
-                  <button onclick="copyKimiBaiduSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制长文本分发 SOP</span></button>
-                  <a href="https://kimi.moonshot.cn/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达 Kimi 平台</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
-                </div>
-              </details>
-            </div>
-          </div>
-
-          <!-- 6. 百度 -->
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center gap-2 text-sky-600 font-bold text-sm mb-2">
-                <i data-lucide="award" class="w-4 h-4"></i>
-                <span>百度百科与文库 (7%)</span>
+              <div class="space-y-2">
+                <button onclick="copyZhihuRichHtml()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制知乎富文本长文</span>
+                </button>
+                <a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-2 bg-white hover:bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 flex items-center justify-center gap-1.5">
+                  <span>直达知乎创作中心</span><i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+                <details class="rounded-lg border border-slate-200 bg-slate-50/80">
+                  <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                  <div class="px-2 pb-2 space-y-1.5">
+                    <button onclick="buildDeepseekPack()" class="w-full py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>单独生成 DeepSeek 技术包</span></button>
+                    <button onclick="openCleanMarkdownDrawer('zhihu')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span></button>
+                    <button onclick="copyDeepseekZhihu()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制 Markdown 选型稿</span></button>
+                    <button onclick="copyDeepseekLlms()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg border border-indigo-200 flex items-center justify-center gap-1.5"><i data-lucide="cpu" class="w-3.5 h-3.5"></i><span>复制 DeepSeek 极简底座</span></button>
+                  </div>
+                </details>
               </div>
-              <p class="text-xs text-slate-500 mb-4">百科词条草案 + 文库/知道权威 Q&A。</p>
-            </div>
-            <div class="space-y-2">
-              <button onclick="buildKimiBaiduPack()" class="w-full py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 border border-sky-200">
-                <i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成百度/Kimi包</span>
-              </button>
-              <button onclick="copyBaiduBaike()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制百度百科草案</span>
-              </button>
-              <details class="rounded-lg border border-slate-200 bg-slate-50/80">
-                <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
-                <div class="px-2 pb-2 space-y-1.5">
-                  <button onclick="copyBaiduQa()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg border border-indigo-200 flex items-center justify-center gap-1.5"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i><span>复制百度文库 Q&A 对</span></button>
-                  <a href="https://baike.baidu.com/create" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达百度百科创建</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
-                </div>
-              </details>
             </div>
           </div>
         </div>
+
+        <!-- 按需拓展生态（默认折叠） -->
+        <details id="extended-ecosystems" class="bg-white rounded-xl border border-slate-200 shadow-sm scroll-mt-24 group">
+          <summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between gap-3 select-none">
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-bold text-slate-800">按需拓展生态</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">默认折叠 · 高客单 / 私域 / 技术型</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">微信 10% · GitHub 10% · Kimi 8% · 百度 7% — 按行业场景展开</p>
+            </div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-slate-100 pt-4">
+            <!-- 微信 -->
+            <div id="pack-card-wechat" class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 flex flex-col justify-between scroll-mt-24">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2 text-emerald-600 font-bold text-sm">
+                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                    <span>微信 / 元宝 (10%+)</span>
+                  </div>
+                  <span id="wechat-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">保真度: --</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-1">适用：实体加盟 / 本地生活 / 私域强转化</p>
+                <p class="text-xs text-slate-500 mb-3">内联富文本 + 视频号 60 秒口播 + 私域名片。</p>
+              </div>
+              <div class="space-y-2">
+                <button onclick="copyWechatRichHtml()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制微信富文本</span>
+                </button>
+                <details class="rounded-lg border border-slate-200 bg-white">
+                  <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                  <div class="px-2 pb-2 space-y-1.5">
+                    <button onclick="buildWechatPack()" class="w-full py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成微信发稿包</span></button>
+                    <button onclick="openCleanMarkdownDrawer('wechat')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视</span></button>
+                    <button onclick="copyWechatVideoScript()" class="w-full py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="video" class="w-3.5 h-3.5"></i><span>复制视频号 60s 脚本</span></button>
+                    <button onclick="copyWechatSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制搜一搜词库与 SOP</span></button>
+                    <a href="https://mp.weixin.qq.com/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达公众号平台</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                  </div>
+                </details>
+              </div>
+            </div>
+
+            <!-- GitHub -->
+            <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 text-slate-800 font-bold text-sm mb-2">
+                  <i data-lucide="github" class="w-4 h-4"></i>
+                  <span>GitHub 开源</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-1">适用：SaaS / 数字化外包 / 技术型企业</p>
+                <p class="text-xs text-slate-500 mb-3">Shields 徽标与 Mermaid 架构图。</p>
+              </div>
+              <div class="space-y-2">
+                <button onclick="copyDeepseekReadme()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制开源 README</span>
+                </button>
+                <details class="rounded-lg border border-slate-200 bg-white">
+                  <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                  <div class="px-2 pb-2 space-y-1.5">
+                    <button onclick="buildDeepseekPack()" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg border border-slate-300 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成 GitHub 技术包</span></button>
+                    <button onclick="copyDeepseekSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制开源分发 SOP</span></button>
+                    <a href="https://github.com/new" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达 GitHub New</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                  </div>
+                </details>
+              </div>
+            </div>
+
+            <!-- Kimi -->
+            <div id="pack-card-kimi" class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 flex flex-col justify-between scroll-mt-24">
+              <div>
+                <div class="flex items-center gap-2 text-purple-600 font-bold text-sm mb-2">
+                  <i data-lucide="file-check" class="w-4 h-4"></i>
+                  <span>Kimi 研报 (8%)</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-1">适用：行业咨询 / IPO 律所 / 高客单大案</p>
+                <p class="text-xs text-slate-500 mb-3">行业深度选型白皮书，适配长文本抽取。</p>
+              </div>
+              <div class="space-y-2">
+                <button onclick="copyKimiWhitepaper()" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制行业白皮书</span>
+                </button>
+                <details class="rounded-lg border border-slate-200 bg-white">
+                  <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                  <div class="px-2 pb-2 space-y-1.5">
+                    <button onclick="buildKimiBaiduPack()" class="w-full py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成 Kimi/百度包</span></button>
+                    <button onclick="copyKimiBaiduSop()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i><span>复制长文本分发 SOP</span></button>
+                    <a href="https://kimi.moonshot.cn/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达 Kimi 平台</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                  </div>
+                </details>
+              </div>
+            </div>
+
+            <!-- 百度 -->
+            <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 text-sky-600 font-bold text-sm mb-2">
+                  <i data-lucide="award" class="w-4 h-4"></i>
+                  <span>百度百科 (7%)</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-1">适用：集团品牌 / 政企背书认证</p>
+                <p class="text-xs text-slate-500 mb-3">百科词条草案 + 文库/知道权威 Q&A。</p>
+              </div>
+              <div class="space-y-2">
+                <button onclick="copyBaiduBaike()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制百度百科草案</span>
+                </button>
+                <details class="rounded-lg border border-slate-200 bg-white">
+                  <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+                  <div class="px-2 pb-2 space-y-1.5">
+                    <button onclick="buildKimiBaiduPack()" class="w-full py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold rounded-lg border border-sky-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>生成百度/Kimi包</span></button>
+                    <button onclick="copyBaiduQa()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg border border-indigo-200 flex items-center justify-center gap-1.5"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i><span>复制百度文库 Q&A 对</span></button>
+                    <a href="https://baike.baidu.com/create" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1"><span>直达百度百科创建</span><i data-lucide="external-link" class="w-3 h-3"></i></a>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </details>
 
         <!-- 全渠道分发台账与外链回填看板 -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
-              <div class="flex items-center gap-2">
-                <span class="text-base font-bold text-slate-900">🚀 全渠道落地台账与自动化外链回填</span>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-base font-bold text-slate-900">全渠道落地台账与外链回填</span>
                 <span id="dist-completion-badge" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold">完成率: 0.0%</span>
                 <span id="dist-weighted-badge" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-bold">战略存活率: 0.0%</span>
               </div>
-              <p class="text-xs text-slate-500 mt-1">支持智能多行混合文本 URL 自动识别入账，并发检测 200/404 存活状态并同步输出《04_全网分发渠道执行与存活台账.md》。</p>
+              <p class="text-xs text-slate-500 mt-1">支持智能多行混合文本 URL 自动识别入账，并发检测存活状态并同步《04_全网分发渠道执行与存活台账.md》。</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
               <button onclick="openBatchBackfillModal()" class="py-2 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-indigo-200 shadow-sm">
@@ -1031,7 +1101,6 @@
             </div>
           </div>
 
-          <!-- 5 大渠道台账列表 -->
           <div id="dist-channels-ledger-list" class="space-y-3">
             <div class="text-slate-400 text-xs text-center py-4">加载分发台账中...</div>
           </div>
@@ -1041,16 +1110,19 @@
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center shrink-0">
-              <i data-lucide="check-square" class="w-5 h-5"></i>
+              <i data-lucide="clipboard-check" class="w-5 h-5"></i>
             </div>
             <div>
-              <div class="text-xs font-bold text-slate-800">📄 交付外发渠道操作卡与 Checklist (dist_channels_checklist.md)</div>
-              <div class="text-xs text-slate-500 mt-0.5">提供包含发布频率建议、合规提醒与外发链接回填表的标准交付文档。</div>
+              <div class="text-xs font-bold text-slate-800 flex items-center gap-2">
+                <span>运营发稿执行指引与派单任务卡 (SOP)</span>
+                <span class="text-[10px] font-normal text-slate-400 font-mono">dist_channels_checklist.md</span>
+              </div>
+              <div class="text-xs text-slate-500 mt-0.5">汇总各平台后台直达入口、对应发稿文件、发布要点与打勾回填项；可一键复制直接发给运营同事或客户照单执行。</div>
             </div>
           </div>
           <button onclick="copyOutput('dist_channels_checklist.md')" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shrink-0">
             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>复制操作清单</span>
+            <span>一键复制发稿 SOP 派单卡</span>
           </button>
         </div>
       </div>
@@ -2306,6 +2378,49 @@
           <div id="vis-video-script-container" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm markdown-body max-h-[500px] overflow-y-auto">
             <div class="text-slate-400">脚本加载中...</div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 阶段四：矩阵分发工作日志与大模型调用轨迹 ================= -->
+  <div id="distribute-log-modal" onclick="if(event.target===this)closeDistributeLogModal()" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+    <div class="max-w-5xl w-full max-h-[90vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
+        <div class="min-w-0">
+          <h3 class="text-sm font-bold text-slate-900 truncate">阶段四矩阵分发完整工作日志与大模型调用轨迹</h3>
+          <p id="distribute-log-meta" class="text-[11px] text-slate-500 mt-0.5 truncate">—</p>
+        </div>
+        <button type="button" onclick="closeDistributeLogModal()" class="py-1.5 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 shrink-0">
+          <span>关闭</span>
+          <span class="text-[10px] text-slate-400 font-medium">ESC</span>
+        </button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-5 space-y-5">
+        <div id="distribute-log-overview" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+        <div>
+          <div class="text-xs font-bold text-slate-800 mb-2">生成资产明细</div>
+          <div class="overflow-x-auto border border-slate-200 rounded-xl">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-50 text-slate-500">
+                <tr>
+                  <th class="px-3 py-2 font-semibold">文件</th>
+                  <th class="px-3 py-2 font-semibold">渠道</th>
+                  <th class="px-3 py-2 font-semibold">字符数</th>
+                  <th class="px-3 py-2 font-semibold">大小</th>
+                  <th class="px-3 py-2 font-semibold">发稿包</th>
+                </tr>
+              </thead>
+              <tbody id="distribute-log-artifacts" class="divide-y divide-slate-100 text-slate-700"></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+            <div class="text-xs font-bold text-slate-800">大模型调用详情与提示词复盘</div>
+            <div id="distribute-log-call-tabs" class="flex items-center gap-1.5 flex-wrap"></div>
+          </div>
+          <div id="distribute-log-call-detail" class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-3 text-xs"></div>
         </div>
       </div>
     </div>
@@ -5652,6 +5767,12 @@ GitHub 开源仓库：https://github.com/company/repo
         loadCorpusStatus();
         handleCorpusDiff();
       }
+      if (step === 4) {
+        loadChannelPackStatuses();
+        loadDistributionLedger();
+        loadFidelityScoresForCards();
+        loadDistributeRunLog();
+      }
       updateRouteState();
       lucide.createIcons();
     }
@@ -5674,7 +5795,7 @@ GitHub 开源仓库：https://github.com/company/repo
       }
 
       const controller = new AbortController();
-      const timeoutMs = stepName === 'rewrite' ? 180000 : 120000;
+      const timeoutMs = (stepName === 'rewrite' || stepName === 'distribute') ? 180000 : 120000;
       const timer = setTimeout(() => controller.abort(), timeoutMs);
 
       try {
@@ -5695,6 +5816,15 @@ GitHub 开源仓库：https://github.com/company/repo
             refreshLlmStatus(false);
             loadCorpusStatus();
             handleCorpusDiff();
+          } else if (stepName === 'distribute') {
+            if (data.packs) applyChannelPackStatuses(data.packs);
+            else await loadChannelPackStatuses();
+            await loadDistributeRunLog();
+            if (data.pack_error) {
+              showToast((data.message || 'Markdown 已就绪') + ' · 发稿包: ' + data.pack_error, 'error');
+            } else {
+              showToast(data.message || '矩阵 Markdown 与全渠道发稿包已生成');
+            }
           } else {
             showToast(data.message || '步骤执行完成！');
           }
@@ -5945,6 +6075,8 @@ GitHub 开源仓库：https://github.com/company/repo
       // Step 4
       loadDistributionLedger();
       loadFidelityScoresForCards();
+      loadChannelPackStatuses();
+      loadDistributeRunLog();
       // Step 5
       loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
       loadMonitorDashboardMetrics();
@@ -8667,19 +8799,66 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     async function copyOutput(filename) {
+      if (!currentProjectId) {
+        showToast('请先选择或加载客户项目！', 'error');
+        return;
+      }
       try {
-        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent(filename)}`, {
-          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        const fetchOnce = () => fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent(filename)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken || ''}` }
         });
-        const data = await res.json();
+        let res = await fetchOnce();
+        // 登录失效时尝试刷新本地开发 token 后重试一次
+        if (res.status === 401) {
+          try {
+            const st = await fetch('/api/auth/status');
+            const stData = await st.json();
+            if (stData.token) {
+              currentAuthToken = stData.token;
+              localStorage.setItem('geo_token', stData.token);
+              res = await fetchOnce();
+            }
+          } catch (_) { /* ignore and fall through */ }
+        }
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (_) {
+          showToast(`复制失败: 服务端异常 (HTTP ${res.status})`, 'error');
+          return;
+        }
         if (data.success && data.content) {
-          navigator.clipboard.writeText(data.content);
-          showToast(`已复制【${filename}】到剪贴板！`);
+          let copied = false;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(data.content);
+              copied = true;
+            } catch (clipErr) {
+              console.warn('navigator.clipboard 写入被拦截，尝试 textarea 降级复制:', clipErr);
+            }
+          }
+          if (!copied) {
+            const ta = document.createElement('textarea');
+            ta.value = data.content;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '-9999px';
+            ta.setAttribute('readonly', '');
+            document.body.appendChild(ta);
+            ta.select();
+            copied = document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          if (copied) {
+            showToast(`已复制【${filename}】到剪贴板！`);
+          } else {
+            showToast('浏览器剪贴板权限受限，请手动复制', 'error');
+          }
         } else {
-          showToast('暂无内容，请先执行生成！', 'error');
+          showToast(data.message || (res.status === 401 ? '登录已失效，请刷新页面后重试' : '暂无内容，请先执行生成！'), 'error');
         }
       } catch (e) {
-        showToast('复制失败', 'error');
+        showToast(`复制失败: ${e.message || '网络连接中断'}`, 'error');
       }
     }
 
@@ -8692,7 +8871,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const data = await res.json();
         if (data.success) {
           const chars = data.article_char_count || '—';
-          document.getElementById('toutiao-pack-status').textContent = `已生成 · 约${chars}字`;
+          document.getElementById('toutiao-pack-status').textContent = `已就绪 · 约${chars}字`;
           showToast('头条发稿包已生成至 outputs/toutiao_pack/');
         } else {
           showToast(data.message || '生成失败', 'error');
@@ -8739,6 +8918,19 @@ GitHub 开源仓库：https://github.com/company/repo
       } catch (e) {
         showToast('复制微头条失败', 'error');
       }
+    }
+
+    function scrollToPackCard(cardId) {
+      if (cardId === 'pack-card-wechat' || cardId === 'pack-card-kimi') {
+        const ext = document.getElementById('extended-ecosystems');
+        if (ext) ext.open = true;
+      }
+      setTimeout(() => {
+        const el = document.getElementById(cardId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 50);
     }
 
     // ===== 微信生态发稿中心控制器 =====
@@ -9131,10 +9323,10 @@ GitHub 开源仓库：https://github.com/company/repo
             const passed = fid.passed !== false && score >= 90.0;
             if (passed) {
               el.className = `text-[10px] font-bold px-2 py-0.5 rounded-full ${defaultPassedClass}`;
-              el.textContent = `🟢 爬虫保真度: ${score}分`;
+              el.textContent = `爬虫保真度: ${score}分`;
             } else {
               el.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200';
-              el.textContent = `⚠️ 保真度待优化: ${score}分`;
+              el.textContent = `保真度待优化: ${score}分`;
             }
           };
 
@@ -9144,6 +9336,286 @@ GitHub 开源仓库：https://github.com/company/repo
         }
       } catch (e) {
         // 静默降级
+      }
+    }
+
+    function applyChannelPackStatuses(packs) {
+      if (!packs) return;
+      const setPill = (id, ready, text) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = ready ? text : '待发稿包';
+      };
+      const setCardBadge = (id, ready, text, readyClass) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (ready) {
+          el.textContent = text;
+          el.className = `text-[10px] font-semibold px-2 py-0.5 rounded-full ${readyClass}`;
+        } else {
+          el.textContent = '待发稿包';
+          el.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
+        }
+      };
+
+      const tt = packs.toutiao || {};
+      const ttChars = tt.article_char_count;
+      const ttText = ttChars ? `已就绪 · 约${ttChars}字` : '已就绪';
+      setPill('toutiao-pack-status', !!tt.ready, ttText);
+      setCardBadge('toutiao-card-pack-status', !!tt.ready, ttText, 'bg-emerald-50 text-emerald-700 border border-emerald-200');
+
+      const ds = packs.deepseek || {};
+      const dsChars = ds.article_char_count;
+      const dsText = dsChars ? `已就绪 · 约${dsChars}字` : '已就绪';
+      setPill('deepseek-pack-status', !!ds.ready, dsText);
+      setCardBadge('deepseek-card-pack-status', !!ds.ready, dsText, 'bg-blue-50 text-blue-700 border border-blue-200');
+
+      setPill('wechat-pack-status', !!(packs.wechat && packs.wechat.ready), '已就绪');
+      setPill('kimi-baidu-pack-status', !!(packs.kimi_baidu && packs.kimi_baidu.ready), '已就绪');
+    }
+
+    async function loadChannelPackStatuses() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/publish/pack-status`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.packs) applyChannelPackStatuses(data.packs);
+      } catch (e) {
+        // 静默降级
+      }
+    }
+
+    let _distributeRunLogCache = null;
+    let _distributeLogActiveChannel = 'toutiao';
+    let _distributeLogEscBound = false;
+    const DISTRIBUTE_LOG_PREVIEW_CHARS = 2000;
+
+    function _fmtMs(ms) {
+      const n = Number(ms) || 0;
+      if (n < 1000) return `${n} ms`;
+      return `${(n / 1000).toFixed(1)} s`;
+    }
+
+    function _fmtBytes(n) {
+      const v = Number(n) || 0;
+      if (v < 1024) return `${v} B`;
+      return `${(v / 1024).toFixed(1)} KB`;
+    }
+
+    function _escapeHtml(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function applyDistributeRunStatusBar(payload) {
+      const textEl = document.getElementById('distribute-run-status-text');
+      const btn = document.getElementById('btn-open-distribute-log');
+      const bar = document.getElementById('distribute-run-status-bar');
+      if (!textEl || !btn) return;
+      if (!payload || !payload.has_log || !payload.log) {
+        _distributeRunLogCache = null;
+        textEl.textContent = '尚未执行。生成矩阵发布包后，将在此显示耗时、模型与产物摘要。';
+        btn.disabled = true;
+        btn.className = 'py-2 px-3.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-400 cursor-not-allowed shrink-0 flex items-center gap-1.5';
+        if (bar) bar.className = 'bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+        return;
+      }
+      const log = payload.log;
+      _distributeRunLogCache = log;
+      const rt = log.llm_runtime || {};
+      const modelTag = [rt.provider, rt.mode].filter(Boolean).join('-') || 'unknown';
+      const calls = (log.llm_calls || []).length;
+      const arts = (log.artifacts || []).length;
+      textEl.textContent = `最新执行耗时 ${_fmtMs(log.total_duration_ms)} · 模型 ${_fmtMs(log.llm_duration_ms)} (${modelTag}) · ${calls} 次调用 · ${arts} 份资产`;
+      btn.disabled = false;
+      btn.className = 'py-2 px-3.5 text-xs font-semibold rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 shrink-0 flex items-center gap-1.5 transition';
+      if (bar) bar.className = 'bg-indigo-50/40 border border-indigo-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+    }
+
+    async function loadDistributeRunLog() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/distribute/latest-log`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        applyDistributeRunStatusBar(data);
+      } catch (e) {
+        applyDistributeRunStatusBar(null);
+      }
+    }
+
+    function ensureDistributeLogEscBinding() {
+      if (_distributeLogEscBound) return;
+      _distributeLogEscBound = true;
+      window.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+          const modal = document.getElementById('distribute-log-modal');
+          if (modal && !modal.classList.contains('hidden')) {
+            closeDistributeLogModal();
+          }
+        }
+      });
+    }
+
+    function openDistributeLogModal() {
+      if (!_distributeRunLogCache) {
+        showToast('暂无工作日志，请先生成矩阵发布包', 'error');
+        return;
+      }
+      ensureDistributeLogEscBinding();
+      renderDistributeLogModal(_distributeRunLogCache);
+      const modal = document.getElementById('distribute-log-modal');
+      if (modal) modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeDistributeLogModal() {
+      const modal = document.getElementById('distribute-log-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderDistributeLogModal(log) {
+      const meta = document.getElementById('distribute-log-meta');
+      const overview = document.getElementById('distribute-log-overview');
+      const artsBody = document.getElementById('distribute-log-artifacts');
+      const tabs = document.getElementById('distribute-log-call-tabs');
+      if (meta) {
+        meta.textContent = `${log.run_id || '—'} · ${log.timestamp || '—'}`;
+      }
+      const rt = log.llm_runtime || {};
+      const llmPct = log.total_duration_ms
+        ? Math.min(100, Math.round(((log.llm_duration_ms || 0) / log.total_duration_ms) * 100))
+        : 0;
+      if (overview) {
+        overview.innerHTML = `
+          <div class="rounded-xl border border-slate-200 bg-white p-3.5">
+            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">耗时对比</div>
+            <div class="mt-2 text-sm font-bold text-slate-900">脚本 ${_fmtMs(log.total_duration_ms)}</div>
+            <div class="text-xs text-slate-600 mt-1">模型 ${_fmtMs(log.llm_duration_ms)}（占 ${llmPct}%）</div>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-white p-3.5">
+            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">模型中枢</div>
+            <div class="mt-2 text-sm font-bold text-slate-900">${_escapeHtml(rt.provider || '—')} / ${_escapeHtml(rt.mode || '—')}</div>
+            <div class="text-xs text-slate-600 mt-1">brand=${_escapeHtml(rt.brand || '—')} · host=${_escapeHtml(rt.base_url_host || '***')} · ${_escapeHtml(rt.endpoint || '')}</div>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-white p-3.5">
+            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">资产概览</div>
+            <div class="mt-2 text-sm font-bold text-slate-900">${(log.artifacts || []).length} 份产物</div>
+            <div class="text-xs text-slate-600 mt-1">${(log.llm_calls || []).length} 次模型调用记录</div>
+          </div>`;
+      }
+      if (artsBody) {
+        const rows = (log.artifacts || []).map(a => {
+          const pack = a.pack_ready === true ? '已就绪' : (a.pack_ready === false ? '待打包' : '—');
+          return `<tr>
+            <td class="px-3 py-2 font-medium">${_escapeHtml(a.filename || '')}</td>
+            <td class="px-3 py-2">${_escapeHtml(a.channel || '')}</td>
+            <td class="px-3 py-2">${a.char_count != null ? a.char_count : '—'}</td>
+            <td class="px-3 py-2">${_fmtBytes(a.size_bytes)}</td>
+            <td class="px-3 py-2">${pack}</td>
+          </tr>`;
+        }).join('');
+        artsBody.innerHTML = rows || '<tr><td colspan="5" class="px-3 py-4 text-center text-slate-400">无产物记录</td></tr>';
+      }
+      const calls = log.llm_calls || [];
+      if (tabs) {
+        if (!calls.length) {
+          tabs.innerHTML = '<span class="text-[11px] text-slate-400">无模型调用（可能为模板 fallback）</span>';
+        } else {
+          const labels = { toutiao: '今日头条', zhihu: '知乎专栏', wechat: '微信公众号' };
+          if (!calls.find(c => c.channel === _distributeLogActiveChannel)) {
+            _distributeLogActiveChannel = calls[0].channel;
+          }
+          tabs.innerHTML = calls.map(c => {
+            const active = c.channel === _distributeLogActiveChannel;
+            return `<button type="button" onclick="selectDistributeLogCall('${_escapeHtml(c.channel)}')"
+              class="px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}">${labels[c.channel] || c.channel}</button>`;
+          }).join('');
+        }
+      }
+      renderDistributeLogCallDetail(calls);
+    }
+
+    function selectDistributeLogCall(channel) {
+      _distributeLogActiveChannel = channel;
+      if (_distributeRunLogCache) renderDistributeLogModal(_distributeRunLogCache);
+    }
+
+    function renderDistributeLogCallDetail(calls) {
+      const box = document.getElementById('distribute-log-call-detail');
+      if (!box) return;
+      const call = (calls || []).find(c => c.channel === _distributeLogActiveChannel) || (calls || [])[0];
+      if (!call) {
+        box.innerHTML = '<div class="text-slate-400">暂无调用明细</div>';
+        return;
+      }
+      const statusClass = call.status === 'success'
+        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+        : 'bg-amber-50 text-amber-800 border-amber-200';
+      box.innerHTML = `
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="font-bold text-slate-800">${_escapeHtml(call.name || call.channel)}</div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusClass}">${_escapeHtml(call.status || '—')}</span>
+            <span class="text-[11px] text-slate-500">${_fmtMs(call.duration_ms)}</span>
+          </div>
+        </div>
+        ${renderExpandableTextBlock('System Prompt', call.prompt_system, 'sys')}
+        ${renderExpandableTextBlock('User Prompt', call.prompt_user, 'user')}
+        ${renderExpandableTextBlock('模型原始返回', call.raw_output, 'out')}
+      `;
+    }
+
+    function renderExpandableTextBlock(title, text, key) {
+      const full = text || '';
+      const truncated = full.length > DISTRIBUTE_LOG_PREVIEW_CHARS;
+      const preview = truncated ? full.slice(0, DISTRIBUTE_LOG_PREVIEW_CHARS) + '\n…（已截断，可展开全文）' : full;
+      const id = `dist-log-block-${key}`;
+      if (!_distributeLogTextStore) window._distributeLogTextStore = {};
+      window._distributeLogTextStore[id] = { full: full, preview: preview, expanded: !truncated };
+      return `
+        <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <div class="px-3 py-2 border-b border-slate-100 flex items-center justify-between gap-2">
+            <span class="font-semibold text-slate-700">${_escapeHtml(title)}</span>
+            <div class="flex items-center gap-1.5">
+              ${truncated ? `<button type="button" class="text-[10px] font-semibold text-indigo-600 hover:underline" onclick="toggleDistributeLogExpand('${id}')">展开/收起</button>` : ''}
+              <button type="button" class="text-[10px] font-semibold text-slate-600 hover:underline" onclick="copyDistributeLogStored('${id}')">一键复制</button>
+            </div>
+          </div>
+          <pre id="${id}" class="px-3 py-2 text-[11px] leading-relaxed text-slate-700 whitespace-pre-wrap font-mono max-h-48 overflow-y-auto">${_escapeHtml(preview || '（空）')}</pre>
+        </div>`;
+    }
+
+    function toggleDistributeLogExpand(id) {
+      const el = document.getElementById(id);
+      const store = (window._distributeLogTextStore || {})[id];
+      if (!el || !store) return;
+      store.expanded = !store.expanded;
+      el.textContent = store.expanded ? (store.full || '（空）') : (store.preview || '（空）');
+    }
+
+    async function copyDistributeLogStored(id) {
+      const store = (window._distributeLogTextStore || {})[id];
+      try {
+        await navigator.clipboard.writeText((store && store.full) || '');
+        showToast('已复制到剪贴板');
+      } catch (e) {
+        showToast('复制失败', 'error');
+      }
+    }
+
+    async function copyDistributeLogText(text) {
+      try {
+        await navigator.clipboard.writeText(text || '');
+        showToast('已复制到剪贴板');
+      } catch (e) {
+        showToast('复制失败', 'error');
       }
     }
 

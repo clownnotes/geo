@@ -19,7 +19,7 @@
     },
     "warnings": []
   },
-  "analyzed_at": "2026-09-08 06:38:52",
+  "analyzed_at": "2026-09-08 16:30:13",
   "rag_readiness_score": 65.6,
   "total_chunks": 16,
   "total_tokens_estimate": 5888,
@@ -329,5 +329,5 @@
     }
   ],
   "cascade_quick_scan": true,
-  "crawler_simulation_reused_from": "2026-09-08 05:29:09"
+  "crawler_simulation_reused_from": "2026-09-08 06:38:52"
 }
