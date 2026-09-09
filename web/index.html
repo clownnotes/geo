@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GEO 商业交付与 SOP 流水线管理工作台</title>
+<link rel="stylesheet" href="/geo-admin.css">
 <!-- Tailwind CSS & Lucide Icons & Marked.js --><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); }
@@ -19,33 +20,6 @@
     .markdown-body code { background: #f1f5f9; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem; color: #0284c7; }
     .markdown-body pre { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.8rem 0; }
     .markdown-body pre code { background: transparent; color: inherit; padding: 0; }
-
-    :root {
-      --geo-primary: #7c5bf5;
-      --geo-primary-hover: #6846e3;
-      --geo-primary-tint: rgba(124, 91, 245, 0.08);
-      --geo-text: #0f172a;
-      --geo-page-bg: #f8fafc;
-      --geo-border: #e2e8f0;
-    }
-    #app-sidebar { width: 240px; }
-    #app-sidebar .sidebar-nav-item.active {
-      background: var(--geo-primary-tint);
-      color: var(--geo-primary);
-      font-weight: 600;
-      border-right: 2px solid var(--geo-primary);
-    }
-    #sidebar-backdrop { display: none; }
-    @media (max-width: 767px) {
-      #app-sidebar {
-        position: fixed; inset: 0 auto 0 0; z-index: 40;
-        transform: translateX(-100%); transition: transform 0.2s ease;
-      }
-      #app-sidebar.open { transform: translateX(0); }
-      #sidebar-backdrop.open { display: block; }
-    }
-    /* Toast 浮动提示 */
-    #toast-box { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen h-screen flex flex-col overflow-hidden">
@@ -241,98 +215,92 @@
 <div id="wizard-view" class="hidden flex-1 flex h-screen overflow-hidden bg-[var(--geo-page-bg)]">
 <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 z-30 md:hidden" onclick="closeSidebarDrawer()">
 </div>
-<aside id="app-sidebar" class="bg-white border-r border-slate-200 flex flex-col h-full shrink-0">
-<div class="h-[52px] px-4 flex items-center gap-2.5 border-b border-slate-100">
-<div class="w-8 h-8 rounded-lg bg-[#7c5bf5] text-white flex items-center justify-center shadow-sm"><i data-lucide="layers" class="w-4 h-4"></i>
+<aside id="app-sidebar" class="flex flex-col h-full shrink-0">
+<div class="geo-brand">
+<span class="geo-brand-title">GEO</span>
+<span class="geo-brand-sub">邻里交付</span>
 </div>
-<div class="min-w-0">
-<div class="text-sm font-bold text-slate-900 truncate">GEO 工作台</div>
-<div class="text-[10px] text-slate-400 tracking-wide">Nextdoor Violet</div>
-</div>
-</div>
-<div class="px-3 py-3 border-b border-slate-100"><label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">当前项目</label>
+<div class="px-3 py-2.5 border-b border-slate-100"><label class="text-[10px] font-semibold text-slate-400">当前项目</label>
 <select id="sidebar-project-select" onchange="onSidebarProjectChange(this.value)" class="mt-1.5 w-full text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7c5bf5]/30">
 </select>
 <button type="button" onclick="backToDashboard()" class="mt-2 w-full text-[11px] text-slate-500 hover:text-[#7c5bf5] text-left px-1">返回项目列表</button>
 </div>
-<nav class="flex-1 overflow-y-auto px-2 py-2 space-y-1">
-<div class="sidebar-group" data-group="overview">
-<button type="button" class="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-600" onclick="toggleSidebarGroup('overview')"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i><span class="flex-1 text-left">项目概览</span><i data-lucide="chevron-down" class="w-3.5 h-3.5 sidebar-group-chevron"></i>
+<nav class="flex-1 overflow-y-auto sidebar-nav-scroll">
+<div class="accordion-group sidebar-group" data-group="overview">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('overview')"><span class="category-title">项目概览</span><span class="arrow-indicator" data-group-arrow="overview">▼</span>
 </button>
-<div id="sidebar-group-overview" class="space-y-0.5 pb-2 ">
-<button type="button" id="nav-overview" onclick="switchView('overview')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i><span class="truncate">客户档案与总资产看板</span>
+<div id="sidebar-group-overview" class="submenu-list">
+<button type="button" id="nav-overview" onclick="switchView('overview')" class="sidebar-nav-item"><span class="truncate">客户档案与总资产看板</span>
 </button>
-<button type="button" id="nav-keywords" onclick="switchView('keywords')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="target" class="w-4 h-4 shrink-0"></i><span class="truncate">核心词库与意图矩阵</span>
-</button>
-</div>
-</div>
-<div class="sidebar-group" data-group="delivery">
-<button type="button" class="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-600" onclick="toggleSidebarGroup('delivery')"><i data-lucide="workflow" class="w-3.5 h-3.5"></i><span class="flex-1 text-left">交付流水线</span><i data-lucide="chevron-down" class="w-3.5 h-3.5 sidebar-group-chevron"></i>
-</button>
-<div id="sidebar-group-delivery" class="space-y-0.5 pb-2 ">
-<button type="button" id="nav-step-1-diag" onclick="switchView('step-1-diag')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="scan" class="w-4 h-4 shrink-0"></i><span class="truncate">01 现状诊断与体检</span>
-</button>
-<button type="button" id="nav-step-2-scaffold" onclick="switchView('step-2-scaffold')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="server" class="w-4 h-4 shrink-0"></i><span class="truncate">02 站点底座与三件套</span>
-</button>
-<button type="button" id="nav-step-3-princeton" onclick="switchView('step-3-princeton')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="library" class="w-4 h-4 shrink-0"></i><span class="truncate">03 普林斯顿 9 因子语料</span>
-</button>
-<button type="button" id="nav-step-4-distribute" onclick="switchView('step-4-distribute')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="share-2" class="w-4 h-4 shrink-0"></i><span class="truncate">04 矩阵分发与外链探活</span>
-</button>
-<button type="button" id="nav-step-5-acceptance" onclick="switchView('step-5-acceptance')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="file-check-2" class="w-4 h-4 shrink-0"></i><span class="truncate">05 商业验收与结案单</span>
+<button type="button" id="nav-keywords" onclick="switchView('keywords')" class="sidebar-nav-item"><span class="truncate">核心词库与意图矩阵</span>
 </button>
 </div>
 </div>
-<div class="sidebar-group" data-group="monitoring">
-<button type="button" class="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-600" onclick="toggleSidebarGroup('monitoring')"><i data-lucide="activity" class="w-3.5 h-3.5"></i><span class="flex-1 text-left">监测运维</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-group-chevron"></i>
+<div class="accordion-group sidebar-group" data-group="delivery">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('delivery')"><span class="category-title">交付流水线</span><span class="arrow-indicator" data-group-arrow="delivery">▼</span>
 </button>
-<div id="sidebar-group-monitoring" class="space-y-0.5 pb-2 hidden">
-<button type="button" id="nav-mon-weekly" onclick="switchView('mon-weekly')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="line-chart" class="w-4 h-4 shrink-0"></i><span class="truncate">权威度与 SOV 周报</span>
+<div id="sidebar-group-delivery" class="submenu-list">
+<button type="button" id="nav-step-1-diag" onclick="switchView('step-1-diag')" class="sidebar-nav-item"><span class="truncate">01 现状诊断与体检</span>
 </button>
-<button type="button" id="nav-mon-probing" onclick="switchView('mon-probing')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="crosshair" class="w-4 h-4 shrink-0"></i><span class="truncate">大模型问答探针</span>
+<button type="button" id="nav-step-2-scaffold" onclick="switchView('step-2-scaffold')" class="sidebar-nav-item"><span class="truncate">02 站点底座与三件套</span>
 </button>
-<button type="button" id="nav-mon-patrol" onclick="switchView('mon-patrol')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="radar" class="w-4 h-4 shrink-0"></i><span class="truncate">巡检告警与全网探活</span>
+<button type="button" id="nav-step-3-princeton" onclick="switchView('step-3-princeton')" class="sidebar-nav-item"><span class="truncate">03 普林斯顿 9 因子语料</span>
 </button>
-<button type="button" id="nav-mon-deliverables" onclick="switchView('mon-deliverables')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="package" class="w-4 h-4 shrink-0"></i><span class="truncate">客户交付物与专属链接</span>
+<button type="button" id="nav-step-4-distribute" onclick="switchView('step-4-distribute')" class="sidebar-nav-item"><span class="truncate">04 矩阵分发与外链探活</span>
 </button>
-<button type="button" id="nav-mon-decay" onclick="switchView('mon-decay')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="hourglass" class="w-4 h-4 shrink-0"></i><span class="truncate">知识半衰期与自愈</span>
-</button>
-<button type="button" id="nav-mon-crisis" onclick="switchView('mon-crisis')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="shield" class="w-4 h-4 shrink-0"></i><span class="truncate">品牌声誉与危机清洗</span>
-</button>
-<button type="button" id="nav-mon-princeton" onclick="switchView('mon-princeton')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="gauge" class="w-4 h-4 shrink-0"></i><span class="truncate">普林斯顿复检</span>
+<button type="button" id="nav-step-5-acceptance" onclick="switchView('step-5-acceptance')" class="sidebar-nav-item"><span class="truncate">05 商业验收与结案单</span>
 </button>
 </div>
 </div>
-<div class="sidebar-group" data-group="defense">
-<button type="button" class="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-600" onclick="toggleSidebarGroup('defense')"><i data-lucide="shield" class="w-3.5 h-3.5"></i><span class="flex-1 text-left">进阶攻防</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-group-chevron"></i>
+<div class="accordion-group sidebar-group" data-group="monitoring">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('monitoring')"><span class="category-title">监测运维</span><span class="arrow-indicator" data-group-arrow="monitoring">▶</span>
 </button>
-<div id="sidebar-group-defense" class="space-y-0.5 pb-2 hidden">
-<button type="button" id="nav-def-rival" onclick="switchView('def-rival')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="swords" class="w-4 h-4 shrink-0"></i><span class="truncate">竞品与护城河</span>
+<div id="sidebar-group-monitoring" class="submenu-list hidden">
+<button type="button" id="nav-mon-weekly" onclick="switchView('mon-weekly')" class="sidebar-nav-item"><span class="truncate">权威度与 SOV 周报</span>
 </button>
-<button type="button" id="nav-def-retrieval" onclick="switchView('def-retrieval')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="search" class="w-4 h-4 shrink-0"></i><span class="truncate">检索与内容增益</span>
+<button type="button" id="nav-mon-probing" onclick="switchView('mon-probing')" class="sidebar-nav-item"><span class="truncate">大模型问答探针</span>
 </button>
-<button type="button" id="nav-def-attribution" onclick="switchView('def-attribution')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="git-fork" class="w-4 h-4 shrink-0"></i><span class="truncate">信源与归因加深</span>
+<button type="button" id="nav-mon-patrol" onclick="switchView('mon-patrol')" class="sidebar-nav-item"><span class="truncate">巡检告警与全网探活</span>
 </button>
-<button type="button" id="nav-def-guard" onclick="switchView('def-guard')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i><span class="truncate">对抗与鲁棒</span>
+<button type="button" id="nav-mon-deliverables" onclick="switchView('mon-deliverables')" class="sidebar-nav-item"><span class="truncate">客户交付物与专属链接</span>
 </button>
-</div>
-</div>
-<div class="sidebar-group" data-group="settings">
-<button type="button" class="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-600" onclick="toggleSidebarGroup('settings')"><i data-lucide="settings" class="w-3.5 h-3.5"></i><span class="flex-1 text-left">系统设置</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-group-chevron"></i>
+<button type="button" id="nav-mon-decay" onclick="switchView('mon-decay')" class="sidebar-nav-item"><span class="truncate">知识半衰期与自愈</span>
 </button>
-<div id="sidebar-group-settings" class="space-y-0.5 pb-2 hidden">
-<button type="button" id="nav-settings-llm" onclick="switchView('settings-llm')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="cpu" class="w-4 h-4 shrink-0"></i><span class="truncate">大模型中枢与密钥</span>
+<button type="button" id="nav-mon-crisis" onclick="switchView('mon-crisis')" class="sidebar-nav-item"><span class="truncate">品牌声誉与危机清洗</span>
 </button>
-<button type="button" id="nav-settings-export" onclick="switchView('settings-export')" class="sidebar-nav-item w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition"><i data-lucide="download" class="w-4 h-4 shrink-0"></i><span class="truncate">离线资产打包导出</span>
+<button type="button" id="nav-mon-princeton" onclick="switchView('mon-princeton')" class="sidebar-nav-item"><span class="truncate">普林斯顿复检</span>
 </button>
 </div>
 </div>
+<div class="accordion-group sidebar-group" data-group="defense">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('defense')"><span class="category-title">进阶攻防</span><span class="arrow-indicator" data-group-arrow="defense">▶</span>
+</button>
+<div id="sidebar-group-defense" class="submenu-list hidden">
+<button type="button" id="nav-def-rival" onclick="switchView('def-rival')" class="sidebar-nav-item"><span class="truncate">竞品与护城河</span>
+</button>
+<button type="button" id="nav-def-retrieval" onclick="switchView('def-retrieval')" class="sidebar-nav-item"><span class="truncate">检索与内容增益</span>
+</button>
+<button type="button" id="nav-def-attribution" onclick="switchView('def-attribution')" class="sidebar-nav-item"><span class="truncate">信源与归因加深</span>
+</button>
+<button type="button" id="nav-def-guard" onclick="switchView('def-guard')" class="sidebar-nav-item"><span class="truncate">对抗与鲁棒</span>
+</button>
+</div>
+</div>
+<div class="accordion-group sidebar-group" data-group="settings">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('settings')"><span class="category-title">系统设置</span><span class="arrow-indicator" data-group-arrow="settings">▶</span>
+</button>
+<div id="sidebar-group-settings" class="submenu-list hidden">
+<button type="button" id="nav-settings-llm" onclick="switchView('settings-llm')" class="sidebar-nav-item"><span class="truncate">大模型中枢与密钥</span>
+</button>
+<button type="button" id="nav-settings-export" onclick="switchView('settings-export')" class="sidebar-nav-item"><span class="truncate">离线资产打包导出</span>
+</button>
+</div>
+</div>
+<button type="button" onclick="handleLogout()" class="logout-nav">退出登录</button>
 </nav>
-<div class="border-t border-slate-100 px-3 py-3 text-[11px] text-slate-500 space-y-1">
-<div class="flex items-center justify-between"><span id="sidebar-user-name">管理员</span>
-<button type="button" onclick="handleLogout()" class="text-slate-400 hover:text-rose-600" title="退出"><i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-</button>
-</div>
-<div class="text-slate-400">GEO Console</div>
+<div class="border-t border-slate-100 px-3 py-2.5 text-[11px] text-slate-400">
+<div id="sidebar-user-name" class="text-slate-500 truncate">管理员</div>
+<div>GEO Console</div>
 </div>
 </aside>
 <div class="flex-1 flex flex-col min-w-0 h-full">
@@ -344,9 +312,9 @@
 </nav><span id="wizard-client-id" class="hidden"></span><span id="wizard-client-name" class="hidden"></span><span id="wizard-client-url" class="hidden"></span>
 </div>
 <div class="flex items-center gap-2 shrink-0">
-<button onclick="runPipelineAll()" id="btn-run-all" class="py-2 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition"><i data-lucide="play" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">一键跑通流水线</span>
+<button onclick="runPipelineAll()" id="btn-run-all" class="geo-btn geo-btn-primary"><i data-lucide="play" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">一键跑通流水线</span>
 </button>
-<button onclick="downloadDeliverables()" class="py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition"><i data-lucide="download" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">导出 ZIP</span>
+<button onclick="downloadDeliverables()" class="geo-btn"><i data-lucide="download" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">导出 ZIP</span>
 </button>
 <button type="button" onclick="location.reload()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500" title="刷新"><i data-lucide="refresh-cw" class="w-4 h-4"></i>
 </button>
@@ -955,16 +923,24 @@
 <p class="text-xs text-slate-500 mt-1">交付收口：跑一轮声量监测、出周报、开验收单。进阶沙盘见左侧「进阶攻防」，日常复测见「监测运维」。</p>
 </div>
 <div class="flex items-center gap-2.5 flex-wrap">
-<button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition"><i data-lucide="line-chart" class="w-4 h-4"></i><span>执行实时声量监测</span>
+<button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="geo-btn geo-btn-primary"><i data-lucide="line-chart" class="w-4 h-4"></i><span>执行实时声量监测</span>
 </button>
-<button type="button" onclick="openManualProbeModal()" id="btn-manual-probe" class="py-2.5 px-4 bg-[rgba(124,91,245,0.08)] hover:bg-[#efeafc] text-[#7c5bf5] text-xs font-semibold rounded-lg border border-[#d4c8fa] transition flex items-center gap-1.5 shadow-sm"><i data-lucide="clipboard-check" class="w-4 h-4 text-[#7c5bf5]"></i><span>真机实测回填</span>
+<button type="button" onclick="openManualProbeModal()" id="btn-manual-probe" class="geo-btn"><i data-lucide="clipboard-check" class="w-4 h-4"></i><span>真机实测回填</span>
 </button>
-<button onclick="handlePrintReport(event)" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200"><i data-lucide="printer" class="w-4 h-4"></i><span>导出美化周报</span>
+<button onclick="handlePrintReport(event)" class="geo-btn"><i data-lucide="printer" class="w-4 h-4"></i><span>导出美化周报</span>
 </button>
-<button onclick="handlePrintAcceptance()" class="py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition flex items-center gap-1.5 shadow-sm"><i data-lucide="file-check-2" class="w-4 h-4 text-emerald-600"></i><span>结案验收单</span>
+<button onclick="handlePrintAcceptance()" class="geo-btn geo-btn-success"><i data-lucide="file-check-2" class="w-4 h-4"></i><span>结案验收单</span>
 </button>
 </div>
 </div>
+<div id="step5-monitor-alert" class="geo-alert geo-alert-danger hidden" role="alert">
+<div class="geo-alert-body">
+<div class="geo-alert-title">监测模式提示</div>
+<div id="step5-monitor-alert-text">当前为离线摸底或数据未就绪，建议执行真机回填或配置 API Key 后复测。</div>
+</div>
+<button type="button" class="geo-btn geo-btn-success" onclick="openManualProbeModal()">真机回填</button>
+</div>
+<div id="step5-prompt-rows" class="space-y-0"></div>
 <!-- 4 维量化核心指标卡 -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -1514,14 +1490,24 @@
 </div>
 </div>
 <div id="panel-settings-llm" class="workspace-panel hidden space-y-6">
-<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-<h2 class="text-base font-bold text-slate-900">大模型中枢与密钥</h2>
-<p class="text-xs text-slate-500 mt-1">配置 Nextdoor / 小毛驴入口，并检测当前连通状态。</p>
+<header class="geo-page-head">
+<div>
+<h1 class="geo-page-title">大模型中枢与密钥</h1>
+<p class="geo-page-desc">配置 Nextdoor / 小毛驴入口，并检测当前连通状态。</p>
 </div>
-<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 max-w-2xl">
+</header>
+<nav class="geo-tabs" id="settings-llm-tabs">
+<button type="button" class="active" data-llm-tab="status" onclick="switchSettingsLlmTab('status')">连通状态</button>
+<button type="button" data-llm-tab="config" onclick="switchSettingsLlmTab('config')">密钥配置</button>
+</nav>
+<div class="bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-3 max-w-2xl">
+<div class="geo-help">
+<button type="button" class="geo-help-toggle" onclick="toggleGeoHelp('settings-llm-help')">忘了这页怎么用？点击展开</button>
+<div id="settings-llm-help" class="geo-help-body hidden">在此检测大模型连通性；需要写入 Key 时点「配置 Nextdoor」。主操作使用实心紫按钮，次要操作为线框按钮。</div>
+</div>
 <div class="flex flex-wrap gap-2">
-<button type="button" onclick="refreshLlmStatus(true)" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5"><i data-lucide="radar" class="w-3.5 h-3.5"></i>立即检测</button>
-<button type="button" onclick="openLlmConfigModal()" class="py-2 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg flex items-center gap-1.5"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i>配置 Nextdoor</button>
+<button type="button" onclick="refreshLlmStatus(true)" class="geo-btn"><i data-lucide="radar" class="w-3.5 h-3.5"></i>立即检测</button>
+<button type="button" onclick="openLlmConfigModal()" class="geo-btn geo-btn-primary"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i>配置 Nextdoor</button>
 </div>
 <div id="settings-llm-status-hint" class="text-xs text-slate-500">状态标签同步自语料步骤检测结果。</div>
 </div>
@@ -5337,16 +5323,26 @@ GitHub 开源仓库：https://github.com/company/repo
       const body = document.getElementById(`sidebar-group-${groupId}`);
       if (!body) return;
       body.classList.toggle('hidden');
-      const chev = body.parentElement?.querySelector('.sidebar-group-chevron');
-      if (chev) chev.setAttribute('data-lucide', body.classList.contains('hidden') ? 'chevron-right' : 'chevron-down');
-      if (typeof lucide !== 'undefined') lucide.createIcons();
+      const arrow = document.querySelector(`[data-group-arrow="${groupId}"]`);
+      if (arrow) arrow.textContent = body.classList.contains('hidden') ? '▶' : '▼';
     }
     function expandSidebarGroup(groupId) {
       const body = document.getElementById(`sidebar-group-${groupId}`);
       if (!body) return;
       body.classList.remove('hidden');
-      const chev = body.parentElement?.querySelector('.sidebar-group-chevron');
-      if (chev) chev.setAttribute('data-lucide', 'chevron-down');
+      const arrow = document.querySelector(`[data-group-arrow="${groupId}"]`);
+      if (arrow) arrow.textContent = '▼';
+    }
+    function toggleGeoHelp(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden');
+    }
+    function switchSettingsLlmTab(tab) {
+      document.querySelectorAll('#settings-llm-tabs button').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-llm-tab') === tab);
+      });
+      if (tab === 'config') openLlmConfigModal();
+      if (tab === 'status') refreshLlmStatus(false);
     }
     function updateBreadcrumb(viewId) {
       const meta = VIEW_META[viewId] || { groupLabel: '-', label: viewId };
@@ -5794,11 +5790,45 @@ GitHub 开源仓库：https://github.com/company/repo
             }
           }
 
+          const alertEl = document.getElementById('step5-monitor-alert');
+          const alertText = document.getElementById('step5-monitor-alert-text');
+          if (alertEl && alertText) {
+            if (data.is_offline || !data.has_report) {
+              alertEl.classList.remove('hidden');
+              alertText.textContent = data.is_offline
+                ? '当前为离线摸底基准测算。建议无痕真机回填，或配置 API Key 后执行实时声量监测。'
+                : '尚未生成声量周报。请先执行监测或真机实测回填。';
+            } else {
+              alertEl.classList.add('hidden');
+            }
+          }
+
+          const rowsEl = document.getElementById('step5-prompt-rows');
+          if (rowsEl && data.prompt_stats) {
+            const ps = data.prompt_stats;
+            rowsEl.innerHTML = [
+              { title: '问句命中', count: ps.hit_count, dot: 'geo-status-ok', tag: '命中', tagClass: 'geo-tag-ok' },
+              { title: '竞品拦截', count: ps.intercept_count, dot: 'geo-status-warn', tag: '拦截', tagClass: 'geo-tag' },
+              { title: '暂未上榜', count: ps.lost_count, dot: 'geo-status-bad', tag: '失守', tagClass: 'geo-tag-bad' }
+            ].map(r => `
+              <div class="geo-row">
+                <span class="geo-status-dot ${r.dot}"></span>
+                <div class="geo-row-main">
+                  <div class="geo-row-title">${r.title}</div>
+                  <div class="geo-row-meta"><span class="geo-tag ${r.tagClass}">${r.tag}</span><span class="geo-tag geo-tag-muted">共 ${ps.total || 0} 组词</span></div>
+                </div>
+                <div class="geo-row-actions"><strong>${r.count} 组</strong></div>
+              </div>`).join('');
+          }
+
           // 问句级对决状态
           if (data.prompt_stats) {
-            document.getElementById('prompt-hit-count').innerText = `${data.prompt_stats.hit_count} 组`;
-            document.getElementById('prompt-intercept-count').innerText = `${data.prompt_stats.intercept_count} 组`;
-            document.getElementById('prompt-lost-count').innerText = `${data.prompt_stats.lost_count} 组`;
+            const hit = document.getElementById('prompt-hit-count');
+            const intercept = document.getElementById('prompt-intercept-count');
+            const lost = document.getElementById('prompt-lost-count');
+            if (hit) hit.innerText = `${data.prompt_stats.hit_count} 组`;
+            if (intercept) intercept.innerText = `${data.prompt_stats.intercept_count} 组`;
+            if (lost) lost.innerText = `${data.prompt_stats.lost_count} 组`;
           }
 
           // Citation 权威信源分布条形图

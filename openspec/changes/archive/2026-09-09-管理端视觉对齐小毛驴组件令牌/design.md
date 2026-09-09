@@ -34,10 +34,17 @@ PageHelpPanel                       .geo-help（可选，交互抄、文案自�
 | `--geo-border` | `#e2e8f0` | 通用边框 |
 | `--geo-text` | `#0f172a` | 主文字 |
 | `--geo-muted` | `#64748b` | 次要文字 |
-| `--geo-danger` | `#dc2626` / 浅红底告警 | 退出登录、停用、告警条 |
-| `--geo-success` | `#16a34a` 系 | 状态点、恢复类动作 |
+| `--geo-danger` | `#ef4444` | 退出登录字色（SidebarNav 内联） |
+| `--geo-danger-tint` | `rgba(239, 68, 68, 0.08)` | `.logout-nav:hover` |
+| `--geo-alert-bg` | `#fef2f2` | 告警条浅红底（对齐运维告警观感） |
+| `--geo-alert-border` | `#fecaca` | 告警条边框 |
+| `--geo-success` | `#16a34a` | 状态点、恢复类动作 |
 
-侧栏宽度：小毛驴约 `190px`；GEO 现 `240px`——**本变更默认收至 200px 或保持 240px 但形态对齐**（实现时二选一写进 tasks 验收：优先形态一致，宽度可 200～220）。
+侧栏宽度：**本变更统一为 `220px`**（小毛驴约 190px；GEO 中文菜单略宽，取 220 兼顾形态与可读性，禁止再保留 240 旧宽）。
+
+退出登录字色：**精确使用 `#ef4444`**（对齐 `SidebarNav.vue` 内联色），hover 浅红底 `rgba(239, 68, 68, 0.08)`。
+
+一级箭头：**统一使用文字 `▼` / `▶`**（与小毛驴一致，禁止本变更内混用 Lucide chevron）。几何三角不算彩色 Emoji。
 
 ---
 
@@ -47,9 +54,9 @@ PageHelpPanel                       .geo-help（可选，交互抄、文案自�
 |--------|----------|
 | `.brand-logo` + `.brand-sub` | 「GEO」+「邻里交付 / Nextdoor」双行 |
 | `.accordion-group` | 现有 `sidebar-group` 改为同视觉卡片 |
-| `.accordion-header` + ▼/▶ | 一级分类点击展开；可用文字箭头或 Lucide，**同一变更内统一一种** |
+| `.accordion-header` + ▼/▶ | 一级分类点击展开；**固定文字 ▼/▶**（禁止混用 Lucide） |
 | `.submenu-list` + `.job-item.active` | 二级 `sidebar-nav-item`；去掉「仅右侧竖线」旧样式，改为整行淡紫底 + 左 3px 紫条 |
-| 红色退出 | 侧栏底部「退出登录」红字，对标小毛驴 |
+| 红色退出 `#ef4444` | 侧栏底部「退出登录」红字，对标小毛驴 |
 
 路由：`switchView(viewId)` / `#project=&view=` **不变**。
 
@@ -108,17 +115,21 @@ PageHelpPanel                       .geo-help（可选，交互抄、文案自�
 ## 5. 落地策略与非目标
 
 **落地顺序**  
-1. Token + `geo-admin` 样式表（或 index 内联块）  
-2. 侧栏 DOM/class 改造  
-3. 工作区背景与顶栏弱化（少渐变、少重阴影）  
-4. 套 P1 页面：`settings-llm`、阶段四 ledger、阶段五告警/列表  
-5. 其余面板：**新改动必须用 geo-\***；旧面板不强制一次改完  
+1. 新增独立样式表 **`web/geo-admin.css`**（禁止把整套组件样式只堆在 `index.html` 巨型 `<style>` 里）；`index.html` 仅 `<link>` 引入并保留最少覆盖。  
+2. Token + 侧栏 DOM/class 改造（宽 220px、▼/▶、选中态、红退出）。  
+3. 工作区背景与顶栏弱化（少渐变、少重阴影）；主 CTA 实心紫、次要 outline。  
+4. 套 P1 页面（必须两处都做，不可只做一处）：  
+   - `settings-llm`（或系统设置大模型面板）：页头 + Tab 或按钮组  
+   - 阶段四台账 **或** 阶段五监测区：至少一组 `.geo-row` / `.geo-tag` / `.geo-alert`  
+5. 写出 `docs/specs/geo-admin-ui-tokens.md` 对照表（**必做**，非可选），供后续面板复用。  
+6. 其余面板：本变更未改到的，后续改动必须优先用 `geo-*`。  
 
 **非目标**  
 - 不把 GEO 迁入 XiuLan_IDE / Vue  
 - 不改菜单信息架构与 viewId  
 - 不擅自推生产  
 - 深色 ROI / Pitch 可保留，仅统一外围按钮与告警组件  
+- 不把小毛驴业务菜单（客服/知识库等）拷进 GEO  
 
 **无后端 / 无 DB Schema。**
 

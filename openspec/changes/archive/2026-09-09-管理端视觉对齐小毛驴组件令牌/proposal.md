@@ -22,21 +22,21 @@
    **不改变**现有 viewId 路由与菜单信息架构。
 
 3. **移植内容区通用组件类（抄 Settings 壳与列表套路）**  
-   在 `web/` 落地可复用 class（可拆 `web/geo-admin.css` 或写入 `index.html` 头部）：  
+   落地独立样式表 **`web/geo-admin.css`**（`index.html` 仅 link 引入）：  
    - 页头条 `geo-page-head`  
    - 底边 Tab `geo-tabs`（紫字 + 紫下划线）  
    - 告警条 `geo-alert`（浅红底 + 右侧动作）  
    - 线框按钮 `geo-btn` / `geo-btn-primary` / `geo-btn-danger`  
    - 行列表 `geo-row` + 状态点 + Tag `geo-tag`  
-   - 可选折叠帮助 `geo-help`（对标 `PageHelpPanel` 交互，文案自写）
+   - 折叠帮助 `geo-help`（对标 `PageHelpPanel` 交互，文案自写）
 
 4. **分批套到高频壳与页面（本变更范围）**  
-   - P0：侧栏 + 顶栏/工作区灰底 + 全局按钮层级（主实心、次 outline）  
-   - P1：设置/大模型中枢、阶段四台账行、阶段五监测告警与列表  
-   - **明确不做**：结案 Pitch / 深色 ROI 大屏可保留商业分量；不迁 Vue；不改后端 API。
+   - P0：侧栏（宽 220px、▼/▶、红退出 `#ef4444`）+ 顶栏/工作区灰底 + 全局按钮层级（主实心、次 outline）  
+   - P1（两处都做）：设置/大模型中枢；阶段四台账 **或** 阶段五监测（行/Tag/告警）  
+   - **明确不做**：结案 Pitch / 深色 ROI 大屏可保留商业分量；不迁 Vue；不改后端 API；不拷小毛驴业务菜单。
 
-5. **防回归**  
-   0 新增彩色 Emoji；侧栏与样板页 DOM 平衡；本地 8088 对照小毛驴截图做视觉验收清单。
+5. **防回归与复用文档**  
+   0 新增彩色 Emoji；DOM 平衡；本地 8088 对照小毛驴截图验收；产出 `docs/specs/geo-admin-ui-tokens.md` 对照表。
 
 ---
 
@@ -53,6 +53,6 @@
 | 区域 | 说明 |
 |------|------|
 | 参考源（只读） | `next核心项目/.../admin/App.vue`、`SidebarNav.vue`、`SettingsPanel.vue`、settings 子组件样式 |
-| 改动主文件 | `web/index.html`；可选新增 `web/geo-admin.css` |
-| 文档 | 本变更 `design.md` 中的组件对照表；可选 `docs/specs/geo-admin-ui-tokens.md`（若落地则列入 tasks） |
+| 改动主文件 | `web/geo-admin.css`（新建）、`web/index.html`（引入与 DOM 改造） |
+| 文档 | **必做** `docs/specs/geo-admin-ui-tokens.md` + 本变更 design 对照表 |
 | 不改 | `tools/geo/*` 业务逻辑、客户交付站点、生产部署（除非另令） |

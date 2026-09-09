@@ -1810,6 +1810,13 @@ core_values:
                 self.wfile.write(content)
                 return
 
+        # 管理端静态样式（对齐小毛驴组件令牌）
+        if path == "/geo-admin.css":
+            css_path = os.path.join(WEB_DIR, "geo-admin.css")
+            if os.path.exists(css_path):
+                self._serve_static_file(css_path, "geo-admin.css")
+                return
+
         # 4.5. 生产级多租户纯净静态官网托管路由: /sites/{project_id} 或 /sites/{project_id}/{asset}
         if path.startswith("/sites/"):
             raw_subpath = path[len("/sites/"):].strip("/")
