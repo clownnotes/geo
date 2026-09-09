@@ -26,6 +26,8 @@
 <!-- 全局 Toast 提示容器 -->
 <div id="toast-box" class="fixed top-5 right-5 z-50 transform -translate-y-16 opacity-0 pointer-events-none flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold text-white transition-all duration-300">
 </div>
+<!-- 全局指标含义浮层 -->
+<div id="geo-metric-hint-popover" class="hidden" role="dialog" aria-live="polite"></div>
 <!-- ================= 1. 登录视图 ================= -->
 <div id="login-view" class="flex-1 flex items-center justify-center p-6 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
 <div class="glass-card w-full max-w-md p-8 rounded-2xl shadow-2xl border border-slate-700/50">
@@ -118,9 +120,10 @@
 <div class="flex items-start gap-3 min-w-0">
 <span class="geo-status-dot geo-status-warn shrink-0 mt-1"></span>
 <div>
-<div class="text-sm font-semibold text-slate-900">自动化巡检与告警</div>
-<p class="text-xs text-slate-600 mt-0.5">最近全量巡检：<span id="patrol-last-time" class="font-semibold text-slate-800">尚未执行</span>
- · 告警：<span id="patrol-alert-status" class="font-semibold text-slate-800">加载中...</span></p>
+<div class="text-sm font-semibold text-slate-900">真机检测台账</div>
+<p class="text-xs text-slate-600 mt-0.5" id="patrol-ledger-summary">加载中...</p>
+<p class="text-[11px] text-slate-500 mt-0.5">最近机器全量巡检：<span id="patrol-last-time" class="font-semibold text-slate-700">尚未执行</span>
+ · 声量告警：<span id="patrol-alert-status" class="font-semibold text-slate-700">加载中...</span></p>
 </div>
 </div>
 <button type="button" class="geo-btn shrink-0" onclick="switchHomeView('home-ops')">运维详情</button>
@@ -135,7 +138,7 @@
 <div id="stat-completed-projects" class="text-2xl font-bold text-slate-900 mt-1">0</div>
 </div>
 <div onclick="switchHomeView('home-insights'); openPortfolioModal();" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-emerald-300 transition">
-<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">全域商业总价值</div>
+<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center">全域商业总价值<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'portfolio_total_value')" title="查看含义" aria-label="查看含义">?</button></div>
 <div id="stat-portfolio-total-value" class="text-xl font-bold text-emerald-600 mt-1">¥0</div>
 <div id="stat-portfolio-roi" class="text-[11px] font-semibold text-slate-500 mt-0.5">组合 ROI: +0.0%</div>
 </div>
@@ -237,19 +240,66 @@
 <section id="panel-home-ops" class="home-panel hidden space-y-6">
 <header class="geo-page-head">
 <div>
-<h1 class="geo-page-title">运维告警</h1>
-<p class="geo-page-desc">全量巡检、异动规则与通知渠道。</p>
+<h1 class="geo-page-title">运维告警 · 检测台账</h1>
+<p class="geo-page-desc">主路径：逾期提醒 → 真机回填 → 检测日志。机器全量巡检仅供参考，默认不清真机逾期。</p>
 </div>
-<div class="flex flex-wrap gap-2">
-<button type="button" onclick="handleTriggerPatrolAll(event)" id="btn-patrol-all" class="geo-btn"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>全量巡检</button>
+<div class="flex flex-wrap gap-2 items-center">
+<button type="button" onclick="handleTriggerPatrolAll(event)" id="btn-patrol-all" class="geo-btn">机器全量巡检（仅供参考）</button>
+<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'ops_api_patrol')" title="查看含义" aria-label="查看含义">?</button>
 <button type="button" onclick="openNotificationModal()" class="geo-btn geo-btn-primary"><i data-lucide="bell" class="w-3.5 h-3.5"></i>告警与通知设置</button>
 </div>
 </header>
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
-<div class="geo-row"><span class="geo-status-dot geo-status-warn"></span><div class="flex-1"><div class="text-sm font-semibold text-slate-900">巡检状态</div><p class="text-xs text-slate-500 mt-0.5">最近全量巡检：<span id="ops-patrol-last-time" class="font-semibold text-slate-700">尚未执行</span></p><p class="text-xs text-slate-500 mt-0.5">告警推送：<span id="ops-patrol-alert-status" class="font-semibold text-slate-700">加载中...</span></p></div></div>
-<div class="text-[11px] text-slate-400 border-t border-slate-100 pt-3">
-<div>Crontab: <code class="bg-slate-100 px-1 rounded">0 3 * * 1 geo patrol --all</code></div>
-<div class="mt-1">异动规则：SOV 跌破安全线 / 单周突降 / 竞品拦截 / 占位词失守</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-wrap gap-4 items-center justify-between">
+<div class="text-xs text-slate-600">
+<span>政策：将逾期 <strong id="ops-policy-warn">7</strong> 天 · 已逾期 <strong id="ops-policy-overdue">14</strong> 天 · 最少真机词数 <strong id="ops-policy-minkw">1</strong></span>
+<span class="text-slate-400 ml-2">机器巡检：<span id="ops-patrol-last-time">尚未执行</span> · <span id="ops-patrol-alert-status">—</span></span>
+</div>
+<button type="button" class="geo-btn" onclick="refreshOpsLedger()">刷新台账</button>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+<h2 class="text-sm font-bold text-slate-900">客户真机检测台账</h2>
+<div class="text-[11px] text-slate-400" id="ops-ledger-counts">—</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="bg-slate-50 text-slate-600 text-xs font-semibold border-b border-slate-200">
+<tr>
+<th class="px-4 py-3">客户</th>
+<th class="px-4 py-3">状态<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'ops_overdue_status')" title="查看含义">?</button></th>
+<th class="px-4 py-3">上次真机</th>
+<th class="px-4 py-3 text-center">覆盖词</th>
+<th class="px-4 py-3 text-right">最近 SOV</th>
+<th class="px-4 py-3 text-right">距今天数</th>
+<th class="px-4 py-3 text-right">操作</th>
+</tr>
+</thead>
+<tbody id="ops-ledger-body" class="divide-y divide-slate-100"></tbody>
+</table>
+</div>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="px-5 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+<h2 class="text-sm font-bold text-slate-900">检测日志</h2>
+<select id="ops-log-project-filter" onchange="refreshOpsCheckLogs()" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white">
+<option value="">全部客户</option>
+</select>
+</div>
+<div class="overflow-x-auto max-h-72 overflow-y-auto">
+<table class="w-full text-left text-xs">
+<thead class="bg-slate-50 text-slate-500 font-semibold border-b sticky top-0">
+<tr>
+<th class="px-4 py-2">时间 (UTC)</th>
+<th class="px-4 py-2">客户</th>
+<th class="px-4 py-2">模式</th>
+<th class="px-4 py-2">操作者</th>
+<th class="px-4 py-2">词数</th>
+<th class="px-4 py-2">SOV</th>
+<th class="px-4 py-2">摘要</th>
+</tr>
+</thead>
+<tbody id="ops-check-logs-body"></tbody>
+</table>
 </div>
 </div>
 </section>
@@ -1701,6 +1751,18 @@
 <input id="notif-drop-limit" type="number" step="5" min="0" max="50" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="15">
 </div>
 </div>
+<div class="grid grid-cols-3 gap-3">
+<div><label class="block font-semibold text-slate-700 mb-1">将逾期 (天)</label>
+<input id="notif-warn-days" type="number" min="1" max="90" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs" value="7">
+</div>
+<div><label class="block font-semibold text-slate-700 mb-1">已逾期 (天)</label>
+<input id="notif-overdue-days" type="number" min="1" max="180" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs" value="14">
+</div>
+<div><label class="block font-semibold text-slate-700 mb-1">最少真机词数</label>
+<input id="notif-min-manual-kw" type="number" min="1" max="50" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs" value="1">
+</div>
+</div>
+<p class="text-[10px] text-slate-400">逾期按「上次有效真机检测」计算；机器 API 巡检默认不清逾期。Webhook 逾期周报开关预留二期。</p>
 <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
 <div class="font-bold text-slate-800">Crontab 挂载说明：</div>
 <p class="text-[11px] text-slate-500 font-mono">0 3 * * 1 cd /path/to/GEO && python3 -m tools.geo patrol --all</p>
@@ -1899,22 +1961,22 @@
 <!-- 4 维宏观 KPI 卡片 -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">全盘商业创造总价值</div>
+<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center">全盘商业创造总价值<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'portfolio_total_value')" title="查看含义" aria-label="查看含义">?</button></div>
 <div id="pf-stat-total-val" class="text-2xl font-bold text-emerald-600 mt-1">¥0</div>
 <div id="pf-stat-net-val" class="text-[11px] text-slate-500 mt-0.5">净增收益: ¥0 元</div>
 </div>
 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">组合投资回报率 (ROI)</div>
+<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center">组合投资回报率 (ROI)<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'portfolio_roi')" title="查看含义" aria-label="查看含义">?</button></div>
 <div id="pf-stat-roi" class="text-2xl font-bold text-indigo-600 mt-1">+0.0%</div>
 <div id="pf-stat-multiplier" class="text-[11px] text-slate-500 mt-0.5">资产放大倍数: 0.0x</div>
 </div>
 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">托管项目与齐套率</div>
+<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center">托管项目与齐套率<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'portfolio_scale')" title="查看含义" aria-label="查看含义">?</button></div>
 <div id="pf-stat-scale" class="text-2xl font-bold text-slate-900 mt-1">0 家</div>
 <div id="pf-stat-manifest" class="text-[11px] text-slate-500 mt-0.5">16 维资产齐套率: 0.0%</div>
 </div>
 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">全盘安全风控与合规</div>
+<div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center">全盘安全风控与合规<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'portfolio_security')" title="查看含义" aria-label="查看含义">?</button></div>
 <div id="pf-stat-security" class="text-2xl font-bold text-emerald-600 mt-1">100 分</div>
 <div id="pf-stat-risk-tag" class="text-[11px] text-slate-500 mt-0.5">广告违规: 0 处 ｜ 死链: 0 条</div>
 </div>
@@ -1935,11 +1997,11 @@
 <tr class="bg-slate-100/75 text-slate-600 font-semibold border-b border-slate-200">
 <th class="px-4 py-3">企业客户</th>
 <th class="px-4 py-3">垂直行业</th>
-<th class="px-4 py-3 text-center">合同履约分</th>
-<th class="px-4 py-3 text-center">AI声量 (SOV)</th>
-<th class="px-4 py-3 text-right">年化总商业价值</th>
-<th class="px-4 py-3 text-right">单项 ROI</th>
-<th class="px-4 py-3 text-center">健康状态</th>
+<th class="px-4 py-3 text-center">合同履约分<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'col_acceptance')" title="查看含义" aria-label="查看含义">?</button></th>
+<th class="px-4 py-3 text-center">AI声量 (SOV)<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'col_sov')" title="查看含义" aria-label="查看含义">?</button></th>
+<th class="px-4 py-3 text-right">年化总商业价值<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'col_project_value')" title="查看含义" aria-label="查看含义">?</button></th>
+<th class="px-4 py-3 text-right">单项 ROI<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'col_project_roi')" title="查看含义" aria-label="查看含义">?</button></th>
+<th class="px-4 py-3 text-center">健康状态<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'col_health')" title="查看含义" aria-label="查看含义">?</button></th>
 <th class="px-4 py-3 text-center">操作</th>
 </tr>
 </thead>
@@ -5039,6 +5101,9 @@ GitHub 开源仓库：https://github.com/company/repo
       if (currentHomeView === 'home-partners') {
         renderPartnersAdmin();
       }
+      if (currentHomeView === 'home-ops') {
+        refreshOpsLedger();
+      }
       if (currentHomeView === 'home-insights') fillInsightsProjectSelect();
       if (currentHomeView === 'home-enterprises') syncHomeNavHighlight();
       if (!skipRoute) updateRouteState();
@@ -5118,6 +5183,138 @@ GitHub 开源仓库：https://github.com/company/repo
           if (alertEl) alertEl.innerText = '读取失败';
         });
       }
+      await refreshDashboardLedgerSummary();
+    }
+
+    async function refreshDashboardLedgerSummary() {
+      const el = document.getElementById('patrol-ledger-summary');
+      try {
+        const res = await fetch('/api/ops/check-ledger', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success) {
+          if (el) el.textContent = '台账加载失败';
+          return;
+        }
+        const s = data.summary || {};
+        if (el) {
+          el.innerHTML = `已逾期 <strong class="text-rose-600">${s.overdue || 0}</strong> 家 · 将逾期 <strong class="text-amber-600">${s.warn || 0}</strong> 家 · 从未真机 <strong class="text-slate-800">${s.never || 0}</strong> 家 · 正常 ${s.ok || 0} 家`;
+        }
+        const alertBar = document.getElementById('home-patrol-alert');
+        if (alertBar) {
+          const bad = (s.overdue || 0) + (s.never || 0);
+          alertBar.classList.toggle('geo-alert-danger', bad > 0);
+        }
+      } catch (e) {
+        if (el) el.textContent = '台账读取异常';
+      }
+    }
+
+    function opsStatusTag(status) {
+      const map = {
+        never: ['从未真机', 'bg-slate-800 text-white border-slate-800'],
+        overdue: ['已逾期', 'bg-rose-50 text-rose-700 border-rose-200'],
+        warn: ['将逾期', 'bg-amber-50 text-amber-800 border-amber-200'],
+        ok: ['正常', 'bg-emerald-50 text-emerald-700 border-emerald-200'],
+      };
+      const [label, cls] = map[status] || ['未知', 'bg-slate-50 text-slate-600 border-slate-200'];
+      return `<span class="inline-flex text-[10px] px-2 py-0.5 rounded-full font-semibold border ${cls}">${label}</span>`;
+    }
+
+    async function refreshOpsLedger() {
+      const body = document.getElementById('ops-ledger-body');
+      const counts = document.getElementById('ops-ledger-counts');
+      const filter = document.getElementById('ops-log-project-filter');
+      if (!body) return;
+      body.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400 text-xs">加载中...</td></tr>`;
+      try {
+        const res = await fetch('/api/ops/check-ledger', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success) {
+          body.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-rose-500 text-xs">${data.message || '加载失败'}</td></tr>`;
+          return;
+        }
+        const policy = data.policy || {};
+        const w = document.getElementById('ops-policy-warn');
+        const o = document.getElementById('ops-policy-overdue');
+        const m = document.getElementById('ops-policy-minkw');
+        if (w) w.textContent = policy.warn_days ?? 7;
+        if (o) o.textContent = policy.overdue_days ?? 14;
+        if (m) m.textContent = policy.min_manual_keywords ?? 1;
+        const s = data.summary || {};
+        if (counts) counts.textContent = `从未 ${s.never || 0} · 逾期 ${s.overdue || 0} · 将逾期 ${s.warn || 0} · 正常 ${s.ok || 0}`;
+        const rows = data.rows || [];
+        if (filter) {
+          const cur = filter.value;
+          filter.innerHTML = `<option value="">全部客户</option>` + rows.map(r =>
+            `<option value="${r.project_id}">${escapeHtmlSafe(r.client_name)}</option>`
+          ).join('');
+          filter.value = cur || '';
+        }
+        if (!rows.length) {
+          body.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400 text-xs">暂无托管项目</td></tr>`;
+          return;
+        }
+        body.innerHTML = rows.map(r => {
+          const sov = r.last_sov_pct == null ? '—' : `${r.last_sov_pct}%`;
+          const note = r.sample_note ? `<div class="text-[10px] text-amber-600">${r.sample_note}</div>` : '';
+          const days = r.days_since == null ? '—' : r.days_since;
+          const last = r.last_manual_at || '—';
+          return `<tr class="hover:bg-slate-50/80">
+            <td class="px-4 py-3"><div class="font-semibold text-slate-800">${escapeHtmlSafe(r.client_name)}</div><div class="text-[10px] font-mono text-slate-400">${r.project_id}</div></td>
+            <td class="px-4 py-3">${opsStatusTag(r.status)}</td>
+            <td class="px-4 py-3 text-xs text-slate-600 font-mono">${last}</td>
+            <td class="px-4 py-3 text-center text-xs">${r.manual_keyword_count || 0}</td>
+            <td class="px-4 py-3 text-right text-xs font-semibold">${sov}${note}</td>
+            <td class="px-4 py-3 text-right text-xs">${days}</td>
+            <td class="px-4 py-3 text-right"><button type="button" class="geo-btn geo-btn-primary" onclick="openManualCheckForProject('${r.project_id}')">去真机检测</button></td>
+          </tr>`;
+        }).join('');
+      } catch (e) {
+        body.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-rose-500 text-xs">台账异常</td></tr>`;
+      }
+      await refreshOpsCheckLogs();
+      lucide.createIcons();
+    }
+
+    async function refreshOpsCheckLogs() {
+      const body = document.getElementById('ops-check-logs-body');
+      if (!body) return;
+      const pid = document.getElementById('ops-log-project-filter')?.value || '';
+      const q = pid ? `?project_id=${encodeURIComponent(pid)}&limit=80` : '?limit=80';
+      try {
+        const res = await fetch(`/api/ops/check-logs${q}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        const logs = (data.success && data.logs) ? data.logs : [];
+        if (!logs.length) {
+          body.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400">暂无检测日志</td></tr>`;
+          return;
+        }
+        const modeLabel = { manual_probe: '真机', api_patrol: '机器', offline_estimate: '离线' };
+        body.innerHTML = logs.map(l => `<tr class="border-t border-slate-50">
+          <td class="px-4 py-2 font-mono text-slate-500">${escapeHtmlSafe(l.at || '')}</td>
+          <td class="px-4 py-2">${escapeHtmlSafe(l.project_id || '')}</td>
+          <td class="px-4 py-2">${modeLabel[l.mode] || l.mode || ''}</td>
+          <td class="px-4 py-2">${escapeHtmlSafe(l.operator || '')}</td>
+          <td class="px-4 py-2">${l.keyword_count ?? (l.keywords || []).length}</td>
+          <td class="px-4 py-2">${l.sov_pct == null ? '—' : l.sov_pct + '%'}</td>
+          <td class="px-4 py-2 text-slate-600 max-w-xs truncate" title="${escapeHtmlSafe(l.summary || '')}">${escapeHtmlSafe(l.summary || '')}</td>
+        </tr>`).join('');
+      } catch (e) {
+        body.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-rose-500">日志读取失败</td></tr>`;
+      }
+    }
+
+    async function openManualCheckForProject(projectId) {
+      await enterWizard(projectId, 'mon-probing');
+      setTimeout(() => {
+        try { openManualProbeModal(); } catch (e) {}
+      }, 400);
     }
 
     // 登录处理
@@ -5865,6 +6062,106 @@ GitHub 开源仓库：https://github.com/company/repo
       const el = document.getElementById(id);
       if (el) el.classList.toggle('hidden');
     }
+
+    const METRIC_HINTS = {
+      portfolio_total_value: {
+        title: '全域 / 全盘商业总价值',
+        body: '把所有托管客户的「年化商业估值」加在一起。不是银行到账现金，而是模型估算的产出，通常包括：等效 SEM 广告节省、AI 首推线索估值、语料与数字资产估值。净增收益 = 总价值 − 年度服务费合计。'
+      },
+      portfolio_roi: {
+        title: '组合投资回报率 (ROI)',
+        body: '公式：(全盘总价值 − 全盘服务费) ÷ 全盘服务费。倍数 = 总价值 ÷ 服务费。用来看「客户付的代运营费」相对「估算出的商业产出」放大了多少；均值是各项目单项 ROI 的平均。'
+      },
+      portfolio_scale: {
+        title: '托管项目与齐套率',
+        body: '托管家数是当前在管客户数。16 维齐套率表示交付资产清单平均完成比例。全额结案是履约分达到结案线的项目数 / 总数。'
+      },
+      portfolio_security: {
+        title: '全盘安全风控与合规',
+        body: '综合各项目的注入免疫等安全探针得分（越高越稳）。下方同时汇总广告法违规处数与外链死链条数，便于一眼看风控压力。'
+      },
+      col_acceptance: {
+        title: '合同履约分',
+        body: '单项目对照交付 SOP / 验收标准打的综合分。分数够高才算「全额结案」；偏低通常表示分发、声量或齐套项还没达标。'
+      },
+      col_sov: {
+        title: 'AI 声量 (SOV)',
+        body: 'Share of Voice：在监测问题里，自家品牌被大模型提及/推荐的占比。带「投影」时表示用培育模型估算，未必全是实网探针结果。'
+      },
+      col_project_value: {
+        title: '年化总商业价值',
+        body: '该客户单独的年化商业估值（SEM 节省 + 线索估值 + 数字资产等），加总后等于上方「全盘商业总价值」。'
+      },
+      col_project_roi: {
+        title: '单项 ROI',
+        body: '该客户：(年化总价值 − 其年度服务费) ÷ 服务费。只看这一家，不跨项目平均。'
+      },
+      col_health: {
+        title: '健康状态',
+        body: '综合履约分、声量、合规与死链等打的运营灯：正常 / 预警 / 高危。高危优先处理声量塌陷或风控红线。'
+      },
+      ops_api_patrol: {
+        title: '机器全量巡检（仅供参考）',
+        body: '用已配置的 API Key 批量跑声量探针。与用户网页未登录真搜不完全一致；默认不会把「真机逾期」清成正常。日常请以真机回填为主路径。'
+      },
+      ops_overdue_status: {
+        title: '真机逾期状态',
+        body: '从未真机：还没有有效真机回填。将逾期：距上次有效真机 ≥ 将逾期天数。已逾期：≥ 已逾期天数。正常：在窗口内。有效 = 真机模式且词数达到最少要求。'
+      }
+    };
+
+    let _metricHintKey = null;
+
+    function hideMetricHint() {
+      const pop = document.getElementById('geo-metric-hint-popover');
+      if (pop) pop.classList.add('hidden');
+      document.querySelectorAll('.geo-metric-hint[aria-expanded="true"]').forEach(btn => {
+        btn.setAttribute('aria-expanded', 'false');
+      });
+      _metricHintKey = null;
+    }
+
+    function toggleMetricHint(event, key) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      const tip = METRIC_HINTS[key];
+      const pop = document.getElementById('geo-metric-hint-popover');
+      const btn = event && event.currentTarget;
+      if (!tip || !pop || !btn) return;
+      if (_metricHintKey === key && !pop.classList.contains('hidden')) {
+        hideMetricHint();
+        return;
+      }
+      hideMetricHint();
+      pop.innerHTML = `<div class="geo-metric-hint-title">${tip.title}</div><div>${tip.body}</div>`;
+      pop.classList.remove('hidden');
+      btn.setAttribute('aria-expanded', 'true');
+      _metricHintKey = key;
+      const rect = btn.getBoundingClientRect();
+      const pad = 8;
+      let left = rect.left;
+      let top = rect.bottom + 6;
+      pop.style.left = '0px';
+      pop.style.top = '0px';
+      const pw = pop.offsetWidth || 280;
+      const ph = pop.offsetHeight || 120;
+      if (left + pw > window.innerWidth - pad) left = Math.max(pad, window.innerWidth - pw - pad);
+      if (top + ph > window.innerHeight - pad) top = Math.max(pad, rect.top - ph - 6);
+      pop.style.left = `${left}px`;
+      pop.style.top = `${top}px`;
+    }
+
+    document.addEventListener('click', (e) => {
+      const pop = document.getElementById('geo-metric-hint-popover');
+      if (!pop || pop.classList.contains('hidden')) return;
+      if (pop.contains(e.target) || (e.target && e.target.closest && e.target.closest('.geo-metric-hint'))) return;
+      hideMetricHint();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideMetricHint();
+    });
     function switchSettingsLlmTab(tab) {
       document.querySelectorAll('#settings-llm-tabs button').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-llm-tab') === tab);
@@ -6782,7 +7079,7 @@ GitHub 开源仓库：https://github.com/company/repo
       const btn = document.getElementById('btn-patrol-all');
       const origHTML = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 正在全量巡检所有项目...`;
+      btn.innerHTML = `正在全量巡检所有项目...`;
       try {
         const res = await fetch(`/api/patrol/trigger`, {
           method: 'POST',
@@ -6823,6 +7120,12 @@ GitHub 开源仓库：https://github.com/company/repo
           document.getElementById('notif-webhook-url').value = s.webhook_url || '';
           document.getElementById('notif-min-sov').value = s.min_sov_threshold || 50;
           document.getElementById('notif-drop-limit').value = s.drop_threshold_pct || 15;
+          const wd = document.getElementById('notif-warn-days');
+          const od = document.getElementById('notif-overdue-days');
+          const mk = document.getElementById('notif-min-manual-kw');
+          if (wd) wd.value = s.warn_days ?? 7;
+          if (od) od.value = s.overdue_days ?? 14;
+          if (mk) mk.value = s.min_manual_keywords ?? 1;
         }
       } catch (e) {}
       lucide.createIcons();
@@ -6840,6 +7143,10 @@ GitHub 开源仓库：https://github.com/company/repo
         webhook_type: 'auto',
         min_sov_threshold: parseFloat(document.getElementById('notif-min-sov').value) || 50.0,
         drop_threshold_pct: parseFloat(document.getElementById('notif-drop-limit').value) || 15.0,
+        warn_days: parseFloat(document.getElementById('notif-warn-days')?.value) || 7,
+        overdue_days: parseFloat(document.getElementById('notif-overdue-days')?.value) || 14,
+        min_manual_keywords: parseInt(document.getElementById('notif-min-manual-kw')?.value, 10) || 1,
+        overdue_webhook_enabled: false,
         notify_on_sov_drop: true,
         notify_on_intercept: true,
         notify_on_placeholder: true
@@ -6856,8 +7163,10 @@ GitHub 开源仓库：https://github.com/company/repo
         });
         const data = await res.json();
         if (data.success) {
-          showToast(' 告警通知配置保存成功！');
+          showToast('告警通知配置保存成功');
           closeNotificationModal();
+          loadPatrolStatus();
+          if (currentHomeView === 'home-ops') refreshOpsLedger();
         } else {
           showToast('保存失败: ' + data.message, 'error');
         }
@@ -7111,6 +7420,7 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     function closePortfolioModal() {
+      hideMetricHint();
       document.getElementById('portfolio-modal').classList.add('hidden');
     }
 

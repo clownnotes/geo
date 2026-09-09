@@ -43,7 +43,12 @@ def load_notification_settings() -> dict:
         "notify_on_placeholder": True,
         "drop_threshold_pct": 15.0,
         "last_patrol_time": None,
-        "alert_history": []
+        "alert_history": [],
+        # 真机检测台账逾期策略
+        "warn_days": 7,
+        "overdue_days": 14,
+        "min_manual_keywords": 1,
+        "overdue_webhook_enabled": False,
     }
     if os.path.exists(SETTINGS_FILE):
         try:
@@ -355,7 +360,21 @@ def run_patrol_project(project_id: str, notify: bool = True) -> dict:
     # 更新最近巡检时间
     settings = load_notification_settings()
     settings["last_patrol_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    save_notification_settings(settings, merge=False)
+    save_notification_settings(settings, merge=True)
+
+    try:
+        from .check_ledger import append_check_log
+        append_check_log(
+            project_id=project_id,
+            mode="api_patrol",
+            operator="system",
+            keywords=[],
+            sov_pct=metrics.get("sov_pct"),
+            summary=summary if should_alert else "机器巡检完成（仅供参考，不清真机逾期）",
+            source_ref=f"projects/{project_id}/history.db",
+        )
+    except Exception as e:
+        print(f"写入 api_patrol 检测日志失败: {e}")
 
     return {
         "project_id": project_id,
@@ -388,7 +407,7 @@ def run_patrol_all(notify: bool = True) -> list:
     if results:
         settings = load_notification_settings()
         settings["last_patrol_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        save_notification_settings(settings, merge=False)
+        save_notification_settings(settings, merge=True)
 
     print_success(f"🎉 全项目自动化巡检完成！共巡检 {len(results)} 个活跃项目。")
     return results

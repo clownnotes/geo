@@ -649,6 +649,19 @@ core_values:
                     content=body.get("content", ""),
                     notes=body.get("notes", ""),
                 )
+                try:
+                    from .check_ledger import log_manual_ingest
+                    operator = body.get("operator") or "admin"
+                    log_row = log_manual_ingest(
+                        project_id,
+                        keyword=body.get("keyword", ""),
+                        operator=str(operator),
+                        metrics=res.get("metrics") if isinstance(res, dict) else None,
+                    )
+                    if isinstance(res, dict):
+                        res["check_log_id"] = log_row.get("id")
+                except Exception as log_err:
+                    print(f"真机回填写检测日志失败: {log_err}")
                 self.send_json(res)
             except ManualProbeValidationError as e:
                 self.send_json({"success": False, "message": str(e)}, status=400)
@@ -658,9 +671,9 @@ core_values:
 
         # 8. 保存通知与告警设置 API: /api/settings/notifications
         if path == "/api/settings/notifications":
-            body = self.read_json_body()
+            body = self.read_json_body() or {}
             from .patrol import save_notification_settings
-            ok = save_notification_settings(body)
+            ok = save_notification_settings(body, merge=True)
             self.send_json({"success": ok, "message": "告警配置已保存！" if ok else "保存失败"})
             return
 
@@ -2747,6 +2760,29 @@ server {{
                 from .patrol import load_notification_settings
                 settings = load_notification_settings()
                 self.send_json({"success": True, "settings": settings})
+                return
+
+            # 运维检测台账: /api/ops/check-ledger
+            if path == "/api/ops/check-ledger":
+                try:
+                    from .check_ledger import build_check_ledger
+                    self.send_json(build_check_ledger())
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e), "rows": []}, status=500)
+                return
+
+            # 检测日志: /api/ops/check-logs
+            if path == "/api/ops/check-logs":
+                try:
+                    from urllib.parse import parse_qs, urlparse
+                    from .check_ledger import list_check_logs
+                    qs = parse_qs(urlparse(self.path).query)
+                    project_id = (qs.get("project_id") or [None])[0]
+                    limit = int((qs.get("limit") or ["100"])[0] or 100)
+                    logs = list_check_logs(project_id=project_id or None, limit=limit)
+                    self.send_json({"success": True, "logs": logs})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e), "logs": []}, status=500)
                 return
 
             # 获取项目历史巡检时序数据: /api/projects/{id}/history
