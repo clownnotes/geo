@@ -30,6 +30,7 @@ from .utils import (
     PROJECTS_DIR,
     load_project_config,
     save_project_output,
+    update_project_profile,
     print_banner,
     print_info,
     print_success,
@@ -498,6 +499,40 @@ core_values:
                     })
                 else:
                     self.send_json({"success": False, "message": "无有效字段"}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 建档主档保存: POST /api/projects/{id}/profile
+        if path.startswith("/api/projects/") and path.endswith("/profile"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() or {}
+            try:
+                from . import utils as geo_utils
+                from .partners import partner_map, resolve_partner_name
+                from .ledger import list_evidence, load_facts
+                # do_POST 内多处 `from .utils import load_project_config` 会把该名标成局部变量，
+                # 必须通过模块属性访问，避免 UnboundLocalError。
+                safe = geo_utils.update_project_profile(project_id, body)
+                pid = str(safe.get("partner_id") or "").strip()
+                safe["partner_name"] = resolve_partner_name(pid, partner_map(include_archived=True)) if pid else ""
+                cfg = geo_utils.load_project_config(project_id)
+                try:
+                    safe["evidence_count"] = len(list_evidence(cfg))
+                    safe["facts_count"] = len(load_facts(cfg))
+                except Exception:
+                    safe["evidence_count"] = 0
+                    safe["facts_count"] = 0
+                out_dir = cfg["_outputs_dir"]
+                outputs = []
+                if os.path.exists(out_dir):
+                    for f in sorted(os.listdir(out_dir)):
+                        if not f.startswith(".") and os.path.isfile(os.path.join(out_dir, f)):
+                            outputs.append({"name": f, "size_bytes": os.path.getsize(os.path.join(out_dir, f))})
+                safe["outputs"] = outputs
+                self.send_json({"success": True, "project": safe, "message": "建档资料已保存"})
+            except ValueError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
@@ -3589,6 +3624,22 @@ server {{
                     # 清理私有路径
                     safe_cfg = {k: v for k, v in cfg.items() if not k.startswith("_")}
                     safe_cfg["outputs"] = outputs
+
+                    # 只读富化：合作方中文名 + 证据/真相源条数（不写回 yaml）
+                    try:
+                        from .partners import partner_map, resolve_partner_name
+                        pid = str(safe_cfg.get("partner_id") or "").strip()
+                        safe_cfg["partner_name"] = resolve_partner_name(pid, partner_map(include_archived=True)) if pid else ""
+                    except Exception:
+                        safe_cfg["partner_name"] = ""
+                    try:
+                        from .ledger import list_evidence, load_facts
+                        safe_cfg["evidence_count"] = len(list_evidence(cfg))
+                        safe_cfg["facts_count"] = len(load_facts(cfg))
+                    except Exception:
+                        safe_cfg["evidence_count"] = 0
+                        safe_cfg["facts_count"] = 0
+
                     self.send_json({"success": True, "project": safe_cfg})
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=404)

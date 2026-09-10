@@ -1413,23 +1413,13 @@
 <div id="panel-overview" class="workspace-panel hidden space-y-6">
 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
 <h2 class="text-base font-bold text-slate-900">客户档案与总资产看板</h2>
-<p class="text-xs text-slate-500 mt-1">当前项目摘要与快捷入口。详细交付在左侧「交付流水线」中推进。</p>
-<div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-<div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
-<div class="text-[11px] text-slate-400 mb-1">客户</div>
-<div id="overview-client-name" class="font-semibold text-slate-900">-</div>
-</div>
-<div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
-<div class="text-[11px] text-slate-400 mb-1">项目 ID</div>
-<div id="overview-client-id" class="font-mono text-xs text-[#7c5bf5]">-</div>
-</div>
-<div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
-<div class="text-[11px] text-slate-400 mb-1">官网</div>
-<div id="overview-client-url" class="text-xs text-slate-600 break-all">-</div>
-</div>
+<p class="text-xs text-slate-500 mt-1">建档主档只读镜像（来自 project.yaml）。详细交付在左侧「交付流水线」中推进；本页无编辑保存。</p>
+<div id="overview-profile-root" class="mt-4 space-y-4">
+<div class="text-xs text-slate-400 py-6 text-center">加载客户档案中…</div>
 </div>
 <div class="mt-5 flex flex-wrap gap-2">
 <button type="button" onclick="switchView('step-1-diag')" class="py-2 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">进入交付流水线</button>
+<button type="button" onclick="switchView('step-3-princeton')" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">证据库与真相源</button>
 <button type="button" onclick="switchView('step-4-distribute')" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">矩阵分发</button>
 <button type="button" onclick="switchView('mon-weekly')" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">SOV 周报</button>
 </div>
@@ -1683,6 +1673,29 @@
 </div>
 </div>
 <!-- /wizard-view -->
+<!-- ================= 企业建档资料只读抽屉 ================= -->
+<div id="profile-drawer-root" class="geo-profile-drawer-root" aria-hidden="true">
+<div class="geo-profile-drawer-mask" onclick="closeProjectProfileDrawer()"></div>
+<aside class="geo-profile-drawer" role="dialog" aria-modal="true" aria-labelledby="profile-drawer-title">
+<div class="geo-profile-drawer-header flex items-start justify-between gap-3">
+<div class="min-w-0">
+<div class="text-[10px] font-bold uppercase tracking-wide text-[#7c5bf5] mb-1">建档资料 · 可编辑</div>
+<h3 id="profile-drawer-title" class="text-base font-bold text-slate-900 truncate">—</h3>
+<p id="profile-drawer-subtitle" class="text-[11px] text-slate-500 font-mono mt-0.5 truncate">—</p>
+</div>
+<button type="button" onclick="closeProjectProfileDrawer()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100" title="关闭"><i data-lucide="x" class="w-5 h-5"></i></button>
+</div>
+<div id="profile-drawer-body" class="geo-profile-drawer-body">
+<div class="text-xs text-slate-400 py-10 text-center">加载中…</div>
+</div>
+<div class="geo-profile-drawer-footer">
+<button type="button" id="profile-drawer-save" class="py-2 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">保存修改</button>
+<button type="button" id="profile-drawer-enter" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">进入流水线</button>
+<button type="button" id="profile-drawer-zip" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">下载 ZIP</button>
+<button type="button" onclick="closeProjectProfileDrawer()" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-lg">关闭</button>
+</div>
+</aside>
+</div>
 <!-- ================= 4. 新建客户项目模态弹窗 ================= -->
 <div id="new-project-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
@@ -5519,6 +5532,7 @@ GitHub 开源仓库：https://github.com/company/repo
             <td class="px-5 py-3 text-xs text-center font-semibold text-slate-700">${p.keywords_count} 组</td>
             <td class="px-5 py-3"><div class="w-full bg-slate-200 rounded-full h-2 max-w-[120px] overflow-hidden"><div class="bg-indigo-600 h-2 rounded-full" style="width: ${p.progress_pct}%"></div></div><div class="text-[11px] text-slate-500 mt-1">${p.steps_done}/5 (${p.progress_pct}%)</div></td>
             <td class="px-5 py-3 text-right whitespace-nowrap">
+              <button onclick="openProjectProfileDrawer('${p.client_id}')" class="py-1.5 px-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition">查看资料</button>
               <button onclick="enterWizard('${p.client_id}')" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition">进入流水线</button>
               <button onclick="downloadProjectZip('${p.client_id}')" title="下载交付包ZIP" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition inline-flex align-middle"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
               <button onclick="confirmDeleteProject('${p.client_id}')" title="删除项目" class="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition inline-flex align-middle"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
@@ -5675,6 +5689,404 @@ GitHub 开源仓库：https://github.com/company/repo
       }
     }
 
+    let profileDrawerProjectId = '';
+    let profileDrawerEscBound = false;
+
+    function profileDash(v) {
+      if (v === null || v === undefined) return '—';
+      const s = String(v).trim();
+      return s ? escapeHtmlSafe(s) : '—';
+    }
+
+    function profileDisplayName(p) {
+      if (!p) return '—';
+      return p.client_name || p.company_name || p.brand_name || p.client_id || '—';
+    }
+
+    function profileEntity(p) {
+      const e = p && p.entity;
+      return (e && typeof e === 'object' && !Array.isArray(e)) ? e : {};
+    }
+
+    function profileContactPerson(p) {
+      const e = profileEntity(p);
+      return p.contact_person || p.founder || p.person || e.person || '';
+    }
+
+    function profileTelephone(p) {
+      const e = profileEntity(p);
+      return p.telephone || p.phone || e.phone || '';
+    }
+
+    function profileArea(p) {
+      const e = profileEntity(p);
+      return p.area_served || p.address || p.area || e.area || '';
+    }
+
+    function profileAsList(v) {
+      if (!v) return [];
+      if (Array.isArray(v)) return v.filter(x => x !== null && x !== undefined && String(x).trim() !== '');
+      if (typeof v === 'string') {
+        return v.split(/\n|,/).map(s => s.trim()).filter(Boolean);
+      }
+      return [];
+    }
+
+    function profileChipsHtml(items, muted) {
+      const list = profileAsList(items);
+      if (!list.length) return `<span class="text-xs text-slate-400">—</span>`;
+      return `<div class="geo-profile-chips">${list.map(t =>
+        `<span class="geo-profile-chip${muted ? ' muted' : ''}">${escapeHtmlSafe(String(t))}</span>`
+      ).join('')}</div>`;
+    }
+
+    function profileCoreBusinessHtml(items) {
+      if (!Array.isArray(items) || !items.length) return '';
+      return `<ul class="space-y-2 mt-2">${items.map(b => {
+        if (!b || typeof b !== 'object') {
+          return `<li class="text-xs text-slate-700">${escapeHtmlSafe(String(b))}</li>`;
+        }
+        const name = escapeHtmlSafe(b.name || '业务项');
+        const desc = b.description ? `<div class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtmlSafe(b.description)}</div>` : '';
+        const meta = [b.cycle, b.price].filter(Boolean).map(x =>
+          `<span class="geo-profile-chip muted">${escapeHtmlSafe(String(x))}</span>`
+        ).join('');
+        return `<li class="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2"><div class="text-xs font-semibold text-slate-800">${name}</div>${desc}${meta ? `<div class="flex flex-wrap gap-1.5 mt-1.5">${meta}</div>` : ''}</li>`;
+      }).join('')}</ul>`;
+    }
+
+    function profileAttr(v) {
+      return escapeHtmlSafe(v == null ? '' : String(v));
+    }
+
+    function profileField(id, label, value, opts = {}) {
+      const hint = opts.hint ? `<div class="hint">${escapeHtmlSafe(opts.hint)}</div>` : '';
+      if (opts.type === 'textarea') {
+        const rows = opts.rows || 3;
+        return `<div class="geo-profile-field"><label for="${id}">${escapeHtmlSafe(label)}</label>
+          <textarea id="${id}" rows="${rows}">${profileAttr(value)}</textarea>${hint}</div>`;
+      }
+      if (opts.type === 'select') {
+        return `<div class="geo-profile-field"><label for="${id}">${escapeHtmlSafe(label)}</label>
+          <select id="${id}">${opts.optionsHtml || ''}</select>${hint}</div>`;
+      }
+      const readonly = opts.readonly ? 'readonly' : '';
+      const type = opts.type || 'text';
+      return `<div class="geo-profile-field"><label for="${id}">${escapeHtmlSafe(label)}</label>
+        <input id="${id}" type="${type}" value="${profileAttr(value)}" ${readonly}/>${hint}</div>`;
+    }
+
+    function renderProjectProfileFormHtml(p) {
+      if (!p) return `<div class="text-xs text-slate-400 py-6 text-center">暂无档案数据</div>`;
+      const values = profileAsList(p.core_values).length ? profileAsList(p.core_values) : profileAsList(p.differences);
+      const keywords = profileAsList(p.keywords);
+      const competitors = profileAsList(p.competitors);
+      const partnerOpts = [`<option value="">未分配 / 直营</option>`]
+        .concat((partnersCache || []).filter(x => x.status !== 'archived').map(x => {
+          const sel = (p.partner_id || '') === x.id ? ' selected' : '';
+          return `<option value="${escapeHtmlSafe(x.id)}"${sel}>${escapeHtmlSafe(x.name)}</option>`;
+        })).join('');
+      const outputsN = Array.isArray(p.outputs) ? p.outputs.length : 0;
+      const evN = Number(p.evidence_count) || 0;
+      const faN = Number(p.facts_count) || 0;
+      const pid = escapeHtmlSafe(p.client_id || '');
+      const customChecked = p.custom_site ? 'checked' : '';
+      const bizNote = (Array.isArray(p.core_business) && p.core_business.length)
+        ? `<div class="text-[11px] text-slate-500 mt-2 leading-relaxed">主营业务（core_business）为结构化条目，本期请在 project.yaml 中维护；下方优势列表可改。</div>${profileCoreBusinessHtml(p.core_business)}`
+        : '';
+
+      return `
+        <form id="profile-edit-form" onsubmit="return false;">
+        <section class="geo-profile-section">
+          <h4>基础身份</h4>
+          ${profileField('pf-client-id', '项目 ID（不可改）', p.client_id || '', { readonly: true })}
+          ${profileField('pf-client-name', '客户名称', p.client_name || profileDisplayName(p))}
+          ${profileField('pf-brand-name', '品牌名', p.brand_name || '')}
+          ${profileField('pf-company-name', '公司主体', p.company_name || '')}
+          ${profileField('pf-industry', '行业', p.industry || '')}
+          ${profileField('pf-official-url', '官网', p.official_url || '', { type: 'url' })}
+        </section>
+        <section class="geo-profile-section">
+          <h4>归属与模式</h4>
+          ${profileField('pf-partner', '合作方', p.partner_id || '', { type: 'select', optionsHtml: partnerOpts })}
+          <label class="geo-profile-check"><input id="pf-custom-site" type="checkbox" ${customChecked}/> 锁定定制站点（custom_site）</label>
+          <div class="hint mt-1">勾选后脚手架不会覆盖定制官网首页与子目录。</div>
+        </section>
+        <section class="geo-profile-section">
+          <h4>腹地与联系</h4>
+          ${profileField('pf-contact', '联系人', profileContactPerson(p))}
+          ${profileField('pf-telephone', '电话', profileTelephone(p))}
+          ${profileField('pf-wechat', '微信', p.wechat || '')}
+          ${profileField('pf-area', '服务腹地', profileArea(p), { type: 'textarea', rows: 2 })}
+        </section>
+        <section class="geo-profile-section">
+          <h4>文案资产</h4>
+          ${profileField('pf-slogan', 'Slogan', p.slogan || '', { type: 'textarea', rows: 2 })}
+          ${profileField('pf-profile', '企业简介', p.company_profile || '', { type: 'textarea', rows: 6 })}
+        </section>
+        <section class="geo-profile-section">
+          <h4>核心优势 / 差异化</h4>
+          ${profileField('pf-values', '优势条目（一行一条）', values.join('\n'), { type: 'textarea', rows: 5 })}
+          ${bizNote}
+        </section>
+        <section class="geo-profile-section">
+          <h4>商业词表与竞对</h4>
+          ${profileField('pf-keywords', `关键词（一行一条，当前 ${keywords.length} 条）`, keywords.join('\n'), { type: 'textarea', rows: 8 })}
+          ${profileField('pf-competitors', '竞品（一行一条）', competitors.join('\n'), { type: 'textarea', rows: 4 })}
+        </section>
+        <section class="geo-profile-section">
+          <h4>交付与证据资产</h4>
+          <dl class="geo-profile-grid">
+            <dt>交付物</dt><dd>${outputsN} 个文件</dd>
+            <dt>证据库</dt><dd>${evN} 篇 <button type="button" onclick="openProjectEvidenceHub('${pid}')" class="text-[11px] font-semibold text-[#7c5bf5] hover:underline">前往证据库</button></dd>
+            <dt>真相源</dt><dd>${faN} 条事实</dd>
+          </dl>
+        </section>
+        </form>`;
+    }
+
+    function renderProjectProfileHtml(p, opts = {}) {
+      if (!p) return `<div class="text-xs text-slate-400 py-6 text-center">暂无档案数据</div>`;
+      const showJump = !!opts.showEvidenceJump;
+      const pid = escapeHtmlSafe(p.client_id || '');
+      const url = (p.official_url || '').trim();
+      const urlHtml = url
+        ? `<a href="${escapeHtmlSafe(url)}" target="_blank" rel="noopener" class="text-[#7c5bf5] hover:underline break-all">${escapeHtmlSafe(url)}</a>`
+        : '—';
+      const customOn = !!p.custom_site;
+      const values = profileAsList(p.core_values).length ? p.core_values : p.differences;
+      const keywords = profileAsList(p.keywords);
+      const outputsN = Array.isArray(p.outputs) ? p.outputs.length : (Number(p.outputs_count) || 0);
+      const evN = Number(p.evidence_count) || 0;
+      const faN = Number(p.facts_count) || 0;
+      const jumpBtn = showJump
+        ? `<button type="button" onclick="openProjectEvidenceHub('${pid}')" class="text-[11px] font-semibold text-[#7c5bf5] hover:underline">前往证据库</button>`
+        : '';
+      const editBtn = opts.showEditButton
+        ? `<div class="mb-3"><button type="button" onclick="openProjectProfileDrawer('${pid}')" class="py-1.5 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">编辑建档资料</button></div>`
+        : '';
+
+      return `
+        ${editBtn}
+        <section class="geo-profile-section">
+          <h4>基础身份</h4>
+          <dl class="geo-profile-grid">
+            <dt>客户名称</dt><dd>${profileDash(profileDisplayName(p))}</dd>
+            <dt>项目 ID</dt><dd class="font-mono text-[#7c5bf5]">${profileDash(p.client_id)}</dd>
+            <dt>品牌名</dt><dd>${profileDash(p.brand_name)}</dd>
+            <dt>公司主体</dt><dd>${profileDash(p.company_name)}</dd>
+            <dt>行业</dt><dd>${profileDash(p.industry)}</dd>
+            <dt>官网</dt><dd>${urlHtml}</dd>
+          </dl>
+        </section>
+        <section class="geo-profile-section">
+          <h4>归属与模式</h4>
+          <dl class="geo-profile-grid">
+            <dt>合作方</dt><dd>${profileDash(p.partner_name || p.partner_id || '未分配')}</dd>
+            <dt>合作方 ID</dt><dd class="font-mono text-slate-500">${profileDash(p.partner_id || '—')}</dd>
+            <dt>定制站点</dt><dd><span class="geo-profile-tag${customOn ? '' : ' off'}">${customOn ? 'custom_site 已锁定' : '标准脚手架'}</span></dd>
+          </dl>
+        </section>
+        <section class="geo-profile-section">
+          <h4>腹地与联系</h4>
+          <dl class="geo-profile-grid">
+            <dt>联系人</dt><dd>${profileDash(profileContactPerson(p))}</dd>
+            <dt>电话</dt><dd>${profileDash(profileTelephone(p))}</dd>
+            <dt>微信</dt><dd>${profileDash(p.wechat)}</dd>
+            <dt>服务腹地</dt><dd>${profileDash(profileArea(p))}</dd>
+          </dl>
+        </section>
+        <section class="geo-profile-section">
+          <h4>文案资产</h4>
+          <div class="text-[11px] font-semibold text-slate-500 mb-1">Slogan</div>
+          <div class="text-xs text-slate-800 font-medium mb-3">${profileDash(p.slogan)}</div>
+          <div class="text-[11px] font-semibold text-slate-500 mb-1">企业简介</div>
+          <div class="geo-profile-longtext">${p.company_profile ? escapeHtmlSafe(p.company_profile) : '—'}</div>
+        </section>
+        <section class="geo-profile-section">
+          <h4>核心优势 / 差异化</h4>
+          ${profileChipsHtml(values, false)}
+          ${Array.isArray(p.core_business) && p.core_business.length ? `<div class="text-[11px] font-semibold text-slate-500 mt-3 mb-1">主营业务</div>${profileCoreBusinessHtml(p.core_business)}` : ''}
+        </section>
+        <section class="geo-profile-section">
+          <h4>商业词表与竞对 <span class="text-slate-400 font-semibold">· 词库 ${keywords.length} 条</span></h4>
+          <div class="text-[11px] font-semibold text-slate-500 mb-1">关键词</div>
+          ${profileChipsHtml(keywords, false)}
+          <div class="text-[11px] font-semibold text-slate-500 mt-3 mb-1">竞品</div>
+          ${profileChipsHtml(p.competitors, true)}
+        </section>
+        <section class="geo-profile-section">
+          <h4>交付与证据资产</h4>
+          <dl class="geo-profile-grid">
+            <dt>交付物</dt><dd>${outputsN} 个文件</dd>
+            <dt>证据库</dt><dd>${evN} 篇 ${jumpBtn}</dd>
+            <dt>真相源</dt><dd>${faN} 条事实 ${jumpBtn}</dd>
+          </dl>
+        </section>`;
+    }
+
+    function fillOverviewProfilePanel(p) {
+      const root = document.getElementById('overview-profile-root');
+      if (!root) return;
+      root.innerHTML = renderProjectProfileHtml(p, { showEvidenceJump: true, showEditButton: true });
+      lucide.createIcons();
+    }
+
+    function bindProfileDrawerEsc() {
+      if (profileDrawerEscBound) return;
+      profileDrawerEscBound = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeProjectProfileDrawer();
+      });
+    }
+
+    function closeProjectProfileDrawer() {
+      const root = document.getElementById('profile-drawer-root');
+      if (!root) return;
+      root.classList.remove('is-open');
+      root.setAttribute('aria-hidden', 'true');
+      profileDrawerProjectId = '';
+    }
+
+    function collectProjectProfileForm() {
+      const val = (id) => (document.getElementById(id)?.value || '').trim();
+      return {
+        client_name: val('pf-client-name'),
+        brand_name: val('pf-brand-name'),
+        company_name: val('pf-company-name'),
+        industry: val('pf-industry'),
+        official_url: val('pf-official-url'),
+        partner_id: document.getElementById('pf-partner')?.value || '',
+        custom_site: !!document.getElementById('pf-custom-site')?.checked,
+        contact_person: val('pf-contact'),
+        telephone: val('pf-telephone'),
+        wechat: val('pf-wechat'),
+        area_served: val('pf-area'),
+        slogan: val('pf-slogan'),
+        company_profile: document.getElementById('pf-profile')?.value || '',
+        core_values: document.getElementById('pf-values')?.value || '',
+        keywords: document.getElementById('pf-keywords')?.value || '',
+        competitors: document.getElementById('pf-competitors')?.value || ''
+      };
+    }
+
+    async function saveProjectProfileFromDrawer() {
+      const projectId = profileDrawerProjectId;
+      if (!projectId) return;
+      const btn = document.getElementById('profile-drawer-save');
+      const payload = collectProjectProfileForm();
+      if (!payload.client_name) {
+        showToast('客户名称不能为空', 'error');
+        return;
+      }
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '保存中…';
+      }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/profile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || '保存失败', 'error');
+          return;
+        }
+        showToast('建档资料已保存');
+        const p = data.project;
+        document.getElementById('profile-drawer-title').innerText = profileDisplayName(p);
+        document.getElementById('profile-drawer-body').innerHTML = renderProjectProfileFormHtml(p);
+        if (currentProjectId === projectId) {
+          currentProjectData = p;
+          const nameEl = document.getElementById('wizard-client-name');
+          const urlEl = document.getElementById('wizard-client-url');
+          if (nameEl) nameEl.innerText = profileDisplayName(p);
+          if (urlEl) urlEl.innerText = p.official_url || '—';
+          fillOverviewProfilePanel(p);
+        }
+        if (typeof loadProjectsList === 'function') {
+          try { await loadProjectsList(); } catch (e) {}
+        }
+        lucide.createIcons();
+      } catch (err) {
+        showToast('保存请求异常', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '保存修改';
+        }
+      }
+    }
+
+    async function openProjectProfileDrawer(projectId) {
+      if (!projectId) return;
+      profileDrawerProjectId = projectId;
+      bindProfileDrawerEsc();
+      const root = document.getElementById('profile-drawer-root');
+      const body = document.getElementById('profile-drawer-body');
+      const title = document.getElementById('profile-drawer-title');
+      const sub = document.getElementById('profile-drawer-subtitle');
+      const enterBtn = document.getElementById('profile-drawer-enter');
+      const zipBtn = document.getElementById('profile-drawer-zip');
+      const saveBtn = document.getElementById('profile-drawer-save');
+      if (!root || !body) return;
+
+      title.innerText = '加载中…';
+      sub.innerText = projectId;
+      body.innerHTML = `<div class="text-xs text-slate-400 py-10 text-center">正在读取建档主档…</div>`;
+      enterBtn.onclick = () => { closeProjectProfileDrawer(); enterWizard(projectId); };
+      zipBtn.onclick = () => downloadProjectZip(projectId);
+      if (saveBtn) saveBtn.onclick = () => saveProjectProfileFromDrawer();
+      root.classList.add('is-open');
+      root.setAttribute('aria-hidden', 'false');
+      lucide.createIcons();
+
+      try {
+        if (!partnersCache || !partnersCache.length) {
+          try {
+            const pr = await fetch('/api/partners?include_archived=0', {
+              headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+            });
+            const pd = await pr.json();
+            if (pd.success) partnersCache = pd.partners || [];
+          } catch (e) {}
+        }
+        const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success || !data.project) {
+          body.innerHTML = `<div class="text-center py-10 space-y-3"><p class="text-xs text-rose-600">${escapeHtmlSafe(data.message || '读取失败')}</p>
+            <button type="button" onclick="openProjectProfileDrawer('${escapeHtmlSafe(projectId)}')" class="py-1.5 px-3 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-lg">重试</button></div>`;
+          return;
+        }
+        const p = data.project;
+        title.innerText = profileDisplayName(p);
+        sub.innerText = p.client_id || projectId;
+        body.innerHTML = renderProjectProfileFormHtml(p);
+        lucide.createIcons();
+      } catch (err) {
+        body.innerHTML = `<div class="text-center py-10 space-y-3"><p class="text-xs text-rose-600">网络异常，请重试</p>
+          <button type="button" onclick="openProjectProfileDrawer('${escapeHtmlSafe(projectId)}')" class="py-1.5 px-3 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-lg">重试</button></div>`;
+      }
+    }
+
+    async function openProjectEvidenceHub(projectId) {
+      const pid = projectId || profileDrawerProjectId || currentProjectId;
+      if (!pid) return;
+      closeProjectProfileDrawer();
+      if (currentProjectId === pid && !document.getElementById('wizard-view')?.classList.contains('hidden')) {
+        switchView('step-3-princeton');
+        return;
+      }
+      await enterWizard(pid, 'step-3-princeton');
+    }
+
     function downloadProjectZip(projectId) {
       window.location.href = `/api/projects/${projectId}/export`;
     }
@@ -5745,9 +6157,9 @@ GitHub 开源仓库：https://github.com/company/repo
           const nameEl = document.getElementById('wizard-client-name');
           const idEl = document.getElementById('wizard-client-id');
           const urlEl = document.getElementById('wizard-client-url');
-          if (nameEl) nameEl.innerText = currentProjectData.client_name;
+          if (nameEl) nameEl.innerText = profileDisplayName(currentProjectData);
           if (idEl) idEl.innerText = currentProjectData.client_id;
-          if (urlEl) urlEl.innerText = currentProjectData.official_url;
+          if (urlEl) urlEl.innerText = currentProjectData.official_url || '—';
           if (targetTab) currentScaffoldTab = targetTab;
           const userLabel = document.getElementById('current-user-name');
           const sideUser = document.getElementById('sidebar-user-name');
@@ -5756,6 +6168,7 @@ GitHub 开源仓库：https://github.com/company/repo
           switchView(targetView, true);
           loadStepPreviews();
           loadRawMaterialsEditor();
+          if (targetView === 'overview') fillOverviewProfilePanel(currentProjectData);
         }
       } catch (err) {
         console.error(err);
@@ -6243,12 +6656,9 @@ GitHub 开源仓库：https://github.com/company/repo
         loadDistributeRunLog();
       }
       if (viewId === 'overview' && currentProjectData) {
-        const n = document.getElementById('overview-client-name');
-        const i = document.getElementById('overview-client-id');
-        const u = document.getElementById('overview-client-url');
-        if (n) n.innerText = currentProjectData.client_name || '-';
-        if (i) i.innerText = currentProjectData.client_id || currentProjectId || '-';
-        if (u) u.innerText = currentProjectData.official_url || '-';
+        fillOverviewProfilePanel(currentProjectData);
+        const nameEl = document.getElementById('wizard-client-name');
+        if (nameEl) nameEl.innerText = profileDisplayName(currentProjectData);
       }
       if (viewId === 'settings-llm') refreshLlmStatus(false);
     }
