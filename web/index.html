@@ -476,15 +476,22 @@
 <p class="text-[11px] text-slate-400 mt-1.5">次要入口：<button type="button" onclick="openCrawlerSimModal()" class="text-indigo-600 hover:underline font-medium">爬虫抓取仿真</button>
 </p>
 </div>
-<div class="flex items-center gap-2 flex-wrap">
+<div class="flex items-center gap-2 flex-wrap shrink-0">
 <button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition"><i data-lucide="scan" class="w-4 h-4"></i><span>执行测算体检</span>
 </button>
 </div>
 </div>
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-<div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700"><span>交付物：01_企业AI可见度现状体检与商业诊断报告.md</span>
-<button onclick="copyOutput('01_企业AI可见度现状体检与商业诊断报告.md')" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制全文</span>
+<div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 text-xs font-semibold text-slate-700">
+<span class="truncate min-w-0">交付物：01_企业AI可见度现状体检与商业诊断报告.md</span>
+<div class="flex items-center gap-3 shrink-0">
+<button type="button" onclick="openShareModal()" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1" title="生成客户可打开的报告链接"><i data-lucide="share-2" class="w-3.5 h-3.5"></i><span>客户报告链接</span>
 </button>
+<button type="button" onclick="exportAuditReportHtml()" class="text-slate-600 hover:text-slate-900 flex items-center gap-1" title="下载自包含 HTML"><i data-lucide="file-down" class="w-3.5 h-3.5"></i><span>下载报告页</span>
+</button>
+<button onclick="copyOutput('01_企业AI可见度现状体检与商业诊断报告.md')" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制全文</span>
+</button>
+</div>
 </div>
 <div id="preview-step-1" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
 <div class="text-center py-12 text-slate-400 text-sm">点击右上角【执行体检诊断】开始生成报告...</div>
@@ -1497,7 +1504,8 @@
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
 <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="share-2" class="w-4 h-4 text-emerald-600"></i>给客户看的</h3>
 <div class="grid grid-cols-1 gap-2">
-<button onclick="openShareModal()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="share-2" class="w-3.5 h-3.5"></i>客户专属交付链接</button>
+<button onclick="openShareModal()" class="w-full py-2 px-3 bg-[rgba(124,91,245,0.08)] hover:bg-[rgba(124,91,245,0.14)] text-[#7c5bf5] text-xs font-semibold rounded-lg border border-[#c4b5fd] text-left flex items-center gap-2"><i data-lucide="share-2" class="w-3.5 h-3.5"></i>客户专属交付链接</button>
+<button onclick="exportAuditReportHtml()" class="w-full py-2 px-3 bg-[rgba(124,91,245,0.08)] hover:bg-[rgba(124,91,245,0.14)] text-[#7c5bf5] text-xs font-semibold rounded-lg border border-[#c4b5fd] text-left flex items-center gap-2"><i data-lucide="file-text" class="w-3.5 h-3.5"></i>导出体检报告客户页 (HTML)</button>
 <button onclick="handlePrintReport(event)" class="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 text-left flex items-center gap-2"><i data-lucide="printer" class="w-3.5 h-3.5"></i>导出美化周报</button>
 <button onclick="handlePrintAcceptance()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="file-check-2" class="w-3.5 h-3.5"></i>结案验收单</button>
 <button onclick="handlePrintCertificate()" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200 text-left flex items-center gap-2"><i data-lucide="award" class="w-3.5 h-3.5"></i>资产移交证书</button>
@@ -1781,45 +1789,60 @@
 <div id="share-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-<h3 class="text-base font-bold text-slate-900 flex items-center gap-2"><i data-lucide="share-2" class="w-5 h-5 text-emerald-600"></i><span>生成甲方客户专属交付链接</span>
+<h3 class="text-base font-bold text-slate-900 flex items-center gap-2"><i data-lucide="share-2" class="w-5 h-5 text-[#7c5bf5]"></i><span>生成甲方客户专属交付链接</span>
 </h3>
 <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i>
 </button>
 </div>
 <div class="p-6 space-y-4 text-xs text-slate-700 max-h-[80vh] overflow-y-auto">
-<div class="p-3.5 bg-emerald-50/60 border border-emerald-100 rounded-xl space-y-1">
-<div class="font-bold text-emerald-900 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i><span>免密只读与安全防泄密保障</span>
+<div class="p-3.5 bg-[rgba(124,91,245,0.08)] border border-[#c4b5fd] rounded-xl space-y-1">
+<div class="font-bold text-slate-900 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-[#7c5bf5]"></i><span>只读访问与安全防泄密</span>
 </div>
-<p class="text-[11px] text-emerald-700 leading-relaxed">采用密码学高熵不可穷举 Token（$2^{192}$ 空间），全局注入防爬虫协议，物理隔离后台管理权限，仅向甲方展示精美 5 步交付物与声量大盘。
+<p class="text-[11px] text-slate-600 leading-relaxed">高熵 Token、可选提取码、可作废；客户仅能查看交付内容，无法进入管理端。默认 7 天有效并预填随机提取码，可按需修改。
           </p>
 </div>
-<div class="grid grid-cols-2 gap-4">
-<div><label class="block font-semibold text-slate-700 mb-1">链接有效期</label>
-<select id="share-expire-days" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-<option value="30" selected>30 天有效 (推荐)</option>
-<option value="7">7 天有效</option>
+<div class="grid grid-cols-2 gap-3 items-end">
+<div class="min-w-0"><label class="block font-semibold text-slate-700 mb-1.5">链接有效期</label>
+<select id="share-expire-days" class="w-full h-10 px-3 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5]/30 focus:border-[#7c5bf5] focus:outline-none bg-white">
+<option value="7" selected>7 天有效 (推荐)</option>
+<option value="30">30 天有效</option>
 <option value="90">90 天有效</option>
 <option value="0">永久有效</option>
 </select>
 </div>
-<div><label class="block font-semibold text-slate-700 mb-1">访问提取码 (可选 PIN)</label>
-<input id="share-pin-code" type="text" maxlength="6" placeholder="留空则免密直接打开" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+<div class="min-w-0"><label class="block font-semibold text-slate-700 mb-1.5">访问提取码 (PIN)</label>
+<input id="share-pin-code" type="text" inputmode="numeric" maxlength="6" placeholder="4 位数字提取码" class="w-full h-10 px-3 border border-slate-200 rounded-lg text-xs font-mono tracking-widest focus:ring-2 focus:ring-[#7c5bf5]/30 focus:border-[#7c5bf5] focus:outline-none bg-white">
 </div>
 </div>
-<div class="pt-2">
-<button type="button" onclick="handleGenerateShareLink(event)" id="btn-create-share" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5"><i data-lucide="link" class="w-4 h-4"></i><span>立即生成专属交付链接</span>
+<div class="pt-1">
+<button type="button" onclick="handleGenerateShareLink(event)" id="btn-create-share" class="w-full h-10 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-semibold rounded-lg text-xs shadow transition flex items-center justify-center gap-1.5"><i data-lucide="link" class="w-4 h-4"></i><span>立即生成专属交付链接</span>
 </button>
 </div>
 <!-- 生成结果展示卡片 -->
-<div id="share-result-card" class="hidden p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
-<div class="flex items-center justify-between"><span class="font-bold text-slate-900">专属交付链接已就绪</span><span id="share-result-exp" class="text-[10px] text-slate-400">30天有效</span>
+<div id="share-result-card" class="hidden p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+<div class="flex items-center justify-between"><span class="font-bold text-slate-900">专属交付链接已就绪</span><span id="share-result-exp" class="text-[10px] text-slate-400">7天有效</span>
 </div>
-<div class="p-2.5 bg-white border border-slate-200 rounded-lg text-[11px] font-mono break-all text-slate-700 select-all" id="share-result-url">
+<div class="space-y-2">
+<div class="p-2.5 bg-white border border-slate-200 rounded-lg space-y-1.5">
+<div class="flex items-center justify-between gap-2">
+<span class="text-[11px] font-bold text-slate-800">体检报告页（常发给客户）</span>
+<button type="button" onclick="copyShareReportLink()" class="shrink-0 h-7 px-2.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[10px] font-semibold rounded-md inline-flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i>复制</button>
+</div>
+<div id="share-result-report-url" class="text-[11px] font-mono break-all text-slate-600 select-all"></div>
+<div id="share-result-pin" class="text-[11px] text-slate-500"></div>
+</div>
+<div class="p-2.5 bg-white border border-slate-200 rounded-lg space-y-1.5">
+<div class="flex items-center justify-between gap-2">
+<span class="text-[11px] font-bold text-slate-800">交付大屏（全案看板，按需发送）</span>
+<button type="button" onclick="copySharePortalLink()" class="shrink-0 h-7 px-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] font-semibold rounded-md inline-flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i>复制</button>
+</div>
+<div id="share-result-portal-url" class="text-[11px] font-mono break-all text-slate-600 select-all"></div>
+</div>
 </div>
 <div class="flex items-center gap-2">
-<button onclick="copyShareText()" class="flex-1 py-2 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-1"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制微信交付话术</span>
+<button type="button" onclick="openShareLinkDirectly()" class="flex-1 h-9 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-1"><i data-lucide="external-link" class="w-3.5 h-3.5"></i><span>打开报告页</span>
 </button>
-<button onclick="openShareLinkDirectly()" class="py-2 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1"><i data-lucide="external-link" class="w-3.5 h-3.5"></i><span>直接打开</span>
+<button type="button" onclick="openSharePortalDirectly()" class="h-9 px-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i><span>打开大屏</span>
 </button>
 </div>
 </div>
@@ -7216,12 +7239,17 @@ GitHub 开源仓库：https://github.com/company/repo
     // ==========================================
     let currentGeneratedShareText = '';
     let currentGeneratedShareUrl = '';
+    let currentGeneratedPortalUrl = '';
+    let currentGeneratedSharePin = '';
 
     async function openShareModal() {
       if (!currentProjectId) return;
       document.getElementById('share-modal').classList.remove('hidden');
       document.getElementById('share-result-card').classList.add('hidden');
-      document.getElementById('share-pin-code').value = '';
+      const expireEl = document.getElementById('share-expire-days');
+      if (expireEl) expireEl.value = '7';
+      const pinEl = document.getElementById('share-pin-code');
+      if (pinEl) pinEl.value = String(Math.floor(1000 + Math.random() * 9000));
       await loadProjectSharesList();
       lucide.createIcons();
     }
@@ -7233,8 +7261,12 @@ GitHub 开源仓库：https://github.com/company/repo
     async function handleGenerateShareLink(e) {
       if (e) e.preventDefault();
       if (!currentProjectId) return;
-      const expireDays = parseInt(document.getElementById('share-expire-days').value) || 30;
+      const expireDays = parseInt(document.getElementById('share-expire-days').value, 10);
       const pin = document.getElementById('share-pin-code').value.trim();
+      const payload = {
+        expire_days: Number.isFinite(expireDays) ? expireDays : 7,
+        pin: pin || undefined
+      };
 
       const btn = document.getElementById('btn-create-share');
       const origHTML = btn.innerHTML;
@@ -7248,16 +7280,27 @@ GitHub 开源仓库：https://github.com/company/repo
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${currentAuthToken}`
           },
-          body: JSON.stringify({ expire_days: expireDays, pin })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
-          showToast(' 专属交付链接生成成功！');
-          currentGeneratedShareText = data.share_text;
-          currentGeneratedShareUrl = data.share_url;
+          showToast('专属交付链接生成成功！');
+          currentGeneratedShareText = data.share_text || '';
+          currentGeneratedShareUrl = data.report_url || data.share_url || '';
+          currentGeneratedPortalUrl = data.share_url || '';
+          currentGeneratedSharePin = data.pin || '';
 
-          document.getElementById('share-result-url').innerText = data.share_url + (data.pin ? ` (提取码: ${data.pin})` : '');
-          document.getElementById('share-result-exp').innerText = data.expires_at_str;
+          const reportEl = document.getElementById('share-result-report-url');
+          const portalEl = document.getElementById('share-result-portal-url');
+          const pinEl = document.getElementById('share-result-pin');
+          if (reportEl) reportEl.innerText = currentGeneratedShareUrl || '—';
+          if (portalEl) portalEl.innerText = currentGeneratedPortalUrl || '—';
+          if (pinEl) {
+            pinEl.innerText = currentGeneratedSharePin
+              ? `提取码：${currentGeneratedSharePin}（客户打开时需输入）`
+              : '免密打开（未设置提取码）';
+          }
+          document.getElementById('share-result-exp').innerText = data.expires_at_str || '';
           document.getElementById('share-result-card').classList.remove('hidden');
           await loadProjectSharesList();
         } else {
@@ -7282,10 +7325,12 @@ GitHub 开源仓库：https://github.com/company/repo
         const data = await res.json();
         if (data.success && data.shares && data.shares.length > 0) {
           listContainer.innerHTML = data.shares.map(s => `
-            <div class="p-2.5 bg-white border border-slate-200 rounded-lg flex items-center justify-between gap-2 text-[11px]"><div class="truncate"><span class="font-mono font-semibold text-slate-800">/share/${s.token.slice(0, 10)}...</span><span class="text-slate-400 ml-1">(${s.expires_at_str})</span>${s.has_pin ? '<span class="text-amber-600 font-semibold ml-1">[带提取码]</span>' : '<span class="text-emerald-600 font-semibold ml-1">[免密]</span>'}
-              </div><div class="flex items-center gap-1 shrink-0"><button onclick="handleRevokeShare('${s.token}')" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[10px] font-semibold transition">作废</button></div></div>`).join('');
-        } else {
+            <div class="p-2.5 bg-white border border-slate-200 rounded-lg flex items-center justify-between gap-2 text-[11px]"><div class="truncate min-w-0"><span class="font-mono font-semibold text-slate-800">/share/${s.token.slice(0, 10)}...</span><span class="text-slate-400 ml-1">(${s.expires_at_str})</span>${s.has_pin ? '<span class="text-[#7c5bf5] font-semibold ml-1">[带提取码]</span>' : '<span class="text-slate-500 font-semibold ml-1">[免密]</span>'}
+              </div><div class="flex items-center gap-1 shrink-0"><button type="button" onclick="window.open('${s.report_path || ('/share/' + s.token + '?view=audit')}','_blank')" class="px-2 py-1 bg-[rgba(124,91,245,0.08)] hover:bg-[rgba(124,91,245,0.14)] text-[#7c5bf5] rounded text-[10px] font-semibold transition">报告</button><button onclick="handleRevokeShare('${s.token}')" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[10px] font-semibold transition">作废</button></div></div>`).join('');
+        } else if (data.success) {
           listContainer.innerHTML = `<div class="text-center py-2 text-slate-400 text-[11px]">暂无活跃链接</div>`;
+        } else {
+          listContainer.innerHTML = `<div class="text-center py-2 text-slate-400 text-[11px]">${data.message || '读取失败'}</div>`;
         }
       } catch (e) {
         listContainer.innerHTML = `<div class="text-center py-2 text-slate-400 text-[11px]">读取失败</div>`;
@@ -7314,13 +7359,73 @@ GitHub 开源仓库：https://github.com/company/repo
     function copyShareText() {
       if (!currentGeneratedShareText) return;
       navigator.clipboard.writeText(currentGeneratedShareText).then(() => {
-        showToast(' 微信交付话术与链接已复制到剪贴板！');
+        showToast('微信交付话术已复制');
+      });
+    }
+
+    function copyShareReportLink() {
+      if (!currentGeneratedShareUrl) return;
+      const text = currentGeneratedSharePin
+        ? `${currentGeneratedShareUrl}\n提取码：${currentGeneratedSharePin}`
+        : currentGeneratedShareUrl;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('报告页链接已复制');
+      });
+    }
+
+    function copySharePortalLink() {
+      if (!currentGeneratedPortalUrl) return;
+      const text = currentGeneratedSharePin
+        ? `${currentGeneratedPortalUrl}\n提取码：${currentGeneratedSharePin}`
+        : currentGeneratedPortalUrl;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('交付大屏链接已复制');
       });
     }
 
     function openShareLinkDirectly() {
       if (!currentGeneratedShareUrl) return;
       window.open(currentGeneratedShareUrl, '_blank');
+    }
+
+    function openSharePortalDirectly() {
+      if (!currentGeneratedPortalUrl) return;
+      window.open(currentGeneratedPortalUrl, '_blank');
+    }
+
+    async function exportAuditReportHtml() {
+      if (!currentProjectId) {
+        showToast('请先进入客户流水线', 'error');
+        return;
+      }
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/export-audit-html`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: '{}'
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`客户报告页已生成（${data.size_kb} KB）`);
+          if (data.html) {
+            const blob = new Blob([data.html], { type: 'text/html;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = data.filename || '01_企业AI可见度现状体检报告_客户版.html';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+          }
+        } else {
+          showToast(data.message || '导出失败', 'error');
+        }
+      } catch (e) {
+        showToast('导出请求异常', 'error');
+      }
     }
 
     // ==========================================

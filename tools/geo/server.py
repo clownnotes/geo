@@ -882,6 +882,19 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 7b. 导出 01 体检报告客户版 HTML: /api/projects/{id}/export-audit-html
+        if path.startswith("/api/projects/") and path.endswith("/export-audit-html"):
+            if not self.check_auth():
+                self.send_json({"success": False, "message": "未授权"}, status=401)
+                return
+            project_id = path.split("/")[3]
+            from .share import export_audit_report_html
+            try:
+                self.send_json(export_audit_report_html(project_id))
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 9. 批量并发生产跑批 API: /api/batch/trigger
         if path == "/api/batch/trigger":
             body = self.read_json_body()
@@ -1979,6 +1992,43 @@ core_values:
             self.wfile.write(body)
             return
 
+        # 6b. 客户体检报告只读 Markdown: /api/share/{token}/audit-report
+        if path.startswith("/api/share/") and path.endswith("/audit-report"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access, get_audit_report_markdown
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证", "status": status}, status=403)
+                return
+            payload = get_audit_report_markdown(rec["project_id"])
+            self.send_json(payload, status=200 if payload.get("success") else 404)
+            return
+
+        # 6c. 客户体检报告自包含 HTML: /api/share/{token}/audit-html
+        if path.startswith("/api/share/") and path.endswith("/audit-html"):
+            parts = path.split("/")
+            share_token = parts[3]
+            pin = self.headers.get("X-Share-Pin") or parse_qs(parsed.query).get("pin", [None])[0]
+            from .share import verify_share_access, build_audit_report_html_document
+            ok, status, rec = verify_share_access(share_token, client_pin=pin)
+            if not ok:
+                self.send_json({"success": False, "message": "该分享链接已失效或提取码未验证", "status": status}, status=403)
+                return
+            built = build_audit_report_html_document(rec["project_id"])
+            if not built.get("success"):
+                self.send_json(built, status=404)
+                return
+            body = built["html"].encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
         # 7. 专属甲方一键打包下载公开 API: /api/share/{token}/download
         if path.startswith("/api/share/") and path.endswith("/download"):
             parts = path.split("/")
@@ -1993,7 +2043,6 @@ core_values:
             try:
                 cfg = load_project_config(project_id)
                 out_dir = os.path.realpath(cfg["_outputs_dir"])
-                import io, zipfile
                 zip_buffer = io.BytesIO()
                 with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
                     for root, _, files in os.walk(out_dir):
@@ -2383,7 +2432,6 @@ core_values:
 
             if os.path.exists(site_dir):
                 try:
-                    import io, zipfile
                     zip_buffer = io.BytesIO()
                     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
                         for root, _, files in os.walk(site_dir):
@@ -2560,7 +2608,14 @@ server {{
             # 查询项目分享链接列表: /api/projects/{id}/share/info
             if path.startswith("/api/projects/") and path.endswith("/share/info"):
                 project_id = path.split("/")[3]
-                from .share import list_project_shares
+                try:
+                    from .share import list_project_shares
+                    shares = list_project_shares(project_id)
+                    self.send_json({"success": True, "project_id": project_id, "shares": shares})
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e), "shares": []}, status=500)
+                return
+
             # 查询项目 3 级搜索意图矩阵: /api/projects/{id}/intent/matrix
             if path.startswith("/api/projects/") and path.endswith("/intent/matrix"):
                 project_id = path.split("/")[3]
@@ -2774,9 +2829,8 @@ server {{
             # 检测日志: /api/ops/check-logs
             if path == "/api/ops/check-logs":
                 try:
-                    from urllib.parse import parse_qs, urlparse
                     from .check_ledger import list_check_logs
-                    qs = parse_qs(urlparse(self.path).query)
+                    qs = parse_qs(parsed.query)
                     project_id = (qs.get("project_id") or [None])[0]
                     limit = int((qs.get("limit") or ["100"])[0] or 100)
                     logs = list_check_logs(project_id=project_id or None, limit=limit)

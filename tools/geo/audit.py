@@ -124,12 +124,14 @@ def generate_audit_report(cfg: dict, audit_data: dict) -> str:
     tech_score = max(tech_score, 10)
     
     date_str = datetime.now().strftime("%Y年%m月%d日")
-    
+    area_served = cfg.get("area_served") or "全国"
+
     report = f"""# 《{client_name}》AI 可见度现状体检与商业诊断报告
 
-> **评测机构**：GEO 商业交付中心  
+> **评测中枢**：邻里 GEO 工业级商业交付中心  
 > **报告日期**：{date_str}  
 > **评测对象**：{client_name}（官网：`{domain}`）  
+> **服务腹地**：{area_served}  
 > **行业领域**：{industry}  
 > **综合健康评分**：**{tech_score} / 100 分**（评级：{"🟡 待优化" if tech_score < 70 else "🟢 良好"}）
 

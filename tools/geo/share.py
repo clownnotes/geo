@@ -115,24 +115,29 @@ def create_share_link(project_id: str, expire_days: int = 30, pin: str = None, b
 
     share_path = f"/share/{token}"
     portal_path = f"/portal/{token}"
+    report_path = f"/share/{token}?view=audit"
     domain = base_url.rstrip("/") if base_url else ""
     full_url = f"{domain}{portal_path}"
+    report_url = f"{domain}{report_path}" if domain else report_path
 
     exp_desc = f"{expire_days} 天" if expire_days > 0 else "永久有效"
-    pin_desc = f"\n🔑 访问提取码：{pin_clean}" if pin_clean else "\n🔓 访问权限：免密直接打开"
+    pin_desc = f"\n访问提取码：{pin_clean}" if pin_clean else "\n访问权限：免密直接打开"
     share_text = (
-        f"【{client_name}】专属全域大模型商业战果高管交付门户已生成！\n"
-        f"🔗 交付大屏链接：{full_url}{pin_desc}\n"
-        f"⏳ 有效期：{exp_desc}\n"
-        f"📊 核心看点：三大国产主力模型首推心智渗透率、年化等效商业广告价值节省、竞对攻防截流战果及 A4 商业交付数字结案证书。"
+        f"【{client_name}】专属 GEO 交付已就绪\n"
+        f"体检报告（秒开）：{report_url}{pin_desc}\n"
+        f"全案交付大屏：{full_url}\n"
+        f"有效期：{exp_desc}\n"
+        f"签发：邻里 GEO 工业级商业交付中心"
     )
 
     return {
         "success": True,
         "token": token,
         "share_url": full_url,
+        "report_url": report_url,
         "share_path": share_path,
         "portal_path": portal_path,
+        "report_path": report_path,
         "has_pin": bool(pin_clean),
         "pin": pin_clean,
         "expires_at_str": record["expires_at_str"],
@@ -172,6 +177,8 @@ def list_project_shares(project_id: str) -> list:
             # 脱敏内部哈希
             rec_copy.pop("pin_hash", None)
             rec_copy.pop("salt", None)
+            rec_copy["report_path"] = f"/share/{token}?view=audit"
+            rec_copy["portal_path"] = f"/portal/{token}"
             result.append(rec_copy)
     # 按创建时间倒序
     result.sort(key=lambda x: x.get("created_at", 0), reverse=True)
@@ -1432,6 +1439,257 @@ th { background-color: #1e293b; color: #cbd5e1; font-weight: 600; }
         "project_id": project_id,
         "target_file": target_filepath,
         "size_kb": size_kb
+    }
+
+
+# ==========================================
+# 01 体检报告：客户只读静态页 / 自包含 HTML
+# ==========================================
+
+AUDIT_REPORT_MD = "01_企业AI可见度现状体检与商业诊断报告.md"
+AUDIT_REPORT_HTML = "01_企业AI可见度现状体检报告_客户版.html"
+
+
+def get_audit_report_markdown(project_id: str) -> dict:
+    """读取项目 01 体检报告 Markdown；不存在则返回失败信息。"""
+    cfg = load_project_config(project_id)
+    out_dir = cfg.get("_outputs_dir") or os.path.join(PROJECTS_DIR, project_id, "outputs")
+    path = os.path.join(out_dir, AUDIT_REPORT_MD)
+    if not os.path.isfile(path):
+        return {
+            "success": False,
+            "message": f"尚未生成 {AUDIT_REPORT_MD}，请先在管理端执行测算体检。",
+            "project_id": project_id,
+            "client_name": cfg.get("client_name", project_id),
+            "markdown": "",
+            "path": path,
+        }
+    with open(path, "r", encoding="utf-8") as f:
+        md = f.read()
+    return {
+        "success": True,
+        "project_id": project_id,
+        "client_name": cfg.get("client_name", project_id),
+        "brand_name": cfg.get("brand_name") or cfg.get("client_name", project_id),
+        "issuer": "邻里 GEO 工业级商业交付中心",
+        "filename": AUDIT_REPORT_MD,
+        "markdown": md,
+        "path": path,
+    }
+
+
+def _md_to_simple_html(md: str) -> str:
+    """轻量 Markdown→HTML（无外部依赖），覆盖体检报告常见块。"""
+    import html as html_lib
+
+    lines = (md or "").replace("\r\n", "\n").split("\n")
+    out = []
+    in_code = False
+    in_ul = False
+    in_ol = False
+    in_table = False
+    code_buf = []
+
+    def close_lists():
+        nonlocal in_ul, in_ol
+        if in_ul:
+            out.append("</ul>")
+            in_ul = False
+        if in_ol:
+            out.append("</ol>")
+            in_ol = False
+
+    def close_table():
+        nonlocal in_table
+        if in_table:
+            out.append("</tbody></table>")
+            in_table = False
+
+    def inline_fmt(s: str) -> str:
+        s = html_lib.escape(s)
+        s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
+        s = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", s)
+        s = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", s)
+        return s
+
+    for raw in lines:
+        line = raw.rstrip()
+        if line.startswith("```"):
+            if in_code:
+                out.append("<pre><code>" + html_lib.escape("\n".join(code_buf)) + "</code></pre>")
+                code_buf = []
+                in_code = False
+            else:
+                close_lists()
+                close_table()
+                in_code = True
+            continue
+        if in_code:
+            code_buf.append(raw)
+            continue
+
+        if not line.strip():
+            close_lists()
+            close_table()
+            continue
+
+        if line.startswith("|") and "|" in line[1:]:
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if all(re.match(r"^:?-+:?$", c or "") for c in cells):
+                continue
+            close_lists()
+            if not in_table:
+                out.append('<table><thead></thead><tbody>')
+                in_table = True
+                out.append("<tr>" + "".join(f"<th>{inline_fmt(c)}</th>" for c in cells) + "</tr>")
+            else:
+                out.append("<tr>" + "".join(f"<td>{inline_fmt(c)}</td>" for c in cells) + "</tr>")
+            continue
+        else:
+            close_table()
+
+        m = re.match(r"^(#{1,3})\s+(.*)$", line)
+        if m:
+            close_lists()
+            level = len(m.group(1))
+            out.append(f"<h{level}>{inline_fmt(m.group(2))}</h{level}>")
+            continue
+
+        if line.startswith("> "):
+            close_lists()
+            out.append(f"<blockquote>{inline_fmt(line[2:])}</blockquote>")
+            continue
+
+        if re.match(r"^[-*]\s+", line):
+            if in_ol:
+                out.append("</ol>")
+                in_ol = False
+            if not in_ul:
+                out.append("<ul>")
+                in_ul = True
+            item = re.sub(r"^[-*]\s+", "", line)
+            out.append(f"<li>{inline_fmt(item)}</li>")
+            continue
+
+        if re.match(r"^\d+\.\s+", line):
+            if in_ul:
+                out.append("</ul>")
+                in_ul = False
+            if not in_ol:
+                out.append("<ol>")
+                in_ol = True
+            item = re.sub(r"^\d+\.\s+", "", line)
+            out.append(f"<li>{inline_fmt(item)}</li>")
+            continue
+
+        if line.strip() == "---":
+            close_lists()
+            out.append("<hr>")
+            continue
+
+        close_lists()
+        out.append(f"<p>{inline_fmt(line)}</p>")
+
+    close_lists()
+    close_table()
+    if in_code:
+        out.append("<pre><code>" + html_lib.escape("\n".join(code_buf)) + "</code></pre>")
+    return "\n".join(out)
+
+
+def build_audit_report_html_document(project_id: str, markdown: str = None) -> dict:
+    """组装自包含客户版体检报告 HTML 字符串。"""
+    import html as html_lib
+
+    meta = get_audit_report_markdown(project_id)
+    if not meta.get("success") and not markdown:
+        return meta
+    md = markdown if markdown is not None else meta.get("markdown", "")
+    client_name = meta.get("client_name") or project_id
+    issuer = meta.get("issuer") or "邻里 GEO 工业级商业交付中心"
+    body_html = _md_to_simple_html(md)
+    title = html_lib.escape(f"{client_name} · AI 可见度体检报告")
+    issuer_e = html_lib.escape(issuer)
+    client_e = html_lib.escape(client_name)
+    html = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>{title}</title>
+<style>
+  :root {{ --text:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --card:#fff; --accent:#4f46e5; }}
+  * {{ box-sizing: border-box; }}
+  body {{ margin:0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7; }}
+  .wrap {{ max-width: 820px; margin: 0 auto; padding: 28px 20px 64px; }}
+  .mast {{ background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 20px; }}
+  .mast .issuer {{ font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 0.02em; }}
+  .mast .sub {{ font-size: 12px; color: var(--muted); margin-top: 4px; }}
+  article {{ background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; }}
+  article h1 {{ font-size: 1.45rem; margin: 0 0 1rem; }}
+  article h2 {{ font-size: 1.15rem; margin: 1.4rem 0 0.6rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }}
+  article h3 {{ font-size: 1.02rem; margin: 1.1rem 0 0.45rem; }}
+  article p, article li {{ font-size: 14px; color: #1e293b; }}
+  article blockquote {{ margin: 0.6rem 0; padding: 0.55rem 0.9rem; border-left: 3px solid var(--accent);
+    background: #f1f5f9; color: #334155; border-radius: 0 8px 8px 0; }}
+  article table {{ width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 13px; }}
+  article th, article td {{ border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; }}
+  article th {{ background: #f1f5f9; }}
+  article pre {{ background: #0f172a; color: #f8fafc; padding: 0.85rem; border-radius: 8px; overflow-x: auto; font-size: 12px; }}
+  article code {{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+    background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px; }}
+  article pre code {{ background: transparent; padding: 0; }}
+  article hr {{ border: none; border-top: 1px solid var(--border); margin: 1.2rem 0; }}
+  footer {{ margin-top: 18px; font-size: 11px; color: var(--muted); text-align: center; }}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="mast">
+      <div class="issuer">{issuer_e}</div>
+      <div class="sub">客户只读体检报告 · 不含管理端权限 · 请勿对外公开爬取索引</div>
+    </div>
+    <article>
+{body_html}
+    </article>
+    <footer>由 {issuer_e} 签发 · {client_e}</footer>
+  </div>
+</body>
+</html>
+"""
+    return {
+        "success": True,
+        "project_id": project_id,
+        "client_name": client_name,
+        "html": html,
+        "filename": AUDIT_REPORT_HTML,
+    }
+
+
+def export_audit_report_html(project_id: str, target_filepath: str = None) -> dict:
+    """将 01 体检报告导出为自包含客户版 HTML 并落盘。"""
+    built = build_audit_report_html_document(project_id)
+    if not built.get("success"):
+        return built
+    cfg = load_project_config(project_id)
+    out_dir = cfg.get("_outputs_dir") or os.path.join(PROJECTS_DIR, project_id, "outputs")
+    if not target_filepath:
+        target_filepath = os.path.join(out_dir, AUDIT_REPORT_HTML)
+    os.makedirs(os.path.dirname(os.path.abspath(target_filepath)), exist_ok=True)
+    with open(target_filepath, "w", encoding="utf-8") as f:
+        f.write(built["html"])
+    size_kb = round(os.path.getsize(target_filepath) / 1024.0, 1)
+    return {
+        "success": True,
+        "project_id": project_id,
+        "client_name": built["client_name"],
+        "target_file": target_filepath,
+        "filename": AUDIT_REPORT_HTML,
+        "size_kb": size_kb,
+        "html": built["html"],
+        "download_path": f"/api/projects/{project_id}/output/{AUDIT_REPORT_HTML}",
     }
 
 

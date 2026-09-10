@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,15 +10,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
             brand: {
-              gold: '#f59e0b',
+              primary: '#7c5bf5',
+              hover: '#6846e3',
               emerald: '#10b981',
               blue: '#3b82f6',
-              purple: '#8b5cf6'
+              purple: '#7c5bf5'
             }
           }
         }
@@ -32,49 +31,47 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     body {
-      background-color: #030712;
-      color: #f3f4f6;
+      background-color: #f8fafc;
+      color: #0f172a;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
     .executive-card {
-      background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.85));
-      border: 1px solid rgba(51, 65, 85, 0.6);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-    }
-    .gold-glow {
-      box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.06);
     }
     .markdown-body {
       font-size: 13.5px;
       line-height: 1.7;
-      color: #cbd5e1;
+      color: #334155;
     }
-    .markdown-body h1 { font-size: 1.4rem; font-weight: 700; margin-top: 1.2rem; margin-bottom: 0.8rem; border-bottom: 1px solid #334155; padding-bottom: 0.4rem; color: #f8fafc; }
-    .markdown-body h2 { font-size: 1.2rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #f1f5f9; }
-    .markdown-body h3 { font-size: 1.05rem; font-weight: 600; margin-top: 0.8rem; margin-bottom: 0.4rem; color: #e2e8f0; }
+    .markdown-body h1 { font-size: 1.4rem; font-weight: 700; margin-top: 1.2rem; margin-bottom: 0.8rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.4rem; color: #0f172a; }
+    .markdown-body h2 { font-size: 1.2rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #0f172a; }
+    .markdown-body h3 { font-size: 1.05rem; font-weight: 600; margin-top: 0.8rem; margin-bottom: 0.4rem; color: #1e293b; }
     .markdown-body p, .markdown-body ul, .markdown-body ol { margin-bottom: 0.75rem; }
     .markdown-body ul { list-style-type: disc; padding-left: 1.4rem; }
     .markdown-body ol { list-style-type: decimal; padding-left: 1.4rem; }
     .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 0.85rem; font-size: 12.5px; }
-    .markdown-body th, .markdown-body td { border: 1px solid #334155; padding: 0.45rem 0.65rem; text-align: left; }
-    .markdown-body th { background: #1e293b; font-weight: 600; color: #e2e8f0; }
-    .markdown-body pre { background: #0b0f19; color: #f8fafc; padding: 0.85rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 0.85rem; font-size: 12px; border: 1px solid #1e293b; }
-    .markdown-body code { background: #1e293b; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-size: 12px; color: #a5b4fc; }
+    .markdown-body th, .markdown-body td { border: 1px solid #e2e8f0; padding: 0.45rem 0.65rem; text-align: left; }
+    .markdown-body th { background: #f8fafc; font-weight: 600; color: #0f172a; }
+    .markdown-body pre { background: #f8fafc; color: #0f172a; padding: 0.85rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 0.85rem; font-size: 12px; border: 1px solid #e2e8f0; }
+    .markdown-body code { background: #f1f5f9; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-size: 12px; color: #5b3fd4; }
+    ::selection { background: rgba(124, 91, 245, 0.22); color: #0f172a; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-black">
+<body class="min-h-screen flex flex-col antialiased selection:bg-violet-200 selection:text-slate-900">
 
   <!-- 顶部高管专属认证导航栏 -->
-  <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 backdrop-blur-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black text-base shadow-lg shadow-amber-500/20">
+        <div class="w-9 h-9 rounded-xl bg-[#7c5bf5] text-white flex items-center justify-center font-black text-base shadow-lg shadow-violet-500/20">
           GEO
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span id="header-brand-name" class="font-black text-slate-100 text-sm sm:text-base tracking-wide">客户企业</span>
-            <span id="header-delivery-badge" class="text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span id="header-brand-name" class="font-black text-slate-900 text-sm sm:text-base tracking-wide">客户企业</span>
+            <span id="header-delivery-badge" class="text-[10px] font-bold bg-violet-500/10 text-[#7c5bf5] border border-violet-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
               <i data-lucide="shield-check" class="w-3 h-3"></i>
               <span>AAA 级履约</span>
             </span>
@@ -84,16 +81,16 @@
       </div>
 
       <!-- 右侧高管专属快捷操作 -->
-      <div class="flex items-center gap-2">
-        <button onclick="openCertificateModal()" class="py-1.5 px-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 text-xs font-bold rounded-lg shadow-sm shadow-amber-500/30 flex items-center gap-1.5 transition active:scale-95">
+      <div id="portal-header-actions" class="flex items-center gap-2">
+        <button onclick="openCertificateModal()" class="py-1.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-bold rounded-lg shadow-sm shadow-violet-500/25 flex items-center gap-1.5 transition active:scale-95">
           <i data-lucide="award" class="w-3.5 h-3.5"></i>
           <span>查验结案证书</span>
         </button>
-        <button onclick="handlePrintShareCertificate()" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition hidden md:flex">
+        <button onclick="handlePrintShareCertificate()" class="py-1.5 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition hidden md:flex">
           <i data-lucide="printer" class="w-3.5 h-3.5 text-slate-400"></i>
           <span>A4 打印</span>
         </button>
-        <button onclick="handleShareDownloadZip()" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+        <button onclick="handleShareDownloadZip()" class="py-1.5 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
           <i data-lucide="download" class="w-3.5 h-3.5 text-slate-400"></i>
           <span class="hidden sm:inline">下载交付全包</span>
           <span class="sm:hidden">下载包</span>
@@ -103,16 +100,16 @@
   </header>
 
   <!-- 主体高管数据驾驶舱 -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+  <main id="portal-main" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
 
     <!-- 1. 企业战略抬头卡片 -->
-    <div class="executive-card rounded-2xl p-5 sm:p-6 space-y-4 gold-glow">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+    <div class="executive-card rounded-2xl p-5 sm:p-6 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div class="flex flex-wrap items-center gap-2.5">
-            <h1 id="portal-client-name" class="text-xl sm:text-2xl font-black text-white">企业客户名称</h1>
-            <span id="portal-industry" class="text-xs bg-blue-500/15 text-blue-400 border border-blue-500/30 font-semibold px-2.5 py-1 rounded-md">所属行业</span>
-            <span class="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
+            <h1 id="portal-client-name" class="text-xl sm:text-2xl font-black text-slate-900">企业客户名称</h1>
+            <span id="portal-industry" class="text-xs bg-blue-500/15 text-blue-600 border border-blue-500/30 font-semibold px-2.5 py-1 rounded-md">所属行业</span>
+            <span class="text-xs bg-emerald-500/15 text-emerald-600 border border-emerald-500/30 font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>GEO 护航中</span>
             </span>
@@ -120,15 +117,15 @@
           <p id="portal-website" class="text-xs text-slate-400 mt-1 font-mono">https://example.com</p>
         </div>
 
-        <div class="flex items-center gap-4 text-xs text-slate-400 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+        <div class="flex items-center gap-4 text-xs text-slate-400 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
           <div>
             <div class="text-[10px] text-slate-500">结案移交时间</div>
-            <div id="portal-created-at" class="font-bold text-slate-200">2026-09-01</div>
+            <div id="portal-created-at" class="font-bold text-slate-900">2026-09-01</div>
           </div>
-          <div class="w-px h-6 bg-slate-800"></div>
+          <div class="w-px h-6 bg-slate-200"></div>
           <div>
             <div class="text-[10px] text-slate-500">访问授权期限</div>
-            <div id="portal-expires-at" class="font-bold text-amber-400">永久有效</div>
+            <div id="portal-expires-at" class="font-bold text-[#7c5bf5]">永久有效</div>
           </div>
         </div>
       </div>
@@ -136,20 +133,20 @@
       <!-- 2. Hero 核心商业 KPI 四宫格 (高管战略视窗) -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
         <!-- KPI 1: MPI 商业心智渗透率 -->
-        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 relative overflow-hidden">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1 relative overflow-hidden">
           <div class="text-[11px] text-slate-400 font-medium flex items-center justify-between">
             <span>商业心智渗透率 (MPI)</span>
-            <span id="hero-mpi-grade" class="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded font-bold">行业领先</span>
+            <span id="hero-mpi-grade" class="text-[10px] text-[#7c5bf5] bg-violet-500/10 px-1.5 py-0.5 rounded font-bold">行业领先</span>
           </div>
           <div class="flex items-baseline gap-2">
-            <div id="hero-mpi-score" class="text-2xl sm:text-3xl font-black text-amber-400">--</div>
+            <div id="hero-mpi-score" class="text-2xl sm:text-3xl font-black text-[#7c5bf5]">--</div>
             <span class="text-xs text-slate-500">/ 100分</span>
           </div>
           <div class="text-[10px] text-slate-500 pt-1">主流大模型商业认知与首位唤醒指数</div>
         </div>
 
         <!-- KPI 2: 主流模型综合首推率 -->
-        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 relative overflow-hidden">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1 relative overflow-hidden">
           <div class="text-[11px] text-slate-400 font-medium flex items-center justify-between">
             <span>主力大模型首推率</span>
             <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold">Top 1 推荐</span>
@@ -161,7 +158,7 @@
         </div>
 
         <!-- KPI 3: 年化广告节省 -->
-        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 relative overflow-hidden">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1 relative overflow-hidden">
           <div class="text-[11px] text-slate-400 font-medium flex items-center justify-between">
             <span>等效商业广告节省</span>
             <span class="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded font-bold">ROI 归因</span>
@@ -175,13 +172,13 @@
         </div>
 
         <!-- KPI 4: 意图长尾词覆盖 -->
-        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 relative overflow-hidden">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1 relative overflow-hidden">
           <div class="text-[11px] text-slate-400 font-medium flex items-center justify-between">
             <span>买家精准意图覆盖</span>
-            <span class="text-[10px] text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded font-bold">100% 锁定</span>
+            <span class="text-[10px] text-[#7c5bf5] bg-purple-500/10 px-1.5 py-0.5 rounded font-bold">100% 锁定</span>
           </div>
           <div class="flex items-baseline gap-2">
-            <div id="hero-intent-count" class="text-2xl sm:text-3xl font-black text-purple-400">--</div>
+            <div id="hero-intent-count" class="text-2xl sm:text-3xl font-black text-[#7c5bf5]">--</div>
             <span class="text-xs text-slate-500">组决策意图</span>
           </div>
           <div class="text-[10px] text-slate-500 pt-1">三层五维立体决策漏斗意图全网拦截</div>
@@ -190,15 +187,15 @@
     </div>
 
     <!-- 解释型决策高管战略洞察条 -->
-    <div class="p-4 rounded-xl bg-gradient-to-r from-blue-950/40 via-indigo-950/30 to-slate-900/60 border border-blue-500/20 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+    <div class="p-4 rounded-xl bg-gradient-to-r from-violet-50 via-indigo-50 to-slate-50 border border-violet-200 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
       <div class="flex items-start sm:items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-400/30 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 font-bold">
+        <div class="w-8 h-8 rounded-lg bg-violet-500/10 text-[#7c5bf5] border border-violet-300 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 font-bold">
           <i data-lucide="target" class="w-4 h-4"></i>
         </div>
         <div>
-          <div class="font-bold text-slate-100 flex items-center gap-2">
+          <div class="font-bold text-slate-900 flex items-center gap-2">
             <span>商业定位本质：为什么贵司属于典型「强解释型决策」黄金客群？</span>
-            <span class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-400/30 font-semibold">首轮比选拦截</span>
+            <span class="text-[10px] bg-blue-500/20 text-blue-600 px-2 py-0.5 rounded-full border border-blue-400/30 font-semibold">首轮比选拦截</span>
           </div>
           <p class="text-slate-400 text-[11.5px] mt-0.5">
             客户在采购前会反复比选参数公差、价格透明度、交付边界与源码归属。大模型正在充当客户的“首席采购顾问”，GEO 的核心使命是让贵司在每一次深度横评中拥有稳定、可信、第一引用的标准答案。
@@ -206,15 +203,15 @@
         </div>
       </div>
       <div class="shrink-0 flex items-center gap-2">
-        <span class="text-[11px] text-amber-400/90 font-medium">EDI 决策复杂度：高</span>
+        <span class="text-[11px] text-[#7c5bf5] font-medium">EDI 决策复杂度：高</span>
       </div>
     </div>
 
     <!-- 3. 第二部分：四大主流大模型推荐心智与首推战报 -->
     <div class="space-y-3">
       <div class="flex items-center justify-between">
-        <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-          <i data-lucide="cpu" class="w-4 h-4 text-amber-400"></i>
+        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="cpu" class="w-4 h-4 text-[#7c5bf5]"></i>
           <span>三大主力国产大模型实测心智矩阵与首推战报</span>
         </h2>
         <span class="text-[11px] text-slate-500">基于真实大模型 API 批量并发探针审计</span>
@@ -225,14 +222,14 @@
       </div>
 
       <!-- 微信搜一搜/元宝渠道覆盖代理说明卡片 -->
-      <div id="wechat-proxy-card" class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-400">
+      <div id="wechat-proxy-card" class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs text-slate-400">
         <div class="flex items-center gap-2.5">
           <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span class="font-bold text-slate-200">腾讯元宝 (微信搜一搜独占生态)</span>
+          <span class="font-bold text-slate-900">腾讯元宝 (微信搜一搜独占生态)</span>
           <span class="text-slate-500">｜</span>
           <span id="wechat-proxy-desc">渠道分发已就绪 (分发权重 10%) · 非实时 API 探针</span>
         </div>
-        <a id="wechat-proxy-link" href="#" target="_blank" class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-semibold transition">
+        <a id="wechat-proxy-link" href="#" target="_blank" class="text-blue-600 hover:text-blue-700 flex items-center gap-1 font-semibold transition">
           <span>查看微信发稿资产</span>
           <i data-lucide="external-link" class="w-3 h-3"></i>
         </a>
@@ -244,8 +241,8 @@
 
       <!-- 左栏：竞对截流攻防实战看板 -->
       <div class="executive-card rounded-2xl p-5 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+        <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
             <i data-lucide="swords" class="w-4 h-4 text-red-400"></i>
             <span>竞对截流攻防实战对比</span>
           </h3>
@@ -253,9 +250,9 @@
         </div>
 
         <div class="space-y-3 text-xs">
-          <div class="flex items-center justify-between bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border border-slate-200">
             <span class="text-slate-400">防御与截流竞品目标:</span>
-            <span id="competitor-target-list" class="font-bold text-slate-200 text-right">行业常规竞对</span>
+            <span id="competitor-target-list" class="font-bold text-slate-900 text-right">行业常规竞对</span>
           </div>
 
           <div class="space-y-2" id="competitor-advantages-list">
@@ -266,21 +263,21 @@
 
       <!-- 右栏：普林斯顿 9 因子与全渠道大模型爬虫保真度 -->
       <div class="executive-card rounded-2xl p-5 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+        <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-[#7c5bf5]"></i>
             <span>普林斯顿 9 因子与爬虫保真度背书</span>
           </h3>
-          <span id="princeton-grade-badge" class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">S 级质检</span>
+          <span id="princeton-grade-badge" class="text-xs font-bold text-[#7c5bf5] bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20">S 级质检</span>
         </div>
 
         <div class="space-y-3 text-xs">
           <!-- 保真度全生态均分 -->
-          <div class="flex items-center justify-between bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border border-slate-200">
             <span class="text-slate-400">全生态爬虫逆向保真均分:</span>
             <div class="flex items-center gap-2">
               <span id="fidelity-avg-score" class="font-black text-emerald-400 text-sm">100.0 分</span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">✅ 黄金达标</span>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-700 px-1.5 py-0.5 rounded font-bold">达标</span>
             </div>
           </div>
 
@@ -295,9 +292,9 @@
 
     <!-- 5. 第四部分：全网分发落地存活台账证据链 (直接点击跳转) -->
     <div class="executive-card rounded-2xl p-5 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
             <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
             <span>全网信源分发落地存活台账 (高管直验证据链)</span>
           </h3>
@@ -311,7 +308,7 @@
       <!-- 渠道列表表格 -->
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
-          <thead class="text-slate-400 border-b border-slate-800 font-semibold bg-slate-900/40">
+          <thead class="text-slate-400 border-b border-slate-200 font-semibold bg-slate-50">
             <tr>
               <th class="py-2.5 px-3">分发平台 / 目标生态</th>
               <th class="py-2.5 px-3">对应信源池</th>
@@ -319,7 +316,7 @@
               <th class="py-2.5 px-3 text-right">真实查验</th>
             </tr>
           </thead>
-          <tbody id="distribution-ledger-tbody" class="divide-y divide-slate-800/60 text-slate-300">
+          <tbody id="distribution-ledger-tbody" class="divide-y divide-slate-200 text-slate-600">
             <!-- 动态渲染台账 -->
           </tbody>
         </table>
@@ -328,39 +325,39 @@
 
     <!-- 5.1 第四部分增量：全主流大模型真实联网探测与 Citation 角标反查审计 (第 30 维) -->
     <div class="executive-card rounded-2xl p-5 space-y-4" id="live-citation-section">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
             <i data-lucide="radio" class="w-4 h-4 text-emerald-400"></i>
             <span>主流大模型真实联网探测与 Citation 角标反查审计 (第 30 维)</span>
           </h3>
           <p class="text-[11px] text-slate-500 mt-0.5">多主流模型真实联网问答 Citation 信源角标（含本土化【1】与脚注）与我方台账资产全量对账</p>
         </div>
         <div class="flex items-center gap-2">
-          <span id="live-citation-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待启动探测</span>
+          <span id="live-citation-status-badge" class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">待启动探测</span>
         </div>
       </div>
 
       <!-- 核心指标 4 宫格 -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">实测提及率 (SOV)</div>
           <div id="live-sov-val" class="text-xl font-extrabold text-emerald-400">--%</div>
           <div class="text-[10px] text-slate-500">主流模型实测综合采纳</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">首位推荐率 (Top-1)</div>
           <div id="live-top1-val" class="text-xl font-extrabold text-blue-400">--%</div>
           <div class="text-[10px] text-slate-500">回答首位独家推荐</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">捕获角标信源总数</div>
-          <div id="live-citations-total" class="text-xl font-extrabold text-purple-400">-- 条</div>
+          <div id="live-citations-total" class="text-xl font-extrabold text-[#7c5bf5]">-- 条</div>
           <div class="text-[10px] text-slate-500">含本土化【1】与内联外链</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">我方资产角标占有率</div>
-          <div id="live-hit-rate-val" class="text-xl font-extrabold text-amber-400">--%</div>
+          <div id="live-hit-rate-val" class="text-xl font-extrabold text-[#7c5bf5]">--%</div>
           <div id="live-hit-count-desc" class="text-[10px] text-slate-500">命中台账 0 处 (严谨口径)</div>
         </div>
       </div>
@@ -373,39 +370,39 @@
 
     <!-- 6.2 全网主流 AI 爬虫真实到访心跳流与资产抓取大屏 (第 31 维) -->
     <div class="executive-card rounded-2xl p-5 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
             <i data-lucide="bot" class="w-4 h-4 text-cyan-400"></i>
             <span>全网主流 AI 爬虫真实到访心跳流与资产抓取大屏 (第 31 维)</span>
           </h3>
           <p class="text-[11px] text-slate-500 mt-0.5">反向解析真实 Web 访问日志，量化主流 AI 爬虫到访热力、HTTP 200 成功率与 /llms.txt 核心事实资产抓取率</p>
         </div>
         <div class="flex items-center gap-2">
-          <span id="spider-audit-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待启动审计</span>
+          <span id="spider-audit-status-badge" class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">待启动审计</span>
         </div>
       </div>
 
       <!-- 核心指标 4 宫格 -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">AI 爬虫总抓取频次</div>
           <div id="spider-hits-val" class="text-xl font-extrabold text-cyan-400">-- 次</div>
           <div id="spider-hits-desc" class="text-[10px] text-slate-500">主流模型真机请求</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">独立爬虫厂商数</div>
           <div id="spider-spiders-val" class="text-xl font-extrabold text-blue-400">-- 家</div>
           <div class="text-[10px] text-slate-500">跨主流生态覆盖</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">HTTP 抓取成功率</div>
           <div id="spider-success-rate-val" class="text-xl font-extrabold text-emerald-400">--%</div>
           <div id="spider-blocked-desc" class="text-[10px] text-slate-500">WAF 阻断率: 0.0%</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">/llms.txt 抓取命中</div>
-          <div id="spider-llms-hits-val" class="text-xl font-extrabold text-amber-400">-- 次</div>
+          <div id="spider-llms-hits-val" class="text-xl font-extrabold text-[#7c5bf5]">-- 次</div>
           <div id="spider-core-cov-desc" class="text-[10px] text-slate-500">核心资产覆盖: --%</div>
         </div>
       </div>
@@ -418,37 +415,37 @@
 
     <!-- 6.3 竞品高权重 GEO 语料逆向解构与靶向反超压制态势 (第 32 维中枢) -->
     <div id="rival-crack-card" class="executive-card rounded-2xl p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
             <i data-lucide="crosshair" class="w-4 h-4 text-rose-400"></i>
             <span>竞品高权重 GEO 语料逆向解构与靶向反超压制态势 (第 32 维)</span>
           </h3>
           <p class="text-[11px] text-slate-500 mt-0.5">逆向解构竞对高排名文章之普林斯顿 9 因子，精准挖掘致命破绽并自动化部署反超压制三件套</p>
         </div>
         <div class="flex items-center gap-2">
-          <span id="rival-crack-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待启动反超</span>
+          <span id="rival-crack-status-badge" class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">待启动反超</span>
         </div>
       </div>
 
       <!-- 核心指标 4 宫格 -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">逆向目标竞对</div>
-          <div id="rival-name-val" class="text-base font-extrabold text-slate-200 truncate">--</div>
+          <div id="rival-name-val" class="text-base font-extrabold text-slate-900 truncate">--</div>
           <div id="rival-source-desc" class="text-[10px] text-slate-500">语料源: --</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">9 因子评分代差</div>
           <div id="rival-gap-val" class="text-xl font-extrabold text-emerald-400">+-- 分</div>
           <div id="rival-scores-desc" class="text-[10px] text-slate-500">我方 88.5 vs 竞对 --</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">侦测致命漏洞</div>
           <div id="rival-flaws-val" class="text-xl font-extrabold text-rose-400">-- 项</div>
           <div id="rival-high-flaws-desc" class="text-[10px] text-slate-500">高危破绽: -- 项</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">反超压制套件</div>
           <div id="rival-suite-val" class="text-xl font-extrabold text-cyan-400">--</div>
           <div class="text-[10px] text-slate-500">参数表+长文+FAQ</div>
@@ -463,37 +460,37 @@
 
     <!-- 6.4 企微/飞书多端大模型战果晨报与异常声量即时告警机器人态势 (第 33 维中枢) -->
     <div id="alert-bot-card" class="executive-card rounded-2xl p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
             <i data-lucide="bell-ring" class="w-4 h-4 text-emerald-400"></i>
             <span>企微/飞书多端大模型战果晨报与异常声量即时告警机器人态势 (第 33 维)</span>
           </h3>
           <p class="text-[11px] text-slate-500 mt-0.5">早 9 点主动推送联网首推率与 Citation 战果晨报；声誉受损、竞品截流或爬虫阻断时秒级即时报警</p>
         </div>
         <div class="flex items-center gap-2">
-          <span id="alert-bot-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待配置机器人</span>
+          <span id="alert-bot-status-badge" class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">待配置机器人</span>
         </div>
       </div>
 
       <!-- 核心指标 4 宫格 -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">累计推送批次</div>
-          <div id="bot-total-val" class="text-xl font-extrabold text-slate-200">-- 次</div>
+          <div id="bot-total-val" class="text-xl font-extrabold text-slate-900">-- 次</div>
           <div id="bot-channel-desc" class="text-[10px] text-slate-500">主触达通道: --</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">最新调度时间</div>
           <div id="bot-time-val" class="text-sm font-bold text-emerald-400 truncate">--</div>
           <div id="bot-mode-desc" class="text-[10px] text-slate-500">执行模式: --</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">拦截异常风险</div>
           <div id="bot-anomalies-val" class="text-xl font-extrabold text-rose-400">-- 项</div>
           <div class="text-[10px] text-slate-500">声誉/截流/爬虫阻断</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">高管大屏直达</div>
           <div class="text-sm font-bold text-cyan-400 flex items-center gap-1">
             <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-cyan-400"></i>
@@ -511,40 +508,40 @@
 
     <!-- 6.5 豆包搜索极速收录与全链路索引保障态势 (第 34 维中枢) -->
     <div id="doubao-index-card" class="executive-card rounded-2xl p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
             <i data-lucide="zap" class="w-4 h-4 text-cyan-400"></i>
             <span>豆包第一主战模型搜索极速收录与全链路索引保障态势 (第 34 维)</span>
           </h3>
           <p class="text-[11px] text-slate-500 mt-0.5">占国内 AI 搜索推荐 50%+ 份额；打通 Bytespider 底座放行、今日头条母池资产与豆包买家意图 Top-1 首推</p>
         </div>
         <div class="flex items-center gap-2">
-          <span id="doubao-index-status-badge" class="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">⚪️ 待实测审计</span>
+          <span id="doubao-index-status-badge" class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">待实测审计</span>
         </div>
       </div>
 
       <!-- 核心指标 4 宫格 -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">DRS 豆包就绪指数</div>
           <div id="doubao-drs-val" class="text-xl font-extrabold text-cyan-400">-- 分</div>
           <div id="doubao-grade-desc" class="text-[10px] text-slate-500">综合评级: --</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">Bytespider 到访频次</div>
-          <div id="doubao-spider-hits-val" class="text-xl font-extrabold text-slate-200">-- 次</div>
+          <div id="doubao-spider-hits-val" class="text-xl font-extrabold text-slate-900">-- 次</div>
           <div id="doubao-blocked-desc" class="text-[10px] text-slate-500">403 阻断率: --</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">豆包 Top-1 首推率</div>
           <div id="doubao-top1-val" class="text-xl font-extrabold text-emerald-400">--</div>
           <div id="doubao-intent-desc" class="text-[10px] text-slate-500">核心买家意图词</div>
         </div>
-        <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="text-slate-400 text-[11px]">专属提权加速包</div>
-          <div id="doubao-booster-val" class="text-sm font-bold text-amber-400 flex items-center gap-1">
-            <i data-lucide="package-check" class="w-3.5 h-3.5 text-amber-400"></i>
+          <div id="doubao-booster-val" class="text-sm font-bold text-[#7c5bf5] flex items-center gap-1">
+            <i data-lucide="package-check" class="w-3.5 h-3.5 text-[#7c5bf5]"></i>
             <span id="doubao-booster-status-text">待生成</span>
           </div>
           <div id="doubao-tt-desc" class="text-[10px] text-slate-500">今日头条/微头条母池</div>
@@ -561,74 +558,74 @@
     <div class="executive-card rounded-2xl p-5 space-y-3">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <i data-lucide="folder-archive" class="w-4 h-4 text-purple-400"></i>
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="folder-archive" class="w-4 h-4 text-[#7c5bf5]"></i>
             <span>全案 16 维数字化交付资产详单 (技术顾问核对)</span>
           </h3>
           <p class="text-[11px] text-slate-500 mt-0.5">包含体检诊断、代码补丁、9因子语料、短视频脚本等全量工程资产</p>
         </div>
-        <button onclick="toggleDeliverablesDrawer()" id="btn-toggle-deliverables" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+        <button onclick="toggleDeliverablesDrawer()" id="btn-toggle-deliverables" class="py-1.5 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
           <span id="drawer-toggle-text">展开查看技术明细</span>
           <i id="drawer-toggle-icon" data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
         </button>
       </div>
 
       <!-- 折叠容器 -->
-      <div id="deliverables-drawer" class="hidden pt-3 border-t border-slate-800/80 space-y-4">
+      <div id="deliverables-drawer" class="hidden pt-3 border-t border-slate-200 space-y-4">
         <!-- 交付阶段导航 Tab -->
         <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold scrollbar-none">
-          <button onclick="switchShareTab('audit')" id="tab-audit" class="py-1.5 px-3 rounded-lg bg-amber-500 text-slate-950 font-bold whitespace-nowrap transition">
+          <button onclick="switchShareTab('audit')" id="tab-audit" class="py-1.5 px-3 rounded-lg bg-[#7c5bf5] text-white font-bold whitespace-nowrap transition">
             <span>① 现状体检报告</span>
           </button>
-          <button onclick="switchShareTab('scaffold')" id="tab-scaffold" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+          <button onclick="switchShareTab('scaffold')" id="tab-scaffold" class="py-1.5 px-3 rounded-lg bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">
             <span>② 站点底座改造</span>
           </button>
-          <button onclick="switchShareTab('rewrite')" id="tab-rewrite" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+          <button onclick="switchShareTab('rewrite')" id="tab-rewrite" class="py-1.5 px-3 rounded-lg bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">
             <span>③ 普林斯顿权威语料</span>
           </button>
-          <button onclick="switchShareTab('distribute')" id="tab-distribute" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+          <button onclick="switchShareTab('distribute')" id="tab-distribute" class="py-1.5 px-3 rounded-lg bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">
             <span>④ 矩阵分发稿</span>
           </button>
-          <button onclick="switchShareTab('monitor')" id="tab-monitor" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+          <button onclick="switchShareTab('monitor')" id="tab-monitor" class="py-1.5 px-3 rounded-lg bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">
             <span>⑤ 声量监测周报</span>
           </button>
-          <button onclick="switchShareTab('probing')" id="tab-probing" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+          <button onclick="switchShareTab('probing')" id="tab-probing" class="py-1.5 px-3 rounded-lg bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">
             <span>⑥ 真实探测对账</span>
           </button>
-          <button onclick="switchShareTab('spider')" id="tab-spider" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap transition">
+          <button onclick="switchShareTab('spider')" id="tab-spider" class="py-1.5 px-3 rounded-lg bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">
             <span>⑦ 爬虫日志审计</span>
           </button>
-          <button onclick="switchShareTab('acceptance')" id="tab-acceptance" class="py-1.5 px-3 rounded-lg bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-emerald-500/30 whitespace-nowrap transition">
-            <span>🏛️ 商业交付结案单</span>
+          <button onclick="switchShareTab('acceptance')" id="tab-acceptance" class="py-1.5 px-3 rounded-lg bg-white text-emerald-600 hover:bg-slate-50 border border-emerald-500/30 whitespace-nowrap transition">
+            <span>商业交付结案单</span>
           </button>
         </div>
 
         <!-- 详细内容视窗 -->
-        <div id="content-audit" class="share-tab-content bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+        <div id="content-audit" class="share-tab-content bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div id="preview-audit" class="markdown-body"></div>
         </div>
-        <div id="content-scaffold" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80 space-y-3">
-          <div class="font-bold text-xs text-slate-300">1. /llms.txt (大模型专用 Markdown 清单)</div>
+        <div id="content-scaffold" class="share-tab-content hidden bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+          <div class="font-bold text-xs text-slate-600">1. /llms.txt (大模型专用 Markdown 清单)</div>
           <pre><code id="preview-llms"></code></pre>
-          <div class="font-bold text-xs text-slate-300">2. Schema.org 结构化 JSON-LD</div>
+          <div class="font-bold text-xs text-slate-600">2. Schema.org 结构化 JSON-LD</div>
           <pre><code id="preview-schema"></code></pre>
         </div>
-        <div id="content-rewrite" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+        <div id="content-rewrite" class="share-tab-content hidden bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div id="preview-rewrite" class="markdown-body"></div>
         </div>
-        <div id="content-distribute" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+        <div id="content-distribute" class="share-tab-content hidden bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div id="preview-distribute" class="markdown-body"></div>
         </div>
-        <div id="content-monitor" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+        <div id="content-monitor" class="share-tab-content hidden bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div id="preview-monitor" class="markdown-body"></div>
         </div>
-        <div id="content-probing" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+        <div id="content-probing" class="share-tab-content hidden bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div id="preview-probing" class="markdown-body"></div>
         </div>
-        <div id="content-spider" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+        <div id="content-spider" class="share-tab-content hidden bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div id="preview-spider" class="markdown-body"></div>
         </div>
-        <div id="content-acceptance" class="share-tab-content hidden bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+        <div id="content-acceptance" class="share-tab-content hidden bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div id="preview-acceptance" class="markdown-body"></div>
         </div>
       </div>
@@ -637,19 +634,19 @@
   </main>
 
   <!-- 结案证书弹窗 Modal (嵌入 A4 证书) -->
-  <div id="cert-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+  <div id="cert-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
         <div class="flex items-center gap-2">
-          <i data-lucide="award" class="w-5 h-5 text-amber-400"></i>
-          <span class="font-bold text-slate-100 text-sm">《GEO 商业交付结案与数字资产移交证书》在线查验</span>
+          <i data-lucide="award" class="w-5 h-5 text-[#7c5bf5]"></i>
+          <span class="font-bold text-slate-900 text-sm">《GEO 商业交付结案与数字资产移交证书》在线查验</span>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="handlePrintShareCertificate()" class="py-1 px-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition flex items-center gap-1">
+          <button onclick="handlePrintShareCertificate()" class="py-1 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-bold text-xs rounded-lg transition flex items-center gap-1">
             <i data-lucide="printer" class="w-3.5 h-3.5"></i>
             <span>打印证书</span>
           </button>
-          <button onclick="closeCertificateModal()" class="p-1 text-slate-400 hover:text-white rounded-lg transition">
+          <button onclick="closeCertificateModal()" class="p-1 text-slate-400 hover:text-slate-900 rounded-lg transition">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
@@ -660,33 +657,51 @@
     </div>
   </div>
 
+  <!-- 体检报告专页（?view=audit） -->
+  <main id="audit-report-main" class="hidden flex-1 max-w-3xl w-full mx-auto p-4 sm:p-6">
+    <div class="executive-card rounded-2xl p-5 sm:p-7 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
+        <div>
+          <div class="text-[11px] font-bold text-[#7c5bf5] tracking-wide">邻里 GEO 工业级商业交付中心</div>
+          <h1 id="audit-report-title" class="text-lg font-black text-slate-900 mt-1">AI 可见度体检报告</h1>
+          <p class="text-[11px] text-slate-400 mt-1">客户只读 · 不含管理端权限</p>
+        </div>
+        <a id="audit-full-portal-link" href="#" class="text-[11px] text-slate-400 hover:text-[#7c5bf5] underline">查看全案交付大屏</a>
+      </div>
+      <div id="audit-report-body" class="markdown-body max-h-[none]"></div>
+    </div>
+  </main>
+
   <!-- 提取码输入弹窗 Modal -->
-  <div id="pin-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
-    <div class="executive-card rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-5 text-center">
-      <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 mx-auto flex items-center justify-center shadow-lg">
-        <i data-lucide="lock" class="w-7 h-7"></i>
+  <div id="pin-modal" class="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="executive-card rounded-2xl p-6 sm:p-7 max-w-[400px] w-full space-y-5 text-center">
+      <div class="w-12 h-12 rounded-xl bg-[rgba(124,91,245,0.08)] border border-[#c4b5fd] text-[#7c5bf5] mx-auto flex items-center justify-center">
+        <i data-lucide="lock" class="w-5 h-5"></i>
       </div>
-      <div>
-        <h3 class="text-lg font-bold text-white">高管专属安全访问验证</h3>
-        <p id="pin-modal-subtitle" class="text-xs text-slate-400 mt-1">此交付战果门户已开启加盐哈希保护，请输入专属 4 位提取码。</p>
+      <div class="space-y-1.5 px-1">
+        <h3 class="text-base font-bold text-slate-900 leading-snug">安全访问验证</h3>
+        <p id="pin-modal-subtitle" class="text-[13px] text-slate-500 leading-relaxed">【邻里GEO】交付内容已加密，请输入 4 位提取码后查看。</p>
       </div>
-      <form onsubmit="handleUnlockPin(event)" class="space-y-4">
-        <input type="text" id="pin-input" maxlength="8" placeholder="请输入 4 位访问提取码" class="w-full text-center tracking-[0.3em] font-mono text-xl py-3 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-amber-400 transition" required autofocus>
-        <p id="pin-error-msg" class="text-xs text-red-400 hidden">提取码有误，请重新输入！</p>
-        <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 hover:from-amber-600 hover:to-yellow-600 transition">
-          立即验证并开启交付大屏
+      <form onsubmit="handleUnlockPin(event)" class="space-y-4 text-left">
+        <div>
+          <label for="pin-input" class="block text-[12px] font-medium text-slate-600 mb-1.5">访问提取码</label>
+          <input type="text" id="pin-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="请输入提取码" class="w-full h-11 px-3 rounded-lg bg-white border border-slate-200 text-[15px] text-slate-900 text-center tracking-[0.2em] font-semibold placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#7c5bf5]/25 focus:border-[#7c5bf5] transition" required autofocus>
+        </div>
+        <p id="pin-error-msg" class="text-[12px] text-red-600 text-center hidden">提取码有误，请重新输入</p>
+        <button type="submit" class="w-full h-11 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[14px] font-semibold rounded-lg transition">
+          验证并查看
         </button>
       </form>
     </div>
   </div>
 
   <!-- 失效/作废弹窗 Modal -->
-  <div id="expired-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+  <div id="expired-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="executive-card rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-4 text-center">
       <div class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 mx-auto flex items-center justify-center">
         <i data-lucide="alert-triangle" class="w-7 h-7"></i>
       </div>
-      <h3 class="text-lg font-bold text-white">交付链接已过期或已轮转作废</h3>
+      <h3 class="text-lg font-bold text-slate-900">交付链接已过期或已轮转作废</h3>
       <p id="expired-detail-msg" class="text-xs text-slate-400 leading-relaxed">该专属交付门户链接已超过安全有效期或已被发起人重置。请联系您的 GEO 交付专家获取全新专属链接。</p>
     </div>
   </div>
@@ -696,6 +711,8 @@
     const urlParts = window.location.pathname.split('/');
     const shareToken = urlParts[urlParts.length - 1];
     let shareData = null;
+    const urlParamsGlobal = new URLSearchParams(window.location.search);
+    const isAuditView = (urlParamsGlobal.get('view') || '') === 'audit';
 
     window.addEventListener('DOMContentLoaded', async () => {
       // 检查 URL Query 参数中的 ?pin= 并自动暂存
@@ -752,11 +769,47 @@
         if (data.success) {
           document.getElementById('pin-modal').classList.add('hidden');
           shareData = data;
-          renderSharePortal(data);
+          if (isAuditView) {
+            renderAuditReportView(data);
+          } else {
+            renderSharePortal(data);
+          }
         }
       } catch (err) {
         console.error('加载门户数据失败:', err);
       }
+    }
+
+    function renderAuditReportView(data) {
+      const portalMain = document.getElementById('portal-main');
+      const auditMain = document.getElementById('audit-report-main');
+      const headerActions = document.getElementById('portal-header-actions');
+      if (portalMain) portalMain.classList.add('hidden');
+      if (headerActions) headerActions.classList.add('hidden');
+      if (auditMain) auditMain.classList.remove('hidden');
+
+      document.getElementById('header-brand-name').textContent = data.brand_name || data.client_name || '客户企业';
+      document.getElementById('header-delivery-badge').innerHTML = `
+        <i data-lucide="file-text" class="w-3 h-3"></i>
+        <span>体检报告</span>
+      `;
+      document.title = `${data.client_name || '客户'} · AI 可见度体检报告`;
+      document.getElementById('audit-report-title').textContent =
+        `《${data.client_name || '客户'}》企业 AI 可见度现状体检与商业诊断报告`;
+      const portalLink = document.getElementById('audit-full-portal-link');
+      if (portalLink) {
+        portalLink.href = `/portal/${shareToken}${location.search.replace(/([?&])view=audit&?/, '$1').replace(/[?&]$/, '') || ''}`;
+      }
+      const md = (data.deliverables && data.deliverables.audit) || '';
+      const body = document.getElementById('audit-report-body');
+      if (!md) {
+        body.innerHTML = '<p class="text-slate-400 text-sm">暂无体检报告。请联系交付方先在管理端执行测算体检。</p>';
+      } else if (window.marked && typeof marked.parse === 'function') {
+        body.innerHTML = marked.parse(md);
+      } else {
+        body.innerHTML = `<pre style="white-space:pre-wrap">${md.replace(/</g, '&lt;')}</pre>`;
+      }
+      if (window.lucide) lucide.createIcons();
     }
 
     function handleUnlockPin(e) {
@@ -809,10 +862,10 @@
         modelKeys.forEach(mKey => {
           const m = models[mKey];
           const card = document.createElement('div');
-          card.className = 'p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3';
+          card.className = 'p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3';
           card.innerHTML = `
-            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
-              <span class="font-bold text-slate-100 text-xs">${m.name}</span>
+            <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+              <span class="font-bold text-slate-900 text-xs">${m.name}</span>
               <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold">首推 ${m.top1_rate_pct}%</span>
             </div>
             <div class="space-y-2 text-xs">
@@ -820,16 +873,16 @@
                 <span>首推占比 (Top 1):</span>
                 <span class="font-bold text-emerald-400">${m.top1_rate_pct}%</span>
               </div>
-              <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                 <div class="bg-emerald-400 h-full rounded-full" style="width: ${m.top1_rate_pct}%"></div>
               </div>
               <div class="flex justify-between text-slate-400 pt-1">
                 <span>品牌提及采纳率:</span>
-                <span class="font-bold text-slate-200">${m.mention_rate_pct}%</span>
+                <span class="font-bold text-slate-900">${m.mention_rate_pct}%</span>
               </div>
               <div class="flex justify-between text-slate-400">
                 <span>探针平均置信分:</span>
-                <span class="font-bold text-amber-400">${m.avg_score}分</span>
+                <span class="font-bold text-[#7c5bf5]">${m.avg_score}分</span>
               </div>
             </div>
           `;
@@ -837,7 +890,7 @@
         });
       } else {
         modelsContainer.innerHTML = `
-          <div class="col-span-3 p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-xs text-slate-500">
+          <div class="col-span-3 p-4 bg-slate-50 rounded-xl border border-slate-200 text-center text-xs text-slate-500">
             暂无模型实测探针数据（请先在后台运行 <code>geo mindshare</code> 获取）
           </div>
         `;
@@ -864,13 +917,13 @@
       if (advs.length > 0) {
         advs.slice(0, 3).forEach(a => {
           const div = document.createElement('div');
-          div.className = 'p-2.5 bg-slate-900/40 rounded-lg border border-slate-800/80 space-y-1';
+          div.className = 'p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-1';
           div.innerHTML = `
             <div class="flex items-center justify-between text-[11px]">
-              <span class="font-bold text-slate-200">${a.dimension}</span>
+              <span class="font-bold text-slate-900">${a.dimension}</span>
               <span class="text-[10px] text-red-400 font-semibold">威胁: ${a.threat_level || '高'}</span>
             </div>
-            <p class="text-[11px] text-slate-400">🛡️ 破局反超动作：${a.neutralize_action}</p>
+            <p class="text-[11px] text-slate-400">破局反超动作：${a.neutralize_action}</p>
           `;
           advList.appendChild(div);
         });
@@ -895,7 +948,7 @@
       Object.keys(channelNames).forEach(k => {
         const item = fidelities[k] || { score: 100.0, passed: true };
         const d = document.createElement('div');
-        d.className = 'p-2 bg-slate-900/60 rounded-lg border border-slate-800 flex items-center justify-between';
+        d.className = 'p-2 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between';
         d.innerHTML = `
           <span class="text-slate-400">${channelNames[k]}</span>
           <span class="font-bold text-emerald-400">${item.score}分</span>
@@ -913,16 +966,16 @@
       Object.keys(channels).forEach(k => {
         const c = channels[k];
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-900/40 transition';
+        tr.className = 'hover:bg-slate-50 transition';
         const hasUrl = c.url && c.url.trim().length > 0;
         tr.innerHTML = `
-          <td class="py-2.5 px-3 font-semibold text-slate-200">${c.name || k}</td>
+          <td class="py-2.5 px-3 font-semibold text-slate-800">${c.name || k}</td>
           <td class="py-2.5 px-3 text-slate-400">${c.target_pool || '主流搜索池'}</td>
           <td class="py-2.5 px-3">
-            <span class="text-[11px] font-medium">${c.status_label || '⚪️ 待分发'}</span>
+            <span class="text-[11px] font-medium">${c.status_label || '待分发'}</span>
           </td>
           <td class="py-2.5 px-3 text-right">
-            ${hasUrl ? `<a href="${c.url}" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center justify-end gap-1"><i data-lucide="external-link" class="w-3.5 h-3.5"></i><span>打开</span></a>` : '<span class="text-slate-600">--</span>'}
+            ${hasUrl ? `<a href="${c.url}" target="_blank" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center justify-end gap-1"><i data-lucide="external-link" class="w-3.5 h-3.5"></i><span>打开</span></a>` : '<span class="text-slate-600">--</span>'}
           </td>
         `;
         tbody.appendChild(tr);
@@ -940,7 +993,7 @@
 
       if (liveCitation.has_data && liveCitation.status === 'audited') {
         statusBadge.className = 'text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20';
-        statusBadge.textContent = '🟢 真实联网探测已对账';
+        statusBadge.textContent = '真实联网探测已对账';
         sovVal.textContent = `${liveCitation.avg_sov || liveCitation.real_sov_pct || 0.0}%`;
         top1Val.textContent = `${liveCitation.top1_rate || liveCitation.top1_recommendation_rate || 0.0}%`;
         citationsTotal.textContent = `${liveCitation.total_citations || liveCitation.total_citations_captured || 0} 条`;
@@ -954,19 +1007,19 @@
           let html = `
             <div class="pt-2">
               <div class="text-[11px] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
-                <span>🎯 大模型真实采纳信源证据链 (采样最新 ${samples.length} 条):</span>
+                <span>大模型真实采纳信源证据链 (采样最新 ${samples.length} 条):</span>
                 <span class="text-emerald-400 font-normal">对账严谨度: 100% 精确/路径匹配</span>
               </div>
               <div class="space-y-1.5">
           `;
           samples.forEach((s) => {
             html += `
-              <div class="p-2 bg-slate-900/50 rounded-lg border border-slate-800 flex items-center justify-between gap-2">
+              <div class="p-2 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between gap-2">
                 <div class="truncate flex items-center gap-2">
                   <span class="text-emerald-400 font-bold">[${s.model}]</span>
-                  <span class="text-slate-300 truncate" title="${s.title || s.url}">${s.title || s.url}</span>
+                  <span class="text-slate-700 truncate" title="${s.title || s.url}">${s.title || s.url}</span>
                 </div>
-                <a href="${s.url}" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold shrink-0 flex items-center gap-1">
+                <a href="${s.url}" target="_blank" class="text-blue-600 hover:text-blue-700 font-semibold shrink-0 flex items-center gap-1">
                   <span>核验</span>
                   <i data-lucide="external-link" class="w-3 h-3"></i>
                 </a>
@@ -977,21 +1030,21 @@
           detailsContainer.innerHTML = html;
         } else {
           detailsContainer.innerHTML = `
-            <div class="p-3 bg-slate-900/40 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center text-slate-500 text-xs">
               已捕获 ${liveCitation.total_citations || 0} 条大模型角标信源，正在持续沉淀中（严谨口径下暂未见我方具体发稿文章精确/路径命中）。
             </div>
           `;
         }
       } else {
-        statusBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
-        statusBadge.textContent = '⚪️ 待启动探测';
+        statusBadge.className = 'text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200';
+        statusBadge.textContent = '待启动探测';
         sovVal.textContent = '--%';
         top1Val.textContent = '--%';
         citationsTotal.textContent = '-- 条';
         hitRateVal.textContent = '--%';
         hitCountDesc.textContent = '待触发真实联网探测';
         detailsContainer.innerHTML = `
-          <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+          <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center space-y-1">
             <div class="text-slate-400 text-xs font-medium">尚未执行多大模型真实联网探测与角标反查审计</div>
             <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo probe &lt;项目ID&gt; --live --report</code> 启动</div>
           </div>
@@ -1015,13 +1068,13 @@
 
         if (isDanger) {
           spiderBadge.className = 'text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20';
-          spiderBadge.textContent = '🔴 存在 WAF 403 阻断';
+          spiderBadge.textContent = '存在 WAF 403 阻断';
         } else if (isSandbox) {
-          spiderBadge.className = 'text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20';
-          spiderBadge.textContent = '🔬 沙箱仿真演练 (非生产真实日志)';
+          spiderBadge.className = 'text-xs font-bold text-[#7c5bf5] bg-violet-500/10 px-2.5 py-0.5 rounded-full border border-violet-500/20';
+          spiderBadge.textContent = '沙箱仿真演练 (非生产真实日志)';
         } else {
           spiderBadge.className = 'text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20';
-          spiderBadge.textContent = '🟢 大模型真实抓取畅通 (生产日志已捕获)';
+          spiderBadge.textContent = '大模型真实抓取畅通 (生产日志已捕获)';
         }
 
         spiderHitsVal.textContent = `${spiderAudit.total_ai_hits || 0} 次`;
@@ -1043,7 +1096,7 @@
         // 若为沙箱模式，顶部显式展示声明横幅
         if (isSandbox) {
           html += `
-            <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between text-[11px] text-amber-300">
+            <div class="p-2.5 bg-violet-500/10 border border-violet-500/20 rounded-xl flex items-center justify-between text-[11px] text-[#5b3fd4]">
               <span class="flex items-center gap-1.5">
                 <i data-lucide="flask-conical" class="w-3.5 h-3.5 shrink-0"></i>
                 <span><strong>沙箱离线演练模式</strong>：当前为确定性高保真沙箱模拟数据，非客户生产服务器真实 Web 日志。接入生产日志请使用 <code>geo spider-audit --log-file</code>。</span>
@@ -1059,15 +1112,15 @@
           html += `
             <div>
               <div class="text-[11px] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
-                <span>🤖 主流模型爬虫抓取份额分布:</span>
+                <span>主流模型爬虫抓取份额分布:</span>
                 <span class="text-cyan-400 font-normal">最近捕获: ${spiderAudit.last_crawled_at || '-'}</span>
               </div>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
           `;
           spiderEntries.forEach(([k, info]) => {
             html += `
-              <div class="p-2 bg-slate-900/60 rounded-lg border border-slate-800 space-y-0.5">
-                <div class="text-slate-300 font-bold truncate text-[11px]">${info.name || k}</div>
+              <div class="p-2 bg-slate-50 rounded-lg border border-slate-200 space-y-0.5">
+                <div class="text-slate-700 font-bold truncate text-[11px]">${info.name || k}</div>
                 <div class="flex items-center justify-between text-[10px]">
                   <span class="text-cyan-400 font-extrabold">${info.hits || 0} 次 (${info.pct || 0}%)</span>
                   <span class="text-slate-500">200: ${info.status_200 || 0}</span>
@@ -1082,15 +1135,15 @@
         if (assets.length > 0) {
           html += `
             <div>
-              <div class="text-[11px] font-bold text-slate-400 mb-1.5">🏛️ 核心事实资产抓取对账:</div>
+              <div class="text-[11px] font-bold text-slate-400 mb-1.5">核心事实资产抓取对账:</div>
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
           `;
           assets.forEach(a => {
             const isOk = a.is_healthy;
             html += `
-              <div class="p-2 bg-slate-900/60 rounded-lg border border-slate-800 flex items-center justify-between gap-1 text-[11px]">
-                <span class="font-mono text-slate-300 truncate">${a.path}</span>
-                <span class="${isOk ? 'text-emerald-400' : 'text-amber-400'} font-bold shrink-0">${a.hits}次 (${isOk ? '畅通' : '排查'})</span>
+              <div class="p-2 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between gap-1 text-[11px]">
+                <span class="font-mono text-slate-700 truncate">${a.path}</span>
+                <span class="${isOk ? 'text-emerald-400' : 'text-[#7c5bf5]'} font-bold shrink-0">${a.hits}次 (${isOk ? '畅通' : '排查'})</span>
               </div>
             `;
           });
@@ -1101,15 +1154,15 @@
         if (stream.length > 0) {
           html += `
             <div>
-              <div class="text-[11px] font-bold text-slate-400 mb-1.5">⚡ 最新 AI 爬虫真实抓取心跳流 (采样最近 ${stream.length} 条):</div>
+              <div class="text-[11px] font-bold text-slate-400 mb-1.5">最新 AI 爬虫真实抓取心跳流 (采样最近 ${stream.length} 条):</div>
               <div class="space-y-1">
           `;
           stream.slice(0, 6).forEach(s => {
             html += `
-              <div class="p-1.5 px-2 bg-slate-900/50 rounded border border-slate-800/80 flex items-center justify-between gap-2 text-[11px]">
+              <div class="p-1.5 px-2 bg-slate-50 rounded border border-slate-200 flex items-center justify-between gap-2 text-[11px]">
                 <div class="flex items-center gap-2 truncate">
                   <span class="text-cyan-400 font-bold shrink-0">[${s.spider_name || s.spider_family}]</span>
-                  <span class="text-slate-300 font-mono truncate">${s.path}</span>
+                  <span class="text-slate-600 font-mono truncate">${s.path}</span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 text-slate-400 text-[10px]">
                   <span class="text-emerald-400 font-mono font-bold">${s.status}</span>
@@ -1124,8 +1177,8 @@
         html += `</div>`;
         spiderDetailsContainer.innerHTML = html;
       } else if (spiderBadge) {
-        spiderBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
-        spiderBadge.textContent = '⚪️ 待执行爬虫日志审计';
+        spiderBadge.className = 'text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200';
+        spiderBadge.textContent = '待执行爬虫日志审计';
         spiderHitsVal.textContent = '-- 次';
         spiderSpidersVal.textContent = '-- 家';
         spiderSuccessVal.textContent = '--%';
@@ -1133,7 +1186,7 @@
         spiderLlmsHitsVal.textContent = '-- 次';
         spiderCoreCovDesc.textContent = '核心资产待对账';
         spiderDetailsContainer.innerHTML = `
-          <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+          <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center space-y-1">
             <div class="text-slate-400 text-xs font-medium">尚未执行全网主流 AI 爬虫真实访问与抓取日志审计</div>
             <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo spider-audit &lt;项目ID&gt; --report</code> 启动</div>
           </div>
@@ -1155,11 +1208,11 @@
       if (rivalBadge && rivalCrack.has_data && (rivalCrack.status === 'ready' || rivalCrack.status === 'ready_live' || rivalCrack.status === 'ready_sandbox' || rivalCrack.status === 'active')) {
         const isSandbox = Boolean(rivalCrack.is_sandbox || rivalCrack.status === 'ready_sandbox');
         if (isSandbox) {
-          rivalBadge.className = 'text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20';
-          rivalBadge.textContent = '🔬 沙箱推演 (非竞品真页)';
+          rivalBadge.className = 'text-xs font-bold text-[#7c5bf5] bg-violet-500/10 px-2.5 py-0.5 rounded-full border border-violet-500/20';
+          rivalBadge.textContent = '沙箱推演 (非竞品真页)';
         } else {
           rivalBadge.className = 'text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20';
-          rivalBadge.textContent = '⚔️ 真实反超压制套件已就绪';
+          rivalBadge.textContent = '真实反超压制套件已就绪';
         }
 
         if (rivalNameVal) rivalNameVal.textContent = rivalCrack.competitor_name || '竞对企业';
@@ -1179,7 +1232,7 @@
 
         if (isSandbox) {
           html += `
-            <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between text-[11px] text-amber-300 mb-2">
+            <div class="p-2.5 bg-violet-500/10 border border-violet-500/20 rounded-xl flex items-center justify-between text-[11px] text-[#5b3fd4] mb-2">
               <span class="flex items-center gap-1.5">
                 <i data-lucide="flask-conical" class="w-3.5 h-3.5 shrink-0"></i>
                 <span><strong>沙箱推演模式</strong>：当前为确定性行业典型竞对破绽模型推演，非公网竞品真实抓取页面。接入真实竞品请运行 <code>geo rival-crack --url &lt;竞品链接&gt;</code>。</span>
@@ -1189,24 +1242,24 @@
           `;
         }
 
-        html += `<div class="text-[11px] font-bold text-slate-400">🎯 竞对致命破绽逆向识别与靶向反超切入点:</div><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+        html += `<div class="text-[11px] font-bold text-slate-400">竞对致命破绽逆向识别与靶向反超切入点:</div><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
         flaws.forEach(f => {
           const isHigh = f.severity === 'high';
           html += `
-            <div class="p-2.5 bg-slate-900/60 rounded-xl border ${isHigh ? 'border-rose-500/30 bg-rose-500/5' : 'border-amber-500/30 bg-amber-500/5'} space-y-1">
+            <div class="p-2.5 bg-slate-50 rounded-xl border ${isHigh ? 'border-rose-500/30 bg-rose-500/5' : 'border-violet-500/30 bg-violet-500/5'} space-y-1">
               <div class="flex items-center justify-between text-[11px]">
-                <span class="font-bold ${isHigh ? 'text-rose-300' : 'text-amber-300'}">${f.title}</span>
-                <span class="text-[10px] px-1.5 py-0.2 rounded font-mono ${isHigh ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'}">${f.flaw_id}</span>
+                <span class="font-bold ${isHigh ? 'text-rose-600' : 'text-[#7c5bf5]'}">${f.title}</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded font-mono ${isHigh ? 'bg-rose-500/20 text-rose-400' : 'bg-violet-500/15 text-[#7c5bf5]'}">${f.flaw_id}</span>
               </div>
               <p class="text-[10px] text-slate-400 leading-relaxed">${f.detail}</p>
-              <div class="text-[10px] text-emerald-400 font-medium">⚡️ 反超压制: ${f.suppression_angle}</div>
+              <div class="text-[10px] text-emerald-400 font-medium">反超压制: ${f.suppression_angle}</div>
             </div>
           `;
         });
         html += `</div>`;
         html += `
-          <div class="mt-2 p-2 bg-slate-900/70 border border-slate-800 rounded-lg flex items-center justify-between text-[11px]">
-            <span class="text-slate-300 flex items-center gap-1.5">
+          <div class="mt-2 p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between text-[11px]">
+            <span class="text-slate-700 flex items-center gap-1.5">
               <i data-lucide="shield-check" class="w-3.5 h-3.5 text-cyan-400"></i>
               <span>已生成《高维数据对照表》+《9因子深度长文》+《买家避坑FAQ》，已落盘至 <code>${rivalCrack.audit_doc || 'outputs'}</code></span>
             </span>
@@ -1215,8 +1268,8 @@
         </div>`;
         if (rivalDetailsContainer) rivalDetailsContainer.innerHTML = html;
       } else if (rivalBadge) {
-        rivalBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
-        rivalBadge.textContent = '⚪️ 待执行竞对反超流水线';
+        rivalBadge.className = 'text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200';
+        rivalBadge.textContent = '待执行竞对反超流水线';
         if (rivalNameVal) rivalNameVal.textContent = '--';
         if (rivalSourceDesc) rivalSourceDesc.textContent = '语料待抓取';
         if (rivalGapVal) rivalGapVal.textContent = '+-- 分';
@@ -1226,7 +1279,7 @@
         if (rivalSuiteVal) rivalSuiteVal.textContent = '--';
         if (rivalDetailsContainer) {
           rivalDetailsContainer.innerHTML = `
-            <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+            <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center space-y-1">
               <div class="text-slate-400 text-xs font-medium">尚未执行竞对高权重语料逆向解构与靶向反超流水线</div>
               <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo rival-crack &lt;项目ID&gt; --competitor &lt;竞对名&gt; --report</code> 启动</div>
             </div>
@@ -1246,7 +1299,7 @@
 
       if (botBadge && alertBot.has_data && (alertBot.status === 'active' || alertBot.status === 'ready')) {
         botBadge.className = 'text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20';
-        botBadge.textContent = '🤖 战果机器人已在线';
+        botBadge.textContent = '战果机器人已在线';
 
         if (botTotalVal) botTotalVal.textContent = `${alertBot.total_dispatched || 0} 次`;
         if (botChannelDesc) botChannelDesc.textContent = `主触达通道: ${alertBot.last_channel || 'feishu'}`;
@@ -1256,20 +1309,20 @@
 
         const history = alertBot.recent_history || [];
         let botHtml = `<div class="space-y-2 pt-2">`;
-        botHtml += `<div class="text-[11px] font-bold text-slate-400">📡 近期战果晨报推送与异动告警台账:</div>`;
+        botHtml += `<div class="text-[11px] font-bold text-slate-400">近期战果晨报推送与异动告警台账:</div>`;
         if (history.length > 0) {
           botHtml += `<div class="space-y-1.5">`;
           history.slice(-3).reverse().forEach(h => {
             const isBriefing = h.msg_type === 'briefing';
             botHtml += `
-              <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+              <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] px-2 py-0.5 rounded font-mono ${isBriefing ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">${h.msg_type}</span>
-                  <span class="text-slate-300 font-medium">${h.channel} · ${h.dispatch_id}</span>
+                  <span class="text-slate-700 font-medium">${h.channel} · ${h.dispatch_id}</span>
                 </div>
                 <div class="flex items-center gap-3 text-slate-500 text-[11px]">
                   <span>${h.timestamp}</span>
-                  <span class="${h.dry_run ? 'text-amber-400' : 'text-emerald-400'}">${h.dry_run ? 'Dry-Run' : 'Sent'}</span>
+                  <span class="${h.dry_run ? 'text-[#7c5bf5]' : 'text-emerald-400'}">${h.dry_run ? 'Dry-Run' : 'Sent'}</span>
                 </div>
               </div>
             `;
@@ -1279,8 +1332,8 @@
           botHtml += `<div class="text-[11px] text-slate-500 italic">暂无历史调度记录</div>`;
         }
         botHtml += `
-          <div class="mt-2 p-2 bg-slate-900/70 border border-slate-800 rounded-lg flex items-center justify-between text-[11px]">
-            <span class="text-slate-300 flex items-center gap-1.5">
+          <div class="mt-2 p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between text-[11px]">
+            <span class="text-slate-700 flex items-center gap-1.5">
               <i data-lucide="bell" class="w-3.5 h-3.5 text-emerald-400"></i>
               <span>支持每日早 9 点定时巡检推送与 P0 声誉异动 60 秒即时告警</span>
             </span>
@@ -1289,8 +1342,8 @@
         </div>`;
         if (botDetailsContainer) botDetailsContainer.innerHTML = botHtml;
       } else if (botBadge) {
-        botBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
-        botBadge.textContent = '⚪️ 待配置机器人';
+        botBadge.className = 'text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200';
+        botBadge.textContent = '待配置机器人';
         if (botTotalVal) botTotalVal.textContent = '-- 次';
         if (botChannelDesc) botChannelDesc.textContent = '通道未配置';
         if (botTimeVal) botTimeVal.textContent = '--';
@@ -1298,7 +1351,7 @@
         if (botAnomaliesVal) botAnomaliesVal.textContent = '-- 项';
         if (botDetailsContainer) {
           botDetailsContainer.innerHTML = `
-            <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+            <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center space-y-1">
               <div class="text-slate-400 text-xs font-medium">尚未配置企微/飞书多端战果晨报与异常声量即时告警机器人</div>
               <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo alert-bot &lt;项目ID&gt; --type briefing --dry-run</code> 启动</div>
             </div>
@@ -1323,8 +1376,8 @@
         const isGood = (doubaoIdx.drs_score || 0) >= 80;
         doubaoBadge.className = isGood 
           ? 'text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20'
-          : 'text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20';
-        doubaoBadge.textContent = isGood ? '🌟 豆包收录通道极佳' : '🟡 豆包收录通道待补强';
+          : 'text-xs font-bold text-[#7c5bf5] bg-violet-500/10 px-2.5 py-0.5 rounded-full border border-violet-500/20';
+        doubaoBadge.textContent = isGood ? '豆包收录通道极佳' : '豆包收录通道待补强';
 
         if (doubaoDrsVal) doubaoDrsVal.textContent = doubaoIdx.drs_score !== null && doubaoIdx.drs_score !== undefined ? `${doubaoIdx.drs_score} 分` : '[待实测]';
         if (doubaoGradeDesc) doubaoGradeDesc.textContent = `综合评级: ${doubaoIdx.grade || '待评级'}`;
@@ -1336,15 +1389,15 @@
         if (doubaoTtDesc) doubaoTtDesc.textContent = doubaoIdx.toutiao_pack_ready ? '头条母池资产: 已就绪' : '头条母池资产: 待打包';
 
         let doubaoHtml = `
-          <div class="mt-2 p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-2">
+          <div class="mt-2 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
             <div class="flex items-center justify-between text-[11px]">
-              <span class="text-slate-300 font-bold flex items-center gap-1.5">
+              <span class="text-slate-700 font-bold flex items-center gap-1.5">
                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-cyan-400"></i>
                 <span>${doubaoIdx.status_label || ''}</span>
               </span>
               <span class="text-cyan-400 font-mono text-[10px]">6 维要素体检项: ${doubaoIdx.checks_count || 6} 项</span>
             </div>
-            <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-800/60">
+            <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-200">
               <div>• Bytespider 专享静态快照: <span class="${doubaoIdx.booster_pack_ready ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${doubaoIdx.booster_pack_ready ? '已生成 (纯HTML无JS)' : '未就绪'}</span></div>
               <div>• 今日头条/微头条提权文案: <span class="${doubaoIdx.toutiao_pack_ready ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${doubaoIdx.toutiao_pack_ready ? '已就绪 (富文本+短动态)' : '待打包'}</span></div>
             </div>
@@ -1352,8 +1405,8 @@
         `;
         if (doubaoDetailsContainer) doubaoDetailsContainer.innerHTML = doubaoHtml;
       } else if (doubaoBadge) {
-        doubaoBadge.className = 'text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700';
-        doubaoBadge.textContent = '⚪️ 待实测审计';
+        doubaoBadge.className = 'text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200';
+        doubaoBadge.textContent = '待实测审计';
         if (doubaoDrsVal) doubaoDrsVal.textContent = '-- 分';
         if (doubaoGradeDesc) doubaoGradeDesc.textContent = '综合评级: --';
         if (doubaoHitsVal) doubaoHitsVal.textContent = '-- 次';
@@ -1364,7 +1417,7 @@
         if (doubaoTtDesc) doubaoTtDesc.textContent = '今日头条/微头条母池';
         if (doubaoDetailsContainer) {
           doubaoDetailsContainer.innerHTML = `
-            <div class="p-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-center space-y-1">
+            <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center space-y-1">
               <div class="text-slate-400 text-xs font-medium">尚未执行豆包搜索极速收录与全链路索引保障流水线</div>
               <div class="text-slate-600 text-[11px]">可在后台运行 <code>python3 -m tools.geo doubao-index &lt;项目ID&gt; --report --portal-sync</code> 启动</div>
             </div>
