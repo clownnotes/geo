@@ -1,5 +1,14 @@
 [
   {
+    "source_id": "probe:doubao:20260910",
+    "kind": "paste",
+    "url": null,
+    "title": "豆包Safari探测基线20260910",
+    "path": "evidence/src_52c2f1682d83.md",
+    "chars": 3866,
+    "fetched_at": "2026-09-10T11:53:02Z"
+  },
+  {
     "source_id": "url:aa710bd1deb8",
     "kind": "url",
     "url": "https://nextgeo.baicl.cc",
@@ -12,9 +21,9 @@
     "source_id": "paste:brand_profile",
     "kind": "paste",
     "url": null,
-    "title": "brand_profile.md",
+    "title": "邻里GEO品牌名片段与主体口径",
     "path": "evidence/paste_brand_profile.md",
-    "chars": 1042,
+    "chars": 877,
     "fetched_at": "2026-09-08T09:33:35Z"
   }
 ]
