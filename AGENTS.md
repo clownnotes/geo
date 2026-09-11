@@ -67,6 +67,7 @@
    - 管理台运行时仍读写本仓 `projects/{id}/outputs/`；资料仓是备份镜像，不是运行入口。
    - 备份：`./scripts/sync_delivery_to_ziliao.sh [client_id]` → 进入 GEOZiLiao commit + `git push origin main`。
    - 恢复：`./scripts/restore_delivery_from_ziliao.sh [client_id]`。
+   - 生产机首次切换 / pull 后补站：`scripts/cutover_ziliao_on_mini.sh`（克隆资料仓 → pull 主仓 → 立刻 restore）。
    - 完整约定见：[`docs/strategy/customer-materials-repo.md`](docs/strategy/customer-materials-repo.md)。
 4. **极简标准推生产流程（两步直达，严禁繁琐探查）**：
    - **第 1 步：本地双推**：
