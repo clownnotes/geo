@@ -55,7 +55,16 @@ git push origin main
 # 或不带参数：恢复全部已在资料仓存在的客户
 ```
 
-生产机（Mac mini）建议并列克隆两仓；推生产前若主仓已不再跟踪 `outputs/site|assets`，必须先 restore 或单独 pull GEOZiLiao 再同步，否则 `git pull` 后线上站点会空。
+生产机（Mac mini）必须并列放两仓。主仓解绑 `outputs/site|assets` 之后，**每次**生产 `git pull` 若清掉了站点，立刻 restore。首次切换用一键脚本：
+
+```bash
+# 在 mini 上（路径默认 /Users/ne/apps/GEO）
+bash /Users/ne/apps/GEO/scripts/cutover_ziliao_on_mini.sh
+# 或本机：
+ssh mini 'bash /Users/ne/apps/GEO/scripts/cutover_ziliao_on_mini.sh'
+```
+
+脚本会：克隆/更新 GEOZiLiao → pull 主仓 → 立刻 restore → 抽检 nextgeo。
 
 ## 5. 主仓 gitignore 约定
 
