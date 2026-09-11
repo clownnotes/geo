@@ -16,3 +16,10 @@ gateway/gateway
 docs/.vitepress/cache/
 docs/.vitepress/dist/
 
+# 客户重资料：本地可保留预览，不进双推；备份见并列仓 GEOZiLiao
+# 文档：docs/strategy/customer-materials-repo.md
+projects/*/outputs/site/
+projects/*/outputs/assets/
+projects/*/outputs/*_geo_delivery_archive.zip
+projects/*/outputs/*delivery*.zip
+

@@ -61,7 +61,14 @@
    - **只有当用户明确指示推生产（如“部署到生产”、“推到线上网站”）时**，方可执行生产发布。
 2. **Git 协同推送规范**：
    - 开发端阶段性测试通过后，Git 仓库必须正常执行提交并推送到远端（`git push origin main` 与 `git push github main`），确保多端代码同步。
-3. **极简标准推生产流程（两步直达，严禁繁琐探查）**：
+3. **双仓资料分工（Agent 必读）**：
+   - **GEO（本仓）**：代码 + OpenSpec + SOP + `project.yaml` + 词库/报告等轻量真源；双推自建 `origin` 与 `github`。
+   - **GEOZiLiao（并列目录 `/Users/a1/代码/GEOZiLiao`）**：客户整站 `site/`、大图 `assets/`、结案大 ZIP；**仅**推自建 `https://git.baicl.cc/admin/GEOZiLiao.git`，**严禁**加 GitHub remote。
+   - 管理台运行时仍读写本仓 `projects/{id}/outputs/`；资料仓是备份镜像，不是运行入口。
+   - 备份：`./scripts/sync_delivery_to_ziliao.sh [client_id]` → 进入 GEOZiLiao commit + `git push origin main`。
+   - 恢复：`./scripts/restore_delivery_from_ziliao.sh [client_id]`。
+   - 完整约定见：[`docs/strategy/customer-materials-repo.md`](docs/strategy/customer-materials-repo.md)。
+4. **极简标准推生产流程（两步直达，严禁繁琐探查）**：
    - **第 1 步：本地双推**：
      ```bash
      git push origin main && git push github main
@@ -70,13 +77,15 @@
      ```bash
      ssh mini "cd /Users/ne/apps/GEO && git pull github main"
      ```
+   - 若生产依赖的 `outputs/site|assets` 已从主仓 gitignore、仅存资料仓：推生产前须在 mini 并列拉 GEOZiLiao 并执行 restore（见资料仓文档），避免线上站点被 pull 清空。
    - **铁律**：严禁在推生产时擅自登录多台机器扫描端口、查杀进程或修改 Nginx；生产机 Web 服务直接挂载静态文件，`git pull` 完成后秒级生效。
 
 ---
 
 ## 5. 服务端拓扑与交付架构战略（物理机 + VPS 转发 + 边缘 CDN）
 
-> 详细规范与参数见：[`docs/strategy/server-architecture.md`](docs/strategy/server-architecture.md)
+> 详细规范与参数见：[`docs/strategy/server-architecture.md`](docs/strategy/server-architecture.md)  
+> 客户重资料与主仓分工见：[`docs/strategy/customer-materials-repo.md`](docs/strategy/customer-materials-repo.md)
 
 1. **三层交付拓扑**：
    - **第三层：家用物理机 (Mac mini)**：自备物理服务器，中国联通动态公网 IP（50 Mbps 上行），作为总控母体、语料提纯、建站编译中心；
