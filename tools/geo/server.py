@@ -404,6 +404,31 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                 self.send_json({"success": False, "message": f"项目 ID [{client_id}] 已存在！"}, status=400)
                 return
 
+            from .utils import (
+                coerce_bool,
+                normalize_official_url,
+                validate_business_one_liner,
+            )
+
+            try:
+                one_liner = validate_business_one_liner(body.get("business_one_liner") or "")
+            except ValueError as ve:
+                self.send_json({"success": False, "message": str(ve)}, status=400)
+                return
+
+            site_pending = coerce_bool(body.get("site_pending"))
+            try:
+                official_url, site_pending = normalize_official_url(
+                    body.get("official_url") or "",
+                    client_id=client_id,
+                    site_pending=site_pending,
+                )
+            except ValueError as ve:
+                self.send_json({"success": False, "message": str(ve)}, status=400)
+                return
+
+            industry = str(body.get("industry") or "").strip() or "待定"
+
             # 从模板初始化
             template_dir = os.path.join(PROJECTS_DIR, "_template")
             shutil.copytree(template_dir, client_dir)
@@ -425,32 +450,47 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
             yaml_content = f"""client_id: "{e(client_id)}"
 client_name: "{e(body.get('client_name', '新客户'))}"
-official_url: "{e(body.get('official_url', 'https://example.com'))}"
-industry: "{e(body.get('industry', '行业待定'))}"
-company_profile: "{e(body.get('company_profile', '企业级专业方案'))}"
+official_url: "{e(official_url)}"
+industry: "{e(industry)}"
+business_one_liner: "{e(one_liner)}"
+company_profile: "{e(body.get('company_profile') or one_liner)}"
+site_pending: {"true" if site_pending else "false"}
 
 core_values:
 """
             for cv in (cv_list or ["核心技术优势 1", "核心性能提升 30%"]):
                 yaml_content += f"  - \"{e(cv)}\"\n"
 
+            # 允许空词库/空竞品；禁止静默塞入假占位（空比瞎填好）
             yaml_content += "\nkeywords:\n"
-            for kw in (kw_list or ["行业核心推荐词", "好用方案对比"]):
+            for kw in (kw_list or []):
                 yaml_content += f"  - \"{e(kw)}\"\n"
 
             yaml_content += "\ncompetitors:\n"
-            for comp in (comp_list or ["竞品A", "竞品B"]):
+            for comp in (comp_list or []):
                 yaml_content += f"  - \"{e(comp)}\"\n"
 
             yaml_content += "\nmodels:\n  - \"deepseek\"\n  - \"doubao\"\n"
 
             partner_id = str(body.get("partner_id") or "").strip()
             yaml_content += f'\n# 代理合作归属（可选；空=未分配）\npartner_id: "{e(partner_id)}"\n'
+            yaml_content += (
+                f'\n# 浏览器侦察状态（Cursor 出题 × 反重力实战回填）\n'
+                f'probe_status: "unprobed"\n'
+                f'probe_baseline_id: ""\n'
+                f'probe_baseline_at: ""\n'
+            )
 
             with open(config_file, "w", encoding="utf-8") as f:
                 f.write(yaml_content)
 
-            self.send_json({"success": True, "client_id": client_id, "message": f"项目 [{client_id}] 创建成功！"})
+            self.send_json({
+                "success": True,
+                "client_id": client_id,
+                "official_url": official_url,
+                "site_pending": site_pending,
+                "message": f"项目 [{client_id}] 创建成功！",
+            })
             return
 
         # 合作方名册：创建
@@ -531,6 +571,69 @@ core_values:
                             outputs.append({"name": f, "size_bytes": os.path.getsize(os.path.join(out_dir, f))})
                 safe["outputs"] = outputs
                 self.send_json({"success": True, "project": safe, "message": "建档资料已保存"})
+            except ValueError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 侦察回填预览: POST /api/projects/{id}/probe/preview
+        if path.startswith("/api/projects/") and path.endswith("/probe/preview"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() or {}
+            probe = body.get("probe") if isinstance(body.get("probe"), dict) else body
+            try:
+                from .probe_backfill import preview_probe_backfill
+                if not isinstance(probe, dict) or not isinstance(probe.get("items"), list):
+                    self.send_json(
+                        {"success": False, "message": "请上传含 items[] 的 probe JSON 对象"},
+                        status=400,
+                    )
+                    return
+                preview = preview_probe_backfill(project_id, probe_data=probe)
+                self.send_json({"success": True, "preview": preview})
+            except ValueError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 侦察确认回填: POST /api/projects/{id}/probe/apply
+        if path.startswith("/api/projects/") and path.endswith("/probe/apply"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() or {}
+            probe = body.get("probe")
+            if not isinstance(probe, dict):
+                self.send_json({"success": False, "message": "缺少 probe 对象"}, status=400)
+                return
+            merge = True if body.get("merge") is None else bool(body.get("merge"))
+            only_real = True if body.get("only_real") is None else bool(body.get("only_real"))
+            try:
+                from .probe_backfill import apply_probe_backfill
+                from . import utils as geo_utils
+                res = apply_probe_backfill(
+                    project_id,
+                    probe_data=probe,
+                    merge=merge,
+                    only_real=only_real,
+                    competitors=body.get("competitors"),
+                    keywords=body.get("keywords"),
+                )
+                project = geo_utils.load_project_config(project_id)
+                safe = {k: v for k, v in project.items() if not str(k).startswith("_")}
+                self.send_json({
+                    "success": True,
+                    "message": (
+                        f"已回填竞品 {len(res['applied'].get('competitors') or [])} 个、"
+                        f"问句 {len(res['applied'].get('keywords') or [])} 条"
+                        + ("（合并模式）" if merge else "（覆盖模式）")
+                    ),
+                    "applied": res.get("applied"),
+                    "preview": res.get("preview"),
+                    "merge": merge,
+                    "probe_path": res.get("probe_path"),
+                    "project": safe,
+                })
             except ValueError as e:
                 self.send_json({"success": False, "message": str(e)}, status=400)
             except Exception as e:
@@ -844,6 +947,39 @@ core_values:
                     run_monitor(project_id)
                     msg = "阶段 5：AI 可见度监控与周报已生成！"
                 elif step == "pipeline":
+                    from .utils import (
+                        load_project_config,
+                        pipeline_quality_warnings,
+                        pipeline_hard_block_reason,
+                    )
+                    body = {}
+                    try:
+                        body = self.read_json_body() or {}
+                    except Exception:
+                        body = {}
+                    force = bool(body.get("force"))
+                    warn_lines = []
+                    block_reason = ""
+                    try:
+                        cfg = load_project_config(project_id)
+                        warn_lines = pipeline_quality_warnings(cfg)
+                        block_reason = pipeline_hard_block_reason(cfg)
+                    except Exception:
+                        warn_lines = []
+                        block_reason = ""
+                    if block_reason and not force:
+                        self.send_json(
+                            {
+                                "success": False,
+                                "blocked": True,
+                                "step": step,
+                                "message": block_reason,
+                                "warnings": warn_lines,
+                                "redirect_view": "step-0-probe",
+                            },
+                            status=409,
+                        )
+                        return
                     run_audit(project_id)
                     run_scaffold(project_id)
                     run_rewrite(project_id)
@@ -861,7 +997,20 @@ core_values:
                     except Exception:
                         pass
                     run_monitor(project_id)
-                    msg = "全套 5 步商业交付流水线一键执行完毕！"
+                    msg = "五步草稿资产已生成（不含 00 侦察；请人工验收，勿直接当终稿）"
+                    if force and block_reason:
+                        msg = "已 force 跳过侦察拦截｜" + msg
+                    if warn_lines:
+                        msg = msg + "｜开工警告：" + "；".join(warn_lines)
+                    self.send_json({
+                        "success": True,
+                        "step": step,
+                        "message": msg,
+                        "warnings": warn_lines,
+                        "draft_only": True,
+                        "forced": bool(force and block_reason),
+                    })
+                    return
                 else:
                     self.send_json({"success": False, "message": f"未知步骤: {step}"}, status=400)
                     return
@@ -3561,18 +3710,25 @@ server {{
 
                                 partner_id = str(cfg.get("partner_id") or "").strip()
                                 brand = str(cfg.get("brand_name") or "")
+                                kws = cfg.get("keywords") or []
+                                if not isinstance(kws, list):
+                                    kws = []
+                                probe_status = str(cfg.get("probe_status") or "unprobed").strip() or "unprobed"
                                 row = {
                                     "client_id": item,
                                     "client_name": cfg.get("client_name", item),
                                     "official_url": cfg.get("official_url", ""),
                                     "industry": cfg.get("industry", ""),
                                     "brand_name": brand,
-                                    "keywords_count": len(cfg.get("keywords", [])),
+                                    "keywords_count": len(kws),
                                     "steps_done": steps_done,
                                     "progress_pct": int((steps_done / 5) * 100),
                                     "outputs_count": len(outputs),
                                     "partner_id": partner_id,
                                     "partner_name": resolve_partner_name(partner_id, pmap),
+                                    "probe_status": probe_status,
+                                    "probe_baseline_id": str(cfg.get("probe_baseline_id") or ""),
+                                    "probe_baseline_at": str(cfg.get("probe_baseline_at") or ""),
                                 }
 
                                 if filter_partner is not None:

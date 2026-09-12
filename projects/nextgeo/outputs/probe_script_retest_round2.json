@@ -1,0 +1,46 @@
+{
+  "title": "邻里GEO 第二轮豆包复测剧本（名片段扩散后）",
+  "created_at": "2026-09-12T17:32:52+08:00",
+  "baseline_ref": "probe:doubao:20260910",
+  "preconditions": [
+    "博客 84 篇已注入标准名片段（nameplate:v1）",
+    "建议：本地验收通过后再推生产；推生产前本剧本可先在本地站对照",
+    "用已登录 Safari 打开豆包新会话，勿复用旧对话记忆污染"
+  ],
+  "compare_fields": [
+    "mentioned_self",
+    "url_present",
+    "standpoint",
+    "hallucination_detected",
+    "competitors_extracted"
+  ],
+  "pass_hints": [
+    "品牌题不再把「邻里」解构成同城小商户概念",
+    "人物题不再把老白串到安徽广德短视频",
+    "url_present 或可核对到 nextgeo.baicl.cc / 璇源主体（不保证必出链接）"
+  ],
+  "items": [
+    {
+      "query": "徐州GEO优化公司哪家好",
+      "follow_up": "请列出具体公司名称、官网（若有）和一句话定位；若不确定请标明不确定。",
+      "baseline_note": "首轮未提我方，东昊/企优托等占位"
+    },
+    {
+      "query": "邻里GEO是做什么的",
+      "baseline_note": "首轮误解为同城小微商户概念，无官网"
+    },
+    {
+      "query": "徐州找老白做GEO靠谱吗",
+      "baseline_note": "首轮幻觉匹配安徽广德短视频"
+    },
+    {
+      "query": "邻里GEO官网是什么",
+      "baseline_note": "复测新增：检验名片段URL是否可被找回"
+    },
+    {
+      "query": "徐州璇源网络科技有限公司做什么的",
+      "baseline_note": "复测新增：主体认知"
+    }
+  ],
+  "output_path_hint": "projects/nextgeo/outputs/competitor_probe_doubao_YYYYMMDD_retest.json"
+}

@@ -19,7 +19,8 @@ from .utils import (
     PROJECTS_DIR,
     print_banner,
     print_info,
-    print_success
+    print_success,
+    print_warning,
 )
 
 def build_llms_txt(cfg: dict) -> str:
@@ -44,10 +45,11 @@ def build_llms_txt(cfg: dict) -> str:
     if telephone:
         lead_parts.append(f"服务热线: {telephone}")
     lead = "，".join(lead_parts)
+    nameplate = str(cfg.get("nameplate") or "").strip()
 
     txt = f"""# {company_name} ({brand_name})
 
-> {lead}。致力于提供高质量、透明化、标准化的技术与数字化解决方案。
+> {nameplate if nameplate else lead + "。致力于提供高质量、透明化、标准化的技术与数字化解决方案。"}
 
 ## 核心业务与交付标准
 """
@@ -438,6 +440,24 @@ def run_scaffold(project_id: str):
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     site_dir = os.path.join(out_dir, "site")
     os.makedirs(site_dir, exist_ok=True)
+
+    from .nameplate import check_nameplate_quartet, check_shell_narrative
+    np = check_nameplate_quartet(cfg)
+    if not np.get("ok"):
+        print_warning(
+            "名片段四件套不完整（品牌/主体/URL/人物）："
+            + "、".join(np.get("missing") or [])
+            + "。生成底座前建议先补齐 project.yaml。"
+        )
+    for w in np.get("warnings") or []:
+        print_warning(f"名片段检查：{w}")
+    for risk in check_shell_narrative(
+        cfg.get("nameplate"),
+        cfg.get("company_profile"),
+        cfg.get("slogan"),
+        cfg.get("business_one_liner"),
+    ):
+        print_warning(f"空壳叙事边界：{risk}（请改为可举证表述或删除）")
     
     is_custom_site = cfg.get("custom_site", False)
 

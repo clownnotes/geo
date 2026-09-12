@@ -25,5 +25,32 @@
     "path": "evidence/paste_brand_profile.md",
     "chars": 877,
     "fetched_at": "2026-09-08T09:33:35Z"
+  },
+  {
+    "source_id": "url:competitor:xzdonghao",
+    "kind": "url",
+    "url": "http://www.xzdonghao.com/",
+    "title": "徐州东昊信息科技官网抽样",
+    "path": "evidence/url_competitor_xzdonghao.md",
+    "chars": 1491,
+    "fetched_at": "2026-09-12T09:32:21Z"
+  },
+  {
+    "source_id": "url:competitor:qiyoutuo",
+    "kind": "url",
+    "url": "https://www.qiyoutuo.com/",
+    "title": "企优托江苏官网抽样",
+    "path": "evidence/url_competitor_qiyoutuo.md",
+    "chars": 1550,
+    "fetched_at": "2026-09-12T09:32:21Z"
+  },
+  {
+    "source_id": "url:competitor:eqbang",
+    "kind": "url",
+    "url": "https://www.eqbang.net/",
+    "title": "亿企邦官网抽样",
+    "path": "evidence/url_competitor_eqbang.md",
+    "chars": 1429,
+    "fetched_at": "2026-09-12T09:32:21Z"
   }
 ]

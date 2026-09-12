@@ -203,6 +203,7 @@
 <th class="px-5 py-3">合作方</th>
 <th class="px-5 py-3">官网</th>
 <th class="px-5 py-3 text-center">词库</th>
+<th class="px-5 py-3 text-center">侦察</th>
 <th class="px-5 py-3">SOP</th>
 <th class="px-5 py-3 text-right">操作</th>
 </tr>
@@ -386,6 +387,8 @@
 <button type="button" class="accordion-header" onclick="toggleSidebarGroup('delivery')"><span class="category-title">交付流水线</span><span class="arrow-indicator" data-group-arrow="delivery">▼</span>
 </button>
 <div id="sidebar-group-delivery" class="submenu-list">
+<button type="button" id="nav-step-0-probe" onclick="switchView('step-0-probe')" class="sidebar-nav-item"><i data-lucide="radar" class="w-3.5 h-3.5 shrink-0 opacity-70"></i><span class="truncate">00 侦察建档</span>
+</button>
 <button type="button" id="nav-step-1-diag" onclick="switchView('step-1-diag')" class="sidebar-nav-item"><span class="truncate">01 现状诊断与体检</span>
 </button>
 <button type="button" id="nav-step-2-scaffold" onclick="switchView('step-2-scaffold')" class="sidebar-nav-item"><span class="truncate">02 站点底座与三件套</span>
@@ -458,7 +461,8 @@
 </nav><span id="wizard-client-id" class="hidden"></span><span id="wizard-client-name" class="hidden"></span><span id="wizard-client-url" class="hidden"></span>
 </div>
 <div class="flex items-center gap-2 shrink-0">
-<button onclick="runPipelineAll()" id="btn-run-all" class="geo-btn geo-btn-primary"><i data-lucide="play" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">一键跑通流水线</span>
+<span id="pipeline-gate-hint" class="hidden max-w-[9rem] sm:max-w-[14rem] text-[10px] leading-snug text-amber-700 text-right"></span>
+<button onclick="runPipelineAll()" id="btn-run-all" class="geo-btn geo-btn-primary" title="批量生成阶段1～5草稿（不含00侦察，需人工验收）"><i data-lucide="play" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">批量生成草稿</span>
 </button>
 <button onclick="downloadDeliverables()" class="geo-btn"><i data-lucide="download" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">导出 ZIP</span>
 </button>
@@ -468,6 +472,67 @@
 </header>
 <div id="app-workspace" class="flex-1 overflow-y-auto">
 <main class="max-w-5xl w-full mx-auto p-6 md:p-8 space-y-6">
+<div id="panel-step-0-probe" class="workspace-panel hidden space-y-6">
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+<div class="flex flex-wrap items-start justify-between gap-3">
+<div>
+<h2 class="text-base font-bold text-slate-900 flex items-center gap-2"><i data-lucide="radar" class="w-5 h-5 text-[#7c5bf5]"></i><span>阶段零：侦察建档</span>
+</h2>
+<p class="text-xs text-slate-500 mt-1 max-w-xl">弄清「大模型现在怎么说」：竞品写谁、该盯哪些问句。用 Cursor 出题、反重力在已登录豆包实战，再<strong>上传 probe JSON</strong>或 CLI 回填。</p>
+<p class="text-[11px] text-slate-400 mt-1">阶段一体检看的是官网能不能被 AI 读懂，和侦察是两件事；建议先做完侦察再体检。</p>
+</div>
+<div class="flex flex-col items-end gap-2 shrink-0">
+<div id="step0-probe-badges" class="flex flex-wrap gap-2 justify-end"></div>
+<button type="button" onclick="refreshStep0ProbeStatus()" class="py-1.5 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>刷新状态</button>
+</div>
+</div>
+<ol class="space-y-3 text-xs text-slate-700 list-decimal list-inside">
+<li class="bg-slate-50 border border-slate-100 rounded-lg p-3">
+<div class="font-semibold text-slate-900 mb-1">本机生成必测题（约 6～10 条）</div>
+<div class="flex flex-wrap items-center gap-2 font-mono text-[11px] bg-white border border-slate-200 rounded-md px-2.5 py-2">
+<code id="step0-cmd-script" class="flex-1 break-all">python3 -m tools.geo probe-script …</code>
+<button type="button" onclick="copyStep0Cmd('step0-cmd-script')" class="shrink-0 text-[#7c5bf5] font-semibold hover:underline">复制</button>
+</div>
+</li>
+<li class="bg-slate-50 border border-slate-100 rounded-lg p-3">
+<div class="font-semibold text-slate-900 mb-1">反重力打开已登录的豆包，按题实战并把结果存成 probe_*.json</div>
+<p class="text-[11px] text-slate-500">路径示例见 SOP：<code class="bg-white px-1 rounded border border-slate-200">docs/specs/llm-browser-probe-sop.md</code></p>
+</li>
+<li class="bg-slate-50 border border-slate-100 rounded-lg p-3">
+<div class="font-semibold text-slate-900 mb-1">预览并回填竞品与监测问句</div>
+<div class="space-y-3">
+<div class="bg-white border border-slate-200 rounded-lg p-3 space-y-2.5">
+<div class="text-[11px] font-semibold text-slate-800">管理台上传（推荐）</div>
+<input type="file" id="step0-probe-file" accept=".json,application/json" class="block w-full text-[11px] text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+<label class="flex items-center gap-2 text-[11px] text-slate-600 select-none">
+<input type="checkbox" id="step0-probe-merge" checked class="rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]" />
+<span>合并到现有词库/竞品（推荐，不冲掉已精修内容）</span>
+</label>
+<div class="flex flex-wrap gap-2">
+<button type="button" onclick="previewStep0ProbeUpload()" class="py-1.5 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700">预览回填</button>
+<button type="button" id="step0-probe-apply-btn" onclick="applyStep0ProbeUpload()" disabled class="py-1.5 px-3 text-xs font-semibold rounded-lg bg-[#7c5bf5] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#6846e3]">确认回填</button>
+</div>
+<div id="step0-probe-preview" class="hidden text-[11px] text-slate-700 bg-slate-50 border border-slate-100 rounded-md p-2.5 space-y-1.5 max-h-56 overflow-y-auto"></div>
+</div>
+<div class="text-[10px] text-slate-400">也可继续用 CLI：</div>
+<div class="flex flex-wrap items-center gap-2 font-mono text-[11px] bg-white border border-slate-200 rounded-md px-2.5 py-2">
+<code id="step0-cmd-preview" class="flex-1 break-all">python3 -m tools.geo probe-preview …</code>
+<button type="button" onclick="copyStep0Cmd('step0-cmd-preview')" class="shrink-0 text-[#7c5bf5] font-semibold hover:underline">复制</button>
+</div>
+<div class="flex flex-wrap items-center gap-2 font-mono text-[11px] bg-white border border-slate-200 rounded-md px-2.5 py-2">
+<code id="step0-cmd-apply" class="flex-1 break-all">python3 -m tools.geo probe-apply … --merge --yes</code>
+<button type="button" onclick="copyStep0Cmd('step0-cmd-apply')" class="shrink-0 text-[#7c5bf5] font-semibold hover:underline">复制</button>
+</div>
+<p class="text-[10px] text-slate-400">把命令里的 <code>path/to/probe_*.json</code> 换成真实文件路径；有精修词库时务必加 <code>--merge</code>。</p>
+</div>
+</li>
+</ol>
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+<p class="text-[11px] text-slate-400">回填成功后点「刷新状态」，徽章应变为「已有基线」。</p>
+<button type="button" onclick="goStep1FromProbeGuide()" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5"><span>进入阶段一体检</span><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+</div>
+</div>
+</div>
 <div id="panel-step-1-diag" class="workspace-panel space-y-6">
 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
 <div>
@@ -1712,11 +1777,20 @@
 <div><label class="block font-semibold text-slate-700 mb-1">客户企业/产品名称</label>
 <input id="np-name" type="text" required placeholder="如: 示例科技（徐州）有限公司" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
 </div>
-<div><label class="block font-semibold text-slate-700 mb-1">官网 URL 域名</label>
-<input id="np-url" type="url" required placeholder="https://example.com" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+<div>
+<label class="block font-semibold text-slate-700 mb-1">官网域名</label>
+<input id="np-url" type="text" placeholder="如: pidai.baicl.cc（不必写 https://）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+<label class="mt-2 flex items-start gap-2 text-xs text-slate-600 cursor-pointer select-none">
+<input id="np-site-pending" type="checkbox" class="mt-0.5 rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]" onchange="toggleNpSitePending()">
+<span>暂无官网，由我方托管创建（将使用 <code class="text-[10px] bg-slate-100 px-1 rounded">{代号}.baicl.cc</code>）</span>
+</label>
 </div>
-<div><label class="block font-semibold text-slate-700 mb-1">所属行业领域</label>
-<input id="np-industry" type="text" required placeholder="如: 工业排产MES与协同系统" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+<div><label class="block font-semibold text-slate-700 mb-1">一句话业务 <span class="text-rose-500">*</span></label>
+<textarea id="np-one-liner" rows="2" required minlength="15" maxlength="80" placeholder="例：徐州及淮海经济区高精度电子皮带秤研发生产与技术服务，主打矿山与电力行业（15～80 字）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+<p class="text-[10px] text-slate-400 mt-1">必填。比「所属行业」更重要，直接决定侦察出题准不准。</p>
+</div>
+<div><label class="block font-semibold text-slate-700 mb-1">所属行业短标签 <span class="font-normal text-slate-400">（可选）</span></label>
+<input id="np-industry" type="text" placeholder="如: 皮带秤 / 工业称重（可空，列表筛选用）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
 </div>
 <div><label class="block font-semibold text-slate-700 mb-1">归属合作方（可选）</label>
 <select id="np-partner" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
@@ -1724,21 +1798,21 @@
 </select>
 </div>
 <div>
-<div class="flex items-center justify-between mb-1"><label class="block font-semibold text-slate-700">核心业务意图词库 (每行一个)</label>
-<button type="button" id="btn-auto-intent" onclick="handleAutoGenerateIntent(event)" class="text-[11px] text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1 px-2.5 rounded-md font-semibold flex items-center gap-1 border border-indigo-200 transition shadow-sm"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-600"></i><span>AI 智能推演 50 组用户提问</span>
+<div class="flex items-center justify-between mb-1"><label class="block font-semibold text-slate-700">核心业务意图词库 <span class="font-normal text-slate-400">（可选）</span></label>
+<button type="button" id="btn-auto-intent" onclick="handleAutoGenerateIntent(event)" class="text-[11px] text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1 px-2.5 rounded-md font-semibold flex items-center gap-1 border border-indigo-200 transition shadow-sm"><i data-lucide="list-plus" class="w-3.5 h-3.5 text-indigo-600"></i><span>生成必测题草稿（约 10 条）</span>
 </button>
 </div>
-<textarea id="np-keywords" rows="5" required placeholder="点击上方【AI 智能推演 50 组用户提问】按钮自动挖掘；或手动每行输入一个用户问句..." class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-</textarea>
-<p class="text-[10px] text-slate-400 mt-1">系统将自动模拟企业决策者、中小老板、技术主管与比价财务 4 类买家，输出选型、价格、避坑、技术与品牌 5 维问句。</p>
-</div>
-<div><label class="block font-semibold text-slate-700 mb-1">主要竞品列表 (每行一个)</label>
-<textarea id="np-competitors" rows="2" placeholder="行业竞品A&#10;行业竞品B" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+<textarea id="np-keywords" rows="3" placeholder="可空着。创建后进入「00 侦察建档」按指引回填更准。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
 </textarea>
 </div>
+<div><label class="block font-semibold text-slate-700 mb-1">主要竞品列表 <span class="font-normal text-slate-400">（可选）</span></label>
+<textarea id="np-competitors" rows="2" placeholder="可空着。不要编假名；侦察后再回填。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+</textarea>
+</div>
+<p class="text-[10px] text-slate-400">创建成功后将进入<strong>阶段零：侦察建档</strong>，按页面命令与 Cursor / 反重力配合。</p>
 <div class="pt-2 flex items-center justify-end gap-3">
 <button type="button" onclick="closeNewProjectModal()" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition">取消</button>
-<button type="submit" class="py-2 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs shadow transition">创建并进入流水线</button>
+<button type="submit" class="py-2 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs shadow transition">创建并进入侦察引导</button>
 </div>
 </form>
 </div>
@@ -4861,6 +4935,7 @@ GitHub 开源仓库：https://github.com/company/repo
     const VIEW_META = {
       overview: { group: 'overview', groupLabel: '项目概览', label: '客户档案与总资产看板' },
       keywords: { group: 'overview', groupLabel: '项目概览', label: '核心词库与意图矩阵' },
+      'step-0-probe': { group: 'delivery', groupLabel: '交付流水线', label: '00 侦察建档', step: 0 },
       'step-1-diag': { group: 'delivery', groupLabel: '交付流水线', label: '01 现状诊断与体检', step: 1 },
       'step-2-scaffold': { group: 'delivery', groupLabel: '交付流水线', label: '02 站点底座与三件套', step: 2 },
       'step-3-princeton': { group: 'delivery', groupLabel: '交付流水线', label: '03 普林斯顿 9 因子语料', step: 3 },
@@ -4881,9 +4956,49 @@ GitHub 开源仓库：https://github.com/company/repo
       'settings-export': { group: 'settings', groupLabel: '系统设置', label: '离线资产打包导出' },
     };
     const STEP_TO_VIEW = {
+      0: 'step-0-probe',
       1: 'step-1-diag', 2: 'step-2-scaffold', 3: 'step-3-princeton',
       4: 'step-4-distribute', 5: 'step-5-acceptance',
     };
+
+    function defaultWizardViewForProject(p) {
+      const st = String((p && p.probe_status) || 'unprobed').trim() || 'unprobed';
+      if (st === 'baseline_ready' || st === 'awaiting_retest') return 'step-1-diag';
+      return 'step-0-probe';
+    }
+
+    function isProbeUnready(p) {
+      const st = String((p && p.probe_status) || 'unprobed').trim() || 'unprobed';
+      return st === 'unprobed';
+    }
+
+    function isDeliveryStepView(viewId) {
+      return /^step-[1-5]-/.test(String(viewId || ''));
+    }
+
+    function updatePipelineGateUI() {
+      const btn = document.getElementById('btn-run-all');
+      const hint = document.getElementById('pipeline-gate-hint');
+      if (!btn) return;
+      const blocked = isProbeUnready(currentProjectData);
+      btn.disabled = blocked;
+      if (blocked) {
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.title = '未完成 00 侦察，已禁止批量生成草稿。请先完成阶段零回填。';
+        if (hint) {
+          hint.textContent = '先完成 00 侦察，才能批量生成草稿';
+          hint.classList.remove('hidden');
+        }
+      } else {
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        btn.title = '批量生成阶段1～5草稿（不含00侦察，需人工验收）';
+        if (hint) {
+          hint.textContent = '';
+          hint.classList.add('hidden');
+        }
+      }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
 
     // 路由解析：优先从 URL Hash 中获取项目、步骤与选项卡，其次回退至 localStorage
     function parseCurrentRoute() {
@@ -5504,11 +5619,22 @@ GitHub 开源仓库：https://github.com/company/repo
       renderEnterprisesTable(list);
     }
 
+    function probeStatusBadgeHtml(status) {
+      const s = String(status || 'unprobed').trim() || 'unprobed';
+      const map = {
+        unprobed: { label: '未侦察', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+        baseline_ready: { label: '已有基线', cls: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+        awaiting_retest: { label: '待复测', cls: 'bg-amber-50 text-amber-800 border-amber-200' }
+      };
+      const row = map[s] || { label: '未标记', cls: 'bg-slate-50 text-slate-500 border-slate-200' };
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border ${row.cls}" title="probe_status=${escapeHtmlSafe(s)}">${row.label}</span>`;
+    }
+
     function renderEnterprisesTable(list) {
       const tbody = document.getElementById('projects-table-body');
       if (!tbody) return;
       if (!list.length) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">没有匹配的客户，试试清空筛选或新建项目</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">没有匹配的客户，试试清空筛选或新建项目</td></tr>`;
         lucide.createIcons();
         return;
       }
@@ -5519,6 +5645,10 @@ GitHub 开源仓库：https://github.com/company/repo
         const grpHtml = grp ? `
           <span onclick="event.stopPropagation(); openGroupMatrixModal('${grp.group_id}')" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${grp.role.includes('母公司') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200'} cursor-pointer hover:bg-indigo-100 transition mt-1" title="点击查看集团协同大盘"><span> ${grp.group_name} · ${grp.role.split('/')[0].trim()}</span></span>` : '';
         const pid = p.partner_id || '';
+        const kwN = Number(p.keywords_count) || 0;
+        const kwCell = kwN > 0
+          ? `<span class="font-semibold text-slate-700">${kwN} 组</span>`
+          : `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">待回填</span>`;
         return `
           <tr class="hover:bg-slate-50/80 transition">
             <td class="px-5 py-3"><div class="font-bold text-slate-900">${p.client_name}</div><div class="text-xs text-slate-400 font-mono">${p.client_id}</div>${grpHtml}</td>
@@ -5529,7 +5659,8 @@ GitHub 开源仓库：https://github.com/company/repo
               </select>
             </td>
             <td class="px-5 py-3 text-xs text-slate-500"><a href="${p.official_url}" target="_blank" class="hover:text-indigo-600 underline">${p.official_url || '-'}</a></td>
-            <td class="px-5 py-3 text-xs text-center font-semibold text-slate-700">${p.keywords_count} 组</td>
+            <td class="px-5 py-3 text-xs text-center">${kwCell}</td>
+            <td class="px-5 py-3 text-center">${probeStatusBadgeHtml(p.probe_status)}</td>
             <td class="px-5 py-3"><div class="w-full bg-slate-200 rounded-full h-2 max-w-[120px] overflow-hidden"><div class="bg-indigo-600 h-2 rounded-full" style="width: ${p.progress_pct}%"></div></div><div class="text-[11px] text-slate-500 mt-1">${p.steps_done}/5 (${p.progress_pct}%)</div></td>
             <td class="px-5 py-3 text-right whitespace-nowrap">
               <button onclick="openProjectProfileDrawer('${p.client_id}')" class="py-1.5 px-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition">查看资料</button>
@@ -5831,8 +5962,22 @@ GitHub 开源仓库：https://github.com/company/repo
         </section>
         <section class="geo-profile-section">
           <h4>商业词表与竞对</h4>
-          ${profileField('pf-keywords', `关键词（一行一条，当前 ${keywords.length} 条）`, keywords.join('\n'), { type: 'textarea', rows: 8 })}
-          ${profileField('pf-competitors', '竞品（一行一条）', competitors.join('\n'), { type: 'textarea', rows: 4 })}
+          ${profileField('pf-keywords', `关键词（一行一条，当前 ${keywords.length} 条）`, keywords.join('\n'), { type: 'textarea', rows: 8, hint: keywords.length ? '' : '待回填：可空着；建议 CLI probe-apply 写入。' })}
+          ${profileField('pf-competitors', '竞品（一行一条）', competitors.join('\n'), { type: 'textarea', rows: 4, hint: '不要填假名；从豆包侦察答案勾真后再写。' })}
+        </section>
+        <section class="geo-profile-section">
+          <h4>浏览器侦察状态</h4>
+          ${profileField('pf-probe-status', '侦察状态', p.probe_status || 'unprobed', {
+            type: 'select',
+            optionsHtml: ['unprobed', 'baseline_ready', 'awaiting_retest'].map(v => {
+              const labels = { unprobed: '未侦察', baseline_ready: '已有基线', awaiting_retest: '待复测' };
+              const sel = (p.probe_status || 'unprobed') === v ? ' selected' : '';
+              return `<option value="${v}"${sel}>${labels[v]} (${v})</option>`;
+            }).join('')
+          })}
+          ${profileField('pf-probe-baseline-id', '基线 ID', p.probe_baseline_id || '', { hint: '如 probe:doubao:20260910' })}
+          ${profileField('pf-probe-baseline-at', '基线日期', p.probe_baseline_at || '')}
+          <div class="hint mt-2 leading-relaxed">一期回填请在本机执行：<code class="text-[10px] bg-slate-100 px-1 rounded">python3 -m tools.geo probe-script ${pid}</code> → 反重力豆包实战 → <code class="text-[10px] bg-slate-100 px-1 rounded">probe-preview / probe-apply --file ...</code>。管理台不上传 probe JSON。</div>
         </section>
         <section class="geo-profile-section">
           <h4>交付与证据资产</h4>
@@ -5911,9 +6056,18 @@ GitHub 开源仓库：https://github.com/company/repo
         <section class="geo-profile-section">
           <h4>商业词表与竞对 <span class="text-slate-400 font-semibold">· 词库 ${keywords.length} 条</span></h4>
           <div class="text-[11px] font-semibold text-slate-500 mb-1">关键词</div>
-          ${profileChipsHtml(keywords, false)}
+          ${keywords.length ? profileChipsHtml(keywords, false) : '<div class="text-xs text-amber-700">待回填（空比瞎填好）</div>'}
           <div class="text-[11px] font-semibold text-slate-500 mt-3 mb-1">竞品</div>
           ${profileChipsHtml(p.competitors, true)}
+        </section>
+        <section class="geo-profile-section">
+          <h4>浏览器侦察</h4>
+          <dl class="geo-profile-grid">
+            <dt>状态</dt><dd>${probeStatusBadgeHtml(p.probe_status)}</dd>
+            <dt>基线 ID</dt><dd class="font-mono text-[11px]">${profileDash(p.probe_baseline_id)}</dd>
+            <dt>基线日期</dt><dd>${profileDash(p.probe_baseline_at)}</dd>
+          </dl>
+          <div class="text-[11px] text-slate-500 mt-2 leading-relaxed">回填命令：<code class="bg-slate-100 px-1 rounded text-[10px]">python3 -m tools.geo probe-script ${pid}</code> → 反重力实战 → <code class="bg-slate-100 px-1 rounded text-[10px]">probe-apply --file … --yes</code></div>
         </section>
         <section class="geo-profile-section">
           <h4>交付与证据资产</h4>
@@ -5966,7 +6120,10 @@ GitHub 开源仓库：https://github.com/company/repo
         company_profile: document.getElementById('pf-profile')?.value || '',
         core_values: document.getElementById('pf-values')?.value || '',
         keywords: document.getElementById('pf-keywords')?.value || '',
-        competitors: document.getElementById('pf-competitors')?.value || ''
+        competitors: document.getElementById('pf-competitors')?.value || '',
+        probe_status: document.getElementById('pf-probe-status')?.value || 'unprobed',
+        probe_baseline_id: val('pf-probe-baseline-id'),
+        probe_baseline_at: val('pf-probe-baseline-at')
       };
     }
 
@@ -6099,12 +6256,35 @@ GitHub 开源仓库：https://github.com/company/repo
     }
     function closeNewProjectModal() { document.getElementById('new-project-modal').classList.add('hidden'); }
 
+    function toggleNpSitePending() {
+      const pending = !!document.getElementById('np-site-pending')?.checked;
+      const url = document.getElementById('np-url');
+      if (!url) return;
+      url.disabled = pending;
+      url.classList.toggle('bg-slate-100', pending);
+      if (pending) url.value = '';
+    }
+
     async function handleCreateProject(e) {
       e.preventDefault();
+      const clientId = document.getElementById('np-id').value.trim();
+      const oneLiner = (document.getElementById('np-one-liner')?.value || '').trim();
+      if (oneLiner.length < 15 || oneLiner.length > 80) {
+        showToast('一句话业务须为 15～80 字', 'error');
+        return;
+      }
+      const sitePending = !!document.getElementById('np-site-pending')?.checked;
+      const officialRaw = document.getElementById('np-url').value.trim();
+      if (!sitePending && !officialRaw) {
+        showToast('请填写官网域名，或勾选由我方托管', 'error');
+        return;
+      }
       const payload = {
-        client_id: document.getElementById('np-id').value.trim(),
+        client_id: clientId,
         client_name: document.getElementById('np-name').value.trim(),
-        official_url: document.getElementById('np-url').value.trim(),
+        official_url: officialRaw,
+        site_pending: sitePending,
+        business_one_liner: oneLiner,
         industry: document.getElementById('np-industry').value.trim(),
         partner_id: document.getElementById('np-partner')?.value || '',
         keywords: document.getElementById('np-keywords').value.trim(),
@@ -6123,8 +6303,8 @@ GitHub 开源仓库：https://github.com/company/repo
         const data = await res.json();
         if (data.success) {
           closeNewProjectModal();
-          showToast(`项目 [${payload.client_id}] 创建成功！`);
-          enterWizard(payload.client_id);
+          showToast(`项目 [${payload.client_id}] 已建壳，请按阶段零指引完成侦察。`);
+          enterWizard(payload.client_id, 'step-0-probe');
         } else {
           showToast(data.message || '创建失败！', 'error');
         }
@@ -6134,17 +6314,17 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     // 进入向导流水线
-    async function enterWizard(projectId, targetStep = 1, targetTab = null) {
+    async function enterWizard(projectId, targetStep = null, targetTab = null) {
       currentProjectId = projectId;
       document.getElementById('dashboard-view').classList.add('hidden');
       document.getElementById('wizard-view').classList.remove('hidden');
 
-      let targetView = 'step-1-diag';
+      let explicitView = null;
       if (typeof targetStep === 'string' && VIEW_META[targetStep]) {
-        targetView = targetStep;
-      } else {
-        const n = parseInt(targetStep, 10) || 1;
-        targetView = STEP_TO_VIEW[n] || 'step-1-diag';
+        explicitView = targetStep;
+      } else if (targetStep !== null && targetStep !== undefined && targetStep !== '') {
+        const n = parseInt(targetStep, 10);
+        if (!Number.isNaN(n) && STEP_TO_VIEW[n]) explicitView = STEP_TO_VIEW[n];
       }
 
       try {
@@ -6165,10 +6345,18 @@ GitHub 开源仓库：https://github.com/company/repo
           const sideUser = document.getElementById('sidebar-user-name');
           if (sideUser && userLabel) sideUser.innerText = userLabel.innerText || '管理员';
           await refreshSidebarProjectSelect();
-          switchView(targetView, true);
+          let targetView = explicitView || defaultWizardViewForProject(currentProjectData);
+          if (explicitView && isDeliveryStepView(explicitView) && isProbeUnready(currentProjectData)) {
+            if (!confirm('尚未完成 00 侦察建档。阶段 1～5 在无词库时多为空壳。建议先去阶段零；仍要进入该步骤？')) {
+              targetView = 'step-0-probe';
+            }
+          }
+          switchView(targetView, true, { skipProbeWarn: true });
           loadStepPreviews();
           loadRawMaterialsEditor();
-          if (targetView === 'overview') fillOverviewProfilePanel(currentProjectData);
+          if (targetView === 'overview') fillOverviewProfileForm(currentProjectData);
+          if (targetView === 'step-0-probe') renderStep0ProbePanel();
+          updatePipelineGateUI();
         }
       } catch (err) {
         console.error(err);
@@ -6177,7 +6365,8 @@ GitHub 开源仓库：https://github.com/company/repo
       lucide.createIcons();
     }
 
-    function backToDashboard() {
+    
+function backToDashboard() {
       backToEnterprises();
     }
 
@@ -6663,11 +6852,16 @@ GitHub 开源仓库：https://github.com/company/repo
       if (viewId === 'settings-llm') refreshLlmStatus(false);
     }
 
-    function switchView(viewId, pushHash = true) {
+    function switchView(viewId, pushHash = true, opts = {}) {
       if (!VIEW_META[viewId]) viewId = 'overview';
+      if (isDeliveryStepView(viewId) && !opts.skipProbeWarn && isProbeUnready(currentProjectData)) {
+        if (!confirm('尚未完成 00 侦察建档。阶段 1～5 在无词库时多为空壳。建议先去阶段零；仍要进入该步骤？')) {
+          viewId = 'step-0-probe';
+        }
+      }
       currentViewId = viewId;
       const meta = VIEW_META[viewId];
-      if (meta.step) {
+      if (typeof meta.step === 'number') {
         currentStep = meta.step;
         currentScene = 'delivery';
       } else if (meta.group === 'defense') {
@@ -6693,6 +6887,8 @@ GitHub 开源仓库：https://github.com/company/repo
       updateBreadcrumb(viewId);
       if (pushHash) updateRouteState();
       hydrateView(viewId);
+      if (viewId === 'step-0-probe') renderStep0ProbePanel();
+      updatePipelineGateUI();
       closeSidebarDrawer();
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
@@ -6702,15 +6898,170 @@ GitHub 开源仓库：https://github.com/company/repo
       currentScene = scene || 'delivery';
       if (scene === 'boost') switchView('def-rival');
       else if (scene === 'ops') switchView('mon-weekly');
-      else switchView(STEP_TO_VIEW[currentStep] || 'step-1-diag');
+      else switchView(STEP_TO_VIEW[currentStep] || 'step-0-probe');
     }
     function switchStep(step) {
-      const n = parseInt(step, 10) || 1;
-      currentStep = n;
-      switchView(STEP_TO_VIEW[n] || 'step-1-diag');
+      const n = parseInt(step, 10);
+      currentStep = Number.isNaN(n) ? 0 : n;
+      switchView(STEP_TO_VIEW[currentStep] || 'step-0-probe');
     }
-    function prevStep() { if (currentStep > 1) switchStep(currentStep - 1); }
+    function prevStep() { if (currentStep > 0) switchStep(currentStep - 1); }
     function nextStep() { if (currentStep < 5) switchStep(currentStep + 1); }
+
+    function renderStep0ProbePanel() {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || 'PROJECT_ID';
+      const scriptEl = document.getElementById('step0-cmd-script');
+      const prevEl = document.getElementById('step0-cmd-preview');
+      const applyEl = document.getElementById('step0-cmd-apply');
+      if (scriptEl) scriptEl.textContent = `python3 -m tools.geo probe-script ${pid}`;
+      if (prevEl) prevEl.textContent = `python3 -m tools.geo probe-preview ${pid} --file path/to/probe_*.json`;
+      if (applyEl) applyEl.textContent = `python3 -m tools.geo probe-apply ${pid} --file path/to/probe_*.json --merge --yes`;
+      const box = document.getElementById('step0-probe-badges');
+      if (box) {
+        const p = currentProjectData || {};
+        const pending = p.site_pending === true || p.site_pending === 'true' || p.site_pending === 1;
+        box.innerHTML = `
+          ${probeStatusBadgeHtml(p.probe_status)}
+          ${pending ? '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border bg-indigo-50 text-indigo-800 border-indigo-200">由我方全托管 / 待客户域名</span>' : ''}
+          ${p.probe_baseline_id ? `<span class="text-[10px] font-mono text-slate-500">${escapeHtmlSafe(p.probe_baseline_id)}</span>` : ''}
+        `;
+      }
+    }
+
+    let step0PendingProbe = null;
+
+    async function readStep0ProbeFile() {
+      const input = document.getElementById('step0-probe-file');
+      const file = input && input.files && input.files[0];
+      if (!file) {
+        showToast('请先选择 probe JSON 文件', 'error');
+        return null;
+      }
+      const text = await file.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        showToast('JSON 解析失败，请检查文件', 'error');
+        return null;
+      }
+      if (!data || typeof data !== 'object' || !Array.isArray(data.items)) {
+        showToast('文件需为含 items[] 的 probe JSON', 'error');
+        return null;
+      }
+      return data;
+    }
+
+    function renderStep0ProbePreview(preview) {
+      const box = document.getElementById('step0-probe-preview');
+      const applyBtn = document.getElementById('step0-probe-apply-btn');
+      if (!box) return;
+      const comps = (preview.suggested_competitors || []).map(c => escapeHtmlSafe(c)).join('、') || '（无）';
+      const kws = (preview.suggested_keywords || []).map(q => `<li>${escapeHtmlSafe(q)}</li>`).join('') || '<li>（无）</li>';
+      const halls = (preview.hallucinations || []).map(h => `<li class="text-amber-700">${escapeHtmlSafe(h)}</li>`).join('');
+      box.innerHTML = `
+        <div><span class="font-semibold">基线</span>：${escapeHtmlSafe(preview.source_probe || '')}</div>
+        <div><span class="font-semibold">建议竞品</span>：${comps}</div>
+        <div><span class="font-semibold">建议问句</span>：<ul class="list-disc list-inside mt-1 space-y-0.5">${kws}</ul></div>
+        ${halls ? `<div><span class="font-semibold text-amber-700">幻觉/风险</span>：<ul class="list-disc list-inside mt-1 space-y-0.5">${halls}</ul></div>` : ''}
+      `;
+      box.classList.remove('hidden');
+      if (applyBtn) applyBtn.disabled = false;
+    }
+
+    async function previewStep0ProbeUpload() {
+      if (!currentProjectId) return;
+      const probe = await readStep0ProbeFile();
+      if (!probe) return;
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/probe/preview`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentAuthToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ probe })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || '预览失败', 'error');
+          return;
+        }
+        step0PendingProbe = probe;
+        renderStep0ProbePreview(data.preview || {});
+        showToast('预览已生成，确认无误后再回填');
+      } catch (e) {
+        showToast('预览请求异常', 'error');
+      }
+    }
+
+    async function applyStep0ProbeUpload() {
+      if (!currentProjectId) return;
+      const probe = step0PendingProbe || await readStep0ProbeFile();
+      if (!probe) return;
+      const merge = !!(document.getElementById('step0-probe-merge') || {}).checked;
+      const tip = merge
+        ? '将把侦察结果合并写入词库/竞品，并置 baseline_ready。确认回填？'
+        : '覆盖模式会用侦察结果替换现有词库/竞品。若已有精修词库请改用合并。仍要覆盖？';
+      if (!window.confirm(tip)) return;
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/probe/apply`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentAuthToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ probe, merge, only_real: true })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || '回填失败', 'error');
+          return;
+        }
+        if (data.project) currentProjectData = data.project;
+        step0PendingProbe = null;
+        const applyBtn = document.getElementById('step0-probe-apply-btn');
+        if (applyBtn) applyBtn.disabled = true;
+        renderStep0ProbePanel();
+        updatePipelineGateUI();
+        showToast(data.message || '回填成功');
+        lucide.createIcons();
+      } catch (e) {
+        showToast('回填请求异常', 'error');
+      }
+    }
+
+    async function refreshStep0ProbeStatus() {
+      if (!currentProjectId) return;
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentProjectData = data.project;
+          renderStep0ProbePanel();
+          updatePipelineGateUI();
+          showToast('侦察状态已刷新');
+          lucide.createIcons();
+        } else {
+          showToast(data.message || '刷新失败', 'error');
+        }
+      } catch (e) {
+        showToast('刷新状态异常', 'error');
+      }
+    }
+
+    function copyStep0Cmd(elId) {
+      const el = document.getElementById(elId);
+      const text = el ? el.textContent.trim() : '';
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => showToast('已复制命令')).catch(() => showToast('复制失败', 'error'));
+    }
+
+    function goStep1FromProbeGuide() {
+      switchView('step-1-diag');
+    }
 
 
 
@@ -6966,30 +7317,52 @@ GitHub 开源仓库：https://github.com/company/repo
       }
     }
 
-    // 一键跑通全部流水线
+    // 批量生成 1～5 草稿（不含 00 侦察；未侦察硬拦截）
     async function runPipelineAll() {
       const btn = document.getElementById('btn-run-all');
+      if (isProbeUnready(currentProjectData)) {
+        showToast('未完成 00 侦察，已禁止批量生成草稿。请先完成阶段零回填。', 'error');
+        switchView('step-0-probe');
+        updatePipelineGateUI();
+        return;
+      }
+      const kwCount = Array.isArray(currentProjectData && currentProjectData.keywords) ? currentProjectData.keywords.length : -1;
+      const tip = kwCount === 0
+        ? '词库当前为空，周报会测 0 题。仍要批量生成阶段 1～5 草稿吗？（不含侦察，需人工验收）'
+        : '将批量生成阶段 1～5 草稿资产（不含 00 侦察）。这不等于客户签字终稿，是否继续？';
+      if (!window.confirm(tip)) return;
+
       btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>全套流水线运行中...</span>`;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>草稿流水线运行中...</span>`;
       lucide.createIcons();
 
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/run/pipeline`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+          headers: {
+            'Authorization': `Bearer ${currentAuthToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: '{}'
         });
         const data = await res.json();
         if (data.success) {
           await loadStepPreviews();
-          showToast(' 全套 5 步商业交付成果全部生成完毕！');
+          const extra = (data.warnings && data.warnings.length) ? `（${data.warnings[0]}）` : '';
+          showToast((data.message || '五步草稿已生成，请人工验收') + extra);
         } else {
-          showToast('执行出错: ' + data.message, 'error');
+          showToast(data.message || '执行出错', 'error');
+          if (data.blocked || data.redirect_view === 'step-0-probe') {
+            switchView('step-0-probe');
+          }
         }
       } catch (e) {
         showToast('请求失败', 'error');
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i><span>一键跑通 5 步流水线</span>`;
+        updatePipelineGateUI();
+        if (!isProbeUnready(currentProjectData)) {
+          btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">批量生成草稿</span>`;
+        }
         lucide.createIcons();
       }
     }
@@ -10683,18 +11056,20 @@ GitHub 开源仓库：https://github.com/company/repo
     async function handleAutoGenerateIntent(e) {
       if (e) e.preventDefault();
       const name = document.getElementById('np-name').value.trim();
-      const industry = document.getElementById('np-industry').value.trim();
+      const industry = document.getElementById('np-industry').value.trim()
+        || (document.getElementById('np-one-liner')?.value || '').trim().slice(0, 40);
       const url = document.getElementById('np-url').value.trim();
       const btn = document.getElementById('btn-auto-intent');
       
       if (!name || !industry) {
-        showToast('请先输入【企业名称】和【所属行业】！', 'error');
+        showToast('请先输入【企业名称】和【一句话业务或行业】！', 'error');
         return;
       }
 
       const originalHTML = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin mr-1">⏳</span> 正在逆向推演买家提问...`;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>生成必测草稿中…</span>`;
+      lucide.createIcons();
 
       try {
         const res = await fetch('/api/intent/generate', {
@@ -10711,8 +11086,10 @@ GitHub 开源仓库：https://github.com/company/repo
         });
         const data = await res.json();
         if (data.success && data.flat_keywords && data.flat_keywords.length > 0) {
-          document.getElementById('np-keywords').value = data.flat_keywords.join('\n');
-          showToast(` 成功逆向推演出 ${data.flat_keywords.length} 组高转化提问 Prompt！`);
+          // 新建阶段只取约 10 条必测草稿，避免一上来灌满 50 问
+          const draft = data.flat_keywords.slice(0, 10);
+          document.getElementById('np-keywords').value = draft.join('\n');
+          showToast(`已填入 ${draft.length} 条必测草稿，请人工删改；正式词库建议侦察后 CLI 回填。`);
         } else {
           showToast(data.message || '推演失败，请重试', 'error');
         }

@@ -1,0 +1,30 @@
+{
+  "noprobe": {
+    "keywords": [],
+    "competitors": [],
+    "probe_status": "unprobed"
+  },
+  "probed": {
+    "keywords": [
+      "徐州GEO优化公司哪家好",
+      "邻里GEO是做什么的",
+      "徐州找老白做GEO靠谱吗"
+    ],
+    "competitors": [
+      "浙江亿企邦科技有限公司（徐州服务站）",
+      "问鼎数据科技（常州）有限公司（徐州直营中心）",
+      "徐州东昊信息科技有限公司",
+      "徐州网商天下集团有限公司",
+      "江苏云鼎大数据有限公司",
+      "徐州辽阔信息科技有限公司",
+      "企优托 (江苏) 科技集团有限公司（一网推 GEO，徐州服务点）"
+    ],
+    "probe_status": "baseline_ready",
+    "probe_baseline_id": "probe:doubao:20260910"
+  },
+  "formal_nextgeo_counts": {
+    "keywords": 41,
+    "competitors": 4,
+    "probe_status": null
+  }
+}

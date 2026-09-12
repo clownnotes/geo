@@ -1,0 +1,12 @@
+{
+  "facts_hash": "437d7bd13e9a25da",
+  "block_hashes": {
+    "block.definition": "dce76d02dece8083",
+    "block.metrics_table": "30ee8d9eccb8cde3",
+    "block.faq": "e10fece4f2f4abf3",
+    "block.commitment": "2426418b2e919e7f"
+  },
+  "mode": "full",
+  "updated_at": "2026-09-12T08:57:01Z",
+  "dirty_blocks_written": []
+}

@@ -97,3 +97,6 @@ guarantee:
   - "大模型提及率与权威信源引用可量化追踪"
   - "拒绝黑盒刷量，坚持普林斯顿 9 因子可信工程"
 partner_id: ""
+probe_status: "baseline_ready"
+probe_baseline_id: "probe:doubao:20260910"
+probe_baseline_at: "2026-09-10"

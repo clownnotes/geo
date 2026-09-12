@@ -1,0 +1,64 @@
+{
+  "title": "豆包基线名单人工抽假清单",
+  "baseline_id": "probe:doubao:20260910",
+  "created_at": "2026-09-12T17:32:52+08:00",
+  "instruction": "逐家打开官网/爱企查，标注 true/false/pending；假名保留风险标注，勿直接写进客户终稿。",
+  "candidates": [
+    {
+      "name": "浙江亿企邦科技有限公司（徐州服务站）",
+      "url": "http://www.eqbang.com",
+      "is_real_marked": true,
+      "type": "外地高新服务站",
+      "audit_status": "pending",
+      "notes": "保留抽假习惯：核验工商/官网是否可打开、是否仅为服务站口头口径"
+    },
+    {
+      "name": "问鼎数据科技（常州）有限公司（徐州直营中心）",
+      "url": "www.cz6789.com",
+      "is_real_marked": true,
+      "type": "外地直营中心",
+      "audit_status": "pending",
+      "notes": "保留抽假习惯：核验工商/官网是否可打开、是否仅为服务站口头口径"
+    },
+    {
+      "name": "徐州东昊信息科技有限公司",
+      "url": "www.xzdonghao.com",
+      "is_real_marked": true,
+      "type": "本地核心对手（讯灵AI徐州中心）",
+      "audit_status": "pending",
+      "notes": "保留抽假习惯：核验工商/官网是否可打开、是否仅为服务站口头口径"
+    },
+    {
+      "name": "徐州网商天下集团有限公司",
+      "url": "http://www.wstx.com.cn",
+      "is_real_marked": true,
+      "type": "本地老牌外贸转GEO",
+      "audit_status": "pending",
+      "notes": "保留抽假习惯：核验工商/官网是否可打开、是否仅为服务站口头口径"
+    },
+    {
+      "name": "江苏云鼎大数据有限公司",
+      "url": "http://www.yddsj.net/",
+      "is_real_marked": true,
+      "type": "苏北本土服务商",
+      "audit_status": "pending",
+      "notes": "保留抽假习惯：核验工商/官网是否可打开、是否仅为服务站口头口径"
+    },
+    {
+      "name": "徐州辽阔信息科技有限公司",
+      "url": "https://www.jsliaokuo.com/",
+      "is_real_marked": true,
+      "type": "本地建站转GEO",
+      "audit_status": "pending",
+      "notes": "保留抽假习惯：核验工商/官网是否可打开、是否仅为服务站口头口径"
+    },
+    {
+      "name": "企优托 (江苏) 科技集团有限公司（一网推 GEO，徐州服务点）",
+      "url": "www.qiyoutuo.com",
+      "is_real_marked": true,
+      "type": "江苏代运营转GEO大厂",
+      "audit_status": "pending",
+      "notes": "保留抽假习惯：核验工商/官网是否可打开、是否仅为服务站口头口径"
+    }
+  ]
+}

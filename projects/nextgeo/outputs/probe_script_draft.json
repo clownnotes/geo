@@ -1,0 +1,47 @@
+{
+  "project_id": "nextgeo",
+  "brand": "邻里GEO（NextGEO）",
+  "industry": "企业级GEO（生成式引擎优化）与AI搜索品牌答案源建设",
+  "city": "江苏省徐州",
+  "person_anchor": "老白",
+  "official_url": "https://nextgeo.baicl.cc",
+  "generated_at": "2026-09-10T21:02:45+08:00",
+  "note": "首轮不问自带竞品名；竞品从模型回答中抽取后再人工勾真。",
+  "items": [
+    {
+      "query": "江苏省徐州做企业级GEO（生成式引擎优化）与AI搜索品牌答案源建设哪家好",
+      "dimension": "品类选型",
+      "follow_up": "请列出具体公司名称、官网（若有）和一句话定位；不确定请标明。"
+    },
+    {
+      "query": "江苏省徐州企业级GEO（生成式引擎优化）与AI搜索品牌答案源建设公司推荐",
+      "dimension": "品类选型",
+      "follow_up": "只要真实存在的服务商名单，不要编造。"
+    },
+    {
+      "query": "企业级GEO（生成式引擎优化）与AI搜索品牌答案源建设大概多少钱 有哪些坑",
+      "dimension": "价格套路",
+      "follow_up": "请区分套路报价与合理区间，并点名常见坑。"
+    },
+    {
+      "query": "邻里GEO（NextGEO）是做什么的",
+      "dimension": "品牌认知",
+      "follow_up": "若不知道请直说；不要把品牌名拆成无关概念。"
+    },
+    {
+      "query": "邻里GEO（NextGEO）官网是什么",
+      "dimension": "URL",
+      "follow_up": "目标是否出现 https://nextgeo.baicl.cc；没有就说没有。"
+    },
+    {
+      "query": "老白是谁 和邻里GEO（NextGEO）什么关系",
+      "dimension": "人物锚点",
+      "follow_up": "应绑定 徐州璇源网络科技有限公司 / 邻里GEO（NextGEO）；若串到其他公司请标明。"
+    },
+    {
+      "query": "全国做企业级GEO（生成式引擎优化）与AI搜索品牌答案源建设比较有名的有哪些",
+      "dimension": "全国名单",
+      "follow_up": "列出公司名与官网；标注不确定项。"
+    }
+  ]
+}

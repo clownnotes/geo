@@ -23,10 +23,18 @@ from .utils import (
 )
 
 RAW_MATERIALS_BUDGET = 50000
+# LLM 返回过短/空串时视为失败，强制切规则引擎（避免「成功 0 字」空母盘落盘）
+MIN_USABLE_LLM_CORPUS_CHARS = 200
 PRIORITY_FILES = (
     "raw_extracted_facts.md",
     "website_crawled_raw.md",
 )
+
+
+def is_usable_llm_corpus(text) -> bool:
+    """大模型母盘正文是否达到可落盘的最低可用长度。"""
+    body = (text or "").strip()
+    return len(body) >= MIN_USABLE_LLM_CORPUS_CHARS
 
 
 def read_raw_materials(raw_dir: str, budget: int = RAW_MATERIALS_BUDGET, cfg: dict = None) -> str:
@@ -296,13 +304,20 @@ def run_rewrite(project_id: str, input_dir: str = None, mode: str = "incremental
             print_info(f"检测到可用大模型 [{llm_info['provider'].upper()}]，正在调用大模型进行深度普林斯顿 9 因子重构...")
             sys_prompt, user_prompt = build_llm_rewrite_prompt(cfg, raw_text)
             success, result, provider = call_llm_api(user_prompt, sys_prompt, timeout=120)
-            if success:
-                print_success(f"大模型 [{provider.upper()}] 重构成功！生成字符数: {len(result)}")
+            if success and is_usable_llm_corpus(result):
+                print_success(f"大模型 [{provider.upper()}] 重构成功！生成字符数: {len(result.strip())}")
                 banner_meta = f"> **生成引擎**：{provider.upper()} 深度大模型重构  \n> **优化标准**：普林斯顿 9 因子 GEO 规范\n\n"
                 corpus = banner_meta + result
                 gen_mode = "llm"
             else:
-                print_warning(f"大模型 API 调用失败 ({result})，自动切换至行业自适应规则引擎...")
+                if success and not is_usable_llm_corpus(result):
+                    print_warning(
+                        f"大模型 [{(provider or llm_info.get('provider') or 'llm').upper()}] "
+                        f"返回过短/空正文（{len((result or '').strip())} 字，阈值 {MIN_USABLE_LLM_CORPUS_CHARS}），"
+                        "视为失败并自动切换至行业自适应规则引擎..."
+                    )
+                else:
+                    print_warning(f"大模型 API 调用失败 ({result})，自动切换至行业自适应规则引擎...")
                 corpus = transform_princeton_corpus_fallback(cfg, raw_text)
                 gen_mode = "fallback"
         else:

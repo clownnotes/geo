@@ -13,6 +13,55 @@ TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(TOOLS_DIR))
 PROJECTS_DIR = os.path.join(PROJECT_ROOT, "projects")
 
+# 我方多租户托管占位后缀（阶段 0 建档）
+HOSTED_SITE_SUFFIX = "baicl.cc"
+BUSINESS_ONE_LINER_MIN = 15
+BUSINESS_ONE_LINER_MAX = 80
+
+
+def normalize_official_url(raw: str, *, client_id: str, site_pending: bool = False) -> tuple:
+    """
+    规范化官网 URL。
+    返回 (official_url, site_pending)。
+    site_pending=True 时固定 https://{client_id}.baicl.cc。
+    """
+    cid = (client_id or "").strip()
+    if not cid:
+        raise ValueError("缺少项目代号，无法生成托管域名")
+    if site_pending:
+        return f"https://{cid}.{HOSTED_SITE_SUFFIX}", True
+    s = (raw or "").strip()
+    if not s:
+        raise ValueError("请填写官网域名，或勾选由我方托管创建")
+    if re.match(r"^https?://", s, re.I):
+        if s.lower().startswith("http://"):
+            s = "https://" + s[7:]
+        return s, False
+    s = s.lstrip("/")
+    return f"https://{s}", False
+
+
+def validate_business_one_liner(text: str) -> str:
+    """一句话业务必填 15～80 字（按 Unicode 字符计）。"""
+    t = (text or "").strip()
+    n = len(t)
+    if n < BUSINESS_ONE_LINER_MIN or n > BUSINESS_ONE_LINER_MAX:
+        raise ValueError(
+            f"一句话业务须为 {BUSINESS_ONE_LINER_MIN}～{BUSINESS_ONE_LINER_MAX} 字（当前 {n} 字）"
+        )
+    return t
+
+
+def coerce_bool(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    if isinstance(value, (int, float)):
+        return bool(value)
+    s = str(value).strip().lower()
+    return s in ("1", "true", "yes", "y", "on")
+
 # ANSI 颜色定义
 COLOR_GREEN = "\033[92m"
 COLOR_YELLOW = "\033[93m"
@@ -211,10 +260,19 @@ def update_project_profile(project_id: str, patch: dict) -> dict:
         "slogan",
         "company_profile",
         "wechat",
+        "probe_status",
+        "probe_baseline_id",
+        "probe_baseline_at",
+        "business_one_liner",
     )
     for key in scalar_keys:
         if key in patch:
             content = _upsert_yaml_scalar(content, key, patch.get(key) or "")
+
+    if "site_pending" in patch:
+        content = _upsert_yaml_scalar(
+            content, "site_pending", coerce_bool(patch.get("site_pending")), as_bool=True
+        )
 
     if "contact_person" in patch:
         content = _upsert_yaml_alias_scalars(
@@ -328,4 +386,59 @@ def call_llm_api(prompt: str, system_prompt: str = None, model: str = None, time
     if not llm_info:
         return False, "未配置 Nextdoor JWT（NEXTDOOR_JWT_TOKEN）；应急直连需 GEO_LLM_DIRECT=1", "none"
     return call_via_runtime(llm_info, prompt, system_prompt=system_prompt, timeout=timeout, model_override=model)
+
+
+def pipeline_quality_warnings(cfg: dict) -> list:
+    """
+    一键/分步流水线开工前的质量软警告（不阻断）。
+    用于提醒：未侦察、空词库时产出多半是草稿壳，不是可签字交付。
+    """
+    warnings = []
+    if not isinstance(cfg, dict):
+        return warnings
+    status = str(cfg.get("probe_status") or "").strip() or "unprobed"
+    keywords = cfg.get("keywords") or []
+    competitors = cfg.get("competitors") or []
+    if isinstance(keywords, str):
+        keywords = [k.strip() for k in keywords.split("\n") if k.strip()]
+    if isinstance(competitors, str):
+        competitors = [c.strip() for c in competitors.split("\n") if c.strip()]
+    keywords = [k for k in keywords if k]
+    competitors = [c for c in competitors if c]
+
+    if status == "unprobed":
+        warnings.append(
+            "probe_status=unprobed：未完成 00 侦察。批量草稿会被硬拦截；"
+            "请先侦察回填，或 CLI 使用 --force 仅作内测空壳。"
+        )
+    elif status == "awaiting_retest":
+        warnings.append(
+            "probe_status=awaiting_retest：建议复测完成后再批量生成，以免沿用过期基线。"
+        )
+    elif status != "baseline_ready":
+        warnings.append(
+            f"probe_status={status}：尚未 baseline_ready。"
+            "一键流水线不会跑 00 侦察，01/05 容易变成空壳占位。"
+        )
+    if not keywords:
+        warnings.append("keywords 为空：阶段五将测 0 道题，阶段一体检问句会落成「行业推荐」占位。")
+    if not competitors:
+        warnings.append("competitors 为空：体检/母盘对比表无法点名真实对手。")
+    return warnings
+
+
+def pipeline_hard_block_reason(cfg: dict) -> str:
+    """
+    未完成首轮侦察时，禁止一键批量生成 1～5。
+    返回阻断文案；空串表示可跑。
+    """
+    if not isinstance(cfg, dict):
+        return ""
+    status = str(cfg.get("probe_status") or "").strip() or "unprobed"
+    if status == "unprobed":
+        return (
+            "未完成 00 侦察（probe_status=unprobed），禁止批量生成阶段 1～5 草稿。"
+            "请先完成侦察并 probe-apply 置 baseline_ready；内测空壳可用 CLI --force。"
+        )
+    return ""
 

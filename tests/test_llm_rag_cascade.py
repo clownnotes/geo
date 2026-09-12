@@ -181,26 +181,116 @@ class TestRagCascade(unittest.TestCase):
 
 
 class TestRewriteFallback(unittest.TestCase):
+    def test_is_usable_llm_corpus(self):
+        from tools.geo.rewrite import is_usable_llm_corpus, MIN_USABLE_LLM_CORPUS_CHARS
+        self.assertFalse(is_usable_llm_corpus(""))
+        self.assertFalse(is_usable_llm_corpus("   "))
+        self.assertFalse(is_usable_llm_corpus("x" * (MIN_USABLE_LLM_CORPUS_CHARS - 1)))
+        self.assertTrue(is_usable_llm_corpus("x" * MIN_USABLE_LLM_CORPUS_CHARS))
+
+    def test_empty_llm_success_falls_back(self):
+        """LLM 返回 success+空正文时必须 fallback，禁止空母盘落盘。"""
+        from tools.geo import utils as utils_mod
+
+        with tempfile.TemporaryDirectory() as tmp:
+            projects = os.path.join(tmp, "projects")
+            pid = "rw_empty_llm"
+            pdir = os.path.join(projects, pid)
+            os.makedirs(os.path.join(pdir, "outputs"), exist_ok=True)
+            os.makedirs(os.path.join(pdir, "raw_materials"), exist_ok=True)
+            with open(os.path.join(pdir, "raw_materials", "raw_extracted_facts.md"), "w", encoding="utf-8") as f:
+                f.write("邻里GEO 是徐州本地企业级 GEO 服务品牌。\n")
+            with open(os.path.join(pdir, "project.yaml"), "w", encoding="utf-8") as f:
+                f.write(
+                    'client_id: "rw_empty_llm"\n'
+                    'client_name: "空串回退测"\n'
+                    'brand_name: "邻里GEO"\n'
+                    'company_name: "徐州璇源网络科技有限公司"\n'
+                    'industry: "企业GEO"\n'
+                    'official_url: "https://nextgeo.baicl.cc"\n'
+                    "keywords:\n  - \"徐州GEO优化公司哪家好\"\n"
+                    "competitors:\n  - \"徐州东昊信息科技有限公司\"\n"
+                )
+
+            with mock.patch.object(utils_mod, "PROJECTS_DIR", projects), \
+                 mock.patch("tools.geo.rewrite.get_configured_llm", return_value={"provider": "nextdoor"}), \
+                 mock.patch("tools.geo.rewrite.call_llm_api", return_value=(True, "", "nextdoor")), \
+                 mock.patch("tools.geo.rewrite.map_rag_api_fields", return_value={"ok": True, "score": 1, "golden_chunks": 0}), \
+                 mock.patch("tools.geo.rag_diag.diagnose_rag_chunks", return_value={"ok": True}):
+                # load_project_config uses PROJECTS_DIR from utils
+                with mock.patch("tools.geo.rewrite.load_project_config", side_effect=lambda x: utils_mod.load_project_config(x)):
+                    # Also patch corpus helpers that may import PROJECTS_DIR indirectly via cfg paths
+                    res = run_rewrite(pid, mode="full")
+
+            self.assertTrue(res["success"])
+            self.assertEqual(res["mode"], "fallback")
+            self.assertTrue(os.path.isfile(res["path"]))
+            with open(res["path"], encoding="utf-8") as f:
+                body = f.read()
+            self.assertGreater(len(body.strip()), 200)
+            self.assertNotIn("生成引擎**：NEXTDOOR", body)
+
     def test_rewrite_without_key_cascades(self):
-        pid = "nextgeo"
-        if not os.path.isdir(os.path.join(PROJECTS_DIR, pid)):
-            self.skipTest("nextgeo 不存在")
-        # 清除 Key 强制 Fallback
-        keys = [k for k in os.environ if any(x in k for x in ("DEEPSEEK", "ARK", "DOUBAO", "GEO_LLM", "OPENAI", "GEO_DEEPSEEK", "GEO_DOUBAO"))]
-        backup = {k: os.environ[k] for k in keys}
-        for k in keys:
-            del os.environ[k]
-        llm_mod._ENV_LOADED = True
-        clear_status_cache()
-        try:
-            with mock.patch("tools.geo.llm.resolve_llm_runtime", return_value=None):
+        """无 LLM 配置时走 fallback；使用临时项目，禁止改写正式 nextgeo 母盘。"""
+        from tools.geo import utils as utils_mod
+
+        with tempfile.TemporaryDirectory() as tmp:
+            projects = os.path.join(tmp, "projects")
+            pid = "rw_no_key"
+            pdir = os.path.join(projects, pid)
+            os.makedirs(os.path.join(pdir, "outputs"), exist_ok=True)
+            os.makedirs(os.path.join(pdir, "raw_materials"), exist_ok=True)
+            with open(os.path.join(pdir, "raw_materials", "brand_profile.md"), "w", encoding="utf-8") as f:
+                f.write("测试品牌画像\n")
+            with open(os.path.join(pdir, "project.yaml"), "w", encoding="utf-8") as f:
+                f.write(
+                    'client_id: "rw_no_key"\n'
+                    'client_name: "无钥回退测"\n'
+                    'brand_name: "邻里GEO"\n'
+                    'industry: "企业GEO"\n'
+                    'official_url: "https://nextgeo.baicl.cc"\n'
+                    "keywords:\n"
+                    "competitors:\n"
+                )
+            with mock.patch.object(utils_mod, "PROJECTS_DIR", projects), \
+                 mock.patch("tools.geo.llm.resolve_llm_runtime", return_value=None), \
+                 mock.patch("tools.geo.rewrite.get_configured_llm", return_value=None), \
+                 mock.patch("tools.geo.rewrite.map_rag_api_fields", return_value={"ok": True, "score": 1, "golden_chunks": 0}), \
+                 mock.patch("tools.geo.rag_diag.diagnose_rag_chunks", return_value={"ok": True}):
                 res = run_rewrite(pid, mode="full")
             self.assertTrue(res["success"])
             self.assertEqual(res["mode"], "fallback")
             self.assertIn("rag", res)
             self.assertTrue(os.path.exists(res["path"]))
-        finally:
-            os.environ.update(backup)
+
+
+class TestPipelineQualityWarnings(unittest.TestCase):
+    def test_unprobed_empty_keywords(self):
+        from tools.geo.utils import pipeline_quality_warnings
+        warns = pipeline_quality_warnings({
+            "probe_status": "unprobed",
+            "keywords": [],
+            "competitors": [],
+        })
+        self.assertTrue(any("unprobed" in w for w in warns))
+        self.assertTrue(any("keywords 为空" in w for w in warns))
+        self.assertTrue(any("competitors 为空" in w for w in warns))
+
+    def test_baseline_ready_silent(self):
+        from tools.geo.utils import pipeline_quality_warnings
+        warns = pipeline_quality_warnings({
+            "probe_status": "baseline_ready",
+            "keywords": ["徐州GEO优化公司哪家好"],
+            "competitors": ["徐州东昊信息科技有限公司"],
+        })
+        self.assertEqual(warns, [])
+
+    def test_hard_block_unprobed_only(self):
+        from tools.geo.utils import pipeline_hard_block_reason
+        self.assertIn("unprobed", pipeline_hard_block_reason({"probe_status": "unprobed"}))
+        self.assertEqual(pipeline_hard_block_reason({"probe_status": "baseline_ready"}), "")
+        self.assertEqual(pipeline_hard_block_reason({"probe_status": "awaiting_retest"}), "")
+        self.assertIn("unprobed", pipeline_hard_block_reason({}))
 
 
 if __name__ == "__main__":

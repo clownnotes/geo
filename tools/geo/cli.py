@@ -56,10 +56,27 @@ def cmd_init_project(project_id: str, template: str = None):
     print_info(f"项目路径: {target_dir}")
     print_info(f"👉 请编辑 `{target_dir}/project.yaml` 填入客户名称、官网和关键词。")
 
-def cmd_run_pipeline(project_id: str):
-    """一键执行完整五步交付流水线"""
-    print_banner(f"🚀 启动 GEO 全流程商业交付流水线: [{project_id}]")
-    
+def cmd_run_pipeline(project_id: str, force: bool = False):
+    """一键执行完整五步交付流水线（草稿壳批量生成；不含 00 侦察）。"""
+    from .utils import load_project_config, pipeline_quality_warnings, pipeline_hard_block_reason
+
+    print_banner(f"启动 GEO 五步草稿流水线: [{project_id}]")
+    try:
+        cfg = load_project_config(project_id)
+        block = pipeline_hard_block_reason(cfg)
+        if block and not force:
+            print_error(block)
+            sys.exit(2)
+        if block and force:
+            print_warning("已使用 --force 跳过侦察硬拦截（仅建议内测空壳）。")
+        for w in pipeline_quality_warnings(cfg):
+            print_warning(w)
+        print_info("说明：本流水线生成阶段 1～5 草稿资产，不替代 00 侦察，也不等于客户签字交付。")
+    except SystemExit:
+        raise
+    except Exception as exc:
+        print_warning(f"开工前质量检查跳过: {exc}")
+
     print_info("▶ [1/5] 执行客户现状体检与商业诊断...")
     run_audit(project_id)
     
@@ -75,7 +92,7 @@ def cmd_run_pipeline(project_id: str):
     print_info("\n▶ [5/5] 执行 AI 可见度监测并生成量化交付周报...")
     run_monitor(project_id)
     
-    print_banner(f"🎉 客户 [{project_id}] 全套五步商业交付物全部生成完毕！")
+    print_banner(f"客户 [{project_id}] 五步草稿资产已生成（请人工验收，勿直接当终稿）")
     print_success(f"交付物目录: {os.path.join(PROJECTS_DIR, project_id, 'outputs')}")
 
 def main():
@@ -361,6 +378,24 @@ def main():
         p_probe.add_argument("--reconcile-only", action="store_true", help="免大模型调用，直接基于最新台账对已有探测记录执行极速离线重对账并刷新 30 号报告")
         p_probe.add_argument("--portal-sync", action="store_true", help="探测或离线对账后，联动刷新高管交付门户聚合缓存与战果数据大屏")
 
+    # 浏览器侦察剧本与回填（Cursor × 反重力；与第 18 维 API probe 不同）
+    p_pscript = subparsers.add_parser("probe-script", help="生成浏览器侦察必测题草稿（6～10 条，首轮不带竞品名）")
+    p_pscript.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_pscript.add_argument("--project", "-p", default=None, help="客户项目 ID")
+
+    p_pprev = subparsers.add_parser("probe-preview", help="预览 probe JSON 回填候选（竞品/问句，不写盘）")
+    p_pprev.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_pprev.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_pprev.add_argument("--file", "-f", required=True, help="probe_*.json 路径")
+
+    p_papply = subparsers.add_parser("probe-apply", help="将 probe JSON 确认回填至 keywords/competitors 并置 baseline_ready")
+    p_papply.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
+    p_papply.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_papply.add_argument("--file", "-f", required=True, help="probe_*.json 路径")
+    p_papply.add_argument("--yes", "-y", action="store_true", help="跳过确认直接写入")
+    p_papply.add_argument("--include-pending", action="store_true", help="连 is_real 未确认的竞品一并写入（默认仅 true）")
+    p_papply.add_argument("--merge", action="store_true", help="与现有 keywords/competitors 去重合并（不冲掉精修词库）")
+
     # spider-audit (全网主流 AI 爬虫真实访问捕获与真机抓取日志审计，第 31 维中枢)
     p_spider = subparsers.add_parser("spider-audit", help="第 31 维全网主流 AI 爬虫真实访问捕获与真机抓取日志审计")
     p_spider.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
@@ -485,9 +520,10 @@ def main():
     p_moat.add_argument("--json", action="store_true", help="以 JSON 格式输出推演结果")
 
     # pipeline
-    p_pipe = subparsers.add_parser("pipeline", help="端到端一键执行五步完整交付")
+    p_pipe = subparsers.add_parser("pipeline", help="批量生成阶段1～5草稿（不含00侦察；未侦察默认拦截）")
     p_pipe.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_pipe.add_argument("--project", "-p", default=None, help="客户项目 ID")
+    p_pipe.add_argument("--force", action="store_true", help="跳过未侦察硬拦截（仅内测空壳）")
 
     args = parser.parse_args()
 
@@ -1219,6 +1255,45 @@ def main():
             for idx, c in enumerate(s["project_cards"], 1):
                 st = "🔴 高危" if c["risk_level"] == "danger" else ("🟡 预警" if c["risk_level"] == "warning" else "🟢 正常")
                 print(f"{idx:<4} {c['client_name'][:16]:<18} {c['industry'][:12]:<14} {c['fulfillment_score']:<8.1f} {c['effective_sov_pct']:<7.1f}% ¥{int(c['total_business_value']):<11,} {st}")
+    elif args.command == "probe-script":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print_error("请指定项目 ID，例如: python3 -m tools.geo probe-script nextgeo")
+            sys.exit(1)
+        from .probe_backfill import build_probe_script, print_script_human
+        print_script_human(build_probe_script(pid))
+    elif args.command == "probe-preview":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print_error("请指定项目 ID")
+            sys.exit(1)
+        from .probe_backfill import preview_probe_backfill, print_preview_human
+        print_preview_human(preview_probe_backfill(pid, args.file))
+    elif args.command == "probe-apply":
+        pid = get_pid(args)
+        if not pid or pid == "_template":
+            print_error("请指定项目 ID")
+            sys.exit(1)
+        from .probe_backfill import preview_probe_backfill, apply_probe_backfill, print_preview_human
+        prev = preview_probe_backfill(pid, args.file)
+        print_preview_human(prev)
+        if not getattr(args, "yes", False):
+            ans = input("确认写入 project.yaml？[y/N] ").strip().lower()
+            if ans not in ("y", "yes"):
+                print_warning("已取消，未写入。")
+                sys.exit(0)
+        res = apply_probe_backfill(
+            pid,
+            args.file,
+            only_real=not getattr(args, "include_pending", False),
+            merge=bool(getattr(args, "merge", False)),
+        )
+        mode = "合并" if res.get("merge") else "覆盖"
+        print_success(
+            f"已回填竞品 {len(res['applied'].get('competitors') or [])} 个、"
+            f"问句 {len(res['applied'].get('keywords') or [])} 条（{mode}）；"
+            f"probe_status={res['applied'].get('probe_status')}"
+        )
     elif args.command in ("probe", "probe-audit"):
         pid = get_pid(args)
         if not pid or pid == "_template":
@@ -1885,7 +1960,7 @@ def main():
                 print(f"💡 提示：此为预览模式，执行落盘请运行: python3 -m tools.geo heal {pid} --apply")
                 print("=" * 75 + "\n")
     elif args.command == "pipeline":
-        cmd_run_pipeline(get_pid(args))
+        cmd_run_pipeline(get_pid(args), force=bool(getattr(args, "force", False)))
 
 if __name__ == "__main__":
     main()
