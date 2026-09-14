@@ -21,6 +21,7 @@ import io
 import shutil
 import threading
 import re
+import shlex
 from datetime import datetime
 from http.server import HTTPServer, ThreadingHTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, unquote
@@ -577,6 +578,31 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 侦察一键出题: POST /api/projects/{id}/probe/script
+        if path.startswith("/api/projects/") and path.endswith("/probe/script"):
+            project_id = path.split("/")[3]
+            try:
+                from .probe_backfill import build_probe_script
+                payload = build_probe_script(project_id)
+                out_path = payload.get("output_path") or ""
+                self.send_json({
+                    "success": True,
+                    "message": f"已生成必测题 {len(payload.get('items') or [])} 条",
+                    "script": {
+                        "file": os.path.basename(out_path) if out_path else "probe_script_draft.json",
+                        "abs": out_path,
+                        "rel": f"projects/{project_id}/outputs/{os.path.basename(out_path)}" if out_path else "",
+                        "item_count": len(payload.get("items") or []),
+                        "items": payload.get("items") or [],
+                        "note": payload.get("note") or "",
+                    },
+                })
+            except ValueError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 侦察回填预览: POST /api/projects/{id}/probe/preview
         if path.startswith("/api/projects/") and path.endswith("/probe/preview"):
             project_id = path.split("/")[3]
@@ -592,6 +618,27 @@ core_values:
                     return
                 preview = preview_probe_backfill(project_id, probe_data=probe)
                 self.send_json({"success": True, "preview": preview})
+            except ValueError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 从 outputs 磁盘文件预览: POST /api/projects/{id}/probe/preview-disk
+        if path.startswith("/api/projects/") and path.endswith("/probe/preview-disk"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() or {}
+            filename = str(body.get("file") or body.get("filename") or "").strip()
+            try:
+                from .probe_backfill import load_probe_from_outputs, preview_probe_backfill
+                probe, abs_path = load_probe_from_outputs(project_id, filename)
+                preview = preview_probe_backfill(project_id, probe_path=abs_path, probe_data=probe)
+                self.send_json({
+                    "success": True,
+                    "preview": preview,
+                    "file": os.path.basename(abs_path),
+                    "abs": abs_path,
+                })
             except ValueError as e:
                 self.send_json({"success": False, "message": str(e)}, status=400)
             except Exception as e:
@@ -632,6 +679,54 @@ core_values:
                     "preview": res.get("preview"),
                     "merge": merge,
                     "probe_path": res.get("probe_path"),
+                    "project": safe,
+                })
+            except ValueError as e:
+                self.send_json({"success": False, "message": str(e)}, status=400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 从 outputs 磁盘文件确认回填: POST /api/projects/{id}/probe/apply-disk
+        if path.startswith("/api/projects/") and path.endswith("/probe/apply-disk"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() or {}
+            filename = str(body.get("file") or body.get("filename") or "").strip()
+            merge = True if body.get("merge") is None else bool(body.get("merge"))
+            only_real = True if body.get("only_real") is None else bool(body.get("only_real"))
+            try:
+                from .probe_backfill import load_probe_from_outputs, apply_probe_backfill
+                from . import utils as geo_utils
+                probe, abs_path = load_probe_from_outputs(project_id, filename)
+                if os.path.basename(abs_path).startswith("probe_script"):
+                    self.send_json(
+                        {"success": False, "message": "不能回填剧本文件，请选择 competitor_probe_*.json"},
+                        status=400,
+                    )
+                    return
+                res = apply_probe_backfill(
+                    project_id,
+                    probe_path=abs_path,
+                    probe_data=probe,
+                    merge=merge,
+                    only_real=only_real,
+                    competitors=body.get("competitors"),
+                    keywords=body.get("keywords"),
+                )
+                project = geo_utils.load_project_config(project_id)
+                safe = {k: v for k, v in project.items() if not str(k).startswith("_")}
+                self.send_json({
+                    "success": True,
+                    "message": (
+                        f"确认已写入 {os.path.basename(abs_path)}："
+                        f"竞品 {len(res['applied'].get('competitors') or [])} 个、"
+                        f"问句 {len(res['applied'].get('keywords') or [])} 条"
+                        + ("（合并模式）" if merge else "（覆盖模式）")
+                    ),
+                    "applied": res.get("applied"),
+                    "preview": res.get("preview"),
+                    "merge": merge,
+                    "probe_path": abs_path,
                     "project": safe,
                 })
             except ValueError as e:
@@ -877,8 +972,38 @@ core_values:
             try:
                 msg = ""
                 if step == "audit":
-                    run_audit(project_id)
-                    msg = "阶段 1：现状诊断体检已执行完毕！"
+                    body = {}
+                    try:
+                        body = self.read_json_body() or {}
+                    except Exception:
+                        body = {}
+                    amode = str(body.get("mode") or "crawl").strip().lower()
+                    if amode not in ("crawl", "interpret", "full"):
+                        amode = "crawl"
+                    from .audit import run_audit_crawl, run_audit_interpret, run_audit
+                    try:
+                        if amode == "crawl":
+                            ares = run_audit_crawl(project_id)
+                        elif amode == "interpret":
+                            ares = run_audit_interpret(project_id)
+                        else:
+                            run_audit(project_id, mode="full")
+                            ares = {
+                                "mode": "full",
+                                "message": "阶段 1：真抓 + 解读已执行完毕！",
+                            }
+                    except ValueError as ve:
+                        self.send_json({"success": False, "message": str(ve)}, status=400)
+                        return
+                    self.send_json({
+                        "success": True,
+                        "step": step,
+                        "mode": ares.get("mode", amode),
+                        "message": ares.get("message") or "阶段 1 已执行完毕！",
+                        "llm_status": ares.get("llm_status"),
+                        "tech_score": (ares.get("metrics") or {}).get("tech_score"),
+                    })
+                    return
                 elif step == "scaffold":
                     run_scaffold(project_id)
                     msg = "阶段 2：站点技术底座改造包已生成！"
@@ -1987,10 +2112,14 @@ core_values:
                     authed = True
 
             user = ACTIVE_SESSIONS.get(token, {}).get("username", ADMIN_USERNAME if authed else "") if authed else ""
+            # 管理台阶段零等 CLI 引导：给出本机仓库根目录，方便复制 cd 命令
+            repo_root = os.path.abspath(PROJECT_ROOT)
             self.send_json({
                 "authenticated": authed,
                 "username": user,
-                "token": token if authed else ""
+                "token": token if authed else "",
+                "repo_root": repo_root,
+                "cd_cmd": f"cd {shlex.quote(repo_root)}",
             })
             return
 
@@ -2677,6 +2806,163 @@ core_values:
                     refresh = query.get("refresh", ["0"])[0] in ("1", "true", "yes")
                     payload = build_llm_status_payload(force_refresh=refresh)
                     self.send_json(payload)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 阶段零引导：真实剧本/结果文件清单（杜绝指向不存在的占位路径）
+            if path.startswith("/api/projects/") and path.endswith("/probe/guide"):
+                parts = path.split("/")
+                project_id = parts[3] if len(parts) > 3 else ""
+                if not re.match(r"^[a-zA-Z0-9_-]+$", project_id or ""):
+                    self.send_json({"success": False, "message": "无效的项目ID格式"}, status=400)
+                    return
+                try:
+                    cfg = load_project_config(project_id)
+                    out_dir = os.path.realpath(cfg["_outputs_dir"])
+                    os.makedirs(out_dir, exist_ok=True)
+                    repo_root = os.path.abspath(PROJECT_ROOT)
+                    probe_status = str(cfg.get("probe_status") or "unprobed").strip() or "unprobed"
+                    ymd = datetime.now().strftime("%Y%m%d")
+
+                    def _file_meta(fname: str, with_peek: bool = False) -> dict:
+                        fp = os.path.join(out_dir, fname)
+                        st = os.stat(fp)
+                        rel = f"projects/{project_id}/outputs/{fname}"
+                        item_count = None
+                        title = None
+                        peek = None
+                        try:
+                            with open(fp, "r", encoding="utf-8") as f:
+                                data = json.load(f)
+                            if isinstance(data, dict):
+                                items = data.get("items") if isinstance(data.get("items"), list) else []
+                                item_count = len(items)
+                                title = data.get("title")
+                                if with_peek:
+                                    queries = []
+                                    comps = []
+                                    mentioned = 0
+                                    url_hit = 0
+                                    for it in items:
+                                        if not isinstance(it, dict):
+                                            continue
+                                        q = str(it.get("query") or "").strip()
+                                        if q:
+                                            queries.append(q)
+                                        if it.get("mentioned_self"):
+                                            mentioned += 1
+                                        if it.get("url_present"):
+                                            url_hit += 1
+                                        for c in (it.get("competitors_extracted") or []):
+                                            if isinstance(c, dict):
+                                                n = str(c.get("name") or "").strip()
+                                                if n and n not in comps:
+                                                    comps.append(n)
+                                    summary = data.get("summary") if isinstance(data.get("summary"), dict) else {}
+                                    peek = {
+                                        "probed_at": data.get("probed_at") or "",
+                                        "model_ui": data.get("model_ui") or "",
+                                        "queries": queries[:8],
+                                        "query_total": len(queries),
+                                        "mentioned_self_count": mentioned,
+                                        "url_present_count": url_hit,
+                                        "competitors": comps[:8],
+                                        "competitor_total": len(comps),
+                                        "brand_status": str(summary.get("brand_status") or "").strip(),
+                                    }
+                        except Exception:
+                            pass
+                        out = {
+                            "file": fname,
+                            "rel": rel,
+                            "abs": fp,
+                            "size": st.st_size,
+                            "mtime": datetime.fromtimestamp(st.st_mtime).isoformat(timespec="seconds"),
+                            "item_count": item_count,
+                            "title": title,
+                            "exists": True,
+                        }
+                        if with_peek:
+                            out["peek"] = peek
+                        return out
+
+                    scripts = []
+                    results = []
+                    if os.path.isdir(out_dir):
+                        for fname in sorted(os.listdir(out_dir)):
+                            if not fname.endswith(".json"):
+                                continue
+                            fp = os.path.join(out_dir, fname)
+                            if not os.path.isfile(fp):
+                                continue
+                            if fname.startswith("probe_script"):
+                                scripts.append(_file_meta(fname, with_peek=False))
+                            elif fname.startswith("competitor_probe"):
+                                results.append(_file_meta(fname, with_peek=True))
+                    results.sort(key=lambda x: x.get("mtime") or "", reverse=True)
+                    scripts.sort(key=lambda x: x.get("mtime") or "", reverse=True)
+
+                    # 推荐剧本：已有基线优先复测
+                    preferred = []
+                    if probe_status in ("baseline_ready", "awaiting_retest"):
+                        preferred = [
+                            "probe_script_retest_round2.json",
+                            "probe_script_remaining_p1.json",
+                            "probe_script_draft.json",
+                        ]
+                    else:
+                        preferred = [
+                            "probe_script_draft.json",
+                            "probe_script_remaining_p1.json",
+                            "probe_script_retest_round2.json",
+                        ]
+                    by_name = {s["file"]: s for s in scripts}
+                    recommended = None
+                    for name in preferred:
+                        if name in by_name:
+                            recommended = by_name[name]
+                            break
+                    if recommended is None and scripts:
+                        recommended = scripts[0]
+
+                    is_retest = probe_status in ("baseline_ready", "awaiting_retest")
+                    expect_name = (
+                        f"competitor_probe_doubao_{ymd}_retest.json"
+                        if is_retest
+                        else f"competitor_probe_doubao_{ymd}.json"
+                    )
+                    expect_abs = os.path.join(out_dir, expect_name)
+                    expect_rel = f"projects/{project_id}/outputs/{expect_name}"
+                    expect_exists = os.path.isfile(expect_abs)
+
+                    # 最新已有结果（按 mtime）
+                    latest_result = None
+                    if results:
+                        latest_result = sorted(results, key=lambda x: x.get("mtime") or "", reverse=True)[0]
+
+                    self.send_json({
+                        "success": True,
+                        "project_id": project_id,
+                        "probe_status": probe_status,
+                        "probe_baseline_id": cfg.get("probe_baseline_id") or "",
+                        "repo_root": repo_root,
+                        "cd_cmd": f"cd {shlex.quote(repo_root)}",
+                        "outputs_rel": f"projects/{project_id}/outputs",
+                        "outputs_abs": out_dir,
+                        "scripts": scripts,
+                        "results": results,
+                        "recommended_script": recommended,
+                        "expected_result": {
+                            "file": expect_name,
+                            "rel": expect_rel,
+                            "abs": expect_abs,
+                            "exists": expect_exists,
+                            "note": "这是第二步收工后的目标文件名；未落盘前磁盘上不存在，不能拿去「前往文件夹」打开文件本身。请先打开 outputs 文件夹。",
+                        },
+                        "latest_result": latest_result,
+                        "today_ymd": ymd,
+                    })
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

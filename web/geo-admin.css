@@ -742,3 +742,21 @@
   color: #334155;
   font-weight: 600;
 }
+
+/* 企业管理表：防标签竖排、行信息层级 */
+.geo-ent-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 720px;
+}
+
+.geo-ent-table th,
+.geo-ent-table td {
+  vertical-align: middle;
+}
+
+.geo-ent-badge {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
+}

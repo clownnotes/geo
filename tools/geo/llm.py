@@ -29,14 +29,16 @@ _STATUS_CACHE: Dict[str, Any] = {"payload": None, "ts": 0.0}
 _STATUS_LOCK = threading.Lock()
 STATUS_TTL_SECONDS = 60
 
+# 同机（GEO 与小毛驴都在 mini）必须走回环；公网域名仅给外部调用方 / 异地调试
 DEFAULT_NEXTDOOR_BASE_URL = "http://127.0.0.1:3001"
 DEFAULT_NEXTDOOR_SOURCE_CLIENT = "geo"
 DEFAULT_NEXTDOOR_CHAT_MODE = "flash"
 
 # Web 配置允许写入的环境变量白名单
 CONFIG_WRITE_WHITELIST = frozenset({
-    # Nextdoor 主路径
+    # Nextdoor 主路径（机器密钥优先；JWT 仅兼容过渡）
     "NEXTDOOR_BASE_URL",
+    "NEXTDOOR_API_KEY",
     "NEXTDOOR_JWT_TOKEN",
     "NEXTDOOR_SOURCE_CLIENT",
     "NEXTDOOR_CHAT_MODE",
@@ -205,10 +207,14 @@ def _direct_enabled() -> bool:
 
 
 def resolve_nextdoor_runtime() -> Optional[Dict[str, Any]]:
-    """解析 Nextdoor 开放 API 运行时（需 JWT）。"""
+    """解析 Nextdoor 开放 API 运行时。
+
+    优先机器密钥 NEXTDOOR_API_KEY（ndsk_…，长期有效）；
+    兼容过渡 NEXTDOOR_JWT_TOKEN（用户登录 JWT，约 7 天过期）。
+    """
     _ensure_loaded()
-    jwt, key_env = _first_env(["NEXTDOOR_JWT_TOKEN"])
-    if not jwt:
+    token, key_env = _first_env(["NEXTDOOR_API_KEY", "NEXTDOOR_JWT_TOKEN"])
+    if not token:
         return None
     base_val, _ = _first_env(["NEXTDOOR_BASE_URL"])
     brand_val, _ = _first_env(["NEXTDOOR_SOURCE_CLIENT"])
@@ -222,10 +228,11 @@ def resolve_nextdoor_runtime() -> Optional[Dict[str, Any]]:
         "model": mode,  # 专属链下不改梯队；字段复用给 Tag 展示
         "mode": mode,
         "brand": (brand_val or DEFAULT_NEXTDOOR_SOURCE_CLIENT).strip() or DEFAULT_NEXTDOOR_SOURCE_CLIENT,
-        "api_key": jwt,
+        "api_key": token,
         "base_url": (base_val or DEFAULT_NEXTDOOR_BASE_URL).rstrip("/"),
         "source": _source_for_key(key_env),
         "key_env": key_env,
+        "auth_kind": "api_key" if (key_env == "NEXTDOOR_API_KEY" or token.startswith("ndsk_")) else "jwt",
     }
 
 
@@ -328,6 +335,8 @@ def _aggregate_sse_stream(resp) -> str:
     text = "".join(parts).strip()
     if not text and err_msg:
         raise LlmUnavailable(f"Nextdoor SSE 错误: {err_msg}")
+    if not text:
+        raise LlmUnavailable("Nextdoor SSE 空响应（模型链可能卡住或未返回正文）")
     return text
 
 
@@ -337,53 +346,78 @@ def call_nextdoor_chat(
     timeout: int = 120,
     stream: bool = True,
 ) -> str:
-    """调用 POST /api/v1/xiulan/chat；默认 SSE 聚合正文。"""
+    """调用 POST /api/v1/xiulan/chat；SSE 空流时回落非流式一次。"""
     base = runtime["base_url"].rstrip("/")
     endpoint = f"{base}/api/v1/xiulan/chat"
-    payload = {
-        "mode": runtime.get("mode") or DEFAULT_NEXTDOOR_CHAT_MODE,
-        "messages": messages,
-        "stream": bool(stream),
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {runtime['api_key']}",
-        "vio-source-client": runtime.get("brand") or DEFAULT_NEXTDOOR_SOURCE_CLIENT,
-        "Accept": "text/event-stream" if stream else "application/json",
-    }
-    req = urllib.request.Request(
-        endpoint,
-        data=json.dumps(payload).encode("utf-8"),
-        headers=headers,
-        method="POST",
-    )
-    try:
+
+    def _once(use_stream: bool) -> str:
+        brand = runtime.get("brand") or DEFAULT_NEXTDOOR_SOURCE_CLIENT
+        payload = {
+            "mode": runtime.get("mode") or DEFAULT_NEXTDOOR_CHAT_MODE,
+            "messages": messages,
+            "stream": bool(use_stream),
+            # 公网 Nginx 默认丢弃带下划线的请求头；body 双写保证专属链仍能命中
+            "client_brand": brand,
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {runtime['api_key']}",
+            "vio-source-client": brand,
+            "Accept": "text/event-stream" if use_stream else "application/json",
+        }
+        req = urllib.request.Request(
+            endpoint,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST",
+        )
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             ctype = (resp.headers.get("Content-Type") or "").lower()
-            if stream or "text/event-stream" in ctype:
+            if use_stream or "text/event-stream" in ctype:
                 return _aggregate_sse_stream(resp)
             body = json.loads(resp.read().decode("utf-8"))
+        if isinstance(body, dict) and body.get("code") not in (None, 0, "0"):
+            raise LlmUnavailable(f"Nextdoor 业务错误: {body.get('msg') or body.get('code')}")
+        data = body.get("data", body) if isinstance(body, dict) else body
+        if isinstance(data, dict):
+            choices = data.get("choices") or []
+            if choices and isinstance(choices[0], dict):
+                msg = choices[0].get("message") or {}
+                content = msg.get("content") if isinstance(msg, dict) else None
+                if content:
+                    return str(content).strip()
+            if data.get("content"):
+                return str(data["content"]).strip()
+        raise LlmUnavailable(f"Nextdoor 返回结构异常: {str(body)[:300]}")
+
+    try:
+        if stream:
+            try:
+                return _once(True)
+            except LlmUnavailable as first:
+                try:
+                    return _once(False)
+                except LlmUnavailable:
+                    raise first from first
+        return _once(False)
     except urllib.error.HTTPError as e:
         raw = e.read().decode("utf-8", errors="ignore")
         raise LlmUnavailable(f"Nextdoor HTTP {e.code}: {raw[:300]}") from e
     except LlmUnavailable:
         raise
     except Exception as exc:
+        msg = str(exc)
+        base_l = (runtime.get("base_url") or "").lower()
+        if "Connection refused" in msg or "Errno 61" in msg:
+            if "127.0.0.1" in base_l or "localhost" in base_l:
+                raise LlmUnavailable(
+                    "连不上本机小毛驴端口（Connection refused）。"
+                    "GEO 若在 Mac mini 上：Base 用 http://127.0.0.1:3001；"
+                    "若在开发本机：请先开 SSH 隧道把 mini:3001 映到本机 3001"
+                    "（ProxyJump vps 后 -L 127.0.0.1:3001:127.0.0.1:3001），"
+                    "不要误以为专属链坏了。"
+                ) from exc
         raise LlmUnavailable(f"Nextdoor 调用失败: {exc}") from exc
-
-    if isinstance(body, dict) and body.get("code") not in (None, 0, "0"):
-        raise LlmUnavailable(f"Nextdoor 业务错误: {body.get('msg') or body.get('code')}")
-    data = body.get("data", body) if isinstance(body, dict) else body
-    if isinstance(data, dict):
-        choices = data.get("choices") or []
-        if choices and isinstance(choices[0], dict):
-            msg = choices[0].get("message") or {}
-            content = msg.get("content") if isinstance(msg, dict) else None
-            if content:
-                return str(content).strip()
-        if data.get("content"):
-            return str(data["content"]).strip()
-    raise LlmUnavailable(f"Nextdoor 返回结构异常: {str(body)[:300]}")
 
 
 def call_direct_chat(
@@ -511,7 +545,7 @@ def build_llm_status_payload(force_refresh: bool = False) -> Dict[str, Any]:
             "api_key_masked": "",
             "latency_ms": None,
             "status": "offline",
-            "message": "未配置 NEXTDOOR_JWT_TOKEN（或未开启 GEO_LLM_DIRECT）",
+            "message": "未配置 NEXTDOOR_API_KEY（或兼容的 NEXTDOOR_JWT_TOKEN；应急直连需 GEO_LLM_DIRECT=1）",
             "cached": False,
         }
     else:
@@ -593,32 +627,42 @@ def atomic_write_env(updates: Dict[str, str], path: str = None) -> str:
 def save_llm_config(body: dict) -> Dict[str, Any]:
     """
     Web 配置入口：默认写 Nextdoor 凭证；Ping 失败不落盘；成功清空 TTL。
-    body(nextdoor): {provider?:nextdoor, jwt_token|api_key, base_url?, source_client?, mode?}
+    body(nextdoor): {provider?:nextdoor, api_key|jwt_token, base_url?, source_client?, mode?}
     body(direct 应急): {provider:deepseek|doubao|openai_compatible, api_key, model?, base_url?} 且需 GEO_LLM_DIRECT
     """
     provider = (body.get("provider") or "nextdoor").strip().lower()
     if provider in ("nextdoor", "xiaomaolv", "小毛驴"):
-        jwt = (body.get("jwt_token") or body.get("api_key") or "").strip()
-        if not jwt:
-            return {"success": False, "message": "NEXTDOOR_JWT_TOKEN 不能为空"}
+        token = (body.get("api_key") or body.get("jwt_token") or "").strip()
+        if not token:
+            return {"success": False, "message": "机器密钥 NEXTDOOR_API_KEY（ndsk_…）不能为空"}
         base_url = (body.get("base_url") or "").strip() or DEFAULT_NEXTDOOR_BASE_URL
         brand = (body.get("source_client") or body.get("brand") or "").strip() or DEFAULT_NEXTDOOR_SOURCE_CLIENT
         mode = (body.get("mode") or "").strip().lower() or DEFAULT_NEXTDOOR_CHAT_MODE
         if mode not in ("flash", "think", "auto"):
             mode = DEFAULT_NEXTDOOR_CHAT_MODE
-        updates = {
-            "NEXTDOOR_JWT_TOKEN": jwt,
-            "NEXTDOOR_BASE_URL": base_url.rstrip("/"),
-            "NEXTDOOR_SOURCE_CLIENT": brand,
-            "NEXTDOOR_CHAT_MODE": mode,
-            "GEO_LLM_DIRECT": "0",
-        }
+        # ndsk_ → 机器密钥；否则仍写入 JWT 槽位以兼容过渡期
+        if token.startswith("ndsk_"):
+            updates = {
+                "NEXTDOOR_API_KEY": token,
+                "NEXTDOOR_BASE_URL": base_url.rstrip("/"),
+                "NEXTDOOR_SOURCE_CLIENT": brand,
+                "NEXTDOOR_CHAT_MODE": mode,
+                "GEO_LLM_DIRECT": "0",
+            }
+        else:
+            updates = {
+                "NEXTDOOR_JWT_TOKEN": token,
+                "NEXTDOOR_BASE_URL": base_url.rstrip("/"),
+                "NEXTDOOR_SOURCE_CLIENT": brand,
+                "NEXTDOOR_CHAT_MODE": mode,
+                "GEO_LLM_DIRECT": "0",
+            }
         runtime = {
             "provider": "nextdoor",
             "model": mode,
             "mode": mode,
             "brand": brand,
-            "api_key": jwt,
+            "api_key": token,
             "base_url": base_url.rstrip("/"),
         }
         status, latency = ping_llm(runtime, timeout=10)
@@ -640,7 +684,7 @@ def save_llm_config(body: dict) -> Dict[str, Any]:
             "brand": brand,
             "status": "ready",
             "latency_ms": latency,
-            "api_key_masked": mask_api_key(jwt),
+            "api_key_masked": mask_api_key(token),
         }
 
     # 应急直连：仅当显式打开 DIRECT 或 body.force_direct

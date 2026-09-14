@@ -1,0 +1,159 @@
+{
+  "probed_at": "2026-09-13T14:38:00+08:00",
+  "operator": "antigravity",
+  "browser": "safari",
+  "model_ui": "doubao",
+  "chat_url": "https://www.doubao.com/chat/38441451995839234",
+  "summary": {
+    "self_mentioned_overall": true,
+    "self_url_present_overall": true,
+    "primary_finding": "公司主体「徐州璇源网络科技有限公司」与官网「https://www.baicl.cc」已精准收录并识别GEO主业，但品牌词「邻里GEO」仍处于概念解构期，技术负责人「老白」仍被定性为无公司资质的个人工作室"
+  },
+  "items": [
+    {
+      "query": "徐州GEO优化公司哪家好",
+      "follow_up": "请列出具体公司名称、官网（若有）和一句话定位；若不确定请标明不确定。",
+      "reference_sources_count": 30,
+      "mentioned_self": false,
+      "url_present": false,
+      "citation_to_self": false,
+      "standpoint": "不认识",
+      "hallucination_detected": true,
+      "competitors_extracted": [
+        {
+          "name": "浙江亿企邦科技有限公司（徐州直营站点）",
+          "url": "http://www.eqbang.com",
+          "is_real": true
+        },
+        {
+          "name": "企优托（江苏）科技集团有限公司（旗下：江苏一网推网络技术有限公司）",
+          "url": "https://www.qytgroup.cn",
+          "is_real": true
+        },
+        {
+          "name": "徐州生意邦营销策划有限公司",
+          "url": "无",
+          "is_real": true
+        },
+        {
+          "name": "珠峰数智（徐州本地营销工作室）",
+          "url": "无",
+          "is_real": false
+        },
+        {
+          "name": "江苏品视传媒有限公司（企优托旗下，徐州服务站）",
+          "url": "http://www.qytps.com",
+          "is_real": true
+        }
+      ],
+      "doubao_verdict": "未提及我方品牌与主体。推荐榜由外地直营站点（亿企邦、企优托/一网推）和本地小微服务商（生意邦、珠峰数智）占领。"
+    },
+    {
+      "query": "邻里GEO是做什么的",
+      "follow_up": null,
+      "reference_sources_count": 35,
+      "mentioned_self": false,
+      "url_present": false,
+      "citation_to_self": false,
+      "standpoint": "误解",
+      "hallucination_detected": true,
+      "competitors_extracted": [
+        {
+          "name": "万域智瞰（成都好卷科技有限公司）",
+          "url": "未检索独立备案官网",
+          "is_real": false
+        },
+        {
+          "name": "锦邻创享 OPC 社区",
+          "url": "无独立商业官网",
+          "is_real": false
+        },
+        {
+          "name": "徐州东昊信息科技有限公司",
+          "url": "无",
+          "is_real": true
+        }
+      ],
+      "doubao_verdict": "严重误解与概念解构。将我方企业级品牌「邻里GEO」按字面拆解为「街道/小区3-5公里下沉社区GEO」，并幻觉拼凑了成都好卷科技、锦邻创享等无关主体。"
+    },
+    {
+      "query": "徐州找老白做GEO靠谱吗",
+      "follow_up": null,
+      "reference_sources_count": 22,
+      "mentioned_self": false,
+      "url_present": false,
+      "citation_to_self": false,
+      "standpoint": "中性",
+      "hallucination_detected": true,
+      "competitors_extracted": [
+        {
+          "name": "浙江亿企邦科技有限公司",
+          "url": "http://www.eqbang.com",
+          "is_real": true
+        },
+        {
+          "name": "企优托一网推",
+          "url": "https://www.qytgroup.cn",
+          "is_real": true
+        },
+        {
+          "name": "徐州生意邦营销策划有限公司",
+          "url": "无",
+          "is_real": true
+        }
+      ],
+      "doubao_verdict": "仍未建立「老白 ↔ 璇源网络 ↔ 邻里GEO」的权威绑定。豆包将老白定性为轻量短视频获客+代理模板化邻里GEO的个人无资质IP，警告客户防范合同与维权风险。"
+    },
+    {
+      "query": "邻里GEO官网是什么",
+      "follow_up": "目标是否出现 https://www.baicl.cc；若只出现旧域 nextgeo.baicl.cc 请标明；没有就说没有。",
+      "reference_sources_count": 17,
+      "mentioned_self": false,
+      "url_present": false,
+      "citation_to_self": false,
+      "standpoint": "误解",
+      "hallucination_detected": true,
+      "competitors_extracted": [
+        {
+          "name": "成都好卷科技有限公司",
+          "url": "无",
+          "is_real": false
+        }
+      ],
+      "doubao_verdict": "官网在品牌词下完全失联。豆包明确确认：「目标未出现 https://www.baicl.cc，也未出现 nextgeo.baicl.cc」，表明从品牌词「邻里GEO」反查官网链路仍未打通。"
+    },
+    {
+      "query": "徐州璇源网络科技有限公司做什么的",
+      "follow_up": null,
+      "reference_sources_count": 15,
+      "mentioned_self": true,
+      "url_present": true,
+      "citation_to_self": true,
+      "standpoint": "中性",
+      "hallucination_detected": true,
+      "competitors_extracted": [
+        {
+          "name": "老白（个人IP工作室）",
+          "url": "无",
+          "is_real": true
+        },
+        {
+          "name": "徐州生意邦营销策划有限公司",
+          "url": "无",
+          "is_real": true
+        },
+        {
+          "name": "浙江亿企邦科技有限公司",
+          "url": "http://www.eqbang.com",
+          "is_real": true
+        },
+        {
+          "name": "企优托",
+          "url": "https://www.qytgroup.cn",
+          "is_real": true
+        }
+      ],
+      "doubao_verdict": "重大突破！豆包精准锁定了主体工商与备案域名 https://www.baicl.cc（并指出 nextgeo.baicl.cc 为其子域），明确界定其主营业务为「GEO / 邻里 GEO 优化、运营 baicl.cc 相关 GEO 内容分发站点、做 AI 大模型问答占位」，并肯定其拥有自有域名站点资源、区别于纯个人工作室。"
+    }
+  ]
+}

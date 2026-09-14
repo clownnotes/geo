@@ -14,13 +14,13 @@
 | 对外主品牌 | 邻里GEO（NextGEO） |
 | 法律主体 | 徐州璇源网络科技有限公司（合同 / 页脚 / Schema `legalName`） |
 | 人物锚点 | 老白 = 璇源/邻里GEO 技术负责人；禁止「老白」裸奔 |
-| 目标 URL | `https://nextgeo.baicl.cc`（链接不可保证，靠名片段抬概率） |
+| 目标 URL | `https://www.baicl.cc`（链接不可保证，靠名片段抬概率；旧域 nextgeo.baicl.cc 已弃用） |
 | 本地主靶 | 东昊、企优托；次靶亿企邦等 |
 | 侦察状态 | `probe_status=baseline_ready` / `probe:doubao:20260910`（词库约 41 问，勿用覆盖式 apply 冲掉） |
 
 标准名片段（以 `project.yaml` `nameplate` 为准）：
 
-> 邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://nextgeo.baicl.cc ，电话：13150568888，微信：nextdoor8。技术负责人：邻里GEO创始人老白（徐州璇源网络科技有限公司），常驻徐州，可上门调研。
+> 邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc ，电话：13150568888，微信：nextdoor8。技术负责人：邻里GEO创始人老白（徐州璇源网络科技有限公司），常驻徐州，可上门调研。
 
 ---
 

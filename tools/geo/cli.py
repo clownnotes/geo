@@ -116,6 +116,12 @@ def main():
     p_audit.add_argument("project_pos", nargs="?", default=None, help="客户项目 ID")
     p_audit.add_argument("--project", "-p", default=None, help="客户项目 ID")
     p_audit.add_argument("--url", "-u", help="目标官网 URL（覆盖配置文件）")
+    p_audit.add_argument(
+        "--mode",
+        default="full",
+        choices=["crawl", "interpret", "full"],
+        help="crawl=仅真抓；interpret=仅小毛驴解读；full=先抓再解读（默认）",
+    )
 
     # scaffold
     p_scaffold = subparsers.add_parser("scaffold", help="阶段2: 站点底座技术改造包生成")
@@ -895,7 +901,7 @@ def main():
                 print(f"     纠偏锚点: {r['truth_anchor'][:60]}...")
             print("="*65 + "\n")
     elif args.command == "audit":
-        run_audit(get_pid(args), custom_url=args.url)
+        run_audit(get_pid(args), custom_url=args.url, mode=getattr(args, "mode", None) or "full")
     elif args.command == "scaffold":
         run_scaffold(get_pid(args))
     elif args.command == "rewrite":

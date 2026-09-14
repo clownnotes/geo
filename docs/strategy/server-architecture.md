@@ -69,6 +69,11 @@
 - **角色职能**：
   - 全球/全国节点秒级就近响应，降低大模型爬虫抓取延迟；
   - 消化 99% 的公网访问流量，彻底抹平客户 VPS 3~5 Mbps 的带宽瓶颈。
+- **IPv6 双栈（强制）**：
+  - 官网如 `www.baicl.cc` 经 EdgeOne（`*.eo.dnse0.com`）加速时，必须在控制台开启 **站点加速 → 网络优化 → IPv6 访问**；
+  - 开启后 DNS 返回 AAAA，IPv6-only / 双栈爬虫（含部分大模型抓取出口）才能稳定访问；
+  - **不要**在 GEO 真抓里强制只走 IPv4 来掩盖问题；本机无公网 IPv6 时探测失败属客户端限制，须用具备 IPv6 的网络复核；
+  - 自检脚本：`python3 scripts/check_site_dualstack.py https://www.baicl.cc`
 
 ---
 

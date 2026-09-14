@@ -97,11 +97,18 @@ class TestNextdoorRuntime(unittest.TestCase):
         self.assertEqual(text, "重构正文")
         self.assertEqual(prov, "nextdoor")
 
+    def test_prefers_api_key_over_jwt(self):
+        os.environ["NEXTDOOR_JWT_TOKEN"] = "eyJ-old-jwt"
+        os.environ["NEXTDOOR_API_KEY"] = "ndsk_machine_key_abcdefghijklmnop"
+        rt = resolve_nextdoor_runtime()
+        self.assertEqual(rt["api_key"], "ndsk_machine_key_abcdefghijklmnop")
+        self.assertEqual(rt["auth_kind"], "api_key")
+
     def test_call_llm_api_without_config(self):
         ok, msg, prov = call_llm_api("hi")
         self.assertFalse(ok)
         self.assertEqual(prov, "none")
-        self.assertIn("NEXTDOOR_JWT_TOKEN", msg)
+        self.assertIn("NEXTDOOR_API_KEY", msg)
 
     def test_status_nextdoor_fields(self):
         os.environ["NEXTDOOR_JWT_TOKEN"] = "eyJhbGciOi.abcdefghijklmnopqrstuvwxyz"
@@ -129,7 +136,7 @@ class TestNextdoorRuntime(unittest.TestCase):
             with open(env_path, "r", encoding="utf-8") as f:
                 self.assertNotIn("bad-jwt-token-value", f.read())
 
-    def test_save_nextdoor_success(self):
+    def test_save_nextdoor_api_key_success(self):
         with tempfile.TemporaryDirectory() as td:
             env_path = os.path.join(td, ".env")
             open(env_path, "w").close()
@@ -140,7 +147,7 @@ class TestNextdoorRuntime(unittest.TestCase):
                 aw.side_effect = lambda updates, path=None: atomic_write_env(updates, env_path)
                 res = save_llm_config({
                     "provider": "nextdoor",
-                    "jwt_token": "good-jwt-token-abcdefghijklmn",
+                    "api_key": "ndsk_good_machine_key_abcdefghijklmn",
                     "source_client": "geo",
                     "mode": "flash",
                     "base_url": "http://127.0.0.1:3001",
@@ -148,7 +155,7 @@ class TestNextdoorRuntime(unittest.TestCase):
             self.assertTrue(res["success"])
             with open(env_path, "r", encoding="utf-8") as f:
                 content = f.read()
-            self.assertIn("NEXTDOOR_JWT_TOKEN=", content)
+            self.assertIn("NEXTDOOR_API_KEY=", content)
             self.assertIn("GEO_LLM_DIRECT=0", content)
 
 

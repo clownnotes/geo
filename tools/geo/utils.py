@@ -384,7 +384,7 @@ def call_llm_api(prompt: str, system_prompt: str = None, model: str = None, time
 
     llm_info = resolve_llm_runtime()
     if not llm_info:
-        return False, "未配置 Nextdoor JWT（NEXTDOOR_JWT_TOKEN）；应急直连需 GEO_LLM_DIRECT=1", "none"
+        return False, "未配置 Nextdoor 机器密钥（NEXTDOOR_API_KEY）或兼容 JWT；应急直连需 GEO_LLM_DIRECT=1", "none"
     return call_via_runtime(llm_info, prompt, system_prompt=system_prompt, timeout=timeout, model_override=model)
 
 

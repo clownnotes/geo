@@ -3,13 +3,13 @@
   "@graph": [
     {
       "@type": ["Organization", "LocalBusiness"],
-      "@id": "https://nextgeo.baicl.cc/#organization",
+      "@id": "https://www.baicl.cc/#organization",
       "name": "邻里GEO",
       "alternateName": ["NextGEO", "邻里GEO（NextGEO）"],
       "legalName": "徐州璇源网络科技有限公司",
-      "url": "https://nextgeo.baicl.cc/",
-      "logo": "https://nextgeo.baicl.cc/assets/logo.jpg",
-      "description": "邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://nextgeo.baicl.cc 。立足徐州，帮助制造企业与高客单价B2B建立AI能理解、验证、引用和推荐的品牌答案源。主张先改官网与事实源，反对只投毒外链刷提及。",
+      "url": "https://www.baicl.cc/",
+      "logo": "https://www.baicl.cc/assets/logo.jpg",
+      "description": "邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc 。立足徐州，帮助制造企业与高客单价B2B建立AI能理解、验证、引用和推荐的品牌答案源。主张先改官网与事实源，反对只投毒外链刷提及。",
       "knowsAbout": [
         "GEO",
         "生成式引擎优化",
@@ -38,7 +38,7 @@
         "name": "老白",
         "jobTitle": "邻里GEO创始人 / 徐州璇源网络科技有限公司技术负责人",
         "worksFor": {
-          "@id": "https://nextgeo.baicl.cc/#organization"
+          "@id": "https://www.baicl.cc/#organization"
         },
         "homeLocation": {
           "@type": "Place",
@@ -62,19 +62,19 @@
     },
     {
       "@type": "Service",
-      "@id": "https://nextgeo.baicl.cc/services/#service",
+      "@id": "https://www.baicl.cc/services/#service",
       "name": "邻里GEO企业级AI搜索增长全案服务",
       "provider": {
-        "@id": "https://nextgeo.baicl.cc/#organization"
+        "@id": "https://www.baicl.cc/#organization"
       },
       "serviceType": "Generative Engine Optimization (GEO)",
       "description": "帮助企业让 AI 搜索从不认识你到主动推荐你，涵盖问法库拆解、知识库结构化、普林斯顿9因子页面、多来源分发与时序监控。",
       "areaServed": "CN",
-      "url": "https://nextgeo.baicl.cc/services"
+      "url": "https://www.baicl.cc/services"
     },
     {
       "@type": "FAQPage",
-      "@id": "https://nextgeo.baicl.cc/#faq",
+      "@id": "https://www.baicl.cc/#faq",
       "mainEntity": [
         {
           "@type": "Question",

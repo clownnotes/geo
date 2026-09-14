@@ -28,6 +28,33 @@ FAKE_COMPETITORS = {"竞品A", "竞品B", "行业竞品A", "行业竞品B"}
 FAKE_KEYWORDS = {"行业核心推荐词", "好用方案对比"}
 
 
+def resolve_project_outputs_file(project_id: str, filename: str) -> str:
+    """仅允许读取 projects/{id}/outputs/ 下的 basename，防路径穿越。"""
+    raw = str(filename or "").strip().replace("\\", "/")
+    name = os.path.basename(raw)
+    if not name or not name.endswith(".json"):
+        raise ValueError("文件名必须是 .json")
+    if not re.match(r"^[A-Za-z0-9._-]+$", name):
+        raise ValueError("非法文件名")
+    cfg = load_project_config(project_id)
+    out_dir = os.path.realpath(cfg["_outputs_dir"])
+    target = os.path.realpath(os.path.join(out_dir, name))
+    if os.path.commonpath([target, out_dir]) != out_dir:
+        raise ValueError("非法文件路径")
+    if not os.path.isfile(target):
+        raise ValueError(f"文件不存在：{name}")
+    return target
+
+
+def load_probe_from_outputs(project_id: str, filename: str) -> tuple[dict, str]:
+    """从 outputs 读取 probe JSON，返回 (data, abs_path)。"""
+    path = resolve_project_outputs_file(project_id, filename)
+    data = _load_probe_json(path)
+    if not isinstance(data.get("items"), list):
+        raise ValueError("文件需包含 items[]")
+    return data, path
+
+
 def _guess_city(cfg: dict) -> str:
     for key in ("area_served", "address", "area", "city"):
         raw = str(cfg.get(key) or "").strip()
@@ -339,10 +366,43 @@ def preview_probe_backfill(
         if len(kw_out) >= 15:
             break
 
+    answer_briefs = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        q = str(it.get("query") or "").strip()
+        if not q:
+            continue
+        comps = []
+        for c in (it.get("competitors_extracted") or []):
+            if isinstance(c, dict):
+                n = str(c.get("name") or "").strip()
+                if n:
+                    comps.append(n)
+        answer_briefs.append({
+            "query": q,
+            "standpoint": str(it.get("standpoint") or "").strip(),
+            "doubao_verdict": str(it.get("doubao_verdict") or "").strip(),
+            "mentioned_self": bool(it.get("mentioned_self")),
+            "url_present": bool(it.get("url_present")),
+            "hallucination_detected": bool(it.get("hallucination_detected")),
+            "competitors": comps[:6],
+        })
+
     return {
         "project_id": project_id,
         "source_probe": _baseline_id_from_probe(data, path_for_id),
         "probe_path": os.path.abspath(probe_path) if probe_path else "",
+        "probed_at": str(data.get("probed_at") or ""),
+        "chat_url": str(data.get("chat_url") or ""),
+        "item_count": len(answer_briefs),
+        "summary": {
+            "brand_status": str(summary.get("brand_status") or "").strip(),
+            "founder_status": str(summary.get("founder_status") or "").strip(),
+            "self_mentioned_overall": summary.get("self_mentioned_overall"),
+            "self_url_present_overall": summary.get("self_url_present_overall"),
+        },
+        "answer_briefs": answer_briefs,
         "competitor_candidates": list(competitor_map.values()),
         "suggested_competitors": real_names[:8] if real_names else pending_names[:5],
         "keyword_suggestions": kw_out,

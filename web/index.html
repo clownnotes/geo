@@ -195,20 +195,17 @@
 </div>
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
 <div class="overflow-x-auto">
-<table class="w-full text-left text-sm">
-<thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
+<table class="w-full text-left text-sm geo-ent-table">
+<thead class="bg-slate-50 text-slate-600 text-[11px] font-semibold border-b border-slate-200">
 <tr>
-<th class="px-5 py-3">客户名称 / ID</th>
-<th class="px-5 py-3">行业</th>
-<th class="px-5 py-3">合作方</th>
-<th class="px-5 py-3">官网</th>
-<th class="px-5 py-3 text-center">词库</th>
-<th class="px-5 py-3 text-center">侦察</th>
-<th class="px-5 py-3">SOP</th>
-<th class="px-5 py-3 text-right">操作</th>
+<th class="px-5 py-3 min-w-[220px]">客户</th>
+<th class="px-4 py-3 w-[140px]">合作方</th>
+<th class="px-4 py-3 min-w-[180px]">站点</th>
+<th class="px-4 py-3 w-[150px]">状态</th>
+<th class="px-5 py-3 text-right w-[168px]">操作</th>
 </tr>
 </thead>
-<tbody id="projects-table-body" class="divide-y divide-slate-200 text-slate-700"></tbody>
+<tbody id="projects-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
 </table>
 </div>
 </div>
@@ -343,9 +340,11 @@
 </nav>
 <div id="home-set-llm" class="home-set-panel bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-3 max-w-2xl">
 <p class="text-xs text-slate-500">配置 Nextdoor / 小毛驴入口，并检测连通状态。</p>
-<div class="flex flex-wrap gap-2">
+<div class="flex flex-wrap items-center gap-2">
 <button type="button" onclick="refreshLlmStatus(true)" class="geo-btn">立即检测</button>
+<span onclick="showTermHelp(event, 'llm_detect')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：立即检测是干什么的">?</span>
 <button type="button" onclick="openLlmConfigModal()" class="geo-btn geo-btn-primary">配置 Nextdoor</button>
+<span onclick="showTermHelp(event, 'llm_status')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：Nextdoor 状态是什么意思">?</span>
 </div>
 <div id="home-settings-llm-hint" class="text-xs text-slate-500">检测结果与流水线内「大模型中枢」同源。</div>
 </div>
@@ -387,7 +386,7 @@
 <button type="button" class="accordion-header" onclick="toggleSidebarGroup('delivery')"><span class="category-title">交付流水线</span><span class="arrow-indicator" data-group-arrow="delivery">▼</span>
 </button>
 <div id="sidebar-group-delivery" class="submenu-list">
-<button type="button" id="nav-step-0-probe" onclick="switchView('step-0-probe')" class="sidebar-nav-item"><i data-lucide="radar" class="w-3.5 h-3.5 shrink-0 opacity-70"></i><span class="truncate">00 侦察建档</span>
+<button type="button" id="nav-step-0-probe" onclick="switchView('step-0-probe')" class="sidebar-nav-item"><span class="truncate">00 侦察建档</span>
 </button>
 <button type="button" id="nav-step-1-diag" onclick="switchView('step-1-diag')" class="sidebar-nav-item"><span class="truncate">01 现状诊断与体检</span>
 </button>
@@ -476,9 +475,8 @@
 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
 <div class="flex flex-wrap items-start justify-between gap-3">
 <div>
-<h2 class="text-base font-bold text-slate-900 flex items-center gap-2"><i data-lucide="radar" class="w-5 h-5 text-[#7c5bf5]"></i><span>阶段零：侦察建档</span>
-</h2>
-<p class="text-xs text-slate-500 mt-1 max-w-xl">弄清「大模型现在怎么说」：竞品写谁、该盯哪些问句。用 Cursor 出题、反重力在已登录豆包实战，再<strong>上传 probe JSON</strong>或 CLI 回填。</p>
+<h2 class="text-base font-bold text-slate-900">阶段零：侦察建档</h2>
+<p class="text-xs text-slate-500 mt-1 max-w-xl">弄清「大模型现在怎么说」：竞品写谁、该盯哪些问句。<strong>出题/读盘/预览回填由管理台一键完成</strong>；你只需让反重力在已登录豆包里实战，并在预览后点确认。</p>
 <p class="text-[11px] text-slate-400 mt-1">阶段一体检看的是官网能不能被 AI 读懂，和侦察是两件事；建议先做完侦察再体检。</p>
 </div>
 <div class="flex flex-col items-end gap-2 shrink-0">
@@ -486,69 +484,233 @@
 <button type="button" onclick="refreshStep0ProbeStatus()" class="py-1.5 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>刷新状态</button>
 </div>
 </div>
-<ol class="space-y-3 text-xs text-slate-700 list-decimal list-inside">
-<li class="bg-slate-50 border border-slate-100 rounded-lg p-3">
-<div class="font-semibold text-slate-900 mb-1">本机生成必测题（约 6～10 条）</div>
-<div class="flex flex-wrap items-center gap-2 font-mono text-[11px] bg-white border border-slate-200 rounded-md px-2.5 py-2">
-<code id="step0-cmd-script" class="flex-1 break-all">python3 -m tools.geo probe-script …</code>
-<button type="button" onclick="copyStep0Cmd('step0-cmd-script')" class="shrink-0 text-[#7c5bf5] font-semibold hover:underline">复制</button>
+<div class="text-[11px] text-slate-600 bg-indigo-50/70 border border-indigo-100 rounded-lg px-3 py-2.5 space-y-1">
+<p class="font-semibold text-slate-800">谁干什么（人机分工）</p>
+<ul class="list-disc list-inside space-y-0.5 text-slate-600">
+<li><strong>Cursor/IDE</strong>：读客户资料写<strong>真人会搜的</strong>必测题（优先）</li>
+<li><strong>管理台</strong>：扫描磁盘结果、预览/确认回填；模板出题仅作断网保底</li>
+<li><strong>反重力</strong>：在已登录豆包里按题提问并写结果 JSON</li>
+<li><strong>你</strong>：复制提示词、准备登录态、确认回填</li>
+</ul>
 </div>
+<ol class="space-y-3 text-xs text-slate-700 list-none">
+<li class="bg-slate-50 border border-slate-100 rounded-lg p-3 space-y-2.5">
+<div class="font-semibold text-slate-900">1. 用 Cursor 出高质量必测题（推荐）</div>
+<p class="text-[11px] text-slate-500">模板一键只会把「城市+行业+品牌」填进固定句式，题干常又长又不像真人搜索。优先把下面提示词贴进 Cursor，让它读 <code class="text-[10px] px-1 rounded bg-white border">project.yaml</code> / 既有剧本后写出自然口语句。</p>
+<div class="flex flex-wrap items-center gap-2 text-[10px] text-slate-500">
+<span class="font-semibold text-slate-600">当前项目</span>
+<code id="step0-cmd-project-id" class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100 font-mono">…</code>
+</div>
+<button type="button" onclick="copyStep0QualityPrompt(this)" class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[11px] font-semibold flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制高质量出题提示词（给 Cursor）</span></button>
+<p id="step0-script-hint" class="text-[10px] text-slate-400">Cursor 写完后刷新本页第二步即可看到题单；若已有人工/复测剧本会优先加载，不必覆盖。</p>
+<details class="bg-white border border-dashed border-slate-200 rounded-lg p-3">
+<summary class="text-[11px] font-semibold text-slate-600 cursor-pointer select-none">备用：模板一键出题（质量一般，断网/赶工用）</summary>
+<div class="mt-2 space-y-2">
+<p class="text-[10px] text-slate-500">服务端按固定模板填空，适合没空开 IDE 时先有一份能跑的题；定稿前建议再用 Cursor 改成自然口语。</p>
+<button type="button" id="step0-btn-gen-script" onclick="runStep0GenerateScript(this)" class="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold">一键模板出题（保底）</button>
+<div class="flex flex-wrap items-stretch gap-2">
+<span class="shrink-0 w-14 self-center text-[10px] font-bold text-slate-500">① 进目录</span>
+<div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+<code id="step0-cmd-cd" class="flex-1 break-all select-all">cd …</code>
+</div>
+<button type="button" onclick="copyStep0Cmd('step0-cmd-cd', this)" class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold">复制</button>
+</div>
+<div class="flex flex-wrap items-stretch gap-2">
+<span class="shrink-0 w-14 self-center text-[10px] font-bold text-slate-500">② 出题</span>
+<div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+<code id="step0-cmd-script" class="flex-1 break-all select-all">python3 -m tools.geo probe-script …</code>
+</div>
+<button type="button" onclick="copyStep0Cmd('step0-cmd-script', this)" class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold">复制</button>
+</div>
+<button type="button" onclick="copyStep0CursorPrompt(this)" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold">复制「跑模板命令」给 Cursor</button>
+</div>
+</details>
 </li>
-<li class="bg-slate-50 border border-slate-100 rounded-lg p-3">
-<div class="font-semibold text-slate-900 mb-1">反重力打开已登录的豆包，按题实战并把结果存成 probe_*.json</div>
-<p class="text-[11px] text-slate-500">路径示例见 SOP：<code class="bg-white px-1 rounded border border-slate-200">docs/specs/llm-browser-probe-sop.md</code></p>
-</li>
-<li class="bg-slate-50 border border-slate-100 rounded-lg p-3">
-<div class="font-semibold text-slate-900 mb-1">预览并回填竞品与监测问句</div>
-<div class="space-y-3">
-<div class="bg-white border border-slate-200 rounded-lg p-3 space-y-2.5">
-<div class="text-[11px] font-semibold text-slate-800">管理台上传（推荐）</div>
-<input type="file" id="step0-probe-file" accept=".json,application/json" class="block w-full text-[11px] text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-<label class="flex items-center gap-2 text-[11px] text-slate-600 select-none">
-<input type="checkbox" id="step0-probe-merge" checked class="rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]" />
-<span>合并到现有词库/竞品（推荐，不冲掉已精修内容）</span>
-</label>
+<li class="bg-slate-50 border border-slate-100 rounded-lg p-3 space-y-3">
+<div class="font-semibold text-slate-900">2. 反重力去豆包问完题（你要粘贴两次）</div>
+<p class="text-[11px] text-slate-500 leading-relaxed">管理台不会登录豆包。你在反重力里粘贴<strong>两次</strong>：第一次让它按题去问；问完后再粘贴第二次，让它把答案写成 JSON 文件。</p>
+
+<div class="space-y-2.5">
+<div class="bg-white border border-slate-200 rounded-lg p-3 space-y-1.5">
+<div class="text-[11px] font-bold text-slate-900">A. 先准备好环境</div>
+<ul class="text-[11px] text-slate-600 space-y-0.5 list-disc list-inside">
+<li>打开反重力</li>
+<li>Safari 打开豆包并已登录</li>
+<li>在豆包里<strong>新开一个聊天</strong>（不要沿用旧对话）</li>
+</ul>
+</div>
+
+<div class="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+<div class="flex flex-wrap items-center gap-2">
+<div class="text-[11px] font-bold text-slate-900">B. 确认本轮要问的题</div>
+<span id="step0-script-kind" class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-100 text-[10px] font-semibold">加载中…</span>
+</div>
+<p class="text-[10px] text-slate-400 font-mono break-all" id="step0-script-path-label">剧本：<code id="step0-script-path">projects/…/outputs/probe_script_….json</code></p>
+<div id="step0-script-queries" class="border border-slate-100 rounded-md px-2.5 py-2 text-[11px] text-slate-700 max-h-36 overflow-y-auto space-y-1 bg-slate-50">
+<div class="text-slate-400">题单加载中…</div>
+</div>
+</div>
+
+<div class="bg-white border-2 border-amber-300 rounded-lg p-3 space-y-3">
+<div>
+<div class="text-[11px] font-bold text-amber-950">C + D. 开工前必须交给反重力两样东西（缺一不可）</div>
+<p class="text-[11px] text-amber-900/80 mt-1 leading-relaxed">只点下面紫色按钮、只粘贴任务书就让反重力开工 = <strong>不够</strong>。必须再把剧本文件 @/附上，它才知道具体问哪几题。顺序：先粘贴 C，紧接着做 D，两样齐了再让它开始问。</p>
+</div>
+
+<div class="space-y-2 border-t border-amber-200/80 pt-3">
+<div class="text-[11px] font-semibold text-slate-800">① 先复制「开工说明书」粘贴到反重力聊天框</div>
+<p class="text-[10px] text-slate-500">这是规则：用已登录豆包、按顺序问、怎么记答案。粘贴后<strong>先别让它开跑</strong>，马上做 ②。</p>
+<button type="button" onclick="copyStep0AntigravityPrompt(this)" class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[11px] font-semibold flex items-center justify-center gap-1.5"><i data-lucide="bot" class="w-3.5 h-3.5"></i><span>复制①开工说明书（贴反重力）</span></button>
+</div>
+
+<div class="space-y-2 border-t border-amber-200/80 pt-3">
+<div class="text-[11px] font-semibold text-slate-800">② 再把剧本文件交给反重力（必须）</div>
+<p class="text-[10px] text-slate-500">在反重力输入框用 @ 或附件，选中下面这个文件。两样都进对话后，再让反重力开始问豆包。</p>
+<div class="flex flex-wrap items-stretch gap-2">
+<div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+<code id="step0-script-abs" class="flex-1 break-all select-all">…</code>
+</div>
+<button type="button" onclick="copyStep0Cmd('step0-script-abs', this)" class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold">复制剧本路径（方便 @）</button>
+</div>
+</div>
+</div>
+
+<div class="bg-white border border-slate-200 rounded-lg p-3 space-y-1">
+<div class="text-[11px] font-bold text-slate-900">E. 等反重力把题问完</div>
+<p class="text-[10px] text-slate-500">它会在豆包里逐题提问并在对话里汇总。这阶段<strong>还不会</strong>写结果文件。等它说问完了，再去做下面的 F。</p>
+</div>
+
+<div class="bg-white border-2 border-[#7c5bf5]/40 rounded-lg p-3 space-y-3">
+<div>
+<div class="text-[11px] font-bold text-slate-900">F. 第二次粘贴：让反重力把结果写成文件</div>
+<p class="text-[11px] text-slate-600 mt-1 leading-relaxed">第一次粘贴<strong>不会</strong>自动落盘。你要再复制一次「收工说明书」贴进<strong>同一个</strong>反重力对话，它才会按路径新建/写入 JSON。写完后，你点「检查有没有落盘」，看旁边徽章是「已生成」还是「尚未生成」。</p>
+</div>
+<div class="text-[10px] space-y-1 bg-slate-50 border border-slate-100 rounded-md px-2.5 py-2">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-semibold text-slate-700">本轮结果文件：</span>
+<span id="step0-result-exists-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold border bg-amber-50 text-amber-800 border-amber-100">尚未生成</span>
+</div>
+<code id="step0-result-path" class="block break-all text-slate-600 select-all">…</code>
+<code id="step0-outputs-abs" class="hidden"></code>
+<p id="step0-result-check-hint" class="text-slate-500 pt-0.5">点「检查有没有落盘」后，这里会用白话告诉你：文件有了还是还没有。</p>
+</div>
 <div class="flex flex-wrap gap-2">
-<button type="button" onclick="previewStep0ProbeUpload()" class="py-1.5 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700">预览回填</button>
-<button type="button" id="step0-probe-apply-btn" onclick="applyStep0ProbeUpload()" disabled class="py-1.5 px-3 text-xs font-semibold rounded-lg bg-[#7c5bf5] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#6846e3]">确认回填</button>
+<button type="button" onclick="copyStep0AntigravitySavePrompt(this)" class="px-4 py-2.5 rounded-lg border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-[11px] font-semibold flex items-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i><span>复制②收工说明书（再贴反重力）</span></button>
+<button type="button" onclick="checkStep0ResultOnDisk(this)" class="px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold flex items-center gap-1.5"><i data-lucide="radar" class="w-3.5 h-3.5"></i><span>检查有没有落盘</span></button>
 </div>
-<div id="step0-probe-preview" class="hidden text-[11px] text-slate-700 bg-slate-50 border border-slate-100 rounded-md p-2.5 space-y-1.5 max-h-56 overflow-y-auto"></div>
+<p class="text-[10px] text-slate-500">徽章变「已生成」= 第二步的实战部分做完了，接着去做下面第 3 步「选文件 → 预览 → 确认回填」。第二步本身还不算整段侦察结束，回填成功才算建档闭环。</p>
 </div>
-<div class="text-[10px] text-slate-400">也可继续用 CLI：</div>
-<div class="flex flex-wrap items-center gap-2 font-mono text-[11px] bg-white border border-slate-200 rounded-md px-2.5 py-2">
-<code id="step0-cmd-preview" class="flex-1 break-all">python3 -m tools.geo probe-preview …</code>
-<button type="button" onclick="copyStep0Cmd('step0-cmd-preview')" class="shrink-0 text-[#7c5bf5] font-semibold hover:underline">复制</button>
 </div>
-<div class="flex flex-wrap items-center gap-2 font-mono text-[11px] bg-white border border-slate-200 rounded-md px-2.5 py-2">
-<code id="step0-cmd-apply" class="flex-1 break-all">python3 -m tools.geo probe-apply … --merge --yes</code>
-<button type="button" onclick="copyStep0Cmd('step0-cmd-apply')" class="shrink-0 text-[#7c5bf5] font-semibold hover:underline">复制</button>
+</li>
+<li class="bg-slate-50 border border-slate-100 rounded-lg p-3 space-y-3">
+<div class="font-semibold text-slate-900">3. 把豆包问到的结果，存进这个客户项目</div>
+<div class="text-[11px] text-slate-600 leading-relaxed bg-indigo-50/60 border border-indigo-100 rounded-lg px-3 py-2.5 space-y-1.5">
+<p class="font-semibold text-slate-800">这一步在干什么？（一句话）</p>
+<p>反重力已经把答案写成了一个 JSON 文件。现在你要告诉管理台：「就用这个文件」，先<strong>看一眼会改什么</strong>，觉得没问题再<strong>真正写进去</strong>。</p>
+<p class="text-slate-500">比喻：作业本在桌上了（第 2 步落盘）。第 3 步是：选哪本作业本 → 先翻开看一眼 → 再交到老师那里存档。</p>
+<p class="text-amber-800">下面 A、B、C 三个按钮都在本卡片里往下滚就能看到，不是藏在别处。</p>
 </div>
-<p class="text-[10px] text-slate-400">把命令里的 <code>path/to/probe_*.json</code> 换成真实文件路径；有精修词库时务必加 <code>--merge</code>。</p>
+
+<div class="space-y-2.5">
+<div class="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+<div class="flex flex-wrap items-center justify-between gap-2">
+<div class="text-[11px] font-bold text-slate-900">A. 选哪一份结果（选中后立刻能看见里面问了啥）</div>
+<button type="button" onclick="refreshStep0ProbeStatus()" class="px-2.5 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 text-[10px] font-semibold text-slate-600">刷新列表</button>
+</div>
+<p class="text-[10px] text-slate-500">不是盲选。点某一行后，下面会展开：问了哪些题、提没提我们、冒出哪些竞品。只有一份时也要勾一下，等于告诉系统「就用这一份」；有多份时，看日期和摘要挑对的（一般选最新，或带 retest 的复测）。</p>
+<p id="step0-upload-expected" class="text-[10px] text-slate-500 break-all">…</p>
+<div id="step0-existing-results" class="text-[11px] text-slate-600 space-y-1.5 bg-slate-50 border border-slate-100 rounded-md px-2.5 py-2 min-h-[2.5rem]">
+<div class="text-slate-400">加载中…</div>
+</div>
+<label class="flex items-center gap-2 text-[11px] text-slate-600 select-none pt-1">
+<input type="checkbox" id="step0-probe-merge" checked class="rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]" />
+<span>写入时合并旧内容（项目里已有精修词库/竞品时请勾上，避免被盖掉）</span>
+</label>
+</div>
+
+<div class="bg-white border-2 border-[#7c5bf5]/35 rounded-lg p-3 space-y-2">
+<div class="flex flex-wrap items-start justify-between gap-2">
+<div class="min-w-0">
+<div class="text-[11px] font-bold text-slate-900">B. 看这份结果里「豆包怎么说」+「准备写入项目什么」</div>
+<p class="text-[10px] text-slate-500 mt-1">这里<strong>不是</strong>豆包网页聊天全文（全文在豆包会话里）。落盘文件里存的是每题的结论摘要。下面分两块：① 每题答案摘要；② 若点确认，会写进项目的竞品/问句。题少 = 这份结果文件里本来就只有这么多题（邻里 GEO 首轮基线是 3 题），不是被界面截断了。</p>
+</div>
+<button type="button" id="step0-copy-preview-btn" onclick="copyStep0ProbePreview(this)" disabled class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold disabled:opacity-40 disabled:cursor-not-allowed">一键复制给 IDE</button>
+</div>
+<button type="button" onclick="previewStep0ProbeFromDisk()" class="w-full sm:w-auto px-4 py-2.5 rounded-lg border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-[11px] font-semibold flex items-center justify-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i><span>刷新预览</span></button>
+<div id="step0-probe-preview" class="hidden text-[11px] text-slate-700 bg-slate-50 border border-slate-100 rounded-md p-2.5 space-y-1.5 max-h-80 overflow-y-auto"></div>
+<p class="text-[10px] text-slate-400">没有内容时：先在 A 选中文件，再点「刷新预览」。</p>
+</div>
+
+<div class="bg-white border-2 border-[#7c5bf5]/35 rounded-lg p-3 space-y-2">
+<div class="text-[11px] font-bold text-slate-900">C. 点「确认写入」——真正存进项目</div>
+<p class="text-[10px] text-slate-500">选中文件并出现预览后，这个按钮才会亮。点它 = 真正写入项目；右上角应出现<strong>「确认已写入」</strong>。只有你亲手点 B「刷新预览」时才会提示「已预览」，两者不要搞混。</p>
+<button type="button" id="step0-probe-apply-btn" onclick="applyStep0ProbeFromDisk()" disabled class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"><i data-lucide="check" class="w-3.5 h-3.5"></i><span>确认写入项目</span></button>
+<p class="text-[10px] text-slate-400">按钮是灰的 = 还没预览成功，先去做 B。</p>
+</div>
+
+<div class="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+<div class="flex flex-wrap items-center justify-between gap-2">
+<div class="text-[11px] font-bold text-slate-900">D. 写完了再往下走</div>
+<span id="step0-write-status-badge" class="px-2 py-0.5 rounded-md text-[10px] font-semibold border bg-rose-50 text-rose-800 border-rose-200">没有基线</span>
+</div>
+<p class="text-[10px] text-slate-500">点「刷新状态」只看这一条：<strong class="text-rose-700">红色「没有基线」</strong> = 还没点过 C 确认写入；<strong class="text-emerald-700">绿色「已有基准线」</strong> = 已写入，再到页底点「进入阶段一体检」。</p>
+<div class="flex flex-wrap gap-2">
+<button type="button" onclick="refreshStep0ProbeStatus()" class="px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i><span>刷新状态</span></button>
+</div>
+</div>
+
+<details class="bg-white border border-dashed border-slate-200 rounded-lg p-3">
+<summary class="text-[11px] font-semibold text-slate-600 cursor-pointer select-none">备用：本机上传文件 / CLI（一般不用）</summary>
+<div class="mt-2 space-y-2">
+<input type="file" id="step0-probe-file" accept=".json,application/json" class="block w-full text-[11px] text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+<div class="flex flex-wrap gap-2">
+<button type="button" onclick="previewStep0ProbeUpload()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-semibold text-slate-700">上传预览</button>
+<button type="button" onclick="applyStep0ProbeUpload()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-semibold text-slate-700">上传后确认回填</button>
+</div>
+<code id="step0-outputs-abs-2" class="hidden"></code>
+<div class="flex flex-wrap items-stretch gap-2">
+<div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+<code id="step0-cmd-preview" class="flex-1 break-all select-all">python3 -m tools.geo probe-preview …</code>
+</div>
+<button type="button" onclick="copyStep0Cmd('step0-cmd-preview', this)" class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold">复制</button>
+</div>
+<div class="flex flex-wrap items-stretch gap-2">
+<div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+<code id="step0-cmd-apply" class="flex-1 break-all select-all">python3 -m tools.geo probe-apply … --merge --yes</code>
+</div>
+<button type="button" onclick="copyStep0Cmd('step0-cmd-apply', this)" class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold">复制</button>
+</div>
+</div>
+</details>
 </div>
 </li>
 </ol>
 <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
-<p class="text-[11px] text-slate-400">回填成功后点「刷新状态」，徽章应变为「已有基线」。</p>
+<p class="text-[11px] text-slate-400">阶段零做完 = 第 2 步有结果文件 + 第 3 步点过「确认写入项目」+ D 区变成绿色「已有基准线」。</p>
 <button type="button" onclick="goStep1FromProbeGuide()" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5"><span>进入阶段一体检</span><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
 </div>
 </div>
 </div>
 <div id="panel-step-1-diag" class="workspace-panel space-y-6">
-<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-<div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+<div class="min-w-0">
 <h2 class="text-base font-bold text-slate-900">阶段一：测算诊断（客户现状体检）</h2>
-<p class="text-xs text-slate-500 mt-1">先测算再交付：模拟 AI 爬虫抓取官网，检测 SSR、/llms.txt、JSON-LD 与文本密度，生成签单体检报告。进阶工具见左侧「进阶攻防」。</p>
+<p class="text-xs text-slate-500 mt-1"><strong>分三步</strong>：① 真抓指标（Python 爬官网）→ ② 小毛驴解读（千问写商业段）→ ③ 一键复制给 IDE 再审（旗舰客户精修话术，可选）。技术分不经大模型改写；可见度引用阶段零侦察。</p>
 <p class="text-[11px] text-slate-400 mt-1.5">次要入口：<button type="button" onclick="openCrawlerSimModal()" class="text-indigo-600 hover:underline font-medium">爬虫抓取仿真</button>
+<span class="mx-1.5 text-slate-300">|</span>
+指标真源：<code class="text-[10px] bg-slate-100 px-1 rounded">outputs/audit_metrics.json</code>
 </p>
 </div>
-<div class="flex items-center gap-2 flex-wrap shrink-0">
-<button onclick="runSingleStep(event, 'audit')" id="btn-step-1" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition"><i data-lucide="scan" class="w-4 h-4"></i><span>执行测算体检</span>
-</button>
+<div class="flex flex-wrap gap-2">
+<button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-crawl" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow transition"><span>① 真抓指标</span></button>
+<button type="button" onclick="runStep1Audit(event, 'interpret')" id="btn-step-1-interpret" class="py-2.5 px-3.5 border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-xs font-semibold rounded-lg transition"><span>② 小毛驴解读</span></button>
+<button type="button" onclick="copyStep1AuditToIde(this)" class="py-2.5 px-3.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition"><span>③ 一键复制给 IDE 再审</span></button>
 </div>
+<p class="text-[10px] text-slate-500">顺序：先①后②，再按需③。没跑过①就点②会提示先真抓。</p>
 </div>
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
 <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 text-xs font-semibold text-slate-700">
-<span class="truncate min-w-0">交付物：01_企业AI可见度现状体检与商业诊断报告.md</span>
+<span class="truncate min-w-0">交付物：01_企业AI可见度现状体检与商业诊断报告.md · audit_metrics.json</span>
 <div class="flex items-center gap-3 shrink-0">
 <button type="button" onclick="openShareModal()" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1" title="生成客户可打开的报告链接"><i data-lucide="share-2" class="w-3.5 h-3.5"></i><span>客户报告链接</span>
 </button>
@@ -559,7 +721,7 @@
 </div>
 </div>
 <div id="preview-step-1" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
-<div class="text-center py-12 text-slate-400 text-sm">点击右上角【执行体检诊断】开始生成报告...</div>
+<div class="text-center py-12 text-slate-400 text-sm">先点「① 真抓指标」，再点「② 小毛驴解读」…</div>
 </div>
 </div>
 <div class="flex items-center justify-between pt-4 border-t border-slate-200 mt-6">
@@ -725,7 +887,7 @@
 <p><strong>抓取并提纯 / 提纯并保存</strong>：收材料；连上 Nextdoor 时会帮抽事实进真相源。</p>
 <p><strong>预检冲突并确认安全项</strong>：先查说法打架，再批量认下没冲突的项。</p>
 <p><strong>增量重构 / 强制全量</strong>：按已确认真相写或整篇重写母盘。</p>
-<p><strong>钉住母盘</strong>：把当前正式稿存成对照复印件；<strong>刷新对照</strong>再算差在哪。</p>
+<p><strong>钉住母盘</strong>：把当前正式稿存成对照复印件；<strong>刷新查看母盘更新情况对比</strong>再算差在哪。</p>
 </div>
 </div>
 <div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">预检后仍标红的冲突，要你点仲裁，不要硬认
@@ -740,7 +902,7 @@
 <p><strong>第二步</strong>：抓首页/关于我们，或粘贴手册 → 提纯进证据库；</p>
 <p><strong>第三步</strong>：看真相源；有红冲突先仲裁，再点【预检冲突并确认安全项】；</p>
 <p><strong>第四步</strong>：点【增量重构】生成母盘（首次或大改用【强制全量】）；</p>
-<p><strong>第五步</strong>：满意就【钉住母盘】→【刷新对照】；strategy 不是 block 再进阶段四。</p>
+<p><strong>第五步</strong>：满意就【钉住母盘】→【刷新查看母盘更新情况对比】；strategy 不是 block 再进阶段四。</p>
 </div>
 </div>
 <div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">strategy=block 时先清冲突，不要硬进阶段四
@@ -754,7 +916,9 @@
 <p class="text-xs text-slate-500 mt-1">注入三元组结论先行、+41% 采纳率的参数对比表与搜索意图 Q&A 问答对。</p>
 <div class="mt-2.5 flex items-center gap-2 flex-wrap"><span id="llm-status-tag" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-600">LLM：检测中…
               </span>
+<span onclick="showTermHelp(event, 'llm_status')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：状态 Tag 是什么意思">?</span>
 <button type="button" onclick="refreshLlmStatus(true)" class="text-[11px] text-indigo-700 hover:text-indigo-900 font-medium underline-offset-2 hover:underline">立即检测</button>
+<span onclick="showTermHelp(event, 'llm_detect')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：立即检测是干什么的">?</span>
 <button type="button" onclick="openLlmConfigModal()" class="text-[11px] px-2 py-1 rounded-md border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold">配置 Nextdoor</button><span id="rag-cascade-badge" class="hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">RAG：--</span>
 </div>
 </div>
@@ -837,14 +1001,16 @@
 <div class="flex items-center gap-2"><i data-lucide="git-compare" class="w-4 h-4 text-indigo-600"></i>
 <h3 class="text-xs font-bold text-slate-800">发前对照卡</h3><span id="corpus-strategy-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600">strategy: --</span>
 </div>
-<div class="flex items-center gap-2">
-<button type="button" onclick="handleCorpusDiff()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 flex items-center gap-1"><i data-lucide="scan-search" class="w-3.5 h-3.5"></i>刷新对照
+<div class="flex items-center gap-2 flex-wrap">
+<button type="button" id="btn-corpus-pin" onclick="handleCorpusPin()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 flex items-center gap-1"><i data-lucide="pin" class="w-3.5 h-3.5"></i>钉住当前母盘
               </button>
-<button type="button" onclick="handleCorpusPin()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 flex items-center gap-1"><i data-lucide="pin" class="w-3.5 h-3.5"></i>钉住当前母盘
+<span onclick="showTermHelp(event, 'corpus_pin')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：钉住当前母盘是干什么的">?</span>
+<button type="button" id="btn-corpus-diff" onclick="handleCorpusDiff()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 flex items-center gap-1"><i data-lucide="scan-search" class="w-3.5 h-3.5"></i>刷新查看母盘更新情况对比
               </button>
+<span onclick="showTermHelp(event, 'corpus_diff')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：刷新查看母盘更新情况对比是干什么的">?</span>
 </div>
 </div>
-<div id="corpus-diff-summary" class="text-[11px] text-slate-600 leading-relaxed">相对上一钉住版本，检查事实差量、脏块与逻辑矛盾。strategy=block 时勿进入阶段四。
+<div id="corpus-diff-summary" class="text-[11px] text-slate-600 leading-relaxed">相对上一钉住版本，检查事实差量、脏块与逻辑矛盾。点「刷新查看母盘更新情况对比」后会列出具体改了哪几条。strategy=block 时勿进入阶段四。
           </div>
 <div id="corpus-diff-details" class="text-[11px] space-y-1">
 </div>
@@ -1714,9 +1880,11 @@
 <button type="button" class="geo-help-toggle" onclick="toggleGeoHelp('settings-llm-help')">忘了这页怎么用？点击展开</button>
 <div id="settings-llm-help" class="geo-help-body hidden">在此检测大模型连通性；需要写入 Key 时点「配置 Nextdoor」。主操作使用实心紫按钮，次要操作为线框按钮。</div>
 </div>
-<div class="flex flex-wrap gap-2">
+<div class="flex flex-wrap items-center gap-2">
 <button type="button" onclick="refreshLlmStatus(true)" class="geo-btn"><i data-lucide="radar" class="w-3.5 h-3.5"></i>立即检测</button>
+<span onclick="showTermHelp(event, 'llm_detect')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：立即检测是干什么的">?</span>
 <button type="button" onclick="openLlmConfigModal()" class="geo-btn geo-btn-primary"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i>配置 Nextdoor</button>
+<span onclick="showTermHelp(event, 'llm_status')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：Nextdoor 状态是什么意思">?</span>
 </div>
 <div id="settings-llm-status-hint" class="text-xs text-slate-500">状态标签同步自语料步骤检测结果。</div>
 </div>
@@ -2364,7 +2532,7 @@
 </div>
 </div>
 <!-- ================= 阶段四：矩阵分发工作日志与大模型调用轨迹 ================= -->
-<div id="distribute-log-modal" onclick="if(event.target===this)closeDistributeLogModal()" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="distribute-log-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="max-w-5xl w-full max-h-[90vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
 <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
 <div class="min-w-0">
@@ -2525,7 +2693,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- 真机无痕实测与回填助手 -->
-<div id="manual-probe-modal" onclick="if(event.target===this)closeManualProbeModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="manual-probe-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
 <div class="flex items-center gap-2.5 min-w-0">
@@ -2577,7 +2745,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- 商业 ROI 参数设置模态弹窗 -->
-<div id="roi-settings-modal" onclick="if(event.target === this) closeRoiSettingsModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="roi-settings-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
 <div class="flex items-center gap-2.5">
@@ -2623,7 +2791,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 售前商业 Pitch Deck 与建议书弹窗 ================= -->
-<div id="pitch-modal" onclick="if(event.target === this) closePitchModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="pitch-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white shrink-0">
 <div class="flex items-center gap-2.5">
@@ -2675,7 +2843,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 企业行业实体知识图谱弹窗 ================= -->
-<div id="graph-modal" onclick="if(event.target === this) closeGraphModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="graph-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shrink-0">
 <div class="flex items-center gap-2.5">
@@ -2751,7 +2919,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 客户 VPS 反代配置与腾讯云 CDN 联动弹窗 ================= -->
-<div id="vps-nginx-modal" onclick="if(event.target === this) closeVpsNginxModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="vps-nginx-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shrink-0">
 <div class="flex items-center gap-2.5">
@@ -2812,7 +2980,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 大模型事实幻觉防御与信源反击弹窗 ================= -->
-<div id="guard-modal" onclick="if(event.target === this) closeGuardModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="guard-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-red-950 via-slate-900 to-indigo-950 text-white shrink-0">
 <div class="flex items-center gap-2.5">
@@ -2899,7 +3067,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ===== 真实大模型 API 批量评测与 Citation 溯源模态框 ===== -->
-<div id="eval-modal" onclick="if(event.target === this) closeEvalModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="eval-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white shrink-0">
 <div class="flex items-center gap-3">
@@ -2970,7 +3138,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 大模型爬虫抓取仿真器弹窗 ================= -->
-<div id="crawler-sim-modal" onclick="if(event.target === this) closeCrawlerSimModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="crawler-sim-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
 <div class="flex items-center gap-2.5">
@@ -3037,7 +3205,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= RAG 语义分块切片诊断中枢弹窗 ================= -->
-<div id="rag-diag-modal" onclick="if(event.target === this) closeRagDiagModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="rag-diag-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
 <div class="flex items-center gap-2.5">
@@ -3091,7 +3259,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 多大模型实时联网探测与 Citation 溯源对账模态 ================= -->
-<div id="probing-modal" onclick="if(event.target === this) closeProbingModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="probing-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
 <!-- 头部 -->
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shrink-0">
@@ -3221,7 +3389,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 19 号品牌声誉排查与危机清洗模态 ================= -->
-<div id="sentiment-guard-modal" onclick="if(event.target === this) closeSentimentGuardModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="sentiment-guard-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-rose-950 via-slate-900 to-rose-950 text-white shrink-0">
 <div>
@@ -3290,7 +3458,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 20 号大模型知识半衰期衰减监测与长效自愈模态 ================= -->
-<div id="decay-monitor-modal" onclick="if(event.target === this) closeDecayMonitorModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="decay-monitor-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 text-white shrink-0">
 <div>
@@ -3373,7 +3541,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 21 号大模型商业心智渗透与商业转化价值审计模态 ================= -->
-<div id="mindshare-audit-modal" onclick="if(event.target === this) closeMindshareAuditModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="mindshare-audit-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-purple-950 via-slate-900 to-purple-950 text-white shrink-0">
 <div>
@@ -3487,7 +3655,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 22 号跨大模型 RAG 混合检索召回与重排序挤占演习模态 ================= -->
-<div id="rerank-sim-modal" onclick="if(event.target === this) closeRerankSimModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="rerank-sim-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 text-white shrink-0">
 <div>
@@ -3598,7 +3766,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 23 号大模型商业推荐因果归因与信源边际贡献度审计模态 ================= -->
-<div id="causal-attr-modal" onclick="if(event.target === this) closeCausalAttrModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="causal-attr-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-teal-950 via-slate-900 to-teal-950 text-white shrink-0">
 <div>
@@ -3709,7 +3877,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 24 号大模型商业多轮追问决策漏斗推演模态 ================= -->
-<div id="funnel-sim-modal" onclick="if(event.target === this) closeFunnelSimModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="funnel-sim-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-orange-950 via-slate-900 to-orange-950 text-white shrink-0">
 <div>
@@ -3821,7 +3989,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 26 号大模型商业推荐博弈对抗与竞品截流动态护城河推演模态 ================= -->
-<div id="moat-sandbox-modal" onclick="if(event.target === this) closeMoatSandboxModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="moat-sandbox-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white shrink-0">
 <div>
@@ -3943,7 +4111,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 25 号大模型提示词敏感度扰动与生成鲁棒性压力测试模态 ================= -->
-<div id="robustness-test-modal" onclick="if(event.target === this) closeRobustnessTestModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="robustness-test-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-rose-950 via-slate-900 to-rose-950 text-white shrink-0">
 <div>
@@ -4064,22 +4232,24 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 <!-- ================= 普林斯顿 9 因子量化体检仪模态 ================= -->
 <!-- ================= LLM 配置弹窗（小毛驴 / Nextdoor） ================= -->
-<div id="llm-config-modal" onclick="if(event.target === this) closeLlmConfigModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+<div id="llm-config-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
 <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
 <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
 <div>
 <h3 class="text-sm font-bold text-slate-900">小毛驴 / Nextdoor 开放 API</h3>
-<p class="text-[11px] text-slate-500 mt-0.5">同机回环调用；厂商 Key 在 Nextdoor 统一管理；探测失败不落盘</p>
+<p class="text-[11px] text-slate-500 mt-0.5">推荐机器密钥 ndsk_（长期有效）；模型在小毛驴「接入方专属链」配置。探测失败不落盘</p>
 </div>
 <button onclick="closeLlmConfigModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-white transition"><i data-lucide="x" class="w-5 h-5"></i>
 </button>
 </div>
 <div class="p-5 space-y-3">
-<div><label class="text-[11px] font-semibold text-slate-700">Base URL</label>
+<div><label class="text-[11px] font-semibold text-slate-700">Base URL（同机回环；勿填公网/Tailscale IP）</label>
 <input id="llm-config-base" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="http://127.0.0.1:3001" value="http://127.0.0.1:3001" />
+<p class="text-[10px] text-slate-400 mt-1">Mac mini 同机：http://127.0.0.1:3001。开发本机：先 SSH 隧道映到本机 3001，再填回环；勿填公网当内部调用。</p>
 </div>
-<div><label class="text-[11px] font-semibold text-slate-700">JWT Token</label>
-<input id="llm-config-key" type="password" autocomplete="off" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="Bearer 后的 JWT（仅存本地 .env）" />
+<div><label class="text-[11px] font-semibold text-slate-700">机器密钥 / Token</label>
+<input id="llm-config-key" type="password" autocomplete="off" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="ndsk_…（管理台签发）；过渡期也可填用户 JWT" />
+<p class="text-[10px] text-slate-500 mt-1">在小毛驴「开放 API → 接入方」建档 geo 后签发。勿再用会过期的登录 JWT 当流水线常驻密钥。</p>
 </div>
 <div><label class="text-[11px] font-semibold text-slate-700">品牌标识（vio-source-client）</label>
 <input id="llm-config-brand" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="geo" value="geo" />
@@ -4095,7 +4265,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 </div>
-<div id="princeton-modal" onclick="if(event.target === this) closePrincetonModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="princeton-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-violet-50 to-indigo-50 shrink-0">
 <div class="flex items-center gap-2.5">
@@ -4174,7 +4344,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 适合客群 (EDI 解释型决策画像) 弹窗 ================= -->
-<div id="edi-customer-modal" onclick="if(event.target === this) closeEdiCustomerModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="edi-customer-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
 <!-- 头部 -->
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-blue-50 via-indigo-50 to-slate-50 shrink-0">
@@ -4357,7 +4527,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 内容合规与广告法风控审查弹窗 ================= -->
-<div id="compliance-modal" onclick="if(event.target === this) closeComplianceModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="compliance-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
 <div class="flex items-center gap-2.5">
@@ -4413,7 +4583,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 竞对大模型声量差距逆向分析与反超沙盘弹窗 ================= -->
-<div id="competitor-gap-modal" onclick="if(event.target === this) closeCompetitorGapModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="competitor-gap-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
 <div class="flex items-center gap-2.5">
@@ -4511,7 +4681,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= Citation 信源权威度与外链信任度推演弹窗 ================= -->
-<div id="citation-auth-modal" onclick="if(event.target === this) closeCitationAuthModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="citation-auth-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
 <div class="flex items-center gap-2.5">
@@ -4598,7 +4768,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 大模型提示词注入防御与品牌安全隔离弹窗 ================= -->
-<div id="injection-guard-modal" onclick="if(event.target === this) closeInjectionGuardModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="injection-guard-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
 <div class="flex items-center gap-2.5">
@@ -4682,7 +4852,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 </div>
-<div id="term-modal" onclick="if(event.target === this) closeTermHelp()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="term-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
 <div class="flex items-center gap-2.5">
@@ -4726,12 +4896,12 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end">
-<button onclick="closeTermHelp()" class="py-2 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs transition">我知道了</button>
+<button onclick="closeTermHelp()" class="py-2 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs transition flex items-center gap-2">我知道了<span class="text-[10px] text-white/70 font-medium">ESC</span></button>
 </div>
 </div>
 </div>
 <!-- ================= 4.3 工业化对标透视与话术参考弹窗 ================= -->
-<div id="benchmark-modal" onclick="if(event.target === this) closeBenchmarkModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div id="benchmark-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[85vh]">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
 <div class="flex items-center gap-2.5">
@@ -4811,7 +4981,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 </div>
 <!-- ================= 4.4 大模型爬虫保真度逆向检验与 Clean Markdown 透视弹窗 ================= -->
-<div id="clean-md-modal" onclick="if(event.target === this) closeCleanMarkdownModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="clean-md-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
 <!-- 头部 -->
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
@@ -4889,6 +5059,12 @@ GitHub 开源仓库：https://github.com/company/repo
 </div>
 <!-- ================= 5. 前端核心业务逻辑 JS ================= --><script>let currentAuthToken = localStorage.getItem('geo_token') || '';
     let currentProjectId = '';
+    let geoRepoRoot = '';
+    let geoCdCmd = '';
+    let step0Guide = null;
+    let step0ActiveScript = null;
+    let step0SelectedResultFile = "";
+    let step0DiskPreviewReady = false;
     let currentProjectData = null;
     let currentStep = 1;
     let currentViewId = 'step-1-diag';
@@ -5081,6 +5257,8 @@ GitHub 开源仓库：https://github.com/company/repo
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
+        if (data.repo_root) geoRepoRoot = data.repo_root;
+        if (data.cd_cmd) geoCdCmd = data.cd_cmd;
         if (data.authenticated) {
           if (data.token && data.token !== currentAuthToken) {
             currentAuthToken = data.token;
@@ -5619,58 +5797,137 @@ GitHub 开源仓库：https://github.com/company/repo
       renderEnterprisesTable(list);
     }
 
+    function step0HasBaseline(status) {
+      const s = String(status || 'unprobed').trim() || 'unprobed';
+      return s === 'baseline_ready' || s === 'awaiting_retest';
+    }
+
+    function step0WriteStatusBadgeHtml(status) {
+      if (step0HasBaseline(status)) {
+        return '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border bg-emerald-50 text-emerald-800 border-emerald-200">已有基准线</span>';
+      }
+      return '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border bg-rose-50 text-rose-800 border-rose-200">没有基线</span>';
+    }
+
+    function step0SyncWriteStatusBadge(status) {
+      const el = document.getElementById('step0-write-status-badge');
+      if (!el) return step0HasBaseline(status);
+      const has = step0HasBaseline(status);
+      if (has) {
+        el.textContent = '已有基准线';
+        el.className = 'px-2 py-0.5 rounded-md text-[10px] font-semibold border bg-emerald-50 text-emerald-800 border-emerald-200';
+      } else {
+        el.textContent = '没有基线';
+        el.className = 'px-2 py-0.5 rounded-md text-[10px] font-semibold border bg-rose-50 text-rose-800 border-rose-200';
+      }
+      return has;
+    }
+
     function probeStatusBadgeHtml(status) {
       const s = String(status || 'unprobed').trim() || 'unprobed';
       const map = {
-        unprobed: { label: '未侦察', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+        unprobed: { label: '没有基线', cls: 'bg-rose-50 text-rose-800 border-rose-200' },
         baseline_ready: { label: '已有基线', cls: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-        awaiting_retest: { label: '待复测', cls: 'bg-amber-50 text-amber-800 border-amber-200' }
+        awaiting_retest: { label: '待复测', cls: 'bg-amber-50 text-amber-900 border-amber-200' }
       };
       const row = map[s] || { label: '未标记', cls: 'bg-slate-50 text-slate-500 border-slate-200' };
-      return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border ${row.cls}" title="probe_status=${escapeHtmlSafe(s)}">${row.label}</span>`;
+      // whitespace-nowrap + shrink-0：禁止窄列把中文挤成竖排
+      return `<span class="geo-ent-badge inline-flex shrink-0 items-center whitespace-nowrap px-2 py-0.5 rounded-md text-[10px] font-semibold border ${row.cls}" title="probe_status=${escapeHtmlSafe(s)}">${row.label}</span>`;
+    }
+
+    function enterpriseSiteLabel(url) {
+      const raw = String(url || '').trim();
+      if (!raw) return '';
+      try {
+        const u = new URL(raw.includes('://') ? raw : `https://${raw}`);
+        return u.host.replace(/^www\./, '');
+      } catch (_) {
+        return raw.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      }
+    }
+
+    function toggleEntMoreMenu(ev, btn) {
+      if (ev) ev.stopPropagation();
+      const wrap = btn && btn.closest('[data-ent-more]');
+      if (!wrap) return;
+      const menu = wrap.querySelector('[data-ent-more-menu]');
+      const open = menu && !menu.classList.contains('hidden');
+      document.querySelectorAll('[data-ent-more-menu]').forEach((el) => el.classList.add('hidden'));
+      if (menu && !open) menu.classList.remove('hidden');
+    }
+
+    function closeAllEntMoreMenus() {
+      document.querySelectorAll('[data-ent-more-menu]').forEach((el) => el.classList.add('hidden'));
     }
 
     function renderEnterprisesTable(list) {
       const tbody = document.getElementById('projects-table-body');
       if (!tbody) return;
       if (!list.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">没有匹配的客户，试试清空筛选或新建项目</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">没有匹配的客户，试试清空筛选或新建项目</td></tr>`;
         lucide.createIcons();
         return;
       }
       const partnerOpts = partnersCache.filter(p => p.status !== 'archived')
-        .map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        .map(p => `<option value="${p.id}">${escapeHtmlSafe(p.name)}</option>`).join('');
       tbody.innerHTML = list.map(p => {
+        const cid = escapeHtmlSafe(p.client_id);
+        const cname = escapeHtmlSafe(p.client_name || p.client_id);
+        const industry = escapeHtmlSafe(p.industry || '通用');
         const grp = groupMapCache[p.client_id];
         const grpHtml = grp ? `
-          <span onclick="event.stopPropagation(); openGroupMatrixModal('${grp.group_id}')" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${grp.role.includes('母公司') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200'} cursor-pointer hover:bg-indigo-100 transition mt-1" title="点击查看集团协同大盘"><span> ${grp.group_name} · ${grp.role.split('/')[0].trim()}</span></span>` : '';
-        const pid = p.partner_id || '';
+          <button type="button" onclick="event.stopPropagation(); openGroupMatrixModal('${escapeHtmlSafe(grp.group_id)}')" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md ${String(grp.role || '').includes('母公司') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200'} hover:bg-indigo-50 transition mt-1.5" title="查看集团协同大盘">${escapeHtmlSafe(grp.group_name)} · ${escapeHtmlSafe(String(grp.role || '').split('/')[0].trim())}</button>` : '';
         const kwN = Number(p.keywords_count) || 0;
-        const kwCell = kwN > 0
-          ? `<span class="font-semibold text-slate-700">${kwN} 组</span>`
-          : `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">待回填</span>`;
+        const kwMeta = kwN > 0
+          ? `<span class="text-slate-500">${kwN} 组词</span>`
+          : `<span class="text-amber-700">词库待回填</span>`;
+        const siteHost = enterpriseSiteLabel(p.official_url);
+        const siteHref = escapeHtmlSafe(p.official_url || '');
+        const siteHtml = siteHost
+          ? `<a href="${siteHref}" target="_blank" rel="noopener" class="text-xs text-slate-700 hover:text-[#7c5bf5] font-medium truncate max-w-[200px] inline-block align-bottom" title="${siteHref}">${escapeHtmlSafe(siteHost)}</a>`
+          : `<span class="text-xs text-slate-400">未填官网</span>`;
+        const steps = Number(p.steps_done) || 0;
+        const pct = Number(p.progress_pct) || 0;
         return `
-          <tr class="hover:bg-slate-50/80 transition">
-            <td class="px-5 py-3"><div class="font-bold text-slate-900">${p.client_name}</div><div class="text-xs text-slate-400 font-mono">${p.client_id}</div>${grpHtml}</td>
-            <td class="px-5 py-3 text-xs font-medium text-slate-600">${p.industry || '通用'}</td>
-            <td class="px-5 py-3">
-              <select onchange="changeProjectPartner('${p.client_id}', this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white max-w-[140px]">
-                <option value="">未分配</option>${partnerOpts.replace(`value="${pid}"`, `value="${pid}" selected`)}
+          <tr class="hover:bg-slate-50/90 transition">
+            <td class="px-5 py-3.5 align-middle">
+              <div class="font-semibold text-slate-900 leading-snug">${cname}</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">${industry}</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">${cid}</div>
+              ${grpHtml}
+            </td>
+            <td class="px-4 py-3.5 align-middle">
+              <select onchange="changeProjectPartner('${cid}', this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white w-full max-w-[132px]">
+                <option value="">未分配</option>${partnerOpts}
               </select>
             </td>
-            <td class="px-5 py-3 text-xs text-slate-500"><a href="${p.official_url}" target="_blank" class="hover:text-indigo-600 underline">${p.official_url || '-'}</a></td>
-            <td class="px-5 py-3 text-xs text-center">${kwCell}</td>
-            <td class="px-5 py-3 text-center">${probeStatusBadgeHtml(p.probe_status)}</td>
-            <td class="px-5 py-3"><div class="w-full bg-slate-200 rounded-full h-2 max-w-[120px] overflow-hidden"><div class="bg-indigo-600 h-2 rounded-full" style="width: ${p.progress_pct}%"></div></div><div class="text-[11px] text-slate-500 mt-1">${p.steps_done}/5 (${p.progress_pct}%)</div></td>
-            <td class="px-5 py-3 text-right whitespace-nowrap">
-              <button onclick="openProjectProfileDrawer('${p.client_id}')" class="py-1.5 px-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition">查看资料</button>
-              <button onclick="enterWizard('${p.client_id}')" class="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition">进入流水线</button>
-              <button onclick="downloadProjectZip('${p.client_id}')" title="下载交付包ZIP" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition inline-flex align-middle"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
-              <button onclick="confirmDeleteProject('${p.client_id}')" title="删除项目" class="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition inline-flex align-middle"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            <td class="px-4 py-3.5 align-middle">
+              <div class="min-w-0">${siteHtml}</div>
+              <div class="text-[10px] mt-1">${kwMeta}</div>
+            </td>
+            <td class="px-4 py-3.5 align-middle">
+              <div class="flex flex-col items-start gap-1.5">
+                ${probeStatusBadgeHtml(p.probe_status)}
+                <span class="text-[11px] text-slate-500 tabular-nums">SOP ${steps}/5${pct ? ` · ${pct}%` : ''}</span>
+              </div>
+            </td>
+            <td class="px-5 py-3.5 align-middle text-right">
+              <div class="inline-flex items-center justify-end gap-1.5">
+                <button type="button" onclick="enterWizard('${cid}')" class="py-1.5 px-3 bg-[#7c5bf5] hover:bg-[#6b4ae8] text-white text-xs font-semibold rounded-lg transition shadow-sm">进入流水线</button>
+                <div class="relative" data-ent-more>
+                  <button type="button" onclick="toggleEntMoreMenu(event, this)" title="更多" class="p-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 rounded-lg transition inline-flex">
+                    <i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <div data-ent-more-menu class="hidden absolute right-0 top-full mt-1 z-30 w-36 rounded-lg border border-slate-200 bg-white shadow-lg py-1 text-left">
+                    <button type="button" onclick="closeAllEntMoreMenus(); openProjectProfileDrawer('${cid}')" class="w-full px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 text-left">查看资料</button>
+                    <button type="button" onclick="closeAllEntMoreMenus(); downloadProjectZip('${cid}')" class="w-full px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 text-left">下载 ZIP</button>
+                    <button type="button" onclick="closeAllEntMoreMenus(); confirmDeleteProject('${cid}')" class="w-full px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 text-left">删除项目</button>
+                  </div>
+                </div>
+              </div>
             </td>
           </tr>`;
       }).join('');
-      // Fix selected attribute properly
       tbody.querySelectorAll('select').forEach((sel, idx) => {
         const p = list[idx];
         if (p) sel.value = p.partner_id || '';
@@ -5970,7 +6227,7 @@ GitHub 开源仓库：https://github.com/company/repo
           ${profileField('pf-probe-status', '侦察状态', p.probe_status || 'unprobed', {
             type: 'select',
             optionsHtml: ['unprobed', 'baseline_ready', 'awaiting_retest'].map(v => {
-              const labels = { unprobed: '未侦察', baseline_ready: '已有基线', awaiting_retest: '待复测' };
+              const labels = { unprobed: '没有基线', baseline_ready: '已有基准线', awaiting_retest: '已有基准线 · 待复测' };
               const sel = (p.probe_status || 'unprobed') === v ? ' selected' : '';
               return `<option value="${v}"${sel}>${labels[v]} (${v})</option>`;
             }).join('')
@@ -6090,7 +6347,10 @@ GitHub 开源仓库：https://github.com/company/repo
       if (profileDrawerEscBound) return;
       profileDrawerEscBound = true;
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeProjectProfileDrawer();
+        if (e.key !== 'Escape') return;
+        // 有弹窗时由全局 closeTopGeoModal 优先处理，避免 ESC 连关抽屉
+        if (document.querySelector('[id$="-modal"]:not(.hidden)')) return;
+        closeProjectProfileDrawer();
       });
     }
 
@@ -6780,12 +7040,54 @@ function backToDashboard() {
 
     document.addEventListener('click', (e) => {
       const pop = document.getElementById('geo-metric-hint-popover');
-      if (!pop || pop.classList.contains('hidden')) return;
-      if (pop.contains(e.target) || (e.target && e.target.closest && e.target.closest('.geo-metric-hint'))) return;
-      hideMetricHint();
+      if (pop && !pop.classList.contains('hidden')) {
+        if (!(pop.contains(e.target) || (e.target && e.target.closest && e.target.closest('.geo-metric-hint')))) {
+          hideMetricHint();
+        }
+      }
+      if (!(e.target && e.target.closest && e.target.closest('[data-ent-more]'))) {
+        closeAllEntMoreMenus();
+      }
     });
+
+    /** 对齐小毛驴：弹窗只允许 ESC / 显式关闭按钮关闭，禁止点遮罩误关。 */
+    function closeTopGeoModal() {
+      const nodes = Array.from(document.querySelectorAll('[id$="-modal"]'));
+      for (let i = nodes.length - 1; i >= 0; i--) {
+        const el = nodes[i];
+        if (!el || el.classList.contains('hidden')) continue;
+        const id = el.id;
+        if (id === 'term-modal') {
+          closeTermHelp();
+          return true;
+        }
+        const stem = id.replace(/-modal$/, '');
+        const fnName = 'close' + stem.split('-').map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join('') + 'Modal';
+        const fn = typeof window[fnName] === 'function' ? window[fnName] : null;
+        if (fn) {
+          fn();
+          return true;
+        }
+        el.classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') hideMetricHint();
+      if (e.key !== 'Escape' && e.keyCode !== 27) return;
+      if (closeTopGeoModal()) {
+        e.preventDefault();
+        return;
+      }
+      const drawer = document.getElementById('profile-drawer-root');
+      if (drawer && drawer.getAttribute('aria-hidden') === 'false') {
+        closeProjectProfileDrawer();
+        e.preventDefault();
+        return;
+      }
+      hideMetricHint();
+      closeAllEntMoreMenus();
     });
     function switchSettingsLlmTab(tab) {
       document.querySelectorAll('#settings-llm-tabs button').forEach(btn => {
@@ -6908,24 +7210,532 @@ function backToDashboard() {
     function prevStep() { if (currentStep > 0) switchStep(currentStep - 1); }
     function nextStep() { if (currentStep < 5) switchStep(currentStep + 1); }
 
-    function renderStep0ProbePanel() {
-      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || 'PROJECT_ID';
-      const scriptEl = document.getElementById('step0-cmd-script');
+    
+
+    function step0ProbePid() {
+      return currentProjectId || (currentProjectData && currentProjectData.client_id) || 'PROJECT_ID';
+    }
+
+    function step0ShellQuote(path) {
+      const s = String(path || '');
+      if (!s) return "''";
+      if (/^[A-Za-z0-9_./:-]+$/.test(s)) return s;
+      return `'${s.replace(/'/g, `'\"'\"'`)}'`;
+    }
+
+    function step0CdCmd() {
+      if (geoCdCmd) return geoCdCmd;
+      if (geoRepoRoot) return `cd ${step0ShellQuote(geoRepoRoot)}`;
+      if (step0Guide && step0Guide.cd_cmd) return step0Guide.cd_cmd;
+      return 'cd /path/to/GEO';
+    }
+
+    function step0ProbeScriptCmd() {
+      return `python3 -m tools.geo probe-script ${step0ProbePid()}`;
+    }
+
+    function step0BothCmdsText() {
+      return `${step0CdCmd()}\n${step0ProbeScriptCmd()}`;
+    }
+
+    function step0TodayYmd() {
+      if (step0Guide && step0Guide.today_ymd) return step0Guide.today_ymd;
+      const d = new Date();
+      return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function step0ExpectedResultAbs() {
+      if (step0Guide && step0Guide.expected_result && step0Guide.expected_result.abs) {
+        return step0Guide.expected_result.abs;
+      }
+      const pid = step0ProbePid();
+      const name = `competitor_probe_doubao_${step0TodayYmd()}.json`;
+      return geoRepoRoot ? `${geoRepoRoot}/projects/${pid}/outputs/${name}` : `projects/${pid}/outputs/${name}`;
+    }
+
+    function step0OutputsAbs() {
+      if (step0Guide && step0Guide.outputs_abs) return step0Guide.outputs_abs;
+      const pid = step0ProbePid();
+      return geoRepoRoot ? `${geoRepoRoot}/projects/${pid}/outputs` : `projects/${pid}/outputs`;
+    }
+
+    function step0CursorPromptText() {
+      const pid = step0ProbePid();
+      return [
+        `请在终端执行下面两条命令（当前客户项目：${pid}）。这是【模板保底出题】，质量一般；能改自然口语请改。`,
+        ``,
+        step0CdCmd(),
+        step0ProbeScriptCmd(),
+        ``,
+        `跑完后打开 projects/${pid}/outputs/probe_script_draft.json。`
+      ].join('\n');
+    }
+
+    function step0QualityPromptText() {
+      const pid = step0ProbePid();
+      const st = (step0Guide && step0Guide.probe_status) || '';
+      const isRetest = st === 'baseline_ready' || st === 'awaiting_retest';
+      const outRel = `projects/${pid}/outputs`;
+      const draftPath = `${outRel}/probe_script_draft.json`;
+      const retestHint = isRetest
+        ? [
+            `本项目 probe_status=${st || '已有基线'}：优先写【复测剧本】，不要从零瞎编首轮题。`,
+            `- 先读 ${outRel}/ 下最新 competitor_probe_*.json 与已有 probe_script_*.json（尤其 retest / remaining）。`,
+            `- 针对首轮失败点出题：品牌误解、人物串台、URL 缺失、竞品占位等。`,
+            `- 文件名建议：probe_script_retest_roundN.json 或沿用/改写已有复测稿；若只改草稿也可写 ${draftPath}。`,
+            `- 可含 baseline_note / pass_hints / compare_fields（参考已有 retest 文件结构）。`
+          ].join('\n')
+        : [
+            `本项目尚处首轮侦察：写出 6～10 条首轮必测题到 ${draftPath}。`,
+            `- 首轮【不要】在题干里点名竞品；竞品从模型回答里抽。`
+          ].join('\n');
+      return [
+        `【GEO 阶段 0 · 高质量必测题】`,
+        `客户项目：${pid}`,
+        `仓库根目录请先确认，再读写文件。`,
+        ``,
+        `请先阅读：`,
+        `- projects/${pid}/project.yaml`,
+        `- docs/specs/llm-browser-probe-sop.md（出题维度与 JSON 骨架）`,
+        `- ${outRel}/ 下已有 probe_script_*.json / competitor_probe_*.json（若有）`,
+        ``,
+        retestHint,
+        ``,
+        `质量标准（强制）：`,
+        `1. 题干必须像真人会搜/会问的短句（例：「徐州GEO优化公司哪家好」），禁止把整段行业长描述塞进一句搜索框。`,
+        `2. 覆盖维度尽量齐全：品类选型、价格/坑、品牌认知、官网 URL、人物锚点（若有）、全国/区域名单；按客户实情取舍。`,
+        `3. 每条含 query；尽量含 follow_up（短、可执行）；dimension 可用中文标签。`,
+        `4. 直接写入 UTF-8 JSON 文件，不要只在聊天里列题不落盘。`,
+        `5. 写完后用一两句话说明：覆盖了哪些维度、相对模板好在哪里。`,
+        ``,
+        `JSON 最低结构示例：`,
+        `{ "project_id": "${pid}", "items": [ { "query": "...", "dimension": "...", "follow_up": "..." } ] }`,
+        ``,
+        `写完后我会在管理台刷新「第二步」加载题单，再交给反重力在已登录豆包实战。`
+      ].join('\n');
+    }
+
+    function step0AntigravityPromptText() {
+      const pid = step0ProbePid();
+      const s = step0ActiveScript;
+      const scriptAbs = (s && s.abs) || (document.getElementById('step0-script-abs') || {}).textContent || '';
+      if (!s || !(s.items || []).length) {
+        return [
+          `【GEO 侦察第二步 · C 开工】`,
+          `当前客户：${pid}`,
+          `请先确认管理台已加载到剧本文件，再执行。`
+        ].join('\n');
+      }
+      const lines = s.items.map((it, i) => {
+        const q = String(it.query || '').trim();
+        const fu = String(it.follow_up || '').trim();
+        return fu ? `${i + 1}. ${q}\n   追问：${fu}` : `${i + 1}. ${q}`;
+      });
+      return [
+        `【GEO 侦察第二步 · 开工说明书】`,
+        `你是执行者：用已登录 Safari 操作豆包网页，按题实战并记录，不要编造未看到的回答。`,
+        ``,
+        `【开工前必须齐的两样】`,
+        `1. 本条开工说明书（你正在读的这段）`,
+        `2. 剧本文件（用户会用 @ / 附件交给你）：${scriptAbs || '（见管理台 C+D 里的剧本路径）'}`,
+        `缺文件就先别开始问，提醒用户附上剧本。`,
+        ``,
+        `当前客户：${pid}`,
+        `题数：${s.items.length}`,
+        ``,
+        `执行规则（强制）：`,
+        `1. 豆包必须已登录；开【新聊天】，勿复用旧对话。`,
+        `2. 严格按题单顺序逐条提问；有追问的必须追问。`,
+        `3. 每题记录：query、follow_up（若有）、mentioned_self、url_present、citation_to_self、standpoint、hallucination_detected、competitors_extracted[{name,url,is_real}]、doubao_verdict。`,
+        `4. standpoint 用：推荐 / 中性 / 负面 / 不认识 / 误解。`,
+        `5. 本回合先问完并在对话汇总；【禁止现在落盘】。等用户再发【收工说明书】后再写文件。`,
+        ``,
+        `题单：`,
+        ...lines
+      ].join('\n');
+    }
+
+    function step0AntigravitySavePromptText() {
+      const pid = step0ProbePid();
+      const s = step0ActiveScript;
+      const resultAbs = step0ExpectedResultAbs();
+      const outAbs = step0OutputsAbs();
+      const n = s && s.items ? s.items.length : '题单条数';
+      const exists = !!(step0Guide && step0Guide.expected_result && step0Guide.expected_result.exists);
+      return [
+        `【GEO 侦察第二步 · F 收工落盘】（强制执行，不可省略）`,
+        `请把刚才豆包实战结果写成【一个】UTF-8 JSON 文件，不要只给 Markdown 摘要。`,
+        ``,
+        `outputs 文件夹（一定存在）：`,
+        outAbs,
+        ``,
+        `目标文件绝对路径（若尚不存在请新建写入）：`,
+        resultAbs,
+        exists ? `（管理台检测：该目标文件当前已存在，可覆盖写入本轮复测）` : `（管理台检测：该目标文件当前尚不存在，这是正常的——请新建写入）`,
+        ``,
+        `硬性要求：`,
+        `1. 顶层必须有 items 数组；items.length 必须 = ${n}。`,
+        `2. 顶层必须含：probed_at、operator=antigravity、browser=safari、model_ui=doubao。`,
+        `3. 每条至少含：query、mentioned_self、url_present；并尽量含 standpoint、competitors_extracted、hallucination_detected、doubao_verdict。`,
+        `4. 写完后只读打开该文件自检，并在回复里给出：绝对路径 + items 条数 + 是否提到我方品牌的一句话结论。`,
+        `5. 禁止改 project.yaml；回填由管理台第三步完成。`,
+        ``,
+        `字段骨架见 docs/specs/llm-browser-probe-sop.md 第 3.3 节。`
+      ].join('\n');
+    }
+
+    function step0SetResultExistsBadge(exists) {
+      const badge = document.getElementById('step0-result-exists-badge');
+      if (!badge) return;
+      if (exists) {
+        badge.textContent = '已生成';
+        badge.className = 'ml-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border bg-emerald-50 text-emerald-800 border-emerald-200';
+      } else {
+        badge.textContent = '尚未生成';
+        badge.className = 'ml-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border bg-amber-50 text-amber-800 border-amber-100';
+      }
+    }
+
+    function step0PeekHtml(peek, selected) {
+      if (!peek || typeof peek !== 'object') {
+        return selected
+          ? '<div class="mt-1.5 text-[10px] text-amber-700">这份文件暂时读不出摘要，可点下面 B「先看一眼」再核对。</div>'
+          : '';
+      }
+      const qs = Array.isArray(peek.queries) ? peek.queries : [];
+      const comps = Array.isArray(peek.competitors) ? peek.competitors : [];
+      const qTotal = peek.query_total != null ? peek.query_total : qs.length;
+      const cTotal = peek.competitor_total != null ? peek.competitor_total : comps.length;
+      const mentioned = peek.mentioned_self_count != null ? peek.mentioned_self_count : 0;
+      const urlHit = peek.url_present_count != null ? peek.url_present_count : 0;
+      const qList = qs.length
+        ? `<ol class="list-decimal list-inside mt-0.5 space-y-0.5 text-slate-700">${qs.map(q => `<li>${escapeHtmlSafe(q)}</li>`).join('')}${qTotal > qs.length ? `<li class="text-slate-400">…共 ${qTotal} 题</li>` : ''}</ol>`
+        : '<div class="text-slate-400 mt-0.5">（没有读到题目）</div>';
+      const cText = comps.length
+        ? escapeHtmlSafe(comps.join('、')) + (cTotal > comps.length ? ` 等共 ${cTotal} 个` : '')
+        : '（回答里没抽出竞品名）';
+      const brand = peek.brand_status ? `<div class="mt-1 text-slate-600">品牌怎么被说：${escapeHtmlSafe(peek.brand_status)}</div>` : '';
+      const when = peek.probed_at ? `<span class="text-slate-400">探测时间 ${escapeHtmlSafe(String(peek.probed_at).slice(0, 19))}</span>` : '';
+      return `
+        <div class="mt-1.5 rounded-md border ${selected ? 'border-indigo-200 bg-white' : 'border-slate-100 bg-slate-50/80'} px-2 py-1.5 text-[10px] space-y-1">
+          <div class="font-semibold text-slate-700">里面有什么</div>
+          <div>问了这些题：${qList}</div>
+          <div>提到我们品牌：${mentioned} / ${qTotal || '—'} 题 · 出现官网链接：${urlHit} / ${qTotal || '—'} 题</div>
+          <div>冒出的竞品：${cText}</div>
+          ${brand}
+          ${when ? `<div>${when}</div>` : ''}
+        </div>`;
+    }
+
+    function step0RenderExistingResults(results) {
+      const box = document.getElementById('step0-existing-results');
+      if (!box) return;
+      const list = Array.isArray(results) ? results : [];
+      if (!list.length) {
+        step0SelectedResultFile = '';
+        step0DiskPreviewReady = false;
+        const applyBtn = document.getElementById('step0-probe-apply-btn');
+        if (applyBtn) applyBtn.disabled = true;
+        box.innerHTML = '<div class="text-amber-700">目前还没有任何结果文件。请先做完第 2 步让反重力落盘，再点「刷新列表」。</div>';
+        return;
+      }
+      if (!step0SelectedResultFile || !list.some(r => r.file === step0SelectedResultFile)) {
+        const prefer = (step0Guide && step0Guide.expected_result && step0Guide.expected_result.exists)
+          ? step0Guide.expected_result.file
+          : (step0Guide && step0Guide.latest_result && step0Guide.latest_result.file);
+        step0SelectedResultFile = prefer || list[0].file;
+        step0DiskPreviewReady = false;
+        const applyBtn = document.getElementById('step0-probe-apply-btn');
+        if (applyBtn) applyBtn.disabled = true;
+      }
+      const onlyOne = list.length === 1;
+      const head = onlyOne
+        ? '<div class="text-[10px] text-slate-500 mb-1.5">目前磁盘上只有这一份结果，勾上它就行（不是盲选，摘要在下面）。</div>'
+        : `<div class="text-[10px] text-slate-500 mb-1.5">共 ${list.length} 份。怎么选：看日期谁新、文件名有没有 retest、摘要里题和竞品对不对。</div>`;
+      box.innerHTML = head + list.map((r) => {
+        const file = escapeHtmlSafe(r.file || '');
+        const mt = escapeHtmlSafe(r.mtime || '');
+        const n = r.item_count != null ? `${r.item_count} 条` : '';
+        const checked = r.file === step0SelectedResultFile ? 'checked' : '';
+        const selected = r.file === step0SelectedResultFile;
+        const safeFile = String(r.file || '').replace(/'/g, "\\'");
+        const tag = /retest/i.test(String(r.file || '')) ? '<span class="ml-1 px-1 py-0.5 rounded bg-violet-50 text-violet-700 border border-violet-100 text-[9px] font-semibold">复测</span>' : '<span class="ml-1 px-1 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 text-[9px] font-semibold">基线/历史</span>';
+        return `<label class="flex items-start gap-2 cursor-pointer border border-slate-100 ${selected ? 'bg-indigo-50/50 border-indigo-100' : 'bg-white'} rounded-md px-2 py-2">
+          <input type="radio" name="step0-result-pick" class="mt-1" value="${file}" ${checked} onchange="selectStep0ResultFile('${safeFile}')" />
+          <div class="min-w-0 flex-1">
+            <div class="font-semibold text-slate-800">${file}${tag}</div>
+            <div class="text-[10px] text-slate-400">${mt}${n ? ' · ' + n : ''}</div>
+            ${step0PeekHtml(r.peek, selected)}
+          </div>
+        </label>`;
+      }).join('');
+    }
+
+    function selectStep0ResultFile(filename) {
+      step0SelectedResultFile = filename || '';
+      step0DiskPreviewReady = false;
+      step0PendingProbe = null;
+      const applyBtn = document.getElementById('step0-probe-apply-btn');
+      if (applyBtn) applyBtn.disabled = true;
+      const box = document.getElementById('step0-probe-preview');
+      if (box) box.classList.add('hidden');
+      const list = (step0Guide && Array.isArray(step0Guide.results)) ? step0Guide.results : [];
+      // 重新渲染以展开当前选中项的摘要
+      if (list.length) step0RenderExistingResults(list);
+      // 选中后自动跑 B 预览，免得多点一次（静默，避免和「确认已写入」串台）
+      if (step0SelectedResultFile) {
+        previewStep0ProbeFromDisk({ silent: true }).catch(() => {});
+      }
+    }
+
+    async function runStep0GenerateScript(btn) {
+      if (!currentProjectId) return;
+      const label = btn ? (btn.querySelector('span') || btn) : null;
+      const prev = label ? label.textContent : '';
+      if (btn) { btn.disabled = true; if (label) label.textContent = '正在生成…'; }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/probe/script`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}`, 'Content-Type': 'application/json' },
+          body: '{}'
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || '出题失败', 'error');
+          return;
+        }
+        showToast(data.message || '已生成必测题');
+        await renderStep0ProbePanel();
+      } catch (e) {
+        showToast('出题请求异常', 'error');
+      } finally {
+        if (btn) { btn.disabled = false; if (label) label.textContent = prev || '一键模板出题（保底）'; }
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    function copyStep0QualityPrompt(btn) {
+      copyStep0Text(step0QualityPromptText(), btn, '已复制：高质量出题提示词（贴给 Cursor）');
+    }
+
+    async function previewStep0ProbeFromDisk(opts) {
+      // 仅人工点「刷新预览」时弹「已预览」；自动带出预览必须静默，否则会盖住「确认已写入」
+      const silent = !!(opts && typeof opts === 'object' && opts.silent === true);
+      if (!currentProjectId) return;
+      if (!step0SelectedResultFile) {
+        if (!silent) showToast('请先在列表中选择一个结果文件', 'error');
+        return;
+      }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/probe/preview-disk`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file: step0SelectedResultFile })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          if (!silent) showToast(data.message || '预览失败', 'error');
+          return;
+        }
+        step0DiskPreviewReady = true;
+        renderStep0ProbePreview(data.preview || {});
+        if (!silent) showToast(`已预览 ${step0SelectedResultFile}`);
+      } catch (e) {
+        if (!silent) showToast('预览请求异常', 'error');
+      }
+    }
+
+    async function applyStep0ProbeFromDisk() {
+      if (!currentProjectId) return;
+      if (!step0SelectedResultFile) {
+        showToast('请先选择结果文件', 'error');
+        return;
+      }
+      if (!step0DiskPreviewReady) {
+        showToast('请先预览再确认回填', 'error');
+        return;
+      }
+      const merge = !!(document.getElementById('step0-probe-merge') || {}).checked;
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/probe/apply-disk`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file: step0SelectedResultFile, merge })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || '回填失败', 'error');
+          return;
+        }
+        if (data.project) currentProjectData = data.project;
+        showToast(`确认已写入 ${step0SelectedResultFile}`, 'success');
+        step0DiskPreviewReady = false;
+        await renderStep0ProbePanel();
+        step0SyncWriteStatusBadge((currentProjectData || {}).probe_status);
+        if (typeof updatePipelineGateUI === 'function') updatePipelineGateUI();
+      } catch (e) {
+        showToast('回填请求异常', 'error');
+      }
+    }
+
+    async function fetchStep0Guide() {
+      const pid = step0ProbePid();
+      if (!pid || pid === 'PROJECT_ID' || !currentAuthToken) {
+        step0Guide = null;
+        return null;
+      }
+      const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/probe/guide`, {
+        headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'probe/guide 失败');
+      step0Guide = data;
+      if (data.repo_root) geoRepoRoot = data.repo_root;
+      if (data.cd_cmd) geoCdCmd = data.cd_cmd;
+      return data;
+    }
+
+    async function loadStep0ProbeScriptFromGuide() {
+      const pid = step0ProbePid();
+      const kindEl = document.getElementById('step0-script-kind');
+      const pathEl = document.getElementById('step0-script-path');
+      const absEl = document.getElementById('step0-script-abs');
+      const listEl = document.getElementById('step0-script-queries');
+      step0ActiveScript = null;
+
+      const outAbs = step0OutputsAbs();
+      const out1 = document.getElementById('step0-outputs-abs');
+      const out2 = document.getElementById('step0-outputs-abs-2');
+      if (out1) out1.textContent = outAbs;
+      if (out2) out2.textContent = outAbs;
+
+      const expect = (step0Guide && step0Guide.expected_result) || {};
+      const resultEl = document.getElementById('step0-result-path');
+      if (resultEl) resultEl.textContent = expect.abs || step0ExpectedResultAbs();
+      step0SetResultExistsBadge(!!expect.exists);
+      const uploadExpected = document.getElementById('step0-upload-expected');
+      if (uploadExpected) {
+        uploadExpected.textContent = expect.exists
+          ? `本轮新结果已写好，建议优先选它：${expect.file || expect.abs || ''}`
+          : `本轮还在等的新文件（现在没有，列表里选不到它）：${expect.file || ''}。你可以先选列表里已有的旧结果，或等第 2 步落盘后再刷新。`;
+      }
+      step0RenderExistingResults((step0Guide && step0Guide.results) || []);
+      if (step0SelectedResultFile && !step0DiskPreviewReady) {
+        previewStep0ProbeFromDisk({ silent: true }).catch(() => {});
+      }
+
+      const rec = step0Guide && step0Guide.recommended_script;
+      if (!rec) {
+        if (kindEl) kindEl.textContent = '尚无剧本';
+        if (pathEl) pathEl.textContent = `projects/${pid}/outputs/probe_script_draft.json`;
+        if (absEl) absEl.textContent = `${outAbs}/probe_script_draft.json`;
+        if (listEl) listEl.innerHTML = '<div class="text-amber-700">还没有剧本文件。请先完成第一步出题，再点「刷新状态」。</div>';
+        const prevEl = document.getElementById('step0-cmd-preview');
+        const applyEl = document.getElementById('step0-cmd-apply');
+        if (prevEl) prevEl.textContent = `python3 -m tools.geo probe-preview ${pid} --file <先有 competitor_probe_*.json>`;
+        if (applyEl) applyEl.textContent = `python3 -m tools.geo probe-apply ${pid} --file <先有 competitor_probe_*.json> --merge --yes`;
+        return null;
+      }
+
+      // 加载题单内容
+      const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent(rec.file)}`, {
+        headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+      });
+      const data = await res.json();
+      let items = [];
+      if (data.success && data.content) {
+        try {
+          const parsed = JSON.parse(data.content);
+          items = Array.isArray(parsed.items) ? parsed.items : [];
+        } catch (e) { items = []; }
+      }
+      const status = String((step0Guide && step0Guide.probe_status) || 'unprobed');
+      let kind = '剧本';
+      if (rec.file.includes('retest')) kind = '第二轮复测剧本（推荐）';
+      else if (rec.file.includes('remaining')) kind = '补测剧本';
+      else if (status === 'unprobed') kind = '首轮出题草稿（推荐）';
+      else kind = '出题草稿';
+
+      step0ActiveScript = {
+        file: rec.file,
+        kind,
+        abs: rec.abs,
+        rel: rec.rel,
+        items,
+        resultAbs: expect.abs || step0ExpectedResultAbs(),
+        resultRel: expect.rel || '',
+      };
+      if (kindEl) kindEl.textContent = kind;
+      if (pathEl) pathEl.textContent = rec.rel;
+      if (absEl) absEl.textContent = rec.abs;
+      if (listEl) {
+        if (!items.length) {
+          listEl.innerHTML = '<div class="text-amber-700">剧本存在但没有 items 题单。</div>';
+        } else {
+          listEl.innerHTML = items.map((it, i) => {
+            const q = escapeHtmlSafe(it.query || '');
+            const fu = it.follow_up ? `<div class="text-[10px] text-slate-400 pl-4">追问：${escapeHtmlSafe(it.follow_up)}</div>` : '';
+            return `<div><span class="font-semibold text-slate-800">${i + 1}.</span> ${q}${fu}</div>`;
+          }).join('');
+        }
+      }
+
+      const latest = (step0Guide && step0Guide.latest_result) || null;
+      const fileArg = latest ? latest.rel : '<请先完成第二步落盘，再选已存在的 competitor_probe_*.json>';
       const prevEl = document.getElementById('step0-cmd-preview');
       const applyEl = document.getElementById('step0-cmd-apply');
-      if (scriptEl) scriptEl.textContent = `python3 -m tools.geo probe-script ${pid}`;
-      if (prevEl) prevEl.textContent = `python3 -m tools.geo probe-preview ${pid} --file path/to/probe_*.json`;
-      if (applyEl) applyEl.textContent = `python3 -m tools.geo probe-apply ${pid} --file path/to/probe_*.json --merge --yes`;
+      if (prevEl) prevEl.textContent = `python3 -m tools.geo probe-preview ${pid} --file ${fileArg}`;
+      if (applyEl) applyEl.textContent = `python3 -m tools.geo probe-apply ${pid} --file ${fileArg} --merge --yes`;
+      return step0ActiveScript;
+    }
+
+    async function ensureStep0RepoPath() {
+      if (geoCdCmd && geoRepoRoot) return;
+      try {
+        const res = await fetch('/api/auth/status', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.repo_root) geoRepoRoot = data.repo_root;
+        if (data.cd_cmd) geoCdCmd = data.cd_cmd;
+      } catch (e) { /* ignore */ }
+    }
+
+    async function renderStep0ProbePanel() {
+      await ensureStep0RepoPath();
+      const pid = step0ProbePid();
+      const pidEl = document.getElementById('step0-cmd-project-id');
+      const cdEl = document.getElementById('step0-cmd-cd');
+      const scriptEl = document.getElementById('step0-cmd-script');
+      if (pidEl) pidEl.textContent = pid;
+      if (cdEl) cdEl.textContent = step0CdCmd();
+      if (scriptEl) scriptEl.textContent = step0ProbeScriptCmd();
+      const hint = document.getElementById('step0-script-hint');
+      if (hint) {
+        hint.innerHTML = `跑完后会在 <code class="bg-slate-100 px-1 rounded">projects/${escapeHtmlSafe(pid)}/outputs/</code> 生成/更新 <code class="bg-slate-100 px-1 rounded">probe_script_draft.json</code>，再去做第二步。`;
+      }
       const box = document.getElementById('step0-probe-badges');
       if (box) {
         const p = currentProjectData || {};
         const pending = p.site_pending === true || p.site_pending === 'true' || p.site_pending === 1;
         box.innerHTML = `
-          ${probeStatusBadgeHtml(p.probe_status)}
+          ${step0WriteStatusBadgeHtml(p.probe_status)}
+          ${String(p.probe_status || '') === 'awaiting_retest' ? '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border bg-amber-50 text-amber-900 border-amber-200">待复测</span>' : ''}
           ${pending ? '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border bg-indigo-50 text-indigo-800 border-indigo-200">由我方全托管 / 待客户域名</span>' : ''}
           ${p.probe_baseline_id ? `<span class="text-[10px] font-mono text-slate-500">${escapeHtmlSafe(p.probe_baseline_id)}</span>` : ''}
         `;
+        step0SyncWriteStatusBadge(p.probe_status);
       }
+      try {
+        await fetchStep0Guide();
+        await loadStep0ProbeScriptFromGuide();
+      } catch (e) {
+        const listEl = document.getElementById('step0-script-queries');
+        if (listEl) listEl.innerHTML = `<div class="text-amber-700">引导加载失败：${escapeHtmlSafe(e.message || e)}</div>`;
+        const exist = document.getElementById('step0-existing-results');
+        if (exist) exist.innerHTML = `<div class="text-amber-700">无法读取已存在结果列表。</div>`;
+      }
+      if (window.lucide) lucide.createIcons();
     }
 
     let step0PendingProbe = null;
@@ -6935,6 +7745,15 @@ function backToDashboard() {
       const file = input && input.files && input.files[0];
       if (!file) {
         showToast('请先选择 probe JSON 文件', 'error');
+        return null;
+      }
+      const fname = String(file.name || '');
+      if (/^probe_script/i.test(fname)) {
+        showToast('选错了：这是剧本文件。请选 competitor_probe_*.json 结果文件', 'error');
+        return null;
+      }
+      if (!/^competitor_probe/i.test(fname) && !/probe/i.test(fname)) {
+        showToast('请选择 competitor_probe_*.json（第二步落盘结果）', 'error');
         return null;
       }
       const text = await file.text();
@@ -6952,21 +7771,134 @@ function backToDashboard() {
       return data;
     }
 
+    let step0LastPreviewCopyText = '';
+
+    function step0BuildPreviewCopyText(preview) {
+      const briefs = Array.isArray(preview.answer_briefs) ? preview.answer_briefs : [];
+      const comps = preview.suggested_competitors || [];
+      const kws = preview.suggested_keywords || [];
+      const halls = preview.hallucinations || [];
+      const summary = preview.summary || {};
+      const lines = [
+        `【GEO 侦察结果摘要 · 可给 IDE】`,
+        `项目：${preview.project_id || step0ProbePid()}`,
+        `来源：${preview.source_probe || ''}`,
+        `文件：${preview.probe_path || ''}`,
+        `题数：${preview.item_count != null ? preview.item_count : briefs.length}`,
+        ``,
+        `说明：这不是豆包聊天全文。每题存的是结构化结论（是否提我们、立场、一句话 verdict、抽出的竞品）。`,
+        `第三步「确认写入」只会把下面「准备写入」的竞品/问句写进 project；不会把 verdict 全文贴进 yaml。`,
+        ``,
+        `—— 每题豆包怎么说 ——`,
+      ];
+      if (!briefs.length) {
+        lines.push('（没有读到题目结论）');
+      } else {
+        briefs.forEach((b, i) => {
+          lines.push(`${i + 1}. 问：${b.query || ''}`);
+          lines.push(`   提我们：${b.mentioned_self ? '是' : '否'} · 官网链接：${b.url_present ? '有' : '无'} · 立场：${b.standpoint || '（未标）'}`);
+          if (b.doubao_verdict) lines.push(`   结论：${b.doubao_verdict}`);
+          else lines.push(`   结论：（本条未写 doubao_verdict，多半是名单题，重点在竞品列表）`);
+          if ((b.competitors || b.competitor_names || []).length) {
+            lines.push(`   抽出竞品：${(b.competitors || b.competitor_names || []).join('、')}`);
+          }
+          if (b.hallucination_detected) lines.push(`   标记：含幻觉/张冠李戴风险`);
+          lines.push('');
+        });
+      }
+      if (preview.chat_url) {
+        lines.push(`豆包会话（若还在）：${preview.chat_url}`);
+        lines.push('');
+      }
+      if (summary.brand_status || summary.founder_status) {
+        lines.push(`—— 总览 ——`);
+        if (summary.brand_status) lines.push(`品牌：${summary.brand_status}`);
+        if (summary.founder_status) lines.push(`人物：${summary.founder_status}`);
+        lines.push('');
+      }
+      lines.push(`—— 若点「确认写入」会进项目 ——`);
+      lines.push(`竞品：${comps.join('、') || '（无）'}`);
+      lines.push(`监测问句：`);
+      (kws.length ? kws : ['（无）']).forEach((q, i) => lines.push(`${i + 1}. ${q}`));
+      if (halls.length) {
+        lines.push('');
+        lines.push(`需要留意：`);
+        halls.forEach((h) => lines.push(`- ${h}`));
+      }
+      return lines.join('\n');
+    }
+
     function renderStep0ProbePreview(preview) {
       const box = document.getElementById('step0-probe-preview');
       const applyBtn = document.getElementById('step0-probe-apply-btn');
+      const copyBtn = document.getElementById('step0-copy-preview-btn');
       if (!box) return;
       const comps = (preview.suggested_competitors || []).map(c => escapeHtmlSafe(c)).join('、') || '（无）';
       const kws = (preview.suggested_keywords || []).map(q => `<li>${escapeHtmlSafe(q)}</li>`).join('') || '<li>（无）</li>';
       const halls = (preview.hallucinations || []).map(h => `<li class="text-amber-700">${escapeHtmlSafe(h)}</li>`).join('');
+      const briefs = Array.isArray(preview.answer_briefs) ? preview.answer_briefs : [];
+      const summary = preview.summary || {};
+      const briefHtml = briefs.length
+        ? briefs.map((b, i) => {
+            const verdict = b.doubao_verdict
+              ? escapeHtmlSafe(b.doubao_verdict)
+              : '<span class="text-slate-400">（本条未写一句话结论；名单题重点看竞品）</span>';
+            const flags = [
+              b.mentioned_self ? '提了我们' : '没提我们',
+              b.url_present ? '有官网链接' : '无官网链接',
+              b.standpoint ? `立场：${escapeHtmlSafe(b.standpoint)}` : '',
+              b.hallucination_detected ? '含幻觉风险' : '',
+            ].filter(Boolean).join(' · ');
+            const cList = b.competitors || b.competitor_names || [];
+            const cnames = cList.length
+              ? `<div class="text-slate-600">抽出竞品：${escapeHtmlSafe(cList.join('、'))}</div>`
+              : '';
+            return `<div class="border-t border-slate-100 first:border-0 pt-1.5 first:pt-0 space-y-0.5">
+              <div class="font-semibold text-slate-800">${i + 1}. ${escapeHtmlSafe(b.query || '')}</div>
+              <div class="text-[10px] text-slate-500">${flags}</div>
+              <div>豆包结论：${verdict}</div>
+              ${cnames}
+            </div>`;
+          }).join('')
+        : '<div class="text-slate-400">（没有读到每题结论）</div>';
+      const overview = (summary.brand_status || summary.founder_status)
+        ? `<div class="rounded-md bg-white border border-slate-100 px-2 py-1.5 space-y-0.5">
+            <div class="font-semibold text-slate-800">总览</div>
+            ${summary.brand_status ? `<div>品牌：${escapeHtmlSafe(summary.brand_status)}</div>` : ''}
+            ${summary.founder_status ? `<div class="text-amber-700">人物：${escapeHtmlSafe(summary.founder_status)}</div>` : ''}
+          </div>`
+        : '';
+      const chatLink = preview.chat_url
+        ? `<div class="text-[10px] text-slate-500">豆包原会话（可能过期）：<a class="text-indigo-600 hover:underline break-all" href="${escapeHtmlSafe(preview.chat_url)}" target="_blank" rel="noopener">${escapeHtmlSafe(preview.chat_url)}</a></div>`
+        : '';
       box.innerHTML = `
-        <div><span class="font-semibold">基线</span>：${escapeHtmlSafe(preview.source_probe || '')}</div>
-        <div><span class="font-semibold">建议竞品</span>：${comps}</div>
-        <div><span class="font-semibold">建议问句</span>：<ul class="list-disc list-inside mt-1 space-y-0.5">${kws}</ul></div>
-        ${halls ? `<div><span class="font-semibold text-amber-700">幻觉/风险</span>：<ul class="list-disc list-inside mt-1 space-y-0.5">${halls}</ul></div>` : ''}
+        <div class="rounded-md bg-amber-50 border border-amber-100 px-2 py-1.5 text-[10px] text-amber-900 leading-relaxed">
+          流程没搞错。这份结果文件里一共 <strong>${preview.item_count != null ? preview.item_count : briefs.length}</strong> 题——界面没有偷偷删题。
+          豆包网页上的长回答不会整篇存进管理台；存的是每题结论 + 竞品名单，用来知道「AI 认不认我们、推荐谁、有没有说错」。
+        </div>
+        ${chatLink}
+        <div class="font-semibold text-slate-800 pt-1">① 每题豆包怎么说（答案摘要）</div>
+        <div class="space-y-1.5">${briefHtml}</div>
+        ${overview}
+        <div class="font-semibold text-slate-800 pt-2">② 若点「确认写入」会进项目的内容</div>
+        <div>来源：${escapeHtmlSafe(preview.source_probe || '')}</div>
+        <div>准备加进去的竞品：${comps}</div>
+        <div>准备加进去的监测问句：<ul class="list-disc list-inside mt-1 space-y-0.5">${kws}</ul></div>
+        ${halls ? `<div><span class="font-semibold text-amber-700">需要留意</span>：<ul class="list-disc list-inside mt-1 space-y-0.5">${halls}</ul></div>` : ''}
+        <div class="text-slate-500 pt-1">核对没问题 → 去点 C「确认写入项目」。要跟 IDE 商量 → 点右上角「一键复制给 IDE」。</div>
       `;
       box.classList.remove('hidden');
+      step0LastPreviewCopyText = step0BuildPreviewCopyText(preview);
+      if (copyBtn) copyBtn.disabled = !step0LastPreviewCopyText;
       if (applyBtn) applyBtn.disabled = false;
+    }
+
+    function copyStep0ProbePreview(btn) {
+      if (!step0LastPreviewCopyText) {
+        showToast('还没有可复制的预览，先选文件并刷新预览', 'error');
+        return;
+      }
+      copyStep0Text(step0LastPreviewCopyText, btn, '已复制侦察摘要 → 可直接贴给 IDE');
     }
 
     async function previewStep0ProbeUpload() {
@@ -7023,15 +7955,20 @@ function backToDashboard() {
         const applyBtn = document.getElementById('step0-probe-apply-btn');
         if (applyBtn) applyBtn.disabled = true;
         renderStep0ProbePanel();
+        step0SyncWriteStatusBadge((currentProjectData || {}).probe_status);
         updatePipelineGateUI();
-        showToast(data.message || '回填成功');
+        const fname = (document.getElementById('step0-probe-file') || {}).files;
+        const name = fname && fname[0] ? fname[0].name : '侦察结果';
+        showToast(`确认已写入 ${name}`, 'success');
         lucide.createIcons();
       } catch (e) {
         showToast('回填请求异常', 'error');
       }
     }
 
-    async function refreshStep0ProbeStatus() {
+    async function refreshStep0ProbeStatus(opts) {
+      const silent = !!(opts && opts.silent);
+      const asDiskCheck = !!(opts && opts.asDiskCheck);
       if (!currentProjectId) return;
       try {
         const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}`, {
@@ -7040,9 +7977,23 @@ function backToDashboard() {
         const data = await res.json();
         if (data.success) {
           currentProjectData = data.project;
-          renderStep0ProbePanel();
+          await renderStep0ProbePanel();
           updatePipelineGateUI();
-          showToast('侦察状态已刷新');
+          const hasBaseline = step0SyncWriteStatusBadge((currentProjectData || {}).probe_status);
+          if (asDiskCheck) {
+            const exists = !!(step0Guide && step0Guide.expected_result && step0Guide.expected_result.exists);
+            const hint = document.getElementById('step0-result-check-hint');
+            if (exists) {
+              if (hint) hint.textContent = '结果：文件已经写好了。可以去做第 3 步：选中该文件 → 预览 → 确认回填。';
+              showToast('落盘成功：结果文件已在磁盘上', 'success');
+            } else {
+              if (hint) hint.textContent = '结果：还没有这个文件。请确认已把「②收工说明书」贴给反重力，并等它写完后再点检查。';
+              showToast('尚未落盘：目标文件还不存在', 'error');
+            }
+          } else if (!silent) {
+            if (hasBaseline) showToast('已有基准线', 'success');
+            else showToast('没有基线', 'error');
+          }
           lucide.createIcons();
         } else {
           showToast(data.message || '刷新失败', 'error');
@@ -7052,18 +8003,155 @@ function backToDashboard() {
       }
     }
 
-    function copyStep0Cmd(elId) {
+    async function checkStep0ResultOnDisk(btn) {
+      const label = btn ? (btn.querySelector('span') || btn) : null;
+      const prev = label ? label.textContent : '';
+      if (btn) { btn.disabled = true; if (label) label.textContent = '正在检查…'; }
+      try {
+        await refreshStep0ProbeStatus({ asDiskCheck: true });
+      } finally {
+        if (btn) { btn.disabled = false; if (label) label.textContent = prev || '检查有没有落盘'; }
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    function flashStep0CopyBtn(btn, okLabel) {
+      if (!btn) return;
+      const label = btn.querySelector('span') || btn;
+      const prev = label.textContent;
+      label.textContent = okLabel || '已复制';
+      btn.disabled = true;
+      setTimeout(() => {
+        label.textContent = prev;
+        btn.disabled = false;
+      }, 1600);
+    }
+
+    function copyStep0Text(text, btn, toastMsg) {
+      if (!text) return;
+      const done = () => {
+        showToast(toastMsg || '已复制');
+        flashStep0CopyBtn(btn);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => showToast('复制失败', 'error'));
+        return;
+      }
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        done();
+      } catch (e) {
+        showToast('复制失败', 'error');
+      }
+    }
+
+    function copyStep0Cmd(elId, btn) {
       const el = document.getElementById(elId);
       const text = el ? el.textContent.trim() : '';
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => showToast('已复制命令')).catch(() => showToast('复制失败', 'error'));
+      copyStep0Text(text, btn, '已复制命令');
+    }
+
+    function copyStep0BothCmds(btn) {
+      copyStep0Text(step0BothCmdsText(), btn, '已复制：进目录 + 出题');
+    }
+
+    function copyStep0CursorPrompt(btn) {
+      copyStep0Text(step0CursorPromptText(), btn, '已复制：给 Cursor 执行该命令');
+    }
+
+    function copyStep0AntigravityPrompt(btn) {
+      copyStep0Text(step0AntigravityPromptText(), btn, '已复制①开工说明书 → 贴反重力后，务必再 @ 剧本文件');
+    }
+
+    function copyStep0AntigravitySavePrompt(btn) {
+      copyStep0Text(step0AntigravitySavePromptText(), btn, '已复制②收工说明书 → 再贴同一反重力对话，等它写完文件');
     }
 
     function goStep1FromProbeGuide() {
       switchView('step-1-diag');
     }
 
+    async function copyStep1AuditToIde(btn) {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      let metricsText = '';
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('audit_metrics.json')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) metricsText = String(data.content).trim();
+      } catch (e) { /* ignore */ }
+      const lines = [
+        `【GEO 阶段一 · 请 IDE 精修客户体检报告】`,
+        `项目：${pid}`,
+        `官网：${(currentProjectData && currentProjectData.official_url) || ''}`,
+        ``,
+        `硬约束：`,
+        `1. 技术真源是 outputs/audit_metrics.json，禁止改写 has_ssr / has_llms_txt / has_json_ld / tech_score 等布尔与分数。`,
+        `2. 可见度只能引用阶段零 competitor_probe / 报告第三节；禁止编造关键词排名。`,
+        `3. 你只润色「结论先行」与「四步建议」的客户话术，保持 0 Emoji。`,
+        `4. 改完后写回 projects/${pid}/outputs/01_企业AI可见度现状体检与商业诊断报告.md`,
+        ``,
+        `—— audit_metrics.json ——`,
+        metricsText || '（尚未生成：请先点「① 真抓指标」）',
+        ``,
+        `请先读上述指标，再打开同目录体检报告 Markdown 做二次精修。`,
+      ];
+      copyStep0Text(lines.join('\n'), btn, '已复制③ IDE 再审提示 → 贴给 Cursor');
+    }
 
+    async function runStep1Audit(e, mode) {
+      const m = mode === 'interpret' ? 'interpret' : 'crawl';
+      const btn = (e && e.currentTarget) ? e.currentTarget : null;
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = m === 'crawl'
+          ? `<span>正在真抓…</span>`
+          : `<span>正在解读…</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), m === 'interpret' ? 180000 : 120000);
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/run/audit`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentAuthToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ mode: m }),
+          signal: controller.signal
+        });
+        const data = await res.json();
+        if (data.success) {
+          await loadStepPreviews();
+          showToast(data.message || (m === 'crawl' ? '① 真抓完成' : '② 解读完成'), data.llm_status === 'failed' ? 'error' : 'success');
+        } else {
+          showToast('执行出错: ' + (data.message || ''), 'error');
+        }
+      } catch (err) {
+        showToast('请求失败: ' + err.message, 'error');
+      } finally {
+        clearTimeout(timer);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
 
     // 运行单步流水线
     async function runRewriteStep(e, mode) {
@@ -7159,8 +8247,24 @@ function backToDashboard() {
       return map[strategy] || map.noop;
     }
 
+    function updateCorpusPinButtonStyle(hasPinned) {
+      const btn = document.getElementById('btn-corpus-pin');
+      if (!btn) return;
+      if (hasPinned) {
+        btn.className = 'py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 flex items-center gap-1';
+        btn.title = '已有钉住基线；再次点击将用当前母盘覆盖基线（有冲突时会禁止）';
+      } else {
+        btn.className = 'py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 flex items-center gap-1';
+        btn.title = '尚未钉住基线；满意当前母盘后点此存档';
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
     async function handleCorpusDiff() {
-      if (!currentProjectId) return;
+      if (!currentProjectId) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/corpus/diff?against=pinned`, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
@@ -7170,7 +8274,11 @@ function backToDashboard() {
         const summary = document.getElementById('corpus-diff-summary');
         const details = document.getElementById('corpus-diff-details');
         const goto4 = document.getElementById('btn-goto-step4');
-        if (!d.success) return;
+        if (!d.success) {
+          showToast(d.message || '对照失败', 'error');
+          return;
+        }
+        updateCorpusPinButtonStyle(d.against === 'pinned');
         const st = d.strategy || '--';
         if (badge) {
           badge.textContent = `strategy: ${st}`;
@@ -7182,19 +8290,46 @@ function backToDashboard() {
             ? (d.message || '尚无 pinned 基线，请先钉住当前母盘。')
             : `against=pinned · 事实 +${(fd.added||[]).length} ~${(fd.changed||[]).length} -${(fd.removed||[]).length} · 脏块 ${(d.dirty_blocks||[]).length}`;
         }
+        const esc = (s) => String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         let html = '';
+        if ((d.hard_conflict_count || 0) > 0) {
+          html += `<div class="px-2 py-1 rounded border border-rose-200 bg-rose-50 text-rose-800">未决冲突 ${d.hard_conflict_count} 条（strategy=block，先去证据库/真相源仲裁）</div>`;
+        }
+        (fd.changed || []).forEach((c) => {
+          html += `<div class="px-2 py-1.5 rounded border border-amber-200 bg-amber-50 text-amber-950"><span class="font-semibold">变更</span> <code class="text-[10px]">${esc(c.fact_key)}</code><div class="mt-0.5 text-slate-600 line-through opacity-80">${esc(c.from)}</div><div class="text-slate-900">${esc(c.to)}</div></div>`;
+        });
+        (fd.added || []).forEach((c) => {
+          html += `<div class="px-2 py-1.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-900"><span class="font-semibold">新增</span> <code class="text-[10px]">${esc(c.fact_key)}</code><div class="mt-0.5">${esc(c.value)}</div></div>`;
+        });
+        (fd.removed || []).forEach((c) => {
+          html += `<div class="px-2 py-1.5 rounded border border-slate-200 bg-slate-50 text-slate-700"><span class="font-semibold">删除</span> <code class="text-[10px]">${esc(c.fact_key)}</code><div class="mt-0.5 line-through opacity-80">${esc(c.value)}</div></div>`;
+        });
+        (d.dirty_blocks || []).forEach((b) => {
+          html += `<div class="px-2 py-1 rounded border border-indigo-100 bg-indigo-50 text-indigo-800">脏块待重写：${esc(b)}</div>`;
+        });
         (d.logic_conflicts || []).forEach(c => {
-          html += `<div class="px-2 py-1 rounded border border-rose-200 bg-rose-50 text-rose-800">逻辑矛盾 [${c.rule_id}] ${c.message}</div>`;
+          html += `<div class="px-2 py-1 rounded border border-rose-200 bg-rose-50 text-rose-800">逻辑矛盾 [${esc(c.rule_id)}] ${esc(c.message)}</div>`;
         });
         (d.duplicates || []).slice(0, 5).forEach(c => {
-          html += `<div class="px-2 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700">重复提示：${c.message}</div>`;
+          html += `<div class="px-2 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700">重复提示：${esc(c.message)}</div>`;
         });
-        if (details) details.innerHTML = html || '<div class="text-slate-400">无额外矛盾/重复提示</div>';
+        if (details) {
+          details.innerHTML = html || '<div class="text-slate-400">与钉住版相比，事实与脏块均无变化。</div>';
+        }
         if (goto4) {
           if (st === 'block') goto4.classList.add('hidden');
           else goto4.classList.remove('hidden');
         }
-      } catch (e) {}
+        if (d.against === 'none') {
+          showToast(d.message || '尚无钉住基线，请先钉住当前母盘', 'error');
+        } else {
+          const n = (fd.added||[]).length + (fd.changed||[]).length + (fd.removed||[]).length;
+          showToast(n ? `对照已刷新 · 列出 ${n} 条事实差量 · strategy: ${st}` : `对照已刷新 · 无事实差量 · strategy: ${st}`);
+        }
+      } catch (e) {
+        showToast('对照请求失败: ' + (e.message || e), 'error');
+      }
     }
 
     async function handleCorpusPin() {
@@ -7207,6 +8342,7 @@ function backToDashboard() {
         const d = await res.json();
         if (d.success) {
           showToast('已钉住当前母盘为对照基线');
+          updateCorpusPinButtonStyle(true);
           handleCorpusDiff();
         } else {
           showToast(d.message || '钉住失败', 'error');
@@ -7294,7 +8430,7 @@ function backToDashboard() {
           },
           body: JSON.stringify({
             provider: 'nextdoor',
-            jwt_token: document.getElementById('llm-config-key').value,
+            api_key: document.getElementById('llm-config-key').value,
             base_url: document.getElementById('llm-config-base').value,
             source_client: document.getElementById('llm-config-brand').value,
             mode: document.getElementById('llm-config-mode').value
@@ -10991,6 +12127,38 @@ function backToDashboard() {
 
     // ================= 6. 专有名词智能解释知识库 =================
     const TERMS_DB = {
+      'llm_status': {
+        title: 'Nextdoor / 小毛驴连通状态 Tag',
+        badge: '阶段三写语料前的 AI 后端指示灯',
+        analogy: '就像手机右上角的「信号格」：绿的表示能打电话，黄的表示暂时没信号。',
+        desc: '这个 Tag 只表示「管理台能不能连上 Nextdoor（小毛驴）大模型后端」，不是阶段三业务报错，也不是官网体检结果。常见显示：绿色「Nextdoor · geo · flash · xx ms」= 已连通；黄色「不可达: NEXTDOOR」= 配了密钥但此刻连不上（常见是本机 3001 隧道未开）；灰色「未配置」= 还没配 NEXTDOOR_API_KEY；红色「鉴权失败」= 密钥错误或过期。',
+        why: '阶段三的「增量重构 / 强制全量」要调用小毛驴写普林斯顿语料。Tag 不绿时硬点重构，容易失败或降级成空稿，所以先看状态再开工。',
+        how: 'Tag 变绿即可继续做证据库与增量重构。若显示不可达：先确认本机已开到 mini:3001 的隧道，再点旁边「立即检测」。若显示未配置 / 鉴权失败：点「配置 Nextdoor」写入正确机器密钥。'
+      },
+      'llm_detect': {
+        title: '立即检测',
+        badge: '只测连通，不改业务文件',
+        analogy: '像路由器上的「测网速」按钮：按一下看通不通，不会改你电脑里的文件。',
+        desc: '「立即检测」会重新 ping 一次小毛驴 API，刷新左侧状态 Tag（是否配置、是否通、走哪条链、大约多慢）。它不会改体检报告、不会跑阶段三重构、不会动证据库。',
+        why: '状态有缓存，刚开隧道或刚改密钥时，页面上可能还停在「不可达」。点检测可以强制再测一遍，避免误判。',
+        how: '点一下即可。若仍不可达，检查：① 本机 SSH 隧道是否映射 3001；② 「配置 Nextdoor」里的 Key / Base URL 是否正确；③ mini 上小毛驴服务是否在跑。'
+      },
+      'corpus_pin': {
+        title: '钉住当前母盘',
+        badge: '发前对照的「存档基线」',
+        analogy: '像考试前把一份已经定稿的答案卷复印封存：以后改了什么，都拿这份复印件来对。',
+        desc: '把当前的正式语料母盘（03_…语料库.md）连同当时的已确认事实快照，复制到 outputs/pinned/，作为发前对照基线。按钮为绿色表示已有钉住基线；灰色/无色表示还没有。它不会发文章、不会改官网，只是「记住这一版是验收底稿」。有未决冲突或逻辑矛盾时，系统会禁止钉住，避免把错稿钉成基线。',
+        why: '阶段四分发前需要知道：相对上一版定稿，事实加了几条、改了几条、删了几条、还有没有脏块。没有钉住基线，「刷新查看母盘更新情况对比」就没有可比较的对象。',
+        how: '母盘内容你满意后点一次「钉住当前母盘」（按钮在左侧）。之后若又改了事实或做了增量重构，再点右侧「刷新查看母盘更新情况对比」看差量。strategy=block 时先清冲突，不要急着进阶段四。'
+      },
+      'corpus_diff': {
+        title: '刷新查看母盘更新情况对比',
+        badge: '相对钉住版算差量',
+        analogy: '像「找不同」：左边是你钉住的旧卷子，右边是现在的卷子，按钮帮你标出改了哪些题。',
+        desc: '重新计算：当前真相源 / 母盘，相对 pinned 基线，事实新增(+)、变更(~)、删除(-) 各多少，以及还有没有脏块、重复、逻辑矛盾，并在对照卡下列出具体条目。它不改文件，只读对比。',
+        why: '防止带着过期或冲突事实进入阶段四矩阵分发。strategy=block 表示还有硬冲突，应先仲裁；允许时再进阶段四。',
+        how: '先至少钉住过一次母盘，再点「刷新查看母盘更新情况对比」。若提示尚无 pinned，就先点左侧「钉住当前母盘」。看清明细与 strategy 后再决定是否分发。'
+      },
       'llms': {
         title: '/llms.txt 规范文件',
         badge: '2026 大模型专属索引标准',
