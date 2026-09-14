@@ -18,6 +18,7 @@ from tools.geo.corpus import (
     apply_incremental_rewrite,
     pin_corpus,
     corpus_diff,
+    apply_corpus_diff_decision,
     save_corpus_meta,
     CORPUS_MD,
 )
@@ -27,6 +28,8 @@ from tools.geo.ledger import (
     confirm_all_non_conflict,
     load_facts,
     STATUS_CONFIRMED,
+    STATUS_CONFLICT,
+    STATUS_REJECTED,
 )
 
 
@@ -187,6 +190,103 @@ class PinDiffTests(unittest.TestCase):
             res = pin_corpus(cfg)
             self.assertFalse(res.get("success"))
             self.assertTrue(any(c.get("rule_id") == "region_exclusive" for c in (res.get("logic_conflicts") or [])))
+        finally:
+            shutil.rmtree(td, ignore_errors=True)
+
+
+class DiffDecideTests(unittest.TestCase):
+    def test_accept_delete_rejects_conflict_and_unblocks_pin(self):
+        td = tempfile.mkdtemp(prefix="geo_diff_decide_")
+        try:
+            cfg = _cfg(td)
+            ensure_dirs(cfg)
+            os.makedirs(cfg["_outputs_dir"], exist_ok=True)
+            with open(os.path.join(cfg["_outputs_dir"], CORPUS_MD), "w", encoding="utf-8") as f:
+                f.write("# corpus\n")
+            merge_fact_proposals(cfg, [{
+                "fact_key": "entity.legal_name",
+                "statement": "旧公司",
+                "value": "旧公司",
+            }], "url:a")
+            confirm_all_non_conflict(cfg)
+            self.assertTrue(pin_corpus(cfg).get("success"))
+
+            # 制造冲突：新值与已确认不同 → conflict，对照显示为删除
+            merge_fact_proposals(cfg, [{
+                "fact_key": "entity.legal_name",
+                "statement": "新公司",
+                "value": "新公司",
+            }], "url:b")
+            facts = {f["fact_key"]: f for f in load_facts(cfg)}
+            self.assertEqual(facts["entity.legal_name"]["status"], STATUS_CONFLICT)
+
+            d0 = corpus_diff(cfg)
+            self.assertEqual(d0.get("strategy"), "block")
+            keys = {a["fact_key"] for a in (d0.get("fact_actions") or [])}
+            self.assertIn("entity.legal_name", keys)
+
+            res = apply_corpus_diff_decision(cfg, "entity.legal_name", "accept", op="removed")
+            self.assertTrue(res.get("success"))
+            facts2 = {f["fact_key"]: f for f in load_facts(cfg)}
+            self.assertEqual(facts2["entity.legal_name"]["status"], STATUS_REJECTED)
+            self.assertNotEqual(res.get("diff", {}).get("strategy"), "block")
+            self.assertTrue(pin_corpus(cfg).get("success"))
+        finally:
+            shutil.rmtree(td, ignore_errors=True)
+
+    def test_reject_delete_restores_pinned_value(self):
+        td = tempfile.mkdtemp(prefix="geo_diff_restore_")
+        try:
+            cfg = _cfg(td)
+            ensure_dirs(cfg)
+            os.makedirs(cfg["_outputs_dir"], exist_ok=True)
+            with open(os.path.join(cfg["_outputs_dir"], CORPUS_MD), "w", encoding="utf-8") as f:
+                f.write("# corpus\n")
+            merge_fact_proposals(cfg, [{
+                "fact_key": "contact.telephone",
+                "statement": "400-1",
+                "value": "400-1",
+            }], "url:a")
+            confirm_all_non_conflict(cfg)
+            self.assertTrue(pin_corpus(cfg).get("success"))
+            merge_fact_proposals(cfg, [{
+                "fact_key": "contact.telephone",
+                "statement": "400-2",
+                "value": "400-2",
+            }], "url:b")
+            res = apply_corpus_diff_decision(cfg, "contact.telephone", "reject", op="removed")
+            self.assertTrue(res.get("success"))
+            facts = {f["fact_key"]: f for f in load_facts(cfg)}
+            self.assertEqual(facts["contact.telephone"]["status"], STATUS_CONFIRMED)
+            self.assertEqual(str(facts["contact.telephone"]["value"]), "400-1")
+        finally:
+            shutil.rmtree(td, ignore_errors=True)
+
+    def test_reject_changed_reverts_to_old(self):
+        td = tempfile.mkdtemp(prefix="geo_diff_change_")
+        try:
+            cfg = _cfg(td)
+            ensure_dirs(cfg)
+            os.makedirs(cfg["_outputs_dir"], exist_ok=True)
+            with open(os.path.join(cfg["_outputs_dir"], CORPUS_MD), "w", encoding="utf-8") as f:
+                f.write("# corpus\n")
+            merge_fact_proposals(cfg, [{
+                "fact_key": "entity.official_url",
+                "statement": "https://old.example",
+                "value": "https://old.example",
+            }], "url:a")
+            confirm_all_non_conflict(cfg)
+            self.assertTrue(pin_corpus(cfg).get("success"))
+            # 直接改已确认值（模拟已确认新口径）
+            from tools.geo.ledger import set_confirmed_fact_value
+            set_confirmed_fact_value(cfg, "entity.official_url", "https://new.example")
+            d0 = corpus_diff(cfg)
+            ops = {a["fact_key"]: a["op"] for a in (d0.get("fact_actions") or [])}
+            self.assertEqual(ops.get("entity.official_url"), "changed")
+            res = apply_corpus_diff_decision(cfg, "entity.official_url", "reject", op="changed")
+            self.assertTrue(res.get("success"))
+            facts = {f["fact_key"]: f for f in load_facts(cfg)}
+            self.assertEqual(facts["entity.official_url"]["value"], "https://old.example")
         finally:
             shutil.rmtree(td, ignore_errors=True)
 

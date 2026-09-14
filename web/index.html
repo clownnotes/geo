@@ -339,7 +339,7 @@
 <button type="button" data-home-set="export" onclick="switchHomeSettingsTab('export')">离线导出说明</button>
 </nav>
 <div id="home-set-llm" class="home-set-panel bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-3 max-w-2xl">
-<p class="text-xs text-slate-500">配置 Nextdoor / 小毛驴入口，并检测连通状态。</p>
+<p class="text-xs text-slate-500">运维入口：写入小毛驴机器密钥并检测连通。交付流水线阶段三只读状态，不在此配 Key。</p>
 <div class="flex flex-wrap items-center gap-2">
 <button type="button" onclick="refreshLlmStatus(true)" class="geo-btn">立即检测</button>
 <span onclick="showTermHelp(event, 'llm_detect')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：立即检测是干什么的">?</span>
@@ -873,7 +873,7 @@
 <div>
 <div class="flex items-center gap-1.5 font-bold text-slate-900 mb-1"><span>这页在干嘛（核心价值）</span>
 </div>
-<p class="text-slate-600 text-[11px] leading-relaxed">先把客户官网/手册收进<strong>证据库</strong>，再整理成可核对的<strong>真相源</strong>，最后写成一篇给大模型看的正式稿——也就是<strong>母盘</strong>（誊清本）。算力默认走小毛驴 Nextdoor；模型梯队在管理台配，这里只负责连上并生产。
+<p class="text-slate-600 text-[11px] leading-relaxed">先把客户官网/手册收进<strong>证据库</strong>，再整理成可核对的<strong>真相源</strong>，最后写成一篇给大模型看的正式稿——也就是<strong>母盘</strong>（誊清本）。算力统一走小毛驴；模型梯队在小毛驴专属链配置。本页只显示是否在线；机器密钥由运维在<strong>系统设置</strong>维护。
                 </p>
 </div>
 <div class="text-[10px] text-indigo-600 font-medium bg-indigo-50 px-2 py-1 rounded">模式：先存证据，再认事实，再写正式稿
@@ -887,7 +887,7 @@
 <p><strong>抓取并提纯 / 提纯并保存</strong>：收材料；连上 Nextdoor 时会帮抽事实进真相源。</p>
 <p><strong>预检冲突并确认安全项</strong>：先查说法打架，再批量认下没冲突的项。</p>
 <p><strong>增量重构 / 强制全量</strong>：按已确认真相写或整篇重写母盘。</p>
-<p><strong>钉住母盘</strong>：把当前正式稿存成对照复印件；<strong>刷新查看母盘更新情况对比</strong>再算差在哪。</p>
+<p><strong>钉住母盘</strong>：把当前正式稿存成对照复印件；<strong>刷新对照</strong>后对每条点 ✓/✗ 拍板。</p>
 </div>
 </div>
 <div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">预检后仍标红的冲突，要你点仲裁，不要硬认
@@ -898,14 +898,14 @@
 <div class="flex items-center gap-1.5 font-bold text-slate-900 mb-1"><span>操作指引（证据 → 真相 → 母盘）</span>
 </div>
 <div class="text-slate-600 text-[11px] space-y-1 leading-relaxed">
-<p><strong>第一步</strong>：右上角【配置 Nextdoor】连上小毛驴，Tag 显示在线；</p>
+<p><strong>第一步</strong>：看状态 Tag 是否在线（不绿就到左侧<strong>系统设置</strong>查密钥/隧道，再点【立即检测】）；</p>
 <p><strong>第二步</strong>：抓首页/关于我们，或粘贴手册 → 提纯进证据库；</p>
 <p><strong>第三步</strong>：看真相源；有红冲突先仲裁，再点【预检冲突并确认安全项】；</p>
 <p><strong>第四步</strong>：点【增量重构】生成母盘（首次或大改用【强制全量】）；</p>
-<p><strong>第五步</strong>：满意就【钉住母盘】→【刷新查看母盘更新情况对比】；strategy 不是 block 再进阶段四。</p>
+<p><strong>第五步</strong>：点【刷新对照】，对每条改动点同意或不同意；清完后再【钉住母盘】；strategy 不是 block 再进阶段四。</p>
 </div>
 </div>
-<div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">strategy=block 时先清冲突，不要硬进阶段四
+<div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">对照卡就在真相源下方：逐条打勾/打叉，不必再滚回上面
               </div>
 </div>
 </div>
@@ -919,8 +919,10 @@
 <span onclick="showTermHelp(event, 'llm_status')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：状态 Tag 是什么意思">?</span>
 <button type="button" onclick="refreshLlmStatus(true)" class="text-[11px] text-indigo-700 hover:text-indigo-900 font-medium underline-offset-2 hover:underline">立即检测</button>
 <span onclick="showTermHelp(event, 'llm_detect')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：立即检测是干什么的">?</span>
-<button type="button" onclick="openLlmConfigModal()" class="text-[11px] px-2 py-1 rounded-md border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold">配置 Nextdoor</button><span id="rag-cascade-badge" class="hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">RAG：--</span>
+<button type="button" id="llm-status-settings-link" onclick="goToLlmSettingsFromStep3()" class="hidden text-[11px] px-2 py-1 rounded-md border border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100 font-semibold">去系统设置</button>
+<span id="rag-cascade-badge" class="hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">RAG：--</span>
 </div>
+<p id="llm-status-settings-hint" class="hidden mt-1.5 text-[11px] text-amber-800">算力密钥不在本页配置。请到左侧「系统设置 → 大模型中枢」维护，或检查本机到 mini:3001 的隧道后再点「立即检测」。</p>
 </div>
 <div class="flex items-center gap-2.5 flex-wrap"><span class="text-[11px] text-slate-400">RAG / 图谱 / 视觉已迁至左侧「进阶攻防」</span>
 </div>
@@ -980,6 +982,28 @@
 </div>
 </div>
 </div>
+<!-- 发前对照卡：放在长预览之前，逐条同意/不同意，避免滚到底再往上找真相源 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+<div class="flex items-center justify-between flex-wrap gap-2">
+<div class="flex items-center gap-2"><i data-lucide="git-compare" class="w-4 h-4 text-indigo-600"></i>
+<h3 class="text-xs font-bold text-slate-800">发前对照卡</h3><span id="corpus-strategy-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600">strategy: --</span>
+</div>
+<div class="flex items-center gap-2 flex-wrap">
+<button type="button" id="btn-corpus-pin" onclick="handleCorpusPin()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 flex items-center gap-1"><i data-lucide="pin" class="w-3.5 h-3.5"></i>钉住当前母盘
+              </button>
+<span onclick="showTermHelp(event, 'corpus_pin')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：钉住当前母盘是干什么的">?</span>
+<button type="button" id="btn-corpus-diff" onclick="handleCorpusDiff()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 flex items-center gap-1"><i data-lucide="scan-search" class="w-3.5 h-3.5"></i>刷新对照
+              </button>
+<span onclick="showTermHelp(event, 'corpus_diff')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：刷新对照是干什么的">?</span>
+</div>
+</div>
+<div id="corpus-diff-summary" class="text-[11px] text-slate-600 leading-relaxed">先点「刷新对照」，再对每一条点同意或不同意。全部拍板后，若 strategy 不是 block，再钉住母盘。
+          </div>
+<div id="corpus-diff-details" class="text-[11px] space-y-1.5 max-h-80 overflow-y-auto">
+</div>
+<button id="btn-goto-step4" type="button" onclick="switchStep(4)" class="hidden py-2 px-4 text-xs font-semibold rounded-lg bg-[#7c5bf5] text-white hover:bg-[#6846e3]">策略允许，进入阶段四
+          </button>
+</div>
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
 <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700 flex-wrap gap-2"><span class="flex items-center gap-2 flex-wrap"><span>交付物：03_普林斯顿9因子高权威语料库.md</span><span id="rewrite-facts-hint" class="text-[10px] font-medium text-slate-500">默认增量；无脏块则跳过</span><span id="dirty-blocks-badge" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-900"></span></span>
 <div class="flex items-center gap-2 flex-wrap">
@@ -994,28 +1018,6 @@
 <div id="preview-step-3" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
 <div class="text-center py-12 text-slate-400 text-sm">点击【增量重构】生成或更新语料库...</div>
 </div>
-</div>
-<!-- 发前对照卡 -->
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
-<div class="flex items-center justify-between flex-wrap gap-2">
-<div class="flex items-center gap-2"><i data-lucide="git-compare" class="w-4 h-4 text-indigo-600"></i>
-<h3 class="text-xs font-bold text-slate-800">发前对照卡</h3><span id="corpus-strategy-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600">strategy: --</span>
-</div>
-<div class="flex items-center gap-2 flex-wrap">
-<button type="button" id="btn-corpus-pin" onclick="handleCorpusPin()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 flex items-center gap-1"><i data-lucide="pin" class="w-3.5 h-3.5"></i>钉住当前母盘
-              </button>
-<span onclick="showTermHelp(event, 'corpus_pin')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：钉住当前母盘是干什么的">?</span>
-<button type="button" id="btn-corpus-diff" onclick="handleCorpusDiff()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 flex items-center gap-1"><i data-lucide="scan-search" class="w-3.5 h-3.5"></i>刷新查看母盘更新情况对比
-              </button>
-<span onclick="showTermHelp(event, 'corpus_diff')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：刷新查看母盘更新情况对比是干什么的">?</span>
-</div>
-</div>
-<div id="corpus-diff-summary" class="text-[11px] text-slate-600 leading-relaxed">相对上一钉住版本，检查事实差量、脏块与逻辑矛盾。点「刷新查看母盘更新情况对比」后会列出具体改了哪几条。strategy=block 时勿进入阶段四。
-          </div>
-<div id="corpus-diff-details" class="text-[11px] space-y-1">
-</div>
-<button id="btn-goto-step4" type="button" onclick="switchStep(4)" class="hidden py-2 px-4 text-xs font-semibold rounded-lg bg-[#7c5bf5] text-white hover:bg-[#6846e3]">策略允许，进入阶段四
-          </button>
 </div>
 <div class="flex items-center justify-between pt-4 border-t border-slate-200 mt-6">
 <button onclick="prevStep()" id="btn-prev-step" class="py-2.5 px-5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition"><i data-lucide="chevron-left" class="w-4 h-4"></i><span>上一步</span>
@@ -1868,7 +1870,7 @@
 <header class="geo-page-head">
 <div>
 <h1 class="geo-page-title">大模型中枢与密钥</h1>
-<p class="geo-page-desc">配置 Nextdoor / 小毛驴入口，并检测当前连通状态。</p>
+<p class="geo-page-desc">运维入口：配置 Nextdoor / 小毛驴机器密钥，并检测连通状态。交付步骤不写 Key。</p>
 </div>
 </header>
 <nav class="geo-tabs" id="settings-llm-tabs">
@@ -1878,7 +1880,7 @@
 <div class="bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-3 max-w-2xl">
 <div class="geo-help">
 <button type="button" class="geo-help-toggle" onclick="toggleGeoHelp('settings-llm-help')">忘了这页怎么用？点击展开</button>
-<div id="settings-llm-help" class="geo-help-body hidden">在此检测大模型连通性；需要写入 Key 时点「配置 Nextdoor」。主操作使用实心紫按钮，次要操作为线框按钮。</div>
+<div id="settings-llm-help" class="geo-help-body hidden">本页是唯一推荐的密钥写入入口（运维）。交付流水线阶段三只显示是否在线；需要写入 Key 时在此点「配置 Nextdoor」。Ping 失败不会落盘。</div>
 </div>
 <div class="flex flex-wrap items-center gap-2">
 <button type="button" onclick="refreshLlmStatus(true)" class="geo-btn"><i data-lucide="radar" class="w-3.5 h-3.5"></i>立即检测</button>
@@ -8260,6 +8262,121 @@ function backToDashboard() {
       if (window.lucide) lucide.createIcons();
     }
 
+    function corpusDiffAckStoreKey() {
+      return `geo_corpus_diff_ack_${currentProjectId || ''}`;
+    }
+
+    function getCorpusDiffAck() {
+      try {
+        return JSON.parse(sessionStorage.getItem(corpusDiffAckStoreKey()) || '{}') || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function markCorpusDiffAck(factKey) {
+      if (!factKey) return;
+      const map = getCorpusDiffAck();
+      map[factKey] = Date.now();
+      sessionStorage.setItem(corpusDiffAckStoreKey(), JSON.stringify(map));
+    }
+
+    function clearCorpusDiffAck() {
+      sessionStorage.removeItem(corpusDiffAckStoreKey());
+    }
+
+    function filterAckedFactActions(d) {
+      const ack = getCorpusDiffAck();
+      const actions = (d.fact_actions || []).filter(a => !ack[a.fact_key]);
+      return { ...d, fact_actions: actions };
+    }
+
+    function renderCorpusDiffDetails(d) {
+      const details = document.getElementById('corpus-diff-details');
+      if (!details) return;
+      const esc = (s) => String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      const actions = d.fact_actions || [];
+      let html = '';
+      if ((d.hard_conflict_count || 0) > 0) {
+        html += `<div class="px-2 py-1.5 rounded border border-rose-200 bg-rose-50 text-rose-800">还有 ${d.hard_conflict_count} 条未决冲突：请在下方对应行点「同意」或「不同意」拍板（不必再滚回真相源）。</div>`;
+      }
+      if (actions.length) {
+        actions.forEach((a) => {
+          const op = a.op || '';
+          const opLabel = op === 'changed' ? '变更' : op === 'added' ? '新增' : op === 'removed' ? '删除' : '冲突';
+          const border = op === 'changed' ? 'border-amber-200 bg-amber-50'
+            : op === 'added' ? 'border-emerald-200 bg-emerald-50'
+            : op === 'removed' ? 'border-slate-200 bg-slate-50'
+            : 'border-rose-200 bg-rose-50';
+          const enc = encodeURIComponent(a.fact_key || '');
+          const opEnc = encodeURIComponent(op);
+          let body = '';
+          if (op === 'changed') {
+            body = `<div class="mt-0.5 text-slate-600 line-through opacity-80">${esc(a.from_value)}</div><div class="text-slate-900">${esc(a.to_value)}</div>`;
+          } else if (op === 'added') {
+            body = `<div class="mt-0.5 text-slate-900">${esc(a.to_value)}</div>`;
+          } else if (op === 'removed') {
+            body = `<div class="mt-0.5 text-slate-700 line-through opacity-80">${esc(a.from_value)}</div>`;
+          } else {
+            body = `<div class="mt-0.5 text-slate-600">旧：${esc(a.from_value)}</div><div class="text-slate-900">新：${esc(a.to_value)}</div>`;
+          }
+          const acceptTip = esc(a.accept_label || '同意');
+          const rejectTip = esc(a.reject_label || '不同意');
+          html += `<div class="px-2 py-2 rounded border ${border} flex items-start justify-between gap-3">
+            <div class="min-w-0 flex-1"><div class="flex items-center gap-2 flex-wrap"><span class="font-semibold">${opLabel}</span><code class="text-[10px]">${esc(a.fact_key)}</code>${a.blocking ? '<span class="text-[10px] font-bold text-rose-700">须拍板</span>' : ''}</div>${body}<div class="mt-1 text-[10px] text-slate-500">✓ ${acceptTip} · ✗ ${rejectTip}</div></div>
+            <div class="shrink-0 flex items-center gap-1.5">
+              <button type="button" title="${acceptTip}" onclick="handleCorpusDiffDecide('${enc}','accept','${opEnc}')" class="w-8 h-8 rounded-lg border border-emerald-300 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 font-bold text-sm" aria-label="${acceptTip}">✓</button>
+              <button type="button" title="${rejectTip}" onclick="handleCorpusDiffDecide('${enc}','reject','${opEnc}')" class="w-8 h-8 rounded-lg border border-rose-300 bg-rose-100 text-rose-800 hover:bg-rose-200 font-bold text-sm" aria-label="${rejectTip}">✗</button>
+            </div>
+          </div>`;
+        });
+      }
+      (d.dirty_blocks || []).forEach((b) => {
+        html += `<div class="px-2 py-1 rounded border border-indigo-100 bg-indigo-50 text-indigo-800">脏块待重写：${esc(b)}</div>`;
+      });
+      (d.logic_conflicts || []).forEach(c => {
+        html += `<div class="px-2 py-1 rounded border border-rose-200 bg-rose-50 text-rose-800">逻辑矛盾 [${esc(c.rule_id)}] ${esc(c.message)}</div>`;
+      });
+      (d.duplicates || []).slice(0, 5).forEach(c => {
+        html += `<div class="px-2 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700">重复提示：${esc(c.message)}</div>`;
+      });
+      details.innerHTML = html || '<div class="text-slate-400">没有待拍板的差量。可以钉住母盘，或进入阶段四。</div>';
+    }
+
+    function applyCorpusDiffPayload(d, { toast = true } = {}) {
+      const view = filterAckedFactActions(d);
+      const badge = document.getElementById('corpus-strategy-badge');
+      const summary = document.getElementById('corpus-diff-summary');
+      const goto4 = document.getElementById('btn-goto-step4');
+      updateCorpusPinButtonStyle(d.against === 'pinned');
+      const st = d.strategy || '--';
+      if (badge) {
+        badge.textContent = `strategy: ${st}`;
+        badge.className = `text-[10px] font-bold px-2 py-0.5 rounded-full border ${strategyBadgeClass(st)}`;
+      }
+      const fd = d.facts_diff || {};
+      const nAct = (view.fact_actions || []).length;
+      if (summary) {
+        if (d.against === 'none') {
+          summary.textContent = d.message || '尚无 pinned 基线，请先钉住当前母盘。';
+        } else {
+          summary.textContent = `against=pinned · 待拍板 ${nAct} 条 · 事实 +${(fd.added||[]).length} ~${(fd.changed||[]).length} -${(fd.removed||[]).length} · 脏块 ${(d.dirty_blocks||[]).length} · 每条右侧 ✓ 同意 / ✗ 不同意`;
+        }
+      }
+      renderCorpusDiffDetails(view);
+      if (goto4) {
+        if (st === 'block') goto4.classList.add('hidden');
+        else goto4.classList.remove('hidden');
+      }
+      if (!toast) return;
+      if (d.against === 'none') {
+        showToast(d.message || '尚无钉住基线，请先钉住当前母盘', 'error');
+      } else {
+        showToast(nAct ? `对照已刷新 · ${nAct} 条待拍板 · strategy: ${st}` : `对照已刷新 · 无需拍板 · strategy: ${st}`);
+      }
+    }
+
     async function handleCorpusDiff() {
       if (!currentProjectId) {
         showToast('请先选择项目', 'error');
@@ -8270,65 +8387,43 @@ function backToDashboard() {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const d = await res.json();
-        const badge = document.getElementById('corpus-strategy-badge');
-        const summary = document.getElementById('corpus-diff-summary');
-        const details = document.getElementById('corpus-diff-details');
-        const goto4 = document.getElementById('btn-goto-step4');
         if (!d.success) {
           showToast(d.message || '对照失败', 'error');
           return;
         }
-        updateCorpusPinButtonStyle(d.against === 'pinned');
-        const st = d.strategy || '--';
-        if (badge) {
-          badge.textContent = `strategy: ${st}`;
-          badge.className = `text-[10px] font-bold px-2 py-0.5 rounded-full border ${strategyBadgeClass(st)}`;
-        }
-        const fd = d.facts_diff || {};
-        if (summary) {
-          summary.textContent = d.against === 'none'
-            ? (d.message || '尚无 pinned 基线，请先钉住当前母盘。')
-            : `against=pinned · 事实 +${(fd.added||[]).length} ~${(fd.changed||[]).length} -${(fd.removed||[]).length} · 脏块 ${(d.dirty_blocks||[]).length}`;
-        }
-        const esc = (s) => String(s == null ? '' : s)
-          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        let html = '';
-        if ((d.hard_conflict_count || 0) > 0) {
-          html += `<div class="px-2 py-1 rounded border border-rose-200 bg-rose-50 text-rose-800">未决冲突 ${d.hard_conflict_count} 条（strategy=block，先去证据库/真相源仲裁）</div>`;
-        }
-        (fd.changed || []).forEach((c) => {
-          html += `<div class="px-2 py-1.5 rounded border border-amber-200 bg-amber-50 text-amber-950"><span class="font-semibold">变更</span> <code class="text-[10px]">${esc(c.fact_key)}</code><div class="mt-0.5 text-slate-600 line-through opacity-80">${esc(c.from)}</div><div class="text-slate-900">${esc(c.to)}</div></div>`;
-        });
-        (fd.added || []).forEach((c) => {
-          html += `<div class="px-2 py-1.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-900"><span class="font-semibold">新增</span> <code class="text-[10px]">${esc(c.fact_key)}</code><div class="mt-0.5">${esc(c.value)}</div></div>`;
-        });
-        (fd.removed || []).forEach((c) => {
-          html += `<div class="px-2 py-1.5 rounded border border-slate-200 bg-slate-50 text-slate-700"><span class="font-semibold">删除</span> <code class="text-[10px]">${esc(c.fact_key)}</code><div class="mt-0.5 line-through opacity-80">${esc(c.value)}</div></div>`;
-        });
-        (d.dirty_blocks || []).forEach((b) => {
-          html += `<div class="px-2 py-1 rounded border border-indigo-100 bg-indigo-50 text-indigo-800">脏块待重写：${esc(b)}</div>`;
-        });
-        (d.logic_conflicts || []).forEach(c => {
-          html += `<div class="px-2 py-1 rounded border border-rose-200 bg-rose-50 text-rose-800">逻辑矛盾 [${esc(c.rule_id)}] ${esc(c.message)}</div>`;
-        });
-        (d.duplicates || []).slice(0, 5).forEach(c => {
-          html += `<div class="px-2 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700">重复提示：${esc(c.message)}</div>`;
-        });
-        if (details) {
-          details.innerHTML = html || '<div class="text-slate-400">与钉住版相比，事实与脏块均无变化。</div>';
-        }
-        if (goto4) {
-          if (st === 'block') goto4.classList.add('hidden');
-          else goto4.classList.remove('hidden');
-        }
-        if (d.against === 'none') {
-          showToast(d.message || '尚无钉住基线，请先钉住当前母盘', 'error');
-        } else {
-          const n = (fd.added||[]).length + (fd.changed||[]).length + (fd.removed||[]).length;
-          showToast(n ? `对照已刷新 · 列出 ${n} 条事实差量 · strategy: ${st}` : `对照已刷新 · 无事实差量 · strategy: ${st}`);
-        }
+        applyCorpusDiffPayload(d);
       } catch (e) {
         showToast('对照请求失败: ' + (e.message || e), 'error');
+      }
+    }
+
+    async function handleCorpusDiffDecide(encodedKey, decision, encodedOp) {
+      if (!currentProjectId) return;
+      const factKey = decodeURIComponent(encodedKey || '');
+      const op = decodeURIComponent(encodedOp || '');
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/corpus/diff-decide`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ fact_key: factKey, decision, op })
+        });
+        const d = await res.json();
+        if (!d.success) {
+          showToast(d.message || '拍板失败', 'error');
+          return;
+        }
+        markCorpusDiffAck(factKey);
+        const tip = decision === 'accept' ? '已同意' : '已不同意';
+        showToast(`${tip} ${factKey}`);
+        if (d.diff) applyCorpusDiffPayload(d.diff, { toast: false });
+        else handleCorpusDiff();
+        if (typeof loadFactsPanel === 'function') loadFactsPanel();
+        if (typeof loadRawMaterialsEditor === 'function') loadRawMaterialsEditor();
+      } catch (e) {
+        showToast('拍板请求异常', 'error');
       }
     }
 
@@ -8341,6 +8436,7 @@ function backToDashboard() {
         });
         const d = await res.json();
         if (d.success) {
+          clearCorpusDiffAck();
           showToast('已钉住当前母盘为对照基线');
           updateCorpusPinButtonStyle(true);
           handleCorpusDiff();
@@ -8369,6 +8465,27 @@ function backToDashboard() {
       }
     }
 
+    function setStep3LlmSettingsCue(show, toastOnForce, force) {
+      const link = document.getElementById('llm-status-settings-link');
+      const hint = document.getElementById('llm-status-settings-hint');
+      if (link) link.classList.toggle('hidden', !show);
+      if (hint) hint.classList.toggle('hidden', !show);
+      if (show && force && toastOnForce) {
+        showToast('请到系统设置检查小毛驴密钥或本机隧道，本页不再配置 Key', 'error');
+      }
+    }
+
+    function goToLlmSettingsFromStep3() {
+      if (typeof switchView === 'function') {
+        switchView('settings-llm');
+        return;
+      }
+      if (typeof switchHomeView === 'function') {
+        switchHomeView('home-settings');
+        if (typeof switchHomeSettingsTab === 'function') switchHomeSettingsTab('llm');
+      }
+    }
+
     async function refreshLlmStatus(force) {
       const tag = document.getElementById('llm-status-tag');
       if (!tag) return;
@@ -8381,11 +8498,13 @@ function backToDashboard() {
         if (!res.ok) {
           tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-600';
           tag.textContent = 'LLM：需登录后检测';
+          setStep3LlmSettingsCue(false);
           return;
         }
         if (!d.configured || d.status === 'offline') {
           tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-slate-300 bg-slate-100 text-slate-700';
           tag.textContent = '未配置: Nextdoor';
+          setStep3LlmSettingsCue(true, true, force);
           return;
         }
         if (d.status === 'ready') {
@@ -8397,15 +8516,19 @@ function backToDashboard() {
             tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800';
             tag.textContent = `直连: ${(d.provider || '').toUpperCase()} / ${d.model || ''}${lat}`;
           }
+          setStep3LlmSettingsCue(false);
         } else if (d.status === 'auth_failed') {
           tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-rose-200 bg-rose-50 text-rose-800';
           tag.textContent = `鉴权失败: ${(d.provider || 'Nextdoor').toUpperCase()}（${d.api_key_masked || ''}）`;
+          setStep3LlmSettingsCue(true, true, force);
         } else {
           tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-amber-200 bg-amber-50 text-amber-900';
           tag.textContent = `不可达: ${(d.provider || 'Nextdoor').toUpperCase()}`;
+          setStep3LlmSettingsCue(true, true, force);
         }
       } catch (err) {
         tag.textContent = 'LLM：检测失败';
+        setStep3LlmSettingsCue(true, true, force);
       }
     }
 
@@ -12133,7 +12256,7 @@ function backToDashboard() {
         analogy: '就像手机右上角的「信号格」：绿的表示能打电话，黄的表示暂时没信号。',
         desc: '这个 Tag 只表示「管理台能不能连上 Nextdoor（小毛驴）大模型后端」，不是阶段三业务报错，也不是官网体检结果。常见显示：绿色「Nextdoor · geo · flash · xx ms」= 已连通；黄色「不可达: NEXTDOOR」= 配了密钥但此刻连不上（常见是本机 3001 隧道未开）；灰色「未配置」= 还没配 NEXTDOOR_API_KEY；红色「鉴权失败」= 密钥错误或过期。',
         why: '阶段三的「增量重构 / 强制全量」要调用小毛驴写普林斯顿语料。Tag 不绿时硬点重构，容易失败或降级成空稿，所以先看状态再开工。',
-        how: 'Tag 变绿即可继续做证据库与增量重构。若显示不可达：先确认本机已开到 mini:3001 的隧道，再点旁边「立即检测」。若显示未配置 / 鉴权失败：点「配置 Nextdoor」写入正确机器密钥。'
+        how: 'Tag 变绿即可继续做证据库与增量重构。若显示不可达：先确认本机已开到 mini:3001 的隧道，再点旁边「立即检测」。若显示未配置 / 鉴权失败：到左侧「系统设置 → 大模型中枢」点「配置 Nextdoor」写入机器密钥（阶段三不再提供配置按钮）。'
       },
       'llm_detect': {
         title: '立即检测',
@@ -12141,23 +12264,23 @@ function backToDashboard() {
         analogy: '像路由器上的「测网速」按钮：按一下看通不通，不会改你电脑里的文件。',
         desc: '「立即检测」会重新 ping 一次小毛驴 API，刷新左侧状态 Tag（是否配置、是否通、走哪条链、大约多慢）。它不会改体检报告、不会跑阶段三重构、不会动证据库。',
         why: '状态有缓存，刚开隧道或刚改密钥时，页面上可能还停在「不可达」。点检测可以强制再测一遍，避免误判。',
-        how: '点一下即可。若仍不可达，检查：① 本机 SSH 隧道是否映射 3001；② 「配置 Nextdoor」里的 Key / Base URL 是否正确；③ mini 上小毛驴服务是否在跑。'
+        how: '点一下即可。若仍不可达：① 本机 SSH 隧道是否映射 3001；② 到「系统设置」检查 Key / Base URL；③ mini 上小毛驴服务是否在跑。'
       },
       'corpus_pin': {
         title: '钉住当前母盘',
         badge: '发前对照的「存档基线」',
         analogy: '像考试前把一份已经定稿的答案卷复印封存：以后改了什么，都拿这份复印件来对。',
         desc: '把当前的正式语料母盘（03_…语料库.md）连同当时的已确认事实快照，复制到 outputs/pinned/，作为发前对照基线。按钮为绿色表示已有钉住基线；灰色/无色表示还没有。它不会发文章、不会改官网，只是「记住这一版是验收底稿」。有未决冲突或逻辑矛盾时，系统会禁止钉住，避免把错稿钉成基线。',
-        why: '阶段四分发前需要知道：相对上一版定稿，事实加了几条、改了几条、删了几条、还有没有脏块。没有钉住基线，「刷新查看母盘更新情况对比」就没有可比较的对象。',
-        how: '母盘内容你满意后点一次「钉住当前母盘」（按钮在左侧）。之后若又改了事实或做了增量重构，再点右侧「刷新查看母盘更新情况对比」看差量。strategy=block 时先清冲突，不要急着进阶段四。'
+        why: '阶段四分发前需要知道：相对上一版定稿，事实加了几条、改了几条、删了几条、还有没有脏块。没有钉住基线，「刷新对照」就没有可比较的对象。',
+        how: '满意后点「钉住当前母盘」。之后若又改了事实，点「刷新对照」，在对照卡逐条 ✓/✗ 拍板；冲突清完且 strategy 不是 block 再进阶段四。'
       },
       'corpus_diff': {
-        title: '刷新查看母盘更新情况对比',
+        title: '刷新对照',
         badge: '相对钉住版算差量',
-        analogy: '像「找不同」：左边是你钉住的旧卷子，右边是现在的卷子，按钮帮你标出改了哪些题。',
-        desc: '重新计算：当前真相源 / 母盘，相对 pinned 基线，事实新增(+)、变更(~)、删除(-) 各多少，以及还有没有脏块、重复、逻辑矛盾，并在对照卡下列出具体条目。它不改文件，只读对比。',
-        why: '防止带着过期或冲突事实进入阶段四矩阵分发。strategy=block 表示还有硬冲突，应先仲裁；允许时再进阶段四。',
-        how: '先至少钉住过一次母盘，再点「刷新查看母盘更新情况对比」。若提示尚无 pinned，就先点左侧「钉住当前母盘」。看清明细与 strategy 后再决定是否分发。'
+        analogy: '像「找不同」：左边是你钉住的旧卷子，右边是现在的卷子；每条旁边打勾或打叉决定留不留。',
+        desc: '重新计算当前真相源相对 pinned 基线的新增、变更、删除，并在对照卡列出。每条可直接 ✓ 同意或 ✗ 不同意，不必再滚回上面的真相源。',
+        why: '防止带着过期或冲突事实进入阶段四。strategy=block 表示还有硬冲突，在对照卡拍板清掉后再分发。',
+        how: '先至少钉住过一次，再点「刷新对照」。对每条点 ✓ 或 ✗；全部处理完后再钉住或进阶段四。'
       },
       'llms': {
         title: '/llms.txt 规范文件',

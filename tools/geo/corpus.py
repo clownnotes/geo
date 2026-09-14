@@ -18,8 +18,13 @@ from .ledger import (
     load_facts,
     get_rewrite_fact_bundle,
     migrate_legacy_raw_materials,
+    confirm_fact,
+    reject_fact,
+    resolve_conflict,
+    set_confirmed_fact_value,
     STATUS_CONFLICT,
     STATUS_CONFIRMED,
+    STATUS_PROPOSED,
 )
 
 CORPUS_MD = "03_普林斯顿9因子高权威语料库.md"
@@ -527,12 +532,14 @@ def corpus_diff(cfg: dict, against: str = "pinned") -> dict:
             "against": "none",
             "message": "尚无 pinned 基线，建议先一键钉住当前母盘",
             "facts_diff": {"added": [], "changed": [], "removed": []},
+            "fact_actions": [],
             "dirty_blocks": dirty_info.get("dirty_blocks") or [],
             "duplicates": dups,
             "logic_conflicts": logic,
             "hard_conflict_count": hard,
             "strategy": "block" if (hard or logic) else "noop",
             "recommend_pin": True,
+            "pending_decisions": 0,
         }
 
     pinned_snap = {}
@@ -547,10 +554,12 @@ def corpus_diff(cfg: dict, against: str = "pinned") -> dict:
     # dirty vs working meta is ok; also mark blocks affected by fact diff keys
     dirty = list(dirty_info.get("dirty_blocks") or [])
     strategy = decide_strategy(fdiff, dirty, hard, logic)
+    actions = build_fact_actions(facts, fdiff, pinned_snap)
     return {
         "success": True,
         "against": "pinned",
         "facts_diff": fdiff,
+        "fact_actions": actions,
         "dirty_blocks": dirty,
         "duplicates": dups,
         "logic_conflicts": logic,
@@ -558,6 +567,189 @@ def corpus_diff(cfg: dict, against: str = "pinned") -> dict:
         "strategy": strategy,
         "recommend_pin": False,
         "can_distribute": strategy != "block",
+        "pending_decisions": sum(1 for a in actions if a.get("needs_decision")),
+    }
+
+
+def build_fact_actions(facts: list, fdiff: dict, pinned_snap: dict) -> list:
+    """把差量编成对照卡可点的同意/不同意行。"""
+    by_key = {f.get("fact_key"): f for f in facts if f.get("fact_key")}
+    actions = []
+
+    for c in fdiff.get("changed") or []:
+        key = c.get("fact_key")
+        actions.append({
+            "fact_key": key,
+            "op": "changed",
+            "from_value": c.get("from"),
+            "to_value": c.get("to"),
+            "status": (by_key.get(key) or {}).get("status"),
+            "accept_label": "同意改成新值",
+            "reject_label": "不同意，保留旧值",
+            "needs_decision": True,
+            "blocking": False,
+        })
+
+    for c in fdiff.get("added") or []:
+        key = c.get("fact_key")
+        fact = by_key.get(key) or {}
+        actions.append({
+            "fact_key": key,
+            "op": "added",
+            "from_value": None,
+            "to_value": c.get("value"),
+            "status": fact.get("status"),
+            "accept_label": "同意新增",
+            "reject_label": "不同意，不要这条",
+            "needs_decision": True,
+            "blocking": fact.get("status") == STATUS_PROPOSED,
+        })
+
+    for c in fdiff.get("removed") or []:
+        key = c.get("fact_key")
+        fact = by_key.get(key) or {}
+        pinned_val = (pinned_snap.get(key) or {}).get("value")
+        if pinned_val is None:
+            pinned_val = c.get("value")
+        blocking = fact.get("status") == STATUS_CONFLICT
+        actions.append({
+            "fact_key": key,
+            "op": "removed",
+            "from_value": pinned_val,
+            "to_value": None,
+            "status": fact.get("status") or "missing",
+            "accept_label": "同意删除",
+            "reject_label": "不同意，恢复旧值",
+            "needs_decision": True,
+            "blocking": blocking,
+        })
+
+    # 冲突但尚未出现在 removed（极少数）：单独补行
+    seen = {a["fact_key"] for a in actions}
+    for fact in facts:
+        key = fact.get("fact_key")
+        if not key or key in seen or fact.get("status") != STATUS_CONFLICT:
+            continue
+        pinned_val = (pinned_snap.get(key) or {}).get("value")
+        snap = fact.get("confirmed_snapshot") or {}
+        actions.append({
+            "fact_key": key,
+            "op": "conflict",
+            "from_value": pinned_val if pinned_val is not None else snap.get("value"),
+            "to_value": fact.get("value"),
+            "status": STATUS_CONFLICT,
+            "accept_label": "采用当前/候选新值",
+            "reject_label": "保留历史确认值",
+            "needs_decision": True,
+            "blocking": True,
+        })
+    return actions
+
+
+def apply_corpus_diff_decision(cfg: dict, fact_key: str, decision: str, op: str = None) -> dict:
+    """
+    对照卡逐条拍板。
+    decision: accept | reject
+    op: changed | added | removed | conflict（可选，缺省时按当前差量推断）
+    """
+    migrate_legacy_raw_materials(cfg)
+    key = (fact_key or "").strip()
+    decision = (decision or "").strip().lower()
+    if not key:
+        return {"success": False, "message": "缺少 fact_key"}
+    if decision not in ("accept", "reject"):
+        return {"success": False, "message": "decision 须为 accept 或 reject"}
+
+    paths = corpus_paths(cfg)
+    pinned_snap = {}
+    if os.path.isfile(paths["pinned_facts"]):
+        try:
+            with open(paths["pinned_facts"], "r", encoding="utf-8") as f:
+                pinned_snap = json.load(f)
+        except Exception:
+            pinned_snap = {}
+
+    facts = load_facts(cfg)
+    by_key = {f.get("fact_key"): f for f in facts if f.get("fact_key")}
+    fact = by_key.get(key)
+    current_snap = _snapshot_confirmed_facts(facts)
+    fdiff = _facts_diff(current_snap, pinned_snap)
+    actions = {a["fact_key"]: a for a in build_fact_actions(facts, fdiff, pinned_snap)}
+    row = actions.get(key)
+    inferred_op = (op or (row or {}).get("op") or "").strip()
+
+    if inferred_op == "changed":
+        if decision == "accept":
+            # 当前已确认新值；若仍是提案则确认
+            if fact and fact.get("status") == STATUS_PROPOSED:
+                res = confirm_fact(cfg, key)
+            else:
+                res = {"success": True, "fact_key": key, "message": "已采纳当前新值"}
+        else:
+            old = (row or {}).get("from_value")
+            if old is None and key in pinned_snap:
+                old = pinned_snap[key].get("value")
+            if old is None:
+                return {"success": False, "message": f"`{key}` 无旧值可恢复"}
+            stmt = (pinned_snap.get(key) or {}).get("statement") or old
+            res = set_confirmed_fact_value(cfg, key, str(old), statement=str(stmt), note="diff_card_keep_old")
+
+    elif inferred_op == "added":
+        if decision == "accept":
+            if not fact:
+                return {"success": False, "message": f"未找到事实键 `{key}`"}
+            if fact.get("status") == STATUS_CONFLICT:
+                res = resolve_conflict(cfg, key, str(fact.get("value") or ""), note="diff_card_accept_add")
+            elif fact.get("status") != STATUS_CONFIRMED:
+                res = confirm_fact(cfg, key)
+            else:
+                res = {"success": True, "fact_key": key, "message": "新增已确认"}
+        else:
+            res = reject_fact(cfg, key, note="diff_card_reject_add")
+
+    elif inferred_op in ("removed", "conflict"):
+        if decision == "accept":
+            # 同意删除 / 采用冲突中的当前值：removed→拒绝；conflict 且用户点同意新值→确认当前
+            if inferred_op == "conflict" and fact:
+                chosen = fact.get("value")
+                if chosen is None or chosen == "":
+                    return {"success": False, "message": f"`{key}` 无可用新值"}
+                res = resolve_conflict(cfg, key, str(chosen), note="diff_card_accept_new")
+            else:
+                if fact:
+                    res = reject_fact(cfg, key, note="diff_card_accept_delete")
+                else:
+                    res = {"success": True, "fact_key": key, "message": "已保持删除"}
+        else:
+            old = (row or {}).get("from_value")
+            if old is None and key in pinned_snap:
+                old = pinned_snap[key].get("value")
+            if old is None and fact and fact.get("confirmed_snapshot"):
+                old = fact["confirmed_snapshot"].get("value")
+            if old is None:
+                return {"success": False, "message": f"`{key}` 无旧值可恢复"}
+            stmt = None
+            if key in pinned_snap:
+                stmt = pinned_snap[key].get("statement")
+            if not stmt and fact and fact.get("confirmed_snapshot"):
+                stmt = fact["confirmed_snapshot"].get("statement")
+            if fact and fact.get("status") == STATUS_CONFLICT:
+                res = resolve_conflict(cfg, key, str(old), note="diff_card_restore_old")
+            else:
+                res = set_confirmed_fact_value(cfg, key, str(old), statement=str(stmt or old), note="diff_card_restore_old")
+    else:
+        return {"success": False, "message": f"无法判定 `{key}` 的差量类型，请先刷新对照"}
+
+    if not res.get("success"):
+        return res
+    refreshed = corpus_diff(cfg, against="pinned")
+    return {
+        "success": True,
+        "fact_key": key,
+        "decision": decision,
+        "op": inferred_op,
+        "action_result": res,
+        "diff": refreshed,
     }
 
 

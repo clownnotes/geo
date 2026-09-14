@@ -45,7 +45,8 @@
 
 4. **大模型入口（小毛驴 / Nextdoor，必配）**：
    - 管理台登记接入前端 `brand_key`（建议 `geo`），启用专属模型组；特惠/冷静复用全站模型逻辑。
-   - GEO Web「配置 Nextdoor」写入：`NEXTDOOR_BASE_URL`（同机默认 `http://127.0.0.1:3001`）、机器密钥 `NEXTDOOR_API_KEY`（`ndsk_…`）、`vio-source-client=geo`、mode=`flash`（模型顺序只在小毛驴专属链配置）。
+   - **密钥写入入口**：GEO Web **系统设置 → 大模型中枢 → 配置 Nextdoor**（运维操作）。写入：`NEXTDOOR_BASE_URL`（同机默认 `http://127.0.0.1:3001`）、机器密钥 `NEXTDOOR_API_KEY`（`ndsk_…`）、`vio-source-client=geo`、mode=`flash`（模型顺序只在小毛驴专属链配置）。
+   - **阶段三交付页**：只显示连通状态 Tag +「立即检测」；**不在阶段三配置密钥**。Tag 非绿时到系统设置检查 Key / 隧道。
    - 专属链选模与冷却在 Nextdoor；整链打光后沿用小毛驴回落全站池。应急直连仅 `GEO_LLM_DIRECT=1`。
 
 ## 二、每篇语料的硬性结构（普林斯顿因子落位）

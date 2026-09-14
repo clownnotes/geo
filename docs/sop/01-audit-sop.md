@@ -28,7 +28,7 @@
    ```
    - **技术真源**：`projects/<client_id>/outputs/audit_metrics.json`（硬指标，不经大模型改写）
    - **客户报告**：`projects/<client_id>/outputs/01_企业AI可见度现状体检与商业诊断报告.md`
-   - **商业解读**：若已配置小毛驴 / Nextdoor（优先 `NEXTDOOR_API_KEY`；同机 `NEXTDOOR_BASE_URL=http://127.0.0.1:3001`），点「② 小毛驴解读」写结论与建议；未配置或失败时降级为规则稿。外部调用方才走公网 `https://nextdoor.baicl.cc`，管理面与同机互调禁止绕 VPS。
+   - **商业解读**：若已配置小毛驴 / Nextdoor（优先 `NEXTDOOR_API_KEY`；同机 `NEXTDOOR_BASE_URL=http://127.0.0.1:3001`），点「② 小毛驴解读」写结论与建议；未配置或失败时降级为规则稿。密钥由运维在管理台 **系统设置 → 大模型中枢** 维护（与阶段三共用同一份机器密钥）。外部调用方才走公网 `https://nextdoor.baicl.cc`，管理面与同机互调禁止绕 VPS。
 3. **管理台**：阶段一按钮 **① 真抓指标** → **② 小毛驴解读**；「一键复制给 IDE」用于旗舰客户二次精修。
 4. **一键生成售前商业 Pitch Deck**（可选）：
    ```bash

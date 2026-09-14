@@ -809,6 +809,23 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 6b3. 发前对照卡：逐条同意/不同意
+        if path.startswith("/api/projects/") and path.endswith("/corpus/diff-decide"):
+            project_id = path.split("/")[3]
+            body = self.read_json_body() or {}
+            fact_key = (body.get("fact_key") or "").strip()
+            decision = (body.get("decision") or "").strip()
+            op = (body.get("op") or "").strip() or None
+            try:
+                from .utils import load_project_config
+                from .corpus import apply_corpus_diff_decision
+                cfg = load_project_config(project_id)
+                res = apply_corpus_diff_decision(cfg, fact_key, decision, op=op)
+                self.send_json(res, status=200 if res.get("success") else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 6c. 真相源：仲裁冲突
         if path.startswith("/api/projects/") and path.endswith("/facts/resolve-conflict"):
             project_id = path.split("/")[3]

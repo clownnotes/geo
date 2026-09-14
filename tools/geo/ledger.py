@@ -764,6 +764,63 @@ def resolve_conflict(cfg: dict, fact_key: str, chosen_value: str, note: str = No
     return {"success": True, "fact_key": key, "value": chosen, "status": STATUS_CONFIRMED}
 
 
+def reject_fact(cfg: dict, fact_key: str, note: str = None) -> dict:
+    """将事实标为 rejected，不再进入已确认快照（发前对照视为删除已落地）。"""
+    key = normalize_fact_key(fact_key)
+    facts = load_facts(cfg)
+    found = False
+    for fact in facts:
+        if fact.get("fact_key") != key:
+            continue
+        found = True
+        fact["status"] = STATUS_REJECTED
+        fact["candidates"] = []
+        fact["resolve_note"] = note or "diff_card_reject"
+        fact["updated_at"] = _now_iso()
+        break
+    if not found:
+        return {"success": False, "message": f"未找到事实键 `{key}`"}
+    save_facts(cfg, facts)
+    return {"success": True, "fact_key": key, "status": STATUS_REJECTED}
+
+
+def set_confirmed_fact_value(cfg: dict, fact_key: str, value: str, statement: str = None, note: str = None) -> dict:
+    """写入/覆盖一条已确认事实（用于对照卡「恢复旧值」或「采用新值」）。"""
+    key = normalize_fact_key(fact_key)
+    chosen = _norm_value(value)
+    stmt = (statement or chosen or "").strip() or chosen
+    facts = load_facts(cfg)
+    found = False
+    for fact in facts:
+        if fact.get("fact_key") != key:
+            continue
+        found = True
+        fact["value"] = chosen
+        fact["statement"] = stmt
+        fact["status"] = STATUS_CONFIRMED
+        fact["confirmed_snapshot"] = {"value": chosen, "statement": stmt}
+        fact["candidates"] = []
+        fact["resolve_note"] = note or ""
+        fact["updated_at"] = _now_iso()
+        break
+    if not found:
+        facts.append({
+            "fact_key": key,
+            "value": chosen,
+            "statement": stmt,
+            "status": STATUS_CONFIRMED,
+            "category": STANDARD_FACT_KEYS.get(key, "其他"),
+            "sources": [],
+            "candidates": [],
+            "confirmed_snapshot": {"value": chosen, "statement": stmt},
+            "resolve_note": note or "",
+            "updated_at": _now_iso(),
+            "unit": "",
+        })
+    save_facts(cfg, facts)
+    return {"success": True, "fact_key": key, "value": chosen, "status": STATUS_CONFIRMED}
+
+
 def get_rewrite_fact_bundle(cfg: dict) -> dict:
     """
     供 rewrite 消费：仅 confirmed；冲突有历史 confirmed 则沿用并记 warning。
