@@ -23,3 +23,15 @@
 - **说明**：工作区已有部分实验性 `diff-decide` / 行内 ✓✗，本 Spec 要求收口为「全部确认 → 钉住」闸门，并去掉真相源主路径依赖。
 - **目录**：`openspec/changes/2026-09-14-发前对照卡Git式逐条确认/`
 - 状态：`[待讨论]` — 请产品确认 proposal/design/tasks；通过后再 `/opsx-apply`。
+
+## 2026-09-14 Cursor（/opsx-apply）
+
+- **已落地**：`diff-confirm-all` + pin 闸门；对照卡 ✓ 主 / ✗ 次；原先→现在文案；真相源「对照卡有待确认」角标；SOP-03 同步；单测 DiffDecide / confirm-all。
+- **待产品验收**：tasks 5.3 本地冒烟。
+- 状态：`[已修正]` — 编码完成，停步等待人工验收；勿自动归档。
+
+## 2026-09-15 Cursor（产品归档验收）
+
+- **验收**：产品明确要求归档；tasks 5.3 视为通过。
+- **动作**：`./opsx archive` → `openspec/changes/archive/2026-09-14-发前对照卡Git式逐条确认/`
+- 状态：`[通过]`
