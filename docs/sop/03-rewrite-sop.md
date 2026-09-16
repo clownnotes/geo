@@ -34,20 +34,21 @@
    ```bash
    python3 -m tools.geo rewrite --project <client_id>          # 默认 incremental：只重生脏块
    python3 -m tools.geo rewrite --project <client_id> --full   # 强制全量
-   python3 -m tools.geo corpus-pin <client_id>                 # 钉住母盘为对照基线
    python3 -m tools.geo corpus-diff <client_id>                # 发前对照卡
+   python3 -m tools.geo corpus-pin <client_id>                 # 钉住母盘为对照基线（须先全部确认）
    ```
    - 无脏块时返回 noop，不重写全文。  
    - 缺失母盘/`03_corpus_meta.json` 时自动降级 full。  
    - 仅消费 `confirmed` 事实；冲突未决时降级沿用历史确认值或安全占位，严禁编造。  
+   - **发前对照（Git 式）**：刷新对照看「原先→现在」；新增绿、删除灰；对照卡逐条 ✓ 打勾固定；点「全部确认」后再钉住。真相源仅作提醒，不在列表里做主 diff。  
    - 发前对照 `strategy=block` 时禁止进入阶段四；`patch` / `new_article` / `noop` 按硬规则判定。  
    - 产物：《03_普林斯顿9因子高权威语料库.md》+ `03_corpus_meta.json`。
 
 4. **大模型入口（小毛驴 / Nextdoor，必配）**：
    - 管理台登记接入前端 `brand_key`（建议 `geo`），启用专属模型组；特惠/冷静复用全站模型逻辑。
-   - **密钥写入入口**：GEO Web **系统设置 → 大模型中枢 → 配置 Nextdoor**（运维操作）。写入：`NEXTDOOR_BASE_URL`（同机默认 `http://127.0.0.1:3001`）、机器密钥 `NEXTDOOR_API_KEY`（`ndsk_…`）、`vio-source-client=geo`、mode=`flash`（模型顺序只在小毛驴专属链配置）。
+   - **密钥写入入口**：GEO Web **系统设置 → 大模型中枢 → 配置 Nextdoor**（运维操作）。写入：`NEXTDOOR_BASE_URL`（同机默认 `http://127.0.0.1:3001`）、机器密钥 `NEXTDOOR_API_KEY`（`ndsk_…`）、`vio-source-client=geo`、回落档 `NEXTDOOR_CHAT_MODE` 默认 `auto`（**不是选模**；模型顺序只在小毛驴专属链配置）。非 auto 档失败时，GEO 会再以 `auto` 重试一次以保障可用。
    - **阶段三交付页**：只显示连通状态 Tag +「立即检测」；**不在阶段三配置密钥**。Tag 非绿时到系统设置检查 Key / 隧道。
-   - 专属链选模与冷却在 Nextdoor；整链打光后沿用小毛驴回落全站池。应急直连仅 `GEO_LLM_DIRECT=1`。
+   - 专属链选模与冷却在 Nextdoor；整链打光后沿用小毛驴按回落档回落全站池。应急直连仅 `GEO_LLM_DIRECT=1`。
 
 ## 二、每篇语料的硬性结构（普林斯顿因子落位）
 

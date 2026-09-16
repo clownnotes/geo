@@ -163,7 +163,7 @@
 <header class="geo-page-head">
 <div>
 <h1 class="geo-page-title">企业管理</h1>
-<p class="geo-page-desc">客户档案、归属合作方、进入交付流水线。</p>
+<p class="geo-page-desc">客户档案、归属合作方、进入首次交付。</p>
 </div>
 <div class="flex flex-wrap gap-2">
 <button type="button" onclick="openBatchModal()" class="geo-btn"><i data-lucide="layers" class="w-3.5 h-3.5"></i>批量并发</button>
@@ -339,7 +339,7 @@
 <button type="button" data-home-set="export" onclick="switchHomeSettingsTab('export')">离线导出说明</button>
 </nav>
 <div id="home-set-llm" class="home-set-panel bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-3 max-w-2xl">
-<p class="text-xs text-slate-500">运维入口：写入小毛驴机器密钥并检测连通。交付流水线阶段三只读状态，不在此配 Key。</p>
+<p class="text-xs text-slate-500">运维入口：写入小毛驴机器密钥并检测连通。首次交付阶段三只读状态，不在此配 Key。</p>
 <div class="flex flex-wrap items-center gap-2">
 <button type="button" onclick="refreshLlmStatus(true)" class="geo-btn">立即检测</button>
 <span onclick="showTermHelp(event, 'llm_detect')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：立即检测是干什么的">?</span>
@@ -372,18 +372,8 @@
 <button type="button" onclick="backToEnterprises()" class="mt-2 w-full text-[11px] text-slate-500 hover:text-[#7c5bf5] text-left px-1">返回企业管理</button>
 </div>
 <nav class="flex-1 overflow-y-auto sidebar-nav-scroll">
-<div class="accordion-group sidebar-group" data-group="overview">
-<button type="button" class="accordion-header" onclick="toggleSidebarGroup('overview')"><span class="category-title">项目概览</span><span class="arrow-indicator" data-group-arrow="overview">▼</span>
-</button>
-<div id="sidebar-group-overview" class="submenu-list">
-<button type="button" id="nav-overview" onclick="switchView('overview')" class="sidebar-nav-item"><span class="truncate">客户档案与总资产看板</span>
-</button>
-<button type="button" id="nav-keywords" onclick="switchView('keywords')" class="sidebar-nav-item"><span class="truncate">核心词库与意图矩阵</span>
-</button>
-</div>
-</div>
 <div class="accordion-group sidebar-group" data-group="delivery">
-<button type="button" class="accordion-header" onclick="toggleSidebarGroup('delivery')"><span class="category-title">交付流水线</span><span class="arrow-indicator" data-group-arrow="delivery">▼</span>
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('delivery')"><span class="category-title">首次交付</span><span class="arrow-indicator" data-group-arrow="delivery">▼</span>
 </button>
 <div id="sidebar-group-delivery" class="submenu-list">
 <button type="button" id="nav-step-0-probe" onclick="switchView('step-0-probe')" class="sidebar-nav-item"><span class="truncate">00 侦察建档</span>
@@ -400,30 +390,40 @@
 </button>
 </div>
 </div>
-<div class="accordion-group sidebar-group" data-group="monitoring">
-<button type="button" class="accordion-header" onclick="toggleSidebarGroup('monitoring')"><span class="category-title">监测运维</span><span class="arrow-indicator" data-group-arrow="monitoring">▶</span>
+<div class="accordion-group sidebar-group" data-group="daily">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('daily')"><span class="category-title">日常运维</span><span class="arrow-indicator" data-group-arrow="daily">▶</span>
 </button>
-<div id="sidebar-group-monitoring" class="submenu-list hidden">
-<button type="button" id="nav-mon-weekly" onclick="switchView('mon-weekly')" class="sidebar-nav-item"><span class="truncate">权威度与 SOV 周报</span>
-</button>
-<button type="button" id="nav-mon-probing" onclick="switchView('mon-probing')" class="sidebar-nav-item"><span class="truncate">大模型问答探针</span>
-</button>
-<button type="button" id="nav-mon-patrol" onclick="switchView('mon-patrol')" class="sidebar-nav-item"><span class="truncate">巡检告警与链接检查</span>
-</button>
-<button type="button" id="nav-mon-deliverables" onclick="switchView('mon-deliverables')" class="sidebar-nav-item"><span class="truncate">客户交付物与专属链接</span>
+<div id="sidebar-group-daily" class="submenu-list hidden">
+<button type="button" id="nav-keywords" onclick="switchView('keywords')" class="sidebar-nav-item"><span class="truncate">关键词清单与意图矩阵</span>
 </button>
 <button type="button" id="nav-mon-decay" onclick="switchView('mon-decay')" class="sidebar-nav-item"><span class="truncate">知识半衰期与自愈</span>
-</button>
-<button type="button" id="nav-mon-crisis" onclick="switchView('mon-crisis')" class="sidebar-nav-item"><span class="truncate">品牌声誉与危机清洗</span>
 </button>
 <button type="button" id="nav-mon-princeton" onclick="switchView('mon-princeton')" class="sidebar-nav-item"><span class="truncate">普林斯顿复检</span>
 </button>
 </div>
 </div>
-<div class="accordion-group sidebar-group" data-group="defense">
-<button type="button" class="accordion-header" onclick="toggleSidebarGroup('defense')"><span class="category-title">进阶攻防</span><span class="arrow-indicator" data-group-arrow="defense">▶</span>
+<div class="accordion-group sidebar-group" data-group="biz">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('biz')"><span class="category-title">经营监管</span><span class="arrow-indicator" data-group-arrow="biz">▶</span>
 </button>
-<div id="sidebar-group-defense" class="submenu-list hidden">
+<div id="sidebar-group-biz" class="submenu-list hidden">
+<button type="button" id="nav-overview" onclick="switchView('overview')" class="sidebar-nav-item"><span class="truncate">客户档案与总资产看板</span>
+</button>
+<button type="button" id="nav-mon-weekly" onclick="switchView('mon-weekly')" class="sidebar-nav-item"><span class="truncate">权威度与 SOV 周报</span>
+</button>
+<button type="button" id="nav-mon-deliverables" onclick="switchView('mon-deliverables')" class="sidebar-nav-item"><span class="truncate">客户交付物与专属链接</span>
+</button>
+</div>
+</div>
+<div class="accordion-group sidebar-group" data-group="supervise">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('supervise')"><span class="category-title">监管运维</span><span class="arrow-indicator" data-group-arrow="supervise">▶</span>
+</button>
+<div id="sidebar-group-supervise" class="submenu-list hidden">
+<button type="button" id="nav-mon-probing" onclick="switchView('mon-probing')" class="sidebar-nav-item"><span class="truncate">大模型问答探针</span>
+</button>
+<button type="button" id="nav-mon-patrol" onclick="switchView('mon-patrol')" class="sidebar-nav-item"><span class="truncate">巡检告警与链接检查</span>
+</button>
+<button type="button" id="nav-mon-crisis" onclick="switchView('mon-crisis')" class="sidebar-nav-item"><span class="truncate">品牌声誉与危机清洗</span>
+</button>
 <button type="button" id="nav-def-rival" onclick="switchView('def-rival')" class="sidebar-nav-item"><span class="truncate">竞品与护城河</span>
 </button>
 <button type="button" id="nav-def-retrieval" onclick="switchView('def-retrieval')" class="sidebar-nav-item"><span class="truncate">检索与内容增益</span>
@@ -431,6 +431,16 @@
 <button type="button" id="nav-def-attribution" onclick="switchView('def-attribution')" class="sidebar-nav-item"><span class="truncate">信源与归因加深</span>
 </button>
 <button type="button" id="nav-def-guard" onclick="switchView('def-guard')" class="sidebar-nav-item"><span class="truncate">对抗与鲁棒</span>
+</button>
+</div>
+</div>
+<div class="accordion-group sidebar-group" data-group="publish">
+<button type="button" class="accordion-header" onclick="toggleSidebarGroup('publish')"><span class="category-title">发帖运维</span><span class="arrow-indicator" data-group-arrow="publish">▶</span>
+</button>
+<div id="sidebar-group-publish" class="submenu-list hidden">
+<button type="button" id="nav-ops-publish" onclick="switchView('ops-publish')" class="sidebar-nav-item"><span class="truncate">维护期发帖流程</span>
+</button>
+<button type="button" id="nav-ops-publish-tools" onclick="switchView('step-4-distribute')" class="sidebar-nav-item"><span class="truncate">发帖工具（草稿/写回/复制发布）</span>
 </button>
 </div>
 </div>
@@ -583,7 +593,7 @@
 <div class="bg-white border-2 border-[#7c5bf5]/40 rounded-lg p-3 space-y-3">
 <div>
 <div class="text-[11px] font-bold text-slate-900">F. 第二次粘贴：让反重力把结果写成文件</div>
-<p class="text-[11px] text-slate-600 mt-1 leading-relaxed">第一次粘贴<strong>不会</strong>自动落盘。你要再复制一次「收工说明书」贴进<strong>同一个</strong>反重力对话，它才会按路径新建/写入 JSON。写完后，你点「检查有没有落盘」，看旁边徽章是「已生成」还是「尚未生成」。</p>
+<p class="text-[11px] text-slate-600 mt-1 leading-relaxed">第一次粘贴<strong>不会</strong>自动落盘。你要再复制一次「收工说明书」贴进<strong>同一个</strong>反重力对话，它才会按路径新建/写入 JSON。写完后，你点「检查有没有落盘」。<strong>注意：</strong>这里查的是「今天这份目标文件名」；若显示今日未写但下方列表仍有历史 JSON、且基线已就绪，<strong>不等于第 0 步资料丢失</strong>。</p>
 </div>
 <div class="text-[10px] space-y-1 bg-slate-50 border border-slate-100 rounded-md px-2.5 py-2">
 <div class="flex flex-wrap items-center gap-2">
@@ -695,7 +705,7 @@
 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
 <div class="min-w-0">
 <h2 class="text-base font-bold text-slate-900">阶段一：测算诊断（客户现状体检）</h2>
-<p class="text-xs text-slate-500 mt-1"><strong>分三步</strong>：① 真抓指标（Python 爬官网）→ ② 小毛驴解读（千问写商业段）→ ③ 一键复制给 IDE 再审（旗舰客户精修话术，可选）。技术分不经大模型改写；可见度引用阶段零侦察。</p>
+<p class="text-xs text-slate-500 mt-1"><strong>分三步</strong>：① 真抓指标 → ② 小毛驴解读 → ③ IDE 再审（可选）。另外可出 <strong>②深化报告</strong>：问完豆包后，复制提示词给 IDE 结合问答写第二份报告。</p>
 <p class="text-[11px] text-slate-400 mt-1.5">次要入口：<button type="button" onclick="openCrawlerSimModal()" class="text-indigo-600 hover:underline font-medium">爬虫抓取仿真</button>
 <span class="mx-1.5 text-slate-300">|</span>
 指标真源：<code class="text-[10px] bg-slate-100 px-1 rounded">outputs/audit_metrics.json</code>
@@ -705,8 +715,10 @@
 <button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-crawl" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow transition"><span>① 真抓指标</span></button>
 <button type="button" onclick="runStep1Audit(event, 'interpret')" id="btn-step-1-interpret" class="py-2.5 px-3.5 border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-xs font-semibold rounded-lg transition"><span>② 小毛驴解读</span></button>
 <button type="button" onclick="copyStep1AuditToIde(this)" class="py-2.5 px-3.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition"><span>③ 一键复制给 IDE 再审</span></button>
+<button type="button" onclick="copyDiagDeepenPrompt(this)" class="py-2.5 px-3.5 border-2 border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-900 text-xs font-semibold rounded-lg transition"><span>复制②深化提示词（给 IDE）</span></button>
 </div>
-<p class="text-[10px] text-slate-500">顺序：先①后②，再按需③。没跑过①就点②会提示先真抓。</p>
+<p class="text-[10px] text-slate-500">①快报=本页体检报告（出得快）。②深化=可选：阶段零问完豆包后，点「复制②深化提示词」贴给 IDE。</p>
+<p id="diag-deepen-probe-hint" class="text-[10px] text-amber-700 hidden"></p>
 </div>
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
 <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 text-xs font-semibold text-slate-700">
@@ -924,7 +936,7 @@
 </div>
 <p id="llm-status-settings-hint" class="hidden mt-1.5 text-[11px] text-amber-800">算力密钥不在本页配置。请到左侧「系统设置 → 大模型中枢」维护，或检查本机到 mini:3001 的隧道后再点「立即检测」。</p>
 </div>
-<div class="flex items-center gap-2.5 flex-wrap"><span class="text-[11px] text-slate-400">RAG / 图谱 / 视觉已迁至左侧「进阶攻防」</span>
+<div class="flex items-center gap-2.5 flex-wrap"><span class="text-[11px] text-slate-400">RAG / 图谱 / 视觉已迁至左侧「监管运维」</span>
 </div>
 </div>
 <!-- 证据库与事实清洗中枢 -->
@@ -1385,7 +1397,7 @@
 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between flex-wrap gap-3">
 <div>
 <h2 class="text-base font-bold text-slate-900">阶段五：首轮监测与验收</h2>
-<p class="text-xs text-slate-500 mt-1">交付收口：跑一轮声量监测、出周报、开验收单。进阶沙盘见左侧「进阶攻防」，日常复测见「监测运维」。</p>
+<p class="text-xs text-slate-500 mt-1">交付收口：跑一轮声量监测、出周报、开验收单。日常复测见「日常运维 / 监管运维」；维护期继续发帖见「发帖运维」。</p>
 </div>
 <div class="flex items-center gap-2.5 flex-wrap">
 <button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="geo-btn geo-btn-primary"><i data-lucide="line-chart" class="w-4 h-4"></i><span>执行实时声量监测</span>
@@ -1722,30 +1734,75 @@
 </div>
 </div>
 </div>
+<div id="panel-ops-publish" class="workspace-panel hidden space-y-6">
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+<div>
+<span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded border bg-violet-50 text-violet-800 border-violet-200">发帖运维</span>
+<h2 class="text-base font-bold text-slate-900 mt-2">维护期发帖流程</h2>
+<p class="text-xs text-slate-500 mt-1 max-w-2xl">这里管<strong>首次两篇之后</strong>的日常发帖。首次头条+知乎各一篇在「首次交付 · 04」里完成；这里按<strong>已确认的关键词清单</strong>继续写、发、回填链接。</p>
+<p id="ops-publish-kw-gate" class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2 hidden">关键词尚未标记「客户已确认」。请先去「日常运维 · 关键词清单」确认，再继续发帖。</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+<div class="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
+<div class="font-bold text-slate-800">1. 看词</div>
+<p class="text-slate-600">打开关键词清单，选本周要盖的词（客户已确认的那些）。</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
+<div class="font-bold text-slate-800">2. 写与发</div>
+<p class="text-slate-600">按母盘围着词写文章 → IDE 定稿 → 复制发布（工具与首次交付同源）。</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
+<div class="font-bold text-slate-800">3. 回填</div>
+<p class="text-slate-600">把发布链接填回台账，检查链接还在不在。</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 pt-1">
+<button type="button" onclick="switchView('keywords')" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">打开关键词清单</button>
+<button type="button" onclick="switchView('step-4-distribute')" class="py-2.5 px-4 bg-white border border-violet-200 hover:bg-violet-50 text-violet-800 text-xs font-semibold rounded-lg">打开发帖工具（草稿/写回/复制发布）</button>
+<button type="button" onclick="switchView('mon-patrol')" class="py-2.5 px-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">检查已发链接</button>
+</div>
+<p class="text-[11px] text-slate-400">规范真源：OpenSpec 2026-09-16-对照苍何…/design.md §B §C</p>
+</div>
+</div>
 <div id="panel-overview" class="workspace-panel hidden space-y-6">
 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
 <h2 class="text-base font-bold text-slate-900">客户档案与总资产看板</h2>
-<p class="text-xs text-slate-500 mt-1">建档主档只读镜像（来自 project.yaml）。详细交付在左侧「交付流水线」中推进；本页无编辑保存。</p>
+<p class="text-xs text-slate-500 mt-1">建档主档只读镜像（来自 project.yaml）。详细交付在左侧「首次交付」中推进；本页无编辑保存。</p>
 <div id="overview-profile-root" class="mt-4 space-y-4">
 <div class="text-xs text-slate-400 py-6 text-center">加载客户档案中…</div>
 </div>
 <div class="mt-5 flex flex-wrap gap-2">
-<button type="button" onclick="switchView('step-1-diag')" class="py-2 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">进入交付流水线</button>
+<button type="button" onclick="switchView('step-1-diag')" class="py-2 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">进入首次交付</button>
 <button type="button" onclick="switchView('step-3-princeton')" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">证据库与真相源</button>
-<button type="button" onclick="switchView('step-4-distribute')" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">矩阵分发</button>
+<button type="button" onclick="switchView('ops-publish')" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">发帖运维</button>
 <button type="button" onclick="switchView('mon-weekly')" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">SOV 周报</button>
 </div>
 </div>
 </div>
 <div id="panel-keywords" class="workspace-panel hidden space-y-6">
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-<h2 class="text-base font-bold text-slate-900">核心词库与三级意图矩阵</h2>
-<p class="text-xs text-slate-500 mt-1">打开意图矩阵与词库演进工具，服务语料与评测对齐。</p>
+<h2 class="text-base font-bold text-slate-900">关键词清单与意图矩阵</h2>
+<p class="text-xs text-slate-500 mt-1">日常运维主阵地：看清/确认要抢的提问词；词数不写死，客户确认后开工。首次两篇之外的词在此维护。</p>
 </div>
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 max-w-2xl">
 <div class="grid grid-cols-1 gap-2">
 <button onclick="openIntentMatrixModal()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="target" class="w-3.5 h-3.5"></i>三级搜索意图拓扑</button>
 <button onclick="openEvolutionModal()" class="w-full py-2 px-3 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-semibold rounded-lg border border-teal-200 text-left flex items-center gap-2"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i>词库演进裂变</button>
+</div>
+</div>
+<div class="bg-white p-5 rounded-xl border border-emerald-200 shadow-sm space-y-3 max-w-2xl">
+<div class="flex items-center justify-between gap-2 flex-wrap">
+<div>
+<div class="text-sm font-bold text-slate-900">客户确认门闩</div>
+<p class="text-[11px] text-slate-500 mt-0.5">词须跟客户确认后再批量写/发。确认只记状态，不改词内容。</p>
+</div>
+<span id="kw-confirm-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">尚未确认</span>
+</div>
+<p id="kw-confirm-meta" class="text-[11px] text-slate-500">打开本页后加载当前词清单…</p>
+<ul id="kw-confirm-list" class="list-disc pl-5 text-xs text-slate-700 space-y-0.5 max-h-40 overflow-y-auto bg-slate-50 border border-slate-100 rounded-lg p-3"></ul>
+<div class="flex flex-wrap gap-2">
+<button type="button" id="btn-kw-confirm" onclick="confirmKeywordsWithClient(true)" class="py-2 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg">标记：客户已确认这些词</button>
+<button type="button" onclick="confirmKeywordsWithClient(false)" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">撤销确认</button>
 </div>
 </div>
 </div>
@@ -1754,7 +1811,7 @@
 <div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded border bg-emerald-50 text-emerald-800 border-emerald-200">监测</span>
 <h2 class="text-base font-bold text-slate-900">权威度与 SOV 周报</h2>
 </div>
-<p class="text-xs text-slate-500">执行实时声量监测并导出美化周报，供客户周度复盘。</p>
+<p class="text-xs text-slate-500">执行实时声量监测并导出美化周报，供客户周度复盘。（分类：经营监管）</p>
 </div>
 <div class="max-w-2xl">
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
@@ -1959,7 +2016,7 @@
 <div class="bg-white p-5 rounded-b-xl border border-t-0 border-slate-200 shadow-sm space-y-3 max-w-2xl">
 <div class="geo-help">
 <button type="button" class="geo-help-toggle" onclick="toggleGeoHelp('settings-llm-help')">忘了这页怎么用？点击展开</button>
-<div id="settings-llm-help" class="geo-help-body hidden">本页是唯一推荐的密钥写入入口（运维）。交付流水线阶段三只显示是否在线；需要写入 Key 时在此点「配置 Nextdoor」。Ping 失败不会落盘。</div>
+<div id="settings-llm-help" class="geo-help-body hidden">本页是唯一推荐的密钥写入入口（运维）。首次交付阶段三只显示是否在线；需要写入 Key 时在此点「配置 Nextdoor」。Ping 失败不会落盘。</div>
 </div>
 <div class="flex flex-wrap items-center gap-2">
 <button type="button" onclick="refreshLlmStatus(true)" class="geo-btn"><i data-lucide="radar" class="w-3.5 h-3.5"></i>立即检测</button>
@@ -2269,7 +2326,7 @@
 </div>
 <div><label class="block font-semibold text-slate-700 mb-1">执行交付阶段</label>
 <select id="batch-step" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-<option value="pipeline" selected>端到端一键执行 5 步全量交付流水线</option>
+<option value="pipeline" selected>端到端一键执行首次交付 1～5 步草稿</option>
 <option value="audit">Stage 1: AI 可见度现状体检诊断</option>
 <option value="scaffold">Stage 2: 技术底座与 llms.txt 改造补丁</option>
 <option value="rewrite">Stage 3: 普林斯顿 9 因子权威语料库生成</option>
@@ -5205,25 +5262,26 @@ GitHub 开源仓库：https://github.com/company/repo
 
 
     const VIEW_META = {
-      overview: { group: 'overview', groupLabel: '项目概览', label: '客户档案与总资产看板' },
-      keywords: { group: 'overview', groupLabel: '项目概览', label: '核心词库与意图矩阵' },
-      'step-0-probe': { group: 'delivery', groupLabel: '交付流水线', label: '00 侦察建档', step: 0 },
-      'step-1-diag': { group: 'delivery', groupLabel: '交付流水线', label: '01 现状诊断与体检', step: 1 },
-      'step-2-scaffold': { group: 'delivery', groupLabel: '交付流水线', label: '02 站点底座与三件套', step: 2 },
-      'step-3-princeton': { group: 'delivery', groupLabel: '交付流水线', label: '03 普林斯顿 9 因子语料', step: 3 },
-      'step-4-distribute': { group: 'delivery', groupLabel: '交付流水线', label: '04 矩阵分发与链接检查', step: 4 },
-      'step-5-acceptance': { group: 'delivery', groupLabel: '交付流水线', label: '05 商业验收与结案单', step: 5 },
-      'mon-weekly': { group: 'monitoring', groupLabel: '监测运维', label: '权威度与 SOV 周报' },
-      'mon-probing': { group: 'monitoring', groupLabel: '监测运维', label: '大模型问答探针' },
-      'mon-patrol': { group: 'monitoring', groupLabel: '监测运维', label: '巡检告警与链接检查' },
-      'mon-deliverables': { group: 'monitoring', groupLabel: '监测运维', label: '客户交付物与专属链接' },
-      'mon-decay': { group: 'monitoring', groupLabel: '监测运维', label: '知识半衰期与自愈' },
-      'mon-crisis': { group: 'monitoring', groupLabel: '监测运维', label: '品牌声誉与危机清洗' },
-      'mon-princeton': { group: 'monitoring', groupLabel: '监测运维', label: '普林斯顿复检' },
-      'def-rival': { group: 'defense', groupLabel: '进阶攻防', label: '竞品与护城河' },
-      'def-retrieval': { group: 'defense', groupLabel: '进阶攻防', label: '检索与内容增益' },
-      'def-attribution': { group: 'defense', groupLabel: '进阶攻防', label: '信源与归因加深' },
-      'def-guard': { group: 'defense', groupLabel: '进阶攻防', label: '对抗与鲁棒' },
+      overview: { group: 'biz', groupLabel: '经营监管', label: '客户档案与总资产看板' },
+      keywords: { group: 'daily', groupLabel: '日常运维', label: '关键词清单与意图矩阵' },
+      'step-0-probe': { group: 'delivery', groupLabel: '首次交付', label: '00 侦察建档', step: 0 },
+      'step-1-diag': { group: 'delivery', groupLabel: '首次交付', label: '01 现状诊断与体检', step: 1 },
+      'step-2-scaffold': { group: 'delivery', groupLabel: '首次交付', label: '02 站点底座与三件套', step: 2 },
+      'step-3-princeton': { group: 'delivery', groupLabel: '首次交付', label: '03 普林斯顿 9 因子语料', step: 3 },
+      'step-4-distribute': { group: 'delivery', groupLabel: '首次交付', label: '04 矩阵分发与链接检查', step: 4 },
+      'step-5-acceptance': { group: 'delivery', groupLabel: '首次交付', label: '05 商业验收与结案单', step: 5 },
+      'ops-publish': { group: 'publish', groupLabel: '发帖运维', label: '维护期发帖流程' },
+      'mon-weekly': { group: 'biz', groupLabel: '经营监管', label: '权威度与 SOV 周报' },
+      'mon-probing': { group: 'supervise', groupLabel: '监管运维', label: '大模型问答探针' },
+      'mon-patrol': { group: 'supervise', groupLabel: '监管运维', label: '巡检告警与链接检查' },
+      'mon-deliverables': { group: 'biz', groupLabel: '经营监管', label: '客户交付物与专属链接' },
+      'mon-decay': { group: 'daily', groupLabel: '日常运维', label: '知识半衰期与自愈' },
+      'mon-crisis': { group: 'supervise', groupLabel: '监管运维', label: '品牌声誉与危机清洗' },
+      'mon-princeton': { group: 'daily', groupLabel: '日常运维', label: '普林斯顿复检' },
+      'def-rival': { group: 'supervise', groupLabel: '监管运维', label: '竞品与护城河' },
+      'def-retrieval': { group: 'supervise', groupLabel: '监管运维', label: '检索与内容增益' },
+      'def-attribution': { group: 'supervise', groupLabel: '监管运维', label: '信源与归因加深' },
+      'def-guard': { group: 'supervise', groupLabel: '监管运维', label: '对抗与鲁棒' },
       'settings-llm': { group: 'settings', groupLabel: '系统设置', label: '大模型中枢与密钥' },
       'settings-export': { group: 'settings', groupLabel: '系统设置', label: '离线资产打包导出' },
     };
@@ -7249,6 +7307,9 @@ function backToDashboard() {
         loadCorpusStatus();
         handleCorpusDiff();
       }
+      if (viewId === 'step-1-diag') {
+        refreshDiagDeepenProbeHint();
+      }
       if (viewId === 'step-4-distribute') {
         loadChannelPackStatuses();
         loadDistributionLedger();
@@ -7256,6 +7317,12 @@ function backToDashboard() {
         loadDistributeRunLog();
         loadRewriteBrief('toutiao');
         onDistCanPublishChange();
+      }
+      if (viewId === 'keywords') {
+        refreshKeywordsConfirmPanel();
+      }
+      if (viewId === 'ops-publish') {
+        refreshKeywordsConfirmBanners();
       }
       if (viewId === 'overview' && currentProjectData) {
         fillOverviewProfilePanel(currentProjectData);
@@ -7277,9 +7344,9 @@ function backToDashboard() {
       if (typeof meta.step === 'number') {
         currentStep = meta.step;
         currentScene = 'delivery';
-      } else if (meta.group === 'defense') {
+      } else if (meta.group === 'supervise') {
         currentScene = 'boost';
-      } else if (meta.group === 'monitoring') {
+      } else if (meta.group === 'daily' || meta.group === 'biz' || meta.group === 'publish') {
         currentScene = 'ops';
       }
 
@@ -7457,7 +7524,7 @@ function backToDashboard() {
         `执行规则（强制）：`,
         `1. 豆包必须已登录；开【新聊天】，勿复用旧对话。`,
         `2. 严格按题单顺序逐条提问；有追问的必须追问。`,
-        `3. 每题记录：query、follow_up（若有）、mentioned_self、url_present、citation_to_self、standpoint、hallucination_detected、competitors_extracted[{name,url,is_real}]、doubao_verdict。`,
+        `3. 每题记录：query、follow_up（若有）、mentioned_self、url_present、citation_to_self、standpoint、hallucination_detected、competitors_extracted[{name,url,is_real}]、doubao_verdict、answer_full（豆包完整回答原文，建议≥80字）。`,
         `4. standpoint 用：推荐 / 中性 / 负面 / 不认识 / 误解。`,
         `5. 本回合先问完并在对话汇总；【禁止现在落盘】。等用户再发【收工说明书】后再写文件。`,
         ``,
@@ -7488,6 +7555,7 @@ function backToDashboard() {
         `1. 顶层必须有 items 数组；items.length 必须 = ${n}。`,
         `2. 顶层必须含：probed_at、operator=antigravity、browser=safari、model_ui=doubao。`,
         `3. 每条至少含：query、mentioned_self、url_present；并尽量含 standpoint、competitors_extracted、hallucination_detected、doubao_verdict。`,
+        `3b. 【②深化报告必需】每条必须另含 answer_full：豆包该题完整回答原文（建议 ≥80 字；不要只写勾选字段或一句话摘要）。`,
         `4. 写完后只读打开该文件自检，并在回复里给出：绝对路径 + items 条数 + 是否提到我方品牌的一句话结论。`,
         `5. 禁止改 project.yaml；回填由管理台第三步完成。`,
         ``,
@@ -7505,6 +7573,55 @@ function backToDashboard() {
         badge.textContent = '尚未生成';
         badge.className = 'ml-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border bg-amber-50 text-amber-800 border-amber-100';
       }
+    }
+
+    /** 今日目标文件 vs 历史侦察文件：禁止把「今日未写」说成「资料丢了」 */
+    function step0SyncExpectedResultUI(opts) {
+      const asDiskCheck = !!(opts && opts.asDiskCheck);
+      const expect = (step0Guide && step0Guide.expected_result) || {};
+      const latest = (step0Guide && step0Guide.latest_result) || null;
+      const results = (step0Guide && Array.isArray(step0Guide.results)) ? step0Guide.results : [];
+      const status = String((step0Guide && step0Guide.probe_status) || (currentProjectData && currentProjectData.probe_status) || '');
+      const hasHistory = !!(latest || results.length);
+      const badge = document.getElementById('step0-result-exists-badge');
+      const hint = document.getElementById('step0-result-check-hint');
+      const resultEl = document.getElementById('step0-result-path');
+      if (resultEl) {
+        const todayLine = expect.abs || step0ExpectedResultAbs();
+        const histLine = latest && latest.abs
+          ? `\n历史最新（仍在）：${latest.abs}`
+          : (hasHistory ? `\n历史侦察文件：仍有 ${results.length} 份在 outputs/` : '');
+        resultEl.textContent = todayLine + histLine;
+      }
+      if (expect.exists) {
+        step0SetResultExistsBadge(true);
+        if (hint) {
+          hint.textContent = asDiskCheck
+            ? '结果：今天的目标文件已经写好了。可以去做第 3 步：选中该文件 → 预览 → 确认回填。'
+            : '今天的目标文件已在磁盘上。';
+        }
+        return { kind: 'today_ready', hasHistory };
+      }
+      if (hasHistory) {
+        if (badge) {
+          badge.textContent = '今日未写（历史已有）';
+          badge.className = 'ml-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border bg-sky-50 text-sky-800 border-sky-200';
+        }
+        const histName = (latest && latest.file) || (results[0] && results[0].file) || '已有侦察 JSON';
+        if (hint) {
+          hint.textContent = asDiskCheck
+            ? `结果：今天这份「${expect.file || '今日目标'}」还没有——这不等于第 0 步资料丢了。磁盘上仍有「${histName}」，项目基线状态：${status || '未知'}。只有今天又跑了一轮侦察，才需要生成今日这份。`
+            : `今天的新文件还没写；历史侦察「${histName}」仍在（基线：${status || '未知'}）。不要当成资料丢失。`;
+        }
+        return { kind: 'history_only', hasHistory, histName };
+      }
+      step0SetResultExistsBadge(false);
+      if (hint) {
+        hint.textContent = asDiskCheck
+          ? '结果：还没有侦察结果文件。请确认已把「②收工说明书」贴给反重力，并等它写完后再点检查。'
+          : '点「检查有没有落盘」后，这里会用白话告诉你：今日文件有没有、历史文件还在不在。';
+      }
+      return { kind: 'missing', hasHistory: false };
     }
 
     function step0PeekHtml(peek, selected) {
@@ -7721,14 +7838,16 @@ function backToDashboard() {
       if (out2) out2.textContent = outAbs;
 
       const expect = (step0Guide && step0Guide.expected_result) || {};
-      const resultEl = document.getElementById('step0-result-path');
-      if (resultEl) resultEl.textContent = expect.abs || step0ExpectedResultAbs();
-      step0SetResultExistsBadge(!!expect.exists);
+      const sync = step0SyncExpectedResultUI();
       const uploadExpected = document.getElementById('step0-upload-expected');
       if (uploadExpected) {
-        uploadExpected.textContent = expect.exists
-          ? `本轮新结果已写好，建议优先选它：${expect.file || expect.abs || ''}`
-          : `本轮还在等的新文件（现在没有，列表里选不到它）：${expect.file || ''}。你可以先选列表里已有的旧结果，或等第 2 步落盘后再刷新。`;
+        if (expect.exists) {
+          uploadExpected.textContent = `本轮新结果已写好，建议优先选它：${expect.file || expect.abs || ''}`;
+        } else if (sync && sync.hasHistory) {
+          uploadExpected.textContent = `今天的新文件「${expect.file || ''}」还没有（正常）。请在下方列表选历史已有结果回填；不要理解为第 0 步资料丢失。`;
+        } else {
+          uploadExpected.textContent = `本轮还在等的新文件（现在没有，列表里选不到它）：${expect.file || ''}。你可以先选列表里已有的旧结果，或等第 2 步落盘后再刷新。`;
+        }
       }
       step0RenderExistingResults((step0Guide && step0Guide.results) || []);
       if (step0SelectedResultFile && !step0DiskPreviewReady) {
@@ -8092,14 +8211,13 @@ function backToDashboard() {
           updatePipelineGateUI();
           const hasBaseline = step0SyncWriteStatusBadge((currentProjectData || {}).probe_status);
           if (asDiskCheck) {
-            const exists = !!(step0Guide && step0Guide.expected_result && step0Guide.expected_result.exists);
-            const hint = document.getElementById('step0-result-check-hint');
-            if (exists) {
-              if (hint) hint.textContent = '结果：文件已经写好了。可以去做第 3 步：选中该文件 → 预览 → 确认回填。';
-              showToast('落盘成功：结果文件已在磁盘上', 'success');
+            const sync = step0SyncExpectedResultUI({ asDiskCheck: true });
+            if (sync.kind === 'today_ready') {
+              showToast('落盘成功：今天的目标文件已在磁盘上', 'success');
+            } else if (sync.kind === 'history_only') {
+              showToast(`今日文件未写；历史侦察仍在（${sync.histName || '已有 JSON'}）`, 'warning');
             } else {
-              if (hint) hint.textContent = '结果：还没有这个文件。请确认已把「②收工说明书」贴给反重力，并等它写完后再点检查。';
-              showToast('尚未落盘：目标文件还不存在', 'error');
+              showToast('尚未落盘：还没有任何侦察结果文件', 'error');
             }
           } else if (!silent) {
             if (hasBaseline) showToast('已有基准线', 'success');
@@ -8220,6 +8338,186 @@ function backToDashboard() {
         `请先读上述指标，再打开同目录体检报告 Markdown 做二次精修。`,
       ];
       copyStep0Text(lines.join('\n'), btn, '已复制③ IDE 再审提示 → 贴给 Cursor');
+    }
+
+    /** ②深化：复制 OpenSpec IDE 提示词（GET /diag/deepen-prompt） */
+    async function copyDiagDeepenPrompt(btn) {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner"></span><span>生成中…</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/diag/deepen-prompt`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success || !data.clipboard) {
+          showToast(data.message || '生成深化提示词失败', 'error');
+          return;
+        }
+        const audit = data.probe_audit || {};
+        const usable = !!audit.has_usable_full_answers;
+        copyStep0Text(
+          data.clipboard,
+          btn,
+          usable ? '已复制②深化提示词 → 贴给 IDE' : '已复制；探活缺全文，提示词末尾已附缺口说明'
+        );
+        refreshDiagDeepenProbeHint();
+      } catch (err) {
+        showToast('请求失败: ' + err.message, 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    async function refreshDiagDeepenProbeHint() {
+      const el = document.getElementById('diag-deepen-probe-hint');
+      if (!el) return;
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        el.classList.add('hidden');
+        el.textContent = '';
+        return;
+      }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/diag/probe-answer-audit`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success) {
+          el.classList.remove('hidden');
+          el.textContent = data.message || '探活答覆覆盖度暂不可用';
+          return;
+        }
+        const total = Number(data.items_total || 0);
+        const ok = Number(data.items_with_full || 0);
+        if (!total) {
+          el.classList.remove('hidden');
+          el.textContent = '尚未检测到探活 JSON。先做阶段零并按收工说明书写入 answer_full，再点②深化。';
+          return;
+        }
+        el.classList.remove('hidden');
+        if (data.has_usable_full_answers) {
+          el.classList.remove('text-amber-700');
+          el.classList.add('text-emerald-700');
+          el.textContent = `探活答覆覆盖：${ok}/${total} 题有完整答（≥${data.min_chars || 80} 字），可复制②深化提示词。`;
+        } else {
+          el.classList.remove('text-emerald-700');
+          el.classList.add('text-amber-700');
+          el.textContent = `探活答覆覆盖：仅 ${ok}/${total} 题有完整答。缺全文时深化只能写浅——请用新版收工说明书补 answer_full 后再深化。`;
+        }
+      } catch (_) {
+        el.classList.remove('hidden');
+        el.textContent = '探活答覆覆盖度检查失败';
+      }
+    }
+
+    function keywordsConfirmState() {
+      const p = currentProjectData || {};
+      const kws = Array.isArray(p.keywords) ? p.keywords : [];
+      return {
+        confirmed: !!p.keywords_confirmed,
+        at: p.keywords_confirmed_at || '',
+        note: p.keywords_confirmed_note || '',
+        keywords: kws,
+        count: kws.length,
+      };
+    }
+
+    function refreshKeywordsConfirmPanel() {
+      const st = keywordsConfirmState();
+      const badge = document.getElementById('kw-confirm-badge');
+      const meta = document.getElementById('kw-confirm-meta');
+      const list = document.getElementById('kw-confirm-list');
+      if (badge) {
+        if (st.confirmed) {
+          badge.textContent = '已确认';
+          badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200';
+        } else {
+          badge.textContent = '尚未确认';
+          badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200';
+        }
+      }
+      if (meta) {
+        if (st.confirmed) {
+          meta.textContent = `已确认${st.at ? ' · ' + st.at : ''} · 词数 ${st.count}${st.note ? ' · ' + st.note : ''}`;
+        } else {
+          meta.textContent = st.count
+            ? `当前词库 ${st.count} 条。跟客户确认后再点下方按钮；确认前勿批量发帖。`
+            : '词库为空。先在建档/裂变里补词，再跟客户确认。';
+        }
+      }
+      if (list) {
+        if (!st.keywords.length) {
+          list.innerHTML = '<li class="list-none text-slate-400">（暂无关键词）</li>';
+        } else {
+          list.innerHTML = st.keywords.slice(0, 80).map((k) => {
+            const t = typeof k === 'string' ? k : (k && (k.prompt || k.text)) || '';
+            return `<li>${escapeHtmlSafe(String(t))}</li>`;
+          }).join('') + (st.keywords.length > 80 ? `<li class="list-none text-slate-400">…另有 ${st.keywords.length - 80} 条</li>` : '');
+        }
+      }
+      refreshKeywordsConfirmBanners();
+    }
+
+    function refreshKeywordsConfirmBanners() {
+      const st = keywordsConfirmState();
+      const gate = document.getElementById('ops-publish-kw-gate');
+      if (gate) gate.classList.toggle('hidden', !!st.confirmed);
+    }
+
+    async function confirmKeywordsWithClient(confirmed) {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const want = !!confirmed;
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const at = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const body = want
+        ? {
+            keywords_confirmed: true,
+            keywords_confirmed_at: at,
+            keywords_confirmed_note: `客户确认词清单（共 ${(currentProjectData && currentProjectData.keywords || []).length} 条）`,
+          }
+        : {
+            keywords_confirmed: false,
+            keywords_confirmed_at: '',
+            keywords_confirmed_note: '',
+          };
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/profile`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentAuthToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || '保存失败', 'error');
+          return;
+        }
+        currentProjectData = Object.assign({}, currentProjectData || {}, data.project || {}, body);
+        refreshKeywordsConfirmPanel();
+        showToast(want ? '已标记：客户已确认这些词' : '已撤销确认', 'success');
+      } catch (err) {
+        showToast('请求失败: ' + err.message, 'error');
+      }
     }
 
     async function runStep1Audit(e, mode) {

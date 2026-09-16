@@ -274,6 +274,22 @@ def update_project_profile(project_id: str, patch: dict) -> dict:
             content, "site_pending", coerce_bool(patch.get("site_pending")), as_bool=True
         )
 
+    if "keywords_confirmed" in patch:
+        content = _upsert_yaml_scalar(
+            content,
+            "keywords_confirmed",
+            coerce_bool(patch.get("keywords_confirmed")),
+            as_bool=True,
+        )
+    if "keywords_confirmed_at" in patch:
+        content = _upsert_yaml_scalar(
+            content, "keywords_confirmed_at", patch.get("keywords_confirmed_at") or ""
+        )
+    if "keywords_confirmed_note" in patch:
+        content = _upsert_yaml_scalar(
+            content, "keywords_confirmed_note", patch.get("keywords_confirmed_note") or ""
+        )
+
     if "contact_person" in patch:
         content = _upsert_yaml_alias_scalars(
             content, "contact_person", ["founder", "person"], patch.get("contact_person") or ""

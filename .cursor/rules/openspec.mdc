@@ -6,6 +6,12 @@ alwaysApply: true
 
 # Cursor OpenSpec & Multi-IDE Rules
 
+## 0. 规范只认 OpenSpec（产品硬口令）
+- 用户说「开规范 / 写规范 / 规范」= **只走 OpenSpec**，不要另开第二套。
+- 真源目录：`openspec/changes/YYYY-MM-DD-描述/`。
+- **禁止**再造易歧义旁路：如 `docs/specs/` 自建共识文件、任意新 `*spec*`/`*specs*` 文件夹当规范入口。
+- 已有工程技术标准（文章模板、站点脚手架等）可保留；**产品探讨共识**只进 OpenSpec。
+
 ## 1. Core Workflow (OpenSpec)
 - This project follows **Spec-Driven Development (OpenSpec)**.
 - Active changes reside in `openspec/changes/YYYY-MM-DD-描述/`.

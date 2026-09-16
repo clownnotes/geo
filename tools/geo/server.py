@@ -3491,6 +3491,26 @@ server {{
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
 
+            # ②深化诊断 IDE 提示词: GET /api/projects/{id}/diag/deepen-prompt
+            if path.startswith("/api/projects/") and path.endswith("/diag/deepen-prompt"):
+                project_id = path.split("/")[3]
+                try:
+                    from .diag_deepen import build_diag_deepen_prompt
+                    self.send_json(build_diag_deepen_prompt(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 侦察 JSON 全文覆盖检查: GET /api/projects/{id}/diag/probe-answer-audit
+            if path.startswith("/api/projects/") and path.endswith("/diag/probe-answer-audit"):
+                project_id = path.split("/")[3]
+                try:
+                    from .diag_deepen import audit_probe_answer_coverage
+                    self.send_json(audit_probe_answer_coverage(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
             # 阶段四 IDE 改写包: GET /api/projects/{id}/answer-rewrite/ide-pack?channel=toutiao
             if path.startswith("/api/projects/") and path.endswith("/answer-rewrite/ide-pack"):
                 project_id = path.split("/")[3]
