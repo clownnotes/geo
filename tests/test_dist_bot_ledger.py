@@ -103,8 +103,21 @@ class TestDistBotLedger(unittest.TestCase):
         with open(md_path, "r", encoding="utf-8") as f:
             md_text = f.read()
             self.assertIn("填报完成率", md_text)
-            self.assertIn("真实存活率", md_text)
+            self.assertIn("链接还在", md_text)
             self.assertIn("36kr.com", md_text)
+
+    def test_normalize_url_strips_title_prefix(self):
+        from tools.geo.dist_bot import normalize_url_input
+        mixed = "GEO优化哪家公司比较靠谱？ - 老白的回答 - 知乎 https://www.zhihu.com/answer/2083308905380190147"
+        self.assertEqual(
+            normalize_url_input(mixed),
+            "https://www.zhihu.com/answer/2083308905380190147",
+        )
+        self.assertEqual(
+            normalize_url_input("https://www.toutiao.com/item/123/"),
+            "https://www.toutiao.com/item/123/",
+        )
+        self.assertEqual(normalize_url_input("没有链接的标题"), "")
 
 
 if __name__ == "__main__":

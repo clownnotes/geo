@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-GEO 自动化分发台账回填与收录核验中枢 (tools/geo/dist_bot.py)
+GEO 分发台账回填与链接检查 (tools/geo/dist_bot.py)
 核心功能：
-1. 管理 5 大信任池渠道（今日头条/知乎/掘金/GitHub/微信公众号）外发台账 (outputs/dist_ledger.json)；
-2. 记录与更新外发 URL，并自动化发起轻量 HTTP 存活与收录连通性探测及页面标题抓取；
-3. 计算项目全渠道分发完成率 (0~100%) 与收录状态；
-4. 生成适配公众号/知乎带样式的富文本 HTML 剪贴板内容。
+1. 管理渠道外发台账 (outputs/dist_ledger.json)；
+2. 回填发布 URL，并做轻量检查：网址还在不在（主要抓 404），不假装能爬正文、也不判断大模型能不能抓到；
+3. 计算填报完成率与「链接还在」比例；
+4. 生成台账 Markdown。
 """
 
 import os
@@ -245,66 +245,80 @@ def get_distribution_ledger(project_id: str) -> dict:
         "custom_links": custom_links
     }
 
+def normalize_url_input(raw: str) -> str:
+    """从粘贴内容里抽出第一条 http(s) 链接（允许前面带标题文字）。"""
+    text = (raw or "").strip()
+    if not text:
+        return ""
+    m = re.search(r"https?://[^\s<>\"'`，,;）\]]+", text, re.IGNORECASE)
+    if not m:
+        return text if text.startswith("http") else ""
+    return m.group(0).rstrip(".,)。；;")
+
+
 def verify_distribution_url(url: str) -> dict:
-    """轻量探测外发 URL 是否真实存活、抓取网页标题并过滤软 404"""
+    """只检查链接还在不在：主要看是不是 404。不抓标题、不假装能爬正文。"""
+    url = normalize_url_input(url)
     if not url or not url.startswith("http"):
-        return {"is_alive": False, "http_status": None, "title": "", "error": "无效的 URL"}
+        return {
+            "is_alive": False,
+            "http_status": None,
+            "title": "",
+            "error": "不是有效网址（请只填 https:// 开头的链接）",
+        }
 
     req = urllib.request.Request(
         url,
+        method="GET",
         headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 GEOBot/2.2",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
-        }
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+            ),
+            "Accept": "text/html,*/*;q=0.8",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+        },
     )
-    
-    soft_404_keywords = [
-        "页面不存在", "404 not found", "内容已被删除", "抱歉，出错了", 
-        "该内容已被发布者删除", "page not found", "404", "无法找到页面"
-    ]
+
+    # 明确「不在」：404 / 410。其余能接到 HTTP 回应都算「还在」
+    # （含 403 防爬：页面多半还在，机器人进不去，人自己点「访问」即可）
+    gone_codes = {404, 410}
 
     try:
-        with urllib.request.urlopen(req, timeout=6) as response:
+        with urllib.request.urlopen(req, timeout=8) as response:
             code = response.getcode()
-            title = ""
+            # 读一点点丢掉，避免部分服务器对未读 body 不友好；不做标题解析
             try:
-                chunk = response.read(32768).decode("utf-8", errors="ignore")
-                t_match = re.search(r"<title>(.*?)</title>", chunk, re.IGNORECASE | re.DOTALL)
-                if t_match:
-                    title = re.sub(r"\s+", " ", t_match.group(1)).strip()
+                response.read(2048)
             except Exception:
                 pass
-            
-            # 软 404 校验
-            if title and any(k in title.lower() for k in soft_404_keywords):
-                return {"is_alive": False, "http_status": code, "title": title, "error": "软 404 (页面已失效或删除)"}
-
-            # 200 且无有效 title 视为软 404 / 占位假阳性
-            if code in (200, 301, 302, 307, 308) and not title:
-                return {"is_alive": False, "http_status": code, "title": "", "error": "无法提取标题 (疑似软 404 或占位链接)"}
-
-            is_alive = code in (200, 301, 302, 307, 308) and bool(title)
-            return {"is_alive": is_alive, "http_status": code, "title": title, "error": None}
-
+            if code in gone_codes:
+                return {
+                    "is_alive": False,
+                    "http_status": code,
+                    "title": "",
+                    "error": f"HTTP {code}（页面不存在或已删除）",
+                }
+            return {"is_alive": True, "http_status": code, "title": "", "error": None}
     except urllib.error.HTTPError as e:
-        title = ""
+        code = e.code
         try:
-            chunk = e.read(4096).decode("utf-8", errors="ignore")
-            t_match = re.search(r"<title>(.*?)</title>", chunk, re.IGNORECASE | re.DOTALL)
-            if t_match:
-                title = re.sub(r"\s+", " ", t_match.group(1)).strip()
+            e.read(512)
         except Exception:
             pass
-
-        # 403 平台防爬：仅当提取到真实 title 时视为存活，否则需人工确认
-        if e.code in (403, 418):
-            if title:
-                return {"is_alive": True, "http_status": e.code, "title": title, "error": f"HTTP {e.code} (平台防爬，已提取标题)"}
-            return {"is_alive": False, "http_status": e.code, "title": "", "error": f"HTTP {e.code} (平台防爬，无法提取标题，需人工确认)"}
-        return {"is_alive": False, "http_status": e.code, "title": title, "error": f"HTTP {e.code}"}
+        if code in gone_codes:
+            return {
+                "is_alive": False,
+                "http_status": code,
+                "title": "",
+                "error": f"HTTP {code}（页面不存在或已删除）",
+            }
+        note = None
+        if code in (403, 418, 429):
+            note = f"HTTP {code}（平台挡了自动检查；链接多半还在，请自己点「访问」确认）"
+        return {"is_alive": True, "http_status": code, "title": "", "error": note}
     except Exception as e:
-        return {"is_alive": False, "http_status": 0, "title": "", "error": str(e)}
+        return {"is_alive": False, "http_status": 0, "title": "", "error": f"打不开：{e}"}
 
 def parse_mixed_links(raw_text: str) -> list:
     """从混合多行文本中智能提取 URL 并按域名模式识别所属分发渠道"""
@@ -362,7 +376,7 @@ def parse_mixed_links(raw_text: str) -> list:
 
 
 def render_ledger_markdown(project_id: str, ledger: dict) -> str:
-    """将分发台账生成为高可读、带双轨完成率与真实存活率的 Markdown 文档"""
+    """将分发台账生成为 Markdown（填报完成率 + 链接是否还在）。"""
     cfg = load_project_config(project_id)
     cname = cfg.get("company_name", cfg.get("client_name", project_id))
     bname = cfg.get("brand_name", cname)
@@ -376,25 +390,25 @@ def render_ledger_markdown(project_id: str, ledger: dict) -> str:
     w_alive_rate = ledger.get("weighted_alive_pct", 0.0)
     up_time = ledger.get("updated_at", time.strftime("%Y-%m-%d %H:%M:%S"))
 
-    md = f"""# 【{bname}】全网分发渠道执行与存活审计台账
+    md = f"""# 【{bname}】全网分发渠道台账（链接是否还在）
 
 > **客户主体**：{cname}（{bname}） ｜ **所属行业**：{ind} ｜ **服务区域**：{area}
-> **台账审计时间**：{up_time}
-> **📊 填报完成率**：均值 {comp_rate}% (加权 **{w_comp_rate}%**) ｜ **🟢 真实存活率**：均值 {alive_rate}% (加权 **{w_alive_rate}%**)
+> **更新时间**：{up_time}
+> **填报完成率**：均值 {comp_rate}% (加权 **{w_comp_rate}%**) ｜ **链接还在比例**：均值 {alive_rate}% (加权 **{w_alive_rate}%**)
 
 ---
 
-## 1. 五大本土模型全景分发执行大盘
+## 1. 分发渠道一览
 
-| 战略权重 | 渠道与阵地 | 目标大模型生态 | 发布链接 (URL) | 存活状态 | HTTP 状态 | 抓取网页标题 | 核验时间 |
-| :---: | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
+| 战略权重 | 渠道与阵地 | 目标大模型生态 | 发布链接 (URL) | 链接状态 | HTTP | 检查时间 |
+| :---: | :--- | :--- | :--- | :---: | :---: | :--- |
 """
 
     status_badges = {
-        "verified": "🟢 存活正常",
-        "published": "🔵 已填报待测",
-        "pending": "⚪ 待分发",
-        "failed": "🔴 死链/异常"
+        "verified": "还在",
+        "published": "已填、未检查",
+        "pending": "待填链接",
+        "failed": "打不开/已失效",
     }
 
     for ch_key, ch in channels.items():
@@ -405,11 +419,10 @@ def render_ledger_markdown(project_id: str, ledger: dict) -> str:
         status = ch.get("status", "pending")
         badge = status_badges.get(status, status)
         http_st = str(ch.get("http_status") or "-")
-        title = (ch.get("title") or "-").replace("|", "\\|")
         v_at = ch.get("verified_at") or ch.get("updated_at") or "-"
 
         url_display = f"[{url[:35]}...]({url})" if url else "*(待回填)*"
-        md += f"| **{w}%** | {name} | {target} | {url_display} | {badge} | `{http_st}` | {title[:28]} | {v_at} |\n"
+        md += f"| **{w}%** | {name} | {target} | {url_display} | {badge} | `{http_st}` | {v_at} |\n"
 
     # 自定义外部链接清单
     custom_links = ledger.get("custom_links", [])
@@ -417,32 +430,32 @@ def render_ledger_markdown(project_id: str, ledger: dict) -> str:
         md += f"""
 ---
 
-## 2. 外部行业垂直媒体与权威外链 (Custom Backlinks)
+## 2. 其他外链
 
-| 序号 | 外部发布链接 (URL) | 存活状态 | HTTP 状态 | 抓取网页标题 | 录入时间 |
-| :---: | :--- | :---: | :---: | :--- | :--- |
+| 序号 | 发布链接 (URL) | 链接状态 | HTTP | 录入时间 |
+| :---: | :--- | :---: | :---: | :--- |
 """
         for idx, cl in enumerate(custom_links, 1):
             c_url = cl.get("url", "")
             c_st = cl.get("status", "published")
             c_badge = status_badges.get(c_st, c_st)
             c_http = str(cl.get("http_status") or "-")
-            c_title = (cl.get("title") or "-").replace("|", "\\|")
             c_time = cl.get("updated_at", "-")
-            md += f"| {idx} | [{c_url[:40]}...]({c_url}) | {c_badge} | `{c_http}` | {c_title[:30]} | {c_time} |\n"
+            md += f"| {idx} | [{c_url[:40]}...]({c_url}) | {c_badge} | `{c_http}` | {c_time} |\n"
 
     md += f"""
 ---
 
-## 3. 存活审计与异常排查指南
+## 3. 怎么看这些状态
 
-- **🟢 存活正常 (HTTP 200/302)**：链接已由平台公开发布，大模型爬虫（Bytespider / 百度蜘蛛 / DeepSeek）可顺畅抓取全文。
-- **🔴 死链/异常 (HTTP 404/500/软404)**：链接已被删除、设为私密或触发平台限流，需运营团队在发稿后台重新发布并回填。
-- **⚪ 待分发**：尚未在对应平台完成稿件发布。
+- **还在**：自动检查时不是 404（含平台挡机器人返回 403 等情况）。这只说明链接大概率还在，**不等于**大模型已经抓到或会引用。
+- **打不开/已失效**：404、打不开，或不是有效网址。请自己点开确认，必要时重发并回填新链接。
+- **待填链接**：还没贴发布后的 URL。
+- 存疑时以你在浏览器里点「访问」为准。
 
 ---
 
-*本台账由 GEO 工业级运营中枢自动化审计生成，保障商业交付结案真实有效。*
+*本台账只做「链接还在不在」检查，不做正文爬取。*
 """
     return md
 
@@ -488,7 +501,7 @@ def save_ledger_and_markdown(project_id: str, channels: dict, custom_links: list
 
 def record_distributed_url(project_id: str, channel: str, url: str, verify_now: bool = True) -> dict:
     """记录并回填指定渠道的发布链接"""
-    url_clean = (url or "").strip()
+    url_clean = normalize_url_input(url)
     ledger = get_distribution_ledger(project_id)
     channels = ledger["channels"]
 
@@ -508,10 +521,14 @@ def record_distributed_url(project_id: str, channel: str, url: str, verify_now: 
         if verify_now:
             v_res = verify_distribution_url(url_clean)
             ch_data["http_status"] = v_res["http_status"]
-            if v_res.get("title"):
-                ch_data["title"] = v_res["title"]
+            # 不再依赖抓取标题；有旧 title 可保留，无则清空误导字段
+            if not ch_data.get("title"):
+                ch_data["title"] = ""
             ch_data["verified_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
             ch_data["status"] = "verified" if v_res["is_alive"] else "failed"
+            if v_res.get("error") and v_res["is_alive"]:
+                # 403 等：算还在，把说明塞进 title 旁注位（台账备注）
+                ch_data["title"] = v_res["error"]
         else:
             ch_data["status"] = "published"
 
@@ -588,8 +605,8 @@ def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True)
             if verify_now:
                 v_res = verify_distribution_url(target_url)
                 ch_data["http_status"] = v_res["http_status"]
-                if v_res.get("title"):
-                    ch_data["title"] = v_res["title"]
+                if v_res.get("error") and v_res.get("is_alive"):
+                    ch_data["title"] = v_res["error"]
                 ch_data["verified_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
                 ch_data["status"] = "verified" if v_res["is_alive"] else "failed"
             else:
@@ -614,7 +631,7 @@ def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True)
                 if verify_now:
                     v_res = verify_distribution_url(target_url)
                     c_item["http_status"] = v_res["http_status"]
-                    c_item["title"] = v_res.get("title", "")
+                    c_item["title"] = v_res["error"] if (v_res.get("error") and v_res.get("is_alive")) else ""
                     c_item["status"] = "verified" if v_res["is_alive"] else "failed"
                 custom_links.append(c_item)
                 items_report.append({"channel": "custom", "url": target_url, "action": "added", "status": c_item["status"]})
@@ -636,7 +653,7 @@ def batch_backfill_urls(project_id: str, raw_text: str, verify_now: bool = True)
 
 
 def verify_all_channels(project_id: str, concurrency: int = 8) -> dict:
-    """批量并发核验所有已填报的外链存活状态并返回详情列表与存活指标"""
+    """批量检查已填链接是否还在（主要抓 404）。"""
     ledger = get_distribution_ledger(project_id)
     channels = ledger["channels"]
     custom_links = ledger.get("custom_links", [])
@@ -648,8 +665,8 @@ def verify_all_channels(project_id: str, concurrency: int = 8) -> dict:
         if u:
             vres = verify_distribution_url(u)
             v["http_status"] = vres["http_status"]
-            if vres.get("title"):
-                v["title"] = vres["title"]
+            if vres.get("error") and vres.get("is_alive"):
+                v["title"] = vres["error"]
             v["verified_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
             v["status"] = "verified" if vres["is_alive"] else "failed"
             error = vres.get("error")
@@ -679,13 +696,13 @@ def verify_all_channels(project_id: str, concurrency: int = 8) -> dict:
                 "error": err
             })
 
-    # 核验 custom_links
+    # 检查 custom_links
     for cl in custom_links:
         cu = cl.get("url", "").strip()
         if cu:
             vres = verify_distribution_url(cu)
             cl["http_status"] = vres["http_status"]
-            cl["title"] = vres.get("title", "")
+            cl["title"] = vres["error"] if (vres.get("error") and vres.get("is_alive")) else ""
             cl["status"] = "verified" if vres["is_alive"] else "failed"
             cl["updated_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
             if cl["status"] == "verified":
@@ -694,7 +711,7 @@ def verify_all_channels(project_id: str, concurrency: int = 8) -> dict:
                 dead_count += 1
             details.append({
                 "channel": "custom",
-                "name": "外部权威外链",
+                "name": "其他外链",
                 "url": cu,
                 "status": cl["status"],
                 "http_status": cl["http_status"],
@@ -703,7 +720,10 @@ def verify_all_channels(project_id: str, concurrency: int = 8) -> dict:
             })
 
     payload = save_ledger_and_markdown(project_id, channels, custom_links)
-    print_success(f"🎉 项目 [{project_id}] 全渠道外链核验完毕！存活: {alive_count}, 死链: {dead_count}, 加权存活率: {payload['weighted_alive_pct']}%")
+    print_success(
+        f"项目 [{project_id}] 链接检查完毕：还在 {alive_count}，打不开 {dead_count}，"
+        f"加权还在 {payload['weighted_alive_pct']}%"
+    )
     return {
         "success": True,
         "project_id": project_id,

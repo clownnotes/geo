@@ -394,7 +394,7 @@
 </button>
 <button type="button" id="nav-step-3-princeton" onclick="switchView('step-3-princeton')" class="sidebar-nav-item"><span class="truncate">03 普林斯顿 9 因子语料</span>
 </button>
-<button type="button" id="nav-step-4-distribute" onclick="switchView('step-4-distribute')" class="sidebar-nav-item"><span class="truncate">04 矩阵分发与外链探活</span>
+<button type="button" id="nav-step-4-distribute" onclick="switchView('step-4-distribute')" class="sidebar-nav-item"><span class="truncate">04 矩阵分发与链接检查</span>
 </button>
 <button type="button" id="nav-step-5-acceptance" onclick="switchView('step-5-acceptance')" class="sidebar-nav-item"><span class="truncate">05 商业验收与结案单</span>
 </button>
@@ -408,7 +408,7 @@
 </button>
 <button type="button" id="nav-mon-probing" onclick="switchView('mon-probing')" class="sidebar-nav-item"><span class="truncate">大模型问答探针</span>
 </button>
-<button type="button" id="nav-mon-patrol" onclick="switchView('mon-patrol')" class="sidebar-nav-item"><span class="truncate">巡检告警与全网探活</span>
+<button type="button" id="nav-mon-patrol" onclick="switchView('mon-patrol')" class="sidebar-nav-item"><span class="truncate">巡检告警与链接检查</span>
 </button>
 <button type="button" id="nav-mon-deliverables" onclick="switchView('mon-deliverables')" class="sidebar-nav-item"><span class="truncate">客户交付物与专属链接</span>
 </button>
@@ -887,7 +887,7 @@
 <p><strong>抓取并提纯 / 提纯并保存</strong>：收材料；连上 Nextdoor 时会帮抽事实进真相源。</p>
 <p><strong>预检冲突并确认安全项</strong>：先查说法打架，再批量认下没冲突的项。</p>
 <p><strong>增量重构 / 强制全量</strong>：按已确认真相写或整篇重写母盘。</p>
-<p><strong>钉住母盘</strong>：把当前正式稿存成对照复印件；<strong>刷新对照</strong>后对每条点 ✓/✗ 拍板。</p>
+<p><strong>钉住母盘</strong>：对照卡逐条打勾 →「全部确认」→ 再钉住。</p>
 </div>
 </div>
 <div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">预检后仍标红的冲突，要你点仲裁，不要硬认
@@ -902,10 +902,10 @@
 <p><strong>第二步</strong>：抓首页/关于我们，或粘贴手册 → 提纯进证据库；</p>
 <p><strong>第三步</strong>：看真相源；有红冲突先仲裁，再点【预检冲突并确认安全项】；</p>
 <p><strong>第四步</strong>：点【增量重构】生成母盘（首次或大改用【强制全量】）；</p>
-<p><strong>第五步</strong>：点【刷新对照】，对每条改动点同意或不同意；清完后再【钉住母盘】；strategy 不是 block 再进阶段四。</p>
+<p><strong>第五步</strong>：【刷新对照】→ 逐条 ✓ 打勾固定 →【全部确认】→【钉住母盘】；strategy 不是 block 再进阶段四。</p>
 </div>
 </div>
-<div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">对照卡就在真相源下方：逐条打勾/打叉，不必再滚回上面
+<div class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">对照卡：打勾固定；全部确认后再钉住
               </div>
 </div>
 </div>
@@ -973,7 +973,8 @@
 </div>
 <div class="border border-slate-200 rounded-xl overflow-hidden">
 <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2"><span class="text-xs font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>唯一真相源
-                <span id="facts-count-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600">0 已确认</span></span>
+                <span id="facts-count-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600">0 已确认</span>
+<button type="button" id="facts-diff-cue" onclick="scrollToCorpusDiffCard()" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100">对照卡有待确认</button></span>
 <button type="button" onclick="handleConfirmAllFacts()" class="py-1 px-2.5 text-[11px] font-semibold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 flex items-center gap-1"><i data-lucide="check-check" class="w-3 h-3"></i>预检冲突并确认安全项
               </button>
 </div>
@@ -982,24 +983,29 @@
 </div>
 </div>
 </div>
-<!-- 发前对照卡：放在长预览之前，逐条同意/不同意，避免滚到底再往上找真相源 -->
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+<!-- 发前对照卡：Git 式原先→现在，打勾固定；全部确认后再钉住 -->
+<div id="corpus-diff-card" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
 <div class="flex items-center justify-between flex-wrap gap-2">
 <div class="flex items-center gap-2"><i data-lucide="git-compare" class="w-4 h-4 text-indigo-600"></i>
 <h3 class="text-xs font-bold text-slate-800">发前对照卡</h3><span id="corpus-strategy-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600">strategy: --</span>
 </div>
 <div class="flex items-center gap-2 flex-wrap">
-<button type="button" id="btn-corpus-pin" onclick="handleCorpusPin()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 flex items-center gap-1"><i data-lucide="pin" class="w-3.5 h-3.5"></i>钉住当前母盘
-              </button>
-<span onclick="showTermHelp(event, 'corpus_pin')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：钉住当前母盘是干什么的">?</span>
 <button type="button" id="btn-corpus-diff" onclick="handleCorpusDiff()" class="py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 flex items-center gap-1"><i data-lucide="scan-search" class="w-3.5 h-3.5"></i>刷新对照
               </button>
 <span onclick="showTermHelp(event, 'corpus_diff')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：刷新对照是干什么的">?</span>
 </div>
 </div>
-<div id="corpus-diff-summary" class="text-[11px] text-slate-600 leading-relaxed">先点「刷新对照」，再对每一条点同意或不同意。全部拍板后，若 strategy 不是 block，再钉住母盘。
+<div id="corpus-diff-summary" class="text-[11px] text-slate-600 leading-relaxed">先「刷新对照」，对每条 ✓ 打勾固定（原先→现在）。处理完后点「全部确认」，再「钉住当前母盘」。
           </div>
 <div id="corpus-diff-details" class="text-[11px] space-y-1.5 max-h-80 overflow-y-auto">
+</div>
+<div class="flex items-center gap-2 flex-wrap pt-1">
+<button type="button" id="btn-corpus-confirm-all" onclick="handleCorpusDiffConfirmAll()" class="py-2 px-4 text-xs font-semibold rounded-lg bg-[#7c5bf5] text-white hover:bg-[#6846e3] flex items-center gap-1.5"><i data-lucide="check-check" class="w-3.5 h-3.5"></i>全部确认
+          </button>
+<button type="button" id="btn-corpus-pin" onclick="handleCorpusPin()" disabled class="py-2 px-4 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed flex items-center gap-1.5"><i data-lucide="pin" class="w-3.5 h-3.5"></i>钉住当前母盘
+          </button>
+<span onclick="showTermHelp(event, 'corpus_pin')" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 text-[10px] cursor-pointer" title="点击查看：钉住当前母盘是干什么的">?</span>
+<span id="corpus-pin-gate-hint" class="text-[10px] text-slate-500">请先全部确认</span>
 </div>
 <button id="btn-goto-step4" type="button" onclick="switchStep(4)" class="hidden py-2 px-4 text-xs font-semibold rounded-lg bg-[#7c5bf5] text-white hover:bg-[#6846e3]">策略允许，进入阶段四
           </button>
@@ -1032,12 +1038,12 @@
 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4 flex-wrap">
 <div>
 <div class="flex items-center gap-2 flex-wrap">
-<h2 class="text-base font-bold text-slate-900">阶段四：多平台高权重信源矩阵分发</h2><span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">MVP · 75%+ 本土 AI 信任池</span>
+<h2 class="text-base font-bold text-slate-900">阶段四：草稿 → IDE 定稿 → 再发布</h2><span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">生成物 = 仅草稿</span>
 </div>
-<p class="text-xs text-slate-500 mt-1">先打透豆包（头条 50%+）与 DeepSeek（知乎 25%+）；微信 / GitHub / Kimi / 百度按客单与行业按需展开。</p>
+<p class="text-xs text-slate-500 mt-1">顺序固定：说明书 → IDE 定稿 → 勾选放行再复制发布。定稿在 IDE 做；勾选不是写作工具。保真度≠可以发。</p>
 </div>
 <div class="flex items-center gap-2.5 flex-wrap">
-<button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition"><i data-lucide="share-2" class="w-4 h-4"></i><span>一键生成核心矩阵发布包</span>
+<button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition"><i data-lucide="file-plus" class="w-4 h-4"></i><span>生成草稿</span>
 </button>
 </div>
 </div>
@@ -1048,98 +1054,132 @@
 </div>
 <div class="min-w-0">
 <div class="text-xs font-bold text-slate-800">最新工作日志 / 大模型调用轨迹</div>
-<p id="distribute-run-status-text" class="text-[11px] text-slate-500 mt-0.5 truncate">尚未执行。生成矩阵发布包后，将在此显示耗时、模型与产物摘要。</p>
+<p id="distribute-run-status-text" class="text-[11px] text-slate-500 mt-0.5 truncate">尚未执行。生成草稿后，将在此显示耗时、模型与产物摘要。</p>
 </div>
 </div>
-<button type="button" id="btn-open-distribute-log" onclick="openDistributeLogModal()" disabled
-            class="py-2 px-3.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-400 cursor-not-allowed shrink-0 flex items-center gap-1.5"><i data-lucide="panel-right-open" class="w-3.5 h-3.5"></i><span>查看完整工作日志</span>
+<button type="button" id="btn-open-distribute-log" onclick="openDistributeLogModal()"
+            class="py-2 px-3.5 text-xs font-semibold rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 shrink-0 flex items-center gap-1.5 transition"><i data-lucide="panel-right-open" class="w-3.5 h-3.5"></i><span>查看完整工作日志</span>
 </button>
 </div>
-<!-- 新客交付 3 步指引 -->
+<!-- 标准流程 -->
 <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4 text-xs text-slate-700 space-y-2.5">
-<div class="flex items-center gap-2"><span class="font-bold text-slate-900 flex items-center gap-1.5 text-xs"><i data-lucide="compass" class="w-4 h-4 text-indigo-600"></i><span>新客交付 3 步走动线引导</span></span><span class="text-[10px] text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-full font-semibold">标准化闭环</span>
+<div class="flex items-center gap-2 flex-wrap"><span class="font-bold text-slate-900 flex items-center gap-1.5 text-xs"><i data-lucide="compass" class="w-4 h-4 text-indigo-600"></i><span>标准流程（三段）</span></span><span class="text-[10px] text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-full font-semibold">草稿 ≠ 定稿 ≠ 可发</span>
+<span class="text-[10px] text-slate-500 ml-auto">规范：docs/specs/answer-source-writing.md</span>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-<div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">1</span><span><strong>一键生成</strong>：顶部生成 Markdown + 全渠道发稿包</span>
-</div>
-<div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">2</span><span><strong>直达发稿</strong>：复制头条 / 知乎富文本，直达后台粘贴</span>
-</div>
-<div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">3</span><span><strong>回填探活</strong>：下方贴入已发布外链，一键检测 200 存活</span>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">A</span><span><strong>说明书</strong>：读懂主问句与模具（勿在此发稿）</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">B</span><span><strong>IDE 工地</strong>：改写包开工 → 写回口令落盘</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">C</span><span><strong>放行确认</strong>：勾「可以发」→ 复制富文本去平台</span></div>
 </div>
 </div>
+<!-- 段 A：说明书（只读）——此处不得放「可以发」或发布复制 -->
+<div class="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+<div class="flex items-center justify-between gap-2 flex-wrap">
+<div class="text-xs font-bold text-slate-800">段 A · 这篇要写成什么样（说明书）</div>
+<button type="button" onclick="loadRewriteBrief('toutiao')" class="text-[11px] font-semibold text-indigo-700 hover:underline">刷新说明书</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+<div class="rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-1.5">
+<div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">主问句</div>
+<p id="rewrite-brief-question" class="text-slate-800 font-medium leading-relaxed">加载中…</p>
+<div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide pt-1">用途</div>
+<p id="rewrite-brief-purpose" class="text-slate-600 leading-relaxed">—</p>
+</div>
+<div class="rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-1.5">
+<div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">成品模具</div>
+<ul id="rewrite-brief-mold" class="list-disc pl-4 text-slate-700 space-y-0.5"></ul>
+</div>
+<div class="rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-1.5 md:col-span-2">
+<div class="flex items-center justify-between gap-2"><div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">可写事实（已确认）</div><span id="rewrite-brief-draft-status" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">仅草稿</span></div>
+<ul id="rewrite-brief-facts" class="list-disc pl-4 text-slate-700 space-y-0.5 max-h-28 overflow-y-auto"></ul>
+<p id="rewrite-brief-source" class="text-[10px] text-slate-400 pt-1">源文件：—</p>
+</div>
+</div>
+</div>
+<!-- 段 B：怎么定稿（路牌；定稿与落盘都在 IDE） -->
+<div class="bg-violet-50/70 border border-violet-200 rounded-xl p-4 space-y-3">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="text-sm font-bold text-slate-900">段 B · 怎么定稿（本页只指路，活在 IDE 干）</span>
+<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 border border-violet-200">勾选不会改文章</span>
+<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">头条必发 · 知乎加分</span>
+</div>
+<p class="text-xs text-violet-950 leading-relaxed font-medium">本页只指路。定稿在 IDE 写；满意后点「复制写回口令」让 AI 写入规定文件；再回来勾「可以发」。勾选不会改文章。</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-violet-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">1</span><span><strong>复制改写包</strong>去 IDE 开工</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-violet-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">2</span><span><strong>在 IDE</strong>改到满意（可先聊，不必立刻落盘）</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-violet-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">3</span><span><strong>复制写回口令</strong>贴回 IDE，写入规定路径</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-violet-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">4</span><span><strong>回本页</strong>勾「可以发」再复制富文本</span></div>
 </div>
 <!-- 渠道进度跳转条 -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
 <button type="button" onclick="scrollToPackCard('pack-card-toutiao')" class="bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 text-left hover:bg-red-100 transition">
-<div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-red-900">头条 / 豆包</span><span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white px-1.5 py-0.5 rounded-full border border-red-100">待发稿包</span>
+<div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-red-900">头条 / 豆包 · 必做</span><span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white px-1.5 py-0.5 rounded-full border border-red-100">待生成草稿</span>
 </div>
 </button>
 <button type="button" onclick="scrollToPackCard('pack-card-zhihu')" class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-left hover:bg-blue-100 transition">
-<div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-blue-900">知乎 / DeepSeek</span><span id="deepseek-pack-status" class="text-[10px] font-semibold text-blue-600 bg-white px-1.5 py-0.5 rounded-full border border-blue-100">待发稿包</span>
+<div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-blue-900">知乎 · 加分</span><span id="deepseek-pack-status" class="text-[10px] font-semibold text-blue-600 bg-white px-1.5 py-0.5 rounded-full border border-blue-100">待生成草稿</span>
 </div>
 </button>
 <button type="button" onclick="scrollToPackCard('pack-card-wechat')" class="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5 text-left hover:bg-emerald-100 transition">
-<div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-emerald-900">微信 / 元宝</span><span id="wechat-pack-status" class="text-[10px] font-semibold text-emerald-600 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100">待发稿包</span>
+<div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-emerald-900">微信 · 后续</span><span id="wechat-pack-status" class="text-[10px] font-semibold text-emerald-600 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100">后续</span>
 </div>
 </button>
 <button type="button" onclick="scrollToPackCard('pack-card-kimi')" class="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2.5 text-left hover:bg-purple-100 transition">
-<div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-purple-900">Kimi / 百度</span><span id="kimi-baidu-pack-status" class="text-[10px] font-semibold text-purple-600 bg-white px-1.5 py-0.5 rounded-full border border-purple-100">待发稿包</span>
+<div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-purple-900">Kimi/百度 · 后续</span><span id="kimi-baidu-pack-status" class="text-[10px] font-semibold text-purple-600 bg-white px-1.5 py-0.5 rounded-full border border-purple-100">后续</span>
 </div>
 </button>
 </div>
-<!-- MVP 核心主战区 -->
-<div>
-<div class="flex items-center gap-2 mb-3"><span class="text-sm font-bold text-slate-800">MVP 核心主战区</span><span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">必做 · 豆包 + DeepSeek</span>
-</div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-<!-- 今日头条 -->
+<!-- 今日头条 · IDE 定稿 -->
 <div id="pack-card-toutiao" class="bg-white p-5 rounded-xl border border-red-200 shadow-sm flex flex-col justify-between scroll-mt-24 ring-1 ring-red-50">
 <div>
 <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-<div class="flex items-center gap-2 text-red-600 font-bold text-sm"><i data-lucide="file-text" class="w-4 h-4"></i><span>今日头条 / 豆包生态 (50%+)</span>
+<div class="flex items-center gap-2 text-red-600 font-bold text-sm"><i data-lucide="file-text" class="w-4 h-4"></i><span>今日头条 / 豆包（必做）</span>
 </div>
-<div class="flex items-center gap-1.5"><span id="toutiao-card-pack-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">待发稿包</span><span id="toutiao-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">保真度: --</span>
+<div class="flex items-center gap-1.5 flex-wrap"><span id="toutiao-card-pack-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">待生成草稿</span><span id="toutiao-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">保真度: --</span>
 </div>
 </div>
-<p class="text-xs text-slate-500 mb-4">攻占字节 Bytespider 检索信任池；发稿后回填 URL 到下方台账。</p>
+<p class="text-xs text-slate-500 mb-4">本页只指路：先「复制给 IDE 改写」，聊到满意再「复制写回口令」落盘。发布复制在下方段 C。</p>
 </div>
 <div class="space-y-2">
-<button onclick="copyToutiaoRichHtml()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制富文本长文</span>
-</button><a href="https://mp.toutiao.com/" target="_blank" class="w-full py-2 bg-white hover:bg-red-50 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center justify-center gap-1.5"><span>直达头条号后台</span><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>
+<button type="button" onclick="copyIdeRewritePack('toutiao', this)" class="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>复制给 IDE 改写</span></button>
+<button type="button" onclick="copyWritebackCommand('toutiao', this)" class="w-full py-2.5 bg-white hover:bg-violet-50 text-violet-800 text-xs font-semibold rounded-lg border-2 border-violet-300 transition flex items-center justify-center gap-1.5"><i data-lucide="folder-input" class="w-3.5 h-3.5"></i><span>复制写回口令（满意后落盘）</span></button>
 <details class="rounded-lg border border-slate-200 bg-slate-50/80">
 <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
 <div class="px-2 pb-2 space-y-1.5">
-<button onclick="buildToutiaoPack()" class="w-full py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>单独生成头条发稿包</span>
+<button onclick="buildToutiaoPack()" class="w-full py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>单独生成头条草稿包</span>
 </button>
+<button type="button" onclick="runAnswerAudit('toutiao', this)" class="w-full py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-800 text-xs font-medium rounded-lg border border-violet-200 flex items-center justify-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>小毛驴审定稿（可选）</span></button>
 <button onclick="openCleanMarkdownDrawer('toutiao')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span>
 </button>
 <button onclick="copyToutiaoMicroPosts()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制微头条 3 组文案</span>
 </button>
-<button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制 Markdown 分发稿</span>
+<button onclick="copyOutput('dist_toutiao_article.md')" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制旁路 Markdown 草稿</span>
 </button>
 </div>
 </details>
 </div>
 </div>
-<!-- 知乎 -->
+<!-- 知乎 · IDE 定稿 -->
 <div id="pack-card-zhihu" class="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-between scroll-mt-24 ring-1 ring-blue-50">
 <div>
 <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-<div class="flex items-center gap-2 text-blue-600 font-bold text-sm"><i data-lucide="book-open" class="w-4 h-4"></i><span>知乎专栏 / DeepSeek (25%+)</span>
+<div class="flex items-center gap-2 text-blue-600 font-bold text-sm"><i data-lucide="book-open" class="w-4 h-4"></i><span>知乎专栏 / DeepSeek（加分）</span>
 </div>
-<div class="flex items-center gap-1.5"><span id="deepseek-card-pack-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">待发稿包</span><span id="zhihu-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">保真度: --</span>
+<div class="flex items-center gap-1.5 flex-wrap"><span id="deepseek-card-pack-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">待生成草稿</span><span id="zhihu-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">保真度: --</span>
 </div>
 </div>
-<p class="text-xs text-slate-500 mb-4">攻占 CTO 与架构师技术深度池；发稿后回填 URL 到下方台账。</p>
+<p class="text-xs text-slate-500 mb-4">有号再做；同样先 IDE 改稿，再写回口令落盘。没有知乎号不挡首次验收。发布复制在下方段 C。</p>
 </div>
 <div class="space-y-2">
-<button onclick="copyZhihuRichHtml()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>一键复制知乎富文本长文</span>
-</button><a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-2 bg-white hover:bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 flex items-center justify-center gap-1.5"><span>直达知乎创作中心</span><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>
+<button type="button" onclick="copyIdeRewritePack('zhihu', this)" class="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>复制给 IDE 改写</span></button>
+<button type="button" onclick="copyWritebackCommand('zhihu', this)" class="w-full py-2.5 bg-white hover:bg-violet-50 text-violet-800 text-xs font-semibold rounded-lg border-2 border-violet-300 transition flex items-center justify-center gap-1.5"><i data-lucide="folder-input" class="w-3.5 h-3.5"></i><span>复制写回口令（满意后落盘）</span></button>
 <details class="rounded-lg border border-slate-200 bg-slate-50/80">
 <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
 <div class="px-2 pb-2 space-y-1.5">
-<button onclick="buildDeepseekPack()" class="w-full py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>单独生成 DeepSeek 技术包</span>
+<button onclick="buildDeepseekPack()" class="w-full py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 flex items-center justify-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i><span>单独生成 DeepSeek 草稿包</span>
 </button>
+<button type="button" onclick="runAnswerAudit('zhihu', this)" class="w-full py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-800 text-xs font-medium rounded-lg border border-violet-200 flex items-center justify-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>小毛驴审定稿（可选）</span></button>
 <button onclick="openCleanMarkdownDrawer('zhihu')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5"><i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span>
 </button>
 <button onclick="copyDeepseekZhihu()" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制 Markdown 选型稿</span>
@@ -1149,6 +1189,45 @@
 </div>
 </details>
 </div>
+</div>
+</div>
+</div>
+<!-- 段 C：发布前确认（必须在段 B 之后；勾选 = 放行，不是写作工具） -->
+<div id="dist-section-c" class="bg-white border border-emerald-200 rounded-xl p-4 flex flex-col gap-4 scroll-mt-24">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 flex-wrap">
+<div class="text-sm font-bold text-slate-900">段 C · 发布前确认</div>
+<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">只是放行确认 · 不是写作工具</span>
+</div>
+<p class="text-xs text-slate-600 leading-relaxed">勾选「可以发」<strong>不会</strong>帮你改文章，也<strong>不会</strong>自动存稿。稿子在磁盘上的写回路径里；勾选前请先「检查写回」。勾选只表示：你确认这份文件可以拿去平台粘贴。</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-2">
+<div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-wrap">
+<div class="text-xs font-bold text-slate-800">定稿文件在哪？</div>
+<button type="button" onclick="checkWritebackStatus('toutiao', this)" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold">检查头条写回</button>
+<button type="button" onclick="checkWritebackStatus('zhihu', this)" class="px-3 py-1.5 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-800 text-[11px] font-semibold">检查知乎写回</button>
+</div>
+<p id="writeback-path-display" class="text-[11px] text-slate-600 font-mono break-all">写回路径：打开阶段四后会显示（或点上方检查）</p>
+<p id="writeback-status-label" class="text-xs font-semibold text-slate-700">状态：尚未检查</p>
+<p id="writeback-status-hint" class="text-[11px] text-slate-500">点「检查写回」后，这里会告诉你文件在不在、标题像不像答案、大概多少字。</p>
+<p id="writeback-status-preview" class="text-[11px] text-slate-500 leading-relaxed max-h-24 overflow-y-auto hidden"></p>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap">
+<label class="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer"><input type="radio" name="dist-publish-account" value="client" class="text-indigo-600" checked onchange="onDistPublishAccountChange()">客户自己的号（优先）</label>
+<label class="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer"><input type="radio" name="dist-publish-account" value="ours" class="text-indigo-600" onchange="onDistPublishAccountChange()">我方号临时代发</label>
+<label class="inline-flex items-center gap-2 text-xs font-semibold text-emerald-800 cursor-pointer sm:ml-auto bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg"><input type="checkbox" id="dist-can-publish" class="text-emerald-600" onchange="onDistCanPublishChange()"> 定稿已写好，可以发（放行确认）</label>
+</div>
+<p id="dist-publish-account-hint" class="text-[11px] text-slate-500">未勾选时，复制富文本会先提醒你。发答题文，不发公司简介。</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div class="rounded-lg border border-red-100 bg-red-50/40 p-3 space-y-2">
+<div class="text-xs font-bold text-red-800">头条 / 豆包 · 复制去发布</div>
+<button type="button" id="btn-toutiao-publish-copy" onclick="copyToutiaoRichHtml()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 opacity-50"><i data-lucide="send" class="w-3.5 h-3.5"></i><span>复制富文本去头条（需勾选可发）</span></button>
+<a href="https://mp.toutiao.com/" target="_blank" class="w-full py-2 bg-white hover:bg-red-50 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center justify-center gap-1.5"><span>直达头条号后台</span><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>
+</div>
+<div class="rounded-lg border border-blue-100 bg-blue-50/40 p-3 space-y-2">
+<div class="text-xs font-bold text-blue-800">知乎 · 复制去发布</div>
+<button type="button" id="btn-zhihu-publish-copy" onclick="copyZhihuRichHtml()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 opacity-50"><i data-lucide="send" class="w-3.5 h-3.5"></i><span>复制富文本去知乎（需勾选可发）</span></button>
+<a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-2 bg-white hover:bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 flex items-center justify-center gap-1.5"><span>直达知乎创作中心</span><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>
 </div>
 </div>
 </div>
@@ -1262,14 +1341,14 @@
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
 <div>
-<div class="flex items-center gap-2 flex-wrap"><span class="text-base font-bold text-slate-900">全渠道落地台账与外链回填</span><span id="dist-completion-badge" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold">完成率: 0.0%</span><span id="dist-weighted-badge" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-bold">战略存活率: 0.0%</span>
+<div class="flex items-center gap-2 flex-wrap"><span class="text-base font-bold text-slate-900">全渠道落地台账与链接回填</span><span id="dist-completion-badge" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold">完成率: 0.0%</span><span id="dist-weighted-badge" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-bold">链接还在: 0%</span>
 </div>
-<p class="text-xs text-slate-500 mt-1">支持智能多行混合文本 URL 自动识别入账，并发检测存活状态并同步《04_全网分发渠道执行与存活台账.md》。</p>
+<p class="text-xs text-slate-500 mt-1">把发布后的网址填进来；「检查链接」只看还在不在（是不是 404），不爬正文、也不代表大模型已抓到。存疑时点「访问」自己打开看。</p>
 </div>
 <div class="flex items-center gap-2 flex-wrap">
 <button onclick="openBatchBackfillModal()" class="py-2 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-indigo-200 shadow-sm"><i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i><span>智能批量回填</span>
 </button>
-<button onclick="handleVerifyAllDistUrls()" id="btn-verify-all-dist" class="py-2 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-emerald-200 shadow-sm"><i data-lucide="activity" class="w-3.5 h-3.5"></i><span>一键全网探活</span>
+<button onclick="handleVerifyAllDistUrls()" id="btn-verify-all-dist" class="py-2 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-emerald-200 shadow-sm"><i data-lucide="activity" class="w-3.5 h-3.5"></i><span>一键检查链接是否还在</span>
 </button>
 <button onclick="copyOutput('04_全网分发渠道执行与存活台账.md')" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200 shadow-sm"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>复制台账 MD</span>
 </button>
@@ -1704,14 +1783,14 @@
 <div id="panel-mon-patrol" class="workspace-panel hidden space-y-6">
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
 <div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded border bg-emerald-50 text-emerald-800 border-emerald-200">监测</span>
-<h2 class="text-base font-bold text-slate-900">巡检告警与全网探活</h2>
+<h2 class="text-base font-bold text-slate-900">巡检告警与链接检查</h2>
 </div>
-<p class="text-xs text-slate-500">外链存活巡检与全网一键探活。</p>
+<p class="text-xs text-slate-500">看看已填的发布网址还在不在（主要抓 404）。</p>
 </div>
 <div class="max-w-2xl">
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
 <div class="grid grid-cols-1 gap-2">
-<button onclick="handleVerifyAllDistUrls()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="activity" class="w-3.5 h-3.5"></i>一键全网探活</button>
+<button onclick="handleVerifyAllDistUrls()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2"><i data-lucide="activity" class="w-3.5 h-3.5"></i>一键检查链接是否还在</button>
 </div>
 </div>
 </div>
@@ -2534,7 +2613,7 @@
 </div>
 </div>
 <!-- ================= 阶段四：矩阵分发工作日志与大模型调用轨迹 ================= -->
-<div id="distribute-log-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div id="distribute-log-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
 <div class="max-w-5xl w-full max-h-[90vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
 <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
 <div class="min-w-0">
@@ -2577,6 +2656,20 @@
 </div>
 </div>
 </div>
+<!-- ================= 阶段四：答案源质检结果弹窗 ================= -->
+<div id="answer-audit-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+<div class="max-w-2xl w-full max-h-[90vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+<div class="px-5 py-4 border-b border-slate-200 bg-violet-50 flex items-center justify-between gap-3 shrink-0">
+<div class="min-w-0">
+<h3 class="text-sm font-bold text-slate-900 truncate">答案源发前质检（小毛驴）</h3>
+<p id="answer-audit-meta" class="text-[11px] text-slate-500 mt-0.5 truncate">按 docs/specs/answer-source-writing.md</p>
+</div>
+<button type="button" onclick="closeAnswerAuditModal()" class="py-1.5 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 shrink-0"><span>关闭</span><span class="text-[10px] text-slate-400 font-medium">ESC</span></button>
+</div>
+<div id="answer-audit-body" class="flex-1 overflow-y-auto p-5 space-y-4 text-xs text-slate-700">
+</div>
+</div>
+</div>
 <!-- ================= 4.7 全渠道智能批量回填分发外链模态弹窗 ================= -->
 <div id="batch-backfill-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
 <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
@@ -2586,7 +2679,7 @@
 </div>
 <div>
 <h3 class="text-base font-bold text-slate-900">智能多链接解析与分发台账批量回填</h3>
-<p class="text-[11px] text-slate-500">直接粘贴任意多行发稿链接或聊天记录，系统自动根据域名匹配渠道并探活</p>
+<p class="text-[11px] text-slate-500">直接粘贴多行发稿链接或聊天记录，按域名匹配渠道；可选检查链接是否还在</p>
 </div>
 </div>
 <button onclick="closeBatchBackfillModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i>
@@ -2608,7 +2701,7 @@ GitHub 开源仓库：https://github.com/company/repo
 </textarea>
 </div>
 <div class="flex items-center gap-2">
-<input type="checkbox" id="batch-verify-checkbox" checked class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"><label for="batch-verify-checkbox" class="text-xs text-slate-600 cursor-pointer">回填后立即执行 HTTP 连通性探活与标题抓取</label>
+<input type="checkbox" id="batch-verify-checkbox" checked class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"><label for="batch-verify-checkbox" class="text-xs text-slate-600 cursor-pointer">回填后立刻检查链接是否还在（不爬正文）</label>
 </div>
 </div>
 <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3 bg-white shrink-0">
@@ -4256,12 +4349,13 @@ GitHub 开源仓库：https://github.com/company/repo
 <div><label class="text-[11px] font-semibold text-slate-700">品牌标识（vio-source-client）</label>
 <input id="llm-config-brand" type="text" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2" placeholder="geo" value="geo" />
 </div>
-<div><label class="text-[11px] font-semibold text-slate-700">Chat mode（计费/回落；专属链不改梯队）</label>
+<div><label class="text-[11px] font-semibold text-slate-700">调度档（不是选模；专属链梯队在小毛驴配置）</label>
 <select id="llm-config-mode" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white">
-<option value="flash" selected>flash</option>
-<option value="think">think</option>
-<option value="auto">auto</option>
+<option value="auto" selected>auto · 自动调度（推荐，优先保障可用）</option>
+<option value="flash">flash · 快档（失败会改试 auto，不会卡死在 flash）</option>
+<option value="think">think · 深档（失败会改试 auto）</option>
 </select>
+<p class="text-[10px] text-slate-500 mt-1">选模由小毛驴「接入方 geo」专属链决定。GEO 默认传 auto；若传 flash/think 失败，会自动再试 auto。不会「掉回 flash」。</p>
 </div>
 <button id="btn-llm-config-save" onclick="saveLlmConfig()" class="w-full py-2.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">探测并保存</button>
 </div>
@@ -5117,11 +5211,11 @@ GitHub 开源仓库：https://github.com/company/repo
       'step-1-diag': { group: 'delivery', groupLabel: '交付流水线', label: '01 现状诊断与体检', step: 1 },
       'step-2-scaffold': { group: 'delivery', groupLabel: '交付流水线', label: '02 站点底座与三件套', step: 2 },
       'step-3-princeton': { group: 'delivery', groupLabel: '交付流水线', label: '03 普林斯顿 9 因子语料', step: 3 },
-      'step-4-distribute': { group: 'delivery', groupLabel: '交付流水线', label: '04 矩阵分发与外链探活', step: 4 },
+      'step-4-distribute': { group: 'delivery', groupLabel: '交付流水线', label: '04 矩阵分发与链接检查', step: 4 },
       'step-5-acceptance': { group: 'delivery', groupLabel: '交付流水线', label: '05 商业验收与结案单', step: 5 },
       'mon-weekly': { group: 'monitoring', groupLabel: '监测运维', label: '权威度与 SOV 周报' },
       'mon-probing': { group: 'monitoring', groupLabel: '监测运维', label: '大模型问答探针' },
-      'mon-patrol': { group: 'monitoring', groupLabel: '监测运维', label: '巡检告警与全网探活' },
+      'mon-patrol': { group: 'monitoring', groupLabel: '监测运维', label: '巡检告警与链接检查' },
       'mon-deliverables': { group: 'monitoring', groupLabel: '监测运维', label: '客户交付物与专属链接' },
       'mon-decay': { group: 'monitoring', groupLabel: '监测运维', label: '知识半衰期与自愈' },
       'mon-crisis': { group: 'monitoring', groupLabel: '监测运维', label: '品牌声誉与危机清洗' },
@@ -6694,9 +6788,22 @@ function backToDashboard() {
         const badge = document.getElementById('facts-count-badge');
         const hint = document.getElementById('rewrite-facts-hint');
         if (badge) badge.textContent = `${data.confirmed_count || 0} 已确认 · ${data.conflict_count || 0} 冲突`;
+        const cue = document.getElementById('facts-diff-cue');
+        if (cue) {
+          const nConflict = data.conflict_count || 0;
+          if (nConflict > 0) {
+            cue.classList.remove('hidden');
+            cue.textContent = `对照卡有待确认（${nConflict}）`;
+          } else if (window._corpusDiffPendingCount > 0) {
+            cue.classList.remove('hidden');
+            cue.textContent = `对照卡有待确认（${window._corpusDiffPendingCount}）`;
+          } else {
+            cue.classList.add('hidden');
+          }
+        }
         if (hint) {
           hint.textContent = `将使用 ${data.confirmed_count || 0} 条已确认事实` +
-            ((data.conflict_count || 0) > 0 ? `（${data.conflict_count} 项冲突未解决将告警降级）` : '') +
+            ((data.conflict_count || 0) > 0 ? `（请到下方对照卡打勾处理）` : '') +
             '；抓取不会自动改语料';
         }
         renderFactsList(data.facts || []);
@@ -7147,6 +7254,8 @@ function backToDashboard() {
         loadDistributionLedger();
         loadFidelityScoresForCards();
         loadDistributeRunLog();
+        loadRewriteBrief('toutiao');
+        onDistCanPublishChange();
       }
       if (viewId === 'overview' && currentProjectData) {
         fillOverviewProfilePanel(currentProjectData);
@@ -8249,17 +8358,32 @@ function backToDashboard() {
       return map[strategy] || map.noop;
     }
 
-    function updateCorpusPinButtonStyle(hasPinned) {
+    function updateCorpusPinButtonStyle(hasPinned, readyToPin) {
       const btn = document.getElementById('btn-corpus-pin');
+      const gate = document.getElementById('corpus-pin-gate-hint');
       if (!btn) return;
-      if (hasPinned) {
-        btn.className = 'py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 flex items-center gap-1';
-        btn.title = '已有钉住基线；再次点击将用当前母盘覆盖基线（有冲突时会禁止）';
+      const ready = !!readyToPin;
+      btn.disabled = !ready;
+      if (ready) {
+        if (hasPinned) {
+          btn.className = 'py-2 px-4 text-xs font-semibold rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 flex items-center gap-1.5';
+          btn.title = '已全部确认；点击用当前母盘覆盖钉住基线';
+        } else {
+          btn.className = 'py-2 px-4 text-xs font-semibold rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 flex items-center gap-1.5';
+          btn.title = '已全部确认；点击钉住当前母盘';
+        }
+        if (gate) gate.textContent = '可以钉住';
       } else {
-        btn.className = 'py-1.5 px-3 text-[11px] font-semibold rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 flex items-center gap-1';
-        btn.title = '尚未钉住基线；满意当前母盘后点此存档';
+        btn.className = 'py-2 px-4 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed flex items-center gap-1.5';
+        btn.title = '请先在对照卡打勾，再点全部确认';
+        if (gate) gate.textContent = '请先全部确认';
       }
       if (window.lucide) lucide.createIcons();
+    }
+
+    function scrollToCorpusDiffCard() {
+      const el = document.getElementById('corpus-diff-card');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function corpusDiffAckStoreKey() {
@@ -8274,10 +8398,10 @@ function backToDashboard() {
       }
     }
 
-    function markCorpusDiffAck(factKey) {
+    function markCorpusDiffAck(factKey, decision) {
       if (!factKey) return;
       const map = getCorpusDiffAck();
-      map[factKey] = Date.now();
+      map[factKey] = { decision: decision || 'accept', at: Date.now() };
       sessionStorage.setItem(corpusDiffAckStoreKey(), JSON.stringify(map));
     }
 
@@ -8285,10 +8409,57 @@ function backToDashboard() {
       sessionStorage.removeItem(corpusDiffAckStoreKey());
     }
 
-    function filterAckedFactActions(d) {
+    function syncAckWithServerActions(d) {
+      // 仅当「已拍板」的键在服务端仍 blocking（冲突没消掉）时清掉 ack，强制再显示让人重选
+      const map = getCorpusDiffAck();
+      let changed = false;
+      const blockingLive = new Set(
+        (d.fact_actions || []).filter(a => a.blocking).map(a => a.fact_key)
+      );
+      Object.keys(map).forEach((k) => {
+        if (blockingLive.has(k)) {
+          delete map[k];
+          changed = true;
+        }
+      });
+      if (changed) sessionStorage.setItem(corpusDiffAckStoreKey(), JSON.stringify(map));
+    }
+
+    function buildFallbackFactActions(d) {
+      const fd = d.facts_diff || {};
+      const fallback = [];
+      (fd.changed || []).forEach(c => fallback.push({
+        fact_key: c.fact_key, op: 'changed', from_value: c.from, to_value: c.to,
+        accept_label: '打勾固定为新值', reject_label: '恢复原先', blocking: false, needs_decision: true
+      }));
+      (fd.added || []).forEach(c => fallback.push({
+        fact_key: c.fact_key, op: 'added', from_value: null, to_value: c.value,
+        accept_label: '打勾固定新增', reject_label: '不要这条', blocking: false, needs_decision: true
+      }));
+      (fd.removed || []).forEach(c => fallback.push({
+        fact_key: c.fact_key, op: 'removed', from_value: c.value, to_value: null,
+        accept_label: '打勾确认删除', reject_label: '恢复原先',
+        blocking: (d.hard_conflict_count || 0) > 0, needs_decision: true
+      }));
+      return fallback;
+    }
+
+    function visibleFactActions(d) {
+      let actions = (d.fact_actions && d.fact_actions.length)
+        ? d.fact_actions.slice()
+        : buildFallbackFactActions(d);
       const ack = getCorpusDiffAck();
-      const actions = (d.fact_actions || []).filter(a => !ack[a.fact_key]);
-      return { ...d, fact_actions: actions };
+      return actions.filter((a) => {
+        const done = ack[a.fact_key];
+        if (!done) return true;
+        // 冲突未消：必须继续显示
+        if (a.blocking) return true;
+        return false;
+      });
+    }
+
+    function decidedFactCount() {
+      return Object.keys(getCorpusDiffAck()).length;
     }
 
     function renderCorpusDiffDetails(d) {
@@ -8296,10 +8467,18 @@ function backToDashboard() {
       if (!details) return;
       const esc = (s) => String(s == null ? '' : s)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-      const actions = d.fact_actions || [];
+      const actions = visibleFactActions(d);
+      const decidedN = decidedFactCount();
       let html = '';
-      if ((d.hard_conflict_count || 0) > 0) {
-        html += `<div class="px-2 py-1.5 rounded border border-rose-200 bg-rose-50 text-rose-800">还有 ${d.hard_conflict_count} 条未决冲突：请在下方对应行点「同意」或「不同意」拍板（不必再滚回真相源）。</div>`;
+      if (decidedN > 0) {
+        html += `<div class="px-2 py-1.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-900">本轮已处理 ${decidedN} 条（已从下方列表收起）。点「全部确认」后可钉住；刷新对照不会丢这些决定。</div>`;
+      }
+      const openBlocking = actions.filter(a => a.blocking).length;
+      if (openBlocking > 0 || ((d.hard_conflict_count || 0) > 0 && openBlocking > 0)) {
+        html += `<div class="px-2 py-1.5 rounded border border-rose-200 bg-rose-50 text-rose-800">还有 ${openBlocking || d.hard_conflict_count} 条须拍板：✓ 打勾固定，或 ✗ 恢复原先。处理完该行会从列表消失。</div>`;
+      } else if ((d.hard_conflict_count || 0) > 0 && openBlocking === 0) {
+        // 服务端仍报冲突但可见列表没有 blocking：可能已处理，提示全部确认
+        html += `<div class="px-2 py-1.5 rounded border border-amber-200 bg-amber-50 text-amber-950">冲突行已收起。请点「全部确认」写入闸门；若仍失败再点「刷新对照」。</div>`;
       }
       if (actions.length) {
         actions.forEach((a) => {
@@ -8313,21 +8492,21 @@ function backToDashboard() {
           const opEnc = encodeURIComponent(op);
           let body = '';
           if (op === 'changed') {
-            body = `<div class="mt-0.5 text-slate-600 line-through opacity-80">${esc(a.from_value)}</div><div class="text-slate-900">${esc(a.to_value)}</div>`;
+            body = `<div class="mt-0.5 text-[10px] text-slate-500">原先</div><div class="text-slate-600 line-through opacity-80">${esc(a.from_value)}</div><div class="mt-0.5 text-[10px] text-slate-500">现在</div><div class="text-slate-900">${esc(a.to_value)}</div>`;
           } else if (op === 'added') {
-            body = `<div class="mt-0.5 text-slate-900">${esc(a.to_value)}</div>`;
+            body = `<div class="mt-0.5 text-[10px] text-emerald-700">新增</div><div class="text-slate-900">${esc(a.to_value)}</div>`;
           } else if (op === 'removed') {
-            body = `<div class="mt-0.5 text-slate-700 line-through opacity-80">${esc(a.from_value)}</div>`;
+            body = `<div class="mt-0.5 text-[10px] text-slate-500">将删除</div><div class="text-slate-700 line-through opacity-80">${esc(a.from_value)}</div>`;
           } else {
-            body = `<div class="mt-0.5 text-slate-600">旧：${esc(a.from_value)}</div><div class="text-slate-900">新：${esc(a.to_value)}</div>`;
+            body = `<div class="mt-0.5 text-[10px] text-slate-500">原先</div><div class="text-slate-600">${esc(a.from_value)}</div><div class="mt-0.5 text-[10px] text-slate-500">现在</div><div class="text-slate-900">${esc(a.to_value)}</div>`;
           }
-          const acceptTip = esc(a.accept_label || '同意');
-          const rejectTip = esc(a.reject_label || '不同意');
+          const acceptTip = esc(a.accept_label || '打勾固定');
+          const rejectTip = esc(a.reject_label || '恢复原先');
           html += `<div class="px-2 py-2 rounded border ${border} flex items-start justify-between gap-3">
-            <div class="min-w-0 flex-1"><div class="flex items-center gap-2 flex-wrap"><span class="font-semibold">${opLabel}</span><code class="text-[10px]">${esc(a.fact_key)}</code>${a.blocking ? '<span class="text-[10px] font-bold text-rose-700">须拍板</span>' : ''}</div>${body}<div class="mt-1 text-[10px] text-slate-500">✓ ${acceptTip} · ✗ ${rejectTip}</div></div>
+            <div class="min-w-0 flex-1"><div class="flex items-center gap-2 flex-wrap"><span class="font-semibold">${opLabel}</span><code class="text-[10px]">${esc(a.fact_key)}</code>${a.blocking ? '<span class="text-[10px] font-bold text-rose-700">须拍板</span>' : ''}</div>${body}</div>
             <div class="shrink-0 flex items-center gap-1.5">
-              <button type="button" title="${acceptTip}" onclick="handleCorpusDiffDecide('${enc}','accept','${opEnc}')" class="w-8 h-8 rounded-lg border border-emerald-300 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 font-bold text-sm" aria-label="${acceptTip}">✓</button>
-              <button type="button" title="${rejectTip}" onclick="handleCorpusDiffDecide('${enc}','reject','${opEnc}')" class="w-8 h-8 rounded-lg border border-rose-300 bg-rose-100 text-rose-800 hover:bg-rose-200 font-bold text-sm" aria-label="${rejectTip}">✗</button>
+              <button type="button" title="${acceptTip}" onclick="handleCorpusDiffDecide('${enc}','accept','${opEnc}')" class="w-9 h-9 rounded-lg border border-emerald-400 bg-emerald-100 text-emerald-900 hover:bg-emerald-200 font-bold text-base" aria-label="${acceptTip}">✓</button>
+              <button type="button" title="${rejectTip}" onclick="handleCorpusDiffDecide('${enc}','reject','${opEnc}')" class="w-7 h-7 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100 font-bold text-xs" aria-label="${rejectTip}">✗</button>
             </div>
           </div>`;
         });
@@ -8341,39 +8520,64 @@ function backToDashboard() {
       (d.duplicates || []).slice(0, 5).forEach(c => {
         html += `<div class="px-2 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700">重复提示：${esc(c.message)}</div>`;
       });
-      details.innerHTML = html || '<div class="text-slate-400">没有待拍板的差量。可以钉住母盘，或进入阶段四。</div>';
+      if (!actions.length && decidedN === 0 && !(d.hard_conflict_count || 0)) {
+        details.innerHTML = html || '<div class="text-slate-400">没有待拍板差量。可点「全部确认」后钉住，或进入阶段四。</div>';
+      } else if (!actions.length) {
+        details.innerHTML = html || '<div class="text-slate-400">本轮条目已全部收起，请点「全部确认」。</div>';
+      } else {
+        details.innerHTML = html;
+      }
     }
 
     function applyCorpusDiffPayload(d, { toast = true } = {}) {
-      const view = filterAckedFactActions(d);
+      syncAckWithServerActions(d);
+      const view = d;
       const badge = document.getElementById('corpus-strategy-badge');
       const summary = document.getElementById('corpus-diff-summary');
       const goto4 = document.getElementById('btn-goto-step4');
-      updateCorpusPinButtonStyle(d.against === 'pinned');
       const st = d.strategy || '--';
+      const visible = visibleFactActions(d);
+      const nAct = visible.length;
+      const nBlocking = visible.filter(a => a.blocking).length;
+      const decidedN = decidedFactCount();
+      window._corpusDiffPendingCount = nAct;
+      // 可见 blocking 清完且服务端 hard 也为 0，或已全部收起并准备确认
+      window._corpusDiffReadyToPin = !!d.ready_to_pin && nBlocking === 0 && (d.hard_conflict_count || 0) === 0;
+      if (d.against === 'none' && !(d.hard_conflict_count || 0) && !(d.logic_conflicts || []).length) {
+        window._corpusDiffReadyToPin = !!d.ready_to_pin;
+      }
+      updateCorpusPinButtonStyle(d.against === 'pinned', window._corpusDiffReadyToPin);
       if (badge) {
         badge.textContent = `strategy: ${st}`;
         badge.className = `text-[10px] font-bold px-2 py-0.5 rounded-full border ${strategyBadgeClass(st)}`;
       }
       const fd = d.facts_diff || {};
-      const nAct = (view.fact_actions || []).length;
       if (summary) {
         if (d.against === 'none') {
-          summary.textContent = d.message || '尚无 pinned 基线，请先钉住当前母盘。';
+          summary.textContent = d.message || '尚无 pinned 基线：点全部确认后即可首次钉住。';
         } else {
-          summary.textContent = `against=pinned · 待拍板 ${nAct} 条 · 事实 +${(fd.added||[]).length} ~${(fd.changed||[]).length} -${(fd.removed||[]).length} · 脏块 ${(d.dirty_blocks||[]).length} · 每条右侧 ✓ 同意 / ✗ 不同意`;
+          summary.textContent = `原先→现在 · 待处理 ${nAct} 条（须拍板 ${nBlocking}）· 本轮已收起 ${decidedN} · +${(fd.added||[]).length} ~${(fd.changed||[]).length} -${(fd.removed||[]).length} · 脏块 ${(d.dirty_blocks||[]).length}`;
         }
       }
       renderCorpusDiffDetails(view);
+      const cue = document.getElementById('facts-diff-cue');
+      if (cue) {
+        if (nAct > 0 || nBlocking > 0) {
+          cue.classList.remove('hidden');
+          cue.textContent = `对照卡有待确认（${Math.max(nAct, nBlocking)}）`;
+        } else {
+          cue.classList.add('hidden');
+        }
+      }
       if (goto4) {
         if (st === 'block') goto4.classList.add('hidden');
         else goto4.classList.remove('hidden');
       }
       if (!toast) return;
       if (d.against === 'none') {
-        showToast(d.message || '尚无钉住基线，请先钉住当前母盘', 'error');
+        showToast(d.message || '尚无钉住基线', 'error');
       } else {
-        showToast(nAct ? `对照已刷新 · ${nAct} 条待拍板 · strategy: ${st}` : `对照已刷新 · 无需拍板 · strategy: ${st}`);
+        showToast(nAct ? `对照已刷新 · ${nAct} 条待处理` : `对照已刷新 · 可全部确认后钉住`);
       }
     }
 
@@ -8410,25 +8614,72 @@ function backToDashboard() {
           },
           body: JSON.stringify({ fact_key: factKey, decision, op })
         });
-        const d = await res.json();
-        if (!d.success) {
-          showToast(d.message || '拍板失败', 'error');
+        let d = {};
+        try {
+          d = await res.json();
+        } catch (parseErr) {
+          showToast(res.status === 404
+            ? '拍板接口不存在：请重启本地管理台（python3 -m tools.geo web --port 8088）'
+            : `拍板失败（HTTP ${res.status}）`, 'error');
           return;
         }
-        markCorpusDiffAck(factKey);
-        const tip = decision === 'accept' ? '已同意' : '已不同意';
-        showToast(`${tip} ${factKey}`);
+        if (!res.ok || !d.success) {
+          const tip = (d && d.message) || (res.status === 404
+            ? '拍板接口不存在：请重启本地管理台后再试'
+            : `拍板失败（HTTP ${res.status}）`);
+          showToast(tip, 'error');
+          return;
+        }
+        window._corpusDiffReadyToPin = false;
+        markCorpusDiffAck(factKey, decision);
+        const tip = decision === 'accept' ? '已打勾固定（本行已收起）' : '已恢复原先（本行已收起）';
+        showToast(`${tip} · ${factKey}`);
         if (d.diff) applyCorpusDiffPayload(d.diff, { toast: false });
         else handleCorpusDiff();
         if (typeof loadFactsPanel === 'function') loadFactsPanel();
         if (typeof loadRawMaterialsEditor === 'function') loadRawMaterialsEditor();
       } catch (e) {
-        showToast('拍板请求异常', 'error');
+        showToast('拍板请求异常: ' + (e.message || e), 'error');
+      }
+    }
+
+    async function handleCorpusDiffConfirmAll() {
+      if (!currentProjectId) return;
+      const decided = Object.keys(getCorpusDiffAck());
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/corpus/diff-confirm-all`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify({ decided_keys: decided })
+        });
+        const d = await res.json();
+        if (!d.success) {
+          showToast(d.message || '全部确认未通过', 'error');
+          if (d.diff) applyCorpusDiffPayload(d.diff, { toast: false });
+          return;
+        }
+        (d.applied_keys || []).forEach(k => markCorpusDiffAck(k, 'accept'));
+        showToast(d.message || '全部确认通过，可以钉住');
+        if (d.diff) applyCorpusDiffPayload({ ...d.diff, ready_to_pin: true }, { toast: false });
+        else {
+          window._corpusDiffReadyToPin = true;
+          updateCorpusPinButtonStyle(true, true);
+        }
+        if (typeof loadFactsPanel === 'function') loadFactsPanel();
+      } catch (e) {
+        showToast('全部确认请求异常', 'error');
       }
     }
 
     async function handleCorpusPin() {
       if (!currentProjectId) return;
+      if (!window._corpusDiffReadyToPin) {
+        showToast('请先点「全部确认」', 'error');
+        return;
+      }
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/corpus/pin`, {
           method: 'POST',
@@ -8437,8 +8688,9 @@ function backToDashboard() {
         const d = await res.json();
         if (d.success) {
           clearCorpusDiffAck();
+          window._corpusDiffReadyToPin = false;
+          window._corpusDiffPendingCount = 0;
           showToast('已钉住当前母盘为对照基线');
-          updateCorpusPinButtonStyle(true);
           handleCorpusDiff();
         } else {
           showToast(d.message || '钉住失败', 'error');
@@ -8511,7 +8763,9 @@ function backToDashboard() {
           const lat = d.latency_ms != null ? ` · ${d.latency_ms}ms` : '';
           if ((d.provider || '') === 'nextdoor') {
             tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800';
-            tag.textContent = `Nextdoor · ${d.brand || 'geo'} · ${d.mode || d.model || 'flash'}${lat}`;
+            const modeTip = d.mode_label || (`调度档 ${d.mode || 'auto'}`);
+            tag.textContent = `小毛驴 · ${d.brand || 'geo'} · 专属链 · ${modeTip}${lat}`;
+            window._llmLiveMode = d.mode || 'auto';
           } else {
             tag.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800';
             tag.textContent = `直连: ${(d.provider || '').toUpperCase()} / ${d.model || ''}${lat}`;
@@ -10290,7 +10544,7 @@ function backToDashboard() {
             : 'px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold';
 
           if (document.getElementById('dist-weighted-badge')) {
-            document.getElementById('dist-weighted-badge').textContent = `加权战略存活率: ${data.weighted_alive_pct ?? 0}%`;
+            document.getElementById('dist-weighted-badge').textContent = `链接还在: ${data.weighted_alive_pct ?? 0}%`;
           }
 
           const chIcons = {
@@ -10309,18 +10563,18 @@ function backToDashboard() {
             const isVerified = ch.status === 'verified';
             const isPending = !ch.url || ch.status === 'pending';
             
-            let statusBadge = `<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-semibold">⏳ 待发布回填</span>`;
+            let statusBadge = `<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-semibold">待填链接</span>`;
             if (isVerified) {
-              statusBadge = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold flex items-center gap-1">正常在线 (HTTP ${ch.http_status || 200})</span>`;
+              statusBadge = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold flex items-center gap-1">链接还在${ch.http_status ? ` (${ch.http_status})` : ''}</span>`;
             } else if (ch.status === 'failed') {
-              statusBadge = `<span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-[10px] font-bold flex items-center gap-1">连通异常 (${ch.http_status || '404'})</span>`;
+              statusBadge = `<span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-[10px] font-bold flex items-center gap-1">打不开/已失效${ch.http_status ? ` (${ch.http_status})` : ''}</span>`;
             } else if (ch.status === 'published') {
-              statusBadge = `<span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-semibold">已登记</span>`;
+              statusBadge = `<span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-semibold">已填、未检查</span>`;
             }
 
             return `
               <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"><div class="flex items-center gap-2.5 min-w-[200px]"><span class="text-base">${icon}</span><div><div class="font-bold text-slate-800 flex items-center gap-1.5"><span>${ch.name}</span><span class="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-100">${ch.weight_pct}%</span>${statusBadge}
-                    </div><div class="text-[10px] text-slate-400 mt-0.5">${ch.target_pool}</div></div></div><div class="flex-1 flex items-center gap-2"><input id="dist-url-input-${k}" type="text" value="${ch.url || ''}" placeholder="粘贴真实发布后的落地 URL（如 https://...）" class="w-full text-xs px-3 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"><button onclick="handleSaveDistUrl('${k}')" class="py-1.5 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-semibold rounded-lg text-xs shrink-0 transition shadow-sm">保存校验
+                    </div><div class="text-[10px] text-slate-400 mt-0.5">${ch.target_pool}</div></div></div><div class="flex-1 flex items-center gap-2"><input id="dist-url-input-${k}" type="text" value="${ch.url || ''}" placeholder="粘贴真实发布后的落地 URL（如 https://...）" class="w-full text-xs px-3 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"><button onclick="handleSaveDistUrl('${k}')" class="py-1.5 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-semibold rounded-lg text-xs shrink-0 transition shadow-sm">保存并检查
                   </button></div><div class="flex items-center gap-1.5 shrink-0"><button onclick="copyChannelRichText('${k}')" class="py-1.5 px-2.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1 transition" title="复制格式化文章稿"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制稿件</span></button>${ch.url ? `
                     <a href="${ch.url}" target="_blank" class="py-1.5 px-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 rounded-lg text-xs font-semibold flex items-center gap-1 transition" title="访问已发布文章"><i data-lucide="external-link" class="w-3.5 h-3.5"></i><span>访问</span></a>` : ''}
                 </div></div>`;
@@ -10399,7 +10653,8 @@ function backToDashboard() {
         });
         const data = await res.json();
         if (data.success) {
-          showToast(` [${data.record.name}] 外链台账已更新！状态: ${data.record.status}`);
+          const st = data.record.status === 'verified' ? '链接还在' : (data.record.status === 'failed' ? '打不开/已失效' : data.record.status);
+          showToast(`[${data.record.name}] 已保存：${st}`);
           await loadDistributionLedger();
         } else {
           showToast('保存失败: ' + data.message, 'error');
@@ -10414,7 +10669,7 @@ function backToDashboard() {
       const btn = document.getElementById('btn-verify-all-dist');
       const origHTML = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 核验中...`;
+      btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> 检查中...`;
 
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/ledger/audit`, {
@@ -10423,10 +10678,10 @@ function backToDashboard() {
         });
         const data = await res.json();
         if (data.success) {
-          showToast(` 全网外链探活完毕！真实存活: ${data.alive}，死链: ${data.dead}，加权存活率: ${data.weighted_alive_pct}%`);
+          showToast(`检查完毕：还在 ${data.alive}，打不开 ${data.dead}，加权还在 ${data.weighted_alive_pct}%`);
           await loadDistributionLedger();
         } else {
-          showToast('核验失败: ' + data.message, 'error');
+          showToast('检查失败: ' + data.message, 'error');
         }
       } catch (e) {
         showToast('请求异常', 'error');
@@ -11530,8 +11785,10 @@ function backToDashboard() {
         const data = await res.json();
         if (data.success) {
           const chars = data.article_char_count || '—';
-          document.getElementById('toutiao-pack-status').textContent = `已就绪 · 约${chars}字`;
-          showToast('头条发稿包已生成至 outputs/toutiao_pack/');
+          document.getElementById('toutiao-pack-status').textContent = `仅草稿 · 约${chars}字`;
+          document.getElementById('toutiao-card-pack-status').textContent = `仅草稿 · 约${chars}字`;
+          showToast('头条草稿包已生成至 outputs/toutiao_pack/（请再复制给 IDE 改写）');
+          loadRewriteBrief('toutiao');
         } else {
           showToast(data.message || '生成失败', 'error');
         }
@@ -11540,21 +11797,461 @@ function backToDashboard() {
       }
     }
 
+    /**
+     * 富文本复制（优先 HTML）。Safari 对 ClipboardItem + 同步 Blob 支持差，
+     * 常导致粘贴端只拿到剥光后的 plain_text（表格/标题全糊成一段）。
+     * 策略：Promise Blob → 同步 Blob → contentEditable+execCommand → 结构化纯文本兜底。
+     */
+    function htmlToStructuredPlain(html) {
+      try {
+        const doc = new DOMParser().parseFromString(`<div id="root">${html}</div>`, 'text/html');
+        const root = doc.getElementById('root') || doc.body;
+        const blocks = [];
+        const walk = (node) => {
+          if (!node) return;
+          if (node.nodeType === 3) {
+            const t = (node.textContent || '').replace(/\s+/g, ' ').trim();
+            if (t) blocks.push(t);
+            return;
+          }
+          if (node.nodeType !== 1) return;
+          const tag = (node.tagName || '').toLowerCase();
+          if (tag === 'br') { blocks.push('\n'); return; }
+          if (tag === 'tr') {
+            const cells = Array.from(node.querySelectorAll('th,td')).map(c => (c.textContent || '').trim()).filter(Boolean);
+            if (cells.length) blocks.push(cells.join(' | '));
+            return;
+          }
+          if (['p', 'h1', 'h2', 'h3', 'h4', 'li', 'div'].includes(tag)) {
+            const t = (node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim();
+            if (t) blocks.push(t);
+            return;
+          }
+          Array.from(node.childNodes || []).forEach(walk);
+        };
+        Array.from(root.childNodes || []).forEach(walk);
+        return blocks.join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
+      } catch (e) {
+        return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      }
+    }
+
+    function copyHtmlViaExecCommand(html) {
+      const host = document.createElement('div');
+      host.setAttribute('contenteditable', 'true');
+      host.style.cssText = 'position:fixed;left:-99999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;';
+      host.innerHTML = html;
+      document.body.appendChild(host);
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(host);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      let ok = false;
+      try {
+        ok = document.execCommand('copy');
+      } catch (e) {
+        ok = false;
+      }
+      sel.removeAllRanges();
+      document.body.removeChild(host);
+      return ok;
+    }
+
+    async function copyHtmlToClipboard(html, plainFallback) {
+      const plain = (plainFallback && String(plainFallback).trim())
+        ? String(plainFallback)
+        : htmlToStructuredPlain(html);
+      if (navigator.clipboard && window.ClipboardItem) {
+        // Safari：ClipboardItem 值必须是 Promise
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              'text/html': Promise.resolve(new Blob([html], { type: 'text/html' })),
+              'text/plain': Promise.resolve(new Blob([plain], { type: 'text/plain' }))
+            })
+          ]);
+          return { ok: true, mode: 'clipboard-html-promise', plain };
+        } catch (e1) {
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({
+                'text/html': new Blob([html], { type: 'text/html' }),
+                'text/plain': new Blob([plain], { type: 'text/plain' })
+              })
+            ]);
+            return { ok: true, mode: 'clipboard-html-blob', plain };
+          } catch (e2) { /* fall through */ }
+        }
+      }
+      if (copyHtmlViaExecCommand(html)) {
+        return { ok: true, mode: 'execCommand-html', plain };
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(plain);
+        return { ok: true, mode: 'plain-only', plain };
+      }
+      return { ok: false, mode: 'none', plain };
+    }
+
+    function onDistPublishAccountChange() {
+      const el = document.querySelector('input[name="dist-publish-account"]:checked');
+      const hint = document.getElementById('dist-publish-account-hint');
+      const can = document.getElementById('dist-can-publish');
+      const canOn = !!(can && can.checked);
+      if (hint) {
+        if (el && el.value === 'ours') {
+          hint.textContent = (canOn ? '' : '请先勾选「可以发」。') + '我方号仅过渡：只发答题文；勿用同一号连发多家客户简介。';
+        } else {
+          hint.textContent = (canOn ? '' : '请先勾选「可以发」。') + '发答题文，不发公司简介。客户号优先。';
+        }
+      }
+      try {
+        localStorage.setItem('geo_dist_publish_account', el ? el.value : 'client');
+      } catch (e) { /* ignore */ }
+      onDistCanPublishChange();
+    }
+
+    function onDistCanPublishChange() {
+      const can = document.getElementById('dist-can-publish');
+      const on = !!(can && can.checked);
+      ['btn-toutiao-publish-copy', 'btn-zhihu-publish-copy'].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        if (on) {
+          btn.classList.remove('opacity-50');
+          btn.title = '';
+        } else {
+          btn.classList.add('opacity-50');
+          btn.title = '请先勾选「定稿已写好，可以发」';
+        }
+      });
+      try {
+        localStorage.setItem('geo_dist_can_publish', on ? '1' : '0');
+      } catch (e) { /* ignore */ }
+      if (on) {
+        // 勾选时顺带验货：提醒人「勾选≠文件已在」
+        checkWritebackStatus('toutiao');
+      }
+    }
+
+    function renderWritebackStatus(data) {
+      const pathEl = document.getElementById('writeback-path-display');
+      const labelEl = document.getElementById('writeback-status-label');
+      const hintEl = document.getElementById('writeback-status-hint');
+      const prevEl = document.getElementById('writeback-status-preview');
+      if (pathEl) {
+        pathEl.textContent = `写回路径：${data.writeback_path || '—'}${data.channel_label ? `（${data.channel_label}）` : ''}`;
+      }
+      if (labelEl) {
+        const titleBit = data.title_guess ? ` · 标题：${data.title_guess}` : '';
+        const charBit = data.chars ? ` · 约 ${data.chars} 字` : '';
+        labelEl.textContent = `状态：${data.status_label || '—'}${titleBit}${charBit}`;
+        labelEl.className = 'text-xs font-semibold ' + (data.looks_ready ? 'text-emerald-700' : 'text-amber-800');
+      }
+      if (hintEl) hintEl.textContent = data.hint || '';
+      if (prevEl) {
+        if (data.preview) {
+          prevEl.textContent = `开头预览：${data.preview}`;
+          prevEl.classList.remove('hidden');
+        } else {
+          prevEl.textContent = '';
+          prevEl.classList.add('hidden');
+        }
+      }
+    }
+
+    async function checkWritebackStatus(channel, btn) {
+      const pid = currentProjectId;
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const ch = channel || 'toutiao';
+      const original = btn ? btn.innerHTML : '';
+      try {
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span>检查中…</span>';
+        }
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/answer-rewrite/writeback-status?channel=${encodeURIComponent(ch)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (res.status === 404 || data.error === 'Not Found') {
+          showToast('写回检查接口未加载：请重启本机管理台后再试', 'error');
+          return;
+        }
+        if (!data.success) {
+          showToast(data.message || '检查失败', 'error');
+          return;
+        }
+        renderWritebackStatus(data);
+        showToast(data.looks_ready ? `已写回：${data.title_guess || data.writeback_path}` : (data.status_label || '请看检查结果'));
+      } catch (e) {
+        showToast('检查失败，请确认管理台在跑', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = original;
+        }
+      }
+    }
+
+    function ensureCanPublishOrConfirm() {
+      const can = document.getElementById('dist-can-publish');
+      if (can && can.checked) return true;
+      return confirm('还没勾选「定稿已写好，可以发」。确定仍要复制富文本去平台吗？（草稿不建议直接发）');
+    }
+
+    function renderRewriteBrief(data) {
+      const q = document.getElementById('rewrite-brief-question');
+      const p = document.getElementById('rewrite-brief-purpose');
+      const mold = document.getElementById('rewrite-brief-mold');
+      const facts = document.getElementById('rewrite-brief-facts');
+      const src = document.getElementById('rewrite-brief-source');
+      const st = document.getElementById('rewrite-brief-draft-status');
+      if (q) q.textContent = data.main_question || '—';
+      if (p) p.textContent = data.purpose || '—';
+      if (mold) {
+        mold.innerHTML = (data.mold_lines || []).map((x) => `<li>${_escapeAuditHtml(x)}</li>`).join('') || '<li class="text-slate-400">—</li>';
+      }
+      if (facts) {
+        const list = data.writable_facts || [];
+        if (list.length) {
+          facts.innerHTML = list.map((x) => `<li>${_escapeAuditHtml(x)}</li>`).join('');
+        } else {
+          facts.innerHTML = `<li class="text-amber-800">${_escapeAuditHtml(data.facts_empty_hint || '本篇禁止编造百分比/倍数')}</li>`;
+        }
+      }
+      if (src) {
+        src.textContent = `源文件：${data.source_file || '尚未生成'} · 写回：${data.writeback_path || '—'}${data.draft_chars ? ` · 约 ${data.draft_chars} 字` : ''}`;
+      }
+      const pathEl = document.getElementById('writeback-path-display');
+      if (pathEl && data.writeback_path) {
+        pathEl.textContent = `写回路径：${data.writeback_path}`;
+      }
+      if (st) {
+        st.textContent = data.status_label || (data.has_draft ? '仅草稿' : '待生成草稿');
+        st.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full border ' + (
+          data.has_draft
+            ? 'bg-amber-50 text-amber-800 border-amber-200'
+            : 'bg-slate-100 text-slate-600 border-slate-200'
+        );
+      }
+    }
+
+    async function loadRewriteBrief(channel) {
+      const pid = currentProjectId;
+      if (!pid) return;
+      const ch = channel || 'toutiao';
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/answer-rewrite/brief?channel=${encodeURIComponent(ch)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success) renderRewriteBrief(data);
+        else if (document.getElementById('rewrite-brief-question')) {
+          document.getElementById('rewrite-brief-question').textContent = data.message || '说明书加载失败';
+        }
+      } catch (e) {
+        const q = document.getElementById('rewrite-brief-question');
+        if (q) q.textContent = '说明书加载失败（请确认管理台已重启）';
+      }
+    }
+
+    function setAnswerAuditBadge(channel, verdict, ok) {
+      /* 徽章已从主卡片移除；保留空实现以免旧调用报错 */
+    }
+
+    function closeAnswerAuditModal() {
+      const modal = document.getElementById('answer-audit-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function _escapeAuditHtml(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderAnswerAuditModal(data) {
+      const meta = document.getElementById('answer-audit-meta');
+      const body = document.getElementById('answer-audit-body');
+      const modal = document.getElementById('answer-audit-modal');
+      if (!body || !modal) return;
+      const verdict = data.verdict || '质检未完成';
+      const blockers = Array.isArray(data.blockers) ? data.blockers : [];
+      const warnings = Array.isArray(data.warnings) ? data.warnings : [];
+      const fixes = Array.isArray(data.top_fixes) ? data.top_fixes : [];
+      if (meta) {
+        meta.textContent = `${data.channel || '—'} · ${data.source_file || '—'} · ${data.checked_at || ''}`;
+      }
+      const row = (item) => {
+        const pass = item && item.pass === true;
+        return `<div class="flex gap-2 p-2.5 rounded-lg border ${pass ? 'border-emerald-100 bg-emerald-50/50' : 'border-rose-100 bg-rose-50/50'}">
+          <span class="font-bold shrink-0">${_escapeAuditHtml(item.id || '?')}</span>
+          <div class="min-w-0"><div>${pass ? '通过' : '不通过'} · ${_escapeAuditHtml(item.note || '')}</div>
+          ${item.fix ? `<div class="text-slate-600 mt-1">改法：${_escapeAuditHtml(item.fix)}</div>` : ''}</div></div>`;
+      };
+      body.innerHTML = `
+        <div class="rounded-xl border border-violet-200 bg-violet-50 p-3">
+          <div class="text-sm font-bold text-slate-900">${_escapeAuditHtml(verdict)}</div>
+          <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">${_escapeAuditHtml(data.summary || data.message || '')}</p>
+        </div>
+        <div><div class="text-xs font-bold text-slate-800 mb-2">阻断项</div><div class="space-y-1.5">${blockers.length ? blockers.map(row).join('') : '<p class="text-slate-500">无明细</p>'}</div></div>
+        <div><div class="text-xs font-bold text-slate-800 mb-2">警告项</div><div class="space-y-1.5">${warnings.length ? warnings.map(row).join('') : '<p class="text-slate-500">无明细</p>'}</div></div>
+        <div><div class="text-xs font-bold text-slate-800 mb-2">优先改法</div>
+          <ol class="list-decimal pl-4 space-y-1 text-slate-700">${fixes.length ? fixes.map(f => `<li>${_escapeAuditHtml(f)}</li>`).join('') : '<li class="list-none pl-0 text-slate-500">暂无</li>'}</ol>
+        </div>
+        <p class="text-[11px] text-slate-500">完整规范见 docs/specs/answer-source-writing.md。主路径请用 IDE 改写定稿。</p>`;
+      modal.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function runAnswerAudit(channel, btn) {
+      const pid = currentProjectId;
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const ch = channel || 'toutiao';
+      const original = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>质检中…</span>';
+      }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/answer-audit`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentAuthToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ channel: ch })
+        });
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (e) {
+          data = {};
+        }
+        if (res.status === 404 || data.error === 'Not Found') {
+          showToast('质检接口未加载：请重启本机管理台后再试', 'error');
+          return;
+        }
+        if (!data.success && !data.verdict) {
+          showToast(data.message || `质检失败（HTTP ${res.status}）`, 'error');
+          return;
+        }
+        renderAnswerAuditModal(data);
+        if (!data.success) showToast(data.message || '质检未完全成功，请看弹窗', 'error');
+      } catch (e) {
+        showToast('质检请求失败，请检查小毛驴连通或管理台是否在跑', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = original;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    async function copyIdeRewritePack(channel, btn) {
+      const pid = currentProjectId;
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const ch = channel || 'toutiao';
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/answer-rewrite/ide-pack?channel=${encodeURIComponent(ch)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (res.status === 404 || data.error === 'Not Found') {
+          showToast('改写包接口未加载：请重启本机管理台后再试', 'error');
+          return;
+        }
+        if (!data.success || !data.clipboard) {
+          showToast(data.message || '复制失败', 'error');
+          return;
+        }
+        await navigator.clipboard.writeText(data.clipboard);
+        showToast(data.has_draft
+          ? '已复制「给 IDE 的改写包」→ 贴到 Cursor 写定稿'
+          : '已复制说明书（尚无草稿，请先点「生成草稿」）');
+        if (data.brief) renderRewriteBrief(data.brief);
+      } catch (e) {
+        showToast('复制失败，请检查剪贴板权限', 'error');
+      }
+    }
+
+    async function copyWritebackCommand(channel, btn) {
+      const pid = currentProjectId;
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const ch = channel || 'toutiao';
+      const original = btn ? btn.innerHTML : '';
+      try {
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span>复制中…</span>';
+        }
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/answer-rewrite/writeback-cmd?channel=${encodeURIComponent(ch)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (res.status === 404 || data.error === 'Not Found') {
+          showToast('写回口令接口未加载：请重启本机管理台后再试', 'error');
+          return;
+        }
+        if (!data.success || !data.clipboard) {
+          showToast(data.message || '复制失败', 'error');
+          return;
+        }
+        await navigator.clipboard.writeText(data.clipboard);
+        showToast('已复制「写回口令」→ 贴回 IDE，把定稿写入规定路径');
+      } catch (e) {
+        showToast('复制失败，请检查剪贴板权限', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = original;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    async function copyAnswerAuditToIde(channel, btn) {
+      return copyIdeRewritePack(channel, btn);
+    }
+
     async function copyToutiaoRichHtml() {
+      if (!ensureCanPublishOrConfirm()) return;
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/toutiao/copy`, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
         if (data.success && data.clipboard_html) {
-          const htmlBlob = new Blob([data.clipboard_html], { type: 'text/html' });
-          const textBlob = new Blob([data.plain_text || ''], { type: 'text/plain' });
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
-          ]);
-          showToast(`富文本长文已复制（约 ${data.char_count || '—'} 字，来源 9 因子语料）`);
+          const structuredPlain = htmlToStructuredPlain(data.clipboard_html);
+          const result = await copyHtmlToClipboard(data.clipboard_html, structuredPlain);
+          if (!result.ok) {
+            showToast('富文本复制失败，请检查浏览器剪贴板权限', 'error');
+            return;
+          }
+          if (result.mode === 'plain-only') {
+            showToast('已复制为带换行纯文本（Safari 富文本写入受限）。请在头条「电脑网页版」编辑器粘贴；若仍无表格，用 Chrome 再点一次复制。', 'error');
+          } else {
+            showToast(`富文本已复制（约 ${data.char_count || '—'} 字）。请粘贴到头条电脑网页版编辑器。`);
+          }
         } else {
-          showToast(data.message || '复制失败，请先生成发稿包', 'error');
+          showToast(data.message || '复制失败，请先生成草稿', 'error');
         }
       } catch (e) {
         showToast('富文本复制失败，请检查浏览器剪贴板权限', 'error');
@@ -11618,12 +12315,17 @@ function backToDashboard() {
         });
         const data = await res.json();
         if (data.success && data.clipboard_html) {
-          const htmlBlob = new Blob([data.clipboard_html], { type: 'text/html' });
-          const textBlob = new Blob([data.plain_text || ''], { type: 'text/plain' });
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
-          ]);
-          showToast(`微信原生内联富文本已复制（约 ${data.char_count || '—'} 字，支持直接粘贴后台）`);
+          const structuredPlain = htmlToStructuredPlain(data.clipboard_html);
+          const result = await copyHtmlToClipboard(data.clipboard_html, structuredPlain);
+          if (!result.ok) {
+            showToast('富文本复制失败，请检查剪贴板权限', 'error');
+            return;
+          }
+          if (result.mode === 'plain-only') {
+            showToast('已复制为带换行纯文本（Safari 富文本写入受限）。请用电脑网页版编辑器；必要时换 Chrome 再复制。', 'error');
+          } else {
+            showToast(`微信原生内联富文本已复制（约 ${data.char_count || '—'} 字，支持直接粘贴后台）`);
+          }
         } else {
           showToast(data.message || '复制失败，请先生成发稿包', 'error');
         }
@@ -11847,21 +12549,27 @@ function backToDashboard() {
     // ===== 知乎学术风富文本与大模型爬虫保真度透视 =====
     async function copyZhihuRichHtml() {
       if (!currentProjectId) return;
+      if (!ensureCanPublishOrConfirm()) return;
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/zhihu/copy`, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
         if (data.success && data.clipboard_html) {
-          const htmlBlob = new Blob([data.clipboard_html], { type: 'text/html' });
-          const textBlob = new Blob([data.plain_text || ''], { type: 'text/plain' });
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
-          ]);
+          const structuredPlain = htmlToStructuredPlain(data.clipboard_html);
+          const result = await copyHtmlToClipboard(data.clipboard_html, structuredPlain);
+          if (!result.ok) {
+            showToast('富文本复制失败，请检查浏览器剪贴板权限', 'error');
+            return;
+          }
           const fidScore = data.fidelity ? data.fidelity.overall_score : 97.5;
-          showToast(`知乎学术风富文本已复制（约 ${data.char_count || '—'} 字，爬虫保真度 ${fidScore}分）`);
+          if (result.mode === 'plain-only') {
+            showToast('已复制为带换行纯文本（Safari 富文本写入受限）。请用电脑网页版；必要时换 Chrome。', 'error');
+          } else {
+            showToast(`知乎富文本已复制（约 ${data.char_count || '—'} 字，保真度 ${fidScore}分）`);
+          }
         } else {
-          showToast(data.message || '复制失败，请先生成发稿包', 'error');
+          showToast(data.message || '复制失败，请先生成草稿', 'error');
         }
       } catch (e) {
         showToast('富文本复制失败，请检查浏览器剪贴板权限', 'error');
@@ -12003,7 +12711,7 @@ function backToDashboard() {
       const setPill = (id, ready, text) => {
         const el = document.getElementById(id);
         if (!el) return;
-        el.textContent = ready ? text : '待发稿包';
+        el.textContent = ready ? text : '待生成草稿';
       };
       const setCardBadge = (id, ready, text, readyClass) => {
         const el = document.getElementById(id);
@@ -12012,25 +12720,25 @@ function backToDashboard() {
           el.textContent = text;
           el.className = `text-[10px] font-semibold px-2 py-0.5 rounded-full ${readyClass}`;
         } else {
-          el.textContent = '待发稿包';
+          el.textContent = '待生成草稿';
           el.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
         }
       };
 
       const tt = packs.toutiao || {};
       const ttChars = tt.article_char_count;
-      const ttText = ttChars ? `已就绪 · 约${ttChars}字` : '已就绪';
+      const ttText = ttChars ? `仅草稿 · 约${ttChars}字` : '仅草稿';
       setPill('toutiao-pack-status', !!tt.ready, ttText);
-      setCardBadge('toutiao-card-pack-status', !!tt.ready, ttText, 'bg-emerald-50 text-emerald-700 border border-emerald-200');
+      setCardBadge('toutiao-card-pack-status', !!tt.ready, ttText, 'bg-amber-50 text-amber-800 border border-amber-200');
 
       const ds = packs.deepseek || {};
       const dsChars = ds.article_char_count;
-      const dsText = dsChars ? `已就绪 · 约${dsChars}字` : '已就绪';
+      const dsText = dsChars ? `仅草稿 · 约${dsChars}字` : '仅草稿';
       setPill('deepseek-pack-status', !!ds.ready, dsText);
-      setCardBadge('deepseek-card-pack-status', !!ds.ready, dsText, 'bg-blue-50 text-blue-700 border border-blue-200');
+      setCardBadge('deepseek-card-pack-status', !!ds.ready, dsText, 'bg-amber-50 text-amber-800 border border-amber-200');
 
-      setPill('wechat-pack-status', !!(packs.wechat && packs.wechat.ready), '已就绪');
-      setPill('kimi-baidu-pack-status', !!(packs.kimi_baidu && packs.kimi_baidu.ready), '已就绪');
+      setPill('wechat-pack-status', !!(packs.wechat && packs.wechat.ready), '后续');
+      setPill('kimi-baidu-pack-status', !!(packs.kimi_baidu && packs.kimi_baidu.ready), '后续');
     }
 
     async function loadChannelPackStatuses() {
@@ -12049,6 +12757,7 @@ function backToDashboard() {
     let _distributeRunLogCache = null;
     let _distributeLogActiveChannel = 'toutiao';
     let _distributeLogEscBound = false;
+    let _distributeLogTextStore = {};
     const DISTRIBUTE_LOG_PREVIEW_CHARS = 2000;
 
     function _fmtMs(ms) {
@@ -12076,36 +12785,41 @@ function backToDashboard() {
       const btn = document.getElementById('btn-open-distribute-log');
       const bar = document.getElementById('distribute-run-status-bar');
       if (!textEl || !btn) return;
+      // 按钮始终可点：无日志时点击会重新拉取并提示，避免 disabled 导致「点了没反应」
+      btn.disabled = false;
+      btn.removeAttribute('disabled');
+      btn.className = 'py-2 px-3.5 text-xs font-semibold rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 shrink-0 flex items-center gap-1.5 transition';
       if (!payload || !payload.has_log || !payload.log) {
         _distributeRunLogCache = null;
         textEl.textContent = '尚未执行。生成矩阵发布包后，将在此显示耗时、模型与产物摘要。';
-        btn.disabled = true;
-        btn.className = 'py-2 px-3.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-400 cursor-not-allowed shrink-0 flex items-center gap-1.5';
         if (bar) bar.className = 'bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
         return;
       }
       const log = payload.log;
       _distributeRunLogCache = log;
       const rt = log.llm_runtime || {};
-      const modelTag = [rt.provider, rt.mode].filter(Boolean).join('-') || 'unknown';
       const calls = (log.llm_calls || []).length;
       const arts = (log.artifacts || []).length;
-      textEl.textContent = `最新执行耗时 ${_fmtMs(log.total_duration_ms)} · 模型 ${_fmtMs(log.llm_duration_ms)} (${modelTag}) · ${calls} 次调用 · ${arts} 份资产`;
-      btn.disabled = false;
-      btn.className = 'py-2 px-3.5 text-xs font-semibold rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 shrink-0 flex items-center gap-1.5 transition';
+      const modeLabel = rt.mode_label || (rt.mode ? `调度档 ${rt.mode}` : '调度档 —');
+      const hubTitle = rt.provider === 'nextdoor'
+        ? `小毛驴 · ${rt.brand || 'geo'} · 专属链`
+        : ([rt.provider, rt.model_policy || rt.mode].filter(Boolean).join(' · ') || '—');
+      textEl.textContent = `最新执行耗时 ${_fmtMs(log.total_duration_ms)} · 算力 ${_fmtMs(log.llm_duration_ms)} (${hubTitle} · 本轮${modeLabel}) · ${calls} 次调用 · ${arts} 份资产`;
       if (bar) bar.className = 'bg-indigo-50/40 border border-indigo-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
     }
 
     async function loadDistributeRunLog() {
-      if (!currentProjectId) return;
+      if (!currentProjectId) return null;
       try {
         const res = await fetch(`/api/projects/${currentProjectId}/distribute/latest-log`, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
         });
         const data = await res.json();
         applyDistributeRunStatusBar(data);
+        return data;
       } catch (e) {
         applyDistributeRunStatusBar(null);
+        return null;
       }
     }
 
@@ -12122,16 +12836,36 @@ function backToDashboard() {
       });
     }
 
-    function openDistributeLogModal() {
-      if (!_distributeRunLogCache) {
-        showToast('暂无工作日志，请先生成矩阵发布包', 'error');
+    async function openDistributeLogModal() {
+      if (!currentProjectId) {
+        showToast('请先选择项目', 'error');
         return;
       }
+      // 每次点击重新拉取，避免缓存空/旧导致「点了没反应」
+      let log = _distributeRunLogCache;
+      try {
+        const data = await loadDistributeRunLog();
+        if (data && data.has_log && data.log) log = data.log;
+      } catch (e) { /* 用缓存兜底 */ }
+      if (!log) {
+        showToast('暂无工作日志，请先点「一键生成核心矩阵发布包」', 'error');
+        return;
+      }
+      _distributeRunLogCache = log;
       ensureDistributeLogEscBinding();
-      renderDistributeLogModal(_distributeRunLogCache);
+      try {
+        renderDistributeLogModal(log);
+      } catch (err) {
+        showToast('工作日志渲染失败: ' + (err.message || err), 'error');
+        return;
+      }
       const modal = document.getElementById('distribute-log-modal');
-      if (modal) modal.classList.remove('hidden');
-      lucide.createIcons();
+      if (!modal) {
+        showToast('找不到日志弹窗节点，请硬刷新页面', 'error');
+        return;
+      }
+      modal.classList.remove('hidden');
+      if (window.lucide && lucide.createIcons) lucide.createIcons();
     }
 
     function closeDistributeLogModal() {
@@ -12151,9 +12885,21 @@ function backToDashboard() {
       const llmPct = log.total_duration_ms
         ? Math.min(100, Math.round(((log.llm_duration_ms || 0) / log.total_duration_ms) * 100))
         : 0;
+      const runMode = rt.mode || '—';
+      const runModeLabel = rt.mode_label || (rt.mode ? `调度档 ${rt.mode}` : '调度档 —');
+      const hubMain = rt.provider === 'nextdoor'
+        ? `小毛驴 · ${rt.brand || 'geo'}`
+        : (rt.provider || '—');
+      // 当前系统配置可能已改成 auto；旧日志仍记录当时请求档，避免误以为还在用 flash
+      const liveMode = (window._llmLiveMode || '').trim();
+      const liveNote = (liveMode && liveMode !== runMode)
+        ? `<div class="text-[10px] text-emerald-700 mt-1.5 font-semibold">当前系统已改为调度档 ${ _escapeHtml(liveMode) }（失败改试 auto）。上表「本轮」是历史快照，重新生成后会更新。</div>`
+        : (runMode === 'flash'
+          ? `<div class="text-[10px] text-amber-800 mt-1.5">本轮是历史快照。当前默认调度档为 auto；失败时改试 auto，不会卡在 flash。重新「一键生成」即可刷新本卡。</div>`
+          : '');
       if (overview) {
         overview.innerHTML = `
-          <div class="rounded-xl border border-slate-200 bg-white p-3.5"><div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">耗时对比</div><div class="mt-2 text-sm font-bold text-slate-900">脚本 ${_fmtMs(log.total_duration_ms)}</div><div class="text-xs text-slate-600 mt-1">模型 ${_fmtMs(log.llm_duration_ms)}（占 ${llmPct}%）</div></div><div class="rounded-xl border border-slate-200 bg-white p-3.5"><div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">模型中枢</div><div class="mt-2 text-sm font-bold text-slate-900">${_escapeHtml(rt.provider || '—')} / ${_escapeHtml(rt.mode || '—')}</div><div class="text-xs text-slate-600 mt-1">brand=${_escapeHtml(rt.brand || '—')} · host=${_escapeHtml(rt.base_url_host || '***')} · ${_escapeHtml(rt.endpoint || '')}</div></div><div class="rounded-xl border border-slate-200 bg-white p-3.5"><div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">资产概览</div><div class="mt-2 text-sm font-bold text-slate-900">${(log.artifacts || []).length} 份产物</div><div class="text-xs text-slate-600 mt-1">${(log.llm_calls || []).length} 次模型调用记录</div></div>`;
+          <div class="rounded-xl border border-slate-200 bg-white p-3.5"><div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">耗时对比</div><div class="mt-2 text-sm font-bold text-slate-900">脚本 ${_fmtMs(log.total_duration_ms)}</div><div class="text-xs text-slate-600 mt-1">算力 ${_fmtMs(log.llm_duration_ms)}（占 ${llmPct}%）</div></div><div class="rounded-xl border border-slate-200 bg-white p-3.5"><div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">模型中枢</div><div class="mt-2 text-sm font-bold text-slate-900">${_escapeHtml(hubMain)}</div><div class="text-xs text-slate-600 mt-1">选模=专属链（小毛驴配置）</div><div class="text-xs text-slate-600 mt-0.5">本轮请求：${_escapeHtml(runModeLabel)}</div><div class="text-xs text-slate-500 mt-1">host=${_escapeHtml(rt.base_url_host || '***')} · ${_escapeHtml(rt.endpoint || '')}</div>${liveNote}</div><div class="rounded-xl border border-slate-200 bg-white p-3.5"><div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">资产概览</div><div class="mt-2 text-sm font-bold text-slate-900">${(log.artifacts || []).length} 份产物</div><div class="text-xs text-slate-600 mt-1">${(log.llm_calls || []).length} 次模型调用记录</div></div>`;
       }
       if (artsBody) {
         const rows = (log.artifacts || []).map(a => {
@@ -12209,8 +12955,7 @@ function backToDashboard() {
       const truncated = full.length > DISTRIBUTE_LOG_PREVIEW_CHARS;
       const preview = truncated ? full.slice(0, DISTRIBUTE_LOG_PREVIEW_CHARS) + '\n…（已截断，可展开全文）' : full;
       const id = `dist-log-block-${key}`;
-      if (!_distributeLogTextStore) window._distributeLogTextStore = {};
-      window._distributeLogTextStore[id] = { full: full, preview: preview, expanded: !truncated };
+      _distributeLogTextStore[id] = { full: full, preview: preview, expanded: !truncated };
       return `
         <div class="bg-white border border-slate-200 rounded-lg overflow-hidden"><div class="px-3 py-2 border-b border-slate-100 flex items-center justify-between gap-2"><span class="font-semibold text-slate-700">${_escapeHtml(title)}</span><div class="flex items-center gap-1.5">${truncated ? `<button type="button" class="text-[10px] font-semibold text-indigo-600 hover:underline" onclick="toggleDistributeLogExpand('${id}')">展开/收起</button>` : ''}
               <button type="button" class="text-[10px] font-semibold text-slate-600 hover:underline" onclick="copyDistributeLogStored('${id}')">一键复制</button></div></div><pre id="${id}" class="px-3 py-2 text-[11px] leading-relaxed text-slate-700 whitespace-pre-wrap font-mono max-h-48 overflow-y-auto">${_escapeHtml(preview || '（空）')}</pre></div>`;
@@ -12218,14 +12963,14 @@ function backToDashboard() {
 
     function toggleDistributeLogExpand(id) {
       const el = document.getElementById(id);
-      const store = (window._distributeLogTextStore || {})[id];
+      const store = _distributeLogTextStore[id];
       if (!el || !store) return;
       store.expanded = !store.expanded;
       el.textContent = store.expanded ? (store.full || '（空）') : (store.preview || '（空）');
     }
 
     async function copyDistributeLogStored(id) {
-      const store = (window._distributeLogTextStore || {})[id];
+      const store = _distributeLogTextStore[id];
       try {
         await navigator.clipboard.writeText((store && store.full) || '');
         showToast('已复制到剪贴板');
@@ -12254,7 +12999,7 @@ function backToDashboard() {
         title: 'Nextdoor / 小毛驴连通状态 Tag',
         badge: '阶段三写语料前的 AI 后端指示灯',
         analogy: '就像手机右上角的「信号格」：绿的表示能打电话，黄的表示暂时没信号。',
-        desc: '这个 Tag 只表示「管理台能不能连上 Nextdoor（小毛驴）大模型后端」，不是阶段三业务报错，也不是官网体检结果。常见显示：绿色「Nextdoor · geo · flash · xx ms」= 已连通；黄色「不可达: NEXTDOOR」= 配了密钥但此刻连不上（常见是本机 3001 隧道未开）；灰色「未配置」= 还没配 NEXTDOOR_API_KEY；红色「鉴权失败」= 密钥错误或过期。',
+        desc: '这个 Tag 只表示「管理台能不能连上小毛驴大模型后端」，不是阶段三业务报错，也不是官网体检结果。常见显示：绿色「小毛驴 · geo · 专属链 · 调度档 auto · xx ms」= 已连通（选模在小毛驴专属链；auto/flash/think 是调度档不是模型名）。失败时会改试 auto，不会卡在 flash。黄色「不可达」= 配了密钥但此刻连不上；灰色「未配置」= 还没配 NEXTDOOR_API_KEY；红色「鉴权失败」= 密钥错误或过期。',
         why: '阶段三的「增量重构 / 强制全量」要调用小毛驴写普林斯顿语料。Tag 不绿时硬点重构，容易失败或降级成空稿，所以先看状态再开工。',
         how: 'Tag 变绿即可继续做证据库与增量重构。若显示不可达：先确认本机已开到 mini:3001 的隧道，再点旁边「立即检测」。若显示未配置 / 鉴权失败：到左侧「系统设置 → 大模型中枢」点「配置 Nextdoor」写入机器密钥（阶段三不再提供配置按钮）。'
       },
@@ -12270,17 +13015,17 @@ function backToDashboard() {
         title: '钉住当前母盘',
         badge: '发前对照的「存档基线」',
         analogy: '像考试前把一份已经定稿的答案卷复印封存：以后改了什么，都拿这份复印件来对。',
-        desc: '把当前的正式语料母盘（03_…语料库.md）连同当时的已确认事实快照，复制到 outputs/pinned/，作为发前对照基线。按钮为绿色表示已有钉住基线；灰色/无色表示还没有。它不会发文章、不会改官网，只是「记住这一版是验收底稿」。有未决冲突或逻辑矛盾时，系统会禁止钉住，避免把错稿钉成基线。',
-        why: '阶段四分发前需要知道：相对上一版定稿，事实加了几条、改了几条、删了几条、还有没有脏块。没有钉住基线，「刷新对照」就没有可比较的对象。',
-        how: '满意后点「钉住当前母盘」。之后若又改了事实，点「刷新对照」，在对照卡逐条 ✓/✗ 拍板；冲突清完且 strategy 不是 block 再进阶段四。'
+        desc: '把当前正式语料母盘与已确认事实快照存到 outputs/pinned/。须先在对照卡打勾并点「全部确认」；有未决冲突时禁止钉住。',
+        why: '阶段四分发前需要对照「上一版定稿」差了什么。',
+        how: '刷新对照 → 逐条 ✓ 打勾固定 →「全部确认」→「钉住当前母盘」。'
       },
       'corpus_diff': {
         title: '刷新对照',
-        badge: '相对钉住版算差量',
-        analogy: '像「找不同」：左边是你钉住的旧卷子，右边是现在的卷子；每条旁边打勾或打叉决定留不留。',
-        desc: '重新计算当前真相源相对 pinned 基线的新增、变更、删除，并在对照卡列出。每条可直接 ✓ 同意或 ✗ 不同意，不必再滚回上面的真相源。',
-        why: '防止带着过期或冲突事实进入阶段四。strategy=block 表示还有硬冲突，在对照卡拍板清掉后再分发。',
-        how: '先至少钉住过一次，再点「刷新对照」。对每条点 ✓ 或 ✗；全部处理完后再钉住或进阶段四。'
+        badge: '原先 → 现在',
+        analogy: '像 Git 找不同：左边旧卷子，右边新卷子；打勾就把现在这版定下来。',
+        desc: '相对钉住基线列出新增（绿）、删除（灰）、变更（旧划线+新值）。主操作是 ✓ 打勾固定；✗ 可选恢复原先。不必去真相源下拉仲裁。',
+        why: '对照卡是拍板台；真相源只提醒有待确认。',
+        how: '点「刷新对照」→ 逐条打勾 →「全部确认」→ 再钉住。'
       },
       'llms': {
         title: '/llms.txt 规范文件',

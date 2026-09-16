@@ -826,6 +826,27 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # 6b4. 发前对照卡：全部确认 → ready_to_pin
+        if path.startswith("/api/projects/") and path.endswith("/corpus/diff-confirm-all"):
+            project_id = path.split("/")[3]
+            body = {}
+            try:
+                body = self.read_json_body() or {}
+            except Exception:
+                body = {}
+            decided = body.get("decided_keys") or []
+            if not isinstance(decided, list):
+                decided = []
+            try:
+                from .utils import load_project_config
+                from .corpus import confirm_corpus_diff_all
+                cfg = load_project_config(project_id)
+                res = confirm_corpus_diff_all(cfg, decided_keys=[str(x) for x in decided])
+                self.send_json(res, status=200 if res.get("success") else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 6c. 真相源：仲裁冲突
         if path.startswith("/api/projects/") and path.endswith("/facts/resolve-conflict"):
             project_id = path.split("/")[3]
@@ -1407,6 +1428,22 @@ core_values:
                 from .evaluator import run_live_llm_evaluation
                 res = run_live_llm_evaluation(project_id, models=models, limit=limit)
                 self.send_json(res)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # 阶段四答案源质检（小毛驴）: POST /api/projects/{id}/answer-audit
+        if path.startswith("/api/projects/") and path.endswith("/answer-audit"):
+            project_id = path.split("/")[3]
+            try:
+                body = self.read_json_body() if hasattr(self, "read_json_body") else {}
+                if not isinstance(body, dict):
+                    body = {}
+                channel = (body.get("channel") or "toutiao").strip() or "toutiao"
+                from .answer_audit import run_answer_audit
+                res = run_answer_audit(project_id, channel=channel)
+                status = 200 if res.get("success") else 400
+                self.send_json(res, status=status)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
@@ -3438,6 +3475,67 @@ server {{
                 try:
                     from .publisher import get_channel_pack_statuses
                     self.send_json(get_channel_pack_statuses(project_id))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 阶段四草稿说明书: GET /api/projects/{id}/answer-rewrite/brief?channel=toutiao
+            if path.startswith("/api/projects/") and path.endswith("/answer-rewrite/brief"):
+                project_id = path.split("/")[3]
+                try:
+                    query_params = parse_qs(parsed.query)
+                    channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
+                    from .answer_audit import build_rewrite_brief
+                    self.send_json(build_rewrite_brief(project_id, channel=channel))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 阶段四 IDE 改写包: GET /api/projects/{id}/answer-rewrite/ide-pack?channel=toutiao
+            if path.startswith("/api/projects/") and path.endswith("/answer-rewrite/ide-pack"):
+                project_id = path.split("/")[3]
+                try:
+                    query_params = parse_qs(parsed.query)
+                    channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
+                    from .answer_audit import build_ide_rewrite_pack
+                    self.send_json(build_ide_rewrite_pack(project_id, channel=channel))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 阶段四写回口令: GET /api/projects/{id}/answer-rewrite/writeback-cmd?channel=toutiao
+            if path.startswith("/api/projects/") and path.endswith("/answer-rewrite/writeback-cmd"):
+                project_id = path.split("/")[3]
+                try:
+                    query_params = parse_qs(parsed.query)
+                    channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
+                    from .answer_audit import build_writeback_command
+                    self.send_json(build_writeback_command(project_id, channel=channel))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 阶段四写回验货: GET /api/projects/{id}/answer-rewrite/writeback-status?channel=toutiao
+            if path.startswith("/api/projects/") and path.endswith("/answer-rewrite/writeback-status"):
+                project_id = path.split("/")[3]
+                try:
+                    query_params = parse_qs(parsed.query)
+                    channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
+                    from .answer_audit import check_writeback_status
+                    self.send_json(check_writeback_status(project_id, channel=channel))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # 兼容旧路径 → 改写包
+            # 阶段四 IDE 质检剪贴板: GET /api/projects/{id}/answer-audit/ide-clipboard?channel=toutiao
+            if path.startswith("/api/projects/") and path.endswith("/answer-audit/ide-clipboard"):
+                project_id = path.split("/")[3]
+                try:
+                    query_params = parse_qs(parsed.query)
+                    channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
+                    from .answer_audit import build_ide_rewrite_pack
+                    self.send_json(build_ide_rewrite_pack(project_id, channel=channel))
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
