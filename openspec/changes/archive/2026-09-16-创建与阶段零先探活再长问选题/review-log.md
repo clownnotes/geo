@@ -52,3 +52,29 @@
 - **已改**：两框重新放到创建主路径（仍可选）；design §D / proposal / tasks 2.1 同步订正。
 - 状态：`[已达成共识]` — 待产品 Safari 再看一眼创建弹窗。
 
+
+## 2026-09-17 Cursor（提示词模式误判修复）
+
+- **根因**：`step0QualityPromptText` 只读 `step0Guide.probe_status`；guide 未加载时为空 → 把已有基线项目误写成「首轮侦察」，IDE 只能靠人纠偏。
+- **已改**：`step0ResolveProbeStatus`（guide → project → unprobed）；复制前 `await fetchStep0Guide()`；提示词加「模式已锁定 · IDE 禁止改判」；keywords **去重后**条数。
+- design §E 同步。状态：`[已修正]` — 待产品 Safari 再复制一次提示词确认 nextgeo 为复测。
+
+## 2026-09-17 Cursor（阶段零页面 SOP 对齐真实数据源）
+
+- 页头写清：基线不等于 Cursor 题单；新建=unprobed 仅创建资料。
+- 动态模式横幅：首轮/复测 + 数据源说明；出题按钮文案随模式变。
+- 徽章改为「尚未豆包回填 / 豆包基线已写入」。
+- SOP 同步。状态：已修正 — 待产品硬刷新 Safari 看阶段零。
+
+## 2026-09-17 Cursor（去掉基线黑盒词）
+
+- 徽章/Toast：豆包答案已存进项目 / 还没把豆包答案存进项目
+- 剧本改问题清单；侧栏 00 先去豆包摸底
+- 工作区规则 plain-speak.mdc 增加管理台文案硬口令
+- 状态：已修正，请硬刷新 Safari
+
+## 2026-09-17 产品（归档）
+
+- 产品明确：本变更可归档；Safari 全链路验收后续慢慢测，不挡归档。
+- 已知残留风险：大单页 HTML 易半截改坏（已另开「阶段零 Vue3 组件岛」规范治理）。
+- 状态：`[通过]` — 执行 `./opsx archive`

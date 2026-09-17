@@ -2109,6 +2109,44 @@ core_values:
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
             return
 
+        # 删除 outputs 内指定文件: DELETE /api/projects/{id}/output/{filename}
+        # 仅允许删问题清单 probe_script_*.json，防止误删豆包结果/交付物
+        if path.startswith("/api/projects/") and "/output/" in path:
+            parts = path.split("/")
+            if len(parts) >= 6 and parts[4] == "output":
+                project_id = parts[3]
+                raw_filename = unquote("/".join(parts[5:]))
+                filename = os.path.basename(raw_filename)
+                if not re.match(r"^[a-zA-Z0-9_.\-]+$", filename or ""):
+                    self.send_json({"success": False, "message": "文件名不合法"}, status=400)
+                    return
+                if not filename.startswith("probe_script") or not filename.endswith(".json"):
+                    self.send_json(
+                        {"success": False, "message": "只能删除问题清单（probe_script_*.json），不能删豆包结果或其它文件"},
+                        status=400,
+                    )
+                    return
+                try:
+                    from .utils import load_project_config
+                    cfg = load_project_config(project_id)
+                    out_dir = os.path.realpath(cfg["_outputs_dir"])
+                    target_file = os.path.realpath(os.path.join(out_dir, filename))
+                    if not target_file.startswith(out_dir):
+                        self.send_json({"success": False, "message": "非法文件路径"}, status=403)
+                        return
+                    if not os.path.isfile(target_file):
+                        self.send_json({"success": False, "message": "文件不存在"}, status=404)
+                        return
+                    os.remove(target_file)
+                    self.send_json({
+                        "success": True,
+                        "message": f"已删除问题清单 {filename}",
+                        "deleted": filename,
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
         # 作废分享链接 API: /api/share/{token}
         if path.startswith("/api/share/"):
             share_token = path.split("/")[3]
@@ -2964,35 +3002,37 @@ core_values:
                             if not os.path.isfile(fp):
                                 continue
                             if fname.startswith("probe_script"):
-                                scripts.append(_file_meta(fname, with_peek=False))
+                                scripts.append(_file_meta(fname, with_peek=True))
                             elif fname.startswith("competitor_probe"):
                                 results.append(_file_meta(fname, with_peek=True))
                     results.sort(key=lambda x: x.get("mtime") or "", reverse=True)
                     scripts.sort(key=lambda x: x.get("mtime") or "", reverse=True)
 
-                    # 推荐剧本：已有基线优先复测
-                    preferred = []
-                    if probe_status in ("baseline_ready", "awaiting_retest"):
-                        preferred = [
-                            "probe_script_retest_round2.json",
-                            "probe_script_remaining_p1.json",
-                            "probe_script_draft.json",
-                        ]
-                    else:
-                        preferred = [
-                            "probe_script_draft.json",
-                            "probe_script_remaining_p1.json",
-                            "probe_script_retest_round2.json",
-                        ]
-                    by_name = {s["file"]: s for s in scripts}
-                    recommended = None
-                    for name in preferred:
-                        if name in by_name:
-                            recommended = by_name[name]
-                            break
-                    if recommended is None and scripts:
-                        recommended = scripts[0]
+                    # 推荐问题清单：按状态挑类型，同类型取最新（禁止写死 round2 而漏 round3）
+                    def _pick_script(*predicates):
+                        for pred in predicates:
+                            for s in scripts:
+                                fn = str(s.get("file") or "")
+                                if pred(fn):
+                                    return s
+                        return scripts[0] if scripts else None
 
+                    if probe_status in ("baseline_ready", "awaiting_retest"):
+                        recommended = _pick_script(
+                            lambda fn: "retest" in fn,
+                            lambda fn: "remaining" in fn,
+                            lambda fn: fn.endswith("probe_script_draft.json") or "draft" in fn,
+                            lambda fn: fn.startswith("probe_script"),
+                        )
+                    else:
+                        recommended = _pick_script(
+                            lambda fn: fn.endswith("probe_script_draft.json") or (
+                                "draft" in fn and "retest" not in fn
+                            ),
+                            lambda fn: "remaining" in fn,
+                            lambda fn: "retest" in fn,
+                            lambda fn: fn.startswith("probe_script"),
+                        )
                     is_retest = probe_status in ("baseline_ready", "awaiting_retest")
                     expect_name = (
                         f"competitor_probe_doubao_{ymd}_retest.json"
