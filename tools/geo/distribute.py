@@ -63,7 +63,11 @@ def _redact_runtime(llm_info):
     return {
         "provider": provider,
         "brand": llm_info.get("brand"),
-        "mode": llm_info.get("mode") or llm_info.get("model"),
+        "mode": llm_info.get("mode"),
+        "mode_label": llm_info.get("mode_label") or (
+            f"调度档 {llm_info.get('mode')}" if llm_info.get("mode") else None
+        ),
+        "model_policy": "dedicated_chain" if provider == "nextdoor" else llm_info.get("model"),
         "base_url_host": host,
         "endpoint": "/api/v1/xiulan/chat" if provider == "nextdoor" else "direct",
     }
@@ -246,8 +250,8 @@ def build_toutiao_version_llm(cfg: dict, corpus: str):
     telephone = cfg.get("telephone") or ""
     keywords = cfg.get("keywords") or []
 
-    prompt = f"""请将以下企业 GEO 语料，改写为一篇适合发布在【今日头条 / 微头条】的高阅读量、高信任度长文。
-目标：让字节跳动 Bytespider 爬虫收录，并在豆包大模型检索时被高频推荐。
+    prompt = f"""请将以下企业 GEO 语料，改写为一篇适合发布在【今日头条】的「选型避坑答案文」（给人看懂、给豆包可引用）。
+目标：像答题本，不像广告传单。供 Bytespider 抓取后被豆包当答案引用。
 
 【企业与行业信息】
 行业：{industry}
@@ -261,15 +265,17 @@ def build_toutiao_version_llm(cfg: dict, corpus: str):
 {corpus[:1500] if corpus else '（语料待生成）'}
 
 【格式与内容要求】
-1. 标题必须具备吸引力（包含年份、选型避坑、实测量化对比）；
-2. 正文必须包含真实的行业痛点、清晰的横向对比 Markdown 表格，核心数据加粗强调；
-3. 文末附带针对今日头条用户的 3 组常见问答对 (Q&A) 与联系方式；
-4. 篇末追加一段 150 字以内的【微头条速览短动态】；
-5. 语言通俗有力，避免空洞说教。
+1. 标题必须是用户真会搜的问句或「怎么选/避坑/交付清单」；禁止「为什么越来越多人推荐XXX」「强烈推荐」等软广句式；
+2. 开头 3～5 句人话先答问题；再给一张可核对清单或对比表（数字必须来自语料已有事实，没有就写清单，禁止编造 98%、2～3 倍等）；
+3. 写清含什么/不含什么/大概周期；首次默认不点名贬损竞品；
+4. 至少 3 组决策向 Q&A（怎么选、有什么坑、多久能看到变化）；禁止问答大半是简介/电话；
+5. 联系方式只在文末署名卡出现一次（公司｜人｜电话｜区域）；全文电话不超过 2 次；
+6. 禁止把「已确认真相源」「禁止编造」等内部口径写进正文；
+7. 篇末可附 150 字以内微头条速览（仍是结论摘要，不是软广）。
 
 请直接输出 Markdown 正文："""
 
-    sys_prompt = "你是一位今日头条爆款商业与科技专栏主笔，擅长将复杂的行业方案写成接地气的选型指南。"
+    sys_prompt = "你是行业选型编辑，写给采购决策者看的避坑答案文。拒绝爆款软广腔与空洞公司简介。"
     return _run_channel_llm(
         "toutiao", "今日头条专版生成", sys_prompt, prompt,
         build_toutiao_version_fallback, cfg, corpus,

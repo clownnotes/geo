@@ -552,17 +552,22 @@ def sync_intent_keywords_to_eval(project_id: str, tier: str = "all") -> dict:
     if not target_queries:
         target_queries = matrix.get("flat_queries", [])
 
+    from .topic_queries import filter_long_queries
+
+    accepted, rejected = filter_long_queries(target_queries)
+    target_queries = accepted
+
     cfg = load_project_config(project_id)
     project_dir = cfg["_project_dir"]
 
-    # 1. 写入 project.yaml 的 keywords 块
+    # 1. 写入 project.yaml 的 keywords 块（仅合格长问）
     yaml_path = os.path.join(project_dir, "project.yaml")
     if os.path.exists(yaml_path):
         with open(yaml_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         lines = [f'  - "{q.replace(chr(34), chr(92)+chr(34))}"' for q in target_queries]
-        kw_yaml = "keywords:\n" + "\n".join(lines)
+        kw_yaml = "keywords:\n" + ("\n".join(lines) if lines else "  []")
 
         if "keywords:" in content:
             content = re.sub(r"keywords:\n(\s+- [^\n]+\n)*", kw_yaml + "\n", content)
@@ -582,17 +587,21 @@ def sync_intent_keywords_to_eval(project_id: str, tier: str = "all") -> dict:
             "project_id": project_id,
             "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
             "total_count": len(target_queries),
-            "flat_keywords": target_queries
+            "flat_keywords": target_queries,
+            "rejected_short": rejected[:50],
         }, f, ensure_ascii=False, indent=2)
 
     print_success(f"已成功将 {len(target_queries)} 条意图 Prompt 同步注入评测词库 (project.yaml 与 02_*.json)！")
+    if rejected:
+        print_warning(f"已拒收 {len(rejected)} 条不合格短词。")
 
     return {
         "success": True,
         "project_id": project_id,
         "tier": tier,
         "synced_count": len(target_queries),
-        "queries": target_queries
+        "queries": target_queries,
+        "rejected_short": rejected,
     }
 
 

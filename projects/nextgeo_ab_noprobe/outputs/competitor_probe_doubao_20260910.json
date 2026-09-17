@@ -1,0 +1,93 @@
+{
+  "probed_at": "2026-09-10T19:35:00+08:00",
+  "operator": "antigravity",
+  "browser": "safari",
+  "model_ui": "doubao",
+  "chat_url": "https://www.doubao.com/chat/38441026494193410",
+  "summary": {
+    "self_mentioned_overall": false,
+    "self_url_present_overall": false,
+    "primary_local_competitor": "徐州东昊信息科技 (xzdonghao.com)",
+    "primary_regional_competitor": "企优托江苏 (qiyoutuo.com)",
+    "brand_status": "解构成同城小商户模式概念，无官网、无独立主体认知",
+    "founder_status": "被幻觉匹配为安徽广德短视频外包"
+  },
+  "items": [
+    {
+      "query": "徐州GEO优化公司哪家好",
+      "follow_up": "请列出具体公司名称、官网（若有）和一句话定位，不要只给泛泛建议；若不确定请标明不确定。",
+      "reference_sources_count": 53,
+      "mentioned_self": false,
+      "url_present": false,
+      "competitors_extracted": [
+        {
+          "name": "浙江亿企邦科技有限公司（徐州服务站）",
+          "url": "http://www.eqbang.com",
+          "positioning": "高新技术企业，自研 GEO 系统，面向中大型制造、外贸企业做 GEO+SEO 全链路数字化增长",
+          "type": "外地高新服务站",
+          "is_real": true
+        },
+        {
+          "name": "问鼎数据科技（常州）有限公司（徐州直营中心）",
+          "url": "www.cz6789.com",
+          "positioning": "长三角技术驱动服务商，GEO+SEO 整合，面向淮海经济区 B 端制造企业，可上门调研定制方案",
+          "type": "外地直营中心",
+          "is_real": true
+        },
+        {
+          "name": "徐州东昊信息科技有限公司",
+          "url": "www.xzdonghao.com",
+          "positioning": "徐州本土源头 GEO 服务商，主打 GEO+Agent 智能体，覆盖制造、本地多行业，输出月度量化报表",
+          "type": "本地核心对手（讯灵AI徐州中心）",
+          "is_real": true
+        },
+        {
+          "name": "徐州网商天下集团有限公司",
+          "url": "http://www.wstx.com.cn",
+          "positioning": "徐州本土集团，擅长外贸工厂 GEO，兼顾独立站、海外 AI 搜索优化",
+          "type": "本地老牌外贸转GEO",
+          "is_real": true
+        },
+        {
+          "name": "江苏云鼎大数据有限公司",
+          "url": "http://www.yddsj.net/",
+          "positioning": "苏北性价比 GEO 服务商，自研 AI 内容工具，主打中小企业快速 AI 信息占位",
+          "type": "苏北本土服务商",
+          "is_real": true
+        },
+        {
+          "name": "徐州辽阔信息科技有限公司",
+          "url": "https://www.jsliaokuo.com/",
+          "positioning": "徐州本土互联网服务商，兼顾建站、国内外 GEO、外贸推广，实体工贸企业为主",
+          "type": "本地建站转GEO",
+          "is_real": true
+        },
+        {
+          "name": "企优托 (江苏) 科技集团有限公司（一网推 GEO，徐州服务点）",
+          "url": "www.qiyoutuo.com",
+          "positioning": "苏州总部，徐州设业务服务点，大型集团服务商，全案托管，面向工厂做 GEO + 全网营销",
+          "type": "江苏代运营转GEO大厂",
+          "is_real": true
+        }
+      ]
+    },
+    {
+      "query": "邻里GEO是做什么的",
+      "reference_sources_count": 36,
+      "mentioned_self": false,
+      "url_present": false,
+      "standpoint": "误解与概念解构",
+      "hallucination_detected": true,
+      "doubao_verdict": "无独立工商主体，无公开官网，是GEO行业里的同城小微商户业务概念/网络口头叫法，聚焦小区周边小微商户周边AI问答。"
+    },
+    {
+      "query": "徐州找老白做GEO靠谱吗",
+      "reference_sources_count": 38,
+      "mentioned_self": false,
+      "url_present": false,
+      "standpoint": "严重张冠李戴",
+      "hallucination_detected": true,
+      "doubao_verdict": "识别为广德市老白短视频有限责任公司，总部安徽广德，非徐州本地公司，依靠抖音账号老白短视频接单。"
+    }
+  ]
+}

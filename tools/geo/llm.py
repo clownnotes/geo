@@ -32,7 +32,9 @@ STATUS_TTL_SECONDS = 60
 # 同机（GEO 与小毛驴都在 mini）必须走回环；公网域名仅给外部调用方 / 异地调试
 DEFAULT_NEXTDOOR_BASE_URL = "http://127.0.0.1:3001"
 DEFAULT_NEXTDOOR_SOURCE_CLIENT = "geo"
-DEFAULT_NEXTDOOR_CHAT_MODE = "flash"
+# 回落档（非选模）：auto=由小毛驴自动调度；专属链命中时不改梯队，整链失败后按此档回落全站池
+DEFAULT_NEXTDOOR_CHAT_MODE = "auto"
+NEXTDOOR_CHAT_MODES = frozenset({"auto", "flash", "think"})
 
 # Web 配置允许写入的环境变量白名单
 CONFIG_WRITE_WHITELIST = frozenset({
@@ -206,11 +208,29 @@ def _direct_enabled() -> bool:
     return os.environ.get("GEO_LLM_DIRECT", "").strip().lower() in ("1", "true", "yes", "on")
 
 
+def normalize_nextdoor_mode(mode_val: Optional[str]) -> str:
+    mode = (mode_val or DEFAULT_NEXTDOOR_CHAT_MODE).strip().lower()
+    return mode if mode in NEXTDOOR_CHAT_MODES else DEFAULT_NEXTDOOR_CHAT_MODE
+
+
+def mode_display_label(mode: Optional[str]) -> str:
+    """人读标签：调度档 ≠ 模型名；失败时一律改试 auto，不会掉到 flash。"""
+    m = normalize_nextdoor_mode(mode)
+    labels = {
+        "auto": "调度档 auto（小毛驴自动选模）",
+        "flash": "调度档 flash（失败会改试 auto）",
+        "think": "调度档 think（失败会改试 auto）",
+    }
+    return labels.get(m, f"调度档 {m}")
+
+
 def resolve_nextdoor_runtime() -> Optional[Dict[str, Any]]:
     """解析 Nextdoor 开放 API 运行时。
 
     优先机器密钥 NEXTDOOR_API_KEY（ndsk_…，长期有效）；
     兼容过渡 NEXTDOOR_JWT_TOKEN（用户登录 JWT，约 7 天过期）。
+
+    选模与 mode 解耦：model 固定为专属链占位说明；mode 仅表示计费/整链失败后的回落档。
     """
     _ensure_loaded()
     token, key_env = _first_env(["NEXTDOOR_API_KEY", "NEXTDOOR_JWT_TOKEN"])
@@ -219,15 +239,17 @@ def resolve_nextdoor_runtime() -> Optional[Dict[str, Any]]:
     base_val, _ = _first_env(["NEXTDOOR_BASE_URL"])
     brand_val, _ = _first_env(["NEXTDOOR_SOURCE_CLIENT"])
     mode_val, _ = _first_env(["NEXTDOOR_CHAT_MODE"])
-    mode = (mode_val or DEFAULT_NEXTDOOR_CHAT_MODE).strip().lower()
-    if mode not in ("flash", "think", "auto"):
-        mode = DEFAULT_NEXTDOOR_CHAT_MODE
+    mode = normalize_nextdoor_mode(mode_val)
+    brand = (brand_val or DEFAULT_NEXTDOOR_SOURCE_CLIENT).strip() or DEFAULT_NEXTDOOR_SOURCE_CLIENT
     return {
         "configured": True,
         "provider": "nextdoor",
-        "model": mode,  # 专属链下不改梯队；字段复用给 Tag 展示
+        # 禁止把 mode 塞进 model，避免 Tag/日志显示成「NextdoorFlash」
+        "model": "dedicated_chain",
         "mode": mode,
-        "brand": (brand_val or DEFAULT_NEXTDOOR_SOURCE_CLIENT).strip() or DEFAULT_NEXTDOOR_SOURCE_CLIENT,
+        "mode_role": "fallback",
+        "mode_label": mode_display_label(mode),
+        "brand": brand,
         "api_key": token,
         "base_url": (base_val or DEFAULT_NEXTDOOR_BASE_URL).rstrip("/"),
         "source": _source_for_key(key_env),
@@ -346,14 +368,38 @@ def call_nextdoor_chat(
     timeout: int = 120,
     stream: bool = True,
 ) -> str:
-    """调用 POST /api/v1/xiulan/chat；SSE 空流时回落非流式一次。"""
+    """调用 POST /api/v1/xiulan/chat；SSE 空流时回落非流式一次。
+
+    优先保障可用：当前回落档失败且不是 auto 时，再以 mode=auto 重试一次
+    （由小毛驴自动调度合适模型）。选模不在 GEO 本地决定。
+    """
     base = runtime["base_url"].rstrip("/")
     endpoint = f"{base}/api/v1/xiulan/chat"
+    primary_mode = normalize_nextdoor_mode(runtime.get("mode"))
 
-    def _once(use_stream: bool) -> str:
+    def _map_exc(exc: Exception) -> LlmUnavailable:
+        if isinstance(exc, LlmUnavailable):
+            return exc
+        if isinstance(exc, urllib.error.HTTPError):
+            raw = exc.read().decode("utf-8", errors="ignore")
+            return LlmUnavailable(f"Nextdoor HTTP {exc.code}: {raw[:300]}")
+        msg = str(exc)
+        base_l = (runtime.get("base_url") or "").lower()
+        if "Connection refused" in msg or "Errno 61" in msg:
+            if "127.0.0.1" in base_l or "localhost" in base_l:
+                return LlmUnavailable(
+                    "连不上本机小毛驴端口（Connection refused）。"
+                    "GEO 若在 Mac mini 上：Base 用 http://127.0.0.1:3001；"
+                    "若在开发本机：请先开 SSH 隧道把 mini:3001 映到本机 3001"
+                    "（ProxyJump vps 后 -L 127.0.0.1:3001:127.0.0.1:3001），"
+                    "不要误以为专属链坏了。"
+                )
+        return LlmUnavailable(f"Nextdoor 调用失败: {exc}")
+
+    def _once(use_stream: bool, mode: str) -> str:
         brand = runtime.get("brand") or DEFAULT_NEXTDOOR_SOURCE_CLIENT
         payload = {
-            "mode": runtime.get("mode") or DEFAULT_NEXTDOOR_CHAT_MODE,
+            "mode": mode,
             "messages": messages,
             "stream": bool(use_stream),
             # 公网 Nginx 默认丢弃带下划线的请求头；body 双写保证专属链仍能命中
@@ -390,34 +436,32 @@ def call_nextdoor_chat(
                 return str(data["content"]).strip()
         raise LlmUnavailable(f"Nextdoor 返回结构异常: {str(body)[:300]}")
 
-    try:
-        if stream:
-            try:
-                return _once(True)
-            except LlmUnavailable as first:
+    def _with_stream_fallback(mode: str) -> str:
+        try:
+            if stream:
                 try:
-                    return _once(False)
-                except LlmUnavailable:
-                    raise first from first
-        return _once(False)
-    except urllib.error.HTTPError as e:
-        raw = e.read().decode("utf-8", errors="ignore")
-        raise LlmUnavailable(f"Nextdoor HTTP {e.code}: {raw[:300]}") from e
-    except LlmUnavailable:
-        raise
-    except Exception as exc:
-        msg = str(exc)
-        base_l = (runtime.get("base_url") or "").lower()
-        if "Connection refused" in msg or "Errno 61" in msg:
-            if "127.0.0.1" in base_l or "localhost" in base_l:
-                raise LlmUnavailable(
-                    "连不上本机小毛驴端口（Connection refused）。"
-                    "GEO 若在 Mac mini 上：Base 用 http://127.0.0.1:3001；"
-                    "若在开发本机：请先开 SSH 隧道把 mini:3001 映到本机 3001"
-                    "（ProxyJump vps 后 -L 127.0.0.1:3001:127.0.0.1:3001），"
-                    "不要误以为专属链坏了。"
-                ) from exc
-        raise LlmUnavailable(f"Nextdoor 调用失败: {exc}") from exc
+                    return _once(True, mode)
+                except LlmUnavailable as first:
+                    try:
+                        return _once(False, mode)
+                    except LlmUnavailable:
+                        raise first from first
+            return _once(False, mode)
+        except Exception as exc:
+            raise _map_exc(exc) from exc
+
+    try:
+        return _with_stream_fallback(primary_mode)
+    except LlmUnavailable as first:
+        if primary_mode == "auto":
+            raise
+        # 非 auto 档失败 → 回落到 auto，让小毛驴自动调度
+        try:
+            return _with_stream_fallback("auto")
+        except LlmUnavailable as second:
+            raise LlmUnavailable(
+                f"Nextdoor 调用失败（{mode_display_label(primary_mode)}→auto）: {first}; {second}"
+            ) from second
 
 
 def call_direct_chat(
@@ -539,6 +583,7 @@ def build_llm_status_payload(force_refresh: bool = False) -> Dict[str, Any]:
             "provider": None,
             "model": None,
             "mode": None,
+            "mode_label": None,
             "brand": None,
             "base_url": None,
             "source": "none",
@@ -555,6 +600,7 @@ def build_llm_status_payload(force_refresh: bool = False) -> Dict[str, Any]:
             "provider": runtime["provider"],
             "model": runtime.get("model"),
             "mode": runtime.get("mode"),
+            "mode_label": runtime.get("mode_label") or mode_display_label(runtime.get("mode")),
             "brand": runtime.get("brand"),
             "base_url": runtime["base_url"],
             "source": runtime["source"],
@@ -637,9 +683,7 @@ def save_llm_config(body: dict) -> Dict[str, Any]:
             return {"success": False, "message": "机器密钥 NEXTDOOR_API_KEY（ndsk_…）不能为空"}
         base_url = (body.get("base_url") or "").strip() or DEFAULT_NEXTDOOR_BASE_URL
         brand = (body.get("source_client") or body.get("brand") or "").strip() or DEFAULT_NEXTDOOR_SOURCE_CLIENT
-        mode = (body.get("mode") or "").strip().lower() or DEFAULT_NEXTDOOR_CHAT_MODE
-        if mode not in ("flash", "think", "auto"):
-            mode = DEFAULT_NEXTDOOR_CHAT_MODE
+        mode = normalize_nextdoor_mode(body.get("mode"))
         # ndsk_ → 机器密钥；否则仍写入 JWT 槽位以兼容过渡期
         if token.startswith("ndsk_"):
             updates = {
@@ -659,7 +703,7 @@ def save_llm_config(body: dict) -> Dict[str, Any]:
             }
         runtime = {
             "provider": "nextdoor",
-            "model": mode,
+            "model": "dedicated_chain",
             "mode": mode,
             "brand": brand,
             "api_key": token,
@@ -679,8 +723,9 @@ def save_llm_config(body: dict) -> Dict[str, Any]:
             "success": True,
             "message": "小毛驴 / Nextdoor 配置已保存",
             "provider": "nextdoor",
-            "model": mode,
+            "model": "dedicated_chain",
             "mode": mode,
+            "mode_label": mode_display_label(mode),
             "brand": brand,
             "status": "ready",
             "latency_ms": latency,
@@ -772,7 +817,7 @@ def call_model_raw(model: str, prompt: str, timeout: int = 120) -> Dict[str, Any
         ok, text, prov = call_via_runtime(runtime, prompt, timeout=timeout)
         if not ok:
             raise LlmUnavailable(text)
-        return {"content": text, "model": runtime.get("mode") or "flash", "raw_response": {"provider": prov}}
+        return {"content": text, "model": "dedicated_chain", "mode": runtime.get("mode"), "raw_response": {"provider": prov}}
 
     # DIRECT 或指定厂商探测
     conf = PROVIDERS.get(model)

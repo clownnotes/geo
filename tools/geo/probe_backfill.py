@@ -439,11 +439,16 @@ def apply_probe_backfill(
     keywords: list[str] | None = None,
     only_real: bool = True,
     merge: bool = False,
+    write_topics: bool = True,
 ) -> dict:
     """将预览结果写入 project.yaml，并置 probe_status=baseline_ready。
 
     merge=True 时与现有 keywords/competitors 去重合并，避免冲掉人工精修词库。
+    write_topics=False 时只回填竞品与探活状态，不改选题清单。
+    写入选题时只收合格长问（短词过滤）。
     """
+    from .topic_queries import filter_long_queries
+
     if probe_data is not None and not probe_path:
         probe_path = save_probe_artifact(project_id, probe_data)
     preview = preview_probe_backfill(project_id, probe_path=probe_path, probe_data=probe_data)
@@ -457,12 +462,14 @@ def apply_probe_backfill(
         keywords = list(preview.get("suggested_keywords") or [])
 
     competitors = [c for c in competitors if c and c not in FAKE_COMPETITORS]
-    keywords = [k for k in keywords if k and k not in FAKE_KEYWORDS]
+    keywords_raw = [k for k in keywords if k and k not in FAKE_KEYWORDS]
+    keywords, rejected_short = filter_long_queries(keywords_raw)
 
     if merge:
         cfg = load_project_config(project_id)
         competitors = _merge_unique_strings(cfg.get("competitors"), competitors)
-        keywords = _merge_unique_strings(cfg.get("keywords"), keywords)
+        if write_topics:
+            keywords = _merge_unique_strings(cfg.get("keywords"), keywords)
 
     probed_at = ""
     try:
@@ -473,11 +480,13 @@ def apply_probe_backfill(
 
     patch = {
         "competitors": competitors,
-        "keywords": keywords,
         "probe_status": "baseline_ready",
         "probe_baseline_id": preview["source_probe"],
         "probe_baseline_at": probed_at or datetime.now(timezone.utc).astimezone().date().isoformat(),
     }
+    if write_topics:
+        patch["keywords"] = keywords
+
     updated = update_project_profile(project_id, patch)
     return {
         "success": True,
@@ -486,6 +495,8 @@ def apply_probe_backfill(
         "preview": preview,
         "project": updated,
         "merge": bool(merge),
+        "write_topics": bool(write_topics),
+        "rejected_short": rejected_short,
         "probe_path": preview.get("probe_path") or (os.path.abspath(probe_path) if probe_path else ""),
     }
 

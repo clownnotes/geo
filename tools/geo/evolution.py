@@ -259,8 +259,10 @@ def apply_evolved_prompts(project_id: str, new_prompts: list, auto_run_pipeline:
     if not os.path.exists(config_file):
         raise FileNotFoundError(f"项目配置文件未找到: {config_file}")
 
-    added_list, total_count = append_project_keywords(project_id, new_prompts)
+    added_list, total_count, rejected = append_project_keywords(project_id, new_prompts)
     print_success(f"✅ 成功合并 {len(added_list)} 组新 Prompt 入库！当前词库总量: {total_count} 组。")
+    if rejected:
+        print_warning(f"已拒收 {len(rejected)} 条不合格短词（须为真人长问）。")
 
     if auto_run_pipeline and len(added_list) > 0:
         print_info("🚀 正在自动执行增量流水线重算...")
@@ -279,7 +281,11 @@ def apply_evolved_prompts(project_id: str, new_prompts: list, auto_run_pipeline:
         "added_count": len(added_list),
         "total_prompts": total_count,
         "added_prompts": added_list,
-        "message": f"已成功将 {len(added_list)} 组高转化追问词合并入库！"
+        "rejected_short": rejected,
+        "message": (
+            f"已成功将 {len(added_list)} 组高转化追问词合并入库！"
+            + (f"（拒收短词 {len(rejected)} 条）" if rejected else "")
+        ),
     }
 
 

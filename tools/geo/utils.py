@@ -334,25 +334,28 @@ def update_project_profile(project_id: str, patch: dict) -> dict:
 def append_project_keywords(project_id: str, new_keywords: list) -> tuple:
     """
     向 project.yaml 的 keywords 列表安全追加新词（保留原有 YAML 结构与注释，仅增量写入）。
-    返回: (added_list, total_count)
+    只接受合格长问；短词拒收。
+    返回: (added_list, total_count, rejected_list)
     """
+    from .topic_queries import filter_long_queries
+
     cfg = load_project_config(project_id)
     yaml_path = os.path.join(cfg["_project_dir"], "project.yaml")
     existing = cfg.get("keywords", [])
     if isinstance(existing, str):
         existing = [k.strip() for k in existing.split("\n") if k.strip()]
 
+    accepted, rejected = filter_long_queries(new_keywords)
+
     existing_set = set(existing)
     added = []
-    for item in new_keywords:
-        text = item.get("prompt") if isinstance(item, dict) else str(item)
-        text = text.strip()
-        if text and text not in existing_set:
+    for text in accepted:
+        if text not in existing_set:
             existing_set.add(text)
             added.append(text)
 
     if not added:
-        return [], len(existing)
+        return [], len(existing), rejected
 
     with open(yaml_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -374,7 +377,7 @@ def append_project_keywords(project_id: str, new_keywords: list) -> tuple:
     with open(yaml_path, "w", encoding="utf-8") as f:
         f.write(content)
 
-    return added, len(existing) + len(added)
+    return added, len(existing) + len(added), rejected
 
 
 def save_project_output(target, filename: str, content: str) -> str:

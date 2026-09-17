@@ -19,6 +19,7 @@ from tools.geo.corpus import (
     pin_corpus,
     corpus_diff,
     apply_corpus_diff_decision,
+    confirm_corpus_diff_all,
     save_corpus_meta,
     CORPUS_MD,
 )
@@ -230,6 +231,9 @@ class DiffDecideTests(unittest.TestCase):
             facts2 = {f["fact_key"]: f for f in load_facts(cfg)}
             self.assertEqual(facts2["entity.legal_name"]["status"], STATUS_REJECTED)
             self.assertNotEqual(res.get("diff", {}).get("strategy"), "block")
+            conf = confirm_corpus_diff_all(cfg)
+            self.assertTrue(conf.get("success"))
+            self.assertTrue(conf.get("ready_to_pin"))
             self.assertTrue(pin_corpus(cfg).get("success"))
         finally:
             shutil.rmtree(td, ignore_errors=True)
@@ -287,6 +291,37 @@ class DiffDecideTests(unittest.TestCase):
             self.assertTrue(res.get("success"))
             facts = {f["fact_key"]: f for f in load_facts(cfg)}
             self.assertEqual(facts["entity.official_url"]["value"], "https://old.example")
+        finally:
+            shutil.rmtree(td, ignore_errors=True)
+
+    def test_confirm_all_then_pin_with_changed(self):
+        td = tempfile.mkdtemp(prefix="geo_diff_confirm_")
+        try:
+            cfg = _cfg(td)
+            ensure_dirs(cfg)
+            os.makedirs(cfg["_outputs_dir"], exist_ok=True)
+            with open(os.path.join(cfg["_outputs_dir"], CORPUS_MD), "w", encoding="utf-8") as f:
+                f.write("# corpus\n")
+            merge_fact_proposals(cfg, [{
+                "fact_key": "entity.brand_name",
+                "statement": "旧牌",
+                "value": "旧牌",
+            }], "url:a")
+            confirm_all_non_conflict(cfg)
+            self.assertTrue(pin_corpus(cfg).get("success"))
+            from tools.geo.ledger import set_confirmed_fact_value
+            set_confirmed_fact_value(cfg, "entity.brand_name", "新牌")
+            blocked = pin_corpus(cfg)
+            self.assertFalse(blocked.get("success"))
+            conf = confirm_corpus_diff_all(cfg)
+            self.assertTrue(conf.get("success"))
+            self.assertTrue(conf.get("ready_to_pin"))
+            self.assertTrue(pin_corpus(cfg).get("success"))
+            d = corpus_diff(cfg)
+            self.assertFalse(d.get("hard_conflict_count"))
+            self.assertEqual(d.get("facts_diff", {}).get("changed") or [], [])
+            self.assertEqual(d.get("facts_diff", {}).get("added") or [], [])
+            self.assertEqual(d.get("facts_diff", {}).get("removed") or [], [])
         finally:
             shutil.rmtree(td, ignore_errors=True)
 

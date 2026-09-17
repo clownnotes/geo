@@ -46,7 +46,7 @@ from .monitor import run_monitor
 
 # 鉴权配置（支持环境变量覆盖）
 ADMIN_USERNAME = os.environ.get("GEO_ADMIN_USER", "13150568888")
-ADMIN_PASSWORD = os.environ.get("GEO_ADMIN_PASS", "donghai0516")
+ADMIN_PASSWORD = os.environ.get("GEO_ADMIN_PASS", "17625188666")
 
 # 活跃 Session 持久化存储 (写入 data/sessions.json，跨进程重启不丢失)
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -665,19 +665,26 @@ core_values:
                     only_real=only_real,
                     competitors=body.get("competitors"),
                     keywords=body.get("keywords"),
+                    write_topics=True if body.get("write_topics") is None else bool(body.get("write_topics")),
                 )
                 project = geo_utils.load_project_config(project_id)
                 safe = {k: v for k, v in project.items() if not str(k).startswith("_")}
+                topics_n = len((res.get("applied") or {}).get("keywords") or [])
+                rej = res.get("rejected_short") or []
+                msg = (
+                    f"已回填竞品 {len(res['applied'].get('competitors') or [])} 个"
+                    + (f"、选题长问 {topics_n} 条" if res.get("write_topics") else "（未写入选题清单）")
+                    + ("（合并模式）" if merge else "（覆盖模式）")
+                    + (f"；拒收短词 {len(rej)} 条" if rej else "")
+                )
                 self.send_json({
                     "success": True,
-                    "message": (
-                        f"已回填竞品 {len(res['applied'].get('competitors') or [])} 个、"
-                        f"问句 {len(res['applied'].get('keywords') or [])} 条"
-                        + ("（合并模式）" if merge else "（覆盖模式）")
-                    ),
+                    "message": msg,
                     "applied": res.get("applied"),
                     "preview": res.get("preview"),
                     "merge": merge,
+                    "write_topics": res.get("write_topics"),
+                    "rejected_short": rej,
                     "probe_path": res.get("probe_path"),
                     "project": safe,
                 })
@@ -712,20 +719,26 @@ core_values:
                     only_real=only_real,
                     competitors=body.get("competitors"),
                     keywords=body.get("keywords"),
+                    write_topics=True if body.get("write_topics") is None else bool(body.get("write_topics")),
                 )
                 project = geo_utils.load_project_config(project_id)
                 safe = {k: v for k, v in project.items() if not str(k).startswith("_")}
+                topics_n = len((res.get("applied") or {}).get("keywords") or [])
+                rej = res.get("rejected_short") or []
                 self.send_json({
                     "success": True,
                     "message": (
                         f"确认已写入 {os.path.basename(abs_path)}："
-                        f"竞品 {len(res['applied'].get('competitors') or [])} 个、"
-                        f"问句 {len(res['applied'].get('keywords') or [])} 条"
+                        f"竞品 {len(res['applied'].get('competitors') or [])} 个"
+                        + (f"、选题长问 {topics_n} 条" if res.get("write_topics") else "（未写入选题清单）")
                         + ("（合并模式）" if merge else "（覆盖模式）")
+                        + (f"；拒收短词 {len(rej)} 条" if rej else "")
                     ),
                     "applied": res.get("applied"),
                     "preview": res.get("preview"),
                     "merge": merge,
+                    "write_topics": res.get("write_topics"),
+                    "rejected_short": rej,
                     "probe_path": abs_path,
                     "project": safe,
                 })

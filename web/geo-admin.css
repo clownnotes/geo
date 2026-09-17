@@ -32,6 +32,8 @@
   width: var(--geo-sidebar-width);
   background: var(--geo-sidebar-bg);
   border-right: 1px solid var(--geo-border);
+  min-height: 0;
+  overflow: hidden;
 }
 
 #app-sidebar .geo-brand, #home-sidebar .geo-brand {
@@ -61,20 +63,28 @@
   white-space: nowrap;
 }
 
+/* flex 子项默认 min-height:auto 会撑死父级，导致侧栏滚不动、底部菜单被裁切 */
 #app-sidebar .sidebar-nav-scroll, #home-sidebar .sidebar-nav-scroll {
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 8px 8px 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* 风琴：对齐 SidebarNav .accordion-group */
 #app-sidebar .accordion-group, #home-sidebar .accordion-group {
   margin-bottom: 4px;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   background: var(--geo-page-bg);
   border: 1px solid #f1f5f9;
+  flex-shrink: 0;
 }
 
 #app-sidebar .accordion-header, #home-sidebar .accordion-header {

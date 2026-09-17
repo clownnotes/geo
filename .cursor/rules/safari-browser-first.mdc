@@ -1,0 +1,12 @@
+---
+description: GEO 本地验收浏览器固定 Safari，与用户测试会话互通
+alwaysApply: true
+---
+
+# GEO：浏览器一律 Safari
+
+本仓管理台（`http://127.0.0.1:8088`）、发稿预览、对照卡、一键复制粘贴验证等，**一律用本机 Safari**（AppleScript），禁止 Cursor 内置浏览器。
+
+原因：用户日常用 Safari 测；共用同一套 Cookie / 登录态 / 剪贴板，避免「Agent 一套会话、用户一套会话」。
+
+细则见全局规则 `safari-browser-first`。

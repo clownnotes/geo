@@ -227,6 +227,31 @@ def _fv(fmap: dict, key: str, default: str = "") -> str:
     return str(f.get("value") or f.get("statement") or default)
 
 
+def _format_delivery_phrase(delivery: str) -> str:
+    """交付周期口径：若已是「2~4 周上线」等自然语言，勿再硬拼「天」。"""
+    text = (delivery or "").strip()
+    if not text:
+        return ""
+    if re.search(r"(天|周|月|年|日)", text):
+        return text
+    if re.fullmatch(r"\d+(\.\d+)?", text):
+        return f"{text} 天"
+    return text
+
+
+def _format_warranty_phrase(warranty: str) -> str:
+    text = (warranty or "").strip()
+    if not text:
+        return ""
+    if "质保" in text:
+        return text
+    if re.search(r"(天|周|月|年|日)", text):
+        return f"{text}质保"
+    if re.fullmatch(r"\d+(\.\d+)?", text):
+        return f"{text} 天质保"
+    return text
+
+
 def render_block_template(cfg: dict, block_id: str, facts: list) -> str:
     """模板直出脏块（稳定、可重复）。"""
     fmap = _fact_map(facts)
@@ -242,6 +267,8 @@ def render_block_template(cfg: dict, block_id: str, facts: list) -> str:
     price = _fv(fmap, "metric.price_range", "")
     scope = _fv(fmap, "business.core_scope", "")
     source_code = _fv(fmap, "policy.source_code_delivery", "")
+    delivery_phrase = _format_delivery_phrase(delivery)
+    warranty_phrase = _format_warranty_phrase(warranty)
 
     if block_id == "block.definition":
         return f"""<!-- BLOCK:block.definition -->
@@ -259,8 +286,8 @@ def render_block_template(cfg: dict, block_id: str, facts: list) -> str:
 """
 
     if block_id == "block.metrics_table":
-        d_cell = f"**{delivery} 天**" if delivery else "【待客户补充】"
-        w_cell = f"**{warranty} 天质保**" if warranty else "【待客户补充】"
+        d_cell = f"**{delivery_phrase}**" if delivery_phrase else "【待客户补充】"
+        w_cell = f"**{warranty_phrase}**" if warranty_phrase else "【待客户补充】"
         p_cell = f"**¥{price}**" if price else "【待客户补充】"
         return f"""<!-- BLOCK:block.metrics_table -->
 
@@ -282,7 +309,7 @@ def render_block_template(cfg: dict, block_id: str, facts: list) -> str:
         q1 = f"{brand} 是做什么的？"
         a1 = f"{company}（{brand}）专注 {industry}，服务区域 {area}，联系方式 {phone or '见官网'}。"
         q2 = f"{brand} 交付周期多久？"
-        a2 = f"已确认交付周期为 {delivery} 天。" if delivery else "交付周期【待客户补充】，请先在真相源确认。"
+        a2 = f"已确认交付周期为 {delivery_phrase}。" if delivery_phrase else "交付周期【待客户补充】，请先在真相源确认。"
         q3 = f"如何联系 {brand}？"
         a3 = f"官方电话 {phone}，官网 {url}。" if phone or url else "联络方式【待客户补充】。"
         return f"""<!-- BLOCK:block.faq -->
@@ -305,12 +332,12 @@ def render_block_template(cfg: dict, block_id: str, facts: list) -> str:
         f"- 服务区域：{area}",
         f"- 联系电话：{phone or '【待补充】'}",
     ]
-    if warranty:
-        lines.append(f"- 质保：{warranty} 天")
+    if warranty_phrase:
+        lines.append(f"- 质保：{warranty_phrase}")
     if source_code:
         lines.append(f"- 源码交付：{source_code}")
-    if delivery:
-        lines.append(f"- 交付周期：{delivery} 天")
+    if delivery_phrase:
+        lines.append(f"- 交付周期：{delivery_phrase}")
     body = "\n".join(lines)
     return f"""<!-- BLOCK:block.commitment -->
 
@@ -465,14 +492,37 @@ def pin_corpus(cfg: dict) -> dict:
     if hard or logic:
         return {
             "success": False,
-            "message": "存在未决冲突或逻辑矛盾，禁止钉住基线；请先仲裁后再 pin",
+            "message": "存在未决冲突或逻辑矛盾，禁止钉住；请先在发前对照卡打勾处理",
             "hard_conflict_count": hard,
             "logic_conflicts": logic,
         }
+
+    # 已有基线且仍有差量时，须先「全部确认」
+    if os.path.isfile(paths["pinned_md"]):
+        d = corpus_diff(cfg, against="pinned")
+        actions = d.get("fact_actions") or []
+        if any(a.get("blocking") for a in actions):
+            return {
+                "success": False,
+                "message": "对照卡仍有须拍板项，请逐条打勾后再全部确认",
+                "diff": d,
+            }
+        meta_gate = load_corpus_meta(paths["corpus_meta"]) or {}
+        ready = bool((meta_gate.get("diff_confirm") or {}).get("ready_to_pin"))
+        if actions and not ready:
+            return {
+                "success": False,
+                "message": "请先点「全部确认」，再钉住母盘",
+                "ready_to_pin": False,
+                "diff": d,
+            }
+
     os.makedirs(paths["pinned_dir"], exist_ok=True)
     shutil.copy2(paths["corpus_md"], paths["pinned_md"])
     meta = load_corpus_meta(paths["corpus_meta"]) or {}
     meta["pinned_at"] = _now_iso()
+    meta.pop("diff_confirm", None)
+    save_corpus_meta(cfg, meta)
     with open(paths["pinned_meta"], "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
     snap = _snapshot_confirmed_facts(facts)
@@ -527,6 +577,8 @@ def corpus_diff(cfg: dict, against: str = "pinned") -> dict:
     paths = corpus_paths(cfg)
 
     if against == "pinned" and not os.path.isfile(paths["pinned_md"]):
+        meta0 = load_corpus_meta(paths["corpus_meta"]) or {}
+        ready0 = bool((meta0.get("diff_confirm") or {}).get("ready_to_pin"))
         return {
             "success": True,
             "against": "none",
@@ -540,6 +592,7 @@ def corpus_diff(cfg: dict, against: str = "pinned") -> dict:
             "strategy": "block" if (hard or logic) else "noop",
             "recommend_pin": True,
             "pending_decisions": 0,
+            "ready_to_pin": ready0 or not (hard or logic),
         }
 
     pinned_snap = {}
@@ -555,6 +608,10 @@ def corpus_diff(cfg: dict, against: str = "pinned") -> dict:
     dirty = list(dirty_info.get("dirty_blocks") or [])
     strategy = decide_strategy(fdiff, dirty, hard, logic)
     actions = build_fact_actions(facts, fdiff, pinned_snap)
+    meta = load_corpus_meta(paths["corpus_meta"]) or {}
+    ready = bool((meta.get("diff_confirm") or {}).get("ready_to_pin"))
+    if not actions and not hard and not logic:
+        ready = True
     return {
         "success": True,
         "against": "pinned",
@@ -568,11 +625,12 @@ def corpus_diff(cfg: dict, against: str = "pinned") -> dict:
         "recommend_pin": False,
         "can_distribute": strategy != "block",
         "pending_decisions": sum(1 for a in actions if a.get("needs_decision")),
+        "ready_to_pin": ready,
     }
 
 
 def build_fact_actions(facts: list, fdiff: dict, pinned_snap: dict) -> list:
-    """把差量编成对照卡可点的同意/不同意行。"""
+    """把差量编成对照卡可点的打勾固定行（原先 vs 现在）。"""
     by_key = {f.get("fact_key"): f for f in facts if f.get("fact_key")}
     actions = []
 
@@ -584,8 +642,8 @@ def build_fact_actions(facts: list, fdiff: dict, pinned_snap: dict) -> list:
             "from_value": c.get("from"),
             "to_value": c.get("to"),
             "status": (by_key.get(key) or {}).get("status"),
-            "accept_label": "同意改成新值",
-            "reject_label": "不同意，保留旧值",
+            "accept_label": "打勾固定为新值",
+            "reject_label": "恢复原先",
             "needs_decision": True,
             "blocking": False,
         })
@@ -599,8 +657,8 @@ def build_fact_actions(facts: list, fdiff: dict, pinned_snap: dict) -> list:
             "from_value": None,
             "to_value": c.get("value"),
             "status": fact.get("status"),
-            "accept_label": "同意新增",
-            "reject_label": "不同意，不要这条",
+            "accept_label": "打勾固定新增",
+            "reject_label": "不要这条",
             "needs_decision": True,
             "blocking": fact.get("status") == STATUS_PROPOSED,
         })
@@ -618,8 +676,8 @@ def build_fact_actions(facts: list, fdiff: dict, pinned_snap: dict) -> list:
             "from_value": pinned_val,
             "to_value": None,
             "status": fact.get("status") or "missing",
-            "accept_label": "同意删除",
-            "reject_label": "不同意，恢复旧值",
+            "accept_label": "打勾确认删除",
+            "reject_label": "恢复原先",
             "needs_decision": True,
             "blocking": blocking,
         })
@@ -638,12 +696,100 @@ def build_fact_actions(facts: list, fdiff: dict, pinned_snap: dict) -> list:
             "from_value": pinned_val if pinned_val is not None else snap.get("value"),
             "to_value": fact.get("value"),
             "status": STATUS_CONFLICT,
-            "accept_label": "采用当前/候选新值",
-            "reject_label": "保留历史确认值",
+            "accept_label": "打勾固定为现在",
+            "reject_label": "恢复原先",
             "needs_decision": True,
             "blocking": True,
         })
     return actions
+
+
+def confirm_corpus_diff_all(cfg: dict, decided_keys: list = None) -> dict:
+    """
+    全部确认闸门：无硬冲突/逻辑矛盾、无 blocking 未拍板 → ready_to_pin。
+    对剩余非 blocking 差量自动 accept（固定「现在」），便于钉住。
+    """
+    migrate_legacy_raw_materials(cfg)
+    d = corpus_diff(cfg, against="pinned")
+    if d.get("against") == "none":
+        paths = corpus_paths(cfg)
+        meta = load_corpus_meta(paths["corpus_meta"]) or {}
+        meta["diff_confirm"] = {
+            "confirmed_at": _now_iso(),
+            "ready_to_pin": True,
+            "mode": "first_pin",
+            "decided_keys": list(decided_keys or []),
+        }
+        save_corpus_meta(cfg, meta)
+        return {
+            "success": True,
+            "ready_to_pin": True,
+            "message": "尚无钉住基线，可直接钉住当前母盘",
+            "diff": d,
+            "applied_keys": [],
+        }
+
+    hard = int(d.get("hard_conflict_count") or 0)
+    logic = d.get("logic_conflicts") or []
+    if hard or logic:
+        return {
+            "success": False,
+            "ready_to_pin": False,
+            "message": f"还有未决冲突 {hard} 条或逻辑矛盾，请先在对照卡逐条打勾",
+            "hard_conflict_count": hard,
+            "logic_conflicts": logic,
+            "diff": d,
+        }
+
+    actions = d.get("fact_actions") or []
+    blocking = [a for a in actions if a.get("blocking")]
+    if blocking:
+        keys = ", ".join(a.get("fact_key") or "?" for a in blocking[:6])
+        return {
+            "success": False,
+            "ready_to_pin": False,
+            "message": f"还有须拍板项未打勾：{keys}",
+            "blocking_keys": [a.get("fact_key") for a in blocking],
+            "diff": d,
+        }
+
+    applied = []
+    for a in actions:
+        key = a.get("fact_key")
+        if not key:
+            continue
+        res = apply_corpus_diff_decision(cfg, key, "accept", op=a.get("op"))
+        if res.get("success"):
+            applied.append(key)
+
+    d2 = corpus_diff(cfg, against="pinned")
+    # 再检一遍（accept 后冲突应清零）
+    if int(d2.get("hard_conflict_count") or 0) or (d2.get("logic_conflicts") or []):
+        return {
+            "success": False,
+            "ready_to_pin": False,
+            "message": "自动固定后仍有冲突，请刷新对照逐条处理",
+            "diff": d2,
+            "applied_keys": applied,
+        }
+
+    paths = corpus_paths(cfg)
+    meta = load_corpus_meta(paths["corpus_meta"]) or {}
+    meta["diff_confirm"] = {
+        "confirmed_at": _now_iso(),
+        "ready_to_pin": True,
+        "mode": "diff_confirm",
+        "decided_keys": list(decided_keys or []) + applied,
+        "applied_keys": applied,
+    }
+    save_corpus_meta(cfg, meta)
+    return {
+        "success": True,
+        "ready_to_pin": True,
+        "message": "全部确认通过，可以钉住母盘",
+        "diff": d2,
+        "applied_keys": applied,
+    }
 
 
 def apply_corpus_diff_decision(cfg: dict, fact_key: str, decision: str, op: str = None) -> dict:

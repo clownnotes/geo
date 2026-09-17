@@ -10,9 +10,11 @@ from unittest import mock
 
 from tools.geo import llm as llm_mod
 from tools.geo.llm import (
+    LlmUnavailable,
     _aggregate_sse_stream,
     _extract_sse_delta_content,
     build_llm_status_payload,
+    call_nextdoor_chat,
     call_via_runtime,
     clear_status_cache,
     resolve_llm_runtime,
@@ -53,7 +55,10 @@ class TestNextdoorRuntime(unittest.TestCase):
         self.assertIsNotNone(rt)
         self.assertEqual(rt["provider"], "nextdoor")
         self.assertEqual(rt["brand"], "geo")
-        self.assertEqual(rt["mode"], "flash")
+        self.assertEqual(rt["mode"], "auto")
+        self.assertEqual(rt["model"], "dedicated_chain")
+        self.assertIn("调度档", rt["mode_label"])
+        self.assertIn("auto", rt["mode_label"])
 
     def test_direct_flag_uses_vendor(self):
         os.environ["GEO_LLM_DIRECT"] = "1"
@@ -117,7 +122,9 @@ class TestNextdoorRuntime(unittest.TestCase):
             payload = build_llm_status_payload(force_refresh=True)
         self.assertEqual(payload["provider"], "nextdoor")
         self.assertEqual(payload["brand"], "geo")
-        self.assertEqual(payload["mode"], "flash")
+        self.assertEqual(payload["mode"], "auto")
+        self.assertEqual(payload["model"], "dedicated_chain")
+        self.assertIn("mode_label", payload)
         self.assertNotIn("api_key", payload)
         self.assertTrue(payload["api_key_masked"])
 
@@ -157,6 +164,39 @@ class TestNextdoorRuntime(unittest.TestCase):
                 content = f.read()
             self.assertIn("NEXTDOOR_API_KEY=", content)
             self.assertIn("GEO_LLM_DIRECT=0", content)
+
+    def test_call_nextdoor_falls_back_to_auto(self):
+        runtime = {
+            "provider": "nextdoor",
+            "mode": "flash",
+            "brand": "geo",
+            "api_key": "ndsk_x",
+            "base_url": "http://127.0.0.1:3001",
+        }
+        modes = []
+
+        def fake_urlopen(req, timeout=0):
+            import json as _json
+            body = _json.loads(req.data.decode("utf-8"))
+            modes.append(body["mode"])
+            if body["mode"] == "flash":
+                raise LlmUnavailable("flash pool down")
+            class Resp:
+                headers = {"Content-Type": "application/json"}
+                def read(self):
+                    return _json.dumps({
+                        "code": 0,
+                        "data": {"choices": [{"message": {"content": "ok-auto"}}]},
+                    }).encode("utf-8")
+                def __enter__(self): return self
+                def __exit__(self, *a): pass
+            return Resp()
+
+        with mock.patch("tools.geo.llm.urllib.request.urlopen", side_effect=fake_urlopen):
+            # stream=False 避免走 SSE 分支
+            text = call_nextdoor_chat(runtime, [{"role": "user", "content": "hi"}], timeout=5, stream=False)
+        self.assertEqual(text, "ok-auto")
+        self.assertEqual(modes, ["flash", "auto"])
 
 
 if __name__ == "__main__":
