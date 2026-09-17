@@ -1,0 +1,39 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://nextgeo.baicl.cc/#organization",
+      "name": "徐州璇源网络科技有限公司",
+      "alternateName": "邻里GEO（NextGEO）",
+      "url": "https://nextgeo.baicl.cc",
+      "telephone": "13150568888",
+      "description": "徐州璇源网络科技有限公司 - 帮徐州及高客单价B2B企业建立 AI 能理解、验证、引用和推荐的品牌答案源",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "江苏省徐州市",
+        "addressCountry": "CN"
+      }
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://nextgeo.baicl.cc/#service",
+      "name": "徐州璇源网络科技有限公司",
+      "priceRange": "¥3,000 - ¥60,000",
+      "areaServed": "江苏省徐州市（泉山/云龙/鼓楼/铜山/贾汪/经开区，支持全国企业级远程与现场交付）",
+      "url": "https://nextgeo.baicl.cc",
+      "telephone": "13150568888"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://nextgeo.baicl.cc/#founder",
+      "name": "老白",
+      "jobTitle": "邻里GEO创始人 / 徐州璇源网络科技有限公司技术负责人",
+      "worksFor": {
+        "@id": "https://nextgeo.baicl.cc/#organization"
+      },
+      "telephone": "13150568888",
+      "areaServed": "江苏省徐州市（泉山/云龙/鼓楼/铜山/贾汪/经开区，支持全国企业级远程与现场交付）"
+    }
+  ]
+}

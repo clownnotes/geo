@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "vitepress dev docs --port 5173",
     "build": "vitepress build docs",
-    "preview": "vitepress preview docs"
+    "preview": "vitepress preview docs",
+    "dev:step0": "npm --prefix web/step0-src run dev",
+    "build:step0": "npm --prefix web/step0-src run build"
   },
   "keywords": [
     "geo",

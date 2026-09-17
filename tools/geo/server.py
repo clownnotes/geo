@@ -2314,6 +2314,30 @@ core_values:
                 self._serve_static_file(css_path, "geo-admin.css")
                 return
 
+        # 管理端静态资源挂载 (如 /assets/step0/step0.js 等组件岛静态产物)
+        if path.startswith("/assets/"):
+            raw_subpath = path[len("/assets/"):].lstrip("/")
+            assets_root = os.path.abspath(os.path.join(WEB_DIR, "assets"))
+            target_path = os.path.abspath(os.path.join(assets_root, raw_subpath))
+            try:
+                under_assets = os.path.commonpath([target_path, assets_root]) == assets_root
+            except ValueError:
+                under_assets = False
+            if not under_assets:
+                self.send_response(403)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b"403 Forbidden")
+                return
+            if os.path.isfile(target_path):
+                self._serve_static_file(target_path, os.path.basename(target_path))
+                return
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(b"404 Not Found")
+            return
+
         # 4.5. 生产级多租户纯净静态官网托管路由: /sites/{project_id} 或 /sites/{project_id}/{asset}
         if path.startswith("/sites/"):
             raw_subpath = path[len("/sites/"):].strip("/")

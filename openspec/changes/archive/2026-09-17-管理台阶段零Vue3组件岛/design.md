@@ -11,8 +11,8 @@
 │   step-0 视图 ──► <div id="step0-app">      │
 │                      ▲                      │
 │                      │ Vue3 createApp       │
-│               web/step0/（源码）              │
-│               web/dist/step0/（构建产物）     │
+│               web/step0-src/（源码）          │
+│               web/assets/step0/（构建产物）   │
 └─────────────────────────────────────────────┘
 ```
 
@@ -35,15 +35,27 @@
 ### 构建与托管
 
 - 工具链：Vite + Vue3（与小毛驴同族，降低心智切换）；**不**上 Vue Router / Pinia，除非后续全站迁。
-- 产物目录建议：`web/dist/step0/`（`step0.js` + css）；`index.html` 用 `<script type="module">` 引入。
-- 开发：`npm run dev` 可只开发岛屿；联调仍走本机 `8088`（Safari）。
-- 服务端：`tools/geo/server.py` 已从 `WEB_DIR` 读静态；需确保能提供 `web/dist/**`（或构建输出拷到 `web/assets/step0/`）。优先少改后端：产物放 `web/assets/step0/` 最省事。
+- 开发：`npm run dev:step0` 可只开发岛屿；联调仍走本机 `8088`（Safari）。
 
-**推荐落地路径（省事优先）**：
+**落地路径（已锁定）**：
 
 1. 源码：`web/step0-src/`（Vite 根）
-2. 构建输出：`web/assets/step0/`（已在现有静态路径下）
-3. `index.html` 阶段零区块清空为挂载点 + 引入构建后的 `assets/step0/step0.js`
+2. 构建输出：`web/assets/step0/`（如 `step0.js` + css）
+3. `index.html` 阶段零区块改为挂载点 + 引入 `/assets/step0/step0.js`（或构建入口文件名）
+
+### 服务端静态映射（Antigravity 审查锁定）
+
+现状：`server.py` 对管理台只特判了 `/`、`/index.html`、`/geo-admin.css`、`/share` 等，**没有**通用的 `/assets/* → web/assets/*`。若只把文件写到磁盘而不加路由，浏览器会 404，岛屿表现为「空白 / 未加载」。
+
+**apply 时必须**在静态路由段增加最小映射（约数行），语义如下：
+
+```text
+GET /assets/<rel>  →  WEB_DIR/assets/<rel>
+约束：禁止 path traversal（归一化后必须仍在 web/assets/ 下）
+复用现有 _serve_static_file(target_path, target_rel)
+```
+
+不另开 `/dist/`；不以「碰巧能从别处读到」代替显式路由。
 
 ### 与「假丢数据」护栏
 
