@@ -3,7 +3,7 @@
   "created_at": "2026-09-12T17:32:52+08:00",
   "baseline_ref": "probe:doubao:20260910",
   "preconditions": [
-    "博客已注入标准名片段；官方域名已切换为 https://www.baicl.cc（弃用 nextgeo.baicl.cc）",
+    "博客已注入标准名片段；官方域名已切换为 https://www.baicl.cc（弃用 www.baicl.cc）",
     "建议：本地验收通过后再推生产；推生产前本剧本可先在本地站对照",
     "用已登录 Safari 打开豆包新会话，勿复用旧对话记忆污染"
   ],
@@ -17,7 +17,7 @@
   "pass_hints": [
     "品牌题不再把「邻里」解构成同城小商户概念",
     "人物题不再把老白串到安徽广德短视频",
-    "url_present 或可核对到 www.baicl.cc / 璇源主体（不保证必出链接；旧域 nextgeo.baicl.cc 不算通过）"
+    "url_present 或可核对到 www.baicl.cc / 璇源主体（不保证必出链接；旧域 www.baicl.cc 不算通过）"
   ],
   "items": [
     {
@@ -35,7 +35,7 @@
     },
     {
       "query": "邻里GEO官网是什么",
-      "follow_up": "目标是否出现 https://www.baicl.cc；若只出现旧域 nextgeo.baicl.cc 请标明；没有就说没有。",
+      "follow_up": "目标是否出现 https://www.baicl.cc；若只出现旧域 www.baicl.cc 请标明；没有就说没有。",
       "baseline_note": "复测新增：检验名片段URL是否可被找回（新域 www.baicl.cc）"
     },
     {

@@ -67,7 +67,7 @@
 <span class="geo-brand-title">GEO</span>
 <span class="geo-brand-sub">交付工作台</span>
 </div>
-<nav class="flex-1 overflow-y-auto sidebar-nav-scroll">
+<nav class="flex-1 min-h-0 overflow-y-auto sidebar-nav-scroll">
 <div class="accordion-group sidebar-group" data-group="home-main">
 <button type="button" class="accordion-header" onclick="toggleHomeSidebarGroup('home-main')"><span class="category-title">工作台</span><span class="arrow-indicator" data-home-arrow="home-main">▼</span>
 </button>
@@ -394,7 +394,7 @@
 <button type="button" class="accordion-header" onclick="toggleSidebarGroup('daily')"><span class="category-title">日常运维</span><span class="arrow-indicator" data-group-arrow="daily">▶</span>
 </button>
 <div id="sidebar-group-daily" class="submenu-list hidden">
-<button type="button" id="nav-keywords" onclick="switchView('keywords')" class="sidebar-nav-item"><span class="truncate">关键词清单与意图矩阵</span>
+<button type="button" id="nav-keywords" onclick="switchView('keywords')" class="sidebar-nav-item"><span class="truncate">选题长问清单</span>
 </button>
 <button type="button" id="nav-mon-decay" onclick="switchView('mon-decay')" class="sidebar-nav-item"><span class="truncate">知识半衰期与自愈</span>
 </button>
@@ -486,8 +486,8 @@
 <div class="flex flex-wrap items-start justify-between gap-3">
 <div>
 <h2 class="text-base font-bold text-slate-900">阶段零：侦察建档</h2>
-<p class="text-xs text-slate-500 mt-1 max-w-xl">弄清「大模型现在怎么说」：竞品写谁、该盯哪些问句。<strong>出题/读盘/预览回填由管理台一键完成</strong>；你只需让反重力在已登录豆包里实战，并在预览后点确认。</p>
-<p class="text-[11px] text-slate-400 mt-1">阶段一体检看的是官网能不能被 AI 读懂，和侦察是两件事；建议先做完侦察再体检。</p>
+<p class="text-xs text-slate-500 mt-1 max-w-xl">先问豆包几句<strong>真人会问的长问</strong>，看它认不认识你们、推谁、有没有乱编。<strong>这是基线体检</strong>，不是一次灌满词库。问过的长问确认后，可当作第一波选题。</p>
+<p class="text-[11px] text-slate-400 mt-1">出题/读盘/预览回填由管理台完成；你只需让反重力在已登录豆包里实战，并在预览后点确认。阶段一体检看官网能不能被 AI 读懂，是另一件事。</p>
 </div>
 <div class="flex flex-col items-end gap-2 shrink-0">
 <div id="step0-probe-badges" class="flex flex-wrap gap-2 justify-end"></div>
@@ -516,7 +516,7 @@
 <details class="bg-white border border-dashed border-slate-200 rounded-lg p-3">
 <summary class="text-[11px] font-semibold text-slate-600 cursor-pointer select-none">备用：模板一键出题（质量一般，断网/赶工用）</summary>
 <div class="mt-2 space-y-2">
-<p class="text-[10px] text-slate-500">服务端按固定模板填空，适合没空开 IDE 时先有一份能跑的题；定稿前建议再用 Cursor 改成自然口语。</p>
+<p class="text-[10px] text-slate-500">服务端按固定模板填空，适合没空开 IDE 时先有一份能跑的题。模板句常偏短、不像真人——<strong>实战前建议改成角色场景长问</strong>（如「我在徐州开厂，想找靠谱做 GEO 的该找谁」）。</p>
 <button type="button" id="step0-btn-gen-script" onclick="runStep0GenerateScript(this)" class="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold">一键模板出题（保底）</button>
 <div class="flex flex-wrap items-stretch gap-2">
 <span class="shrink-0 w-14 self-center text-[10px] font-bold text-slate-500">① 进目录</span>
@@ -634,7 +634,11 @@
 </div>
 <label class="flex items-center gap-2 text-[11px] text-slate-600 select-none pt-1">
 <input type="checkbox" id="step0-probe-merge" checked class="rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]" />
-<span>写入时合并旧内容（项目里已有精修词库/竞品时请勾上，避免被盖掉）</span>
+<span>写入时合并旧内容（项目里已有精修选题/竞品时请勾上，避免被盖掉）</span>
+</label>
+<label class="flex items-start gap-2 text-[11px] text-slate-600 select-none pt-1">
+<input type="checkbox" id="step0-probe-write-topics" checked class="mt-0.5 rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]" />
+<span><strong>同时把本题长问写入选题清单</strong>（推荐）。短词会被自动拒收；写入后可去「日常运维 · 选题长问清单」跟客户确认。</span>
 </label>
 </div>
 
@@ -1739,17 +1743,17 @@
 <div>
 <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded border bg-violet-50 text-violet-800 border-violet-200">发帖运维</span>
 <h2 class="text-base font-bold text-slate-900 mt-2">维护期发帖流程</h2>
-<p class="text-xs text-slate-500 mt-1 max-w-2xl">这里管<strong>首次两篇之后</strong>的日常发帖。首次头条+知乎各一篇在「首次交付 · 04」里完成；这里按<strong>已确认的关键词清单</strong>继续写、发、回填链接。</p>
-<p id="ops-publish-kw-gate" class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2 hidden">关键词尚未标记「客户已确认」。请先去「日常运维 · 关键词清单」确认，再继续发帖。</p>
+<p class="text-xs text-slate-500 mt-1 max-w-2xl">这里管<strong>首次两篇之后</strong>的日常发帖。首次头条+知乎各一篇在「首次交付 · 04」里完成；这里按<strong>已确认的选题长问</strong>继续写、发、回填链接。</p>
+<p id="ops-publish-kw-gate" class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2 hidden">选题长问尚未标记「客户已确认」。请先去「日常运维 · 选题长问清单」确认，再继续发帖。</p>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
 <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
-<div class="font-bold text-slate-800">1. 看词</div>
-<p class="text-slate-600">打开关键词清单，选本周要盖的词（客户已确认的那些）。</p>
+<div class="font-bold text-slate-800">1. 看选题</div>
+<p class="text-slate-600">打开选题长问清单，选本周要盖的问句（客户已确认的那些）。</p>
 </div>
 <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
 <div class="font-bold text-slate-800">2. 写与发</div>
-<p class="text-slate-600">按母盘围着词写文章 → IDE 定稿 → 复制发布（工具与首次交付同源）。</p>
+<p class="text-slate-600">按母盘围着长问写文章 → IDE 定稿 → 复制发布（工具与首次交付同源）。</p>
 </div>
 <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
 <div class="font-bold text-slate-800">3. 回填</div>
@@ -1757,7 +1761,7 @@
 </div>
 </div>
 <div class="flex flex-wrap gap-2 pt-1">
-<button type="button" onclick="switchView('keywords')" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">打开关键词清单</button>
+<button type="button" onclick="switchView('keywords')" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg">打开选题长问清单</button>
 <button type="button" onclick="switchView('step-4-distribute')" class="py-2.5 px-4 bg-white border border-violet-200 hover:bg-violet-50 text-violet-800 text-xs font-semibold rounded-lg">打开发帖工具（草稿/写回/复制发布）</button>
 <button type="button" onclick="switchView('mon-patrol')" class="py-2.5 px-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">检查已发链接</button>
 </div>
@@ -1781,8 +1785,8 @@
 </div>
 <div id="panel-keywords" class="workspace-panel hidden space-y-6">
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-<h2 class="text-base font-bold text-slate-900">关键词清单与意图矩阵</h2>
-<p class="text-xs text-slate-500 mt-1">日常运维主阵地：看清/确认要抢的提问词；词数不写死，客户确认后开工。首次两篇之外的词在此维护。</p>
+<h2 class="text-base font-bold text-slate-900">选题长问清单</h2>
+<p class="text-xs text-slate-500 mt-1">日常运维主阵地：只留<strong>真人完整问句</strong>（不是「徐州GEO」这类短词）。清单跟客户沟通一点点加；客户确认后再写/发。首次两篇之外的选题在此维护。</p>
 </div>
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 max-w-2xl">
 <div class="grid grid-cols-1 gap-2">
@@ -1794,14 +1798,14 @@
 <div class="flex items-center justify-between gap-2 flex-wrap">
 <div>
 <div class="text-sm font-bold text-slate-900">客户确认门闩</div>
-<p class="text-[11px] text-slate-500 mt-0.5">词须跟客户确认后再批量写/发。确认只记状态，不改词内容。</p>
+<p class="text-[11px] text-slate-500 mt-0.5">长问须跟客户确认后再批量写/发。确认只记状态；列表里不合格短词不会进入写稿主路径。</p>
 </div>
 <span id="kw-confirm-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">尚未确认</span>
 </div>
-<p id="kw-confirm-meta" class="text-[11px] text-slate-500">打开本页后加载当前词清单…</p>
-<ul id="kw-confirm-list" class="list-disc pl-5 text-xs text-slate-700 space-y-0.5 max-h-40 overflow-y-auto bg-slate-50 border border-slate-100 rounded-lg p-3"></ul>
+<p id="kw-confirm-meta" class="text-[11px] text-slate-500">打开本页后加载当前选题…</p>
+<ul id="kw-confirm-list" class="list-disc pl-5 text-xs text-slate-700 space-y-0.5 max-h-[min(50vh,22rem)] overflow-y-auto overscroll-contain bg-slate-50 border border-slate-100 rounded-lg p-3"></ul>
 <div class="flex flex-wrap gap-2">
-<button type="button" id="btn-kw-confirm" onclick="confirmKeywordsWithClient(true)" class="py-2 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg">标记：客户已确认这些词</button>
+<button type="button" id="btn-kw-confirm" onclick="confirmKeywordsWithClient(true)" class="py-2 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg">标记：客户已确认这些长问</button>
 <button type="button" onclick="confirmKeywordsWithClient(false)" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg">撤销确认</button>
 </div>
 </div>
@@ -2104,18 +2108,24 @@
 </select>
 </div>
 <div>
-<div class="flex items-center justify-between mb-1"><label class="block font-semibold text-slate-700">核心业务意图词库 <span class="font-normal text-slate-400">（可选）</span></label>
-<button type="button" id="btn-auto-intent" onclick="handleAutoGenerateIntent(event)" class="text-[11px] text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1 px-2.5 rounded-md font-semibold flex items-center gap-1 border border-indigo-200 transition shadow-sm"><i data-lucide="list-plus" class="w-3.5 h-3.5 text-indigo-600"></i><span>生成必测题草稿（约 10 条）</span>
-</button>
-</div>
-<textarea id="np-keywords" rows="3" placeholder="可空着。创建后进入「00 侦察建档」按指引回填更准。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+<details class="rounded-lg border border-dashed border-slate-200 bg-slate-50/80 open:bg-white">
+<summary class="cursor-pointer select-none px-3 py-2 text-xs font-semibold text-slate-600">高级（一般不用）：以后再说的选题备注 / 已知竞品</summary>
+<div class="px-3 pb-3 space-y-3 border-t border-slate-100 pt-3">
+<p class="text-[10px] text-amber-800 bg-amber-50 border border-amber-100 rounded-md px-2 py-1.5">创建时<strong>不要</strong>填意图词库和竞品。正确顺序：建壳 → 阶段零用真人长问探活 → 回填后再慢慢加选题。这里仅留给「客户已口头给过几条长问」的例外。</p>
+<div>
+<label class="block font-semibold text-slate-700 mb-1">已知选题长问 <span class="font-normal text-slate-400">（可选，可空）</span></label>
+<textarea id="np-keywords" rows="2" placeholder="可空。每行一条真人完整问句；短词如「徐州GEO」不要填。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
 </textarea>
 </div>
-<div><label class="block font-semibold text-slate-700 mb-1">主要竞品列表 <span class="font-normal text-slate-400">（可选）</span></label>
-<textarea id="np-competitors" rows="2" placeholder="可空着。不要编假名；侦察后再回填。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+<div>
+<label class="block font-semibold text-slate-700 mb-1">已知竞品 <span class="font-normal text-slate-400">（可选，可空）</span></label>
+<textarea id="np-competitors" rows="2" placeholder="可空。不要编假名；探活后从豆包回答里勾选回填更准。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
 </textarea>
 </div>
-<p class="text-[10px] text-slate-400">创建成功后将进入<strong>阶段零：侦察建档</strong>，按页面命令与 Cursor / 反重力配合。</p>
+</div>
+</details>
+</div>
+<p class="text-[10px] text-slate-400">创建成功后进入<strong>阶段零：侦察建档</strong>。先问豆包几句真人会问的话，看它认不认识你们、推谁；选题与竞品探完再回填，不要在创建时硬编。</p>
 <div class="pt-2 flex items-center justify-end gap-3">
 <button type="button" onclick="closeNewProjectModal()" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition">取消</button>
 <button type="submit" class="py-2 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs shadow transition">创建并进入侦察引导</button>
@@ -5263,7 +5273,7 @@ GitHub 开源仓库：https://github.com/company/repo
 
     const VIEW_META = {
       overview: { group: 'biz', groupLabel: '经营监管', label: '客户档案与总资产看板' },
-      keywords: { group: 'daily', groupLabel: '日常运维', label: '关键词清单与意图矩阵' },
+      keywords: { group: 'daily', groupLabel: '日常运维', label: '选题长问清单' },
       'step-0-probe': { group: 'delivery', groupLabel: '首次交付', label: '00 侦察建档', step: 0 },
       'step-1-diag': { group: 'delivery', groupLabel: '首次交付', label: '01 现状诊断与体检', step: 1 },
       'step-2-scaffold': { group: 'delivery', groupLabel: '首次交付', label: '02 站点底座与三件套', step: 2 },
@@ -6717,7 +6727,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const data = await res.json();
         if (data.success) {
           closeNewProjectModal();
-          showToast(`项目 [${payload.client_id}] 已建壳，请按阶段零指引完成侦察。`);
+          showToast(`项目 [${payload.client_id}] 已建壳。请先做阶段零探活（选题/竞品探完再回填），不要在创建时硬编词库。`);
           enterWizard(payload.client_id, 'step-0-probe');
         } else {
           showToast(data.message || '创建失败！', 'error');
@@ -7784,11 +7794,12 @@ function backToDashboard() {
         return;
       }
       const merge = !!(document.getElementById('step0-probe-merge') || {}).checked;
+      const writeTopics = !!(document.getElementById('step0-probe-write-topics') || { checked: true }).checked;
       try {
         const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/probe/apply-disk`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${currentAuthToken}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ file: step0SelectedResultFile, merge })
+          body: JSON.stringify({ file: step0SelectedResultFile, merge, write_topics: writeTopics })
         });
         const data = await res.json();
         if (!data.success) {
@@ -7796,7 +7807,10 @@ function backToDashboard() {
           return;
         }
         if (data.project) currentProjectData = data.project;
-        showToast(`确认已写入 ${step0SelectedResultFile}`, 'success');
+        const rej = data.rejected_short || [];
+        let toast = data.message || `确认已写入 ${step0SelectedResultFile}`;
+        if (rej.length) toast += `（拒收短词 ${rej.length}）`;
+        showToast(toast, rej.length ? 'error' : 'success');
         step0DiskPreviewReady = false;
         await renderStep0ProbePanel();
         step0SyncWriteStatusBadge((currentProjectData || {}).probe_status);
@@ -8423,15 +8437,31 @@ function backToDashboard() {
       }
     }
 
+    function isQualifyingLongQueryClient(text) {
+      const t = String(text || '').trim();
+      if (!t || t.length < 10) return false;
+      const q = /[？?]|哪家|哪个|怎么|如何|什么|谁|靠谱|有没有|多少钱|区别|坑|推荐|找谁|该不该|能不能|是否|为何|为什么|怎么样|好不好|值不值|适不适合/.test(t);
+      if (/^[\w\u4e00-\u9fff]{1,12}$/.test(t) && !q) return false;
+      if (q && t.length >= 10) return true;
+      if (t.length >= 20) return true;
+      if (t.length >= 15 && (/ |，|。|、/.test(t))) return true;
+      return false;
+    }
+
     function keywordsConfirmState() {
       const p = currentProjectData || {};
-      const kws = Array.isArray(p.keywords) ? p.keywords : [];
+      const raw = Array.isArray(p.keywords) ? p.keywords : [];
+      const all = raw.map((k) => (typeof k === 'string' ? k : (k && (k.prompt || k.text)) || '')).map((s) => String(s).trim()).filter(Boolean);
+      const longQs = all.filter(isQualifyingLongQueryClient);
+      const shorts = all.filter((t) => !isQualifyingLongQueryClient(t));
       return {
         confirmed: !!p.keywords_confirmed,
         at: p.keywords_confirmed_at || '',
         note: p.keywords_confirmed_note || '',
-        keywords: kws,
-        count: kws.length,
+        keywords: all,
+        longQueries: longQs,
+        shortRejected: shorts,
+        count: longQs.length,
       };
     }
 
@@ -8441,7 +8471,7 @@ function backToDashboard() {
       const meta = document.getElementById('kw-confirm-meta');
       const list = document.getElementById('kw-confirm-list');
       if (badge) {
-        if (st.confirmed) {
+        if (st.confirmed && st.count > 0) {
           badge.textContent = '已确认';
           badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200';
         } else {
@@ -8450,22 +8480,24 @@ function backToDashboard() {
         }
       }
       if (meta) {
-        if (st.confirmed) {
-          meta.textContent = `已确认${st.at ? ' · ' + st.at : ''} · 词数 ${st.count}${st.note ? ' · ' + st.note : ''}`;
+        if (st.confirmed && st.count > 0) {
+          meta.textContent = `已确认${st.at ? ' · ' + st.at : ''} · 合格长问 ${st.count} 条${st.shortRejected.length ? `（另有 ${st.shortRejected.length} 条短词不进写稿）` : ''}${st.note ? ' · ' + st.note : ''}`;
+        } else if (st.count) {
+          meta.textContent = `当前合格长问 ${st.count} 条。跟客户确认后再点下方按钮；确认前勿批量发帖。${st.shortRejected.length ? `（列表里还有 ${st.shortRejected.length} 条短词，写稿会跳过）` : ''}`;
         } else {
-          meta.textContent = st.count
-            ? `当前词库 ${st.count} 条。跟客户确认后再点下方按钮；确认前勿批量发帖。`
-            : '词库为空。先在建档/裂变里补词，再跟客户确认。';
+          meta.textContent = '还没有合格长问。请先阶段零探活并勾选「写入选题清单」，或跟客户沟通后慢慢加。';
         }
       }
       if (list) {
-        if (!st.keywords.length) {
-          list.innerHTML = '<li class="list-none text-slate-400">（暂无关键词）</li>';
+        if (!st.longQueries.length && !st.shortRejected.length) {
+          list.innerHTML = '<li class="list-none text-slate-400">（暂无选题长问）</li>';
         } else {
-          list.innerHTML = st.keywords.slice(0, 80).map((k) => {
-            const t = typeof k === 'string' ? k : (k && (k.prompt || k.text)) || '';
-            return `<li>${escapeHtmlSafe(String(t))}</li>`;
-          }).join('') + (st.keywords.length > 80 ? `<li class="list-none text-slate-400">…另有 ${st.keywords.length - 80} 条</li>` : '');
+          const longHtml = st.longQueries.slice(0, 80).map((t) => `<li>${escapeHtmlSafe(String(t))}</li>`).join('');
+          const shortHtml = st.shortRejected.length
+            ? `<li class="list-none text-amber-700 mt-2">以下短词不进写稿主路径（请改成长问或忽略）：</li>` +
+              st.shortRejected.slice(0, 20).map((t) => `<li class="text-slate-400 line-through">${escapeHtmlSafe(String(t))}</li>`).join('')
+            : '';
+          list.innerHTML = longHtml + shortHtml;
         }
       }
       refreshKeywordsConfirmBanners();
@@ -8474,7 +8506,7 @@ function backToDashboard() {
     function refreshKeywordsConfirmBanners() {
       const st = keywordsConfirmState();
       const gate = document.getElementById('ops-publish-kw-gate');
-      if (gate) gate.classList.toggle('hidden', !!st.confirmed);
+      if (gate) gate.classList.toggle('hidden', !!(st.confirmed && st.count > 0));
     }
 
     async function confirmKeywordsWithClient(confirmed) {
@@ -8487,11 +8519,12 @@ function backToDashboard() {
       const now = new Date();
       const pad = (n) => String(n).padStart(2, '0');
       const at = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const st = keywordsConfirmState();
       const body = want
         ? {
             keywords_confirmed: true,
             keywords_confirmed_at: at,
-            keywords_confirmed_note: `客户确认词清单（共 ${(currentProjectData && currentProjectData.keywords || []).length} 条）`,
+            keywords_confirmed_note: `客户确认选题长问（合格 ${st.count} 条）`,
           }
         : {
             keywords_confirmed: false,
@@ -9137,10 +9170,18 @@ function backToDashboard() {
         updatePipelineGateUI();
         return;
       }
-      const kwCount = Array.isArray(currentProjectData && currentProjectData.keywords) ? currentProjectData.keywords.length : -1;
-      const tip = kwCount === 0
-        ? '词库当前为空，周报会测 0 题。仍要批量生成阶段 1～5 草稿吗？（不含侦察，需人工验收）'
-        : '将批量生成阶段 1～5 草稿资产（不含 00 侦察）。这不等于客户签字终稿，是否继续？';
+      const st = keywordsConfirmState();
+      if (!st.count) {
+        showToast('没有合格选题长问，不能批量生成草稿。请先阶段零写入长问，或到选题清单补齐。', 'error');
+        switchView('keywords');
+        return;
+      }
+      if (!st.confirmed) {
+        showToast('选题长问尚未经客户确认。请先到「选题长问清单」点确认，再批量生成。', 'error');
+        switchView('keywords');
+        return;
+      }
+      const tip = `将按 ${st.count} 条已确认长问，批量生成阶段 1～5 草稿（不含 00 侦察）。这不等于客户签字终稿，是否继续？`;
       if (!window.confirm(tip)) return;
 
       btn.disabled = true;
@@ -13386,54 +13427,11 @@ function backToDashboard() {
       document.getElementById('benchmark-modal').classList.add('hidden');
     }
 
-    // AI 逆向推演用户 5 维商业提问
+    // 创建弹窗已不再提供「生成必测题」；保留函数避免旧缓存报错，引导去阶段零
     async function handleAutoGenerateIntent(e) {
       if (e) e.preventDefault();
-      const name = document.getElementById('np-name').value.trim();
-      const industry = document.getElementById('np-industry').value.trim()
-        || (document.getElementById('np-one-liner')?.value || '').trim().slice(0, 40);
-      const url = document.getElementById('np-url').value.trim();
-      const btn = document.getElementById('btn-auto-intent');
-      
-      if (!name || !industry) {
-        showToast('请先输入【企业名称】和【一句话业务或行业】！', 'error');
-        return;
-      }
-
-      const originalHTML = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>生成必测草稿中…</span>`;
-      lucide.createIcons();
-
-      try {
-        const res = await fetch('/api/intent/generate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentAuthToken}`
-          },
-          body: JSON.stringify({
-            client_name: name,
-            industry: industry,
-            official_url: url
-          })
-        });
-        const data = await res.json();
-        if (data.success && data.flat_keywords && data.flat_keywords.length > 0) {
-          // 新建阶段只取约 10 条必测草稿，避免一上来灌满 50 问
-          const draft = data.flat_keywords.slice(0, 10);
-          document.getElementById('np-keywords').value = draft.join('\n');
-          showToast(`已填入 ${draft.length} 条必测草稿，请人工删改；正式词库建议侦察后 CLI 回填。`);
-        } else {
-          showToast(data.message || '推演失败，请重试', 'error');
-        }
-      } catch (err) {
-        showToast('网络请求异常，请检查服务状态', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalHTML;
-        lucide.createIcons();
-      }
+      showToast('必测题请在「阶段零」用 Cursor 出题或模板保底生成，创建时不要灌词库。', 'error');
+      closeNewProjectModal();
     }
 
     // ===== 大模型爬虫抓取仿真器控制器 =====

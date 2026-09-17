@@ -11,11 +11,11 @@ class TestNameplate(unittest.TestCase):
         res = check_nameplate_quartet({
             "brand_name": "邻里GEO（NextGEO）",
             "company_name": "徐州璇源网络科技有限公司",
-            "official_url": "https://nextgeo.baicl.cc",
+            "official_url": "https://www.baicl.cc",
             "founder": "老白",
             "nameplate": (
                 "邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的服务品牌，"
-                "官网：https://nextgeo.baicl.cc，技术负责人老白。"
+                "官网：https://www.baicl.cc，技术负责人老白。"
             ),
         })
         self.assertTrue(res["ok"])

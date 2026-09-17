@@ -1,13 +1,17 @@
 {
-  "facts_hash": "437d7bd13e9a25da",
+  "facts_hash": "7291f05abc06b696",
   "block_hashes": {
-    "block.definition": "dce76d02dece8083",
+    "block.definition": "3a29e36047e79326",
     "block.metrics_table": "30ee8d9eccb8cde3",
-    "block.faq": "e10fece4f2f4abf3",
-    "block.commitment": "2426418b2e919e7f"
+    "block.faq": "c85a86e862817f8a",
+    "block.commitment": "7621a31f30a7079b"
   },
-  "mode": "full",
-  "updated_at": "2026-09-08T12:29:09Z",
-  "dirty_blocks_written": [],
-  "pinned_at": "2026-09-08T13:03:30Z"
+  "mode": "incremental",
+  "updated_at": "2026-09-14T10:43:56Z",
+  "dirty_blocks_written": [
+    "block.definition",
+    "block.faq",
+    "block.commitment"
+  ],
+  "pinned_at": "2026-09-14T13:38:51Z"
 }

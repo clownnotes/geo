@@ -68,7 +68,7 @@ client_name: "徐州壳公司测试"
 brand_name: "邻里GEO"
 company_name: "徐州璇源网络科技有限公司"
 industry: "企业GEO与AI搜索品牌答案源建设"
-official_url: "https://nextgeo.baicl.cc"
+official_url: "https://www.baicl.cc"
 area_served: "徐州本地"
 contact_person: "老白"
 keywords:

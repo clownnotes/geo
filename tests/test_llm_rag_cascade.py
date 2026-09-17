@@ -207,7 +207,7 @@ class TestRewriteFallback(unittest.TestCase):
                     'brand_name: "邻里GEO"\n'
                     'company_name: "徐州璇源网络科技有限公司"\n'
                     'industry: "企业GEO"\n'
-                    'official_url: "https://nextgeo.baicl.cc"\n'
+                    'official_url: "https://www.baicl.cc"\n'
                     "keywords:\n  - \"徐州GEO优化公司哪家好\"\n"
                     "competitors:\n  - \"徐州东昊信息科技有限公司\"\n"
                 )
@@ -248,7 +248,7 @@ class TestRewriteFallback(unittest.TestCase):
                     'client_name: "无钥回退测"\n'
                     'brand_name: "邻里GEO"\n'
                     'industry: "企业GEO"\n'
-                    'official_url: "https://nextgeo.baicl.cc"\n'
+                    'official_url: "https://www.baicl.cc"\n'
                     "keywords:\n"
                     "competitors:\n"
                 )

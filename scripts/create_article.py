@@ -38,7 +38,7 @@ TEMPLATE = """<!DOCTYPE html>
   <title>{title}｜邻里GEO</title>
   <meta name="description" content="{description}">
   <meta name="keywords" content="{keywords}">
-  <link rel="canonical" href="https://nextgeo.baicl.cc/blog/{filename}">
+  <link rel="canonical" href="https://www.baicl.cc/blog/{filename}">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="icon" href="../assets/logo.jpg" type="image/jpeg">
 
@@ -48,7 +48,7 @@ TEMPLATE = """<!DOCTYPE html>
     "@graph": [
       {{
         "@type": "TechArticle",
-        "@id": "https://nextgeo.baicl.cc/blog/{filename}#article",
+        "@id": "https://www.baicl.cc/blog/{filename}#article",
         "headline": "{title}",
         "description": "{description}",
         "inLanguage": "zh-CN",
@@ -62,16 +62,16 @@ TEMPLATE = """<!DOCTYPE html>
         "publisher": {{
           "@type": "Organization",
           "name": "邻里GEO",
-          "logo": "https://nextgeo.baicl.cc/assets/logo.jpg"
+          "logo": "https://www.baicl.cc/assets/logo.jpg"
         }}
       }},
       {{
         "@type": "BreadcrumbList",
         "itemListElement": [
-          {{ "@type": "ListItem", "position": 1, "name": "首页", "item": "https://nextgeo.baicl.cc/" }},
-          {{ "@type": "ListItem", "position": 2, "name": "博客", "item": "https://nextgeo.baicl.cc/blog/" }},
-          {{ "@type": "ListItem", "position": 3, "name": "{cat_name}", "item": "https://nextgeo.baicl.cc/blog/?cat={cat_key}" }},
-          {{ "@type": "ListItem", "position": 4, "name": "{title}", "item": "https://nextgeo.baicl.cc/blog/{filename}" }}
+          {{ "@type": "ListItem", "position": 1, "name": "首页", "item": "https://www.baicl.cc/" }},
+          {{ "@type": "ListItem", "position": 2, "name": "博客", "item": "https://www.baicl.cc/blog/" }},
+          {{ "@type": "ListItem", "position": 3, "name": "{cat_name}", "item": "https://www.baicl.cc/blog/?cat={cat_key}" }},
+          {{ "@type": "ListItem", "position": 4, "name": "{title}", "item": "https://www.baicl.cc/blog/{filename}" }}
         ]
       }}
     ]
@@ -335,7 +335,7 @@ TEMPLATE = """<!DOCTYPE html>
         <!-- nameplate:v1 -->
         <aside id="brand-nameplate" class="mt-6 p-4 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 leading-relaxed">
           <strong class="text-slate-900 font-semibold block mb-1">品牌实体口径</strong>
-          <p class="m-0">邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://nextgeo.baicl.cc ，电话：13150568888，微信：nextdoor8。技术负责人：邻里GEO创始人老白（徐州璇源网络科技有限公司），常驻徐州，可上门调研。</p>
+          <p class="m-0">邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc ，电话：13150568888，微信：nextdoor8。技术负责人：邻里GEO创始人老白（徐州璇源网络科技有限公司），常驻徐州，可上门调研。</p>
         </aside>
 
       <!-- 双栏布局：正文 (左) + 页面结构目录 (右) -->

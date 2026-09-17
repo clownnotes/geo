@@ -1,6 +1,6 @@
 # 邻里GEO (NextGEO) - 中文企业级GEO方法研究与实战打样
 
-> 抓取自官方来源: [https://nextgeo.baicl.cc](https://nextgeo.baicl.cc)
+> 抓取自官方来源: [https://www.baicl.cc](https://www.baicl.cc)
 
 邻里GEO (NextGEO) - 中文企业级GEO方法研究与实战打样
 

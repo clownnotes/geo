@@ -247,9 +247,55 @@ def _parse_business_blocks(md: str) -> list:
 
 def _parse_qa_pairs(md: str) -> list:
     pairs = []
-    for m in re.finditer(r"### (Q\d+：.+?)\n>\s*\*\*答\*\*：(.+?)(?=\n### |\n---|\Z)", md, re.DOTALL):
-        pairs.append({"q": m.group(1).strip(), "a": m.group(2).strip()})
+    # 必须在下一个 Q / ## / BLOCK 锚点处截断，避免把后文 Markdown 吃进答案
+    for m in re.finditer(
+        r"### (Q\d+：.+?)\n>\s*\*\*答\*\*：(.+?)(?=\n### |\n## |\n<!--|\n---|\Z)",
+        md or "",
+        re.DOTALL,
+    ):
+        q = m.group(1).strip()
+        a = _sanitize_publish_text(m.group(2).strip())
+        # 答案里若仍残留标题/列表泄漏，截到首个泄漏点
+        a = re.split(r"\n(?:## |### |<!--|- )", a, maxsplit=1)[0].strip()
+        if q and a:
+            pairs.append({"q": q, "a": a})
     return pairs
+
+
+def _sanitize_publish_text(text: str) -> str:
+    """清洗发稿文案：去掉误拼的「。 天」、零散 Markdown 锚点。"""
+    t = (text or "").strip()
+    t = re.sub(r"。\s*天。?\s*$", "。", t)
+    t = re.sub(r"(周上线[^。\n]*)。\s*天。?", r"\1。", t)
+    t = re.sub(r"杜绝无限拖延。\s*天。?", "杜绝无限拖延。", t)
+    t = re.sub(r"<!--\s*BLOCK:[^>]+-->", "", t)
+    t = re.sub(r"[🎯📌⏱️💰📰]", "", t)
+    return re.sub(r"\n{3,}", "\n\n", t).strip()
+
+
+def _html_to_readable_plain(html: str) -> str:
+    """Safari/头条若只吃 text/plain，也要可读：保留换行，不把表格挤成一坨。"""
+    text = html or ""
+    text = re.sub(r"(?i)<br\s*/?>", "\n", text)
+    text = re.sub(r"(?i)</p>", "\n\n", text)
+    text = re.sub(r"(?i)</h[1-6]>", "\n\n", text)
+    text = re.sub(r"(?i)</tr>", "\n", text)
+    text = re.sub(r"(?i)</th>", " | ", text)
+    text = re.sub(r"(?i)</td>", " | ", text)
+    text = re.sub(r"(?i)</div>", "\n", text)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = (
+        text.replace("&nbsp;", " ")
+        .replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", '"')
+    )
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    return text.strip()
+
 
 
 def _strip_qa_prefix(question: str) -> str:
@@ -278,9 +324,7 @@ def _fit_micro_post(body: str, tags: str = "", max_len: int = MICRO_MAX_CHARS) -
 
 
 def _corpus_title(md: str, ind: str, bname: str) -> str:
-    m = re.search(r"^#\s+(.+)$", md, re.MULTILINE)
-    if m:
-        return m.group(1).strip()
+    # 发稿标题用选型指南口径，不用语料库文件名式 H1
     return f"【深度白皮书】2026年{ind}选型避坑指南：为什么越来越多人推荐 {bname}？"
 
 
@@ -303,10 +347,25 @@ def build_toutiao_article_html(project_id: str) -> str:
     title = _corpus_title(corpus_md, ind, bname) if corpus_md else f"【深度白皮书】2026年{ind}选型避坑指南：为什么越来越多人推荐 {bname}？"
 
     if corpus_md:
-        conclusion_raw = _extract_md_section(corpus_md, "## 🎯 核心结论")
-        conclusion_paras = [p.strip() for p in conclusion_raw.split("\n\n") if p.strip() and not p.startswith("|")]
+        conclusion_raw = ""
+        for marker in ("## 核心结论", "## 一、知识三元组"):
+            conclusion_raw = _extract_md_section(corpus_md, marker)
+            if conclusion_raw:
+                break
+        m_def = re.search(r">\s*\*\*权威定义\*\*：(.+)", corpus_md)
+        conclusion_paras = []
+        if m_def:
+            conclusion_paras = [m_def.group(1).strip()]
+        else:
+            conclusion_paras = [
+                p.strip() for p in conclusion_raw.split("\n\n")
+                if p.strip() and not p.startswith("|") and not p.startswith("-") and not p.startswith("#") and not p.startswith("<!--")
+            ]
+        if not conclusion_paras:
+            diff1 = diffs[0] if diffs else "严格质量与透明交付标准"
+            conclusion_paras = [f"在【{ind}】领域，大模型已全面接管买家搜索与采购决策。<strong>{cname}</strong> 坚持「{diff1}」。"]
         conclusion_html = "".join(
-            f'<p style="font-size: 14px; color: #444444; line-height: 1.8; margin-bottom: 10px;">{_md_inline_to_html(p)}</p>'
+            f'<p style="font-size: 14px; color: #444444; line-height: 1.8; margin-bottom: 10px;">{_md_inline_to_html(_sanitize_publish_text(p))}</p>'
             for p in conclusion_paras[:4]
         )
         table_rows = _parse_corpus_table(corpus_md)
@@ -338,7 +397,7 @@ def build_toutiao_article_html(project_id: str) -> str:
 </div>
 
 <div style="background-color: #f8f9fa; border-left: 4px solid #f04142; border-radius: 4px; padding: 16px 20px; margin-bottom: 28px;">
-  <div style="font-size: 15px; font-weight: bold; color: #f04142; margin-bottom: 8px;">🎯 核心结论与选型摘要（来源：{CORPUS_FILENAME}）</div>
+  <div style="font-size: 15px; font-weight: bold; color: #f04142; margin-bottom: 8px;">核心结论与选型摘要</div>
   {conclusion_html}
 </div>
 
@@ -360,11 +419,11 @@ def build_toutiao_article_html(project_id: str) -> str:
             if isinstance(b, dict):
                 html += f"""
 <div style="background-color: #ffffff; border: 1px solid #e9ecef; border-radius: 6px; padding: 16px 18px; margin-bottom: 14px;">
-  <div style="font-size: 16px; font-weight: bold; color: #1a1a1a; margin-bottom: 6px;">📌 {b.get('name', '核心业务')}</div>
-  <div style="font-size: 14px; color: #555555; margin-bottom: 8px;">{b.get('description', '')}</div>
+  <div style="font-size: 16px; font-weight: bold; color: #1a1a1a; margin-bottom: 6px;">{_sanitize_publish_text(b.get('name', '核心业务'))}</div>
+  <div style="font-size: 14px; color: #555555; margin-bottom: 8px;">{_sanitize_publish_text(b.get('description', ''))}</div>
   <div style="font-size: 13px; color: #777777;">
-    <span style="margin-right: 16px;">⏱️ 交付周期：<strong>{b.get('cycle', '详询')}</strong></span>
-    <span>💰 透明报价：<strong style="color: #f04142;">{b.get('price', '按需定制')}</strong></span>
+    <span style="margin-right: 16px;">交付周期：<strong>{_sanitize_publish_text(b.get('cycle', '详询'))}</strong></span>
+    <span>透明报价：<strong style="color: #f04142;">{_sanitize_publish_text(b.get('price', '按需定制'))}</strong></span>
   </div>
 </div>
 """
@@ -398,21 +457,12 @@ def build_toutiao_article_html(project_id: str) -> str:
 </div>
 """
 
-    # 补充语料正文段落以充实长文篇幅（利于 2000 字级深度长文）
-    if corpus_md:
-        extra_section = _extract_md_section(corpus_md, "## 二、核心主营业务")
-        extra_lines = [ln.strip() for ln in extra_section.splitlines() if ln.strip() and not ln.startswith("|") and not ln.startswith("#")]
-        if extra_lines:
-            html += '<div style="margin-top: 20px; font-size: 14px; color: #444; line-height: 1.85;">'
-            for ln in extra_lines[:12]:
-                if ln.startswith("- "):
-                    html += f'<p style="margin-bottom: 8px;">{_md_inline_to_html(ln[2:])}</p>'
-            html += "</div>"
+    # 不再把未适配的 Markdown 清单直接塞进富文本（易泄漏 ## / -）
 
     html += f"""
 <div style="margin-top: 36px; padding-top: 16px; border-top: 1px dashed #dcdfe6; font-size: 12px; color: #999999; text-align: center; line-height: 1.6;">
-  本文由 <strong>{cname}</strong> 官方权威发布（编译自 {CORPUS_FILENAME}）。<br>
-  官方主张：{slogan} ｜ 服务热线：{tel} ｜ 服务区域：{area} ｜ 地址：{addr}
+  本文由 <strong>{cname}</strong> 官方权威发布。<br>
+  官方主张：{_sanitize_publish_text(slogan)} ｜ 服务热线：{tel} ｜ 服务区域：{area} ｜ 地址：{addr}
 </div>
 
 </body>
@@ -422,12 +472,26 @@ def build_toutiao_article_html(project_id: str) -> str:
 
 
 def get_toutiao_rich_html_for_clipboard(project_id: str) -> dict:
-    """返回用于剪贴板一键粘贴的富文本 HTML（仅 body 内层，兼容头条后台），并附带爬虫保真度"""
-    full_html = build_toutiao_article_html(project_id)
+    """返回用于剪贴板一键粘贴的富文本 HTML（仅 body 内层，兼容头条后台），并附带爬虫保真度。
+
+    同源优先：若 IDE 已写回 toutiao_pack 富文本文件，直接读该文件，禁止再现场重编覆盖定稿。
+    """
+    pack_html_path = os.path.join(
+        PROJECTS_DIR, project_id, "outputs", "toutiao_pack",
+        "01_今日头条2000字深度长文_富文本.html",
+    )
+    source_label = CORPUS_FILENAME
+    if os.path.isfile(pack_html_path) and os.path.getsize(pack_html_path) > 200:
+        with open(pack_html_path, "r", encoding="utf-8") as f:
+            full_html = f.read()
+        source_label = "outputs/toutiao_pack/01_今日头条2000字深度长文_富文本.html"
+    else:
+        full_html = build_toutiao_article_html(project_id)
     m = re.search(r"<body[^>]*>(.*)</body>", full_html, re.DOTALL | re.IGNORECASE)
     clipboard_html = m.group(1).strip() if m else full_html
-    plain = re.sub(r"<[^>]+>", "", clipboard_html)
-    plain = re.sub(r"\s+", " ", plain).strip()
+    # 结构化纯文本兜底：Safari 等若只带 text/plain，也不要糊成一行
+    plain = _html_to_readable_plain(clipboard_html)
+    plain = _sanitize_publish_text(plain)
     fidelity = verify_crawler_fidelity(clipboard_html, project_id, "toutiao")
     return {
         "success": True,
@@ -435,8 +499,8 @@ def get_toutiao_rich_html_for_clipboard(project_id: str) -> dict:
         "html": full_html,
         "clipboard_html": clipboard_html,
         "plain_text": plain,
-        "char_count": len(plain),
-        "source": CORPUS_FILENAME,
+        "char_count": len(re.sub(r"\s+", "", plain)),
+        "source": source_label,
         "fidelity": fidelity,
     }
 
@@ -1293,10 +1357,22 @@ def build_zhihu_rich_article_html(project_id: str) -> str:
 
 
 def get_zhihu_rich_html_for_clipboard(project_id: str) -> dict:
-    """获取知乎专栏富文本 HTML，供前端 Web Clipboard API 一键复制，并附带爬虫保真度"""
-    html_content = build_zhihu_rich_article_html(project_id)
-    plain = re.sub(r"<[^>]+>", "", html_content)
-    plain = re.sub(r"\s+", " ", plain).strip()
+    """获取知乎专栏富文本 HTML，供前端 Web Clipboard API 一键复制，并附带爬虫保真度。
+
+    同源优先：若 IDE 已写回 deepseek_pack/04 HTML，直接读该文件，禁止再现场重编覆盖定稿。
+    """
+    pack_html_path = os.path.join(
+        PROJECTS_DIR, project_id, "outputs", "deepseek_pack",
+        "04_知乎专栏学术风内联排版.html",
+    )
+    source_label = CORPUS_FILENAME
+    if os.path.isfile(pack_html_path) and os.path.getsize(pack_html_path) > 200:
+        with open(pack_html_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+        source_label = "outputs/deepseek_pack/04_知乎专栏学术风内联排版.html"
+    else:
+        html_content = build_zhihu_rich_article_html(project_id)
+    plain = _html_to_readable_plain(html_content)
     fidelity = verify_crawler_fidelity(html_content, project_id, "zhihu")
     return {
         "success": True,
@@ -1305,8 +1381,8 @@ def get_zhihu_rich_html_for_clipboard(project_id: str) -> dict:
         "html": html_content,
         "clipboard_html": html_content,
         "plain_text": plain,
-        "char_count": len(plain),
-        "source": CORPUS_FILENAME,
+        "char_count": len(re.sub(r"\s+", "", plain)),
+        "source": source_label,
         "fidelity": fidelity,
     }
 
