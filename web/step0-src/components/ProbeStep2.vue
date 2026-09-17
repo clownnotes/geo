@@ -39,6 +39,11 @@
             <i data-lucide="refresh-cw" class="w-3 h-3"></i>刷新列表
           </button>
         </div>
+        <!-- [2026-09-17] [阶段零出题落盘] 固定说明：只显示已保存文件，聊天未落盘不出现 -->
+        <div class="px-2.5 py-1.5 rounded bg-slate-50 border border-slate-200 text-[10px] text-slate-600 flex items-start gap-1.5">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5"></i>
+          <span>这里只显示电脑里<strong>已经保存</strong>的问题清单。Cursor 聊天里列过题、但还没说「可以落盘」的，不会出现在这里。保存后请点本区「刷新列表」。</span>
+        </div>
         <p class="text-[10px] text-slate-500">
           下面按<strong>时间新→旧</strong>列出所有问题清单。点选一份 = 本轮拿去问豆包的那份；点「预览」看题目；点「删除」只删这一份文件（删前会再问你一次）。
         </p>
@@ -54,9 +59,7 @@
           @delete="$emit('delete-script', $event)"
         />
 
-        <p class="text-[10px] text-slate-400 font-mono break-all">
-          当前选用：<code>{{ scriptPathRel }}</code>
-        </p>
+        <p class="text-[10px] text-slate-400 font-mono break-all">当前选用：<code>{{ scriptPathRel }}</code></p>
 
         <!-- 题目预览卡片 -->
         <div class="border border-slate-100 rounded-md px-2.5 py-2 bg-white">
@@ -89,13 +92,8 @@
         <div class="space-y-2 border-t border-amber-200/80 pt-3">
           <div class="text-[11px] font-semibold text-slate-800">① 先复制「怎么问」的说明，贴到反重力</div>
           <p class="text-[10px] text-slate-500">这里写的是规矩：用已登录的豆包、按顺序问、怎么记答案。贴完先别让它开跑，马上做 ②。</p>
-          <button
-            type="button"
-            class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[11px] font-semibold flex items-center justify-center gap-1.5"
-            @click="$emit('copy-antigravity-prompt')"
-          >
-            <i data-lucide="bot" class="w-3.5 h-3.5"></i>
-            <span>复制①怎么问（贴反重力）</span>
+          <button type="button" class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[11px] font-semibold flex items-center justify-center gap-1.5" @click="$emit('copy-antigravity-prompt')">
+            <i data-lucide="bot" class="w-3.5 h-3.5"></i><span>复制①怎么问（贴反重力）</span>
           </button>
         </div>
 
@@ -195,13 +193,5 @@ defineProps({
   checkingDisk: { type: Boolean, default: false },
 });
 
-defineEmits([
-  'refresh-script-list',
-  'select-script',
-  'delete-script',
-  'copy-antigravity-prompt',
-  'copy-antigravity-save-prompt',
-  'copy-cmd',
-  'check-result-on-disk',
-]);
+defineEmits(['refresh-script-list', 'select-script', 'delete-script', 'copy-antigravity-prompt', 'copy-antigravity-save-prompt', 'copy-cmd', 'check-result-on-disk']);
 </script>
