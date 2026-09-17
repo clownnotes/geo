@@ -1,6 +1,6 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "generated_at": "2026-09-12T17:22:29Z",
+  "generated_at": "2026-09-17T12:46:07Z",
   "fulfillment_rate": 71.6,
   "manifest_summary": {
     "total_files": 16,
@@ -44,7 +44,7 @@
       "file": "04_全网分发渠道执行与存活台账.md",
       "stage": "S4 矩阵分发",
       "exists": true,
-      "size": 2632
+      "size": 2421
     },
     {
       "index": "05",

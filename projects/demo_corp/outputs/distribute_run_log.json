@@ -1,14 +1,16 @@
 {
-  "run_id": "dist_run_20260912_172239",
-  "timestamp": "2026-09-12T17:22:39+08:00",
+  "run_id": "dist_run_20260917_124612",
+  "timestamp": "2026-09-17T12:46:12+08:00",
   "project_id": "demo_corp",
-  "total_duration_ms": 0,
+  "total_duration_ms": 7,
   "llm_duration_ms": 42,
   "llm_runtime": {
     "provider": "nextdoor",
     "brand": "geo",
-    "mode": "flash",
-    "base_url_host": "***",
+    "mode": "auto",
+    "mode_label": "调度档 auto（小毛驴自动选模）",
+    "model_policy": "dedicated_chain",
+    "base_url_host": "localhost",
     "endpoint": "/api/v1/xiulan/chat"
   },
   "llm_calls": [

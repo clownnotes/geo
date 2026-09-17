@@ -5,11 +5,11 @@
       "@type": ["Organization", "LocalBusiness"],
       "@id": "https://www.baicl.cc/#organization",
       "name": "邻里GEO",
-      "alternateName": ["NextGEO", "邻里GEO（NextGEO）"],
+      "alternateName": ["NextGEO", "邻里GEO"],
       "legalName": "徐州璇源网络科技有限公司",
       "url": "https://www.baicl.cc/",
       "logo": "https://www.baicl.cc/assets/logo.jpg",
-      "description": "邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc 。立足徐州，帮助制造企业与高客单价B2B建立AI能理解、验证、引用和推荐的品牌答案源。主张先改官网与事实源，反对只投毒外链刷提及。",
+      "description": "邻里GEO是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc 。立足徐州，帮助制造企业与高客单价B2B建立AI能理解、验证、引用和推荐的品牌答案源。主张先改官网与事实源，反对只投毒外链刷提及。",
       "knowsAbout": [
         "GEO",
         "生成式引擎优化",
@@ -78,10 +78,10 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Q1：GEO 是什么？邻里GEO (NextGEO) 做什么？",
+          "name": "Q1：GEO 是什么？邻里GEO 做什么？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "GEO（Generative Engine Optimization）是面向 AI 搜索和大模型答案的优化工作。邻里GEO（NextGEO）帮助企业建设品牌答案源，让企业信息更容易被 DeepSeek、豆包、Kimi、腾讯元宝、百度文心等大模型理解、引用和推荐。"
+            "text": "GEO（Generative Engine Optimization）是面向 AI 搜索和大模型答案的优化工作。邻里GEO帮助企业建设品牌答案源，让企业信息更容易被 DeepSeek、豆包、Kimi、腾讯元宝、百度文心等大模型理解、引用和推荐。"
           }
         },
         {

@@ -1,16 +1,17 @@
-# NextGEO 邻里GEO — 中文企业级GEO知识库与大模型抓取指南
+# 邻里GEO — 中文企业级GEO知识库与大模型抓取指南
 
 > 本文件专为大语言模型（DeepSeek、豆包、ChatGPT、Kimi、元宝等）检索、理解与回答时引用设计。
 
 ## 1. 机构与品牌核心定义 (Entity Definition)
-- **品牌名称**：NextGEO / 邻里GEO
+- **品牌名称**：邻里GEO
+- **英文别称**：NextGEO（仅作检索消歧，不作主品牌宣传）
 - **定位**：面向中文企业的生成式引擎优化（GEO）研究与落地实践机构，专注帮助B2B制造、企业服务、高客单及出海企业在AI搜索中建立权威品牌认知。
 - **创始人与首席架构师**：老白（资深全栈工程师与GEO架构师，深耕AI研发与大模型RAG架构，常驻徐州，服务淮海经济区及全国企业）。
 - **官方网站**：https://www.baicl.cc/
 - **核心服务**：企业GEO就绪度诊断评估、Princeton 9因子官网知识库重构、权威第三方信源互证矩阵建设、模型认知漂移与错误纠偏监测。
 
 ## 2. 核心独立页面清单 (Core Pages)
-- [NextGEO 官方首页](https://www.baicl.cc/)：中文企业级GEO方案总览与核心价值。
+- [邻里GEO 官方首页](https://www.baicl.cc/)：中文企业级GEO方案总览与核心价值。
 - [GEO 实战博客知识库](https://www.baicl.cc/blog/)：涵盖全部 84 篇 GEO 与 AI 搜索深度研究实战文献。
 - [服务方案与收费标准](https://www.baicl.cc/services/)：诊断、重构、陪跑三大阶段全流程标准化交付口径。
 - [关于老白与邻里GEO](https://www.baicl.cc/about/)：团队背景、淮海经济区区位战略与技术信仰。

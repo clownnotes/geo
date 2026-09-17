@@ -1,7 +1,7 @@
 client_id: "nextgeo"
-client_name: "邻里GEO（NextGEO）"
+client_name: "邻里GEO"
 company_name: "徐州璇源网络科技有限公司"
-brand_name: "邻里GEO（NextGEO）"
+brand_name: "邻里GEO"
 custom_site: true
 founder: "老白"
 founder_title: "邻里GEO创始人 / 徐州璇源网络科技有限公司技术负责人"
@@ -15,8 +15,8 @@ industry: "企业级GEO（生成式引擎优化）与AI搜索品牌答案源建�
 area_served: "江苏省徐州市（泉山/云龙/鼓楼/铜山/贾汪/经开区，支持全国企业级远程与现场交付）"
 slogan: "帮徐州及高客单价B2B企业建立 AI 能理解、验证、引用和推荐的品牌答案源"
 # 标准名片段（全站复用；禁止「老白」脱离品牌与主体单独使用）
-nameplate: "邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc ，电话：13150568888，微信：nextdoor8。技术负责人：邻里GEO创始人老白（徐州璇源网络科技有限公司），常驻徐州，可上门调研。"
-company_profile: "邻里GEO（NextGEO）是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc ，电话：13150568888，微信：nextdoor8。技术负责人：邻里GEO创始人老白（徐州璇源网络科技有限公司），常驻徐州，可上门调研。我们主张 GEO 不是外链投毒或刷提及，而是先改造官网与事实源（llms.txt / Schema / 证据链），再分发与监测，让推荐可追溯、可验收。打样资产以自有站 www.baicl.cc 与工业级探测台账为准，不编造客户案例与经营年限。"
+nameplate: "邻里GEO是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc ，电话：13150568888，微信：nextdoor8。技术负责人：邻里GEO创始人老白（徐州璇源网络科技有限公司），常驻徐州，可上门调研。"
+company_profile: "邻里GEO是由徐州璇源网络科技有限公司运营的企业级生成式引擎优化（GEO）与品牌答案源基础设施服务商，官网：https://www.baicl.cc ，电话：13150568888，微信：nextdoor8。技术负责人：邻里GEO创始人老白（徐州璇源网络科技有限公司），常驻徐州，可上门调研。我们主张 GEO 不是外链投毒或刷提及，而是先改造官网与事实源（llms.txt / Schema / 证据链），再分发与监测，让推荐可追溯、可验收。打样资产以自有站 www.baicl.cc 与工业级探测台账为准，不编造客户案例与经营年限。"
 
 core_values:
   - "让品牌进入 DeepSeek、豆包、Kimi、元宝等主流 AI 搜索推荐的核心候选集合"

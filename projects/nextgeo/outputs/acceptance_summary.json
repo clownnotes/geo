@@ -1,20 +1,18 @@
 {
   "project_id": "nextgeo",
-  "generated_at": "2026-09-07T00:15:45Z",
-  "fulfillment_rate": 85.0,
+  "generated_at": "2026-09-17T12:57:17Z",
+  "fulfillment_rate": 89.3,
   "manifest_summary": {
     "total_files": 16,
-    "generated_files": 5,
-    "missing_files": 11,
-    "generation_rate_pct": 31.2,
+    "generated_files": 7,
+    "missing_files": 9,
+    "generation_rate_pct": 43.8,
     "missing_items": [
       "大模型真实API评测与Citation捕获报告",
       "事实幻觉纠偏与信源反击策略",
       "差异化对比图与架构全景图 (SVG)",
       "短视频口播高转化脚本",
       "企业行业实体关系知识图谱 (Graph RAG)",
-      "三级意图挖掘与长尾关键词裂变拓扑",
-      "大模型爬虫仿真与RAG分块检索诊断报告",
       "多渠道内容合规与广告法风控审查报告",
       "竞对大模型声量差距深度逆向与反超作战沙盘",
       "大模型Citation信源权威度与外链信任度评分报告",
@@ -29,7 +27,7 @@
       "file": "01_企业AI可见度现状体检与商业诊断报告.md",
       "stage": "S1 调研诊断",
       "exists": true,
-      "size": 13048
+      "size": 9584
     },
     {
       "index": "02",
@@ -38,7 +36,7 @@
       "file": "02_站点技术底座改造交付包.md",
       "stage": "S2 站点改造",
       "exists": true,
-      "size": 1555
+      "size": 1785
     },
     {
       "index": "03",
@@ -47,16 +45,16 @@
       "file": "03_普林斯顿9因子高权威语料库.md",
       "stage": "S3 内容重构",
       "exists": true,
-      "size": 5784
+      "size": 3918
     },
     {
       "index": "04",
       "key": "distribute",
       "name": "全网分发渠道执行与存活台账",
-      "file": "04_多平台矩阵借壳分发包.md",
+      "file": "04_全网分发渠道执行与存活台账.md",
       "stage": "S4 矩阵分发",
       "exists": true,
-      "size": 1432
+      "size": 2344
     },
     {
       "index": "05",
@@ -65,7 +63,7 @@
       "file": "05_企业AI可见度与声量追踪周报.md",
       "stage": "S5 验收运维",
       "exists": true,
-      "size": 6193
+      "size": 3810
     },
     {
       "index": "06",
@@ -118,8 +116,8 @@
       "name": "三级意图挖掘与长尾关键词裂变拓扑",
       "file": "11_三级搜索意图挖掘与长尾关键词裂变拓扑.md",
       "stage": "S1/S3 意图拓扑",
-      "exists": false,
-      "size": 0
+      "exists": true,
+      "size": 10665
     },
     {
       "index": "12",
@@ -127,8 +125,8 @@
       "name": "大模型爬虫仿真与RAG分块检索诊断报告",
       "file": "12_大模型爬虫抓取仿真与RAG分块检索诊断报告.md",
       "stage": "S2/S3 命中诊断",
-      "exists": false,
-      "size": 0
+      "exists": true,
+      "size": 4460
     },
     {
       "index": "13",

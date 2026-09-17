@@ -2108,24 +2108,15 @@
 </select>
 </div>
 <div>
-<details class="rounded-lg border border-dashed border-slate-200 bg-slate-50/80 open:bg-white">
-<summary class="cursor-pointer select-none px-3 py-2 text-xs font-semibold text-slate-600">高级（一般不用）：以后再说的选题备注 / 已知竞品</summary>
-<div class="px-3 pb-3 space-y-3 border-t border-slate-100 pt-3">
-<p class="text-[10px] text-amber-800 bg-amber-50 border border-amber-100 rounded-md px-2 py-1.5">创建时<strong>不要</strong>填意图词库和竞品。正确顺序：建壳 → 阶段零用真人长问探活 → 回填后再慢慢加选题。这里仅留给「客户已口头给过几条长问」的例外。</p>
-<div>
-<label class="block font-semibold text-slate-700 mb-1">已知选题长问 <span class="font-normal text-slate-400">（可选，可空）</span></label>
-<textarea id="np-keywords" rows="2" placeholder="可空。每行一条真人完整问句；短词如「徐州GEO」不要填。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-</textarea>
+<label class="block font-semibold text-slate-700 mb-1">客户期望完善的问题库 <span class="font-normal text-slate-400">（可选）</span></label>
+<textarea id="np-keywords" rows="3" placeholder="可空。沟通时客户说了「买家会搜什么 / 希望 AI 能答好什么」，每行一条完整问句写这里，当作初始选题；短词如「徐州GEO」不要填。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+<p class="text-[10px] text-slate-400 mt-1">有就填，没有就空着。系统不会在创建页自动出题。</p>
 </div>
 <div>
-<label class="block font-semibold text-slate-700 mb-1">已知竞品 <span class="font-normal text-slate-400">（可选，可空）</span></label>
-<textarea id="np-competitors" rows="2" placeholder="可空。不要编假名；探活后从豆包回答里勾选回填更准。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-</textarea>
+<label class="block font-semibold text-slate-700 mb-1">已知竞品 <span class="font-normal text-slate-400">（可选）</span></label>
+<textarea id="np-competitors" rows="2" placeholder="可空。客户点名要对标谁，每行一个；没说清楚就空着，等阶段零探活从豆包回答里再勾。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
 </div>
-</div>
-</details>
-</div>
-<p class="text-[10px] text-slate-400">创建成功后进入<strong>阶段零：侦察建档</strong>。先问豆包几句真人会问的话，看它认不认识你们、推谁；选题与竞品探完再回填，不要在创建时硬编。</p>
+<p class="text-[10px] text-slate-400">创建成功后进入<strong>阶段零：侦察建档</strong>。上面填过的问句/竞品会作为初始版本；没填的，用真人长问探活后再回填补齐。</p>
 <div class="pt-2 flex items-center justify-end gap-3">
 <button type="button" onclick="closeNewProjectModal()" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition">取消</button>
 <button type="submit" class="py-2 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs shadow transition">创建并进入侦察引导</button>
@@ -6727,7 +6718,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const data = await res.json();
         if (data.success) {
           closeNewProjectModal();
-          showToast(`项目 [${payload.client_id}] 已建壳。请先做阶段零探活（选题/竞品探完再回填），不要在创建时硬编词库。`);
+          showToast(`项目 [${payload.client_id}] 已建壳。下一步：阶段零探活。创建时若已填问句/竞品，会当作初始版本保留。`);
           enterWizard(payload.client_id, 'step-0-probe');
         } else {
           showToast(data.message || '创建失败！', 'error');
@@ -7465,41 +7456,60 @@ function backToDashboard() {
       const isRetest = st === 'baseline_ready' || st === 'awaiting_retest';
       const outRel = `projects/${pid}/outputs`;
       const draftPath = `${outRel}/probe_script_draft.json`;
+      const kw = Array.isArray(currentProjectData && currentProjectData.keywords)
+        ? currentProjectData.keywords.filter((x) => String(x || '').trim())
+        : [];
+      const kwBlock = kw.length
+        ? [
+            `创建时「客户期望完善的问题库」（来自 project.yaml keywords，共 ${kw.length} 条）——必须优先纳入题单：`,
+            ...kw.slice(0, 40).map((q, i) => `${i + 1}. ${String(q).trim()}`),
+            kw.length > 40 ? `…另有 ${kw.length - 40} 条见 project.yaml` : '',
+            `规则：像真人长问的保留；短词/SEO 渣词在对话里说明后丢掉，不要默默塞进剧本。`
+          ].filter(Boolean).join('\n')
+        : `创建时「客户期望完善的问题库」目前为空：题单全部由你按失败点/维度新写，仍须像真人会问的话。`;
       const retestHint = isRetest
         ? [
             `本项目 probe_status=${st || '已有基线'}：优先写【复测剧本】，不要从零瞎编首轮题。`,
             `- 先读 ${outRel}/ 下最新 competitor_probe_*.json 与已有 probe_script_*.json（尤其 retest / remaining）。`,
             `- 针对首轮失败点出题：品牌误解、人物串台、URL 缺失、竞品占位等。`,
-            `- 文件名建议：probe_script_retest_roundN.json 或沿用/改写已有复测稿；若只改草稿也可写 ${draftPath}。`,
-            `- 可含 baseline_note / pass_hints / compare_fields（参考已有 retest 文件结构）。`
+            `- 文件名建议：probe_script_retest_roundN.json；若只改草稿可写 ${draftPath}。`,
+            `- 可含 baseline_note / pass_hints / compare_fields（参考已有 retest 结构）。`
           ].join('\n')
         : [
-            `本项目尚处首轮侦察：写出 6～10 条首轮必测题到 ${draftPath}。`,
+            `本项目尚处首轮侦察：写出 6～10 条首轮探活题（定稿后写入 ${draftPath}）。`,
             `- 首轮【不要】在题干里点名竞品；竞品从模型回答里抽。`
           ].join('\n');
       return [
-        `【GEO 阶段 0 · 高质量必测题】`,
+        `【GEO 阶段 0 · 高质量必测题】（任意 IDE 均可）`,
         `客户项目：${pid}`,
         `仓库根目录请先确认，再读写文件。`,
         ``,
         `请先阅读：`,
-        `- projects/${pid}/project.yaml`,
-        `- docs/specs/llm-browser-probe-sop.md（出题维度与 JSON 骨架）`,
+        `- projects/${pid}/project.yaml（含一句话业务、客户期望问题库 keywords）`,
+        `- docs/specs/llm-browser-probe-sop.md`,
+        `- openspec/changes/2026-09-16-创建与阶段零先探活再长问选题/design.md 第 C/E 节（人味长问、先聊后盘）`,
         `- ${outRel}/ 下已有 probe_script_*.json / competitor_probe_*.json（若有）`,
+        ``,
+        kwBlock,
         ``,
         retestHint,
         ``,
-        `质量标准（强制）：`,
-        `1. 题干必须像真人会搜/会问的短句（例：「徐州GEO优化公司哪家好」），禁止把整段行业长描述塞进一句搜索框。`,
-        `2. 覆盖维度尽量齐全：品类选型、价格/坑、品牌认知、官网 URL、人物锚点（若有）、全国/区域名单；按客户实情取舍。`,
-        `3. 每条含 query；尽量含 follow_up（短、可执行）；dimension 可用中文标签。`,
-        `4. 直接写入 UTF-8 JSON 文件，不要只在聊天里列题不落盘。`,
-        `5. 写完后用一两句话说明：覆盖了哪些维度、相对模板好在哪里。`,
+        `【工作方式 · 强制】`,
+        `1. 先在对话框列出拟问清单：编号、问句、维度、为何要问（一两句）。不要一上来就只写文件不说话。`,
+        `2. 等人看过、改过；人说「可以落盘」或「直接落盘」后再写 UTF-8 JSON。`,
+        `3. 落盘后仍须在回复里完整复述最终题单，方便继续探讨。`,
         ``,
-        `JSON 最低结构示例：`,
+        `【问句质量 · 强制】`,
+        `1. 像真人会说的话（可带场景/角色，如老板/采购「我想…」）；禁止 SEO 关键词串、禁止把行业长描述塞进一句搜索框。`,
+        `2. 「徐州GEO优化公司哪家好」这类模板可作维度参考，但须改写成更有人味的说法再用作主问句（除非客户期望库原文就是这样且人确认保留）。`,
+        `3. 维度尽量覆盖：品类选型、价格/坑、品牌认知、官网、人物锚点、场景；凑维度不能牺牲人味。`,
+        `4. 每条含 query；尽量含 follow_up（短、可执行）；dimension 可用中文。`,
+        `5. 朋友竞品 SOP 里的榜单检索式、geoScore 表不要写成探活题。`,
+        ``,
+        `JSON 最低结构：`,
         `{ "project_id": "${pid}", "items": [ { "query": "...", "dimension": "...", "follow_up": "..." } ] }`,
         ``,
-        `写完后我会在管理台刷新「第二步」加载题单，再交给反重力在已登录豆包实战。`
+        `写完落盘后：人在管理台刷新第二步加载题单，再交反重力用开工说明书去豆包实战。`
       ].join('\n');
     }
 
@@ -13427,11 +13437,10 @@ function backToDashboard() {
       document.getElementById('benchmark-modal').classList.add('hidden');
     }
 
-    // 创建弹窗已不再提供「生成必测题」；保留函数避免旧缓存报错，引导去阶段零
+    // 创建弹窗已永久去掉「生成必测题草稿」；旧缓存若仍调用则忽略
     async function handleAutoGenerateIntent(e) {
       if (e) e.preventDefault();
-      showToast('必测题请在「阶段零」用 Cursor 出题或模板保底生成，创建时不要灌词库。', 'error');
-      closeNewProjectModal();
+      return;
     }
 
     // ===== 大模型爬虫抓取仿真器控制器 =====

@@ -1,0 +1,77 @@
+{
+  "project_id": "nextgeo",
+  "title": "邻里GEO 第三轮豆包复测剧本（官网已切 www.baicl.cc 后）",
+  "created_at": "2026-09-17T13:42:00+08:00",
+  "baseline_ref": "probe:doubao:20260913",
+  "preconditions": [
+    "官方域名已统一为 https://www.baicl.cc（弃用 nextgeo.baicl.cc）",
+    "全站名片段 / llms.txt / about 已指向 www.baicl.cc，且已推生产",
+    "用已登录 Safari 打开豆包【新聊天】，勿复用旧对话"
+  ],
+  "compare_fields": [
+    "mentioned_self",
+    "url_present",
+    "standpoint",
+    "hallucination_detected",
+    "competitors_extracted"
+  ],
+  "pass_hints": [
+    "品类题至少能出现璇源 / 邻里GEO / baicl.cc 之一，不再只被亿企邦/企优托占满",
+    "品牌题不再把「邻里GEO」解构成同城小商户/社区3公里GEO概念",
+    "人物题能把老白绑到徐州璇源 + 邻里GEO，不再判成无资质个人工作室",
+    "品牌反查官网能出现 https://www.baicl.cc（仅旧域不算通过）",
+    "主体题保持：璇源 = GEO/答案源 + www.baicl.cc（回归，防回退）"
+  ],
+  "items": [
+    {
+      "query": "徐州GEO优化公司哪家好",
+      "dimension": "品类选型",
+      "follow_up": "请列出具体公司名称、官网（若有）和一句话定位；若不确定请标明不确定。",
+      "baseline_note": "20260913 仍未提我方；亿企邦/企优托/生意邦等占位"
+    },
+    {
+      "query": "邻里GEO是做什么的",
+      "dimension": "品牌认知",
+      "follow_up": "它和徐州璇源网络科技有限公司是什么关系？有没有官网？",
+      "baseline_note": "20260913 仍误解为社区下沉GEO，并幻觉无关主体"
+    },
+    {
+      "query": "徐州找老白做GEO靠谱吗",
+      "dimension": "人物锚点",
+      "follow_up": "他和邻里GEO、徐州璇源网络是不是同一团队？有没有公司主体？",
+      "baseline_note": "20260913 仍判个人无资质IP，未绑璇源/邻里GEO"
+    },
+    {
+      "query": "邻里GEO官网是什么",
+      "dimension": "官网URL",
+      "follow_up": "目标是否出现 https://www.baicl.cc；若只出现 nextgeo.baicl.cc 请标明；没有就说没有。",
+      "baseline_note": "20260913 品牌词下官网完全失联"
+    },
+    {
+      "query": "徐州璇源网络科技有限公司做什么的",
+      "dimension": "主体认知（回归）",
+      "follow_up": "官网是不是 https://www.baicl.cc？和邻里GEO是什么关系？",
+      "baseline_note": "20260913 已打通主体+官网；本轮防回退并强化与品牌绑定"
+    },
+    {
+      "query": "企业做GEO一般有哪些坑",
+      "dimension": "价格与坑",
+      "follow_up": "怎么分辨靠谱服务商和不靠谱外包？",
+      "baseline_note": "前两轮未覆盖避坑维；看回答是否只推竞品话术、能否提到源码/证据/可验收"
+    },
+    {
+      "query": "徐州制造业想做AI搜索获客找谁",
+      "dimension": "场景/区域名单",
+      "follow_up": "有没有本地能上门、又做企业级GEO答案源的团队？",
+      "baseline_note": "对准高客单价B2B场景，测是否仍只推代运营站、不提璇源/邻里GEO"
+    },
+    {
+      "query": "www.baicl.cc是什么网站",
+      "dimension": "URL反查",
+      "follow_up": "和邻里GEO、徐州璇源有没有关系？",
+      "baseline_note": "正向品牌→URL失败；本轮反向URL→品牌，检验域名是否已被认作官方站"
+    }
+  ],
+  "output_path_hint": "projects/nextgeo/outputs/competitor_probe_doubao_{YYYYMMDD}_retest.json",
+  "output_path_note": "YYYYMMDD 为落盘当天日期；管理台会换成真实日期。落盘前文件不存在属正常。"
+}
