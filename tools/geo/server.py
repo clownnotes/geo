@@ -502,7 +502,11 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         if path == "/api/portfolio/patrol":
             try:
                 from .portfolio import run_portfolio_health_patrol
-                res = run_portfolio_health_patrol()
+                ident = self.rbac_identity()
+                allowed = None if (ident and ident.is_developer) else list(
+                    (ident.allowed_projects if ident else []) or []
+                )
+                res = run_portfolio_health_patrol(allowed_project_ids=allowed)
                 self.send_json(res)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
@@ -3762,7 +3766,11 @@ server {{
             if path == "/api/portfolio/summary":
                 try:
                     from .portfolio import get_portfolio_summary
-                    summary = get_portfolio_summary()
+                    ident = self.rbac_identity()
+                    allowed = None if (ident and ident.is_developer) else list(
+                        (ident.allowed_projects if ident else []) or []
+                    )
+                    summary = get_portfolio_summary(allowed_project_ids=allowed)
                     self.send_json(summary)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
@@ -3772,7 +3780,13 @@ server {{
             if path == "/api/portfolio/report":
                 try:
                     from .portfolio import generate_portfolio_executive_report
-                    rep = generate_portfolio_executive_report()
+                    ident = self.rbac_identity()
+                    is_dev = bool(ident and ident.is_developer)
+                    allowed = None if is_dev else list((ident.allowed_projects if ident else []) or [])
+                    # 运营预览不覆盖全站报告落盘
+                    rep = generate_portfolio_executive_report(
+                        allowed_project_ids=allowed, write_disk=is_dev
+                    )
                     self.send_json(rep)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)

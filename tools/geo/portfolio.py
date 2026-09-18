@@ -110,12 +110,19 @@ def evaluate_project_risk(p_card: dict) -> tuple:
     return "normal", reasons_ok
 
 
-def get_portfolio_summary() -> dict:
+def get_portfolio_summary(allowed_project_ids=None) -> dict:
     """
     聚合全域多项目全景商业资产大盘
-    严格执行落盘优先读取与组合财务 ROI 计算公式
+    严格执行落盘优先读取与组合财务 ROI 计算公式。
+
+    allowed_project_ids:
+      - None：开发者视角，扫描全部托管项目；
+      - 可迭代：运营视角，只聚合白名单内的项目（汇总数字也只算这些，避免他户泄露）。
     """
     project_ids = scan_managed_projects()
+    if allowed_project_ids is not None:
+        allow = {str(x) for x in allowed_project_ids}
+        project_ids = [p for p in project_ids if str(p) in allow]
     project_cards = []
 
     for pid in project_ids:
@@ -318,13 +325,13 @@ def get_portfolio_summary() -> dict:
     }
 
 
-def run_portfolio_health_patrol() -> dict:
+def run_portfolio_health_patrol(allowed_project_ids=None) -> dict:
     """
     执行全域多项目只读健康扫描与红黑榜生成
     职责：基于各项目落盘 JSON 快速评估风险，不发 Webhook、不重跑 monitor 写库
     """
     start_time = time.time()
-    summary = get_portfolio_summary()
+    summary = get_portfolio_summary(allowed_project_ids=allowed_project_ids)
     cards = summary.get("project_cards", [])
 
     danger_list = []
@@ -368,12 +375,14 @@ def run_portfolio_health_patrol() -> dict:
     }
 
 
-def generate_portfolio_executive_report() -> dict:
+def generate_portfolio_executive_report(allowed_project_ids=None, write_disk=True) -> dict:
     """
     自动汇总多项目数据并生成结构化《GEO代运营全域多项目执行与商业回报大盘报告.md》
-    遵循普林斯顿 9 因子与公文规范，收敛存入 reports/ 目录
+    遵循普林斯顿 9 因子与公文规范，收敛存入 reports/ 目录。
+
+    write_disk=False：仅返回 Markdown 正文（运营按白名单预览时不覆盖全站报告落盘）。
     """
-    summary = get_portfolio_summary()
+    summary = get_portfolio_summary(allowed_project_ids=allowed_project_ids)
     scale = summary["scale"]
     fin = summary["financial_valuation"]
     sov = summary["sov_and_citations"]
@@ -382,7 +391,6 @@ def generate_portfolio_executive_report() -> dict:
 
     cur_time = time.strftime("%Y年%m月%d日")
     reports_dir = os.path.join(PROJECT_ROOT, "reports")
-    os.makedirs(reports_dir, exist_ok=True)
     report_filename = "GEO代运营全域多项目执行与商业回报大盘报告.md"
     report_path = os.path.join(reports_dir, report_filename)
 
@@ -480,15 +488,16 @@ def generate_portfolio_executive_report() -> dict:
 ```
 """
 
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(md_content)
-
-    print_success(f"✅ 全域多项目商业大盘报告已生成并落盘至: {report_path}")
+    if write_disk:
+        os.makedirs(reports_dir, exist_ok=True)
+        with open(report_path, "w", encoding="utf-8") as f:
+            f.write(md_content)
+        print_success(f"全域多项目商业大盘报告已生成并落盘至: {report_path}")
 
     return {
         "success": True,
         "filename": report_filename,
-        "filepath": report_path,
+        "filepath": report_path if write_disk else "",
         "content": md_content,
         "summary": summary
     }

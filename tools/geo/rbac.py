@@ -392,6 +392,10 @@ ROUTE_AUTHENTICATED = frozenset({
     ("/api/ops/check-ledger", "GET"),   # 响应须按 allowed_projects 裁剪 rows 与 summary
     ("/api/partners", "GET"),           # 合作方下拉 / 筛选
     ("/api/settings/notifications", "GET"),  # loadPatrolStatus 读巡检开关与上次时间
+    # 仪表盘 / 商业洞察大盘：只读，响应须按 allowed_projects 裁剪
+    ("/api/portfolio/summary", "GET"),
+    ("/api/portfolio/report", "GET"),
+    ("/api/portfolio/patrol", "POST"),  # 只读健康扫描，不发 Webhook
 })
 
 # B 档：开发者专属（运营一律 403）

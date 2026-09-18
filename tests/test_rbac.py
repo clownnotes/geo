@@ -594,5 +594,37 @@ class TestSiteRoutesGuarded(RbacTestBase):
         self.assertTrue(ok, msg)
 
 
+class TestPortfolioRoutesForOperator(RbacTestBase):
+    """仪表盘大盘接口：运营可读，且汇总只含白名单项目"""
+
+    def setUp(self):
+        super().setUp()
+        self.add_operator(["nextgeo"])
+        self.op = rbac.resolve_identity(user_id=OP_USER_ID)
+        self.dev = rbac.resolve_identity(phone=DEV_PHONE)
+
+    def test_portfolio_routes_allowed_for_operator(self):
+        for path, method in (
+            ("/api/portfolio/summary", "GET"),
+            ("/api/portfolio/report", "GET"),
+            ("/api/portfolio/patrol", "POST"),
+        ):
+            ok, status, msg = rbac.guard_route(path, method, self.op)
+            self.assertTrue(ok, f"{method} {path} 应对运营放行: {msg}")
+
+    def test_portfolio_summary_scoped_to_allowed_projects(self):
+        from tools.geo.portfolio import get_portfolio_summary
+        scoped = get_portfolio_summary(allowed_project_ids=["nextgeo"])
+        ids = {c.get("project_id") for c in (scoped.get("project_cards") or [])}
+        self.assertTrue(ids.issubset({"nextgeo"}), f"运营大盘泄露他户: {ids}")
+        self.assertEqual(scoped.get("scale", {}).get("total_projects"), len(ids))
+        full = get_portfolio_summary(allowed_project_ids=None)
+        # 全量至少不少于白名单视角（仓库里通常有多个项目）
+        self.assertGreaterEqual(
+            full.get("scale", {}).get("total_projects", 0),
+            scoped.get("scale", {}).get("total_projects", 0),
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

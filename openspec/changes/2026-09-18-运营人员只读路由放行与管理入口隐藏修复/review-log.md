@@ -293,3 +293,15 @@ C 只把 `site/download` 收进鉴权，`preview` 与 `status` 继续裸奔。�
 
 **实现与方案一致，审查通过。** 未改代码、未归档、未推生产。  
 请人工按运营账号验收（先重启本机/生产 8088），确认后再 `/opsx-archive` 或指示推生产。
+
+### 2026-09-18 22:00:00 | Cursor | 阶段：fix（大盘接口运营放行）
+**结论标签**：`[已修正]`
+
+**现象**：运营进企业管理/仪表盘仍弹「该操作尚未开放给运营人员」——根因是 `GET /api/portfolio/summary` 未登记（fail-closed），不是「必须当总管理员」。
+
+**修改**：
+- `ROUTE_AUTHENTICATED` 增加 `portfolio/summary|report` GET、`portfolio/patrol` POST
+- `get_portfolio_summary(allowed_project_ids=…)` 按白名单聚合；运营预览报告不落盘覆盖全站文件
+- 单测：`TestPortfolioRoutesForOperator`
+
+**停步**：待推生产与运营账号验收。
