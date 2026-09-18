@@ -2703,6 +2703,13 @@ core_values:
                     else:
                         print("[RBAC] 本地免登通道停用：花名册 developer_phones 为空，不自动发放开发者身份")
 
+            # [2026-09-18] [运营人员权限隔离] 免登场景同样下发 Cookie：
+            # 站点预览用 <iframe src> 导航，只携带 Cookie、不带 Authorization header，
+            # 若此处不发 Cookie，走免登进来的会话预览会 401。
+            _set_cookie_headers = {}
+            if authed and token:
+                _set_cookie_headers = {"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly"}
+
             sess = ACTIVE_SESSIONS.get(token, {}) if authed else {}
             user = sess.get("username", "本地开发者" if authed else "")
             user_id = str(sess.get("user_id", ""))
@@ -2731,7 +2738,7 @@ core_values:
                 "is_developer": bool(_ident and _ident.is_developer),
                 "allowed_projects": list(_ident.allowed_projects) if _ident else [],
                 "permissions": list(_ident.permissions) if _ident else [],
-            })
+            }, headers=_set_cookie_headers)
             return
 
         # 1.1 [2026-09-18] [接入小毛驴统一API] 用户画像接口 (GET /api/v1/xiulan/me 或 /api/auth/me)
@@ -3362,106 +3369,6 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
-        # 0. AI 原生官网在线预览与静态资源直接下发: /api/projects/{id}/site/preview 或 /api/projects/{id}/site/{asset}
-        if path.startswith("/api/projects/") and "/site/" in path and not path.endswith("/site/download"):
-            parts = path.split("/")
-            # /api/projects/<id>/site/...
-            if len(parts) >= 5:
-                project_id = parts[3]
-                sub_path = "/".join(parts[5:]) if len(parts) > 5 else "preview"
-                site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
-
-                if sub_path in ("preview", "preview/", ""):
-                    target_path = os.path.join(site_dir, "index.html")
-                    if not os.path.exists(target_path):
-                        target_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "index.html")
-                    if not os.path.exists(target_path):
-                        try:
-                            from .scaffold import run_scaffold
-                            run_scaffold(project_id)
-                            target_path = os.path.join(site_dir, "index.html")
-                        except Exception:
-                            pass
-                    target_rel = "index.html"
-                else:
-                    target_rel = sub_path
-                    target_path = os.path.abspath(os.path.join(site_dir, target_rel))
-                    if os.path.isdir(target_path):
-                        target_path = os.path.join(target_path, "index.html")
-                        target_rel = os.path.relpath(target_path, site_dir)
-
-                if os.path.exists(target_path) and not os.path.isdir(target_path):
-                    try:
-                        if os.path.commonpath([target_path, site_dir]) == site_dir:
-                            self._serve_static_file(target_path, target_rel)
-                            return
-                    except Exception:
-                        pass
-                elif sub_path in ("preview", "preview/"):
-                    self.send_json({"success": False, "message": "该项目尚未生成官网页面，请先执行阶段二生成！"}, status=404)
-                    return
-
-        # 0. AI 原生交钥匙整站源码包 ZIP 下载: /api/projects/{id}/site/download
-        if path.startswith("/api/projects/") and path.endswith("/site/download"):
-            parts = path.split("/")
-            project_id = parts[3]
-            site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
-            if not os.path.exists(site_dir) or not os.path.exists(os.path.join(site_dir, "index.html")):
-                try:
-                    from .scaffold import run_scaffold
-                    run_scaffold(project_id)
-                except Exception:
-                    pass
-
-            if os.path.exists(site_dir):
-                try:
-                    zip_buffer = io.BytesIO()
-                    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                        for root, _, files in os.walk(site_dir):
-                            for file in files:
-                                if not file.startswith("."):
-                                    fpath = os.path.join(root, file)
-                                    arcname = os.path.relpath(fpath, site_dir)
-                                    zf.write(fpath, arcname)
-                    zip_bytes = zip_buffer.getvalue()
-                    fname = f"{project_id}_turnkey_ai_website.zip"
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/zip")
-                    self.send_header("Content-Disposition", f"attachment; filename=\"{fname}\"")
-                    self.send_header("Content-Length", str(len(zip_bytes)))
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                    self.end_headers()
-                    self.wfile.write(zip_bytes)
-                    return
-                except Exception as e:
-                    self.send_json({"success": False, "message": str(e)}, status=500)
-                    return
-            else:
-                self.send_json({"success": False, "message": "站点目录不存在，请先执行阶段二生成！"}, status=404)
-                return
-
-        # 0. 获取整站就绪状态: /api/projects/{id}/site/status
-        if path.startswith("/api/projects/") and path.endswith("/site/status"):
-            parts = path.split("/")
-            project_id = parts[3]
-            site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
-            index_path = os.path.join(site_dir, "index.html")
-            ready = os.path.exists(index_path)
-            files = []
-            if os.path.exists(site_dir):
-                for f in os.listdir(site_dir):
-                    if not f.startswith("."):
-                        files.append(f)
-            self.send_json({
-                "success": True,
-                "ready": ready,
-                "project_id": project_id,
-                "files": files,
-                "preview_url": f"/api/projects/{project_id}/site/preview",
-                "download_url": f"/api/projects/{project_id}/site/download"
-            })
-            return
-
         # --- 以下 API 必须通过鉴权拦截 ---
         if path.startswith("/api/"):
             if not self.check_auth():
@@ -3471,6 +3378,109 @@ core_values:
             # [2026-09-18] [运营人员权限隔离] 统一路由守卫：登录通过后、进入路由 if 链之前集中鉴权
             if not self.rbac_guard(path):
                 return
+
+            # [2026-09-18] [运营人员权限隔离] 站点预览/资源/状态/下载：原在鉴权门之前，
+            # 导致未登录即可拉取任意客户整站。现移入门后，交由统一守卫按项目判定。
+            # 0. AI 原生官网在线预览与静态资源直接下发: /api/projects/{id}/site/preview 或 /api/projects/{id}/site/{asset}
+            if path.startswith("/api/projects/") and "/site/" in path and not path.endswith("/site/download"):
+                parts = path.split("/")
+                # /api/projects/<id>/site/...
+                if len(parts) >= 5:
+                    project_id = parts[3]
+                    sub_path = "/".join(parts[5:]) if len(parts) > 5 else "preview"
+                    site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
+
+                    if sub_path in ("preview", "preview/", ""):
+                        target_path = os.path.join(site_dir, "index.html")
+                        if not os.path.exists(target_path):
+                            target_path = os.path.join(PROJECTS_DIR, project_id, "outputs", "index.html")
+                        if not os.path.exists(target_path):
+                            try:
+                                from .scaffold import run_scaffold
+                                run_scaffold(project_id)
+                                target_path = os.path.join(site_dir, "index.html")
+                            except Exception:
+                                pass
+                        target_rel = "index.html"
+                    else:
+                        target_rel = sub_path
+                        target_path = os.path.abspath(os.path.join(site_dir, target_rel))
+                        if os.path.isdir(target_path):
+                            target_path = os.path.join(target_path, "index.html")
+                            target_rel = os.path.relpath(target_path, site_dir)
+
+                    if os.path.exists(target_path) and not os.path.isdir(target_path):
+                        try:
+                            if os.path.commonpath([target_path, site_dir]) == site_dir:
+                                self._serve_static_file(target_path, target_rel)
+                                return
+                        except Exception:
+                            pass
+                    elif sub_path in ("preview", "preview/"):
+                        self.send_json({"success": False, "message": "该项目尚未生成官网页面，请先执行阶段二生成！"}, status=404)
+                        return
+
+            # 0. AI 原生交钥匙整站源码包 ZIP 下载: /api/projects/{id}/site/download
+            if path.startswith("/api/projects/") and path.endswith("/site/download"):
+                parts = path.split("/")
+                project_id = parts[3]
+                site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
+                if not os.path.exists(site_dir) or not os.path.exists(os.path.join(site_dir, "index.html")):
+                    try:
+                        from .scaffold import run_scaffold
+                        run_scaffold(project_id)
+                    except Exception:
+                        pass
+
+                if os.path.exists(site_dir):
+                    try:
+                        zip_buffer = io.BytesIO()
+                        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+                            for root, _, files in os.walk(site_dir):
+                                for file in files:
+                                    if not file.startswith("."):
+                                        fpath = os.path.join(root, file)
+                                        arcname = os.path.relpath(fpath, site_dir)
+                                        zf.write(fpath, arcname)
+                        zip_bytes = zip_buffer.getvalue()
+                        fname = f"{project_id}_turnkey_ai_website.zip"
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/zip")
+                        self.send_header("Content-Disposition", f"attachment; filename=\"{fname}\"")
+                        self.send_header("Content-Length", str(len(zip_bytes)))
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        self.wfile.write(zip_bytes)
+                        return
+                    except Exception as e:
+                        self.send_json({"success": False, "message": str(e)}, status=500)
+                        return
+                else:
+                    self.send_json({"success": False, "message": "站点目录不存在，请先执行阶段二生成！"}, status=404)
+                    return
+
+            # 0. 获取整站就绪状态: /api/projects/{id}/site/status
+            if path.startswith("/api/projects/") and path.endswith("/site/status"):
+                parts = path.split("/")
+                project_id = parts[3]
+                site_dir = os.path.join(PROJECTS_DIR, project_id, "outputs", "site")
+                index_path = os.path.join(site_dir, "index.html")
+                ready = os.path.exists(index_path)
+                files = []
+                if os.path.exists(site_dir):
+                    for f in os.listdir(site_dir):
+                        if not f.startswith("."):
+                            files.append(f)
+                self.send_json({
+                    "success": True,
+                    "ready": ready,
+                    "project_id": project_id,
+                    "files": files,
+                    "preview_url": f"/api/projects/{project_id}/site/preview",
+                    "download_url": f"/api/projects/{project_id}/site/download"
+                })
+                return
+
 
             # [2026-09-18] [运营人员权限隔离] 开发者专属：成员花名册读取
             if path == "/api/admin/members":
@@ -3984,7 +3994,10 @@ server {{
             if path == "/api/ops/check-ledger":
                 try:
                     from .check_ledger import build_check_ledger
-                    self.send_json(build_check_ledger())
+                    # [2026-09-18] [运营人员权限隔离] 只读放行不等于看全站：
+                    # 运营按 allowed_projects 裁剪 rows 并重算 summary，开发者看全量。
+                    from .rbac import filter_check_ledger
+                    self.send_json(filter_check_ledger(build_check_ledger(), self.rbac_identity()))
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e), "rows": []}, status=500)
                 return

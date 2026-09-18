@@ -456,5 +456,143 @@ class TestProjectFilter(RbacTestBase):
         self.assertEqual(rbac.filter_projects(projects, op), [])
 
 
+
+class TestReadOnlyRoutesReleased(RbacTestBase):
+    """只读展示类接口对运营放行（本次变更核心）"""
+
+    def setUp(self):
+        super().setUp()
+        self.add_operator(["nextgeo"])
+        self.op = rbac.resolve_identity(user_id=OP_USER_ID)
+
+    def test_ledger_get_allowed(self):
+        ok, status, msg = rbac.guard_route("/api/ops/check-ledger", "GET", self.op)
+        self.assertTrue(ok, msg)
+
+    def test_partners_get_allowed(self):
+        ok, status, msg = rbac.guard_route("/api/partners", "GET", self.op)
+        self.assertTrue(ok, msg)
+
+    def test_notifications_get_allowed(self):
+        ok, status, msg = rbac.guard_route("/api/settings/notifications", "GET", self.op)
+        self.assertTrue(ok, msg)
+
+    def test_writes_still_developer_only(self):
+        cases = [
+            ("/api/partners", "POST"),                  # 创建合作方
+            ("/api/partners/p_001", "POST"),            # 改档/归档
+            ("/api/settings/notifications", "POST"),    # 写通知配置
+            ("/api/settings/notifications", "PUT"),
+            ("/api/settings/notifications/test", "POST"),
+            ("/api/batch/trigger", "POST"),
+            ("/api/patrol/trigger", "POST"),
+            ("/api/ops/check-logs", "GET"),
+            ("/api/llm/config", "POST"),
+        ]
+        for path, method in cases:
+            ok, status, _ = rbac.guard_route(path, method, self.op)
+            self.assertFalse(ok, f"{method} {path} 应对运营 403")
+            self.assertEqual(status, 403)
+
+    def test_developer_keeps_full_access(self):
+        dev = rbac.resolve_identity(phone=DEV_PHONE)
+        for path, method in [("/api/partners", "POST"),
+                             ("/api/partners/p_001", "POST"),
+                             ("/api/settings/notifications", "POST"),
+                             ("/api/batch/trigger", "POST")]:
+            ok, _, msg = rbac.guard_route(path, method, dev)
+            self.assertTrue(ok, f"{method} {path} 应对开发者放行: {msg}")
+
+
+class TestLedgerTenantFilter(RbacTestBase):
+    """台账多租户裁剪：只滤 rows 不重算 summary 等于泄露他户数量"""
+
+    def _payload(self):
+        return {
+            "success": True,
+            "policy": {"warn_days": 7},
+            "rows": [
+                {"project_id": "nextgeo", "client_name": "邻里", "status": "ok"},
+                {"project_id": "nextgeo", "client_name": "邻里2", "status": "warn"},
+                {"project_id": "demo_corp", "client_name": "智数", "status": "overdue"},
+                {"project_id": "xuzhou_xuanyuan", "client_name": "璇源", "status": "never"},
+            ],
+            "summary": {"never": 1, "overdue": 1, "warn": 1, "ok": 1, "total": 4},
+            "generated_at": "2026-09-18T00:00:00Z",
+        }
+
+    def test_operator_sees_only_authorized_projects(self):
+        self.add_operator(["nextgeo"])
+        op = rbac.resolve_identity(user_id=OP_USER_ID)
+        out = rbac.filter_check_ledger(self._payload(), op)
+        ids = {r["project_id"] for r in out["rows"]}
+        self.assertEqual(ids, {"nextgeo"}, "运营看到了未授权项目")
+
+    def test_summary_recomputed_not_leaked(self):
+        self.add_operator(["nextgeo"])
+        op = rbac.resolve_identity(user_id=OP_USER_ID)
+        out = rbac.filter_check_ledger(self._payload(), op)
+        # 全站是 total=4，运营应只剩 2 条；若 summary 仍是 4 说明没重算
+        self.assertEqual(out["summary"]["total"], 2)
+        self.assertEqual(out["summary"]["ok"], 1)
+        self.assertEqual(out["summary"]["warn"], 1)
+        self.assertEqual(out["summary"]["overdue"], 0)
+        self.assertEqual(out["summary"]["never"], 0)
+
+    def test_developer_sees_full(self):
+        dev = rbac.resolve_identity(phone=DEV_PHONE)
+        out = rbac.filter_check_ledger(self._payload(), dev)
+        self.assertEqual(len(out["rows"]), 4)
+        self.assertEqual(out["summary"]["total"], 4)
+
+    def test_disabled_operator_sees_nothing(self):
+        self.add_operator(["nextgeo"], status="disabled")
+        op = rbac.resolve_identity(user_id=OP_USER_ID)
+        out = rbac.filter_check_ledger(self._payload(), op)
+        self.assertEqual(out["rows"], [])
+        self.assertEqual(out["summary"]["total"], 0)
+
+
+class TestSiteRoutesGuarded(RbacTestBase):
+    """站点预览/资源/状态/下载：移入鉴权门之后，必须受守卫约束"""
+
+    def setUp(self):
+        super().setUp()
+        self.add_operator(["nextgeo"])
+        self.op = rbac.resolve_identity(user_id=OP_USER_ID)
+        self.dev = rbac.resolve_identity(phone=DEV_PHONE)
+        self.anon = rbac.resolve_identity()
+
+    def test_anonymous_denied(self):
+        for path in ("/api/projects/nextgeo/site/preview",
+                     "/api/projects/nextgeo/site/status",
+                     "/api/projects/nextgeo/site/index.html"):
+            ok, status, _ = rbac.guard_route(path, "GET", self.anon)
+            self.assertFalse(ok, f"{path} 未登录不应放行")
+            self.assertEqual(status, 401)
+
+    def test_operator_own_project_preview_allowed(self):
+        ok, _, msg = rbac.guard_route("/api/projects/nextgeo/site/preview", "GET", self.op)
+        self.assertTrue(ok, msg)
+        ok, _, msg = rbac.guard_route("/api/projects/nextgeo/site/status", "GET", self.op)
+        self.assertTrue(ok, msg)
+
+    def test_operator_cross_project_preview_denied(self):
+        ok, status, _ = rbac.guard_route("/api/projects/demo_corp/site/preview", "GET", self.op)
+        self.assertFalse(ok)
+        self.assertEqual(status, 403)
+
+    def test_site_download_developer_only(self):
+        ok, status, _ = rbac.guard_route("/api/projects/nextgeo/site/download", "GET", self.op)
+        self.assertFalse(ok, "运营不应能下载整站源码 ZIP")
+        self.assertEqual(status, 403)
+        ok, _, msg = rbac.guard_route("/api/projects/nextgeo/site/download", "GET", self.dev)
+        self.assertTrue(ok, msg)
+
+    def test_developer_can_preview_any_project(self):
+        ok, _, msg = rbac.guard_route("/api/projects/demo_corp/site/preview", "GET", self.dev)
+        self.assertTrue(ok, msg)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -388,24 +388,31 @@ ROUTE_AUTHENTICATED = frozenset({
     ("/api/projects", "GET"),
     ("/api/v1/projects", "GET"),
     ("/api/groups", "GET"),
+    # 只读放行：仪表盘首屏、企业管理下拉、巡检状态文案
+    ("/api/ops/check-ledger", "GET"),   # 响应须按 allowed_projects 裁剪 rows 与 summary
+    ("/api/partners", "GET"),           # 合作方下拉 / 筛选
+    ("/api/settings/notifications", "GET"),  # loadPatrolStatus 读巡检开关与上次时间
 })
 
 # B 档：开发者专属（运营一律 403）
 ROUTE_DEVELOPER = frozenset({
     "/api/llm/config",                  # 写入大模型 API Key
-    "/api/settings/notifications",      # 全局通知配置
-    "/api/settings/notifications/test",
+    "/api/settings/notifications/test", # 试发通知
     "/api/patrol/trigger",              # 全域巡检触发
     "/api/batch/trigger",               # 批量任务触发
-    "/api/ops/check-ledger",
     "/api/ops/check-logs",
-    "/api/partners",                    # 渠道伙伴台账
+    # 注意：/api/ops/check-ledger、/api/partners、/api/settings/notifications 的 GET
+    # 已移入 ROUTE_AUTHENTICATED（只读放行，台账响应按 allowed_projects 裁剪）；
+    # 它们的写操作见 ROUTE_DEVELOPER_VERBS，切勿再整段放回本集合。
 })
 
 # 开发者专属：需区分方法的路由 -> (path, method)
 ROUTE_DEVELOPER_VERBS = frozenset({
     ("/api/projects", "POST"),          # 创建项目
     ("/api/v1/projects", "POST"),
+    ("/api/partners", "POST"),                  # 创建合作方
+    ("/api/settings/notifications", "POST"),    # 写通知配置
+    ("/api/settings/notifications", "PUT"),
 })
 
 # 开发者专属：项目级危险动作（按后缀匹配）
@@ -615,6 +622,9 @@ def _is_developer_route(path, method):
         return True
     if (path, method) in ROUTE_DEVELOPER_VERBS:
         return True
+    # 合作方改档/归档：现码为 POST /api/partners/{id}（无 PUT/DELETE），动态路径无法用集合登记
+    if path.startswith("/api/partners/") and method != "GET":
+        return True
     for suffix in ROUTE_DEVELOPER_SUFFIXES:
         if path.endswith(suffix):
             return True
@@ -710,6 +720,38 @@ def filter_groups(groups, identity):
         if parent not in allowed:
             g2["parent_project_id"] = ""
         out.append(g2)
+    return out
+
+
+def filter_check_ledger(payload, identity):
+    """运维检测台账多租户裁剪。
+
+    开发者看全量；运营只看到 allowed_projects 内的项目，且 summary 必须按裁剪后的
+    rows 重算——只滤 rows 却留下全站 summary，等于把别人的客户数量泄露出去。
+    """
+    if not isinstance(payload, dict):
+        return payload
+    if identity is None:
+        return {"success": True, "policy": payload.get("policy", {}),
+                "summary": {}, "rows": [], "generated_at": payload.get("generated_at", "")}
+    if getattr(identity, "is_developer", False):
+        return payload
+
+    allowed = set(getattr(identity, "allowed_projects", None) or [])
+    rows = [r for r in (payload.get("rows") or [])
+            if str((r or {}).get("project_id", "")) in allowed]
+
+    summary = {
+        "never": sum(1 for r in rows if r.get("status") == "never"),
+        "overdue": sum(1 for r in rows if r.get("status") == "overdue"),
+        "warn": sum(1 for r in rows if r.get("status") == "warn"),
+        "ok": sum(1 for r in rows if r.get("status") == "ok"),
+        "total": len(rows),
+    }
+
+    out = dict(payload)
+    out["rows"] = rows
+    out["summary"] = summary
     return out
 
 

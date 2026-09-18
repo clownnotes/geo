@@ -770,3 +770,18 @@
   word-break: keep-all !important;
   flex-shrink: 0;
 }
+
+/* ===== [2026-09-18] [运营人员权限隔离] 开发者专属入口的定点隐藏 =====
+   根因：#app-sidebar / #home-sidebar .sidebar-nav-item 设了 display:flex，
+   特异度压过普通 .hidden，导致运营仍能看到系统设置、成员管理等开发者入口。
+   只抬高「侧边栏项 + 开发者打标元素」的隐藏特异度；
+   禁止写全局 .hidden { display:none !important }，否则会误伤 hidden md:flex 等响应式组合。 */
+#app-sidebar .sidebar-nav-item.hidden,
+#home-sidebar .sidebar-nav-item.hidden,
+#app-sidebar .job-item.hidden,
+#home-sidebar .job-item.hidden,
+#home-sidebar [data-geo-dev-only].hidden,
+#app-sidebar [data-geo-dev-only].hidden,
+[data-geo-dev-only].hidden {
+  display: none !important;
+}
