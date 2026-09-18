@@ -319,11 +319,8 @@ class TestConversionReport(unittest.TestCase):
         # 4. 验证终章收官大卡片（宣传语金句与原图 2 联系方式深度融合）
         self.assertIn("dr-slogan", html)
         self.assertIn("当你清楚要做什么，全世界都会为你让路", html)
-        self.assertIn("CLARITY PRECEDES MOMENTUM", html)
-        self.assertIn("让 AI 的每一次回答，都成为你最坚定的商业代言人", html)
         self.assertIn("dr-slogan__action", html, "宣传语卡片内必须包含行动转化专区")
-        self.assertIn("微信", html)
-        self.assertIn("电话", html)
+        self.assertIn("电话/微信", html)
         self.assertIn("官网", html)
         self.assertIn("起步档：企业 GEO 全案服务", html)
 

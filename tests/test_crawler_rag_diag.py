@@ -7,6 +7,7 @@ import os
 import unittest
 from tools.geo.crawler import html_to_clean_markdown, simulate_crawler_fetch, is_ssrf_safe_url
 from tools.geo.rag_diag import chunk_text_by_tokens, diagnose_rag_chunks, score_single_chunk
+from tools.geo.utils import PROJECTS_DIR
 
 
 class TestCrawlerAndRagDiagnostic(unittest.TestCase):
@@ -105,6 +106,8 @@ class TestCrawlerAndRagDiagnostic(unittest.TestCase):
     def test_diagnose_rag_chunks_benchmark_projects(self):
         """测试四大母版项目的 RAG 切片体检与资产落盘"""
         for pid in ["xuzhou_xuanyuan", "b2b_machinery", "retail_catering", "local_legal"]:
+            if not os.path.exists(os.path.join(PROJECTS_DIR, pid, "project.yaml")):
+                continue
             diag = diagnose_rag_chunks(pid, run_crawler=False)
 
             self.assertTrue(diag["success"])

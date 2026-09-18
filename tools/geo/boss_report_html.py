@@ -497,17 +497,35 @@ body{{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans SC","Noto San
   border-radius:var(--dr-radius-lg);padding:20px 24px;margin-bottom:20px}}
 .dr-summary__label{{font-size:12px;font-weight:800;color:var(--dr-danger);letter-spacing:2px;margin-bottom:8px}}
 .dr-summary__text{{font-size:15px;color:var(--dr-text-secondary);line-height:1.85}}
-.dr-section{{background:var(--dr-bg-card);border:1px solid var(--dr-border);border-radius:var(--dr-radius-xl);
-  padding:28px 30px;margin-bottom:20px}}
+.dr-section{{position:relative;background:var(--dr-bg-card);border:1px solid var(--sec-border, var(--dr-border));
+  border-top:3.5px solid var(--sec-color, var(--dr-primary));border-radius:var(--dr-radius-xl);
+  padding:28px 30px;margin-bottom:20px;box-shadow:0 4px 18px -2px var(--sec-shadow, rgba(0,0,0,.03));
+  background-image:linear-gradient(180deg, var(--sec-bg-tint, rgba(255,255,255,0)) 0%, #ffffff 110px)}}
 .dr-section__header{{display:flex;align-items:center;gap:12px;margin-bottom:6px}}
-.dr-section__index{{flex:0 0 30px;height:30px;border-radius:8px;background:var(--dr-primary);color:#fff;
-  font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}}
-.dr-section__index--danger{{background:var(--dr-danger)}}
-.dr-section__index--success{{background:var(--dr-success)}}
-.dr-section__title{{font-size:21px;font-weight:800;color:var(--dr-text-primary);letter-spacing:-.2px}}
+.dr-section__index{{flex:0 0 30px;height:30px;border-radius:8px;background:linear-gradient(135deg, var(--sec-glow, var(--dr-primary)), var(--sec-color, var(--dr-primary-hover)));
+  color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 8px var(--sec-shadow, rgba(124,91,245,.25))}}
+.dr-section__title{{font-size:21px;font-weight:800;color:var(--sec-color, var(--dr-text-primary));letter-spacing:-.2px}}
 .dr-section__desc{{font-size:13.5px;color:var(--dr-text-tertiary);margin:8px 0 18px}}
-.dr-subtitle{{font-size:15.5px;font-weight:800;color:var(--dr-text-primary);margin:22px 0 10px;
-  padding-left:10px;border-left:3px solid var(--dr-primary)}}
+.dr-subtitle{{font-size:15.5px;font-weight:800;color:var(--sec-color, var(--dr-text-primary));margin:22px 0 10px;
+  padding-left:10px;border-left:3px solid var(--sec-color, var(--dr-primary))}}
+
+/* [2026-09-18] [彩虹色谱循环体系] 赤橙黄绿蓝（靛紫）循环设计，每个框获得专属主题色空间 */
+/* 1. 赤 (Red) */
+.dr-section--c1{{--sec-color:#dc2626;--sec-glow:#f87171;--sec-border:#fecaca;
+  --sec-bg-tint:rgba(254,242,242,.85);--sec-shadow:rgba(220,38,38,.12)}}
+/* 2. 橙 (Orange) */
+.dr-section--c2{{--sec-color:#ea580c;--sec-glow:#fb923c;--sec-border:#fed7aa;
+  --sec-bg-tint:rgba(255,247,237,.85);--sec-shadow:rgba(234,88,12,.12)}}
+/* 3. 黄 (Warm Gold) */
+.dr-section--c3{{--sec-color:#d97706;--sec-glow:#fbbf24;--sec-border:#fde68a;
+  --sec-bg-tint:rgba(254,252,232,.85);--sec-shadow:rgba(217,119,6,.12)}}
+/* 4. 绿 (Emerald Green) */
+.dr-section--c4{{--sec-color:#059669;--sec-glow:#34d399;--sec-border:#a7f3d0;
+  --sec-bg-tint:rgba(240,253,244,.85);--sec-shadow:rgba(5,150,105,.12)}}
+/* 5. 蓝 (Tech Blue) */
+.dr-section--c5{{--sec-color:#2563eb;--sec-glow:#60a5fa;--sec-border:#bfdbfe;
+  --sec-bg-tint:rgba(239,246,255,.85);--sec-shadow:rgba(37,99,235,.12)}}
 table{{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}}
 th{{background:var(--dr-bg-subtle);color:var(--dr-text-secondary);text-align:left;padding:10px 12px;
   font-weight:700;font-size:12.5px;border-bottom:1px solid var(--dr-border)}}
@@ -620,8 +638,8 @@ tr:last-child td{{border-bottom:none}}
   </div>
 </div>
 
-<div class="dr-section">
-  <div class="dr-section__header"><div class="dr-section__index dr-section__index--success">1</div>
+<div class="dr-section dr-section--c1">
+  <div class="dr-section__header"><div class="dr-section__index">1</div>
     <div class="dr-section__title">好消息：你的技术资产其实很能打（不用推倒重来）</div></div>
   <div class="dr-section__desc">先说这一节是为了让你放心——问题不在技术能力，也不在官网做得差。</div>
 
@@ -636,8 +654,8 @@ tr:last-child td{{border-bottom:none}}
   </div>
 </div>
 
-<div class="dr-section">
-  <div class="dr-section__header"><div class="dr-section__index dr-section__index--danger">2</div>
+<div class="dr-section dr-section--c2">
+  <div class="dr-section__header"><div class="dr-section__index">2</div>
     <div class="dr-section__title">坏消息：AI 现在根本认不出你的品牌（这才是丢单的地方）</div></div>
   <div class="dr-section__desc">{html_lib.escape(data.engines_tested)}，共 {html_lib.escape(data.sample_count_text)} 实测。</div>
 
@@ -664,7 +682,7 @@ tr:last-child td{{border-bottom:none}}
   </div>
 </div>
 
-<div class="dr-section">
+<div class="dr-section dr-section--c3">
   <div class="dr-section__header"><div class="dr-section__index">3</div><div class="dr-section__title">竞品占位透视：谁在吃你的入口</div></div>
   <div class="dr-section__desc">以下均为两家 AI 在本次实测中<strong>原文列出</strong>的服务商。本表未做商业化量化评分——因为缺少真实行业榜单数据，宁可空着也不编。</div>
   <table>
@@ -677,7 +695,7 @@ tr:last-child td{{border-bottom:none}}
   </div>
 </div>
 
-<div class="dr-section">
+<div class="dr-section dr-section--c4">
   <div class="dr-section__header"><div class="dr-section__index">4</div><div class="dr-section__title">四步破局：从「能被读到」到「被推荐」</div></div>
   <div class="dr-section__desc">顺序不能调换——每一步都在给下一步打地基。</div>
   <table>
@@ -696,7 +714,7 @@ tr:last-child td{{border-bottom:none}}
   <div class="dr-note">本次只测了豆包和 DeepSeek 两个平台。<strong>单平台达标不算赢</strong>——元宝、通义千问、Kimi、文心一言的抓取来源各不相同，正式推进应扩展到 6–8 个平台做全平台提及率看板。</div>
 </div>
 
-<div class="dr-section">
+<div class="dr-section dr-section--c5">
   <div class="dr-section__header"><div class="dr-section__index">5</div><div class="dr-section__title">AIVO 四维评分（思维分析）</div></div>
   <div class="dr-section__desc">四个维度等权（各 25%），每维分数由本次实测证据直接判定，依据见下表。</div>
 

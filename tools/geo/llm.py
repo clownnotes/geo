@@ -65,15 +65,14 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
     "deepseek": {
         "base_url": "https://api.deepseek.com",
         "default_model": "deepseek-chat",
-        # 主写入键在前；GEO_* 仅兼容只读
-        "api_key_envs": ["DEEPSEEK_API_KEY", "GEO_DEEPSEEK_API_KEY"],
+        "api_key_envs": ["GEO_DEEPSEEK_API_KEY", "DEEPSEEK_API_KEY"],
         "model_envs": ["DEEPSEEK_MODEL"],
         "base_url_envs": ["DEEPSEEK_BASE_URL"],
     },
     "doubao": {
         "base_url": "https://ark.cn-beijing.volces.com/api/v3",
         "default_model": "doubao-pro-32k",
-        "api_key_envs": ["ARK_API_KEY", "DOUBAO_API_KEY", "GEO_DOUBAO_API_KEY"],
+        "api_key_envs": ["GEO_DOUBAO_API_KEY", "DOUBAO_API_KEY", "ARK_API_KEY"],
         "model_envs": ["DOUBAO_MODEL", "GEO_DOUBAO_ENDPOINT_ID", "DOUBAO_ENDPOINT_ID", "DOUBAO_ARK_MODEL"],
         "base_url_envs": ["ARK_BASE_URL"],
     },

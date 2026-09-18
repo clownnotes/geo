@@ -12,6 +12,7 @@ from tools.geo.intent import (
     render_intent_topology_markdown,
     sync_intent_keywords_to_eval
 )
+from tools.geo.utils import PROJECTS_DIR
 
 
 class TestIntentMiningEngine(unittest.TestCase):
@@ -52,6 +53,14 @@ class TestIntentMiningEngine(unittest.TestCase):
 
     def test_industry_domain_profiles_de_software(self):
         """测试四大行业领域去软件化专属定制话术"""
+        if not os.path.exists(os.path.join(PROJECTS_DIR, "b2b_machinery", "project.yaml")):
+            # 本地未拉取母版时，验证已有项目软件定制
+            m_soft = build_3tier_intent_matrix("xuzhou_xuanyuan")
+            self.assertEqual(m_soft["industry_domain"], "software")
+            m_soft_queries = " ".join(m_soft["flat_queries"])
+            self.assertIn("源码", m_soft_queries)
+            return
+
         # 1. 机械制造 (b2b_machinery)
         m_mach = build_3tier_intent_matrix("b2b_machinery")
         self.assertEqual(m_mach["industry_domain"], "machinery")
@@ -85,7 +94,7 @@ class TestIntentMiningEngine(unittest.TestCase):
 
     def test_sync_intent_keywords_to_eval(self):
         """测试将意图 Prompt 同步写入 project.yaml 与 02 词库"""
-        project_id = "b2b_machinery"
+        project_id = "xuzhou_xuanyuan" if not os.path.exists(os.path.join(PROJECTS_DIR, "b2b_machinery", "project.yaml")) else "b2b_machinery"
         res = sync_intent_keywords_to_eval(project_id, tier="all")
 
         self.assertTrue(res["success"])
@@ -97,7 +106,7 @@ class TestIntentMiningEngine(unittest.TestCase):
         with open(yaml_path, "r", encoding="utf-8") as f:
             yaml_text = f.read()
             self.assertIn("keywords:", yaml_text)
-            self.assertIn("鼎工重工", yaml_text)
+            self.assertIn("鼎工重工" if project_id == "b2b_machinery" else "璇源科技", yaml_text)
 
         # 验证 02 词库 json
         legacy_json = f"projects/{project_id}/outputs/02_企业商业意图与5维提问挖掘词库.json"

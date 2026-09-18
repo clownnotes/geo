@@ -33,7 +33,7 @@ func defaultConfig() *Config {
 		Port:             8090,
 		AllowedOrigin:    "http://127.0.0.1:8088,http://localhost:8088",
 		BaseURL:          "http://127.0.0.1:9000",
-		SourceClient:     "geo-custom-brand",
+		SourceClient:     "geo",
 		JWTToken:         "",
 		AllowMissingJWT:  false,
 		HeaderTimeoutSec: 15,
@@ -457,17 +457,173 @@ func handleWritingSessions(cfg *Config) http.HandlerFunc {
 }
 
 // =========================================================================
+// 4. [2026-09-18] [统一API接入] 小毛驴统一账号与鉴权代理 Handler
+// =========================================================================
+func handleLoginProxy(cfg *Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			sendErrorJSON(w, http.StatusMethodNotAllowed, 40001, "仅支持 POST 请求")
+			return
+		}
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			sendErrorJSON(w, http.StatusBadRequest, 40001, "请求体读取失败")
+			return
+		}
+		targetURL := fmt.Sprintf("%s/api/v1/xiulan/login", cfg.BaseURL)
+		upstreamReq, err := http.NewRequestWithContext(r.Context(), "POST", targetURL, bytes.NewReader(bodyBytes))
+		if err != nil {
+			sendErrorJSON(w, http.StatusInternalServerError, 50001, err.Error())
+			return
+		}
+		upstreamReq.Header.Set("Content-Type", "application/json")
+		upstreamReq.Header.Set("vio-source-client", cfg.SourceClient)
+
+		client := &http.Client{Timeout: time.Duration(cfg.JSONTimeoutSec) * time.Second}
+		resp, err := client.Do(upstreamReq)
+		if err != nil {
+			sendErrorJSON(w, http.StatusBadGateway, 50201, fmt.Sprintf("Nextdoor 统一认证服务不可达: %v", err))
+			return
+		}
+		defer resp.Body.Close()
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(resp.StatusCode)
+		_, _ = io.Copy(w, resp.Body)
+	}
+}
+
+func handleMeProxy(cfg *Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			sendErrorJSON(w, http.StatusMethodNotAllowed, 40001, "仅支持 GET 请求")
+			return
+		}
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			sendErrorJSON(w, http.StatusUnauthorized, 40101, "缺少 Authorization 令牌头")
+			return
+		}
+		targetURL := fmt.Sprintf("%s/api/v1/xiulan/me", cfg.BaseURL)
+		upstreamReq, err := http.NewRequestWithContext(r.Context(), "GET", targetURL, nil)
+		if err != nil {
+			sendErrorJSON(w, http.StatusInternalServerError, 50001, err.Error())
+			return
+		}
+		upstreamReq.Header.Set("Content-Type", "application/json")
+		upstreamReq.Header.Set("vio-source-client", cfg.SourceClient)
+		upstreamReq.Header.Set("Authorization", authHeader)
+
+		client := &http.Client{Timeout: time.Duration(cfg.JSONTimeoutSec) * time.Second}
+		resp, err := client.Do(upstreamReq)
+		if err != nil {
+			sendErrorJSON(w, http.StatusBadGateway, 50201, fmt.Sprintf("Nextdoor 统一认证服务不可达: %v", err))
+			return
+		}
+		defer resp.Body.Close()
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(resp.StatusCode)
+		_, _ = io.Copy(w, resp.Body)
+	}
+}
+
+func handleWechatQRProxy(cfg *Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			sendErrorJSON(w, http.StatusMethodNotAllowed, 40001, "仅支持 GET 请求")
+			return
+		}
+		targetURL := fmt.Sprintf("%s/api/auth/wechat-qr", cfg.BaseURL)
+		upstreamReq, err := http.NewRequestWithContext(r.Context(), "GET", targetURL, nil)
+		if err != nil {
+			sendErrorJSON(w, http.StatusInternalServerError, 50001, err.Error())
+			return
+		}
+		upstreamReq.Header.Set("Content-Type", "application/json")
+		upstreamReq.Header.Set("vio-source-client", cfg.SourceClient)
+
+		client := &http.Client{Timeout: time.Duration(cfg.JSONTimeoutSec) * time.Second}
+		resp, err := client.Do(upstreamReq)
+		if err != nil {
+			sendErrorJSON(w, http.StatusBadGateway, 50201, fmt.Sprintf("Nextdoor 统一认证服务不可达: %v", err))
+			return
+		}
+		defer resp.Body.Close()
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(resp.StatusCode)
+		_, _ = io.Copy(w, resp.Body)
+	}
+}
+
+// [2026-09-18] [接入小毛驴统一API] 通用上游透传代理 (支持 POST 透传 uploads, kb 等)
+func handleGenericPostProxy(cfg *Config, targetSubPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			sendErrorJSON(w, http.StatusMethodNotAllowed, 40001, "仅支持 POST 请求")
+			return
+		}
+		targetURL := fmt.Sprintf("%s%s", cfg.BaseURL, targetSubPath)
+		upstreamReq, err := http.NewRequestWithContext(r.Context(), "POST", targetURL, r.Body)
+		if err != nil {
+			sendErrorJSON(w, http.StatusInternalServerError, 50001, err.Error())
+			return
+		}
+		if ctype := r.Header.Get("Content-Type"); ctype != "" {
+			upstreamReq.Header.Set("Content-Type", ctype)
+		}
+		upstreamReq.Header.Set("vio-source-client", cfg.SourceClient)
+		if auth := r.Header.Get("Authorization"); auth != "" {
+			upstreamReq.Header.Set("Authorization", auth)
+		} else if cfg.JWTToken != "" {
+			upstreamReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", cfg.JWTToken))
+		}
+
+		client := &http.Client{Timeout: time.Duration(cfg.JSONTimeoutSec) * time.Second}
+		resp, err := client.Do(upstreamReq)
+		if err != nil {
+			sendErrorJSON(w, http.StatusBadGateway, 50201, fmt.Sprintf("上游服务不可达: %v", err))
+			return
+		}
+		defer resp.Body.Close()
+
+		if respCtype := resp.Header.Get("Content-Type"); respCtype != "" {
+			w.Header().Set("Content-Type", respCtype)
+		}
+		w.WriteHeader(resp.StatusCode)
+		_, _ = io.Copy(w, resp.Body)
+	}
+}
+
+// =========================================================================
 // 主入口
 // =========================================================================
 func setupMux(cfg *Config) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	// 1. 三大核心对外路由
+	// 1. 核心 AI 对外路由
 	mux.HandleFunc("/api/chat/stream", corsMiddleware(cfg.AllowedOrigin, handleChatStream(cfg)))
 	mux.HandleFunc("/api/chat/intent/match", corsMiddleware(cfg.AllowedOrigin, handleIntentMatch(cfg)))
 	mux.HandleFunc("/api/writing/sessions", corsMiddleware(cfg.AllowedOrigin, handleWritingSessions(cfg)))
 
-	// 2. 健康检查端点
+	// 2. [2026-09-18] [统一API接入] 账号认证与单点登录透传路由
+	mux.HandleFunc("/api/v1/xiulan/login", corsMiddleware(cfg.AllowedOrigin, handleLoginProxy(cfg)))
+	mux.HandleFunc("/api/auth/login", corsMiddleware(cfg.AllowedOrigin, handleLoginProxy(cfg)))
+	mux.HandleFunc("/api/v1/sessions", corsMiddleware(cfg.AllowedOrigin, handleLoginProxy(cfg)))
+	mux.HandleFunc("/api/v1/xiulan/me", corsMiddleware(cfg.AllowedOrigin, handleMeProxy(cfg)))
+	mux.HandleFunc("/api/auth/me", corsMiddleware(cfg.AllowedOrigin, handleMeProxy(cfg)))
+	mux.HandleFunc("/api/auth/wechat-qr", corsMiddleware(cfg.AllowedOrigin, handleWechatQRProxy(cfg)))
+	mux.HandleFunc("/api/v1/auth/wechat-qr", corsMiddleware(cfg.AllowedOrigin, handleWechatQRProxy(cfg)))
+
+	// 3. [2026-09-18] [统一API接入] 社区素材上传与知识库透传路由
+	mux.HandleFunc("/api/v1/community/uploads", corsMiddleware(cfg.AllowedOrigin, handleGenericPostProxy(cfg, "/api/v1/community/uploads")))
+	mux.HandleFunc("/api/kb/documents", corsMiddleware(cfg.AllowedOrigin, handleGenericPostProxy(cfg, "/api/kb/documents")))
+	mux.HandleFunc("/api/v1/kb/documents", corsMiddleware(cfg.AllowedOrigin, handleGenericPostProxy(cfg, "/api/kb/documents")))
+	mux.HandleFunc("/api/kb/chat", corsMiddleware(cfg.AllowedOrigin, handleGenericPostProxy(cfg, "/api/kb/chat")))
+	mux.HandleFunc("/api/v1/kb/chat", corsMiddleware(cfg.AllowedOrigin, handleGenericPostProxy(cfg, "/api/kb/chat")))
+
+	// 4. 健康检查端点
 	mux.HandleFunc("/healthz", corsMiddleware(cfg.AllowedOrigin, func(w http.ResponseWriter, r *http.Request) {
 		sendSuccessJSON(w, map[string]interface{}{
 			"status":             "running",

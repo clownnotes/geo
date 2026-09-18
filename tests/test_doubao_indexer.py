@@ -182,6 +182,7 @@ class TestDoubaoIndexerPipeline(unittest.TestCase):
         unauth_handler.path = f"/api/projects/{self.project_id}/doubao-index/audit"
         unauth_handler.headers = {}
         unauth_handler.get_auth_token = MagicMock(return_value="")
+        unauth_handler.check_auth = MagicMock(return_value=False)
         send_json_mock = MagicMock()
         unauth_handler.send_json = send_json_mock
 
@@ -194,6 +195,7 @@ class TestDoubaoIndexerPipeline(unittest.TestCase):
         auth_handler.path = f"/api/projects/{self.project_id}/doubao-index/audit"
         auth_handler.headers = {"Authorization": f"Bearer {valid_token}"}
         auth_handler.get_auth_token = MagicMock(return_value=valid_token)
+        auth_handler.check_auth = MagicMock(return_value=True)
         auth_send_mock = MagicMock()
         auth_handler.send_json = auth_send_mock
 

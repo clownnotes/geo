@@ -42,11 +42,12 @@ from .scaffold import run_scaffold
 from .rewrite import run_rewrite
 from .distribute import run_distribute
 from .monitor import run_monitor
+from .auth_sso import get_auth_client, DEFAULT_NEXTDOOR_BASE_URL, DEFAULT_SOURCE_CLIENT
+from .idgen import new_id
+from .task_runner import get_task_manager, TaskStatus, GeoTask
+from .kb_client import get_kb_client
 
-
-# 鉴权配置（支持环境变量覆盖）
-ADMIN_USERNAME = os.environ.get("GEO_ADMIN_USER", "13150568888")
-ADMIN_PASSWORD = os.environ.get("GEO_ADMIN_PASS", "17625188666")
+# [2026-09-18] [接入小毛驴统一API] 废除本地独立硬编码账密，全面收敛至小毛驴统一用户中心
 
 # 活跃 Session 持久化存储 (写入 data/sessions.json，跨进程重启不丢失)
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -79,12 +80,17 @@ def save_sessions(sessions: dict):
 # 初始化加载磁盘已存会话（跨重启不丢失！）
 ACTIVE_SESSIONS = load_sessions()
 
-def create_session(username: str) -> str:
+def create_session(username: str, user_id: str = "", phone: str = "", role: str = "user", credits: int = 0) -> str:
     global ACTIVE_SESSIONS
     token = str(uuid.uuid4())
     ACTIVE_SESSIONS[token] = {
         "username": username,
-        "expire_at": time.time() + (SESSION_TIMEOUT_HOURS * 3600)
+        "user_id": str(user_id or ""),
+        "phone": phone,
+        "role": role,
+        "credits": credits,
+        "expire_at": time.time() + (SESSION_TIMEOUT_HOURS * 3600),
+        "source": "local_dev"
     }
     save_sessions(ACTIVE_SESSIONS)
     return token
@@ -96,7 +102,8 @@ def is_authenticated(token: str) -> bool:
 
     # 1. 如果内存中没有，尝试从磁盘重新同步一次
     if token not in ACTIVE_SESSIONS:
-        ACTIVE_SESSIONS = load_sessions()
+        disk_sessions = load_sessions()
+        ACTIVE_SESSIONS.update(disk_sessions)
 
     # 2. 如果存在且未过期，直接通过
     if token in ACTIVE_SESSIONS:
@@ -107,6 +114,22 @@ def is_authenticated(token: str) -> bool:
             del ACTIVE_SESSIONS[token]
             save_sessions(ACTIVE_SESSIONS)
             return False
+
+    # 3. [2026-09-18] [接入小毛驴统一API] 本地无缓存时，委托 Nextdoor 统一认证端点进行验真
+    auth_client = get_auth_client()
+    user_info = auth_client.verify_token(token)
+    if user_info:
+        ACTIVE_SESSIONS[token] = {
+            "username": user_info.get("name") or user_info.get("phone", "User"),
+            "user_id": str(user_info.get("id") or user_info.get("user_id") or ""),
+            "phone": user_info.get("phone", ""),
+            "role": user_info.get("role", "user"),
+            "credits": user_info.get("credits", 0),
+            "expire_at": time.time() + (SESSION_TIMEOUT_HOURS * 3600),
+            "source": "nextdoor_jwt",
+        }
+        save_sessions(ACTIVE_SESSIONS)
+        return True
 
     return False
 
@@ -250,13 +273,7 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
     def check_auth(self) -> bool:
         token = self.get_auth_token()
-        if is_authenticated(token):
-            return True
-        # 本机开发直连：token 缺失或重启后失效时自动放行，避免工作台复制/拉产出反复 401
-        # （与 /api/auth/status 的 localhost 免密策略对齐；公网反代不会命中 is_local_dev_request）
-        if self.is_local_dev_request():
-            return True
-        return False
+        return is_authenticated(token)
 
     def read_json_body(self) -> dict:
         content_length = int(self.headers.get("Content-Length", 0))
@@ -269,25 +286,89 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             return {}
 
     def do_POST(self):
+        from .utils import load_project_config
         parsed = urlparse(self.path)
         path = parsed.path
 
-        # 1. 登录认证接口 (公开)
-        if path == "/api/auth/login":
+        # 1. [2026-09-18] [接入小毛驴统一API] 登录认证接口 (全面收敛至小毛驴，公开)
+        if path in ("/api/auth/login", "/api/v1/xiulan/login", "/api/v1/sessions"):
             body = self.read_json_body()
-            user = body.get("username", "").strip()
-            pwd = body.get("password", "").strip()
+            user = (body.get("username") or body.get("phone") or "").strip()
+            pwd = (body.get("password") or "").strip()
+            device_id = body.get("device_id")
 
-            if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
-                token = create_session(user)
+            auth_client = get_auth_client()
+            resp = auth_client.login(user, pwd, device_id=device_id)
+
+            if resp.get("code") == 0:
+                data = resp.get("data", {})
+                token = data.get("token", "")
+                user_id = str(data.get("user_id") or data.get("id") or "")
+                name = data.get("name") or data.get("phone") or user
+                phone = data.get("phone") or user
+                role = data.get("role", "user")
+                credits = data.get("credits", 0)
+
+                # 记录会话 (雪花 ID 强转为字符串)
+                ACTIVE_SESSIONS[token] = {
+                    "username": name,
+                    "user_id": user_id,
+                    "phone": phone,
+                    "role": role,
+                    "credits": credits,
+                    "expire_at": time.time() + (SESSION_TIMEOUT_HOURS * 3600),
+                    "source": "nextdoor_jwt",
+                }
+                save_sessions(ACTIVE_SESSIONS)
+
                 self.send_json({
                     "success": True,
+                    "code": 0,
                     "token": token,
-                    "username": user,
+                    "username": name,
+                    "user_id": user_id,
+                    "phone": phone,
+                    "role": role,
+                    "credits": credits,
+                    "data": data,
                     "message": "登录成功！"
                 }, headers={"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly"})
             else:
-                self.send_json({"success": False, "message": "账号或密码错误！"}, status=401)
+                code = resp.get("code", 401)
+                msg = resp.get("msg") or "账号或密码错误！"
+                self.send_json({
+                    "success": False,
+                    "code": code,
+                    "message": msg,
+                    "msg": msg,
+                    "data": None
+                }, status=401 if code in (401, 4001) else 400)
+            return
+
+        # 1.1 微信快捷登录接口 (公开)
+        if path == "/api/v1/community/auth/wx-login":
+            body = self.read_json_body()
+            code = body.get("code", "").strip()
+            app_id = body.get("app_id", "").strip()
+            auth_client = get_auth_client()
+            resp = auth_client.wx_login(code, app_id=app_id)
+            if resp.get("code") == 0:
+                data = resp.get("data", {})
+                token = data.get("token", "")
+                user_id = str(data.get("user_id") or "")
+                ACTIVE_SESSIONS[token] = {
+                    "username": data.get("name") or data.get("phone", "WxUser"),
+                    "user_id": user_id,
+                    "phone": data.get("phone", ""),
+                    "role": data.get("role", "user"),
+                    "credits": data.get("credits", 0),
+                    "expire_at": time.time() + (SESSION_TIMEOUT_HOURS * 3600),
+                    "source": "nextdoor_wx",
+                }
+                save_sessions(ACTIVE_SESSIONS)
+                self.send_json(resp, headers={"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly"})
+            else:
+                self.send_json(resp, status=400)
             return
 
         # 2. 登出接口
@@ -390,8 +471,8 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                 self.send_json({"success": False, "message": f"推演失败: {str(e)}"}, status=500)
             return
 
-        # 4. 创建新项目 API
-        if path == "/api/projects":
+        # 4. 创建新项目 API (支持 /api/projects 与 /api/v1/projects)
+        if path in ("/api/projects", "/api/v1/projects"):
             body = self.read_json_body()
             client_id = body.get("client_id", "").strip()
             if not client_id:
@@ -430,6 +511,13 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
             industry = str(body.get("industry") or "").strip() or "待定"
 
+            # [2026-09-18] [接入小毛驴统一API] 获取创建者身份与生成雪花 ID
+            token = self.get_auth_token()
+            sess = ACTIVE_SESSIONS.get(token, {})
+            creator_user_id = str(sess.get("user_id") or "")
+            creator_name = str(sess.get("username") or "")
+            snowflake_id = new_id()
+
             # 从模板初始化
             template_dir = os.path.join(PROJECTS_DIR, "_template")
             shutil.copytree(template_dir, client_dir)
@@ -449,13 +537,18 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             if isinstance(cv_list, str):
                 cv_list = [v.strip() for v in cv_list.split("\n") if v.strip()]
 
-            yaml_content = f"""client_id: "{e(client_id)}"
+            yaml_content = f"""id: "{snowflake_id}"
+client_id: "{e(client_id)}"
 client_name: "{e(body.get('client_name', '新客户'))}"
 official_url: "{e(official_url)}"
 industry: "{e(industry)}"
 business_one_liner: "{e(one_liner)}"
 company_profile: "{e(body.get('company_profile') or one_liner)}"
 site_pending: {"true" if site_pending else "false"}
+
+creator_user_id: "{e(creator_user_id)}"
+creator_name: "{e(creator_name)}"
+member_user_ids: []
 
 core_values:
 """
@@ -487,11 +580,147 @@ core_values:
 
             self.send_json({
                 "success": True,
+                "code": 0,
+                "id": snowflake_id,
+                "project_slug": client_id,
                 "client_id": client_id,
                 "official_url": official_url,
                 "site_pending": site_pending,
+                "creator_user_id": creator_user_id,
+                "creator_name": creator_name,
                 "message": f"项目 [{client_id}] 创建成功！",
             })
+            return
+
+        # [2026-09-18] [接入小毛驴统一API] 异步任务提交: POST /api/v1/projects/{id}/tasks
+        if path.startswith("/api/v1/projects/") and path.endswith("/tasks"):
+            parts = path.split("/")
+            project_id = parts[4]
+            body = self.read_json_body()
+            task_type = body.get("task_type", "").strip()
+            if not task_type:
+                self.send_json({"code": 400, "msg": "缺少必填参数 task_type", "data": None}, status=400)
+                return
+
+            token = self.get_auth_token()
+            sess = ACTIVE_SESSIONS.get(token, {})
+            user_id = str(sess.get("user_id") or "")
+            user_name = str(sess.get("username") or "")
+
+            task_mgr = get_task_manager()
+            task = task_mgr.submit_task(
+                project_id=project_id,
+                task_type=task_type,
+                created_by_user_id=user_id,
+                created_by_name=user_name,
+                params=body.get("params") or {},
+            )
+            self.send_json({
+                "code": 0,
+                "msg": "任务已提交",
+                "data": task.to_dict(),
+            })
+            return
+
+        # [2026-09-18] [接入小毛驴统一API] 打包下载产物 ZIP (遵循 RESTful 路径无动词铁律): POST /api/v1/projects/{id}/bundles
+        if path.startswith("/api/v1/projects/") and path.endswith("/bundles"):
+            parts = path.split("/")
+            project_id = parts[4]
+            try:
+                cfg = load_project_config(project_id)
+                out_dir = cfg["_outputs_dir"]
+
+                zip_buffer = io.BytesIO()
+                with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                    for root, _, files in os.walk(out_dir):
+                        for file in files:
+                            if not file.startswith("."):
+                                fpath = os.path.join(root, file)
+                                arcname = os.path.relpath(fpath, out_dir)
+                                zip_file.write(fpath, arcname)
+
+                zip_buffer.seek(0)
+                zip_data = zip_buffer.getvalue()
+
+                self.send_response(200)
+                self.send_header("Content-Type", "application/zip")
+                self.send_header("Content-Disposition", f"attachment; filename=\"{project_id}_geo_deliverables.zip\"")
+                self.send_header("Content-Length", str(len(zip_data)))
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(zip_data)
+                return
+            except Exception as e:
+                self.send_json({"code": 500, "msg": f"打包失败: {str(e)}", "data": None}, status=500)
+                return
+
+        # [2026-09-18] [接入小毛驴统一API] 公共素材上传透传 (不自建上传): POST /api/v1/community/uploads 或 /api/v1/uploads
+        if path in ("/api/v1/community/uploads", "/api/v1/uploads"):
+            token = self.get_auth_token()
+            try:
+                content_length = int(self.headers.get("Content-Length", 0))
+                if content_length <= 0:
+                    self.send_json({"code": 400, "msg": "上传内容为空", "data": None}, status=400)
+                    return
+                raw_body = self.rfile.read(content_length)
+                # 提取 Content-Type
+                ctype = self.headers.get("Content-Type", "")
+                
+                # 如果是 multipart，由 kb_client 透传；若已有文件数据则提取
+                kb_client = get_kb_client()
+                # 透传调用小毛驴主后端
+                import urllib.request
+                target_url = f"{kb_client.base_url}/api/v1/community/uploads"
+                req = urllib.request.Request(
+                    target_url,
+                    data=raw_body,
+                    headers={
+                        "Content-Type": ctype,
+                        "Authorization": f"Bearer {token}",
+                        "vio-source-client": kb_client.source_client,
+                    },
+                    method="POST",
+                )
+                with urllib.request.urlopen(req, timeout=30) as upstream_resp:
+                    res_json = json.loads(upstream_resp.read().decode("utf-8"))
+                    self.send_json(res_json)
+                    return
+            except urllib.error.HTTPError as e:
+                err_text = e.read().decode("utf-8", errors="ignore")
+                try:
+                    self.send_json(json.loads(err_text), status=e.code)
+                except Exception:
+                    self.send_json({"code": e.code, "msg": f"上传失败: {err_text}", "data": None}, status=e.code)
+                return
+            except Exception as ex:
+                self.send_json({"code": 500, "msg": f"上传透传异常: {str(ex)}", "data": None}, status=500)
+                return
+
+        # [2026-09-18] [接入小毛驴统一API] 知识库文档入库透传: POST /api/v1/kb/documents
+        if path == "/api/v1/kb/documents":
+            token = self.get_auth_token()
+            body = self.read_json_body()
+            title = body.get("title", "").strip()
+            content = body.get("content", "").strip()
+            doc_type = body.get("doc_type", "markdown")
+            project_id = body.get("project_id", "")
+            kb_client = get_kb_client()
+            resp = kb_client.add_document(token, title, content, doc_type=doc_type, project_id=project_id)
+            status_code = 200 if resp.get("code") == 0 else 400
+            self.send_json(resp, status=status_code)
+            return
+
+        # [2026-09-18] [接入小毛驴统一API] 知识库问答透传: POST /api/v1/kb/chat
+        if path == "/api/v1/kb/chat":
+            token = self.get_auth_token()
+            body = self.read_json_body()
+            query = body.get("query", "").strip()
+            project_id = body.get("project_id", "")
+            history = body.get("history") or []
+            kb_client = get_kb_client()
+            resp = kb_client.chat_kb(token, query, project_id=project_id, history=history)
+            status_code = 200 if resp.get("code") == 0 else 400
+            self.send_json(resp, status=status_code)
             return
 
         # 合作方名册：创建
@@ -2113,6 +2342,114 @@ core_values:
 
         self.send_json({"error": "Not Found"}, status=404)
 
+    def do_PUT(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if not self.check_auth():
+            self.send_json({"code": 401, "msg": "未登录或登录已失效", "data": None}, status=401)
+            return
+
+        # 更新项目配置: PUT /api/v1/projects/{id} 或 PUT /api/projects/{id}
+        is_legacy_put = path.startswith("/api/projects/") and len(path.split("/")) == 4
+        is_v1_put = path.startswith("/api/v1/projects/") and len(path.split("/")) == 5
+        if is_legacy_put or is_v1_put:
+            project_id = path.split("/")[4 if is_v1_put else 3]
+            body = self.read_json_body()
+            project_dir = os.path.join(PROJECTS_DIR, project_id)
+            config_file = os.path.join(project_dir, "project.yaml")
+
+            if not os.path.exists(config_file):
+                self.send_json({"code": 404, "msg": f"项目 [{project_id}] 不存在", "data": None}, status=404)
+                return
+
+            try:
+                # 备份旧配置
+                bak_file = config_file + ".bak"
+                shutil.copyfile(config_file, bak_file)
+
+                # 读取旧配置以合并
+                old_cfg = load_project_config(project_id)
+                e = self._yaml_escape
+
+                # 允许更新的字段
+                client_name = body.get("client_name", old_cfg.get("client_name", project_id))
+                official_url = body.get("official_url", old_cfg.get("official_url", ""))
+                industry = body.get("industry", old_cfg.get("industry", "待定"))
+                one_liner = body.get("business_one_liner", old_cfg.get("business_one_liner", ""))
+                company_profile = body.get("company_profile", old_cfg.get("company_profile", one_liner))
+                partner_id = body.get("partner_id", old_cfg.get("partner_id", ""))
+                kw_list = body.get("keywords", old_cfg.get("keywords", []))
+                comp_list = body.get("competitors", old_cfg.get("competitors", []))
+                cv_list = body.get("core_values", old_cfg.get("core_values", []))
+                member_user_ids = body.get("member_user_ids", old_cfg.get("member_user_ids", []))
+                models_list = body.get("models", old_cfg.get("models", ["deepseek", "doubao"]))
+                sf_id = str(old_cfg.get("id") or body.get("id") or new_id())
+                creator_user_id = str(old_cfg.get("creator_user_id") or "")
+                creator_name = str(old_cfg.get("creator_name") or "")
+
+                if isinstance(kw_list, str):
+                    kw_list = [k.strip() for k in kw_list.split("\n") if k.strip()]
+                if isinstance(comp_list, str):
+                    comp_list = [c.strip() for c in comp_list.split("\n") if c.strip()]
+                if isinstance(cv_list, str):
+                    cv_list = [v.strip() for v in cv_list.split("\n") if v.strip()]
+
+                yaml_content = f"""id: "{sf_id}"
+client_id: "{e(project_id)}"
+client_name: "{e(client_name)}"
+official_url: "{e(official_url)}"
+industry: "{e(industry)}"
+business_one_liner: "{e(one_liner)}"
+company_profile: "{e(company_profile)}"
+site_pending: false
+
+creator_user_id: "{e(creator_user_id)}"
+creator_name: "{e(creator_name)}"
+member_user_ids: {json.dumps(member_user_ids, ensure_ascii=False)}
+
+core_values:
+"""
+                for cv in (cv_list or []):
+                    yaml_content += f"  - \"{e(cv)}\"\n"
+
+                yaml_content += "\nkeywords:\n"
+                for kw in (kw_list or []):
+                    yaml_content += f"  - \"{e(kw)}\"\n"
+
+                yaml_content += "\ncompetitors:\n"
+                for comp in (comp_list or []):
+                    yaml_content += f"  - \"{e(comp)}\"\n"
+
+                yaml_content += "\nmodels:\n"
+                for m in (models_list or ["deepseek", "doubao"]):
+                    yaml_content += f"  - \"{e(m)}\"\n"
+
+                yaml_content += f'\npartner_id: "{e(partner_id)}"\n'
+                yaml_content += f'updated_at: "{time.strftime("%Y-%m-%d %H:%M:%S")}"\n'
+
+                with open(config_file, "w", encoding="utf-8") as f:
+                    f.write(yaml_content)
+
+                self.send_json({
+                    "code": 0,
+                    "msg": "项目配置更新成功",
+                    "success": True,
+                    "data": {
+                        "id": sf_id,
+                        "project_slug": project_id,
+                        "client_name": client_name,
+                        "official_url": official_url,
+                        "updated_at": time.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                })
+                return
+            except Exception as e:
+                self.send_json({"code": 500, "msg": f"更新失败: {str(e)}", "data": None}, status=500)
+                return
+
+        self.send_json({"error": "Not Found"}, status=404)
+
     def do_DELETE(self):
         parsed = urlparse(self.path)
         path = parsed.path
@@ -2120,6 +2457,30 @@ core_values:
         # 鉴权拦截
         if not self.check_auth():
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+            return
+
+        # [2026-09-18] [接入小毛驴统一API] 删除/归档项目: DELETE /api/v1/projects/{id} 或 DELETE /api/projects/{id}
+        is_del_proj_v1 = path.startswith("/api/v1/projects/") and len(path.split("/")) == 5
+        is_del_proj_legacy = path.startswith("/api/projects/") and len(path.split("/")) == 4 and not path.endswith("/output")
+        if is_del_proj_v1 or is_del_proj_legacy:
+            project_id = path.split("/")[4 if is_del_proj_v1 else 3]
+            project_dir = os.path.join(PROJECTS_DIR, project_id)
+            if not os.path.exists(project_dir):
+                self.send_json({"code": 404, "msg": f"项目 [{project_id}] 不存在", "data": None}, status=404)
+                return
+            try:
+                # 安全归档而非硬物理删除
+                archive_name = f".archived_{project_id}_{int(time.time())}"
+                archive_dir = os.path.join(PROJECTS_DIR, archive_name)
+                shutil.move(project_dir, archive_dir)
+                self.send_json({
+                    "code": 0,
+                    "msg": f"项目 [{project_id}] 已安全归档",
+                    "success": True,
+                    "data": {"archived_as": archive_name}
+                })
+            except Exception as e:
+                self.send_json({"code": 500, "msg": f"归档失败: {str(e)}", "data": None}, status=500)
             return
 
         # 删除 outputs 内指定文件: DELETE /api/projects/{id}/output/{filename}
@@ -2221,24 +2582,50 @@ core_values:
             authed = self.check_auth()
 
             # 本机开发直连专属免密畅通保障 (仅限 localhost/127.0.0.1 本地访问)：
-            # 若尚未登录或重启后 Token 未同步，自动无缝派发本地管理员 Token，
-            # 彻底避免写代码改代码后反复弹窗输入账密的干扰！
             if not authed and self.is_local_dev_request():
                 query = parse_qs(parsed.query)
                 if query.get("manual", ["0"])[0] != "1":
-                    token = create_session(ADMIN_USERNAME)
+                    token = create_session("本地开发者", user_id="0", phone="13150568888", role="admin")
                     authed = True
 
-            user = ACTIVE_SESSIONS.get(token, {}).get("username", ADMIN_USERNAME if authed else "") if authed else ""
+            sess = ACTIVE_SESSIONS.get(token, {}) if authed else {}
+            user = sess.get("username", "本地开发者" if authed else "")
+            user_id = str(sess.get("user_id", ""))
+            role = sess.get("role", "user")
+            credits = sess.get("credits", 0)
+
             # 管理台阶段零等 CLI 引导：给出本机仓库根目录，方便复制 cd 命令
             repo_root = os.path.abspath(PROJECT_ROOT)
             self.send_json({
                 "authenticated": authed,
                 "username": user,
+                "user_id": user_id,
+                "role": role,
+                "credits": credits,
                 "token": token if authed else "",
                 "repo_root": repo_root,
                 "cd_cmd": f"cd {shlex.quote(repo_root)}",
             })
+            return
+
+        # 1.1 [2026-09-18] [接入小毛驴统一API] 用户画像接口 (GET /api/v1/xiulan/me 或 /api/auth/me)
+        if path in ("/api/v1/xiulan/me", "/api/auth/me"):
+            token = self.get_auth_token()
+            if not token:
+                self.send_json({"code": 401, "msg": "未登录或缺少 Token", "data": None}, status=401)
+                return
+            auth_client = get_auth_client()
+            resp = auth_client.get_me(token)
+            status_code = 200 if resp.get("code") == 0 else 401
+            self.send_json(resp, status=status_code)
+            return
+
+        # 1.2 [2026-09-18] [接入小毛驴统一API] 微信扫码二维码生成接口 (公开)
+        if path in ("/api/auth/wechat-qr", "/api/v1/auth/wechat-qr"):
+            auth_client = get_auth_client()
+            resp = auth_client.get_wechat_qr()
+            status_code = 200 if resp.get("code") == 0 else 500
+            self.send_json(resp, status=status_code)
             return
 
         # 2. 行业对标数据接口 (公开)
@@ -4196,8 +4583,8 @@ server {{
                     self.send_json({"success": False, "message": str(e), "partners": []}, status=500)
                 return
 
-            # 获取项目列表 API
-            if path == "/api/projects":
+            # 获取项目列表 API (支持 /api/projects 与 /api/v1/projects)
+            if path in ("/api/projects", "/api/v1/projects"):
                 projects = []
                 try:
                     from .partners import partner_map, resolve_partner_name
@@ -4236,6 +4623,8 @@ server {{
                                     kws = []
                                 probe_status = str(cfg.get("probe_status") or "unprobed").strip() or "unprobed"
                                 row = {
+                                    "id": str(cfg.get("id") or ""),
+                                    "project_slug": item,
                                     "client_id": item,
                                     "client_name": cfg.get("client_name", item),
                                     "official_url": cfg.get("official_url", ""),
@@ -4250,6 +4639,10 @@ server {{
                                     "probe_status": probe_status,
                                     "probe_baseline_id": str(cfg.get("probe_baseline_id") or ""),
                                     "probe_baseline_at": str(cfg.get("probe_baseline_at") or ""),
+                                    "creator_user_id": str(cfg.get("creator_user_id") or ""),
+                                    "creator_name": str(cfg.get("creator_name") or ""),
+                                    "member_user_ids": cfg.get("member_user_ids") or [],
+                                    "can_edit": True,
                                 }
 
                                 if filter_partner is not None:
@@ -4278,12 +4671,107 @@ server {{
                             except Exception:
                                 pass
 
-                self.send_json({"success": True, "projects": projects})
+                self.send_json({
+                    "code": 0,
+                    "msg": "success",
+                    "success": True,
+                    "data": projects,
+                    "projects": projects
+                })
                 return
 
-            # 获取单个项目详情与交付物 API: /api/projects/{id}
-            if path.startswith("/api/projects/") and len(path.split("/")) == 4:
-                project_id = path.split("/")[3]
+            # [2026-09-18] [接入小毛驴统一API] 项目报告列表: GET /api/v1/projects/{id}/reports
+            if path.startswith("/api/v1/projects/") and path.endswith("/reports"):
+                project_id = path.split("/")[4]
+                try:
+                    cfg = load_project_config(project_id)
+                    out_dir = cfg["_outputs_dir"]
+                    reports = []
+                    if os.path.exists(out_dir):
+                        for root, _, files in os.walk(out_dir):
+                            for file in sorted(files):
+                                if file.startswith("."):
+                                    continue
+                                fpath = os.path.join(root, file)
+                                rel_path = os.path.relpath(fpath, out_dir)
+                                stat = os.stat(fpath)
+                                ext = os.path.splitext(file)[1].lstrip(".")
+                                reports.append({
+                                    "filename": file,
+                                    "relative_path": rel_path,
+                                    "size_bytes": stat.st_size,
+                                    "updated_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime)),
+                                    "type": "markdown" if ext == "md" else ("html" if ext == "html" else ext),
+                                })
+                    self.send_json({
+                        "code": 0,
+                        "msg": "success",
+                        "data": reports,
+                        "success": True,
+                        "reports": reports
+                    })
+                except Exception as e:
+                    self.send_json({"code": 500, "msg": str(e), "data": []}, status=500)
+                return
+
+            # [2026-09-18] [接入小毛驴统一API] 获取项目历史任务列表: GET /api/v1/projects/{id}/tasks
+            if path.startswith("/api/v1/projects/") and path.endswith("/tasks"):
+                project_id = path.split("/")[4]
+                task_mgr = get_task_manager()
+                tasks = task_mgr.list_project_tasks(project_id)
+                self.send_json({
+                    "code": 0,
+                    "msg": "success",
+                    "data": [t.to_dict() for t in tasks],
+                    "total": len(tasks),
+                })
+                return
+
+            # [2026-09-18] [接入小毛驴统一API] 单任务实时状态查询: GET /api/v1/tasks/{id}
+            if path.startswith("/api/v1/tasks/") and not path.endswith("/events") and len(path.split("/")) == 5:
+                task_id = path.split("/")[4]
+                task_mgr = get_task_manager()
+                task = task_mgr.get_task(task_id)
+                if not task:
+                    self.send_json({"code": 404, "msg": "任务不存在", "data": None}, status=404)
+                    return
+                self.send_json({
+                    "code": 0,
+                    "msg": "success",
+                    "data": task.to_dict(),
+                })
+                return
+
+            # [2026-09-18] [接入小毛驴统一API] 单任务 SSE 事件推流: GET /api/v1/tasks/{id}/events
+            if path.startswith("/api/v1/tasks/") and path.endswith("/events"):
+                task_id = path.split("/")[4]
+                task_mgr = get_task_manager()
+                task = task_mgr.get_task(task_id)
+                if not task:
+                    self.send_json({"code": 404, "msg": "任务不存在", "data": None}, status=404)
+                    return
+
+                self.send_response(200)
+                self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+                self.send_header("Cache-Control", "no-cache, no-transform")
+                self.send_header("Connection", "keep-alive")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("X-Accel-Buffering", "no")
+                self.end_headers()
+
+                try:
+                    for chunk in task_mgr.subscribe_events(task_id):
+                        self.wfile.write(chunk.encode("utf-8"))
+                        self.wfile.flush()
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+                return
+
+            # 获取单个项目详情与交付物 API: /api/projects/{id} 或 /api/v1/projects/{id}
+            is_legacy_proj = path.startswith("/api/projects/") and len(path.split("/")) == 4
+            is_v1_proj = path.startswith("/api/v1/projects/") and len(path.split("/")) == 5
+            if is_legacy_proj or is_v1_proj:
+                project_id = path.split("/")[4 if is_v1_proj else 3]
                 try:
                     cfg = load_project_config(project_id)
                     out_dir = cfg["_outputs_dir"]
@@ -4300,7 +4788,20 @@ server {{
 
                     # 清理私有路径
                     safe_cfg = {k: v for k, v in cfg.items() if not k.startswith("_")}
+                    safe_cfg["id"] = str(cfg.get("id") or "")
+                    safe_cfg["project_slug"] = project_id
+                    safe_cfg["creator_user_id"] = str(cfg.get("creator_user_id") or "")
+                    safe_cfg["creator_name"] = str(cfg.get("creator_name") or "")
+                    safe_cfg["member_user_ids"] = cfg.get("member_user_ids") or []
                     safe_cfg["outputs"] = outputs
+
+                    # 读取 project.yaml 原始内容
+                    yaml_path = os.path.join(PROJECTS_DIR, project_id, "project.yaml")
+                    if os.path.exists(yaml_path):
+                        with open(yaml_path, "r", encoding="utf-8") as yf:
+                            safe_cfg["config_raw"] = yf.read()
+                    else:
+                        safe_cfg["config_raw"] = ""
 
                     # 只读富化：合作方中文名 + 证据/真相源条数（不写回 yaml）
                     try:
@@ -4317,9 +4818,15 @@ server {{
                         safe_cfg["evidence_count"] = 0
                         safe_cfg["facts_count"] = 0
 
-                    self.send_json({"success": True, "project": safe_cfg})
+                    self.send_json({
+                        "code": 0,
+                        "msg": "success",
+                        "data": safe_cfg,
+                        "success": True,
+                        "project": safe_cfg
+                    })
                 except Exception as e:
-                    self.send_json({"success": False, "message": str(e)}, status=404)
+                    self.send_json({"code": 404, "msg": str(e), "success": False, "message": str(e)}, status=404)
                 return
 
             # 读取指定交付物文件内容: /api/projects/{id}/output/{filename}
@@ -5106,8 +5613,8 @@ def start_server(port: int = 8080):
     
     print_banner("GEO 商业交付 Web 管理端已成功启动")
     print_success(f"管理端地址: http://localhost:{port}")
-    print_info(f"管理员账号: {ADMIN_USERNAME}")
-    print_info(f"管理员密码: {ADMIN_PASSWORD}")
+    print_info("认证中心: 已接入小毛驴统一用户中心 (SSO)")
+    print_info("同机主服务: 优先直连 http://127.0.0.1:3001 (vio-source-client: geo)")
     print_info("提示：非敏感公开文档与 /llms.txt 支持外部直接抓取；客户商业数据必须登录访问。")
     print_info("按 Ctrl + C 停止服务。\n")
     

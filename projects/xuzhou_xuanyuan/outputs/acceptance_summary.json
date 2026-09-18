@@ -1,6 +1,6 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "generated_at": "2026-09-18T12:36:12Z",
+  "generated_at": "2026-09-18T15:43:43Z",
   "fulfillment_rate": 71.6,
   "manifest_summary": {
     "total_files": 16,
@@ -71,7 +71,7 @@
       "file": "07_大模型事实幻觉纠偏与信源反击策略.md",
       "stage": "S4/S5 事实防御",
       "exists": true,
-      "size": 8693
+      "size": 8705
     },
     {
       "index": "08",
@@ -134,7 +134,7 @@
       "file": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md",
       "stage": "S1/S5 竞争对抗",
       "exists": true,
-      "size": 7075
+      "size": 7155
     },
     {
       "index": "15",
