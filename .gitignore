@@ -3,6 +3,7 @@
 node_modules/
 dist/
 .workbuddy/
+.workbuddy-ai/
 __pycache__/
 *.pyc
 data/shares.json

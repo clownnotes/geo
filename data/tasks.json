@@ -1,5 +1,24 @@
 [
   {
+    "id": "94367102172925952",
+    "project_id": "test_proj_1789724470",
+    "task_type": "test_echo",
+    "created_by_user_id": "1768892187321049888",
+    "created_by_name": "测试产品经理",
+    "params": {
+      "message": "API集成测试任务",
+      "sleep": 0.05
+    },
+    "status": "success",
+    "progress": 100,
+    "log_output": "[2026-09-18 17:41:10] [开始执行] 任务 ID: 94367102172925952 | 项目: test_proj_1789724470 | 类型: test_echo\n[2026-09-18 17:41:10] Task echo: API集成测试任务\n[2026-09-18 17:41:10] Task echo finished",
+    "duration_ms": 54,
+    "error_message": "",
+    "created_at": 1789724470.414613,
+    "started_at": 1789724470.415566,
+    "completed_at": 1789724470.471265
+  },
+  {
     "id": "94345777920348160",
     "project_id": "test_proj_1789719385",
     "task_type": "test_echo",
