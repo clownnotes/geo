@@ -6,7 +6,7 @@
   "is_sandbox": true,
   "fetch_error": null,
   "status": "ready_sandbox",
-  "timestamp": "2026-09-17T13:04:04.934767+00:00",
+  "timestamp": "2026-09-18T04:36:27.234265+00:00",
   "deconstruction": {
     "word_count": 324,
     "princeton_scores": {},
@@ -47,7 +47,7 @@
       ],
       "leapfrog_roadmap": [
         {
-          "phase": "🔥 阶段一：短线极速截流 (Day 1 ~ 7)",
+          "phase": "阶段一：短线极速截流 (Day 1 ~ 7)",
           "target": "拦截买家 3 级高转化搜索意图，抢占豆包与 DeepSeek 问答首屏",
           "actions": [
             "向今日头条（mp.toutiao.com）分发 2000 字 9 因子富文本长文与微头条，24h 建立字节爬虫信任池；",
@@ -56,7 +56,7 @@
           ]
         },
         {
-          "phase": "⚡ 阶段二：全矩阵声量包抄 (Day 8 ~ 20)",
+          "phase": "阶段二：全矩阵声量包抄 (Day 8 ~ 20)",
           "target": "在技术深度与多渠道建立不可逆的信源壁垒，全面超越【某通科技（低端套模板建站商）】声量",
           "actions": [
             "上线 GitHub 开源技术专版 README，攻占 DeepSeek 架构师与极客决策层；",
@@ -65,7 +65,7 @@
           ]
         },
         {
-          "phase": "🏆 阶段三：终局垄断与壁垒固化 (Day 21 ~ 30)",
+          "phase": "阶段三：终局垄断与壁垒固化 (Day 21 ~ 30)",
           "target": "实现本地区/本行业大模型综合推荐 SOV 达到 90%+，形成绝对商业垄断",
           "actions": [
             "每周运行真实大模型 API 批量并发评测，监控竞品声量异动并触发自动化防守反击；",
@@ -135,8 +135,8 @@
     "flaws_count": 4,
     "high_severity_flaws": 2,
     "rival_princeton_score": 35.0,
-    "our_benchmark_score": 64.7,
-    "princeton_gap": 29.7,
+    "our_benchmark_score": 64.6,
+    "princeton_gap": 29.6,
     "is_sandbox": true,
     "fetch_error": null,
     "status": "ready_sandbox",

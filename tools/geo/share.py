@@ -1640,14 +1640,23 @@ def build_audit_report_html_document(project_id: str, markdown: str = None, view
     issuer = meta.get("issuer") or "邻里 GEO 工业级商业交付中心"
     body_html = _md_to_simple_html(md)
 
-    if view == "tech":
-        title_text = f"{client_name} · 站点底座技术体检与工程审计报告"
-        sub_text = "工程师技术底座审计报告 · 原始指标与真抓数据 · 请勿对外公开爬取索引"
-        out_filename = AUDIT_REPORT_HTML_TECH
-    else:
-        title_text = f"{client_name} · AI 可见度商业诊断报告"
-        sub_text = "客户只读商业诊断报告 · 商业决策与可见度审计 · 请勿对外公开爬取索引"
-        out_filename = AUDIT_REPORT_HTML_BOSS
+    if view == "boss" and (markdown is None or "附录：技术底座" not in markdown):
+        # // [2026-09-18] [高转化老板商业诊断报告HTML模板重构] 接入全新浅紫色流光高转化自包含大屏引擎
+        from .boss_report_html import extract_conversion_report_data, assemble_boss_conversion_html
+        conv_data = extract_conversion_report_data(project_id, markdown_text=md)
+        boss_html = assemble_boss_conversion_html(conv_data)
+        return {
+            "success": True,
+            "project_id": project_id,
+            "client_name": client_name,
+            "html": boss_html,
+            "filename": AUDIT_REPORT_HTML_BOSS,
+            "view": "boss",
+        }
+
+    title_text = f"{client_name} · 站点底座技术体检与工程审计报告"
+    sub_text = "工程师技术底座审计报告 · 原始指标与真抓数据 · 请勿对外公开爬取索引"
+    out_filename = AUDIT_REPORT_HTML_TECH
 
     title = html_lib.escape(title_text)
     issuer_e = html_lib.escape(issuer)
@@ -1662,7 +1671,7 @@ def build_audit_report_html_document(project_id: str, markdown: str = None, view
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <title>{title}</title>
 <style>
-  :root {{ --text:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --card:#fff; --accent:#4f46e5; }}
+  :root {{ --text:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --card:#fff; --accent:#7c5bf5; }}
   * {{ box-sizing: border-box; }}
   body {{ margin:0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, sans-serif;
     background: var(--bg); color: var(--text); line-height: 1.7; }}

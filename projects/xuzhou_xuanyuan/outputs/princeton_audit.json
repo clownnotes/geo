@@ -1,9 +1,9 @@
 {
   "success": true,
   "project_id": "xuzhou_xuanyuan",
-  "scanned_files": 90,
-  "avg_princeton_score": 64.7,
-  "pass_rate_ge_80": 6.7,
+  "scanned_files": 91,
+  "avg_princeton_score": 64.6,
+  "pass_rate_ge_80": 6.6,
   "rating_grade": "B 级 (及格边缘级)",
   "est_visibility_ceiling": "+26.5%",
   "est_boost_vs_baseline": "+12.2%",
@@ -211,6 +211,24 @@
       "overall_score": 53.9,
       "rating_grade": "C 级 (低质营销水文)",
       "est_visibility_ceiling": "+22.1%",
+      "top_suggestions": [
+        "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "06_同赛道竞品结构化档案与多维战力对照.md",
+      "overall_score": 54.7,
+      "rating_grade": "C 级 (低质营销水文)",
+      "est_visibility_ceiling": "+22.4%",
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议补充带身份声明的专家/技术负责人客观引语",
@@ -1578,7 +1596,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-17 21:04:01",
+  "generated_at": "2026-09-18 12:36:22",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

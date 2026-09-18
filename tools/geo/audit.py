@@ -966,6 +966,12 @@ def run_audit_crawl(project_id: str, custom_url: str = None) -> dict:
     out_path = save_project_output(cfg, AUDIT_REPORT_FILE, report_content)
     boss_path = save_project_output(cfg, AUDIT_REPORT_BOSS_FILE, boss_content)
     tech_path = save_project_output(cfg, AUDIT_REPORT_TECH_FILE, tech_content)
+    # // [2026-09-18] [高转化老板商业诊断报告HTML模板重构] 自动落盘自包含高转化HTML大屏报告
+    try:
+        from .share import export_audit_report_html
+        export_audit_report_html(cfg["id"], view="boss")
+    except Exception:
+        pass
     print_success(f"真抓完成：老板版={boss_path}，技术版={tech_path}，兼容版={out_path}（tech_score={metrics.get('tech_score')}）")
     return {
         "mode": "crawl",
@@ -1001,6 +1007,11 @@ def run_audit_interpret(project_id: str) -> dict:
     out_path = save_project_output(cfg, AUDIT_REPORT_FILE, report_content)
     boss_path = save_project_output(cfg, AUDIT_REPORT_BOSS_FILE, boss_content)
     tech_path = save_project_output(cfg, AUDIT_REPORT_TECH_FILE, tech_content)
+    try:
+        from .share import export_audit_report_html
+        export_audit_report_html(cfg["id"], view="boss")
+    except Exception:
+        pass
     if llm_status == "ok":
         msg = "② 小毛驴解读完成，报告商业段已更新。"
     elif llm_status == "failed":
@@ -1032,6 +1043,11 @@ def run_audit_boss_direct(project_id: str) -> dict:
     boss_content = assemble_boss_report(cfg, metrics, probe_snap, narrative="")
     boss_path = save_project_output(cfg, AUDIT_REPORT_BOSS_FILE, boss_content)
     save_project_output(cfg, AUDIT_REPORT_FILE, boss_content)
+    try:
+        from .share import export_audit_report_html
+        export_audit_report_html(cfg["id"], view="boss")
+    except Exception:
+        pass
     print_success(f"② 商业诊断与焦虑转化初稿直出完成 → 老板版={boss_path}")
     return {
         "mode": "boss_direct",

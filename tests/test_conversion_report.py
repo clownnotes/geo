@@ -286,6 +286,109 @@ class TestConversionReport(unittest.TestCase):
         self.assertIn("焦虑转化润色提示词", panel)
         self.assertIn("架构师改造提示词", panel)
 
+    def test_11_boss_conversion_html_template(self):
+        """测试高转化老板商业诊断报告 HTML 纯原生自包含模板生成与 7 大核心区块"""
+        from tools.geo.share import build_audit_report_html_document
+        res = build_audit_report_html_document("nextgeo", view="boss")
+        self.assertTrue(res.get("success"), "应当生成成功")
+        html = res.get("html", "")
+
+        # 1. 验证关键浅紫色流光美学样式
+        self.assertIn("linear-gradient(135deg, #ede9fe 0%", html, "应当包含浅紫色流光渐变背景")
+        self.assertIn(".dr-hero__score-group", html, "应当包含磨砂白独立仪表盘")
+        self.assertIn("backdrop-filter:blur(10px)", html, "应当具备高质感毛玻璃效果")
+
+        # 2. 验证三个原生动态 SVG 图表
+        self.assertIn("dr-hero__score-ring-fill", html, "应当包含动态圆环进度条")
+        self.assertIn("基建完善度", html, "应当包含雷达图指标")
+        self.assertIn("认知准确性", html, "应当包含雷达图指标")
+        self.assertIn("探索层提及率", html, "应当包含三色环形分布图")
+
+        # 3. 验证 5 大商业诊断核心区块
+        self.assertIn("AI 可见度商业诊断报告", html)
+        self.assertIn("诊 断 概 览", html)
+        self.assertIn("好消息：你的技术资产其实很能打", html)
+        self.assertIn("坏消息：AI 现在根本认不出你的品牌", html)
+        self.assertIn("竞品占位透视：谁在吃你的入口", html)
+        self.assertIn("四步破局：从「能被读到」到「被推荐」", html)
+        self.assertIn("AIVO 四维评分（思维分析）", html)
+
+        # 验证按用户要求：彻底删除原图 1「评测元信息（数据真源）」
+        self.assertNotIn("评 测 元 信 息（数据真源）", html, "图 1 评测元信息必须已删除")
+
+        # 4. 验证终章收官大卡片（宣传语金句与原图 2 联系方式深度融合）
+        self.assertIn("dr-slogan", html)
+        self.assertIn("当你清楚要做什么，全世界都会为你让路", html)
+        self.assertIn("CLARITY PRECEDES MOMENTUM", html)
+        self.assertIn("让 AI 的每一次回答，都成为你最坚定的商业代言人", html)
+        self.assertIn("dr-slogan__action", html, "宣传语卡片内必须包含行动转化专区")
+        self.assertIn("微信", html)
+        self.assertIn("电话", html)
+        self.assertIn("官网", html)
+        self.assertIn("起步档：企业 GEO 全案服务", html)
+
+        # 5. 严格验证收尾排版顺序：思维分析 -> 终章宣传语与联系方式大卡片
+        pos_aivo = html.find("AIVO 四维评分（思维分析）")
+        pos_slogan = html.find("当你清楚要做什么，全世界都会为你让路")
+
+        self.assertGreater(pos_aivo, 0, "AIVO 四维评分必须存在")
+        self.assertGreater(pos_slogan, pos_aivo, "宣传语与联系方式收官大卡片必须在思维分析之后作为最终收尾")
+
+    def test_12_boss_conversion_html_zero_emoji(self):
+        """严格断言生成的高转化老板商业报告 HTML 绝对 0 Emoji 违规"""
+        import re
+        from tools.geo.boss_report_html import extract_conversion_report_data, assemble_boss_conversion_html
+        data = extract_conversion_report_data("nextgeo")
+        html = assemble_boss_conversion_html(data)
+
+        # 常见 Emoji 与 Unicode Emoji 范围
+        emoji_pattern = re.compile("[\U00010000-\U0010ffff]", flags=re.UNICODE)
+        matches = emoji_pattern.findall(html)
+        self.assertEqual(len(matches), 0, f"生成的 HTML 中发现违规 Emoji: {set(matches)}")
+
+        # 关键状态符号不得有彩色表情符号
+        for bad_emoji in ("🔴", "🟢", "🟡", "⚠️", "⚡️", "💡", "📊", "🤝", "💎", "⚙️", "💻"):
+            self.assertNotIn(bad_emoji, html, f"HTML 中不得包含表情符号: {bad_emoji}")
+
+    def test_13_downloads_html_reordered_and_zero_emoji(self):
+        """验证 Downloads 目录下的交付 HTML 文件已删除 footer，联系方式已融入宣传语且 0 Emoji"""
+        import re
+        downloads_file = "/Volumes/a1/Downloads/邻里GEO-AI可见度诊断报告（转化版）.html"
+        if not os.path.exists(downloads_file):
+            return
+        with open(downloads_file, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # 检查删除图 1(评测元信息)
+        self.assertNotIn("评 测 元 信 息（数据真源）", content)
+
+        # 检查金句和融入的联系方式
+        self.assertIn("当你清楚要做什么，全世界都会为你让路", content)
+        self.assertIn("nextdoor8", content)
+        self.assertIn("13150568888", content)
+        self.assertIn("baicl.cc", content)
+        self.assertIn("起步档：企业 GEO 全案服务", content)
+
+        p_aivo = content.find("AIVO 四维评分（思维分析）")
+        p_slogan = content.find("当你清楚要做什么，全世界都会为你让路")
+
+        self.assertGreater(p_aivo, 0)
+        self.assertGreater(p_slogan, p_aivo)
+
+        # 0 Emoji 检查
+        emoji_pattern = re.compile("[\U00010000-\U0010ffff]", flags=re.UNICODE)
+        matches = emoji_pattern.findall(content)
+        self.assertEqual(len(matches), 0, f"Downloads HTML 中发现违规 Emoji: {set(matches)}")
+        for bad_emoji in ("🔴", "🟢", "🟡", "⚠️", "⚡️", "💡", "📊", "🤝", "💎", "⚙️", "💻"):
+            self.assertNotIn(bad_emoji, content)
+
+        # 0 Emoji 检查
+        emoji_pattern = re.compile("[\U00010000-\U0010ffff]", flags=re.UNICODE)
+        matches = emoji_pattern.findall(content)
+        self.assertEqual(len(matches), 0, f"Downloads HTML 中发现违规 Emoji: {set(matches)}")
+        for bad_emoji in ("🔴", "🟢", "🟡", "⚠️", "⚡️", "💡", "📊", "🤝", "💎", "⚙️", "💻"):
+            self.assertNotIn(bad_emoji, content)
+
 
 if __name__ == "__main__":
     unittest.main()
