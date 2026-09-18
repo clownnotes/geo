@@ -503,6 +503,36 @@ export function useStep0(bridge) {
     }
   }
 
+  // [2026-09-17] [阶段零结果文件删除] 支持在网页端直接手动删除豆包实测结果文件
+  async function deleteResultFile(filename) {
+    const name = String(filename || '').trim();
+    if (!name) return;
+    if (
+      !window.confirm(
+        `确定删除这份豆包结果文件？\n\n${name}\n\n删了就找不回来（只删这一份文件）。`,
+      )
+    ) {
+      return;
+    }
+    try {
+      const data = await api.deleteOutputFile(projectId.value, name, authToken.value);
+      if (!data.success) {
+        toast(data.message || '删除失败', 'error');
+        return;
+      }
+      if (selectedResultFile.value === name) {
+        selectedResultFile.value = '';
+        previewData.value = null;
+        previewCopyText.value = '';
+        diskPreviewReady.value = false;
+      }
+      toast(`已删除 ${name}`, 'success');
+      await refresh();
+    } catch {
+      toast('删除失败', 'error');
+    }
+  }
+
   async function selectResultFile(filename) {
     selectedResultFile.value = filename || '';
     diskPreviewReady.value = false;
@@ -805,6 +835,7 @@ export function useStep0(bridge) {
     selectScriptFile,
     deleteScriptFile,
     selectResultFile,
+    deleteResultFile,
     copyQualityPrompt,
     generateScript,
     previewFromDisk,

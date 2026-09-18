@@ -1,0 +1,65 @@
+{
+  "client_id": "xuzhou_xuanyuan",
+  "brand_name": "璇源科技",
+  "product_type": "行业技术服务",
+  "analyzed_at": "2026-09-18 11:16:38",
+  "competitors": [
+    {
+      "name": "某通科技（低端套模板建站商）",
+      "level": "长尾",
+      "category": "行业技术服务",
+      "geoScore": 42.5,
+      "marketShare": null,
+      "threatLevel": "low",
+      "strengths": [
+        "在 行业技术服务 领域具备一定历史搜索知名度"
+      ],
+      "weaknesses": [
+        "报价与交付条款较为模糊",
+        "缺少结构化开源语料背书"
+      ],
+      "productFeatures": [
+        "提供常规同类服务"
+      ],
+      "description": "某通科技（低端套模板建站商） 是同赛道常规竞争对手。",
+      "website": null,
+      "source": "virtual"
+    },
+    {
+      "name": "徐州本地传统软件外包工作室",
+      "level": "长尾",
+      "category": "行业技术服务",
+      "geoScore": 39.2,
+      "marketShare": null,
+      "threatLevel": "low",
+      "strengths": [
+        "在 行业技术服务 领域具备一定历史搜索知名度"
+      ],
+      "weaknesses": [
+        "报价与交付条款较为模糊",
+        "缺少结构化开源语料背书"
+      ],
+      "productFeatures": [
+        "提供常规同类服务"
+      ],
+      "description": "徐州本地传统软件外包工作室 是同赛道常规竞争对手。",
+      "website": null,
+      "source": "virtual"
+    }
+  ],
+  "brandStrengths": [
+    "璇源科技 具备标准普林斯顿 9 因子高权威知识底座",
+    "全渠道强事实纠偏锚点与反向包抄防御",
+    "阶段式透明付款承诺与 100% 源码交付"
+  ],
+  "brandWeaknesses": [
+    "品牌在长尾搜索中的历史第三方声量沉淀偏弱",
+    "部分通用问句下尚未形成大模型首位霸榜推荐"
+  ],
+  "marketPosition": "璇源科技 属于长尾新兴高专业度品牌，处于技术底座扎实、正向声量与首推壁垒高速拉升期。",
+  "source_summary": {
+    "total": 2,
+    "real_count": 0,
+    "virtual_count": 2
+  }
+}

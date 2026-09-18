@@ -12,7 +12,7 @@
         <ul class="text-[11px] text-slate-600 space-y-0.5 list-disc list-inside">
           <li>打开反重力</li>
           <li>Safari 打开豆包并已登录</li>
-          <li>在豆包里<strong>新开一个聊天</strong>（不要沿用旧对话）</li>
+          <li>在豆包里<strong>每测一题新开一个聊天</strong>（一题一清空上下文，防止上一题记忆串台）</li>
         </ul>
       </div>
 

@@ -67,6 +67,15 @@
                   {{ r.mtime || '' }}{{ r.item_count != null ? ` · ${r.item_count} 题` : '' }}{{ r.model ? ` · ${r.model}` : '' }}
                 </div>
               </div>
+              <!-- [2026-09-17] [阶段零结果文件删除] 结果文件行右侧手动删除键 -->
+              <button
+                type="button"
+                class="shrink-0 px-2 py-1 text-[10px] font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded border border-rose-200 transition-colors"
+                title="删除此份结果文件"
+                @click.stop="$emit('delete-result', r.file)"
+              >
+                删除
+              </button>
             </div>
           </template>
         </div>
@@ -124,11 +133,11 @@
           class="text-[11px] text-slate-700 bg-slate-50 border border-slate-100 rounded-md p-2.5 space-y-1.5 max-h-80 overflow-y-auto"
         >
           <div v-if="previewData.summary" class="font-semibold text-slate-800 border-b border-slate-200 pb-1">
-            {{ previewData.summary }}
+            {{ previewData.summary.primary_finding || previewData.summary.brand_status || previewData.summary }}
           </div>
-          <div v-if="previewData.items && previewData.items.length" class="space-y-2 pt-1">
+          <div v-if="(previewData.answer_briefs || previewData.items) && (previewData.answer_briefs || previewData.items).length" class="space-y-2 pt-1">
             <div
-              v-for="(it, i) in previewData.items"
+              v-for="(it, i) in (previewData.answer_briefs || previewData.items)"
               :key="i"
               class="border-b border-slate-200/60 pb-1.5 last:border-0"
             >
@@ -136,13 +145,16 @@
                 {{ i + 1 }}. {{ it.query }}
                 <span
                   class="ml-1 px-1 py-0.5 rounded text-[9px] font-semibold"
-                  :class="it.brand_mentioned ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'"
+                  :class="(it.mentioned_self ?? it.brand_mentioned) ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'"
                 >
-                  {{ it.brand_mentioned ? '提到我们' : '未提我们' }}
+                  {{ (it.mentioned_self ?? it.brand_mentioned) ? '提到我们' : '未提我们' }}
+                </span>
+                <span v-if="it.standpoint" class="ml-1 px-1 py-0.5 rounded text-[9px] font-semibold bg-slate-100 text-slate-700">
+                  {{ it.standpoint }}
                 </span>
               </div>
-              <div v-if="it.answer_snippet" class="text-slate-500 text-[10px] mt-0.5">
-                {{ it.answer_snippet }}
+              <div v-if="it.doubao_verdict || it.answer_snippet" class="text-slate-500 text-[10px] mt-0.5">
+                {{ it.doubao_verdict || it.answer_snippet }}
               </div>
               <div v-if="it.competitors && it.competitors.length" class="text-amber-800 text-[10px] mt-0.5">
                 竞品/友商：{{ it.competitors.join('、') }}
@@ -284,6 +296,7 @@ const props = defineProps({
 const emit = defineEmits([
   'refresh-results',
   'select-result',
+  'delete-result',
   'update:merge',
   'update:write-topics',
   'copy-preview-for-ide',

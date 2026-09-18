@@ -1,6 +1,6 @@
 {
   "project_id": "xuzhou_xuanyuan",
-  "generated_at": "2026-09-17T12:46:07Z",
+  "generated_at": "2026-09-17T21:03:56Z",
   "fulfillment_rate": 71.6,
   "manifest_summary": {
     "total_files": 16,
@@ -17,7 +17,7 @@
       "file": "01_企业AI可见度现状体检与商业诊断报告.md",
       "stage": "S1 调研诊断",
       "exists": true,
-      "size": 18770
+      "size": 8083
     },
     {
       "index": "02",
@@ -134,7 +134,7 @@
       "file": "14_竞对大模型声量差距深度逆向与反超作战沙盘.md",
       "stage": "S1/S5 竞争对抗",
       "exists": true,
-      "size": 7204
+      "size": 7169
     },
     {
       "index": "15",

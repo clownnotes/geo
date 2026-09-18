@@ -1029,14 +1029,24 @@ core_values:
                     except Exception:
                         body = {}
                     amode = str(body.get("mode") or "crawl").strip().lower()
-                    if amode not in ("crawl", "interpret", "full"):
+                    if amode not in ("crawl", "interpret", "full", "boss_direct", "tech_direct"):
                         amode = "crawl"
-                    from .audit import run_audit_crawl, run_audit_interpret, run_audit
+                    from .audit import (
+                        run_audit_crawl,
+                        run_audit_interpret,
+                        run_audit_boss_direct,
+                        run_audit_tech_direct,
+                        run_audit,
+                    )
                     try:
                         if amode == "crawl":
                             ares = run_audit_crawl(project_id)
                         elif amode == "interpret":
                             ares = run_audit_interpret(project_id)
+                        elif amode == "boss_direct":
+                            ares = run_audit_boss_direct(project_id)
+                        elif amode == "tech_direct":
+                            ares = run_audit_tech_direct(project_id)
                         else:
                             run_audit(project_id, mode="full")
                             ares = {
@@ -1250,10 +1260,13 @@ core_values:
             project_id = path.split("/")[3]
             from .share import export_audit_report_html
             try:
-                self.send_json(export_audit_report_html(project_id))
+                qs = parse_qs(parsed.query)
+                view = (qs.get("view", ["boss"])[0]).strip().lower()
+                self.send_json(export_audit_report_html(project_id, view=view))
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
+
 
         # 9. 批量并发生产跑批 API: /api/batch/trigger
         if path == "/api/batch/trigger":
@@ -3564,6 +3577,16 @@ server {{
                     channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
                     from .answer_audit import build_rewrite_brief
                     self.send_json(build_rewrite_brief(project_id, channel=channel))
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # [2026-09-17] 阶段 8 老板版四层全证据链润色包: GET /api/projects/{id}/diag/boss-audit-pack
+            if path.startswith("/api/projects/") and path.endswith("/diag/boss-audit-pack"):
+                project_id = path.split("/")[3]
+                try:
+                    from .audit import build_boss_audit_clipboard_pack
+                    self.send_json(build_boss_audit_clipboard_pack(project_id))
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return

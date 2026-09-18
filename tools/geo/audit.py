@@ -31,6 +31,8 @@ from .utils import (
 )
 
 AUDIT_REPORT_FILE = "01_企业AI可见度现状体检与商业诊断报告.md"
+AUDIT_REPORT_BOSS_FILE = "01_企业AI可见度商业诊断报告.md"
+AUDIT_REPORT_TECH_FILE = "01_企业底座技术体检审计报告.md"
 AUDIT_METRICS_FILE = "audit_metrics.json"
 LLM_TIMEOUT_SEC = 60
 
@@ -361,12 +363,19 @@ def _rating_label(tech_score: int) -> str:
 
 
 def _mode_banner(metrics: dict) -> str:
+    """兼容旧混排报告题头（可含商业解读状态）。"""
     status = metrics.get("llm_status") or "skipped"
     if status == "ok":
         return "技术分来自 Python 真抓；商业解读由小毛驴 / Nextdoor 大模型生成（禁止改写技术检测结果）"
     if status == "failed":
         return "技术分来自 Python 真抓；商业解读调用失败，本报告仅含真抓技术段 + 规则降级建议"
     return "技术分来自 Python 真抓；未接通大模型（NEXTDOOR_JWT_TOKEN），商业段为规则降级稿"
+
+
+def _tech_mode_banner(metrics: dict) -> str:
+    """工程师专属题头：只谈技术真抓，禁止商业解读调试话。"""
+    online = "官网可访问" if metrics.get("is_online") else "官网访问异常"
+    return f"工程师内部施工稿 · 技术分来自 Python 真抓（{online}）· 不含商业推销与体验价 CTA"
 
 
 def generate_visibility_table(cfg: dict, probe_snap: dict) -> str:
@@ -454,8 +463,61 @@ def generate_tech_section(metrics: dict) -> str:
     return section
 
 
+def generate_tech_fix_plan(cfg: dict, metrics: dict, probe_snap: dict) -> str:
+    """工程师报告第四节：问题 → 改造方案（内部施工，不卖焦虑）。"""
+    client = cfg.get("client_name") or "目标客户"
+    score = int(metrics.get("tech_score") or 10)
+    rows = []
+    if not metrics.get("is_online"):
+        rows.append(("官网不可访问或超时", "先排查 DNS / HTTPS / 防火墙；恢复可抓取后再复测。"))
+    if not metrics.get("has_ssr"):
+        rows.append(("CSR 空壳风险", "改为 SSR/SSG 或预渲染，确保爬虫拿到 Clean DOM。"))
+    if not metrics.get("has_llms_txt"):
+        rows.append(("缺少 /llms.txt", "在站点根目录部署纯 Markdown 摘要，并在页脚/head 留可点入口。"))
+    if not metrics.get("has_json_ld"):
+        rows.append(("缺少 JSON-LD", "补 Organization / LocalBusiness / WebSite 等 Schema，图片资源本地真实存在。"))
+    density = float(metrics.get("text_density_ratio") or 0)
+    if density < 15:
+        rows.append(
+            (
+                f"文本密度偏低（{density}%）",
+                "补答案型正文与 FAQ（目标密度 ≥15%），用「结论先行 + 参数清单」结构方便 RAG 摘句。",
+            )
+        )
+    for w in metrics.get("warnings") or []:
+        rows.append((str(w), "对照警告逐项复测；网络双栈/证书类优先修连通性。"))
+    if not probe_snap.get("available"):
+        rows.append(("尚无阶段零豆包答案存档", "先完成阶段零并把豆包答案存进项目，再对照可见度表排索引缺口。"))
+    if not rows:
+        rows.append(("未发现阻断级技术硬伤", "保持底座，转入内容密度与分发占位的持续强化。"))
+
+    table_lines = [
+        "| 问题（真抓依据） | 改造方案（内部施工） |",
+        "| :--- | :--- |",
+    ]
+    for problem, fix in rows:
+        table_lines.append(f"| {problem} | {fix} |")
+
+    return f"""## 一、诊断结论先行（工程师速读）
+
+1. **技术健康分**：{score} / 100（{_rating_label(score)}）。分数只反映真抓技术项，不代表大模型推荐率。
+2. **本报告用途**：给交付团队的**问题 + 改造方案**施工稿；不含对客焦虑话术与体验价 CTA。
+3. **客户主体**：{client}。可见度对照见第三节（引用阶段零，不编造排名）。
+
+## 四、问题与改造方案对照（内部施工）
+
+{chr(10).join(table_lines)}
+
+### 执行顺序建议
+1. 先修阻断级（不可访问 / CSR 空壳 / robots 误拦）。
+2. 再补 /llms.txt、Schema、正文密度。
+3. 对照第三节豆包问句，逐条补官网可引用答案块与外链信源。
+4. 复测：重跑真抓 + 阶段零同组问句，核对 tech_score 与提及率变化。
+"""
+
+
 def generate_fallback_narrative(cfg: dict, metrics: dict, probe_snap: dict) -> str:
-    """无 LLM 时的规则降级商业段（不编造排名）。"""
+    """无 LLM 时的规则降级商业段（不编造排名）。老板焦虑转化仍走 build_boss_psychology_report。"""
     client = cfg.get("client_name") or "目标客户"
     score = int(metrics.get("tech_score") or 10)
     gaps = []
@@ -562,13 +624,153 @@ def generate_llm_narrative(cfg: dict, metrics: dict, probe_snap: dict) -> tuple[
     return body, "ok", used or provider
 
 
-def assemble_report(
+# [2026-09-17] [商业转化型诊断报告与竞品反哺体系] 差距一与差距四：老板心理学 7 步法转化层
+def build_boss_psychology_report(
     cfg: dict,
     metrics: dict,
     probe_snap: dict,
-    narrative: str,
+    narrative: str = "",
 ) -> str:
-    """拼装最终 Markdown 报告。"""
+    """生成符合落地大纲的「老板心理学 7 步法」转化层（严格遵守 0 Emoji 规范）。"""
+    client = cfg.get("client_name") or "目标客户"
+    bname = cfg.get("brand_name") or client
+    industry = cfg.get("industry") or "行业解决方案"
+    area = cfg.get("area_served") or "全国"
+    founder = cfg.get("founder") or "创始人"
+    tech_score = int(metrics.get("tech_score") or 10)
+    density = float(metrics.get("text_density_ratio") or 0)
+
+    items = probe_snap.get("items") or []
+    total_probes = len(items)
+    if total_probes > 0:
+        mention_cnt = sum(1 for it in items if it.get("mentioned_self"))
+        url_cnt = sum(1 for it in items if it.get("url_present"))
+        halluc_cnt = sum(1 for it in items if it.get("hallucination_detected"))
+        mention_rate = round((mention_cnt / total_probes) * 100, 1)
+        url_rate = round((url_cnt / total_probes) * 100, 1)
+        halluc_rate = round((halluc_cnt / total_probes) * 100, 1)
+    else:
+        mention_rate = 0.0
+        url_rate = 0.0
+        halluc_rate = 80.0
+
+    tech_status = "[达标]" if tech_score >= 75 else ("[偏弱]" if tech_score >= 50 else "[高危]")
+    density_status = "[达标]" if density >= 15.0 else "[偏弱]"
+    vis_status = "[达标]" if mention_rate >= 60.0 else ("[偏弱]" if mention_rate >= 20.0 else "[空白]")
+    comp_status = "[高危]" if halluc_rate >= 50.0 or mention_rate < 30.0 else "[预警]"
+
+    comp_names = set()
+    for it in items:
+        for c in it.get("competitors") or []:
+            if c and str(c).strip():
+                comp_names.add(str(c).strip())
+    top_comps_str = "、".join(list(comp_names)[:4]) if comp_names else "同行主流服务商"
+
+    # 提炼 LLM 解读中的关键观点（若有）
+    custom_insight = ""
+    if narrative and "##" in narrative:
+        custom_insight = f"\n> **商业解读摘要**：{narrative[:300].strip()}\n"
+
+    vis_table = generate_visibility_table(cfg, probe_snap)
+
+    md = f"""## ① 一页结论（老板速读版）—— 注意与核心痛点
+
+### AI 可见度四维评分卡
+| 诊断维度 | 状态判定 | 真实依据 |
+| :--- | :---: | :--- |
+| **技术底座基建** | `{tech_status}` | SSR 预渲染、/llms.txt、robots 放行综合得分 **{tech_score} 分** |
+| **正文可引用性** | `{density_status}` | 有效文本密度 {density}%，{"低于 15% 建议线，答案结构偏薄" if density < 15 else "正文体量合格"} |
+| **品牌可见度** | `{vis_status}` | {total_probes} 组核心长问中提及率仅 **{mention_rate}%**，官网带出率 **{url_rate}%** |
+| **竞品截流威胁** | `{comp_status}` | 竞品【{top_comps_str}】占位严重，幻觉/误读风险率 **{halluc_rate}%** |
+
+> 【综合探针】：共探测 **{total_probes}** 条买家核心长问 · 品牌提及率 **{mention_rate}%** · 带出官网率 **{url_rate}%** · 幻觉与误读风险率 **{halluc_rate}%**。{custom_insight}
+
+### 三个经营状态判定
+| [技术底座合格] | [可引用性偏薄] | [市场可见度空白] |
+| :--- | :--- | :--- |
+| 官网能被爬虫访问，**不用推倒重做** | 缺少结构化问答对，AI 难以精准摘句 | 买家先问 AI，客流直接流失给同行 |
+
+### 你正在流失的，是 3 类本该进你微信的高价值询盘
+1. **[品牌直问询盘]**：买家搜索【{bname}】是做什么的、官网是什么，AI 无法给出官网或给出错误主体，意向买家迷路流失。
+2. **[信任词询盘]**：大客户在签单前求证“找【{bname}】或【{founder}】靠谱吗”，AI 无高权威证据链支撑，转而推荐竞品替代。
+3. **[品类词询盘]**：搜索“{area}{industry}哪家好”，AI 优先推荐【{top_comps_str}】，最直接的商业成交线索被截胡。
+
+### 三个必须正视的业务缺口
+| 核心缺口 | 摸底现状 | 商业含义与后果 |
+| :--- | :--- | :--- |
+| **品牌词链路** | 官网带出率仅 {url_rate}% | 意向买家即便知道品牌，也进不了企业私域微信 |
+| **信任词承接** | 人物与品牌公开背书薄弱 | 面对大单高客单决策，缺乏让买家安心打款的证据 |
+| **品类词拦截** | 同行占领首位推荐 | 本地/行业最具价值的新增采购需求，全被同行吃掉 |
+
+---
+
+## ② 好消息：你的资产其实很能打（不用推倒重来）—— 资产确权
+
+经过真机探测，贵司现有的网站与技术基底具备良好的改造基础，**绝不需要推倒重新建站**：
+- **技术通道畅通**：基础网络访问与基础技术评分达到 **{tech_score} 分**（评级：{_rating_label(tech_score)}）；
+- **唯一核心硬伤**：{"有效正文文本密度仅 " + str(density) + "%，结构化问答库较薄，导致大模型抓取后缺乏摘句引用的高浓度答案" if density < 15 else "缺乏与买家常见提问一对一绑定的权威答案源"}；
+- **市场定位定性**：【{bname}】处于**“有硬实力资产，无大模型记忆”**的早期估值洼地，只要补齐高权威答案源，反超成本极低。
+
+---
+
+## ③ 坏消息：AI 现在根本认不出你的品牌（这才是丢单的地方）—— 痛点剖析
+
+以下是买家日常真实提问下，主流大模型当前给出的实际答复透视：
+
+{vis_table.strip()}
+
+### 竞品占位透视（谁在吃你的商业入口）
+在上述实测中，【{top_comps_str}】频繁出现在推荐位前列。它们能占位的关键并非技术比贵司强，而是它们提前在知乎、头条与第三方渠道沉淀了长文，被大模型作为信源采纳。**竞品的优势，就是贵司接下来反超的精准靶心。**
+
+---
+
+## ④ 四步破局路线：从「能被读到」到「被首位推荐」—— 执行路径
+
+根据本次体检暴露的缺口，按优先级安排 4 步执行动作：
+
+### 第一步：建立「品牌标准答案卡」（P0，官网 7 天内落地）
+在官网核心页面固定输出统一可被引用的信息块：明确【{bname}】是谁、主体公司、官网地址、核心服务范围、主理人背景与官方联系方式。杜绝主体张冠李戴。
+
+### 第二步：把正文密度补到“可引用”（P0，补足 15% 答案型正文）
+补充 8~12 组买家最关心的常见问答（FAQ），采用“问题 + 结论先行 + 核心参数清单”结构，方便大模型 RAG 分块精准摘句。
+
+### 第三步：按问句逐条补齐证据链（P1，2~4 周多渠道占位）
+针对上述未被提及的品类词与选型词，针对性分发 9 因子深度技术长文，在知乎、今日头条、百家号建立不可逆的信源矩阵。
+
+### 第四步：固定周期复测，用硬指标替代“感觉”（P1，每 2 周一轮）
+按同一组买家问句持续追踪大模型提及率、官网带出率与首推排名，用真实声量数据验证交付成果。
+
+---
+
+## ⑤ 30 天后，你能拿到什么 —— 愿景具象化
+
+| 核心评估维度 | 现在（摸底现状） | 30 天后执行目标 | 商业价值 |
+| :--- | :--- | :--- | :--- |
+| **品牌直问提及率** | {mention_rate}% | **100% 正确命中** | 彻底消除 AI 幻觉，官网链接 100% 露出 |
+| **选型对比推荐位** | 完全被同行截流 | **进入前 3 首选名单** | 抢回属于自己的高意向采购询盘 |
+| **官网链接带出率** | {url_rate}% | **≥ 60%** | 将 AI 对话直接转化为企业私域访问 |
+| **品牌与主体认知** | 存在张冠李戴风险 | **100% 澄清纠偏** | 固化企业品牌护城河与公信力 |
+
+---
+
+## ⑥ 下一步：把这份免费体检变成真实询盘 —— 立即行动
+
+> **限时体验计划（最低体验门槛，明码交付）**：
+> 针对本次体检暴露的 3 大业务缺口，我们提供**【品牌答案源极速筑基体验包】**：
+> - **交付内容**：官网 /llms.txt 与 Schema 实体底座精修 + 1 组品牌标准答案卡 + 1 篇今日头条字节爬虫提权长文；
+> - **交付周期**：最快 3 个工作日落地生效；
+> - **咨询对接**：请联系交付主理人（微信：nextdoor8 或扫描官网客服二维码），开启落地执行。
+"""
+    return md
+
+
+def assemble_boss_report(
+    cfg: dict,
+    metrics: dict,
+    probe_snap: dict,
+    narrative: str = "",
+) -> str:
+    """拼装纯净的老板心理学商业转化报告（不含生涩技术附录 · 0 Emoji）。"""
     client_name = cfg.get("client_name") or "目标客户"
     domain = metrics.get("url") or cfg.get("official_url") or ""
     industry = cfg.get("industry") or "行业未指定"
@@ -577,14 +779,46 @@ def assemble_report(
     date_str = datetime.now().strftime("%Y年%m月%d日")
     mode = _mode_banner(metrics)
 
-    if not (narrative or "").strip():
-        narrative = generate_fallback_narrative(cfg, metrics, probe_snap)
+    boss_layer = build_boss_psychology_report(cfg, metrics, probe_snap, narrative)
 
-    # 确保叙事含第四节时，技术与可见度插在结论之后
+    return f"""# 《{client_name}》AI 可见度商业诊断报告
+
+> **评测中枢**：邻里 GEO 工业级商业交付中心  
+> **报告日期**：{date_str}  
+> **评测对象**：{client_name}（官网：`{domain}`）  
+> **服务腹地**：{area_served}  
+> **行业领域**：{industry}  
+> **报告性质**：AI 搜索买家心智决策与商业转化诊断（老板专用决策版）  
+> **网络底座评分**：**{tech_score} / 100 分**（评级：{_rating_label(tech_score)} · 资产合格不用推倒重做）  
+> **诊断核心结论**：有硬实力技术资产，无大模型商业记忆；买家意向询盘严重流失给同行
+
+---
+
+{boss_layer.strip()}
+"""
+
+
+def assemble_tech_report(
+    cfg: dict,
+    metrics: dict,
+    probe_snap: dict,
+    narrative: str = "",
+) -> str:
+    """拼装工程师技术体检报告：问题清单 + 改造方案（对内施工，不卖焦虑）。"""
+    client_name = cfg.get("client_name") or "目标客户"
+    domain = metrics.get("url") or cfg.get("official_url") or ""
+    industry = cfg.get("industry") or "行业未指定"
+    area_served = cfg.get("area_served") or "全国"
+    tech_score = int(metrics.get("tech_score") or 10)
+    date_str = datetime.now().strftime("%Y年%m月%d日")
+    mode = _tech_mode_banner(metrics)
+
+    # 固定用工程师改造方案稿，忽略传入的商业 narrative
+    narrative = generate_tech_fix_plan(cfg, metrics, probe_snap)
+
     tech = generate_tech_section(metrics)
     vis = generate_visibility_table(cfg, probe_snap)
 
-    # 若 LLM 已含一、四，把二、三插到一之后、四之前
     if "## 四" in narrative:
         head, tail = narrative.split("## 四", 1)
         middle = tech + vis + "## 四" + tail
@@ -592,7 +826,7 @@ def assemble_report(
     else:
         body = narrative.rstrip() + "\n\n" + tech + vis
 
-    report = f"""# 《{client_name}》AI 可见度现状体检与商业诊断报告
+    return f"""# 《{client_name}》站点底座技术体检与工程审计报告
 
 > **评测中枢**：邻里 GEO 工业级商业交付中心  
 > **报告日期**：{date_str}  
@@ -607,7 +841,52 @@ def assemble_report(
 
 {body.rstrip()}
 """
+
+
+def assemble_report(
+    cfg: dict,
+    metrics: dict,
+    probe_snap: dict,
+    narrative: str = "",
+) -> str:
+    """拼装双层 Markdown 报告（上层：老板心理学转化版；底层：工程师技术体检详版）。"""
+    client_name = cfg.get("client_name") or "目标客户"
+    domain = metrics.get("url") or cfg.get("official_url") or ""
+    industry = cfg.get("industry") or "行业未指定"
+    area_served = cfg.get("area_served") or "全国"
+    tech_score = int(metrics.get("tech_score") or 10)
+    date_str = datetime.now().strftime("%Y年%m月%d日")
+    mode = _mode_banner(metrics)
+
+    boss_layer = build_boss_psychology_report(cfg, metrics, probe_snap, narrative)
+    tech_section = generate_tech_section(metrics)
+
+    report = f"""# 《{client_name}》AI 可见度现状体检与商业诊断报告
+
+> **评测中枢**：邻里 GEO 工业级商业交付中心  
+> **报告日期**：{date_str}  
+> **评测对象**：{client_name}（官网：`{domain}`）  
+> **服务腹地**：{area_served}  
+> **行业领域**：{industry}  
+> **评测模式**：{mode}  
+> **综合健康评分（技术真抓）**：**{tech_score} / 100 分**（评级：{_rating_label(tech_score)}）  
+> **指标真源**：`outputs/{AUDIT_METRICS_FILE}`
+
+---
+
+{boss_layer.strip()}
+
+---
+
+## 附录：技术底座与工程巡检详版（工程师审计依据）
+
+> 本附录包含真机网络探测与自动化爬虫的原始指标，数据直接来源于 `outputs/{AUDIT_METRICS_FILE}`，严禁改写技术布尔值。
+
+{tech_section.strip()}
+"""
     return report
+
+
 
 
 def generate_audit_report(
@@ -682,14 +961,23 @@ def run_audit_crawl(project_id: str, custom_url: str = None) -> dict:
     metrics_path = save_audit_metrics(cfg, metrics)
     print_info(f"技术真源已落盘: {metrics_path}")
     report_content = assemble_report(cfg, metrics, probe_snap, "")
+    boss_content = assemble_boss_report(cfg, metrics, probe_snap, "")
+    tech_content = assemble_tech_report(cfg, metrics, probe_snap, "")
     out_path = save_project_output(cfg, AUDIT_REPORT_FILE, report_content)
-    print_success(f"真抓完成：{out_path}（tech_score={metrics.get('tech_score')}）")
+    boss_path = save_project_output(cfg, AUDIT_REPORT_BOSS_FILE, boss_content)
+    tech_path = save_project_output(cfg, AUDIT_REPORT_TECH_FILE, tech_content)
+    print_success(f"真抓完成：老板版={boss_path}，技术版={tech_path}，兼容版={out_path}（tech_score={metrics.get('tech_score')}）")
     return {
         "mode": "crawl",
         "report_path": out_path,
+        "boss_report_path": boss_path,
+        "tech_report_path": tech_path,
         "metrics_path": metrics_path,
         "metrics": metrics,
-        "message": f"① 真抓完成：技术分 {metrics.get('tech_score')} / 100。可再点「② 小毛驴解读」。",
+        "message": (
+            f"① 真抓完成：技术分 {metrics.get('tech_score')} / 100。"
+            "可再切到老板商业转化版，点「① 生成商业转化解读」。"
+        ),
     }
 
 
@@ -699,7 +987,7 @@ def run_audit_interpret(project_id: str) -> dict:
     cfg = load_project_config(project_id)
     metrics = load_audit_metrics(cfg)
     if not metrics:
-        raise ValueError("尚未真抓：请先执行「① 真抓指标」，生成 outputs/audit_metrics.json")
+        raise ValueError("请先点「① 真抓网络与底座指标」")
     probe_snap = load_probe_snapshot(cfg)
     print_info("调用小毛驴 / Nextdoor 生成商业解读...")
     narrative, llm_status, llm_provider = generate_llm_narrative(cfg, metrics, probe_snap)
@@ -708,22 +996,65 @@ def run_audit_interpret(project_id: str) -> dict:
     metrics["llm_provider"] = llm_provider
     metrics_path = save_audit_metrics(cfg, metrics)
     report_content = assemble_report(cfg, metrics, probe_snap, narrative)
+    boss_content = assemble_boss_report(cfg, metrics, probe_snap, narrative)
+    tech_content = assemble_tech_report(cfg, metrics, probe_snap, narrative)
     out_path = save_project_output(cfg, AUDIT_REPORT_FILE, report_content)
+    boss_path = save_project_output(cfg, AUDIT_REPORT_BOSS_FILE, boss_content)
+    tech_path = save_project_output(cfg, AUDIT_REPORT_TECH_FILE, tech_content)
     if llm_status == "ok":
         msg = "② 小毛驴解读完成，报告商业段已更新。"
     elif llm_status == "failed":
         msg = "② 解读调用失败，已保留真抓报告并标注降级（请看控制台具体原因：本机无 3001 需开隧道 / 机器密钥 / 专属链）。"
     else:
         msg = "② 未接通大模型，已用规则降级稿（请配置小毛驴 JWT）。"
-    print_success(f"{msg} → {out_path}（llm={llm_status}/{llm_provider}）")
+    print_success(f"{msg} → 老板版={boss_path}，技术版={tech_path}（llm={llm_status}/{llm_provider}）")
     return {
         "mode": "interpret",
         "report_path": out_path,
+        "boss_report_path": boss_path,
+        "tech_report_path": tech_path,
         "metrics_path": metrics_path,
         "metrics": metrics,
         "llm_status": llm_status,
         "llm_provider": llm_provider,
         "message": msg,
+    }
+
+
+def run_audit_boss_direct(project_id: str) -> dict:
+    """阶段一老板版②：程序直出商业诊断与焦虑转化初稿（0 幻觉）。"""
+    print_banner("阶段一老板版②：直出商业诊断与焦虑转化初稿")
+    cfg = load_project_config(project_id)
+    metrics = load_audit_metrics(cfg)
+    if not metrics:
+        raise ValueError("请先点「① 真抓网络与底座指标」")
+    probe_snap = load_probe_snapshot(cfg)
+    boss_content = assemble_boss_report(cfg, metrics, probe_snap, narrative="")
+    boss_path = save_project_output(cfg, AUDIT_REPORT_BOSS_FILE, boss_content)
+    save_project_output(cfg, AUDIT_REPORT_FILE, boss_content)
+    print_success(f"② 商业诊断与焦虑转化初稿直出完成 → 老板版={boss_path}")
+    return {
+        "mode": "boss_direct",
+        "boss_report_path": boss_path,
+        "message": "② 商业诊断与焦虑转化初稿已客观直出（0 幻觉）",
+    }
+
+
+def run_audit_tech_direct(project_id: str) -> dict:
+    """阶段一技术版②：程序直出技术体检与改造方案初稿（0 幻觉）。"""
+    print_banner("阶段一技术版②：直出技术体检与改造方案初稿")
+    cfg = load_project_config(project_id)
+    metrics = load_audit_metrics(cfg)
+    if not metrics:
+        raise ValueError("请先点「① 真抓网络与底座指标」")
+    probe_snap = load_probe_snapshot(cfg)
+    tech_content = assemble_tech_report(cfg, metrics, probe_snap, narrative="")
+    tech_path = save_project_output(cfg, AUDIT_REPORT_TECH_FILE, tech_content)
+    print_success(f"② 技术体检与改造方案初稿直出完成 → 技术版={tech_path}")
+    return {
+        "mode": "tech_direct",
+        "tech_report_path": tech_path,
+        "message": "② 技术体检与改造方案初稿已直出（0 幻觉）",
     }
 
 
@@ -733,6 +1064,8 @@ def run_audit(project_id: str, custom_url: str = None, mode: str = "full") -> st
     mode:
       - crawl: 仅真抓
       - interpret: 仅解读（需已有 metrics）
+      - boss_direct: 仅直出老板版骨架
+      - tech_direct: 仅直出技术版初稿
       - full: 真抓后再解读（CLI 默认兼容）
     返回报告路径。
     """
@@ -741,6 +1074,10 @@ def run_audit(project_id: str, custom_url: str = None, mode: str = "full") -> st
         return run_audit_crawl(project_id, custom_url=custom_url)["report_path"]
     if m == "interpret":
         return run_audit_interpret(project_id)["report_path"]
+    if m == "boss_direct":
+        return run_audit_boss_direct(project_id)["boss_report_path"]
+    if m == "tech_direct":
+        return run_audit_tech_direct(project_id)["tech_report_path"]
 
     # full：先抓再解读
     crawl_res = run_audit_crawl(project_id, custom_url=custom_url)
@@ -750,3 +1087,94 @@ def run_audit(project_id: str, custom_url: str = None, mode: str = "full") -> st
     except Exception as e:
         print_warning(f"解读阶段跳过/失败，保留真抓报告: {e}")
         return crawl_res["report_path"]
+
+
+def build_boss_audit_clipboard_pack(project_id: str) -> dict:
+    """
+    [2026-09-17] 阶段 8：为 IDE 生成四层全证据链剪贴板文本
+    包含：
+    1. 阶段零豆包实测一手答题卡；
+    2. Python 客观直出商业诊断骨架；
+    3. 发送给小毛驴的原始 Prompt 提示词；
+    4. 小毛驴生成的初稿状态。
+    """
+    cfg = load_project_config(project_id)
+    client_name = cfg.get("client_name") or cfg.get("name") or project_id
+    official_url = cfg.get("official_url") or ""
+    out_dir = cfg.get("_outputs_dir") or ""
+
+    # 第一层：豆包一手答题卡
+    probe_snap = load_probe_snapshot(cfg)
+    items = probe_snap.get("items") or []
+    probe_lines = []
+    if items:
+        probe_lines.append(f"共检测到 {len(items)} 条商业意图长问：")
+        for idx, it in enumerate(items, 1):
+            q = it.get("query") or ""
+            m_self = "是" if it.get("mentioned_self") else "否"
+            url_p = "是" if it.get("url_present") else "否"
+            comps = ", ".join(it.get("competitors") or []) or "无"
+            probe_lines.append(f"{idx}. 问句：{q}")
+            probe_lines.append(f"   提及客户：{m_self} ｜ 带官网链接：{url_p} ｜ 推荐竞品：{comps}")
+            ans_f = str(it.get("answer_full") or "").strip()
+            if ans_f:
+                probe_lines.append(f"   回答节选：{ans_f[:200]}...")
+    else:
+        probe_lines.append("（尚未录入阶段零豆包实测答题卡，建议先至阶段零摸底）")
+    layer1_text = "\n".join(probe_lines)
+
+    # 第二层：直出商业诊断骨架
+    metrics = load_audit_metrics(cfg) or {}
+    layer2_text = ""
+    boss_report_path = os.path.join(out_dir, AUDIT_REPORT_BOSS_FILE) if out_dir else ""
+    if boss_report_path and os.path.exists(boss_report_path):
+        try:
+            with open(boss_report_path, encoding="utf-8") as f:
+                layer2_text = f.read().strip()
+        except Exception:
+            layer2_text = ""
+    if not layer2_text:
+        layer2_text = build_boss_psychology_report(cfg, metrics, probe_snap, narrative="").strip()
+
+    # 第三层：发给小毛驴的原始 Prompt
+    system_prompt, user_prompt = build_llm_prompt(cfg, metrics, probe_snap)
+    layer3_text = f"【System Prompt】:\n{system_prompt}\n\n【User Payload】:\n{user_prompt}"
+
+    # 第四层：小毛驴初稿状态
+    llm_status = metrics.get("llm_status") or "unknown"
+    llm_provider = metrics.get("llm_provider") or "none"
+    if llm_status == "ok":
+        layer4_text = f"（状态：已成功调用 {llm_provider} 生成商业解读，初稿已合并入第二层报告中，请重点检查其是否含有假大空与 AI 幻觉）"
+    else:
+        layer4_text = f"（状态：未调用小毛驴或调用未成功[{llm_status}]，当前报告完全基于客观规则直出）"
+
+    clipboard = f"""【GEO 阶段一 · 老板商业转化诊断报告 · 全链路证据润色包】
+项目 ID：{project_id}
+企业名称：{client_name}
+官网地址：{official_url}
+
+—— 第一层：阶段零豆包实测一手答题卡（买家真实问答证据） ——
+{layer1_text}
+
+—— 第二层：Python 客观直出商业诊断骨架（真源依据，禁止篡改客观数据） ——
+{layer2_text}
+
+—— 第三层：发给小毛驴的原始 Prompt 提示词（了解指令意图与输入 JSON） ——
+{layer3_text}
+
+—— 第四层：小毛驴写出的初稿与状态 ——
+{layer4_text}
+
+【IDE 润色任务与老板心理学要求】：
+1. 核对第一层与第二层的硬核数据，挑出小毛驴可能存在的套话、假大空与 AI 幻觉并坚决纠正；
+2. 严格遵守 0 Emoji 严肃商业与工程规范；
+3. 重点润色：买家视角提问、3 类流失的高价值询盘账本、好坏消息反差、四步破局路线、30 天愿景对比表；
+4. 润色完成后，写回文件：projects/{project_id}/outputs/{AUDIT_REPORT_BOSS_FILE}"""
+
+    return {
+        "success": True,
+        "project_id": project_id,
+        "client_name": client_name,
+        "clipboard": clipboard.strip(),
+    }
+

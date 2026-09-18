@@ -436,3 +436,143 @@ def run_answer_audit(project_id: str, channel: str = "toutiao") -> Dict[str, Any
     report["report_path"] = "outputs/answer_audit_report.json"
     report["message"] = "质检完成"
     return report
+
+
+# [2026-09-17] [商业转化型诊断报告与竞品反哺体系] 差距三：长问意图分类与竞品反哺可见度打折算法
+def classify_query_intent_for_visibility(query: str) -> str:
+    """根据买家长问特征分类意图：对比类、推荐类、评测类、负面避坑类、品牌直问或通用类"""
+    q = (query or "").strip()
+    if not q:
+        return "general"
+
+    if any(w in q for w in ["官网", "是谁", "做什么的", "电话", "联系方式"]):
+        return "brand_direct"
+    if any(w in q for w in ["哪个好", "对比", "vs", "还是", "比较", "选A还是B", "选哪家"]):
+        return "comparison"
+    if any(w in q for w in ["哪家好", "推荐", "服务商", "排行榜", "靠谱团队", "排名", "第一"]):
+        return "recommendation"
+    if any(w in q for w in ["怎么样", "评测", "靠谱吗", "如何", "实力", "靠不靠谱", "评价"]):
+        return "evaluation"
+    if any(w in q for w in ["坑", "被骗", "忽悠", "风险", "黑幕", "缺点", "问题", "避坑"]):
+        return "negative_risk"
+    return "general"
+
+
+def calculate_competitor_feedback_discount(
+    competitors: List[Dict[str, Any]],
+    query_intent: str,
+) -> Dict[str, Any]:
+    """根据竞品池（<=5家）的头部/腰部份额与威胁度，计算对问句可见度的反哺打折"""
+    if not competitors:
+        return {
+            "has_competitor": False,
+            "top_competitor": None,
+            "top_level": "长尾",
+            "top_score": 0.0,
+            "max_market_share": 0.0,
+            "discount_factor": 1.0,
+            "intent_adjustment": 0.0,
+            "suppression_reason": "当前无强竞品压制，保持原基线推荐率",
+        }
+
+    def _sort_comp(c):
+        share = float(c.get("marketShare") or 0.0)
+        score = float(c.get("geoScore") or 0.0)
+        is_head = 100.0 if c.get("level") == "头部" else 0.0
+        return is_head + share * 2.0 + score
+
+    sorted_comps = sorted(competitors, key=_sort_comp, reverse=True)
+    top = sorted_comps[0]
+    top_name = top.get("name", "竞对")
+    top_lvl = top.get("level", "长尾")
+    top_share = float(top.get("marketShare") or 0.0)
+    top_score = float(top.get("geoScore") or 60.0)
+
+    # 意图加减分修正（对齐朋友 SOP）
+    intent_map = {
+        "recommendation": 15.0,
+        "evaluation": 5.0,
+        "comparison": 0.0,
+        "negative_risk": -10.0,
+        "brand_direct": 0.0,
+        "general": 0.0,
+    }
+    intent_adj = intent_map.get(query_intent, 0.0)
+
+    # 基础打折系数（头部大幅打折，腰部适度打折，长尾无打折）
+    if top_lvl == "头部" or top_share > 15.0:
+        base_discount = 0.45 if query_intent == "comparison" else 0.55
+        reason = f"受头部竞品【{top_name}】强声量垄断压制，对比与推荐位被稀释"
+    elif top_lvl == "腰部" or top_share >= 5.0:
+        base_discount = 0.70 if query_intent == "comparison" else 0.80
+        reason = f"受腰部同行【{top_name}】分流截流，需补齐差异化证据链"
+    else:
+        base_discount = 1.0
+        reason = "同赛道处于相对真空或长尾分散态，竞对截流阻力较小"
+
+    return {
+        "has_competitor": True,
+        "top_competitor": top_name,
+        "top_level": top_lvl,
+        "top_score": top_score,
+        "max_market_share": top_share,
+        "discount_factor": base_discount,
+        "intent_adjustment": intent_adj,
+        "suppression_reason": reason,
+    }
+
+
+def simulate_query_visibility_with_feedback(
+    project_id: str,
+    query: str,
+    base_mention_rate: float = 75.0,
+    client_geo_score: float = 70.0,
+) -> Dict[str, Any]:
+    """将竞品反哺联动至单条长问的实际提及率与排名推演中"""
+    from .competitor_gap import build_structured_competitor_analysis
+
+    out_dir = os.path.join(_project_dir(project_id), "outputs")
+    comp_json = os.path.join(out_dir, "competitor_analysis.json")
+    if os.path.exists(comp_json):
+        try:
+            with open(comp_json, "r", encoding="utf-8") as f:
+                comp_data = json.load(f)
+        except Exception:
+            comp_data = build_structured_competitor_analysis(project_id)
+    else:
+        comp_data = build_structured_competitor_analysis(project_id)
+
+    competitors = comp_data.get("competitors", [])
+    intent = classify_query_intent_for_visibility(query)
+    feedback = calculate_competitor_feedback_discount(competitors, intent)
+
+    discount = feedback["discount_factor"]
+    intent_adj = feedback["intent_adjustment"]
+
+    # 有效提及率 = 基准提及率 * 打折系数 + 意图修正
+    effective_rate = round(max(0.0, min(100.0, (base_mention_rate * discount) + intent_adj)), 1)
+
+    # 预估排名逻辑（如果头部竞品分数明显高于我方，我方在对比题无法进入前 2）
+    top_score = feedback.get("top_score", 60.0)
+    if feedback["has_competitor"] and feedback["top_level"] == "头部":
+        if top_score - client_geo_score >= 15.0:
+            simulated_rank = 3
+        elif top_score > client_geo_score:
+            simulated_rank = 2
+        else:
+            simulated_rank = 1
+    elif feedback["has_competitor"] and feedback["top_level"] == "腰部":
+        simulated_rank = 2 if top_score > client_geo_score else 1
+    else:
+        simulated_rank = 1
+
+    return {
+        "query": query,
+        "intent": intent,
+        "base_mention_rate": base_mention_rate,
+        "effective_mention_rate": effective_rate,
+        "simulated_rank": simulated_rank,
+        "feedback": feedback,
+        "suppressed": bool(discount < 1.0),
+    }
+

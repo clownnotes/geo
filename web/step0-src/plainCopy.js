@@ -278,8 +278,9 @@ export function antigravityPromptText(pid, activeScript) {
     `题数：${s.items.length}`,
     '',
     '执行规则（强制）：',
-    '1. 豆包必须已登录；开【新聊天】，勿复用旧对话。',
-    '2. 严格按题单顺序逐条提问；有追问的必须追问。',
+    // [2026-09-17] [防上下文污染] 强制要求每题开新对话独立实战，严禁多题混聊
+    '1. 豆包必须已登录；每测一题必须新开一个聊天窗口（一题一清空上下文，防止上一题的记忆干扰下一题的搜索结果）。',
+    '2. 严格按题单顺序逐条提问：若该题有追问，在当前窗口追问完；记下完整回答后，立即点击【新对话】再问下一题。',
     '3. 每题记录：query、follow_up（若有）、mentioned_self、url_present、citation_to_self、standpoint、hallucination_detected、competitors_extracted[{name,url,is_real}]、doubao_verdict、answer_full（豆包完整回答原文，建议≥80字）。',
     '4. standpoint 用：推荐 / 中性 / 负面 / 不认识 / 误解。',
     '5. 本回合先问完并在对话汇总；【禁止现在落盘】。等用户再发【收工说明书】后再写文件。',

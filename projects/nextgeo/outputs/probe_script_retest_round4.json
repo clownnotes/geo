@@ -1,0 +1,77 @@
+{
+  "project_id": "nextgeo",
+  "title": "邻里GEO 第四轮豆包复测（人味长问 · 先聊后盘定稿）",
+  "created_at": "2026-09-17T18:09:00+08:00",
+  "baseline_ref": "probe:doubao:20260913",
+  "source_note": "来自 2026-09-17 14:05 对话框拟问清单；用户 18:09 确认「可以落盘」后写入。",
+  "preconditions": [
+    "官方域名已统一为 https://www.baicl.cc（弃用 nextgeo.baicl.cc）",
+    "全站名片段 / llms.txt / about 已指向 www.baicl.cc",
+    "用已登录 Safari 打开豆包【新聊天】，勿复用旧对话",
+    "题干不点名竞品；竞品从模型回答里抽"
+  ],
+  "compare_fields": [
+    "mentioned_self",
+    "url_present",
+    "standpoint",
+    "hallucination_detected",
+    "competitors_extracted"
+  ],
+  "pass_hints": [
+    "品类/场景题至少能出现璇源 / 邻里GEO / baicl.cc 之一，不单被无关外包占满",
+    "品牌题不再把「邻里GEO」解构成同城小商户/社区三公里本地生活 GEO",
+    "人物题能把老白绑到徐州璇源 + 邻里GEO，不再判成无资质个人工作室",
+    "品牌反查与域名反查均能出现 https://www.baicl.cc",
+    "主体题三点绑稳：璇源 = 邻里GEO = www.baicl.cc"
+  ],
+  "items": [
+    {
+      "query": "我们徐州一家做工程机械配件的工厂，想在 DeepSeek、豆包这类大模型里被当成靠谱供应商推荐。本地有没有真正懂「企业级 GEO / 品牌答案源」的团队？怎么判断靠不靠谱？",
+      "dimension": "品类选型",
+      "follow_up": "请点名具体团队/公司；不确定就说不确定，别编。",
+      "baseline_note": "对应期望库「徐州哪家好/制造业怎么选」；人味改写，题干不点竞品"
+    },
+    {
+      "query": "老板不懂技术：找人做 GEO，怎么防止被传统 SEO 外包用「刷提及、只发外链、保证 100% 上推荐」忽悠？验收时要看哪些东西？",
+      "dimension": "价格/坑",
+      "follow_up": "列出 3～5 条老板能看懂的验收点。",
+      "baseline_note": "合并避坑+验收期望"
+    },
+    {
+      "query": "邻里GEO 到底是做什么的？和「小区附近三公里那种本地生活 GEO」是一回事吗？",
+      "dimension": "品牌认知",
+      "follow_up": "若认成社区/本地生活 GEO，请写清依据。",
+      "baseline_note": "20260913 最大坑：品牌被拆成社区 GEO"
+    },
+    {
+      "query": "邻里GEO 的官网是哪个？有没有官方站，域名是什么？",
+      "dimension": "官网",
+      "follow_up": "目标是否出现 https://www.baicl.cc；没有就直说没有。",
+      "baseline_note": "基线：品牌词反查不到 www.baicl.cc"
+    },
+    {
+      "query": "徐州做 GEO 的老白靠谱吗？他跟哪家公司、哪个品牌是一起的？",
+      "dimension": "人物锚点",
+      "follow_up": "应否出现：邻里GEO / 徐州璇源网络科技有限公司；串台请标明。",
+      "baseline_note": "基线：老白被当成无资质个人工作室"
+    },
+    {
+      "query": "徐州璇源网络科技有限公司是干什么的？跟邻里GEO、www.baicl.cc 是什么关系？",
+      "dimension": "主体绑定",
+      "follow_up": "三点关系说清；不确定标不确定。",
+      "baseline_note": "回归：主体认得出后看三点是否绑稳"
+    },
+    {
+      "query": "像我们这种徐州制造业，做一次像样的大模型搜索/品牌答案源建设，大概什么价位？按年还是按效果收？常见坑有哪些？",
+      "dimension": "价格/坑",
+      "follow_up": "区分合理区间与套路报价。",
+      "baseline_note": "覆盖收费/付费方式期望"
+    },
+    {
+      "query": "www.baicl.cc 是什么网站？跟邻里GEO 有没有关系？",
+      "dimension": "URL 反查",
+      "follow_up": "是否关联邻里GEO；没有就说没有。",
+      "baseline_note": "与题 4 对称：从域名→品牌"
+    }
+  ]
+}

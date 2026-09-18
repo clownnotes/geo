@@ -1447,23 +1447,44 @@ th { background-color: #1e293b; color: #cbd5e1; font-weight: 600; }
 # ==========================================
 
 AUDIT_REPORT_MD = "01_企业AI可见度现状体检与商业诊断报告.md"
+AUDIT_REPORT_MD_BOSS = "01_企业AI可见度商业诊断报告.md"
+AUDIT_REPORT_MD_TECH = "01_企业底座技术体检审计报告.md"
+
 AUDIT_REPORT_HTML = "01_企业AI可见度现状体检报告_客户版.html"
+AUDIT_REPORT_HTML_BOSS = "01_企业AI可见度商业诊断报告.html"
+AUDIT_REPORT_HTML_TECH = "01_企业底座技术体检审计报告.html"
 
 
-def get_audit_report_markdown(project_id: str) -> dict:
-    """读取项目 01 体检报告 Markdown；不存在则返回失败信息。"""
+def get_audit_report_markdown(project_id: str, view: str = "boss") -> dict:
+    """读取项目 01 体检报告 Markdown（支持 boss / tech / full 视图）；不存在则返回失败信息。"""
     cfg = load_project_config(project_id)
     out_dir = cfg.get("_outputs_dir") or os.path.join(PROJECTS_DIR, project_id, "outputs")
-    path = os.path.join(out_dir, AUDIT_REPORT_MD)
+    
+    if view == "tech":
+        candidate_file = AUDIT_REPORT_MD_TECH
+    elif view == "boss":
+        candidate_file = AUDIT_REPORT_MD_BOSS
+    else:
+        candidate_file = AUDIT_REPORT_MD
+
+    path = os.path.join(out_dir, candidate_file)
     if not os.path.isfile(path):
-        return {
-            "success": False,
-            "message": f"尚未生成 {AUDIT_REPORT_MD}，请先在管理端执行测算体检。",
-            "project_id": project_id,
-            "client_name": cfg.get("client_name", project_id),
-            "markdown": "",
-            "path": path,
-        }
+        # 降级尝试默认全量版
+        fallback_path = os.path.join(out_dir, AUDIT_REPORT_MD)
+        if os.path.isfile(fallback_path):
+            path = fallback_path
+            candidate_file = AUDIT_REPORT_MD
+        else:
+            return {
+                "success": False,
+                "message": f"尚未生成 {candidate_file}，请先在管理端执行测算体检。",
+                "project_id": project_id,
+                "client_name": cfg.get("client_name", project_id),
+                "markdown": "",
+                "path": path,
+                "view": view,
+            }
+
     with open(path, "r", encoding="utf-8") as f:
         md = f.read()
     return {
@@ -1472,9 +1493,10 @@ def get_audit_report_markdown(project_id: str) -> dict:
         "client_name": cfg.get("client_name", project_id),
         "brand_name": cfg.get("brand_name") or cfg.get("client_name", project_id),
         "issuer": "邻里 GEO 工业级商业交付中心",
-        "filename": AUDIT_REPORT_MD,
+        "filename": candidate_file,
         "markdown": md,
         "path": path,
+        "view": view,
     }
 
 
@@ -1524,6 +1546,7 @@ def _md_to_simple_html(md: str) -> str:
                 close_table()
                 in_code = True
             continue
+
         if in_code:
             code_buf.append(raw)
             continue
@@ -1533,49 +1556,55 @@ def _md_to_simple_html(md: str) -> str:
             close_table()
             continue
 
-        if line.startswith("|") and "|" in line[1:]:
-            cells = [c.strip() for c in line.strip("|").split("|")]
-            if all(re.match(r"^:?-+:?$", c or "") for c in cells):
-                continue
+        if line.startswith("# "):
             close_lists()
-            if not in_table:
-                out.append('<table><thead></thead><tbody>')
-                in_table = True
-                out.append("<tr>" + "".join(f"<th>{inline_fmt(c)}</th>" for c in cells) + "</tr>")
-            else:
-                out.append("<tr>" + "".join(f"<td>{inline_fmt(c)}</td>" for c in cells) + "</tr>")
-            continue
-        else:
             close_table()
-
-        m = re.match(r"^(#{1,3})\s+(.*)$", line)
-        if m:
+            out.append(f"<h1>{inline_fmt(line[2:].strip())}</h1>")
+            continue
+        if line.startswith("## "):
             close_lists()
-            level = len(m.group(1))
-            out.append(f"<h{level}>{inline_fmt(m.group(2))}</h{level}>")
+            close_table()
+            out.append(f"<h2>{inline_fmt(line[3:].strip())}</h2>")
+            continue
+        if line.startswith("### "):
+            close_lists()
+            close_table()
+            out.append(f"<h3>{inline_fmt(line[4:].strip())}</h3>")
             continue
 
         if line.startswith("> "):
             close_lists()
-            out.append(f"<blockquote>{inline_fmt(line[2:])}</blockquote>")
+            close_table()
+            out.append(f"<blockquote>{inline_fmt(line[2:].strip())}</blockquote>")
             continue
 
-        if re.match(r"^[-*]\s+", line):
-            if in_ol:
-                out.append("</ol>")
-                in_ol = False
+        if line.startswith("|") and line.endswith("|"):
+            close_lists()
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if re.match(r"^[\s\-:|]+$", line):
+                continue
+            if not in_table:
+                in_table = True
+                ths = "".join(f"<th>{inline_fmt(c)}</th>" for c in cells)
+                out.append(f"<table><thead><tr>{ths}</tr></thead><tbody>")
+            else:
+                tds = "".join(f"<td>{inline_fmt(c)}</td>" for c in cells)
+                out.append(f"<tr>{tds}</tr>")
+            continue
+
+        if line.startswith("- ") or line.startswith("* "):
+            close_table()
             if not in_ul:
+                close_lists()
                 out.append("<ul>")
                 in_ul = True
-            item = re.sub(r"^[-*]\s+", "", line)
-            out.append(f"<li>{inline_fmt(item)}</li>")
+            out.append(f"<li>{inline_fmt(line[2:].strip())}</li>")
             continue
 
         if re.match(r"^\d+\.\s+", line):
-            if in_ul:
-                out.append("</ul>")
-                in_ul = False
+            close_table()
             if not in_ol:
+                close_lists()
                 out.append("<ol>")
                 in_ol = True
             item = re.sub(r"^\d+\.\s+", "", line)
@@ -1584,10 +1613,12 @@ def _md_to_simple_html(md: str) -> str:
 
         if line.strip() == "---":
             close_lists()
+            close_table()
             out.append("<hr>")
             continue
 
         close_lists()
+        close_table()
         out.append(f"<p>{inline_fmt(line)}</p>")
 
     close_lists()
@@ -1597,20 +1628,32 @@ def _md_to_simple_html(md: str) -> str:
     return "\n".join(out)
 
 
-def build_audit_report_html_document(project_id: str, markdown: str = None) -> dict:
-    """组装自包含客户版体检报告 HTML 字符串。"""
+def build_audit_report_html_document(project_id: str, markdown: str = None, view: str = "boss") -> dict:
+    """组装自包含客户版体检报告 HTML 字符串（支持 boss / tech 视图 · 0 Emoji）。"""
     import html as html_lib
 
-    meta = get_audit_report_markdown(project_id)
+    meta = get_audit_report_markdown(project_id, view=view)
     if not meta.get("success") and not markdown:
         return meta
     md = markdown if markdown is not None else meta.get("markdown", "")
     client_name = meta.get("client_name") or project_id
     issuer = meta.get("issuer") or "邻里 GEO 工业级商业交付中心"
     body_html = _md_to_simple_html(md)
-    title = html_lib.escape(f"{client_name} · AI 可见度体检报告")
+
+    if view == "tech":
+        title_text = f"{client_name} · 站点底座技术体检与工程审计报告"
+        sub_text = "工程师技术底座审计报告 · 原始指标与真抓数据 · 请勿对外公开爬取索引"
+        out_filename = AUDIT_REPORT_HTML_TECH
+    else:
+        title_text = f"{client_name} · AI 可见度商业诊断报告"
+        sub_text = "客户只读商业诊断报告 · 商业决策与可见度审计 · 请勿对外公开爬取索引"
+        out_filename = AUDIT_REPORT_HTML_BOSS
+
+    title = html_lib.escape(title_text)
     issuer_e = html_lib.escape(issuer)
     client_e = html_lib.escape(client_name)
+    sub_e = html_lib.escape(sub_text)
+
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1649,7 +1692,7 @@ def build_audit_report_html_document(project_id: str, markdown: str = None) -> d
   <div class="wrap">
     <div class="mast">
       <div class="issuer">{issuer_e}</div>
-      <div class="sub">客户只读体检报告 · 不含管理端权限 · 请勿对外公开爬取索引</div>
+      <div class="sub">{sub_e}</div>
     </div>
     <article>
 {body_html}
@@ -1664,19 +1707,21 @@ def build_audit_report_html_document(project_id: str, markdown: str = None) -> d
         "project_id": project_id,
         "client_name": client_name,
         "html": html,
-        "filename": AUDIT_REPORT_HTML,
+        "filename": out_filename,
+        "view": view,
     }
 
 
-def export_audit_report_html(project_id: str, target_filepath: str = None) -> dict:
-    """将 01 体检报告导出为自包含客户版 HTML 并落盘。"""
-    built = build_audit_report_html_document(project_id)
+def export_audit_report_html(project_id: str, target_filepath: str = None, view: str = "boss") -> dict:
+    """将 01 体检报告导出为自包含客户版 HTML 并落盘（支持 boss 与 tech 双版本）。"""
+    built = build_audit_report_html_document(project_id, view=view)
     if not built.get("success"):
         return built
     cfg = load_project_config(project_id)
     out_dir = cfg.get("_outputs_dir") or os.path.join(PROJECTS_DIR, project_id, "outputs")
+    filename = built.get("filename") or (AUDIT_REPORT_HTML_TECH if view == "tech" else AUDIT_REPORT_HTML_BOSS)
     if not target_filepath:
-        target_filepath = os.path.join(out_dir, AUDIT_REPORT_HTML)
+        target_filepath = os.path.join(out_dir, filename)
     os.makedirs(os.path.dirname(os.path.abspath(target_filepath)), exist_ok=True)
     with open(target_filepath, "w", encoding="utf-8") as f:
         f.write(built["html"])
@@ -1686,10 +1731,11 @@ def export_audit_report_html(project_id: str, target_filepath: str = None) -> di
         "project_id": project_id,
         "client_name": built["client_name"],
         "target_file": target_filepath,
-        "filename": AUDIT_REPORT_HTML,
+        "filename": filename,
         "size_kb": size_kb,
         "html": built["html"],
-        "download_path": f"/api/projects/{project_id}/output/{AUDIT_REPORT_HTML}",
+        "view": view,
+        "download_path": f"/api/projects/{project_id}/output/{filename}",
     }
 
 

@@ -65,6 +65,7 @@
         :cmd-apply="cmdApply"
         @refresh-results="refresh"
         @select-result="selectResultFile"
+        @delete-result="deleteResultFile"
         @update:merge="merge = $event"
         @update:write-topics="writeTopics = $event"
         @copy-preview-for-ide="copyPreviewForIde"
@@ -154,6 +155,7 @@ const {
   copyAntigravitySavePrompt,
   checkResultOnDisk,
   selectResultFile,
+  deleteResultFile,
   copyPreviewForIde,
   previewFromDisk,
   applyFromDisk,

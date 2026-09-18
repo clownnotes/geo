@@ -503,40 +503,108 @@
 </div>
 </div>
 <div id="panel-step-1-diag" class="workspace-panel space-y-6">
+<!-- 阶段一顶层纯文字双 Tab 导航（0 Emoji） -->
+<div class="flex border-b border-slate-200 gap-8 text-sm font-semibold">
+<button type="button" id="tab-audit-top-boss" onclick="switchAuditTopTab('boss')" class="pb-3 border-b-2 border-[#7c5bf5] text-[#7c5bf5] transition">老板商业转化版</button>
+<button type="button" id="tab-audit-top-tech" onclick="switchAuditTopTab('tech')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">工程师技术体检版</button>
+</div>
+
+<!-- 视图 1：老板商业转化版专属容器（默认展示） -->
+<div id="view-audit-boss" class="space-y-6">
+<!-- 老板版专属操作卡片 -->
 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
 <div class="min-w-0">
-<h2 class="text-base font-bold text-slate-900">阶段一：测算诊断（客户现状体检）</h2>
-<p class="text-xs text-slate-500 mt-1"><strong>分三步</strong>：① 真抓指标 → ② 小毛驴解读 → ③ IDE 再审（可选）。另外可出 <strong>②深化报告</strong>：问完豆包后，复制提示词给 IDE 结合问答写第二份报告。</p>
+<h2 class="text-base font-bold text-slate-900">阶段一：AI 可见度商业转化诊断（老板决策版）</h2>
+<p class="text-xs text-slate-500 mt-1">基于真抓现实<strong>贩卖焦虑</strong>：先确权资产，再算 3 类询盘流失账，点明「竞品在吃入口、不做就晚了」，最后给破局路线与 30 天愿景——专门用于对客签单。</p>
+</div>
+<div class="flex flex-wrap gap-2 pt-1 items-center">
+<button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-boss-crawl" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+  <span>① 真抓网络与底座指标</span>
+  <span class="inline-flex items-center text-violet-200 hover:text-white" title="必须真抓：探测 SSR、/llms.txt、Schema、robots、文本密度，落盘 audit_metrics.json，杜绝胡编。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+</button>
+<button type="button" onclick="runStep1Audit(event, 'boss_direct')" id="btn-step-1-boss-direct" class="py-2.5 px-3.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+  <span>② 直出商业诊断与焦虑转化初稿（程序生成 · 0 幻觉）</span>
+  <span class="inline-flex items-center text-slate-400 hover:text-slate-600" title="程序算账：四维卡、流失询盘、「不做就晚了」与四步破局/30 天愿景；可选后再调小毛驴补反差话术。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+</button>
+<button type="button" onclick="copyBossAuditToIde(this)" id="btn-step-1-copy-boss-ide" class="py-2.5 px-3.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+  <span>③ 复制商业报告与转化初稿（给 IDE 润色）</span>
+  <span class="inline-flex items-center text-slate-400 hover:text-slate-600" title="打包商业初稿 + 焦虑转化润色提示词，给 IDE 去水、加强签约说服力。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+</button>
+<button type="button" onclick="copyDiagDeepenPrompt(this, 'boss')" id="btn-step-1-boss-deepen" class="py-2.5 px-3.5 border-2 border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-900 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+  <span>④ 追加豆包问答稿与提示词（给 IDE 参考）</span>
+  <span class="inline-flex items-center text-violet-500 hover:text-violet-700" title="豆包一手长问答路径 + 竞品截流分析提示，补流失实锤。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+</button>
+</div>
+<p class="text-[10px] text-slate-500">提示：两边第一步都是真抓。先①真抓 → ②直出焦虑转化初稿 → ③复制给 IDE 润色 → ④追加豆包实锤。
+<button type="button" onclick="runStep1Audit(event, 'interpret')" id="btn-step-1-interpret" class="text-[#7c5bf5] hover:underline font-medium">调小毛驴补反差话术（可选）</button>
+</p>
+</div>
+
+<!-- 老板版专属交付物与预览卡片（纯净商业版，不含底座 metrics.json） -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 text-xs font-semibold text-slate-700">
+<span class="truncate min-w-0">交付物：01_企业AI可见度商业诊断报告.md</span>
+<div class="flex items-center gap-3 shrink-0">
+<button type="button" onclick="openShareModal()" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1" title="生成客户可打开的报告链接"><i data-lucide="share-2" class="w-3.5 h-3.5"></i><span>客户报告链接</span></button>
+<button type="button" onclick="exportAuditReportHtml('boss')" class="text-slate-600 hover:text-slate-900 flex items-center gap-1" title="下载老板版自包含 HTML"><i data-lucide="file-down" class="w-3.5 h-3.5"></i><span>下载老板商业报告 (HTML)</span></button>
+<button type="button" onclick="copyOutput('01_企业AI可见度商业诊断报告.md')" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制全文</span></button>
+</div>
+</div>
+<div id="preview-step-1-boss" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
+<div class="text-center py-12 text-slate-400 text-sm">请先点「① 真抓网络与底座指标」，再点「② 直出商业诊断与焦虑转化初稿」…</div>
+</div>
+</div>
+</div>
+
+<!-- 视图 2：工程师技术体检版专属容器（默认隐藏） -->
+<div id="view-audit-tech" class="space-y-6 hidden">
+<!-- 技术版专属操作卡片 -->
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+<div class="min-w-0">
+<h2 class="text-base font-bold text-slate-900">阶段一：站点底座技术体检与工程审计（内部施工版）</h2>
+<p class="text-xs text-slate-500 mt-1">给交付团队自己用：客观缺陷清单 + <strong>可执行技术改造方案</strong>（SSR、/llms.txt、Schema、密度、robots）。不卖焦虑、不塞体验价。</p>
 <p class="text-[11px] text-slate-400 mt-1.5">次要入口：<button type="button" onclick="openCrawlerSimModal()" class="text-indigo-600 hover:underline font-medium">爬虫抓取仿真</button>
 <span class="mx-1.5 text-slate-300">|</span>
 指标真源：<code class="text-[10px] bg-slate-100 px-1 rounded">outputs/audit_metrics.json</code>
 </p>
 </div>
-<div class="flex flex-wrap gap-2">
-<button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-crawl" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow transition"><span>① 真抓指标</span></button>
-<button type="button" onclick="runStep1Audit(event, 'interpret')" id="btn-step-1-interpret" class="py-2.5 px-3.5 border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-xs font-semibold rounded-lg transition"><span>② 小毛驴解读</span></button>
-<button type="button" onclick="copyStep1AuditToIde(this)" class="py-2.5 px-3.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition"><span>③ 一键复制给 IDE 再审</span></button>
-<button type="button" onclick="copyDiagDeepenPrompt(this)" class="py-2.5 px-3.5 border-2 border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-900 text-xs font-semibold rounded-lg transition"><span>复制②深化提示词（给 IDE）</span></button>
+<div class="flex flex-wrap gap-2 pt-1 items-center">
+<button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-crawl" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+  <span>① 真抓网络与底座指标</span>
+  <span class="inline-flex items-center text-violet-200 hover:text-white" title="必须真抓：探测 SSR、/llms.txt、Schema、robots、文本密度，落盘 audit_metrics.json，杜绝胡编。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+</button>
+<button type="button" onclick="runStep1Audit(event, 'tech_direct')" id="btn-step-1-tech-direct" class="py-2.5 px-3.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+  <span>② 直出技术体检与改造方案初稿（程序生成 · 0 幻觉）</span>
+  <span class="inline-flex items-center text-slate-400 hover:text-slate-600" title="问题清单 + 对应改造步骤（给内部施工），不卖焦虑、不塞体验价。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+</button>
+<button type="button" onclick="copyStep1AuditToIde(this)" id="btn-step-1-copy-tech-ide" class="py-2.5 px-3.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+  <span>③ 复制技术指标与改造方案初稿（给 IDE 再审）</span>
+  <span class="inline-flex items-center text-slate-400 hover:text-slate-600" title="指标 JSON + 技术初稿 + 架构师改造提示词。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+</button>
+<button type="button" onclick="copyDiagDeepenPrompt(this, 'tech')" id="btn-step-1-copy-deepen" class="py-2.5 px-3.5 border-2 border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-900 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+  <span>④ 追加豆包问答稿与提示词（给 IDE 参考）</span>
+  <span class="inline-flex items-center text-violet-500 hover:text-violet-700" title="豆包长答路径 + 爬虫/索引排障提示。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+</button>
 </div>
-<p class="text-[10px] text-slate-500">①快报=本页体检报告（出得快）。②深化=可选：阶段零问完豆包后，点「复制②深化提示词」贴给 IDE。</p>
+<p class="text-[10px] text-slate-500">说明：①真抓指标 → ②直出问题与改造方案 → ③复制给 IDE 出补丁 → ④追加豆包问答排查收录缺口。</p>
 <p id="diag-deepen-probe-hint" class="text-[10px] text-amber-700 hidden"></p>
 </div>
+
+<!-- 技术版专属交付物与预览卡片 -->
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-<div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 text-xs font-semibold text-slate-700">
-<span class="truncate min-w-0">交付物：01_企业AI可见度现状体检与商业诊断报告.md · audit_metrics.json</span>
+<div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 text-xs font-semibold text-slate-700">
+<span class="truncate min-w-0">交付物：01_企业底座技术体检审计报告.md · audit_metrics.json</span>
 <div class="flex items-center gap-3 shrink-0">
-<button type="button" onclick="openShareModal()" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1" title="生成客户可打开的报告链接"><i data-lucide="share-2" class="w-3.5 h-3.5"></i><span>客户报告链接</span>
-</button>
-<button type="button" onclick="exportAuditReportHtml()" class="text-slate-600 hover:text-slate-900 flex items-center gap-1" title="下载自包含 HTML"><i data-lucide="file-down" class="w-3.5 h-3.5"></i><span>下载报告页</span>
-</button>
-<button onclick="copyOutput('01_企业AI可见度现状体检与商业诊断报告.md')" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制全文</span>
-</button>
+<button type="button" onclick="exportAuditReportHtml('tech')" class="text-slate-600 hover:text-slate-900 flex items-center gap-1" title="下载技术版自包含 HTML"><i data-lucide="file-down" class="w-3.5 h-3.5"></i><span>下载技术体检报告 (HTML)</span></button>
+<button type="button" onclick="copyOutput('01_企业底座技术体检审计报告.md')" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制全文</span></button>
 </div>
 </div>
-<div id="preview-step-1" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
-<div class="text-center py-12 text-slate-400 text-sm">先点「① 真抓指标」，再点「② 小毛驴解读」…</div>
+<div id="preview-step-1-tech" class="p-6 markdown-body max-h-[600px] overflow-y-auto">
+<div class="text-center py-12 text-slate-400 text-sm">请先点「① 真抓网络与底座指标」，再点「② 直出技术体检与改造方案初稿」…</div>
 </div>
 </div>
+</div>
+
 <div class="flex items-center justify-between pt-4 border-t border-slate-200 mt-6">
 <button onclick="prevStep()" id="btn-prev-step" class="py-2.5 px-5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition"><i data-lucide="chevron-left" class="w-4 h-4"></i><span>上一步</span>
 </button>
@@ -4604,6 +4672,31 @@ GitHub 开源仓库：https://github.com/company/repo
 </table>
 </div>
 </div>
+<!-- 同赛道 ≤5 结构化竞品档案（差距二交付） -->
+<div class="space-y-3">
+<div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-800 flex items-center gap-1.5"><i data-lucide="table-2" class="w-4 h-4 text-indigo-600"></i><span>同赛道竞品结构化档案（上限 5 家 · 真实/虚拟标注）</span></span><span id="gap-structured-summary" class="text-[11px] text-slate-400">尚未生成</span>
+</div>
+<div class="overflow-x-auto rounded-xl border border-slate-200">
+<table class="w-full text-xs text-left">
+<thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+<tr>
+<th class="p-3">竞品</th>
+<th class="p-3">等级</th>
+<th class="p-3">geoScore</th>
+<th class="p-3">市占</th>
+<th class="p-3">威胁</th>
+<th class="p-3">信源</th>
+<th class="p-3">定位</th>
+</tr>
+</thead>
+<tbody id="gap-structured-tbody" class="divide-y divide-slate-100 bg-white">
+<tr>
+<td colspan="7" class="p-4 text-center text-slate-400">点「重新推演」后展示 ≤5 家结构化档案…</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <!-- 竞对三大声量优势透视 -->
 <div class="space-y-3">
 <div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-800 flex items-center gap-1.5"><i data-lucide="shield-alert" class="w-4 h-4 text-amber-600"></i><span>竞对三大声量优势透视 (Competitor Strength Radar)</span></span>
@@ -7214,6 +7307,71 @@ function backToDashboard() {
       switchView('step-1-diag');
     }
 
+    async function copyBossAuditToIde(btn) {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>正在打包转化初稿…</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/diag/boss-audit-pack`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.clipboard) {
+          const anxietyPrefix = [
+            `【GEO 阶段一 · 老板商业转化诊断 · 焦虑转化润色包】`,
+            `【IDE 商业顾问任务】：`,
+            `1. 以【GEO 资深商业交付顾问】身份润色，五年级也能听懂；`,
+            `2. 强化现实焦虑：3 类流失询盘、竞品截流、「不做就晚了」；先安抚资产能打，再暴击丢单；`,
+            `3. 破局路线与 30 天愿景要可签约、可验收，禁止堆砌生涩技术名词与体验价以外的乱承诺；`,
+            `4. 严禁彩色 Emoji；写回 projects/${pid}/outputs/01_企业AI可见度商业诊断报告.md`,
+            ``,
+          ].join('\n');
+          copyStep0Text(anxietyPrefix + data.clipboard, btn, '已复制商业报告与转化初稿 → 贴给 IDE');
+          return;
+        }
+      } catch (e) { /* ignore and fallback */ }
+      finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+
+      // 降级兜底方案
+      let bossContent = '';
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('01_企业AI可见度商业诊断报告.md')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) bossContent = String(data.content).trim();
+      } catch (e) { /* ignore */ }
+      const lines = [
+        `【GEO 阶段一 · 老板商业转化诊断 · 焦虑转化润色包】`,
+        `项目：${pid}`,
+        `企业名称：${(currentProjectData && (currentProjectData.company_name || currentProjectData.name)) || ''}`,
+        `官网：${(currentProjectData && currentProjectData.official_url) || ''}`,
+        ``,
+        `【IDE 商业顾问任务】：`,
+        `1. 强化现实焦虑：3 类流失询盘、竞品截流、「不做就晚了」；先安抚再暴击。`,
+        `2. 严禁彩色 Emoji；破局/30 天要可签约。`,
+        `3. 写回 projects/${pid}/outputs/01_企业AI可见度商业诊断报告.md`,
+        ``,
+        `—— 01_企业AI可见度商业诊断报告.md 原文 ——`,
+        bossContent || '（尚未生成：请先点「① 真抓」再点「② 直出商业诊断与焦虑转化初稿」）',
+      ];
+      copyStep0Text(lines.join('\n'), btn, '已复制商业报告与转化初稿 → 贴给 IDE');
+    }
+
     async function copyStep1AuditToIde(btn) {
       const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
       if (!pid) {
@@ -7221,6 +7379,7 @@ function backToDashboard() {
         return;
       }
       let metricsText = '';
+      let techMd = '';
       try {
         const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('audit_metrics.json')}`, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
@@ -7228,32 +7387,43 @@ function backToDashboard() {
         const data = await res.json();
         if (data.success && data.content) metricsText = String(data.content).trim();
       } catch (e) { /* ignore */ }
+      try {
+        const res2 = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('01_企业底座技术体检审计报告.md')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data2 = await res2.json();
+        if (data2.success && data2.content) techMd = String(data2.content).trim();
+      } catch (e) { /* ignore */ }
       const lines = [
-        `【GEO 阶段一 · 请 IDE 精修客户体检报告】`,
+        `【GEO 阶段一 · 站点底座技术体检 · 工程师改造包】`,
         `项目：${pid}`,
         `官网：${(currentProjectData && currentProjectData.official_url) || ''}`,
         ``,
-        `硬约束：`,
-        `1. 技术真源是 outputs/audit_metrics.json，禁止改写 has_ssr / has_llms_txt / has_json_ld / tech_score 等布尔与分数。`,
-        `2. 可见度只能引用阶段零 competitor_probe / 报告第三节；禁止编造关键词排名。`,
-        `3. 你只润色「结论先行」与「四步建议」的客户话术，保持 0 Emoji。`,
-        `4. 改完后写回 projects/${pid}/outputs/01_企业AI可见度现状体检与商业诊断报告.md`,
+        `【IDE 工程师任务】：`,
+        `1. 以【系统架构师】身份核实扣分项是否客观；`,
+        `2. 针对 SSR、/llms.txt、Schema、文本密度缺口，给出可落地的改造步骤/补丁要点；`,
+        `3. 严禁写入营销推销与体验价 CTA；保持 0 Emoji；`,
+        `4. 写回 projects/${pid}/outputs/01_企业底座技术体检审计报告.md`,
         ``,
         `—— audit_metrics.json ——`,
-        metricsText || '（尚未生成：请先点「① 真抓指标」）',
+        metricsText || '（尚未生成：请先点「① 真抓网络与底座指标」）',
         ``,
-        `请先读上述指标，再打开同目录体检报告 Markdown 做二次精修。`,
+        `—— 01_企业底座技术体检审计报告.md ——`,
+        techMd || '（尚未生成：请先点「② 直出技术体检与改造方案初稿」）',
       ];
-      copyStep0Text(lines.join('\n'), btn, '已复制③ IDE 再审提示 → 贴给 Cursor');
+      copyStep0Text(lines.join('\n'), btn, '已复制技术指标与改造方案初稿 → 贴给 IDE');
     }
 
-    /** ②深化：复制 OpenSpec IDE 提示词（GET /diag/deepen-prompt） */
-    async function copyDiagDeepenPrompt(btn) {
+    /** 追加豆包问答稿：audience = boss|tech，分流提示词 */
+    async function copyDiagDeepenPrompt(btn, audience) {
       const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
       if (!pid) {
         showToast('请先选择项目', 'error');
         return;
       }
+      const view = (audience === 'boss' || audience === 'tech')
+        ? audience
+        : (currentAuditTopTab === 'boss' ? 'boss' : 'tech');
       const originalText = btn ? btn.innerHTML : '';
       if (btn) {
         btn.disabled = true;
@@ -7266,15 +7436,30 @@ function backToDashboard() {
         });
         const data = await res.json();
         if (!data.success || !data.clipboard) {
-          showToast(data.message || '生成深化提示词失败', 'error');
+          showToast(data.message || '生成豆包问答稿提示词失败', 'error');
           return;
         }
         const audit = data.probe_audit || {};
         const usable = !!audit.has_usable_full_answers;
+        const prefix = view === 'boss'
+          ? [
+              `【IDE 商业心智与竞品截流参考】`,
+              `请从【买家决策心智与竞品截流】角度排查：豆包把客流推荐给了哪几家竞品？买家最关心什么？`,
+              `把这些实锤补进「坏消息」与「流失询盘账本」，服务焦虑转化。`,
+              ``,
+            ].join('\n')
+          : [
+              `【IDE 抓取与收录排障参考】`,
+              `请从【网络爬虫抓取与 Clean Markdown 索引覆盖】角度排查：`,
+              `为什么豆包没有抓取或引用客户官网？是否存在 robots 拦截、内链缺失或动态渲染阻断？`,
+              ``,
+            ].join('\n');
         copyStep0Text(
-          data.clipboard,
+          prefix + data.clipboard,
           btn,
-          usable ? '已复制②深化提示词 → 贴给 IDE' : '已复制；探活缺全文，提示词末尾已附缺口说明'
+          usable
+            ? '已复制豆包问答稿与提示词 → 贴给 IDE'
+            : '已复制；豆包答案缺全文，提示词末尾已附缺口说明'
         );
         refreshDiagDeepenProbeHint();
       } catch (err) {
@@ -7304,29 +7489,29 @@ function backToDashboard() {
         const data = await res.json();
         if (!data.success) {
           el.classList.remove('hidden');
-          el.textContent = data.message || '探活答覆覆盖度暂不可用';
+          el.textContent = data.message || '豆包答案覆盖度暂不可用';
           return;
         }
         const total = Number(data.items_total || 0);
         const ok = Number(data.items_with_full || 0);
         if (!total) {
           el.classList.remove('hidden');
-          el.textContent = '尚未检测到探活 JSON。先做阶段零并按收工说明书写入 answer_full，再点②深化。';
+          el.textContent = '还没检测到豆包答案存档。先做阶段零并把豆包答案存进项目，再点「追加豆包问答稿与提示词」。';
           return;
         }
         el.classList.remove('hidden');
         if (data.has_usable_full_answers) {
           el.classList.remove('text-amber-700');
           el.classList.add('text-emerald-700');
-          el.textContent = `探活答覆覆盖：${ok}/${total} 题有完整答（≥${data.min_chars || 80} 字），可复制②深化提示词。`;
+          el.textContent = `豆包答案覆盖：${ok}/${total} 题有完整答（≥${data.min_chars || 80} 字），可点「追加豆包问答稿与提示词」。`;
         } else {
           el.classList.remove('text-emerald-700');
           el.classList.add('text-amber-700');
-          el.textContent = `探活答覆覆盖：仅 ${ok}/${total} 题有完整答。缺全文时深化只能写浅——请用新版收工说明书补 answer_full 后再深化。`;
+          el.textContent = `豆包答案覆盖：仅 ${ok}/${total} 题有完整答。缺全文时分析会偏浅——请补全 answer_full 后再点「追加豆包问答稿与提示词」。`;
         }
       } catch (_) {
         el.classList.remove('hidden');
-        el.textContent = '探活答覆覆盖度检查失败';
+        el.textContent = '豆包答案覆盖度检查失败';
       }
     }
 
@@ -7447,20 +7632,53 @@ function backToDashboard() {
     }
 
     async function runStep1Audit(e, mode) {
-      const m = mode === 'interpret' ? 'interpret' : 'crawl';
+      const validModes = ['boss_direct', 'interpret', 'crawl', 'tech_direct'];
+      const m = validModes.includes(mode) ? mode : 'crawl';
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const checkHasMetrics = async () => {
+        try {
+          const chk = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('audit_metrics.json')}`, {
+            headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+          });
+          const chkData = await chk.json();
+          return !!(chkData && chkData.success && chkData.content);
+        } catch (_) {
+          return false;
+        }
+      };
+
+      // 直出/解读依赖真抓指标
+      if (m === 'interpret' || m === 'boss_direct' || m === 'tech_direct') {
+        const hasMetrics = await checkHasMetrics();
+        if (!hasMetrics) {
+          showToast('请先点「① 真抓网络与底座指标」', 'error');
+          return;
+        }
+      }
+
       const btn = (e && e.currentTarget) ? e.currentTarget : null;
       const originalText = btn ? btn.innerHTML : '';
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = m === 'crawl'
-          ? `<span>正在真抓…</span>`
-          : `<span>正在解读…</span>`;
+        let loadingText = '正在处理中…';
+        if (m === 'boss_direct') loadingText = '正在直出商业诊断与焦虑转化初稿…';
+        else if (m === 'interpret') loadingText = '正在调小毛驴补反差话术…';
+        else if (m === 'crawl') loadingText = '正在真抓网络与底座指标…';
+        else if (m === 'tech_direct') loadingText = '正在直出技术体检与改造方案初稿…';
+        btn.innerHTML = `<span>${loadingText}</span>`;
         if (window.lucide) lucide.createIcons();
       }
+
+      const timeoutMs = m === 'interpret' ? 180000 : (m === 'crawl' ? 120000 : 30000);
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), m === 'interpret' ? 180000 : 120000);
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const stayTab = currentAuditTopTab || 'boss';
       try {
-        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/run/audit`, {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/run/audit`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${currentAuthToken}`,
@@ -7471,10 +7689,28 @@ function backToDashboard() {
         });
         const data = await res.json();
         if (data.success) {
+          if (m === 'boss_direct' || m === 'interpret') {
+            switchAuditTopTab('boss');
+          } else if (m === 'tech_direct') {
+            switchAuditTopTab('tech');
+          } else {
+            // crawl：留在当前 Tab（两边都能真抓）
+            switchAuditTopTab(stayTab);
+          }
           await loadStepPreviews();
-          showToast(data.message || (m === 'crawl' ? '① 真抓完成' : '② 解读完成'), data.llm_status === 'failed' ? 'error' : 'success');
+          let defaultMsg = '操作已完成';
+          if (m === 'boss_direct') defaultMsg = '② 商业诊断与焦虑转化初稿已直出';
+          else if (m === 'interpret') defaultMsg = '小毛驴反差话术已叠加（可选）';
+          else if (m === 'crawl') defaultMsg = '① 真抓网络与底座指标已完成';
+          else if (m === 'tech_direct') defaultMsg = '② 技术体检与改造方案初稿已直出';
+          showToast(data.message || defaultMsg, data.llm_status === 'failed' ? 'error' : 'success');
         } else {
-          showToast('执行出错: ' + (data.message || ''), 'error');
+          const msg = String(data.message || '');
+          if (msg.includes('请先点「① 真抓') || msg.includes('请先切到工程师') || msg.includes('尚未真抓')) {
+            showToast(msg.includes('请先点') ? msg : '请先点「① 真抓网络与底座指标」', 'error');
+          } else {
+            showToast('执行出错: ' + msg, 'error');
+          }
         }
       } catch (err) {
         showToast('请求失败: ' + err.message, 'error');
@@ -8114,9 +8350,12 @@ function backToDashboard() {
 
     // 异步加载产物预览
     async function loadStepPreviews() {
-      // Step 1
-      loadMarkdownToElem('01_企业AI可见度现状体检与商业诊断报告.md', 'preview-step-1');
+      // Step 1: 联动顶层双 Tab 视图分别加载两份独立报告
+      switchAuditTopTab(currentAuditTopTab);
+      loadMarkdownToElem('01_企业AI可见度商业诊断报告.md', 'preview-step-1-boss');
+      loadMarkdownToElem('01_企业底座技术体检审计报告.md', 'preview-step-1-tech');
       // Step 2
+
       if (currentScaffoldTab === 'site.html') {
         loadSitePreviewData();
       } else {
@@ -8921,13 +9160,60 @@ function backToDashboard() {
       window.open(currentGeneratedPortalUrl, '_blank');
     }
 
-    async function exportAuditReportHtml() {
+    let currentAuditTopTab = 'boss'; // 'boss' | 'tech'
+    let currentAuditReportView = 'boss';
+
+    function switchAuditTopTab(tab) {
+      currentAuditTopTab = (tab === 'tech') ? 'tech' : 'boss';
+      currentAuditReportView = currentAuditTopTab;
+      const btnBoss = document.getElementById('tab-audit-top-boss');
+      const btnTech = document.getElementById('tab-audit-top-tech');
+      const viewBoss = document.getElementById('view-audit-boss');
+      const viewTech = document.getElementById('view-audit-tech');
+
+      if (currentAuditTopTab === 'tech') {
+        if (btnTech) {
+          btnTech.className = 'pb-3 border-b-2 border-[#7c5bf5] text-[#7c5bf5] transition font-semibold';
+        }
+        if (btnBoss) {
+          btnBoss.className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition font-semibold';
+        }
+        if (viewTech) viewTech.classList.remove('hidden');
+        if (viewBoss) viewBoss.classList.add('hidden');
+        loadMarkdownToElem('01_企业底座技术体检审计报告.md', 'preview-step-1-tech');
+      } else {
+        if (btnBoss) {
+          btnBoss.className = 'pb-3 border-b-2 border-[#7c5bf5] text-[#7c5bf5] transition font-semibold';
+        }
+        if (btnTech) {
+          btnTech.className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition font-semibold';
+        }
+        if (viewBoss) viewBoss.classList.remove('hidden');
+        if (viewTech) viewTech.classList.add('hidden');
+        loadMarkdownToElem('01_企业AI可见度商业诊断报告.md', 'preview-step-1-boss');
+      }
+    }
+
+    // 兼容旧别名
+    function switchAuditReportView(view) {
+      switchAuditTopTab(view);
+    }
+
+    function copyCurrentAuditOutput() {
+      const filename = (currentAuditTopTab === 'tech')
+        ? '01_企业底座技术体检审计报告.md'
+        : '01_企业AI可见度商业诊断报告.md';
+      copyOutput(filename);
+    }
+
+    async function exportAuditReportHtml(explicitView) {
       if (!currentProjectId) {
         showToast('请先进入客户流水线', 'error');
         return;
       }
       try {
-        const res = await fetch(`/api/projects/${currentProjectId}/export-audit-html`, {
+        const view = explicitView || currentAuditTopTab || currentAuditReportView || 'boss';
+        const res = await fetch(`/api/projects/${currentProjectId}/export-audit-html?view=${encodeURIComponent(view)}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -8937,12 +9223,13 @@ function backToDashboard() {
         });
         const data = await res.json();
         if (data.success) {
-          showToast(`客户报告页已生成（${data.size_kb} KB）`);
+          const reportTypeName = view === 'tech' ? '技术体检报告' : '老板商业报告';
+          showToast(`${reportTypeName}已生成（${data.size_kb} KB）`);
           if (data.html) {
             const blob = new Blob([data.html], { type: 'text/html;charset=utf-8' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = data.filename || '01_企业AI可见度现状体检报告_客户版.html';
+            a.download = data.filename || (view === 'tech' ? '01_企业底座技术体检审计报告.html' : '01_企业AI可见度商业诊断报告.html');
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -8955,6 +9242,7 @@ function backToDashboard() {
         showToast('导出请求异常', 'error');
       }
     }
+
 
     // ==========================================
     // 行业大盘 Benchmark 与横向对标
@@ -14199,6 +14487,28 @@ function backToDashboard() {
         return `
           <tr class="hover:bg-slate-50 transition"><td class="p-3 font-bold text-slate-800">${esc(d)}</td><td class="p-3 font-bold text-emerald-700 font-mono text-sm">${cs} 分</td><td class="p-3 text-slate-600 font-mono">${comps} 分</td><td class="p-3 font-bold">${diffBadge}</td><td class="p-3 text-slate-500 text-[11px]">${esc(reason)}</td></tr>`;
       }).join('');
+
+      // 结构化 ≤5 竞品档案
+      const structured = gap.structured_competitor_analysis || {};
+      const sComps = structured.competitors || [];
+      const sSum = structured.source_summary || {};
+      const sSumEl = document.getElementById('gap-structured-summary');
+      const sBody = document.getElementById('gap-structured-tbody');
+      if (sSumEl) {
+        sSumEl.textContent = sComps.length
+          ? `${sComps.length} 家 · 真实 ${sSum.real_count || 0} · 虚拟 ${sSum.virtual_count || 0}`
+          : '尚未生成';
+      }
+      if (sBody) {
+        const threatMap = { high: '高', medium: '中', low: '低' };
+        sBody.innerHTML = sComps.length
+          ? sComps.map((c) => {
+              const src = c.source === 'real' ? '[真实]' : '[虚拟]';
+              const share = (c.marketShare == null) ? '未公开' : `${c.marketShare}%`;
+              return `<tr class="hover:bg-slate-50"><td class="p-3 font-bold text-slate-800">${esc(c.name)}</td><td class="p-3">${esc(c.level || '')}</td><td class="p-3 font-mono">${esc(c.geoScore)}</td><td class="p-3">${esc(share)}</td><td class="p-3">${esc(threatMap[c.threatLevel] || c.threatLevel || '')}</td><td class="p-3"><code class="text-[10px] bg-slate-100 px-1 rounded">${src}</code></td><td class="p-3 text-slate-600">${esc(c.description || '')}</td></tr>`;
+            }).join('')
+          : `<tr><td colspan="7" class="p-4 text-center text-slate-400">点「重新推演」后展示 ≤5 家结构化档案…</td></tr>`;
+      }
 
       // 竞对优势渲染
       const advantages = gap.competitor_advantages || [];

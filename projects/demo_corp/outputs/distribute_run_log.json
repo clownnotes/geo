@@ -1,8 +1,8 @@
 {
-  "run_id": "dist_run_20260917_124612",
-  "timestamp": "2026-09-17T12:46:12+08:00",
+  "run_id": "dist_run_20260917_210359",
+  "timestamp": "2026-09-17T21:03:59+08:00",
   "project_id": "demo_corp",
-  "total_duration_ms": 7,
+  "total_duration_ms": 8,
   "llm_duration_ms": 42,
   "llm_runtime": {
     "provider": "nextdoor",

@@ -1,0 +1,34 @@
+{
+  "project_id": "xuzhou_xuanyuan",
+  "probed_at": "2026-09-17T19:33:23+08:00",
+  "url": "https://geo.baicl.cc",
+  "is_online": true,
+  "status_code": 200,
+  "html_size_kb": 791.08,
+  "has_ssr": true,
+  "has_llms_txt": false,
+  "has_json_ld": false,
+  "clean_text_length": 26560,
+  "text_density_ratio": 3.28,
+  "robots_status": "未部署 robots.txt",
+  "warnings": [
+    "【缺失】未检测到 Schema.org (JSON-LD) 结构化元数据，大模型无法直接提取实体属性。",
+    "【缺失】未部署 /llms.txt 规范索引，大模型无法毫秒级读取站点结构。"
+  ],
+  "dns": {
+    "a": [
+      "198.18.1.182"
+    ],
+    "aaaa": []
+  },
+  "dualstack_probe": {
+    "a": {
+      "198.18.1.182": "ok"
+    },
+    "aaaa": {}
+  },
+  "tech_score": 40,
+  "llm_status": "failed",
+  "llm_provider": "nextdoor",
+  "probe_baseline_id": ""
+}

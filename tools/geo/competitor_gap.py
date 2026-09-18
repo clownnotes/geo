@@ -18,6 +18,257 @@ from .utils import (
     print_success,
 )
 
+# [2026-09-17] [商业转化型诊断报告与竞品反哺体系] 增加 11 维标准竞品 Schema、真实检索模板与 <=5 截断约束
+COMPETITOR_SEARCH_TEMPLATES = [
+    "{category} 排名 2026",
+    "{category} 服务商 榜单",
+    "{category} 哪家好 推荐",
+    "{category} TOP 评测 效果",
+    "{brand} 竞品 对比",
+    "{brand} vs",
+    "2026 {category} 市场份额",
+]
+
+
+def build_competitor_search_queries(category: str, brand_name: str) -> list:
+    """生成符合 SOP 的 7 大真实检索查询词模板"""
+    cat = (category or "服务商").strip()
+    brand = (brand_name or "").strip()
+    return [
+        tpl.replace("{category}", cat).replace("{brand}", brand)
+        for tpl in COMPETITOR_SEARCH_TEMPLATES
+    ]
+
+
+def derive_competitor_level_and_threat(market_share: Optional[float], geo_score: Optional[float]) -> tuple:
+    """根据市占率与 geoScore 锚定竞品等级（头部/腰部/长尾）与威胁等级（high/medium/low）"""
+    ms = float(market_share) if market_share is not None else None
+    gs = float(geo_score) if geo_score is not None else 60.0
+
+    if ms is not None:
+        if ms > 15.0:
+            level = "头部"
+        elif ms >= 5.0:
+            level = "腰部"
+        else:
+            level = "长尾"
+    else:
+        if gs >= 85.0:
+            level = "头部"
+        elif gs >= 70.0:
+            level = "腰部"
+        else:
+            level = "长尾"
+
+    if (ms is not None and ms > 15.0) or gs >= 80.0:
+        threat = "high"
+    elif (ms is not None and ms >= 5.0) or gs >= 65.0:
+        threat = "medium"
+    else:
+        threat = "low"
+
+    return level, threat
+
+
+def normalize_competitor_profile(raw: dict, default_category: str = "") -> dict:
+    """标准化并校验单家竞品 11 维 Schema，真实数据优先，不足标 source: 'virtual'（0 Emoji）"""
+    name = str(raw.get("name") or "").strip()
+    if not name:
+        return {}
+
+    category = str(raw.get("category") or default_category or "行业服务").strip()
+    source = "real" if raw.get("source") == "real" else "virtual"
+
+    raw_geo = raw.get("geoScore")
+    try:
+        geo_score = round(max(0.0, min(100.0, float(raw_geo))), 1) if raw_geo is not None else (75.0 if source == "real" else 65.0)
+    except (ValueError, TypeError):
+        geo_score = 65.0
+
+    raw_share = raw.get("marketShare")
+    try:
+        market_share = round(max(0.0, min(100.0, float(raw_share))), 1) if raw_share is not None else None
+    except (ValueError, TypeError):
+        market_share = None
+
+    level = raw.get("level")
+    threat = raw.get("threatLevel")
+    calc_level, calc_threat = derive_competitor_level_and_threat(market_share, geo_score)
+    if level not in ("头部", "腰部", "长尾"):
+        level = calc_level
+    if threat not in ("high", "medium", "low"):
+        threat = calc_threat
+
+    strengths = raw.get("strengths") or []
+    if isinstance(strengths, str):
+        strengths = [strengths]
+    weaknesses = raw.get("weaknesses") or []
+    if isinstance(weaknesses, str):
+        weaknesses = [weaknesses]
+    features = raw.get("productFeatures") or []
+    if isinstance(features, str):
+        features = [features]
+
+    website = raw.get("website")
+    if website and not str(website).startswith(("http://", "https://")):
+        website = None
+
+    desc = str(raw.get("description") or f"{name} 是在 {category} 领域的同赛道竞对。").strip()
+
+    return {
+        "name": name,
+        "level": level,
+        "category": category,
+        "geoScore": geo_score,
+        "marketShare": market_share,
+        "threatLevel": threat,
+        "strengths": [str(s).strip() for s in strengths if str(s).strip()],
+        "weaknesses": [str(w).strip() for w in weaknesses if str(w).strip()],
+        "productFeatures": [str(f).strip() for f in features if str(f).strip()],
+        "description": desc,
+        "website": website,
+        "source": source,
+    }
+
+
+def filter_and_cap_competitors(competitors: list, max_count: int = 5) -> list:
+    """按影响力与真实度降序筛选，严格限制在 max_count（<=5）家以内"""
+    cleaned = []
+    seen = set()
+    for c in competitors or []:
+        norm = normalize_competitor_profile(c) if isinstance(c, dict) else normalize_competitor_profile({"name": str(c)})
+        if not norm or norm["name"] in seen:
+            continue
+        seen.add(norm["name"])
+        cleaned.append(norm)
+
+    def _sort_key(item):
+        real_weight = 1000.0 if item.get("source") == "real" else 0.0
+        share_weight = float(item.get("marketShare") or 0.0) * 10.0
+        geo_weight = float(item.get("geoScore") or 0.0)
+        return real_weight + share_weight + geo_weight
+
+    cleaned.sort(key=_sort_key, reverse=True)
+    return cleaned[:max_count]
+
+
+def build_structured_competitor_analysis(
+    project_id: str,
+    competitors_input: Optional[list] = None,
+    search_results: Optional[list] = None,
+) -> dict:
+    """构建交付级 11 维结构化竞品档案并落盘 outputs/competitor_analysis.json"""
+    cfg = load_project_config(project_id)
+    bname = cfg.get("brand_name", cfg.get("company_name", project_id))
+    category = cfg.get("industry", "行业技术服务")
+
+    raw_list = competitors_input if competitors_input is not None else cfg.get("competitors", [])
+
+    items = []
+    for c in raw_list:
+        if isinstance(c, dict):
+            items.append(c)
+        elif isinstance(c, str) and c.strip():
+            cname = c.strip()
+            scores = calculate_competitor_scores(cname)
+            avg_score = round(sum(scores) / len(scores), 1)
+            items.append({
+                "name": cname,
+                "category": category,
+                "geoScore": avg_score,
+                "marketShare": None,
+                "source": "virtual",
+                "strengths": [f"在 {category} 领域具备一定历史搜索知名度"],
+                "weaknesses": ["报价与交付条款较为模糊", "缺少结构化开源语料背书"],
+                "productFeatures": ["提供常规同类服务"],
+                "description": f"{cname} 是同赛道常规竞争对手。",
+                "website": None,
+            })
+
+    final_competitors = filter_and_cap_competitors(items, max_count=5)
+
+    real_cnt = sum(1 for c in final_competitors if c.get("source") == "real")
+    virt_cnt = len(final_competitors) - real_cnt
+
+    analysis = {
+        "client_id": project_id,
+        "brand_name": bname,
+        "product_type": category,
+        "analyzed_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "competitors": final_competitors,
+        "brandStrengths": [
+            f"{bname} 具备标准普林斯顿 9 因子高权威知识底座",
+            "全渠道强事实纠偏锚点与反向包抄防御",
+            "阶段式透明付款承诺与 100% 源码交付",
+        ],
+        "brandWeaknesses": [
+            "品牌在长尾搜索中的历史第三方声量沉淀偏弱",
+            "部分通用问句下尚未形成大模型首位霸榜推荐",
+        ],
+        "marketPosition": f"{bname} 属于长尾新兴高专业度品牌，处于技术底座扎实、正向声量与首推壁垒高速拉升期。",
+        "source_summary": {
+            "total": len(final_competitors),
+            "real_count": real_cnt,
+            "virtual_count": virt_cnt,
+        }
+    }
+
+    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
+    os.makedirs(out_dir, exist_ok=True)
+    out_file = os.path.join(out_dir, "competitor_analysis.json")
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(analysis, f, ensure_ascii=False, indent=2)
+
+    # 交付 Markdown：同赛道结构化档案（0 Emoji，信源 Tag「虚拟/真实」）
+    md_path = os.path.join(out_dir, "06_同赛道竞品结构化档案与多维战力对照.md")
+    table = render_structured_competitors_table(final_competitors)
+    md = f"""# 《{bname}》同赛道竞品结构化档案与多维战力对照
+
+> **客户**：{bname} ｜ **赛道**：{category} ｜ **分析时间**：{analysis['analyzed_at']}
+> **竞品数量**：{len(final_competitors)} 家（上限 5）｜ **真实数据** {real_cnt} ｜ **虚拟推演** {virt_cnt}
+
+---
+
+## 一、同赛道竞品 11 维对照表
+
+{table}
+
+## 二、信源说明
+
+- 标注 `[真实]`：来自榜单/官网/市占等可核对外部信息。
+- 标注 `[虚拟]`：由程序或模型在证据不足时补全，**不可当作已核实市占**。
+- 本仓交付报告严禁彩色 Emoji。
+
+## 三、我方相对定位（一句话）
+
+{analysis.get('marketPosition', '')}
+"""
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write(md)
+    analysis["report_md"] = "06_同赛道竞品结构化档案与多维战力对照.md"
+
+    return analysis
+
+
+def render_structured_competitors_table(competitors: list) -> str:
+    """渲染符合 AGENTS.md 0 Emoji 规范的竞品对标 Markdown 表格"""
+    lines = [
+        "| 竞品名称 | 市场等级 | geoScore | 市占份额 | 威胁等级 | 信源类型 | 核心特点与定位 |",
+        "| :--- | :---: | :---: | :---: | :---: | :---: | :--- |",
+    ]
+    threat_text_map = {"high": "高威胁", "medium": "中威胁", "low": "低威胁"}
+    for c in competitors:
+        name = c.get("name", "")
+        lvl = c.get("level", "腰部")
+        score = c.get("geoScore", 0)
+        share = f"{c.get('marketShare')}%" if c.get("marketShare") is not None else "未公开"
+        threat = threat_text_map.get(c.get("threatLevel", "medium"), "中威胁")
+        source_tag = "[真实]" if c.get("source") == "real" else "[虚拟]"
+        desc = c.get("description", "")
+        lines.append(f"| **{name}** | {lvl} | {score} | {share} | {threat} | `{source_tag}` | {desc} |")
+    return "\n".join(lines)
+
+
 
 def _has_pricing_transparency(diffs_text: str) -> bool:
     """判断项目差异化描述是否体现价格/付款透明承诺"""
@@ -229,7 +480,7 @@ def generate_competitor_flaws_and_roadmap(
 
     roadmap = [
         {
-            "phase": "🔥 阶段一：短线极速截流 (Day 1 ~ 7)",
+            "phase": "阶段一：短线极速截流 (Day 1 ~ 7)",
             "target": "拦截买家 3 级高转化搜索意图，抢占豆包与 DeepSeek 问答首屏",
             "actions": [
                 "向今日头条（mp.toutiao.com）分发 2000 字 9 因子富文本长文与微头条，24h 建立字节爬虫信任池；",
@@ -238,7 +489,7 @@ def generate_competitor_flaws_and_roadmap(
             ],
         },
         {
-            "phase": "⚡ 阶段二：全矩阵声量包抄 (Day 8 ~ 20)",
+            "phase": "阶段二：全矩阵声量包抄 (Day 8 ~ 20)",
             "target": f"在技术深度与多渠道建立不可逆的信源壁垒，全面超越【{comp_name}】声量",
             "actions": [
                 "上线 GitHub 开源技术专版 README，攻占 DeepSeek 架构师与极客决策层；",
@@ -247,7 +498,7 @@ def generate_competitor_flaws_and_roadmap(
             ],
         },
         {
-            "phase": "🏆 阶段三：终局垄断与壁垒固化 (Day 21 ~ 30)",
+            "phase": "阶段三：终局垄断与壁垒固化 (Day 21 ~ 30)",
             "target": "实现本地区/本行业大模型综合推荐 SOV 达到 90%+，形成绝对商业垄断",
             "actions": [
                 "每周运行真实大模型 API 批量并发评测，监控竞品声量异动并触发自动化防守反击；",
@@ -288,6 +539,10 @@ def analyze_competitor_gap(project_id: str, competitor_name: str = None) -> dict
         "leapfrog_roadmap": roadmap,
     }
 
+    # [2026-09-17] [商业转化型诊断报告与竞品反哺体系] 联动构建交付级 11 维结构化竞品池并落盘
+    structured_analysis = build_structured_competitor_analysis(project_id, competitors)
+    result["structured_competitor_analysis"] = structured_analysis
+
     out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
     os.makedirs(out_dir, exist_ok=True)
 
@@ -301,7 +556,7 @@ def analyze_competitor_gap(project_id: str, competitor_name: str = None) -> dict
         f.write(md_content)
 
     print_success(
-        f"🎉 竞对声量差距分析完毕！我方综合得分: {radar['client_avg']}分 "
+        f"竞对声量差距分析完毕！我方综合得分: {radar['client_avg']}分 "
         f"vs 竞对【{target_comp}】: {radar['competitor_avg']}分 "
         f"(领先: +{radar['overall_gap_lead']}分)"
     )
@@ -342,7 +597,12 @@ def render_competitor_gap_markdown(project_id: str, gap: dict) -> str:
         c_s = c_scores[i] if i < len(c_scores) else 0
         comp_s = comp_scores[i] if i < len(comp_scores) else 0
         diff = round(c_s - comp_s, 1)
-        diff_str = f"🟢 领先 +{diff}分" if diff > 0 else (f"🔴 落后 {diff}分" if diff < 0 else "⚪ 持平")
+        if diff > 0:
+            diff_str = f"领先 +{diff}分"
+        elif diff < 0:
+            diff_str = f"落后 {diff}分"
+        else:
+            diff_str = "持平"
 
         reason = "具备普林斯顿9因子标准语料与全渠道发稿背书"
         if "价格" in d_name:
@@ -356,7 +616,18 @@ def render_competitor_gap_markdown(project_id: str, gap: dict) -> str:
 
         md += f"| **{d_name}** | **{c_s} 分** | **{comp_s} 分** | **{diff_str}** | {reason} |\n"
 
-    md += f"""| **综合加权平均得分** | **{radar.get('client_avg')} 分** | **{radar.get('competitor_avg')} 分** | **🟢 综合领先 +{radar.get('overall_gap_lead')}分** | **我方已具备压倒性的大模型首位推荐壁垒** |
+    lead = float(radar.get("overall_gap_lead") or 0)
+    if lead > 0:
+        lead_str = f"综合领先 +{lead}分"
+        lead_note = "我方已具备压倒性的大模型首位推荐壁垒"
+    elif lead < 0:
+        lead_str = f"综合落后 {lead}分"
+        lead_note = "需按反超路线图补齐声量与证据链"
+    else:
+        lead_str = "综合持平"
+        lead_note = "双方声量接近，需靠证据密度与分发节奏拉开差距"
+
+    md += f"""| **综合加权平均得分** | **{radar.get('client_avg')} 分** | **{radar.get('competitor_avg')} 分** | **{lead_str}** | **{lead_note}** |
 
 ---
 
