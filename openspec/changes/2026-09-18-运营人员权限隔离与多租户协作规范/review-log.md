@@ -234,3 +234,9 @@ DELETE /api/projects/t/evidence/src1    运营:拦截  开发者:放行
 
 **STOP**。不归档、不推生产。请复审或重启本地 8088 点验后再说。
 
+## [2026-09-18 19:20] Cursor — 生产 502 修复
+
+**现象**：`https://geo.baicl.cc` 刷新返回 nginx 502。  
+**根因**：RBAC 变更将默认绑定改为 `127.0.0.1`，重启后 VPS/EdgeOne 经 Tailscale `100.83.64.112:8088` 连不上。  
+**处理**：生产 `run_geo.sh` 设置 `GEO_BIND_HOST=0.0.0.0` 并重启；域名已恢复 200。仓内补充 `scripts/run_geo_prod.sh` 防复发。  
+**状态**：`[已修正]`
