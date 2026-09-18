@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "developer_phones": [
+    "13150568888"
+  ],
+  "developer_user_ids": [],
+  "members": [
+    {
+      "user_id": "7d60e11b1f397703",
+      "phone": "13805206070",
+      "name": "运营同事",
+      "role": "operator",
+      "status": "active",
+      "allowed_projects": [
+        "nextgeo",
+        "xuzhou_xuanyuan",
+        "xuzhou_clownCoder_studio"
+      ],
+      "permissions": [
+        "keyword:manage",
+        "ai:generate",
+        "article:edit",
+        "preview:view",
+        "report:view"
+      ],
+      "created_at": "2026-09-18 19:10:00",
+      "updated_at": "2026-09-18 19:10:00"
+    }
+  ]
+}

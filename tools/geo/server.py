@@ -275,6 +275,49 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         token = self.get_auth_token()
         return is_authenticated(token)
 
+    # --- [2026-09-18] [运营人员权限隔离] RBAC 身份解析与统一路由守卫 ---
+    def rbac_identity(self):
+        """解析当前请求的身份快照。权威源是本地花名册，上游 role 一律不采信。"""
+        try:
+            from .rbac import resolve_identity
+        except Exception:
+            return None
+        token = self.get_auth_token()
+        sess = ACTIVE_SESSIONS.get(token, {}) if token else {}
+        return resolve_identity(user_id=sess.get("user_id", ""), phone=sess.get("phone", ""))
+
+    def rbac_guard(self, path, method=None):
+        """统一路由守卫：登录校验通过后、进入路由 if 链之前集中鉴权一次。
+
+        返回 True 表示放行；False 时调用方应直接返回对应状态码。
+        """
+        try:
+            from .rbac import guard_route
+        except Exception:
+            # 权限模块异常时拒绝，避免整站鉴权静默失效
+            self.send_json({
+                "success": False,
+                "code": 503,
+                "message": "权限模块暂不可用，已拒绝本次操作",
+                "msg": "权限模块暂不可用，已拒绝本次操作",
+                "data": None,
+            }, status=503)
+            return False
+        ok, status, msg = guard_route(path, method or self.command, self.rbac_identity())
+        if not ok:
+            self.send_json({
+                "success": False,
+                "code": status,
+                "message": msg,
+                "msg": msg,
+                "data": None,
+            }, status=status)
+        return ok
+
+    def rbac_is_developer(self):
+        ident = self.rbac_identity()
+        return bool(ident and getattr(ident, "is_developer", False))
+
     def read_json_body(self) -> dict:
         content_length = int(self.headers.get("Content-Length", 0))
         if content_length == 0:
@@ -301,13 +344,15 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             resp = auth_client.login(user, pwd, device_id=device_id)
 
             if resp.get("code") == 0:
-                data = resp.get("data", {})
+                data = resp.get("data", {}) or {}
                 token = data.get("token", "")
-                user_id = str(data.get("user_id") or data.get("id") or "")
-                name = data.get("name") or data.get("phone") or user
-                phone = data.get("phone") or user
-                role = data.get("role", "user")
-                credits = data.get("credits", 0)
+                # 小毛驴把人放在 data.user 里，不能只读最外层，否则会话里没有 user_id
+                profile = data.get("user") if isinstance(data.get("user"), dict) else data
+                user_id = str(profile.get("user_id") or profile.get("id") or "")
+                name = profile.get("name") or profile.get("phone") or user
+                phone = profile.get("phone") or user
+                role = profile.get("role", "user")
+                credits = profile.get("credits", 0)
 
                 # 记录会话 (雪花 ID 强转为字符串)
                 ACTIVE_SESSIONS[token] = {
@@ -417,6 +462,24 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         # --- 以下私有接口必须通过鉴权拦截 ---
         if not self.check_auth():
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+            return
+
+        # [2026-09-18] [运营人员权限隔离] 统一路由守卫：登录通过后、进入路由 if 链之前集中鉴权
+        if not self.rbac_guard(path):
+            return
+
+        # [2026-09-18] [运营人员权限隔离] 开发者专属：新增运营人员
+        if path == "/api/admin/members":
+            if not self.rbac_is_developer():
+                self.send_json({"success": False, "message": "无此操作权限（开发者专属）"}, status=403)
+                return
+            try:
+                from .rbac import upsert_member
+                ok, msg, record = upsert_member(self.read_json_body())
+                self.send_json({"success": ok, "message": msg, "member": record},
+                               status=200 if ok else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
         # 大模型配置写入: POST /api/llm/config（有 X-Forwarded-* 时不得免登写 Key）
@@ -1486,6 +1549,10 @@ core_values:
             if not self.check_auth():
                 self.send_json({"success": False, "message": "未授权"}, status=401)
                 return
+
+            # [2026-09-18] [运营人员权限隔离] 统一路由守卫：登录通过后、进入路由 if 链之前集中鉴权
+            if not self.rbac_guard(path):
+                return
             project_id = path.split("/")[3]
             from .share import export_audit_report_html
             try:
@@ -2350,6 +2417,25 @@ core_values:
             self.send_json({"code": 401, "msg": "未登录或登录已失效", "data": None}, status=401)
             return
 
+        # [2026-09-18] [运营人员权限隔离] 统一路由守卫：登录通过后、进入路由 if 链之前集中鉴权
+        if not self.rbac_guard(path):
+            return
+
+        # [2026-09-18] [运营人员权限隔离] 开发者专属：修改运营人员（项目 / 权限 / 启停）
+        if path.startswith("/api/admin/members/"):
+            if not self.rbac_is_developer():
+                self.send_json({"success": False, "message": "无此操作权限（开发者专属）"}, status=403)
+                return
+            try:
+                from .rbac import upsert_member
+                key = unquote(path[len("/api/admin/members/"):].strip("/"))
+                ok, msg, record = upsert_member(self.read_json_body(), key=key)
+                self.send_json({"success": ok, "message": msg, "member": record},
+                               status=200 if ok else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # 更新项目配置: PUT /api/v1/projects/{id} 或 PUT /api/projects/{id}
         is_legacy_put = path.startswith("/api/projects/") and len(path.split("/")) == 4
         is_v1_put = path.startswith("/api/v1/projects/") and len(path.split("/")) == 5
@@ -2457,6 +2543,24 @@ core_values:
         # 鉴权拦截
         if not self.check_auth():
             self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
+            return
+
+        # [2026-09-18] [运营人员权限隔离] 统一路由守卫：登录通过后、进入路由 if 链之前集中鉴权
+        if not self.rbac_guard(path):
+            return
+
+        # [2026-09-18] [运营人员权限隔离] 开发者专属：移除运营人员
+        if path.startswith("/api/admin/members/"):
+            if not self.rbac_is_developer():
+                self.send_json({"success": False, "message": "无此操作权限（开发者专属）"}, status=403)
+                return
+            try:
+                from .rbac import delete_member
+                key = unquote(path[len("/api/admin/members/"):].strip("/"))
+                ok, msg = delete_member(key)
+                self.send_json({"success": ok, "message": msg}, status=200 if ok else 404)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
         # [2026-09-18] [接入小毛驴统一API] 删除/归档项目: DELETE /api/v1/projects/{id} 或 DELETE /api/projects/{id}
@@ -2582,17 +2686,36 @@ core_values:
             authed = self.check_auth()
 
             # 本机开发直连专属免密畅通保障 (仅限 localhost/127.0.0.1 本地访问)：
+            # [2026-09-18] [运营人员权限隔离] 身份来源改为花名册 developer_phones，
+            # 消除 server.py 硬编码手机号造成的双真源；花名册为空时降级为未授权，绝不自动发放开发者身份。
             if not authed and self.is_local_dev_request():
                 query = parse_qs(parsed.query)
                 if query.get("manual", ["0"])[0] != "1":
-                    token = create_session("本地开发者", user_id="0", phone="13150568888", role="admin")
-                    authed = True
+                    _dev_phones = []
+                    try:
+                        from .rbac import load_roster
+                        _dev_phones = [str(p).strip() for p in load_roster().get("developer_phones", []) if str(p).strip()]
+                    except Exception:
+                        _dev_phones = []
+                    if _dev_phones:
+                        token = create_session("本地开发者", user_id="0", phone=_dev_phones[0], role="developer")
+                        authed = True
+                    else:
+                        print("[RBAC] 本地免登通道停用：花名册 developer_phones 为空，不自动发放开发者身份")
 
             sess = ACTIVE_SESSIONS.get(token, {}) if authed else {}
             user = sess.get("username", "本地开发者" if authed else "")
             user_id = str(sess.get("user_id", ""))
             role = sess.get("role", "user")
             credits = sess.get("credits", 0)
+
+            # [2026-09-18] [运营人员权限隔离] 权限以本地花名册为唯一权威源下发，上游 role 不参与鉴权
+            _ident = None
+            try:
+                from .rbac import resolve_identity
+                _ident = resolve_identity(user_id=user_id, phone=str(sess.get("phone", "") or ""))
+            except Exception:
+                _ident = None
 
             # 管理台阶段零等 CLI 引导：给出本机仓库根目录，方便复制 cd 命令
             repo_root = os.path.abspath(PROJECT_ROOT)
@@ -2605,6 +2728,9 @@ core_values:
                 "token": token if authed else "",
                 "repo_root": repo_root,
                 "cd_cmd": f"cd {shlex.quote(repo_root)}",
+                "is_developer": bool(_ident and _ident.is_developer),
+                "allowed_projects": list(_ident.allowed_projects) if _ident else [],
+                "permissions": list(_ident.permissions) if _ident else [],
             })
             return
 
@@ -2617,6 +2743,21 @@ core_values:
             auth_client = get_auth_client()
             resp = auth_client.get_me(token)
             status_code = 200 if resp.get("code") == 0 else 401
+
+            # [2026-09-18] [运营人员权限隔离] 补挂本地花名册权限（上游 role 不参与鉴权）
+            try:
+                from .rbac import resolve_identity
+                _sess = ACTIVE_SESSIONS.get(token, {})
+                _ident = resolve_identity(
+                    user_id=str(_sess.get("user_id", "") or ""),
+                    phone=str(_sess.get("phone", "") or ""),
+                )
+                if isinstance(resp.get("data"), dict):
+                    resp["data"]["user"] = _ident.to_dict()
+                    resp["data"]["is_logged_in"] = True
+            except Exception:
+                pass
+
             self.send_json(resp, status=status_code)
             return
 
@@ -3327,6 +3468,27 @@ core_values:
                 self.send_json({"success": False, "message": "未登录或登录已失效，请重新登录！"}, status=401)
                 return
 
+            # [2026-09-18] [运营人员权限隔离] 统一路由守卫：登录通过后、进入路由 if 链之前集中鉴权
+            if not self.rbac_guard(path):
+                return
+
+            # [2026-09-18] [运营人员权限隔离] 开发者专属：成员花名册读取
+            if path == "/api/admin/members":
+                if not self.rbac_is_developer():
+                    self.send_json({"success": False, "message": "无此操作权限（开发者专属）"}, status=403)
+                    return
+                try:
+                    from .rbac import list_members, load_roster, PERMISSION_CODES
+                    self.send_json({
+                        "success": True,
+                        "developer_phones": list(load_roster().get("developer_phones", [])),
+                        "members": list_members(),
+                        "permission_codes": list(PERMISSION_CODES),
+                    })
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
             # 大模型状态探测: GET /api/llm/status
             if path == "/api/llm/status":
                 try:
@@ -3876,8 +4038,10 @@ server {{
             # 获取所有集团矩阵配置列表: /api/groups
             if path == "/api/groups":
                 from .group import load_groups_config
+                from .rbac import filter_groups
                 cfg = load_groups_config()
-                self.send_json({"success": True, "groups": list(cfg.get("groups", {}).values())})
+                groups = filter_groups(list(cfg.get("groups", {}).values()), self.rbac_identity())
+                self.send_json({"success": True, "groups": groups})
                 return
 
             # 获取指定集团的综合协同大盘与矩阵声量: /api/groups/{id}/matrix
@@ -4670,6 +4834,14 @@ server {{
                                 projects.append(row)
                             except Exception:
                                 pass
+
+                # [2026-09-18] [运营人员权限隔离] 服务端按 allowed_projects 过滤后才下发，
+                # 前端下拉框过滤只是体验优化，不是安全边界。
+                try:
+                    from .rbac import filter_projects
+                    projects = filter_projects(projects, self.rbac_identity(), key="client_id")
+                except Exception:
+                    pass
 
                 self.send_json({
                     "code": 0,
@@ -5607,12 +5779,20 @@ server {{
 
 def start_server(port: int = 8080):
     """启动 Web 服务（支持高并发多线程与长连接）"""
-    server_address = ("", port)
+    # [2026-09-18] [运营人员权限隔离] 默认仅绑定 127.0.0.1，符合 AGENTS.md 第 4 节
+    # 「开发与审查一律仅在本地 127.0.0.1:8088 验证」的约束；
+    # 仅生产反代场景才通过 GEO_BIND_HOST=0.0.0.0 显式放开，并打印醒目提示。
+    bind_host = (os.environ.get("GEO_BIND_HOST", "127.0.0.1") or "127.0.0.1").strip() or "127.0.0.1"
+    server_address = (bind_host, port)
     httpd = ThreadingHTTPServer(server_address, GeoWebHandler)
     httpd.daemon_threads = True
     
     print_banner("GEO 商业交付 Web 管理端已成功启动")
     print_success(f"管理端地址: http://localhost:{port}")
+    print_info(f"监听地址: {bind_host}:{port}")
+    if bind_host not in ("127.0.0.1", "localhost", "::1"):
+        print_warning(f"当前绑定到 {bind_host}（全部网卡），管理端将对外暴露；")
+        print_warning("仅应在生产反向代理场景下使用，开发环境请 unset GEO_BIND_HOST。")
     print_info("认证中心: 已接入小毛驴统一用户中心 (SSO)")
     print_info("同机主服务: 优先直连 http://127.0.0.1:3001 (vio-source-client: geo)")
     print_info("提示：非敏感公开文档与 /llms.txt 支持外部直接抓取；客户商业数据必须登录访问。")
