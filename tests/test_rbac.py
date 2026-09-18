@@ -626,5 +626,27 @@ class TestPortfolioRoutesForOperator(RbacTestBase):
         )
 
 
+class TestStripPartnerForOperator(RbacTestBase):
+    def test_strip_partner_fields(self):
+        self.add_operator(["nextgeo"])
+        op = rbac.resolve_identity(user_id=OP_USER_ID)
+        payload = {
+            "projects": [
+                {"client_id": "nextgeo", "partner_id": "p1", "partner_name": "渠道张三"},
+            ]
+        }
+        out = rbac.strip_partner_fields(payload, op)
+        self.assertNotIn("partner_id", out["projects"][0])
+        self.assertNotIn("partner_name", out["projects"][0])
+        self.assertEqual(out["projects"][0]["client_id"], "nextgeo")
+
+    def test_meta_post_developer_only(self):
+        self.add_operator(["nextgeo"])
+        op = rbac.resolve_identity(user_id=OP_USER_ID)
+        ok, status, _ = rbac.guard_route("/api/projects/nextgeo/meta", "POST", op)
+        self.assertFalse(ok)
+        self.assertEqual(status, 403)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -526,7 +526,7 @@ ROUTE_PERMISSION_SUFFIXES = (
     ("/report/print", "report:view"),
     ("/benchmark", "report:view"),
     ("/history", "report:view"),
-    ("/meta", "report:view"),
+    ("/meta", "report:view"),  # 读；POST 改归属见 _is_developer_route
     ("/export", "report:view"),
     ("/export-audit-html", "report:view"),
     ("/diag/boss-audit-pack", "report:view"),
@@ -628,6 +628,9 @@ def _is_developer_route(path, method):
         return True
     # 合作方改档/归档：现码为 POST /api/partners/{id}（无 PUT/DELETE），动态路径无法用集合登记
     if path.startswith("/api/partners/") and method != "GET":
+        return True
+    # 改挂合作方：运营不维护「客户属于谁」
+    if path.startswith("/api/projects/") and path.endswith("/meta") and method != "GET":
         return True
     for suffix in ROUTE_DEVELOPER_SUFFIXES:
         if path.endswith(suffix):
@@ -756,6 +759,23 @@ def filter_check_ledger(payload, identity):
     out = dict(payload)
     out["rows"] = rows
     out["summary"] = summary
+    return out
+
+
+def strip_partner_fields(payload, identity):
+    """运营响应里去掉合作方归属，避免看见「客户是谁的」。"""
+    if identity is None or getattr(identity, "is_developer", False):
+        return payload
+    if isinstance(payload, list):
+        return [strip_partner_fields(x, identity) for x in payload]
+    if not isinstance(payload, dict):
+        return payload
+    out = dict(payload)
+    out.pop("partner_id", None)
+    out.pop("partner_name", None)
+    for key in ("project", "projects"):
+        if key in out:
+            out[key] = strip_partner_fields(out[key], identity)
     return out
 
 

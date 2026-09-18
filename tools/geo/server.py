@@ -4865,8 +4865,10 @@ server {{
                 # [2026-09-18] [运营人员权限隔离] 服务端按 allowed_projects 过滤后才下发，
                 # 前端下拉框过滤只是体验优化，不是安全边界。
                 try:
-                    from .rbac import filter_projects
-                    projects = filter_projects(projects, self.rbac_identity(), key="client_id")
+                    from .rbac import filter_projects, strip_partner_fields
+                    _ident = self.rbac_identity()
+                    projects = filter_projects(projects, _ident, key="client_id")
+                    projects = strip_partner_fields(projects, _ident)
                 except Exception:
                     pass
 
@@ -5016,6 +5018,12 @@ server {{
                     except Exception:
                         safe_cfg["evidence_count"] = 0
                         safe_cfg["facts_count"] = 0
+
+                    try:
+                        from .rbac import strip_partner_fields
+                        safe_cfg = strip_partner_fields(safe_cfg, self.rbac_identity())
+                    except Exception:
+                        pass
 
                     self.send_json({
                         "code": 0,

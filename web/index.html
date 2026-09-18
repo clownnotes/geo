@@ -96,8 +96,8 @@
 </button>
 <div id="home-group-enterprises" class="submenu-list home-ent-submenu" data-page-node-id="T4VLs5ip0H0n2OEqdcyGQu">
 <button type="button" id="nav-home-ent-all" onclick="openEnterprisesByPartner('')" class="sidebar-nav-item" data-page-node-id="thLQGcxRE5mEoF0jh503gq"><span class="truncate" data-page-node-id="FN3wz1WAJliaFMFvLJ4Aw3">全部企业</span></button>
-<button type="button" id="nav-home-ent-none" onclick="openEnterprisesByPartner('__none__')" class="sidebar-nav-item" data-page-node-id="ubWmfwfe3GBPT6xjjFtHeS"><span class="truncate" data-page-node-id="Za1qKvK6BwmFeGe8SOLGY9">未分配</span></button>
-<div id="home-ent-partner-items" class="flex flex-col gap-0.5" data-page-node-id="skVevzMgfxeiv87YWFDmAi"></div>
+<button type="button" id="nav-home-ent-none" data-geo-dev-only onclick="openEnterprisesByPartner('__none__')" class="sidebar-nav-item" data-page-node-id="ubWmfwfe3GBPT6xjjFtHeS"><span class="truncate" data-page-node-id="Za1qKvK6BwmFeGe8SOLGY9">未分配</span></button>
+<div id="home-ent-partner-items" class="flex flex-col gap-0.5" data-geo-dev-only data-page-node-id="skVevzMgfxeiv87YWFDmAi"></div>
 </div>
 </div>
 <div class="accordion-group sidebar-group" data-group="partners" data-page-node-id="ZzKpaROOc7foZVdRist6rr">
@@ -176,7 +176,8 @@
 <header class="geo-page-head" data-page-node-id="UpIW7q08t3SQ0qrrRCDnxQ">
 <div data-page-node-id="FLPrr87AgB7WYRbhIljE9F">
 <h1 class="geo-page-title" data-page-node-id="f9c40McKTNU0FrEUyS69lb">企业管理</h1>
-<p class="geo-page-desc" data-page-node-id="HUARGD2cBVHJp1CfhVaMYZ">客户档案、归属合作方、进入首次交付。</p>
+<p class="geo-page-desc" id="ent-page-desc-dev" data-geo-dev-only data-page-node-id="HUARGD2cBVHJp1CfhVaMYZ">客户档案、归属合作方、进入首次交付。</p>
+<p class="geo-page-desc hidden" id="ent-page-desc-ops" data-page-node-id="entPageDescOps">选客户进入流水线：写文章、看母盘与交付进度。</p>
 </div>
 <div class="flex flex-wrap gap-2" data-page-node-id="Zz9XpQ7lewQJQ1KvW6kIZw">
 <button type="button" onclick="openBatchModal()" class="geo-btn" data-page-node-id="vGhSUOm3Osxi2b8XqEnocm" data-geo-dev-only><i data-lucide="layers" class="w-3.5 h-3.5" data-page-node-id="6RidHynhSxo1y4EHm3D2wy"></i>批量并发</button>
@@ -199,7 +200,7 @@
 <option value="done" data-page-node-id="YIcUtG9fGrNXgETDsL6oeN">已完成</option>
 </select>
 </div>
-<div class="w-full lg:w-44" data-page-node-id="BSgCDKkp4QBpWrWMH6yCG3"><label class="text-[10px] font-semibold text-slate-400" data-page-node-id="NR06vEGYoErwDqZbGmBXR6">合作方</label>
+<div class="w-full lg:w-44" data-geo-dev-only data-page-node-id="BSgCDKkp4QBpWrWMH6yCG3"><label class="text-[10px] font-semibold text-slate-400" data-page-node-id="NR06vEGYoErwDqZbGmBXR6">合作方</label>
 <select id="ent-filter-partner" onchange="onEnterprisePartnerFilterChange()" class="mt-1 w-full text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-white" data-page-node-id="7snHAIcfpClFSBbzMMYGys">
 <option value="" data-page-node-id="bO3dBqipXdNRuanfBlh84u">全部合作方</option>
 <option value="__none__" data-page-node-id="qmR7DDF5vHeM5D6uAkNR1Z">未分配</option>
@@ -212,7 +213,7 @@
 <thead class="bg-slate-50 text-slate-600 text-[11px] font-semibold border-b border-slate-200" data-page-node-id="5cHIt93kTpl3iRY9wQVO0A">
 <tr data-page-node-id="hDDzl1tnCMWppo5UxavSZL">
 <th class="px-5 py-3 min-w-[220px]" data-page-node-id="9FI0mlg59BTZdSRocorxE4">客户</th>
-<th class="px-4 py-3 w-[140px]" data-page-node-id="ppx4NxBhWFqSlVrWFv3BWU">合作方</th>
+<th class="px-4 py-3 w-[140px]" data-geo-dev-only data-page-node-id="ppx4NxBhWFqSlVrWFv3BWU">合作方</th>
 <th class="px-4 py-3 min-w-[180px]" data-page-node-id="2qKrGS1J2Cb8ocLmdfBFun">站点</th>
 <th class="px-4 py-3 w-[150px]" data-page-node-id="4puFYtQiNux0Ju5pBjnay1">状态</th>
 <th class="px-5 py-3 text-right w-[168px]" data-page-node-id="0waZISZVvsrV7F4gSFhn3K">操作</th>
@@ -5260,6 +5261,17 @@ GitHub 开源仓库：https://github.com/company/repo
           el.classList.add('hidden');
         }
       });
+      // 运营文案：企业管理页说明（开发者看带「归属合作方」的那句）
+      const descOps = document.getElementById('ent-page-desc-ops');
+      if (descOps) {
+        if (isDeveloper()) descOps.classList.add('hidden');
+        else descOps.classList.remove('hidden');
+      }
+      // 运营不按合作方筛客户，始终看自己白名单内的全部企业
+      if (!isDeveloper()) {
+        const pf = document.getElementById('ent-filter-partner');
+        if (pf) pf.value = '';
+      }
       // 按原子权限置灰/隐藏功能按钮
       const permBtns = document.querySelectorAll('[data-geo-perm]');
       permBtns.forEach(function (el) {
@@ -6427,7 +6439,7 @@ GitHub 开源仓库：https://github.com/company/repo
         <div class="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50">
           <div class="min-w-0">
             <div class="font-semibold text-slate-800 truncate">${p.client_name}</div>
-            <div class="text-[11px] text-slate-500">${p.steps_done}/5 阶段 · ${p.partner_name || '未分配'}</div>
+            <div class="text-[11px] text-slate-500">${p.steps_done}/5 阶段${isDeveloper() ? ` · ${p.partner_name || '未分配'}` : ''}</div>
           </div>
           <button type="button" onclick="enterWizard('${p.client_id}')" class="geo-btn shrink-0">进入流水线</button>
         </div>`).join('');
@@ -6437,7 +6449,7 @@ GitHub 开源仓库：https://github.com/company/repo
       const q = (document.getElementById('ent-search')?.value || '').trim().toLowerCase();
       const industry = document.getElementById('ent-filter-industry')?.value || '';
       const sop = document.getElementById('ent-filter-sop')?.value || '';
-      const partner = document.getElementById('ent-filter-partner')?.value || '';
+      const partner = isDeveloper() ? (document.getElementById('ent-filter-partner')?.value || '') : '';
       let list = [...projectsCache];
       if (q) {
         list = list.filter(p => {
@@ -6495,13 +6507,17 @@ GitHub 开源仓库：https://github.com/company/repo
     function renderEnterprisesTable(list) {
       const tbody = document.getElementById('projects-table-body');
       if (!tbody) return;
+      const showPartner = isDeveloper();
+      const colSpan = showPartner ? 5 : 4;
       if (!list.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">没有匹配的客户，试试清空筛选或新建项目</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-8 text-slate-400">没有匹配的客户，试试清空筛选或新建项目</td></tr>`;
         lucide.createIcons();
         return;
       }
-      const partnerOpts = partnersCache.filter(p => p.status !== 'archived')
-        .map(p => `<option value="${p.id}">${escapeHtmlSafe(p.name)}</option>`).join('');
+      const partnerOpts = showPartner
+        ? partnersCache.filter(p => p.status !== 'archived')
+            .map(p => `<option value="${p.id}">${escapeHtmlSafe(p.name)}</option>`).join('')
+        : '';
       tbody.innerHTML = list.map(p => {
         const cid = escapeHtmlSafe(p.client_id);
         const cname = escapeHtmlSafe(p.client_name || p.client_id);
@@ -6520,6 +6536,15 @@ GitHub 开源仓库：https://github.com/company/repo
           : `<span class="text-xs text-slate-400">未填官网</span>`;
         const steps = Number(p.steps_done) || 0;
         const pct = Number(p.progress_pct) || 0;
+        const partnerCell = showPartner ? `
+            <td class="px-4 py-3.5 align-middle">
+              <select onchange="changeProjectPartner('${cid}', this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white w-full max-w-[132px]">
+                <option value="">未分配</option>${partnerOpts}
+              </select>
+            </td>` : '';
+        const moreDev = showPartner ? `
+                    <button type="button" onclick="closeAllEntMoreMenus(); downloadProjectZip('${cid}')" class="w-full px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 text-left">下载 ZIP</button>
+                    <button type="button" onclick="closeAllEntMoreMenus(); confirmDeleteProject('${cid}')" class="w-full px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 text-left">删除项目</button>` : '';
         return `
           <tr class="hover:bg-slate-50/90 transition">
             <td class="px-5 py-3.5 align-middle">
@@ -6528,11 +6553,7 @@ GitHub 开源仓库：https://github.com/company/repo
               <div class="text-[10px] text-slate-400 font-mono mt-0.5">${cid}</div>
               ${grpHtml}
             </td>
-            <td class="px-4 py-3.5 align-middle">
-              <select onchange="changeProjectPartner('${cid}', this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white w-full max-w-[132px]">
-                <option value="">未分配</option>${partnerOpts}
-              </select>
-            </td>
+            ${partnerCell}
             <td class="px-4 py-3.5 align-middle">
               <div class="min-w-0">${siteHtml}</div>
               <div class="text-[10px] mt-1">${kwMeta}</div>
@@ -6552,18 +6573,19 @@ GitHub 开源仓库：https://github.com/company/repo
                   </button>
                   <div data-ent-more-menu class="hidden absolute right-0 top-full mt-1 z-30 w-36 rounded-lg border border-slate-200 bg-white shadow-lg py-1 text-left">
                     <button type="button" onclick="closeAllEntMoreMenus(); openProjectProfileDrawer('${cid}')" class="w-full px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 text-left">查看资料</button>
-                    <button type="button" onclick="closeAllEntMoreMenus(); downloadProjectZip('${cid}')" class="w-full px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 text-left">下载 ZIP</button>
-                    <button type="button" onclick="closeAllEntMoreMenus(); confirmDeleteProject('${cid}')" class="w-full px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 text-left">删除项目</button>
+                    ${moreDev}
                   </div>
                 </div>
               </div>
             </td>
           </tr>`;
       }).join('');
-      tbody.querySelectorAll('select').forEach((sel, idx) => {
-        const p = list[idx];
-        if (p) sel.value = p.partner_id || '';
-      });
+      if (showPartner) {
+        tbody.querySelectorAll('select').forEach((sel, idx) => {
+          const p = list[idx];
+          if (p) sel.value = p.partner_id || '';
+        });
+      }
       lucide.createIcons();
     }
 
@@ -6828,7 +6850,7 @@ GitHub 开源仓库：https://github.com/company/repo
         </section>
         <section class="geo-profile-section">
           <h4>归属与模式</h4>
-          ${profileField('pf-partner', '合作方', p.partner_id || '', { type: 'select', optionsHtml: partnerOpts })}
+          ${isDeveloper() ? profileField('pf-partner', '合作方', p.partner_id || '', { type: 'select', optionsHtml: partnerOpts }) : ''}
           <label class="geo-profile-check"><input id="pf-custom-site" type="checkbox" ${customChecked}/> 锁定定制站点（custom_site）</label>
           <div class="hint mt-1">勾选后脚手架不会覆盖定制官网首页与子目录。</div>
         </section>
@@ -6914,10 +6936,10 @@ GitHub 开源仓库：https://github.com/company/repo
           </dl>
         </section>
         <section class="geo-profile-section">
-          <h4>归属与模式</h4>
+          <h4>站点模式</h4>
           <dl class="geo-profile-grid">
-            <dt>合作方</dt><dd>${profileDash(p.partner_name || p.partner_id || '未分配')}</dd>
-            <dt>合作方 ID</dt><dd class="font-mono text-slate-500">${profileDash(p.partner_id || '—')}</dd>
+            ${isDeveloper() ? `<dt>合作方</dt><dd>${profileDash(p.partner_name || p.partner_id || '未分配')}</dd>
+            <dt>合作方 ID</dt><dd class="font-mono text-slate-500">${profileDash(p.partner_id || '—')}</dd>` : ''}
             <dt>定制站点</dt><dd><span class="geo-profile-tag${customOn ? '' : ' off'}">${customOn ? 'custom_site 已锁定' : '标准脚手架'}</span></dd>
           </dl>
         </section>
@@ -7002,7 +7024,7 @@ GitHub 开源仓库：https://github.com/company/repo
         company_name: val('pf-company-name'),
         industry: val('pf-industry'),
         official_url: val('pf-official-url'),
-        partner_id: document.getElementById('pf-partner')?.value || '',
+        partner_id: isDeveloper() ? (document.getElementById('pf-partner')?.value || '') : undefined,
         custom_site: !!document.getElementById('pf-custom-site')?.checked,
         contact_person: val('pf-contact'),
         telephone: val('pf-telephone'),
