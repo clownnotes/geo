@@ -213,6 +213,19 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             self.wfile.write(f"500 Internal Error: {str(e)}".encode("utf-8"))
 
     def do_OPTIONS(self):
+        # 未登录只允许登录相关接口的预检；其它 OPTIONS 一律 404，避免旁路探测
+        parsed = urlparse(self.path)
+        path = parsed.path
+        if not self.check_auth():
+            allow = path in (
+                "/api/auth/login", "/api/v1/xiulan/login", "/api/v1/sessions",
+                "/api/auth/wechat-qr", "/api/v1/auth/wechat-qr",
+                "/api/v1/community/auth/wx-login", "/api/auth/logout",
+                "/api/auth/status",
+            )
+            if not allow:
+                self._serve_404_not_found()
+                return
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
@@ -273,7 +286,67 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
     def check_auth(self) -> bool:
         token = self.get_auth_token()
-        return is_authenticated(token)
+        if not token or not is_authenticated(token):
+            return False
+        ident = self.rbac_identity()
+        return bool(ident and getattr(ident, "matched", False))
+
+    def _serve_login_page(self):
+        """下发纯净独立的未登录页面 web/login.html"""
+        login_path = os.path.join(WEB_DIR, "login.html")
+        if os.path.exists(login_path):
+            with open(login_path, "rb") as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+            self.end_headers()
+            self.wfile.write(content)
+        else:
+            self._serve_404_not_found()
+
+    def _serve_404_not_found(self):
+        """未登录或未授权请求标准 404 响应，绝不返回文件内容与仓库路径"""
+        self.send_response(404)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+        self.end_headers()
+        self.wfile.write(b"404 Not Found")
+
+    def console_gate(self, path: str, method: str) -> bool:
+        """
+        [2026-09-19] [纯内部安全加固与未登录代码隔离]
+        一道总门，默认拒绝：未登录访客除严格登录白名单外，一律拦截。
+        - 网页请求（/, /index.html, /admin, /login.html, /web/**）：未登录只返回 web/login.html；
+        - 接口或文件请求：未登录一律直接返回 404，不泄露任何系统或文件内容。
+        """
+        # 1. 检查是否有有效登录凭证
+        authed = self.check_auth()
+        if authed:
+            # 已登录且命中花名册有效人员：总门放行
+            return True
+
+        # 2. 未登录白名单判定
+        is_page_req = path in ("/", "/index.html", "/admin", "/login.html") or path.startswith("/web/")
+        if is_page_req and method in ("GET", "HEAD"):
+            self._serve_login_page()
+            return False
+
+        is_login_api = (
+            (method == "POST" and path in ("/api/auth/login", "/api/v1/xiulan/login", "/api/v1/sessions")) or
+            (method == "GET" and path in ("/api/auth/wechat-qr", "/api/v1/auth/wechat-qr")) or
+            (method == "POST" and path == "/api/v1/community/auth/wx-login") or
+            (method == "POST" and path == "/api/auth/logout") or
+            (method == "GET" and path == "/api/auth/status")
+        )
+        if is_login_api:
+            return True
+
+        # 3. 其它任何请求（包括 /.env, /tools/geo/server.py, /AGENTS.md, /sites/, /docs/, /api/projects 等）：一律 404
+        self._serve_404_not_found()
+        return False
+
 
     # --- [2026-09-18] [运营人员权限隔离] RBAC 身份解析与统一路由守卫 ---
     def rbac_identity(self):
@@ -334,6 +407,10 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
 
+        # [2026-09-19] [纯内部安全加固] 一道总门：未登录且不在白名单一律拦截
+        if not self.console_gate(path, "POST"):
+            return
+
         # 1. [2026-09-18] [接入小毛驴统一API] 登录认证接口 (全面收敛至小毛驴，公开)
         if path in ("/api/auth/login", "/api/v1/xiulan/login", "/api/v1/sessions"):
             body = self.read_json_body()
@@ -378,7 +455,7 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                     "credits": credits,
                     "data": data,
                     "message": "登录成功！"
-                }, headers={"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly"})
+                }, headers={"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly; SameSite=Lax"})
             else:
                 code = resp.get("code", 401)
                 msg = resp.get("msg") or "账号或密码错误！"
@@ -412,7 +489,7 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                     "source": "nextdoor_wx",
                 }
                 save_sessions(ACTIVE_SESSIONS)
-                self.send_json(resp, headers={"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly"})
+                self.send_json(resp, headers={"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly; SameSite=Lax"})
             else:
                 self.send_json(resp, status=400)
             return
@@ -423,7 +500,10 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             if token in ACTIVE_SESSIONS:
                 del ACTIVE_SESSIONS[token]
                 save_sessions(ACTIVE_SESSIONS)
-            self.send_json({"success": True, "message": "已成功退出登录！"})
+            self.send_json({
+                "success": True, 
+                "message": "已成功退出登录！"
+            }, headers={"Set-Cookie": "geo_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax"})
             return
 
         # 专属甲方只读沙箱实时测序公开 API: /api/share/{token}/simulate
@@ -2440,6 +2520,10 @@ core_values:
         parsed = urlparse(self.path)
         path = parsed.path
 
+        # [2026-09-19] [纯内部安全加固] 一道总门：未登录且不在白名单一律拦截
+        if not self.console_gate(path, "PUT"):
+            return
+
         if not self.check_auth():
             self.send_json({"code": 401, "msg": "未登录或登录已失效", "data": None}, status=401)
             return
@@ -2566,6 +2650,10 @@ core_values:
     def do_DELETE(self):
         parsed = urlparse(self.path)
         path = parsed.path
+
+        # [2026-09-19] [纯内部安全加固] 一道总门：未登录且不在白名单一律拦截
+        if not self.console_gate(path, "DELETE"):
+            return
 
         # 鉴权拦截
         if not self.check_auth():
@@ -2707,51 +2795,36 @@ core_values:
         parsed = urlparse(self.path)
         path = parsed.path
 
+        # [2026-09-19] [纯内部安全加固] 一道总门：未登录且不在白名单一律拦截
+        if not self.console_gate(path, "GET"):
+            return
+
         # 1. 检查鉴权状态 API
         if path == "/api/auth/status":
             token = self.get_auth_token()
             authed = self.check_auth()
 
-            # 本机开发直连专属免密畅通保障 (仅限 localhost/127.0.0.1 本地访问)：
-            # [2026-09-18] [运营人员权限隔离] 身份来源改为花名册 developer_phones，
-            # 消除 server.py 硬编码手机号造成的双真源；花名册为空时降级为未授权，绝不自动发放开发者身份。
-            if not authed and self.is_local_dev_request():
-                query = parse_qs(parsed.query)
-                if query.get("manual", ["0"])[0] != "1":
-                    _dev_phones = []
-                    try:
-                        from .rbac import load_roster
-                        _dev_phones = [str(p).strip() for p in load_roster().get("developer_phones", []) if str(p).strip()]
-                    except Exception:
-                        _dev_phones = []
-                    if _dev_phones:
-                        token = create_session("本地开发者", user_id="0", phone=_dev_phones[0], role="developer")
-                        authed = True
-                    else:
-                        print("[RBAC] 本地免登通道停用：花名册 developer_phones 为空，不自动发放开发者身份")
+            # [2026-09-19] [纯内部安全加固] 关掉 127.0.0.1 免密自动发票通道：
+            # 未登录状态一律只返回未登录，绝不自动发票、绝不泄露仓库路径与管辖项目
+            if not authed:
+                self.send_json({
+                    "authenticated": False,
+                    "message": "未登录或登录已失效"
+                })
+                return
 
-            # [2026-09-18] [运营人员权限隔离] 免登场景同样下发 Cookie：
-            # 站点预览用 <iframe src> 导航，只携带 Cookie、不带 Authorization header，
-            # 若此处不发 Cookie，走免登进来的会话预览会 401。
             _set_cookie_headers = {}
             if authed and token:
-                _set_cookie_headers = {"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly"}
+                _set_cookie_headers = {"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly; SameSite=Lax"}
 
-            sess = ACTIVE_SESSIONS.get(token, {}) if authed else {}
-            user = sess.get("username", "本地开发者" if authed else "")
+            sess = ACTIVE_SESSIONS.get(token, {})
+            user = sess.get("username", "")
             user_id = str(sess.get("user_id", ""))
             role = sess.get("role", "user")
             credits = sess.get("credits", 0)
 
             # [2026-09-18] [运营人员权限隔离] 权限以本地花名册为唯一权威源下发，上游 role 不参与鉴权
-            _ident = None
-            try:
-                from .rbac import resolve_identity
-                _ident = resolve_identity(user_id=user_id, phone=str(sess.get("phone", "") or ""))
-            except Exception:
-                _ident = None
-
-            # 管理台阶段零等 CLI 引导：给出本机仓库根目录，方便复制 cd 命令
+            _ident = self.rbac_identity()
             repo_root = os.path.abspath(PROJECT_ROOT)
             self.send_json({
                 "authenticated": authed,
@@ -2860,12 +2933,6 @@ core_values:
             from .benchmark import calculate_industry_benchmarks
             b_data = calculate_industry_benchmarks()
             self.send_json(b_data)
-            return
-
-        # 4. 公共文档与静态资源放行 (供 AI 爬虫或公开阅读)
-        if path.startswith("/docs") or path == "/llms.txt":
-            # 允许公开爬取
-            super().do_GET()
             return
 
         # 4. 页面路由处理
@@ -5837,8 +5904,8 @@ server {{
                     })
                 return
 
-        # 默认静态资源兜底
-        super().do_GET()
+        # [2026-09-19] [纯内部安全加固] 默认 404 拦截，彻底废除 super().do_GET() 裸奔
+        self._serve_404_not_found()
 
 def start_server(port: int = 8080):
     """启动 Web 服务（支持高并发多线程与长连接）"""
@@ -5858,7 +5925,7 @@ def start_server(port: int = 8080):
         print_warning("仅应在生产反向代理场景下使用，开发环境请 unset GEO_BIND_HOST。")
     print_info("认证中心: 已接入小毛驴统一用户中心 (SSO)")
     print_info("同机主服务: 优先直连 http://127.0.0.1:3001 (vio-source-client: geo)")
-    print_info("提示：非敏感公开文档与 /llms.txt 支持外部直接抓取；客户商业数据必须登录访问。")
+    print_info("安全门：未登录只给登录页；源码、配置、客户站、文档一律不开放。")
     print_info("按 Ctrl + C 停止服务。\n")
     
     try:
