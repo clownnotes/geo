@@ -23,11 +23,15 @@ class TestBossVisualStyleEmbed(unittest.TestCase):
         self.assertIn('id="btn-boss-style-visual"', content)
         self.assertIn('id="btn-boss-style-md"', content)
 
-        # 2. 全屏大屏按钮
+        # 2. 全屏大屏按钮 + 人话文案（不要 HTML/MD）
         self.assertIn('openBossReportFullscreen()', content)
         self.assertIn('全屏大屏', content)
+        self.assertIn('>好看的报告</button>', content)
+        self.assertIn('>文字稿</button>', content)
+        self.assertNotIn('文本底稿 (MD)', content)
+        self.assertNotIn('高转化视觉版 (HTML)', content)
 
-        # 3. 双预览容器（视觉大屏沙箱 + Markdown 底稿）
+        # 3. 双预览容器（视觉大屏沙箱 + 文字稿）
         self.assertIn('id="container-step-1-boss-visual"', content)
         self.assertIn('id="frame-step-1-boss-visual"', content)
         self.assertIn('id="boss-visual-placeholder"', content)
@@ -43,6 +47,14 @@ class TestBossVisualStyleEmbed(unittest.TestCase):
         self.assertIn("function openBossReportFullscreen(", content)
         self.assertIn("switchBossReportStyle(currentBossReportStyle);", content)
         self.assertIn("loadBossReportVisual();", content)
+
+        # 全屏只开 ?raw=1，禁止把登录凭证拼进地址
+        start = content.find("function openBossReportFullscreen(")
+        self.assertGreater(start, 0)
+        snippet = content[start:start + 600]
+        self.assertIn("?raw=1", snippet)
+        self.assertNotIn("token=", snippet)
+        self.assertNotIn("currentAuthToken", snippet)
 
     def test_03_server_py_supports_raw_output(self):
         """验证后端 server.py 的 /output/ 接口支持 ?raw=1"""

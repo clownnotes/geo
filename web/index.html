@@ -673,8 +673,8 @@
     <span class="truncate font-bold text-slate-800" data-page-node-id="cY9of2kdmdbhQQmxQFp73Z">交付物：01_企业AI可见度商业诊断报告.md</span>
     <!-- [2026-09-19] [老板商业诊断报告高转化视觉样式嵌入] 方案 B：双样式切换器 (0 Emoji) -->
     <div class="inline-flex p-0.5 bg-slate-200/80 rounded-lg text-[11px] font-semibold select-none shrink-0" id="boss-report-style-segmented">
-      <button type="button" id="btn-boss-style-visual" onclick="switchBossReportStyle('visual')" class="px-2.5 py-1 rounded-md bg-white text-[#7c5bf5] shadow-sm transition">高转化视觉版 (HTML)</button>
-      <button type="button" id="btn-boss-style-md" onclick="switchBossReportStyle('md')" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">文本底稿 (MD)</button>
+      <button type="button" id="btn-boss-style-visual" onclick="switchBossReportStyle('visual')" class="px-2.5 py-1 rounded-md bg-white text-[#7c5bf5] shadow-sm transition">好看的报告</button>
+      <button type="button" id="btn-boss-style-md" onclick="switchBossReportStyle('md')" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">文字稿</button>
     </div>
   </div>
   <div class="flex items-center gap-3 shrink-0" data-page-node-id="0rIDJEH5qkZgQgZ0r1BCBU">
@@ -9835,7 +9835,8 @@ function backToDashboard() {
         showToast('请先选择客户项目', 'error');
         return;
       }
-      const url = `/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('01_企业AI可见度商业诊断报告.html')}?raw=1&token=${encodeURIComponent(currentAuthToken)}`;
+      // 只靠同源 Cookie（登录 / auth/status 已下发 geo_token），禁止把凭证拼进 URL
+      const url = `/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('01_企业AI可见度商业诊断报告.html')}?raw=1&t=${Date.now()}`;
       window.open(url, '_blank');
     }
 
