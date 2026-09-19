@@ -1,5 +1,62 @@
 [
   {
+    "id": "94719699308253184",
+    "project_id": "test_proj_1789808535",
+    "task_type": "test_echo",
+    "created_by_user_id": "1768892187321049888",
+    "created_by_name": "测试产品经理",
+    "params": {
+      "message": "API集成测试任务",
+      "sleep": 0.05
+    },
+    "status": "success",
+    "progress": 100,
+    "log_output": "[2026-09-19 17:02:16] [开始执行] 任务 ID: 94719699308253184 | 项目: test_proj_1789808535 | 类型: test_echo\n[2026-09-19 17:02:16] Task echo: API集成测试任务\n[2026-09-19 17:02:16] Task echo finished",
+    "duration_ms": 51,
+    "error_message": "",
+    "created_at": 1789808536.1228411,
+    "started_at": 1789808536.128544,
+    "completed_at": 1789808536.1841779
+  },
+  {
+    "id": "94715879404605440",
+    "project_id": "test_proj_1789807624",
+    "task_type": "test_echo",
+    "created_by_user_id": "1768892187321049888",
+    "created_by_name": "测试产品经理",
+    "params": {
+      "message": "API集成测试任务",
+      "sleep": 0.05
+    },
+    "status": "success",
+    "progress": 100,
+    "log_output": "[2026-09-19 16:47:05] [开始执行] 任务 ID: 94715879404605440 | 项目: test_proj_1789807624 | 类型: test_echo\n[2026-09-19 16:47:05] Task echo: API集成测试任务\n[2026-09-19 16:47:05] Task echo finished",
+    "duration_ms": 65,
+    "error_message": "",
+    "created_at": 1789807625.386693,
+    "started_at": 1789807625.393358,
+    "completed_at": 1789807625.48046
+  },
+  {
+    "id": "94715860513460224",
+    "project_id": "test_proj_1789807620",
+    "task_type": "test_echo",
+    "created_by_user_id": "1768892187321049888",
+    "created_by_name": "测试产品经理",
+    "params": {
+      "message": "API集成测试任务",
+      "sleep": 0.05
+    },
+    "status": "success",
+    "progress": 100,
+    "log_output": "[2026-09-19 16:47:00] [开始执行] 任务 ID: 94715860513460224 | 项目: test_proj_1789807620 | 类型: test_echo\n[2026-09-19 16:47:00] Task echo: API集成测试任务\n[2026-09-19 16:47:00] Task echo finished",
+    "duration_ms": 55,
+    "error_message": "",
+    "created_at": 1789807620.882324,
+    "started_at": 1789807620.888743,
+    "completed_at": 1789807620.949625
+  },
+  {
     "id": "94367102172925952",
     "project_id": "test_proj_1789724470",
     "task_type": "test_echo",

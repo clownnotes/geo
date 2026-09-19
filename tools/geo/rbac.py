@@ -362,6 +362,43 @@ def delete_member(key):
         return False, "花名册写入失败"
 
 
+def append_member_allowed_project(user_id=None, phone=None, project_id=None):
+    """// [2026-09-19] [员工自主建企与代理免选专注交付] 运营建企成功后，把 project_id 追加进该成员 allowed_projects。找不到成员则返回 False。
+
+    整个读-改-写过程包在 _ROSTER_LOCK 内。
+    """
+    user_id = str(user_id or "").strip()
+    phone = str(phone or "").strip()
+    project_id = str(project_id or "").strip()
+    if not project_id:
+        return False
+    if not user_id and not phone:
+        return False
+
+    with _ROSTER_LOCK:
+        roster = load_roster()
+        members = roster.get("members", [])
+        idx = -1
+        if user_id:
+            idx = _find_member_index(members, user_id)
+        if idx < 0 and phone:
+            idx = _find_member_index(members, phone)
+        if idx < 0:
+            logger.warning("[RBAC] 追加管辖项目失败：未找到成员 user_id=%s phone=%s", user_id, phone)
+            return False
+
+        record = members[idx]
+        allowed = list(record.get("allowed_projects") or [])
+        if project_id not in allowed:
+            allowed.append(project_id)
+            record["allowed_projects"] = allowed
+            record["updated_at"] = _now_str()
+            members[idx] = record
+            roster["members"] = members
+            return save_roster(roster)
+        return True
+
+
 # ---------------------------------------------------------------------------
 # 路由四档登记表
 # ---------------------------------------------------------------------------
@@ -387,6 +424,9 @@ ROUTE_PUBLIC_PREFIXES = ("/api/share/",)
 ROUTE_AUTHENTICATED = frozenset({
     ("/api/projects", "GET"),
     ("/api/v1/projects", "GET"),
+    # [2026-09-19] [员工自主建企与代理免选专注交付] 开放运营人员创建项目权限，建企后自动将项目追加至管辖名单
+    ("/api/projects", "POST"),
+    ("/api/v1/projects", "POST"),
     ("/api/groups", "GET"),
     # 只读放行：仪表盘首屏、企业管理下拉、巡检状态文案
     ("/api/ops/check-ledger", "GET"),   # 响应须按 allowed_projects 裁剪 rows 与 summary
@@ -412,8 +452,6 @@ ROUTE_DEVELOPER = frozenset({
 
 # 开发者专属：需区分方法的路由 -> (path, method)
 ROUTE_DEVELOPER_VERBS = frozenset({
-    ("/api/projects", "POST"),          # 创建项目
-    ("/api/v1/projects", "POST"),
     ("/api/partners", "POST"),                  # 创建合作方
     ("/api/settings/notifications", "POST"),    # 写通知配置
     ("/api/settings/notifications", "PUT"),

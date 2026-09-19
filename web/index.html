@@ -181,7 +181,7 @@
 </div>
 <div class="flex flex-wrap gap-2" data-page-node-id="Zz9XpQ7lewQJQ1KvW6kIZw">
 <button type="button" onclick="openBatchModal()" class="geo-btn" data-page-node-id="vGhSUOm3Osxi2b8XqEnocm" data-geo-dev-only><i data-lucide="layers" class="w-3.5 h-3.5" data-page-node-id="6RidHynhSxo1y4EHm3D2wy"></i>批量并发</button>
-<button type="button" onclick="openNewProjectModal()" class="geo-btn geo-btn-primary" data-page-node-id="nda5y2w0Sox3YHfmusrwj7" data-geo-dev-only><i data-lucide="plus-circle" class="w-3.5 h-3.5" data-page-node-id="f0JyjKSUqMmHU45Y8dKIKP"></i>新建客户</button>
+<button type="button" onclick="openNewProjectModal()" class="geo-btn geo-btn-primary" data-page-node-id="nda5y2w0Sox3YHfmusrwj7"><i data-lucide="plus-circle" class="w-3.5 h-3.5" data-page-node-id="f0JyjKSUqMmHU45Y8dKIKP"></i>新建客户</button>
 </div>
 </header>
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col lg:flex-row lg:items-end gap-3" data-page-node-id="saqjH4ZMcED6gnWrWTk47Y">
@@ -2099,10 +2099,10 @@
 </div>
 <form id="new-project-form" onsubmit="handleCreateProject(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-sm" data-page-node-id="A5xN9XCTq13nkiHwsvP8j0">
 <div data-page-node-id="tXaB4PXoJgILourbdk3CC1"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="aUXjxZ91UMyO6p5xwnqj4X">项目唯一代号 (Client ID)</label>
-<input id="np-id" type="text" required placeholder="如: xuzhou_tech (英文/下划线)" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="LfUcui9HGPsQnlNzlJvZDc">
+<input id="np-id" type="text" required oninput="onNpIdInput()" placeholder="如: xuzhou_tech (英文/下划线)" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="LfUcui9HGPsQnlNzlJvZDc">
 </div>
 <div data-page-node-id="HsPYuMjodDmZfwVrIKESlb"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="5Hjtr9VV0oiPnds3V95GkS">客户企业/产品名称</label>
-<input id="np-name" type="text" required placeholder="如: 示例科技（徐州）有限公司" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="gv72029DiD4gfl1M0r1ALb">
+<input id="np-name" type="text" required oninput="onNpNameInput()" placeholder="如: 示例科技（徐州）有限公司" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="gv72029DiD4gfl1M0r1ALb">
 </div>
 <div data-page-node-id="1seUWDmQCIBHFd4WtlulxH">
 <label class="block font-semibold text-slate-700 mb-1" data-page-node-id="55JFe6sAgAQrCUsYT7coDF">官网域名</label>
@@ -2119,7 +2119,7 @@
 <div data-page-node-id="wIQEXxXzuMUGWmUqBCD05A"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="vyADpaCwNAXgwLVvbwHzGM">所属行业短标签 <span class="font-normal text-slate-400" data-page-node-id="aT3ZRgS1Rcp9FoiNVWeyBy">（可选）</span></label>
 <input id="np-industry" type="text" placeholder="如: 皮带秤 / 工业称重（可空，列表筛选用）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="9cLhWxxg6fTCQIY78DyrIt">
 </div>
-<div data-page-node-id="o5G34XQJT6OitMF5tIE2nC"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="ChwAH4YGWiGE48YATo1lUC">归属合作方（可选）</label>
+<div data-geo-dev-only data-page-node-id="o5G34XQJT6OitMF5tIE2nC"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="ChwAH4YGWiGE48YATo1lUC">归属合作方（可选）</label>
 <select id="np-partner" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white" data-page-node-id="yL6m9Cq1j4bfG10dGNN5En">
 <option value="" data-page-node-id="Yij1iUBVCEhZqS7Cm5sskU">未分配 / 直营</option>
 </select>
@@ -7188,9 +7188,48 @@ GitHub 开源仓库：https://github.com/company/repo
       window.location.href = `/api/projects/${projectId}/export`;
     }
 
+    // [2026-09-19] [员工自主建企与代理免选专注交付] Client ID 自动推导算法与手工修改防覆盖
+    let npIdUserEdited = false;
+
+    function onNpIdInput() {
+      const val = (document.getElementById('np-id')?.value || '').trim();
+      npIdUserEdited = val.length > 0;
+    }
+
+    function onNpNameInput() {
+      if (npIdUserEdited) return;
+      const name = (document.getElementById('np-name')?.value || '').trim();
+      const idEl = document.getElementById('np-id');
+      if (!idEl) return;
+      if (!name) {
+        idEl.value = '';
+        return;
+      }
+      const enMatches = name.match(/[a-zA-Z0-9]+/g);
+      if (enMatches && enMatches.join('').length >= 2) {
+        let slug = enMatches.join('_').toLowerCase();
+        slug = slug.replace(/^_+|_+$/g, '').slice(0, 24);
+        idEl.value = slug;
+      } else {
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+          hash = ((hash << 5) - hash) + name.charCodeAt(i);
+          hash |= 0;
+        }
+        const suffix = Math.abs(hash).toString(36).slice(-4).padStart(4, '0');
+        idEl.value = `corp_${suffix}`;
+      }
+    }
+
     // 新建项目模态框
     function openNewProjectModal() {
       fillPartnerSelects();
+      npIdUserEdited = false;
+      const npForm = document.getElementById('new-project-form');
+      if (npForm) npForm.reset();
+      const npPartner = document.getElementById('np-partner');
+      if (npPartner) npPartner.value = '';
+      toggleNpSitePending();
       document.getElementById('new-project-modal').classList.remove('hidden');
       lucide.createIcons();
     }
@@ -7244,6 +7283,10 @@ GitHub 开源仓库：https://github.com/company/repo
         if (data.success) {
           closeNewProjectModal();
           showToast(`项目 [${payload.client_id}] 已建壳。下一步：阶段零探活。创建时若已填问句/竞品，会当作初始版本保留。`);
+          // [2026-09-19] [员工自主建企与代理免选专注交付] 建企成功后先刷新 /api/auth/status 再进阶段零，确保本地权限态刷新
+          try {
+            await checkAuthStatus();
+          } catch (_) {}
           enterWizard(payload.client_id, 'step-0-probe');
         } else {
           showToast(data.message || '创建失败！', 'error');

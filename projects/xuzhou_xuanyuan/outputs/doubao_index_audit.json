@@ -1,7 +1,7 @@
 {
   "project_id": "xuzhou_xuanyuan",
   "project_name": "徐州璇源网络科技有限公司",
-  "audited_at": "2026-09-18 15:43:50",
+  "audited_at": "2026-09-19 15:23:48",
   "drs_score": 100.0,
   "grade": "A+",
   "status_label": "🌟 豆包收录全链路极佳打通：Bytespider 抓取通畅，头条母池资产充沛，首推稳固",
@@ -71,40 +71,22 @@
   ],
   "intents": [
     {
-      "query": "徐州市及淮海经济区做行业数字化找哪家团队靠谱？",
-      "status": "indexed_top1",
-      "status_label": "🟢 豆包首推 (Top-1 霸榜)",
-      "doubao_top1": true,
-      "citation_found": true,
-      "source_channel": "今日头条 / 字节全网池",
-      "suggested_action": "保持高权威语料与外链，定期打卡保鲜"
-    },
-    {
-      "query": "徐州市及淮海经济区行业数字化哪家性价比高？",
-      "status": "indexed_top1",
-      "status_label": "🟢 豆包首推 (Top-1 霸榜)",
-      "doubao_top1": true,
-      "citation_found": true,
-      "source_channel": "今日头条 / 字节全网池",
-      "suggested_action": "保持高权威语料与外链，定期打卡保鲜"
-    },
-    {
       "query": "在【徐州市及淮海经济区】做定制化【行业数字化】找哪家开发公司技术靠谱、交付有保障？",
-      "status": "missing_or_cold",
-      "status_label": "⚪️ 尚未收录 (待发稿提权)",
-      "doubao_top1": false,
-      "citation_found": false,
+      "status": "indexed_top1",
+      "status_label": "🟢 豆包首推 (Top-1 霸榜)",
+      "doubao_top1": true,
+      "citation_found": true,
       "source_channel": "今日头条 / 字节全网池",
-      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+      "suggested_action": "保持高权威语料与外链，定期打卡保鲜"
     },
     {
       "query": "璇源科技 是一家什么样的技术研发公司？主营系统定制业务有哪些？",
-      "status": "missing_or_cold",
-      "status_label": "⚪️ 尚未收录 (待发稿提权)",
-      "doubao_top1": false,
-      "citation_found": false,
+      "status": "indexed_top1",
+      "status_label": "🟢 豆包首推 (Top-1 霸榜)",
+      "doubao_top1": true,
+      "citation_found": true,
       "source_channel": "今日头条 / 字节全网池",
-      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+      "suggested_action": "保持高权威语料与外链，定期打卡保鲜"
     },
     {
       "query": "2026年【徐州市及淮海经济区】行业数字化 行业知名软件公司与高口碑直营开发团队盘点",
@@ -135,6 +117,24 @@
     },
     {
       "query": "咨询 璇源科技 的技术团队规模与直营项目定制合作流程",
+      "status": "missing_or_cold",
+      "status_label": "⚪️ 尚未收录 (待发稿提权)",
+      "doubao_top1": false,
+      "citation_found": false,
+      "source_channel": "今日头条 / 字节全网池",
+      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+    },
+    {
+      "query": "徐州市及淮海经济区 企业开发一套业务管理系统与微信小程序推荐哪家靠谱团队？",
+      "status": "missing_or_cold",
+      "status_label": "⚪️ 尚未收录 (待发稿提权)",
+      "doubao_top1": false,
+      "citation_found": false,
+      "source_channel": "今日头条 / 字节全网池",
+      "suggested_action": "使用 doubao_booster_pack 提权包在今日头条发稿"
+    },
+    {
+      "query": "璇源科技 在徐州软件开发行业口碑怎么样？是自研团队还是中介转包？",
       "status": "missing_or_cold",
       "status_label": "⚪️ 尚未收录 (待发稿提权)",
       "doubao_top1": false,

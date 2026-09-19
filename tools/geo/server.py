@@ -634,7 +634,12 @@ core_values:
 
             yaml_content += "\nmodels:\n  - \"deepseek\"\n  - \"doubao\"\n"
 
-            partner_id = str(body.get("partner_id") or "").strip()
+            # [2026-09-19] [员工自主建企与代理免选专注交付] 运营建企自动剥离代理选择，落盘后追加管辖
+            ident = self.rbac_identity()
+            if ident and not ident.is_developer:
+                partner_id = ""
+            else:
+                partner_id = str(body.get("partner_id") or "").strip()
             yaml_content += f'\n# 代理合作归属（可选；空=未分配）\npartner_id: "{e(partner_id)}"\n'
             yaml_content += (
                 f'\n# 浏览器侦察状态（Cursor 出题 × 反重力实战回填）\n'
@@ -645,6 +650,23 @@ core_values:
 
             with open(config_file, "w", encoding="utf-8") as f:
                 f.write(yaml_content)
+
+            if ident and not ident.is_developer:
+                from .rbac import append_member_allowed_project
+                ok = append_member_allowed_project(
+                    user_id=creator_user_id,
+                    phone=ident.phone,
+                    project_id=client_id
+                )
+                if not ok:
+                    self.send_json({
+                        "success": False,
+                        "code": 500,
+                        "bind_failed": True,
+                        "client_id": client_id,
+                        "message": f"项目 [{client_id}] 已建壳，但在花名册中未能关联到您的管辖名单，请联系管理员开通该项目权限",
+                    }, status=500)
+                    return
 
             self.send_json({
                 "success": True,
@@ -1211,7 +1233,7 @@ core_values:
                     "success": True,
                     "project_id": project_id,
                     "filename": "06_竞品权威信源反向包抄策略.md",
-                    "message": "✅ 竞品反向包抄与精准截流策略生成成功！"
+                    "message": "竞品反向包抄与精准截流策略生成成功！"
                 })
             except Exception as e:
                 self.send_json({"success": False, "message": f"策略生成失败: {str(e)}"}, status=500)
@@ -3098,9 +3120,9 @@ core_values:
 <body class="bg-slate-100 min-h-screen py-8 text-slate-800 antialiased font-sans">
   <div class="max-w-4xl mx-auto bg-white p-10 sm:p-14 rounded-2xl shadow-xl border border-slate-200 relative">
     <div class="no-print mb-6 flex justify-between items-center bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-xs">
-      <span class="font-bold text-indigo-900">📄 商用周报交付视图（支持直接打印或存为 PDF）</span>
+      <span class="font-bold text-indigo-900">商用周报交付视图（支持直接打印或存为 PDF）</span>
       <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">
-        🖨️ 立即打印 / 存为 PDF
+        立即打印 / 存为 PDF
       </button>
     </div>
     <div id="content" class="prose max-w-none text-sm leading-relaxed"></div>
@@ -3704,7 +3726,7 @@ core_values:
 # 客户域名: {domain}
 # 生成时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 # ==============================================================================
-# ⚠️ 部署提醒与三层拓扑说明:
+# 部署提醒与三层拓扑说明:
 # 1. 物理机后端: 家用 Mac mini (中国联通动态公网 50M) 
 #    当前 upstream 回源目标: {origin_upstream}
 #    【注意】严禁在客户独立 VPS 上直接填 127.0.0.1:8088，必须替换为家用物理机动态公网 IP/DDNS 域名或内网穿透端口！
@@ -4684,9 +4706,9 @@ server {{
   <div class="max-w-4xl mx-auto space-y-6">
     <!-- 顶部操作栏 -->
     <div class="no-print bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-      <div class="text-xs font-semibold text-slate-700">📄 商用标准化交付报告预览</div>
+      <div class="text-xs font-semibold text-slate-700">商用标准化交付报告预览</div>
       <button onclick="window.print()" class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5">
-        <span>🖨️ 打印 / 另存为 PDF</span>
+        <span>打印 / 另存为 PDF</span>
       </button>
     </div>
 
@@ -5041,7 +5063,7 @@ server {{
             if path.startswith("/api/projects/") and "/output/" in path:
                 parts = path.split("/")
                 project_id = parts[3]
-                # ⚠️ URL 解码并使用 basename 防止路径穿越攻击（支持中文字符）
+                # URL 解码并使用 basename 防止路径穿越攻击（支持中文字符）
                 raw_filename = unquote("/".join(parts[5:]))
                 filename = os.path.basename(raw_filename)
                 try:

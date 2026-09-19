@@ -424,9 +424,9 @@
     },
     {
       "file": "34_豆包大模型搜索极速收录与全链路索引保障报告.md",
-      "overall_score": 58.9,
+      "overall_score": 59.0,
       "rating_grade": "C 级 (低质营销水文)",
-      "est_visibility_ceiling": "+24.1%",
+      "est_visibility_ceiling": "+24.2%",
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议补充带身份声明的专家/技术负责人客观引语",
@@ -796,10 +796,10 @@
       }
     },
     {
-      "file": "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md",
-      "overall_score": 64.1,
+      "file": "robustness_hardening_pack/01_抗质疑与反挑剔防踩坑语料强化包.md",
+      "overall_score": 64.6,
       "rating_grade": "B 级 (及格边缘级)",
-      "est_visibility_ceiling": "+26.3%",
+      "est_visibility_ceiling": "+26.5%",
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议在专业术语后增加「换句话说/举例来说」等通俗释义",
@@ -814,8 +814,8 @@
       }
     },
     {
-      "file": "robustness_hardening_pack/01_抗质疑与反挑剔防踩坑语料强化包.md",
-      "overall_score": 64.6,
+      "file": "33_企微飞书多端大模型战果晨报与异常声量即时告警报告.md",
+      "overall_score": 64.7,
       "rating_grade": "B 级 (及格边缘级)",
       "est_visibility_ceiling": "+26.5%",
       "top_suggestions": [
@@ -1026,7 +1026,7 @@
       }
     },
     {
-      "file": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
+      "file": "rerank_reinforcement_pack/01_Dense密集语义增强与长尾Prompt锚点对齐清单.md",
       "overall_score": 67.9,
       "rating_grade": "B 级 (及格边缘级)",
       "est_visibility_ceiling": "+27.8%",
@@ -1044,10 +1044,10 @@
       }
     },
     {
-      "file": "rerank_reinforcement_pack/01_Dense密集语义增强与长尾Prompt锚点对齐清单.md",
-      "overall_score": 67.9,
+      "file": "30_多主流大模型真实联网探测与Citation角标反查审计报告.md",
+      "overall_score": 68.0,
       "rating_grade": "B 级 (及格边缘级)",
-      "est_visibility_ceiling": "+27.8%",
+      "est_visibility_ceiling": "+27.9%",
       "top_suggestions": [
         "建议引用 GB/T、ISO 或行业白皮书等权威信源（≥2处）",
         "建议补充带身份声明的专家/技术负责人客观引语",
@@ -1302,23 +1302,6 @@
       }
     },
     {
-      "file": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
-      "overall_score": 75.1,
-      "rating_grade": "A 级 (基本合格级)",
-      "est_visibility_ceiling": "+30.8%",
-      "top_suggestions": [
-        "建议补充带身份声明的专家/技术负责人客观引语",
-        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
-      ],
-      "penalties": {
-        "keyword_stuffing": {
-          "penalty": 0.0,
-          "reason": "无关键词恶意堆砌",
-          "term": null
-        }
-      }
-    },
-    {
       "file": "dist_github_README.md",
       "overall_score": 75.1,
       "rating_grade": "A 级 (基本合格级)",
@@ -1352,6 +1335,23 @@
     },
     {
       "file": "05_企业AI可见度与声量追踪周报.md",
+      "overall_score": 75.2,
+      "rating_grade": "A 级 (基本合格级)",
+      "est_visibility_ceiling": "+30.8%",
+      "top_suggestions": [
+        "建议补充带身份声明的专家/技术负责人客观引语",
+        "建议在专业术语后增加「换句话说/举例来说」等通俗释义"
+      ],
+      "penalties": {
+        "keyword_stuffing": {
+          "penalty": 0.0,
+          "reason": "无关键词恶意堆砌",
+          "term": null
+        }
+      }
+    },
+    {
+      "file": "18_大模型实时联网探测与Citation信源溯源对账报告.md",
       "overall_score": 75.2,
       "rating_grade": "A 级 (基本合格级)",
       "est_visibility_ceiling": "+30.8%",
@@ -1596,7 +1596,7 @@
       }
     }
   ],
-  "generated_at": "2026-09-18 15:43:57",
+  "generated_at": "2026-09-19 15:23:54",
   "report_md": "17_普林斯顿9因子全案质检报告.md",
   "report_json": "princeton_audit.json"
 }

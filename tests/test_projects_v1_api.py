@@ -38,8 +38,8 @@ class TestProjectsV1Api(unittest.TestCase):
         cls.token = create_session(
             username="测试产品经理",
             user_id="1768892187321049888",
-            phone="13800008888",
-            role="admin",
+            phone="13150568888",
+            role="developer",
             credits=5000,
         )
         cls.headers = {

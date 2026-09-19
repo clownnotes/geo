@@ -155,7 +155,6 @@ class TestOperatorIsolation(RbacTestBase):
             ("/api/admin/members", "GET"),
             ("/api/admin/members", "POST"),
             ("/api/llm/config", "POST"),
-            ("/api/projects", "POST"),
             ("/api/projects/nextgeo/delete", "POST"),
             ("/api/settings/notifications", "POST"),
             ("/api/patrol/trigger", "POST"),
@@ -164,6 +163,15 @@ class TestOperatorIsolation(RbacTestBase):
             ok, status, _ = rbac.guard_route(path, method, self.op)
             self.assertFalse(ok, f"{method} {path} 应对运营 403")
             self.assertEqual(status, 403)
+
+    def test_project_create_allowed_for_operator(self):
+        """// [2026-09-19] [员工自主建企] POST /api/projects 对运营人员放行"""
+        ok, status, msg = rbac.guard_route("/api/projects", "POST", self.op)
+        self.assertTrue(ok, msg)
+        self.assertEqual(status, 200)
+        ok, status, msg = rbac.guard_route("/api/v1/projects", "POST", self.op)
+        self.assertTrue(ok, msg)
+        self.assertEqual(status, 200)
 
     def test_project_list_allowed_and_server_filtered(self):
         """列表接口对运营开放（内容由服务端过滤），不得被 fail-closed 拦死"""
