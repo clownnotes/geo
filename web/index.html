@@ -668,16 +668,42 @@
 
 <!-- 老板版专属交付物与预览卡片（纯净商业版，不含底座 metrics.json） -->
 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" data-page-node-id="xiF2FCtZ0QOke6WBGl63j7">
-<div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 text-xs font-semibold text-slate-700" data-page-node-id="gMpcS80MqJC623vE7LMswt">
-<span class="truncate min-w-0" data-page-node-id="cY9of2kdmdbhQQmxQFp73Z">交付物：01_企业AI可见度商业诊断报告.md</span>
-<div class="flex items-center gap-3 shrink-0" data-page-node-id="0rIDJEH5qkZgQgZ0r1BCBU">
-<button type="button" onclick="openShareModal()" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1" title="生成客户可打开的报告链接" data-page-node-id="wt27EGdFcIj6LBYnvNYVxX"><i data-lucide="share-2" class="w-3.5 h-3.5" data-page-node-id="wHAXNv4tqyeRUceKxiMg5Y"></i><span data-page-node-id="UhTMpG43HyU8UGqQSoRG2Z">客户报告链接</span></button>
-<button type="button" onclick="exportAuditReportHtml('boss')" class="text-slate-600 hover:text-slate-900 flex items-center gap-1" title="下载老板版自包含 HTML" data-page-node-id="suwovqWV9Qa2yHma1mzeZF"><i data-lucide="file-down" class="w-3.5 h-3.5" data-page-node-id="8gCHCvhRf7y2lCywHhFHZB"></i><span data-page-node-id="YSCULrwE9TcF7DjnWGqy1f">下载老板商业报告 (HTML)</span></button>
-<button type="button" onclick="copyOutput('01_企业AI可见度商业诊断报告.md')" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1" data-page-node-id="WvqYIk1t0mHdo4scQxV2qf"><i data-lucide="copy" class="w-3.5 h-3.5" data-page-node-id="0xgSAeTihsupaRHFsMjeeZ"></i><span data-page-node-id="oHeoVxfeoxTVLghFfMBC2D">复制全文</span></button>
+<div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-slate-700" data-page-node-id="gMpcS80MqJC623vE7LMswt">
+  <div class="flex items-center gap-3 min-w-0" data-page-node-id="boss-report-title-group">
+    <span class="truncate font-bold text-slate-800" data-page-node-id="cY9of2kdmdbhQQmxQFp73Z">交付物：01_企业AI可见度商业诊断报告.md</span>
+    <!-- [2026-09-19] [老板商业诊断报告高转化视觉样式嵌入] 方案 B：双样式切换器 (0 Emoji) -->
+    <div class="inline-flex p-0.5 bg-slate-200/80 rounded-lg text-[11px] font-semibold select-none shrink-0" id="boss-report-style-segmented">
+      <button type="button" id="btn-boss-style-visual" onclick="switchBossReportStyle('visual')" class="px-2.5 py-1 rounded-md bg-white text-[#7c5bf5] shadow-sm transition">高转化视觉版 (HTML)</button>
+      <button type="button" id="btn-boss-style-md" onclick="switchBossReportStyle('md')" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">文本底稿 (MD)</button>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 shrink-0" data-page-node-id="0rIDJEH5qkZgQgZ0r1BCBU">
+    <button type="button" onclick="openBossReportFullscreen()" class="text-slate-600 hover:text-[#7c5bf5] flex items-center gap-1" title="在新标签页全屏预览高转化大屏">
+      <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i><span>全屏大屏</span>
+    </button>
+    <button type="button" onclick="openShareModal()" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1" title="生成客户可打开的报告链接" data-page-node-id="wt27EGdFcIj6LBYnvNYVxX">
+      <i data-lucide="share-2" class="w-3.5 h-3.5" data-page-node-id="wHAXNv4tqyeRUceKxiMg5Y"></i><span data-page-node-id="UhTMpG43HyU8UGqQSoRG2Z">客户报告链接</span>
+    </button>
+    <button type="button" onclick="exportAuditReportHtml('boss')" class="text-slate-600 hover:text-slate-900 flex items-center gap-1" title="下载老板版自包含 HTML" data-page-node-id="suwovqWV9Qa2yHma1mzeZF">
+      <i data-lucide="file-down" class="w-3.5 h-3.5" data-page-node-id="8gCHCvhRf7y2lCywHhFHZB"></i><span data-page-node-id="YSCULrwE9TcF7DjnWGqy1f">下载老板商业报告 (HTML)</span>
+    </button>
+    <button type="button" onclick="copyOutput('01_企业AI可见度商业诊断报告.md')" class="text-[#7c5bf5] hover:text-[#6846e3] flex items-center gap-1" data-page-node-id="WvqYIk1t0mHdo4scQxV2qf">
+      <i data-lucide="copy" class="w-3.5 h-3.5" data-page-node-id="0xgSAeTihsupaRHFsMjeeZ"></i><span data-page-node-id="oHeoVxfeoxTVLghFfMBC2D">复制全文</span>
+    </button>
+  </div>
 </div>
+
+<!-- 容器 1：高转化视觉大屏容器（默认展示，沙箱隔离防样式污染） -->
+<div id="container-step-1-boss-visual" class="w-full bg-[#f8fafc] relative min-h-[500px]">
+  <div id="boss-visual-placeholder" class="text-center py-16 text-slate-400 text-sm hidden">
+    请先点「① 真抓网络与底座指标」，再点「② 直出商业诊断与焦虑转化初稿」…
+  </div>
+  <iframe id="frame-step-1-boss-visual" class="w-full h-[760px] border-0 block rounded-b-xl" loading="lazy"></iframe>
 </div>
-<div id="preview-step-1-boss" class="p-6 markdown-body max-h-[600px] overflow-y-auto" data-page-node-id="G1GOdkdcteaEFqVMI9YF3c">
-<div class="text-center py-12 text-slate-400 text-sm" data-page-node-id="uloDaF7fNH89MHcjT3iXK6">请先点「① 真抓网络与底座指标」，再点「② 直出商业诊断与焦虑转化初稿」…</div>
+
+<!-- 容器 2：文本底稿容器 (Markdown)，默认隐藏 -->
+<div id="preview-step-1-boss" class="p-6 markdown-body max-h-[600px] overflow-y-auto hidden" data-page-node-id="G1GOdkdcteaEFqVMI9YF3c">
+  <div class="text-center py-12 text-slate-400 text-sm" data-page-node-id="uloDaF7fNH89MHcjT3iXK6">请先点「① 真抓网络与底座指标」，再点「② 直出商业诊断与焦虑转化初稿」…</div>
 </div>
 </div>
 </div>
@@ -8938,6 +8964,8 @@ function backToDashboard() {
     async function loadStepPreviews() {
       // Step 1: 联动顶层双 Tab 视图分别加载两份独立报告
       switchAuditTopTab(currentAuditTopTab);
+      // [2026-09-19] [老板商业诊断报告高转化视觉样式嵌入] 预载高转化视觉大屏与 Markdown 底稿
+      loadBossReportVisual();
       loadMarkdownToElem('01_企业AI可见度商业诊断报告.md', 'preview-step-1-boss');
       loadMarkdownToElem('01_企业底座技术体检审计报告.md', 'preview-step-1-tech');
       // Step 2
@@ -9746,6 +9774,71 @@ function backToDashboard() {
       window.open(currentGeneratedPortalUrl, '_blank');
     }
 
+    // [2026-09-19] [老板商业诊断报告高转化视觉样式嵌入] 方案 B：双样式切换状态与函数
+    let currentBossReportStyle = 'visual'; // 'visual' | 'md'
+
+    function switchBossReportStyle(style) {
+      currentBossReportStyle = (style === 'md') ? 'md' : 'visual';
+      const btnVisual = document.getElementById('btn-boss-style-visual');
+      const btnMd = document.getElementById('btn-boss-style-md');
+      const containerVisual = document.getElementById('container-step-1-boss-visual');
+      const containerMd = document.getElementById('preview-step-1-boss');
+
+      if (currentBossReportStyle === 'visual') {
+        if (btnVisual) btnVisual.className = 'px-2.5 py-1 rounded-md bg-white text-[#7c5bf5] shadow-sm transition font-semibold';
+        if (btnMd) btnMd.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition font-semibold';
+        if (containerVisual) containerVisual.classList.remove('hidden');
+        if (containerMd) containerMd.classList.add('hidden');
+        loadBossReportVisual();
+      } else {
+        if (btnMd) btnMd.className = 'px-2.5 py-1 rounded-md bg-white text-[#7c5bf5] shadow-sm transition font-semibold';
+        if (btnVisual) btnVisual.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition font-semibold';
+        if (containerMd) containerMd.classList.remove('hidden');
+        if (containerVisual) containerVisual.classList.add('hidden');
+        loadMarkdownToElem('01_企业AI可见度商业诊断报告.md', 'preview-step-1-boss');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function loadBossReportVisual(forceReload = false) {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) return;
+      const frame = document.getElementById('frame-step-1-boss-visual');
+      const placeholder = document.getElementById('boss-visual-placeholder');
+      if (!frame) return;
+
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('01_企业AI可见度商业诊断报告.html')}?t=${Date.now()}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data && data.success && data.content && data.content.trim()) {
+          frame.srcdoc = data.content;
+          frame.classList.remove('hidden');
+          if (placeholder) placeholder.classList.add('hidden');
+        } else {
+          frame.srcdoc = '';
+          frame.classList.add('hidden');
+          if (placeholder) placeholder.classList.remove('hidden');
+        }
+      } catch (err) {
+        console.error('加载高转化视觉报告失败:', err);
+        frame.srcdoc = '';
+        frame.classList.add('hidden');
+        if (placeholder) placeholder.classList.remove('hidden');
+      }
+    }
+
+    function openBossReportFullscreen() {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择客户项目', 'error');
+        return;
+      }
+      const url = `/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('01_企业AI可见度商业诊断报告.html')}?raw=1&token=${encodeURIComponent(currentAuthToken)}`;
+      window.open(url, '_blank');
+    }
+
     let currentAuditTopTab = 'boss'; // 'boss' | 'tech'
     let currentAuditReportView = 'boss';
 
@@ -9776,7 +9869,7 @@ function backToDashboard() {
         }
         if (viewBoss) viewBoss.classList.remove('hidden');
         if (viewTech) viewTech.classList.add('hidden');
-        loadMarkdownToElem('01_企业AI可见度商业诊断报告.md', 'preview-step-1-boss');
+        switchBossReportStyle(currentBossReportStyle);
       }
     }
 

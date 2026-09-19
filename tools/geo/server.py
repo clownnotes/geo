@@ -303,7 +303,8 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                 "data": None,
             }, status=503)
             return False
-        ok, status, msg = guard_route(path, method or self.command, self.rbac_identity())
+        cmd = method or getattr(self, "command", "GET")
+        ok, status, msg = guard_route(path, cmd, self.rbac_identity())
         if not ok:
             self.send_json({
                 "success": False,
@@ -5053,6 +5054,11 @@ server {{
                         return
                     if not os.path.exists(target_file):
                         self.send_json({"success": False, "message": "文件不存在！"}, status=404)
+                        return
+                    # [2026-09-19] [老板商业诊断报告高转化视觉样式嵌入] 支持 raw=1 参数直接输出原始静态文件（供新标签页全屏预览）
+                    qs = parse_qs(parsed.query)
+                    if qs.get("raw", ["0"])[0] in ("1", "true"):
+                        self._serve_static_file(target_file, filename)
                         return
                     with open(target_file, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read()
