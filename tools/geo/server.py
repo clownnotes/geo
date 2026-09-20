@@ -382,6 +382,14 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             return True
 
         # 2. 未登录白名单判定
+        # 2.1 [2026-09-20] [官网爬虫放行] 公开静态官网与大模型爬虫探针绝对优先通行（免密无条件放行）
+        is_public_site_or_crawler = (
+            path.startswith("/sites/") or
+            path in ("/robots.txt", "/llms.txt", "/sitemap.xml")
+        )
+        if is_public_site_or_crawler and method in ("GET", "HEAD"):
+            return True
+
         is_page_req = path in ("/", "/index.html", "/admin", "/login.html") or path.startswith("/web/")
         if is_page_req and method in ("GET", "HEAD"):
             self._serve_login_page()
@@ -397,7 +405,7 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         if is_login_api:
             return True
 
-        # 3. 其它任何请求（包括 /.env, /tools/geo/server.py, /AGENTS.md, /sites/, /docs/, /api/projects 等）：一律 404
+        # 3. 其它任何内部请求（包括 /.env, /tools/geo/server.py, /AGENTS.md, /docs/, /api/projects 等）：一律 404
         self._serve_404_not_found()
         return False
 
@@ -3164,6 +3172,28 @@ core_values:
             self.wfile.write(b"404 Not Found")
             return
 
+        # 4.4. [2026-09-20] [官网爬虫放行] 根目录大模型爬虫探针路由: /robots.txt, /llms.txt, /sitemap.xml
+        if path in ("/robots.txt", "/llms.txt", "/sitemap.xml"):
+            filename = path.lstrip("/")
+            candidates = [
+                os.path.join(PROJECTS_DIR, "nextgeo", "outputs", "site", filename),
+                os.path.join(PROJECTS_DIR, "nextgeo", "outputs", filename),
+                os.path.join(PROJECT_ROOT, filename),
+            ]
+            found_target = None
+            for cand in candidates:
+                if os.path.isfile(cand):
+                    found_target = cand
+                    break
+            if found_target:
+                self._serve_static_file(found_target, filename)
+                return
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(b"404 Not Found")
+            return
+
         # 4.5. 生产级多租户纯净静态官网托管路由: /sites/{project_id} 或 /sites/{project_id}/{asset}
         if path.startswith("/sites/"):
             raw_subpath = path[len("/sites/"):].strip("/")
@@ -3179,12 +3209,12 @@ core_values:
                 self.wfile.write(b"400 Bad Request: Invalid project_id format")
                 return
 
-            # [2026-09-19] [运营账号反AI抓取] 已登录运营也必须按 allowed_projects 裁剪。
-            # 本分支排在路由守卫之前，此前任何已登录运营都能枚举 /sites/{任意客户}/ 拉整站。
-            # 未授权返回 404（不是 403），避免泄露「这个客户站是否存在」。
+            # [2026-09-20] [官网爬虫放行] 区分已登录运营防抓取与公网/爬虫免密访问：
+            # 1. 若为已登录的运营人员（matched 为 True 且非开发者）：严格按 allowed_projects 裁剪，防跨项目枚举；
+            # 2. 若为公网访客/大模型爬虫（未登录，matched 为 False）：无条件放行读取公开静态网站。
             _site_ident = self.rbac_identity()
-            if not (_site_ident and getattr(_site_ident, "is_developer", False)):
-                if not (_site_ident and project_id in (_site_ident.allowed_projects or [])):
+            if _site_ident and getattr(_site_ident, "matched", False) and not getattr(_site_ident, "is_developer", False):
+                if project_id not in (_site_ident.allowed_projects or []):
                     self._serve_404_not_found()
                     return
 

@@ -72,9 +72,7 @@ class TestConsoleGateLeakPrevention(unittest.TestCase):
             "/README.md",
             "/package.json",
             "/data/rbac_members.json",
-            "/sites/nextgeo/",
             "/docs/",
-            "/llms.txt",
             "/api/projects",
             "/api/benchmark/industries",
         ]

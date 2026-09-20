@@ -224,3 +224,37 @@ python3 -m unittest tests.test_operator_dashboard_perspective tests.test_check_l
 - 共识状态：**`[已达成共识]`**
 - 阶段说明：本变更在规范设计、代码实现与自动化回归三方面均已达成严谨闭环。严格遵循停步铁律，本轮审查不触发任何代码改动，不执行自动归档，控制权交还产品负责人进行最终验收。
 
+---
+
+## 2026-09-20 Cursor `/opsx-review`：修复后终审（对照规范 + 现网代码）
+
+### 1. 上轮 `[需修正]` 是否关闭
+
+| 项 | 结果 |
+| :--- | :--- |
+| 「去真机回填」进阶段五 | **已关**。现为 `openManualCheckForProject` → 设 `currentProjectId` + `openManualProbeModal()`，**不再**调用 `enterWizard`（对端后续又做了轻量化，避免 403） |
+| 声量文案去黑话 | **已关**。徽章主文「声量异常 / 正常」 |
+| 四宫格 / 方案 A / 帮助 | **已关**，与拍板一致 |
+
+### 2. 规范 ↔ 代码抽查
+
+- 运营/开发容器互斥；运营不调 `/api/portfolio/summary`：✅
+- 四宫格含 `ops-stat-sov-alert`，无「已结案企业」：✅
+- 待办行含灯色、豆包位次、声量、异动、开工按钮：✅
+- 台账字段 `doubao_rank` / `sov_alert` + RBAC 重算 `sov_alert_count`：✅
+- 本轮相关单测 `tests.test_operator_dashboard_perspective` + `test_check_ledger`：**13 项 OK**
+
+顺带订正：`design.md` §2.3 `primary_action` 已与「轻量打开粘贴框、不进 enterWizard」实现对齐（原先仍写「进探针页」）。
+
+### 3. 残留观察（不挡通过）
+
+- 🟢 「待真机实测」仍只计 `never`+`overdue`，黄灯仅行内展示——与现文案一致。
+- 🟢 企业管理列表等其它区域仍有历史「SOP」字样；**运营仪表盘专属区**测试已禁 SOP。属范围外，不必本变更硬清全站。
+- 🟢 个别项目缺 `monitor_history` 表时台账打日志，已被吞掉，不影响页面。
+
+### 4. 结论
+
+- **`[通过]`**
+- 共识维持：**`[已达成共识]`**
+- 本轮仅审查 + 订正 design 一句口径；**未改业务代码、未 archive**。产品可验收后自行决定是否 `/opsx-archive`。
+

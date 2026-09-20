@@ -91,7 +91,7 @@
 | `sov_alert` | 徽章「声量异常」或「正常」 | `check_alert_conditions` 结果 |
 | `alert_reason` | 短句：如「环比掉 18%」/「跌出第 1」 | 告警原因摘要 |
 | `stage_progress` | 「交付进度 3/5」 | 项目阶段 |
-| `primary_action` | 按钮「去真机回填」或「进入流水线」 | 真机逾期/从未 → 调用 `openManualCheckForProject(id)`（进探针页并打开粘贴框，**禁止** `enterWizard(id, 5)` 误进阶段五）；有声量异常但真机正常 → 进流水线/监测；否则进流水线 |
+| `primary_action` | 按钮「去真机回填」或「进入流水线」 | 真机逾期/从未 → `openManualCheckForProject(id)`：只设 `currentProjectId` 并直接 `openManualProbeModal()`（**禁止**再走 `enterWizard`，避免误进阶段五 / 预载未授权步骤触发 403）；有声量异常但真机正常 → 进流水线；否则进流水线 |
 
 排序建议：声量异常且真机逾期 > 仅真机逾期/从未 > 仅声量异常 > 其余（阶段未完优先于已完成）。
 
