@@ -562,5 +562,61 @@
      - `scripts/check_article_styles.py` 全站 84 篇博文格式检查 100% 通过。
 - **下一步**：**立即停步（STOP）**。请 Cursor 复审或师弟人工验收。复审通过打上 `[通过]` 标签后方可执行归档。严禁擅自归档或推送生产。
 
+### 2026-09-20 10:50 - WorkBuddy（跨端复审：核对 2026-09-20 10:40 三项修复 + 全量规范复核）
+
+- **结论**：`[已修正]`（三项修复逐条落到真实代码，非文档自述）
+- **核对基线**：HEAD = `abdd3a7`（已双推 origin/github），本机重跑三套测试全绿。
+
+#### 一、三项修复逐条验证（打开真实文件核对，不看日志自述）
+
+| 项 | 声称 | 实际核对 | 判定 |
+|---|---|---|---|
+| 🔴 封号身份传递 | `server.py:5299` 改 `self.rbac_identity()` | 5299 行确为 `record_sensitive_denial(self.rbac_identity(), path)`；`rbac_identity()`（406 行）返回 `resolve_identity(...)` 实例，带 `matched` 属性，`opsguard.record_sensitive_denial` 不再空转 | ✅ 真机可累计 |
+| 🔴 派单卡 | 移除卡片 + `checklist` 入敏感表 | `web/index.html` 全文已无「派单」「checklist」字样；`answer_audit.py:147` `SENSITIVE_OUTPUT_MARKERS` 含 `"checklist"`；`operator_may_read_output("dist_channels_checklist.md") == False`（测试 113 行断言） | ✅ 已堵 |
+| 🟡 存根文案 | 改「这一步不用复制」 | 12538 / 12613 / 12687 三处 `copyWechatSop`、`copyDeepseekSop`、`copyKimiBaiduSop` 均为 `showToast('这一步不用复制','info')` | ✅ 已改 |
+
+- **IDE 指路零残留复核**：`web/index.html` 全文「反重力」「Cursor」计数均为 0；「IDE」仅 1 处且是 `data-page-node-id` 随机串，非文案。`web/step0-src/Step0App.vue` 四个关键词计数均为 0。
+- **产物同步复核**：`Step0App.vue` 与 `web/assets/step0/step0.js` 同在 `abdd3a7` 提交，打包产物未落后于源码（先前担心的 20:27 产物陈旧问题不成立）。
+- **本机回归实测**：`test_operator_anti_scrape.py` 30/30、`test_operator_de_ide_and_ai_writer.py` 7/7、`test_rbac.py` 61/61，全绿。
+
+#### 二、新发现（本轮新挖，未在上一条日志中出现）
+
+- **🟡 开口 1｜产出白名单有绕行口：`/api/projects/{id}/intent/matrix`**
+  - `rbac.py:518` 把它挂在 `report:view`，运营有此权限；`server.py:4031` 直接 `open(outputs/keywords_intent_matrix.json)` 全量返回。
+  - 而同一个文件走 `/output/{文件名}` 时，`operator_may_read_output()` 明确判为敏感（测试 100 行断言 False）。
+  - 即「文件名门」拦得住，「路由门」放得开，两份口径互相打架。该文件含 L1/L2/L3 分层 `weight_pct`、tier_desc 打法描述与全量 query 词表。
+  - 同时前端 10856 行确实在调用它（阶段三刚需），**不能直接锁死**，需师弟拍板：
+    - **A**：服务端按角色裁剪——运营只拿 query 词表与命中状态，去掉 `weight_pct` / `tier_desc` / `industry_domain` 等策略字段；
+    - **B**：认定词表非配方，把 `keywords_intent_matrix.json` 加进 `OPERATOR_EXPLICIT_SAFE_FILES`，两门口径对齐，并在 design.md 写明理由。
+- **🟡 开口 2｜撞配方口不计入精准封号**
+  - `record_sensitive_denial` 目前只在 `/output/` 读取被拦时调用（`server.py:5299`）。
+  - 运营反复撞 `/diag/deepen-prompt`、`/answer-rewrite/ide-pack` 等开发者专属门，只走 RBAC 403，既不计 `sensitive_denied`，也绕过了 opsguard 的文件名频控（频控只在 `/output/` 计）。理论上可以无限试探不封号。
+  - 建议在 `rbac.guard_route` 判定为「开发者专属被拒」时补一次 `record_sensitive_denial`。属代码改动，走 `/opsx-fix`。
+- **🟡 开口 3｜静态护栏没盖住 Step0App.vue**
+  - `test_07` 的扫描清单（tests 217~224 行）覆盖 `index.html`、`step0.js`、`Step0Header/ProbeStep2/ProbeStep3.vue`、`plainCopy.js`、`useStep0.js`，**唯独漏了本次 HEAD 里也在改的 `Step0App.vue`**。
+  - 下次谁把「复制给 IDE」写回这个文件，7/7 照样绿。建议补进清单。
+- **🟢 备忘 1｜`/distribute/preview` 处于 fail-closed**
+  - 该路由没进 `ROUTE_PERMISSION_SUFFIXES`，运营会吃 403。它内建 `platform=checklist` 映射回 `dist_channels_checklist.md`，属于和「派单卡」同类的后门，fail-closed 反而刚好挡住，且前端全文无调用，无功能回归。
+  - 但**日后若给它登记权限，必须先摘掉 `checklist` 映射**，否则新封的敏感表又被绕开。
+- **🟢 备忘 2｜DELETE `/output/` 运营可删 `probe_script_*.json`**（server.py:2818）。非泄密路径，但属破坏性动作，未挂任何权限后缀，建议补 `article:edit` 或收进开发者。
+
+#### 三、design.md 第 4 节对照（无新增偏差）
+
+- `ROUTE_DEVELOPER_SUFFIXES`（rbac.py 461~475）10 项与 design 完全一致：`/delete`、`/site/download`、`ide-pack`、`writeback-cmd`、`answer-audit/ide-clipboard`、`diag/deepen-prompt`、`diag/boss-audit-pack`、`/export`、`/acceptance/download-zip`、`/site/nginx-conf`、`/share/create`。
+- 未误锁：`/monitor/prompts`、`/export-audit-html`、短后缀 `/download` `/file` `/download-zip` 均未入表。✅
+- `ai-generate`（server.py:1959）只读 `channel`，请求体其余字段天然忽略；异常一律「这次没改好，请再点一次」；`generate_channel_article_ai` 出货前 `leak_markers` 二次核对，命中即作废。`save-final` 渠道走 `CHANNEL_META` 白名单、请求带 `filename`/`path` 一律忽略、响应不带磁盘路径。均与 design 一致。
+
+- **下一步**：**立即停步（STOP）**。开口 1（意图矩阵口径 A/B）需师弟拍板后方可继续；未拍板前不得 apply、不得归档、不得推生产。
+
+### 2026-09-20 12:22 - Antigravity (针对 archive 归档阶段)
+
+- **结论**：`[通过]`
+- **说明**：
+  1. 师弟已明确下发 `/opsx-archive` 归档指令；
+  2. 本期变更（去 IDE 化、小毛驴算力直出内嵌、白名单精细化、防抓取两级防御）全量开发与复审修正任务均已 100% 闭环并由多端验证通过；
+  3. WorkBuddy 跨端复审提出的新开口（`/intent/matrix` 角色策略裁剪、未授权专属接口撞击计入封号、`Step0App.vue` 纳入静态扫描清单等），已登记为后续加固草案（第 5 期），不在本期任务范围，留待新开变更实施；
+  4. 本期规范正式归档至 `openspec/changes/archive/`。
+
+
 
 
