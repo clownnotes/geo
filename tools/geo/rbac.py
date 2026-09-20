@@ -191,6 +191,30 @@ def _developer_identity(phone):
     )
 
 
+def sync_member_user_id_on_login(phone, user_id):
+    """// [2026-09-20] [成员管理交付看板与企业透视改造] 首次登录回写：
+    手机号命中运营成员且会话带 user_id、花名册该行 user_id 为空时，加锁写回落盘。
+    """
+    phone = str(phone or "").strip()
+    user_id = str(user_id or "").strip()
+    if not phone or not user_id:
+        return False
+    with _ROSTER_LOCK:
+        roster = load_roster()
+        members = roster.get("members", [])
+        idx = _find_member_index(members, phone)
+        if idx < 0:
+            return False
+        record = members[idx]
+        if not str(record.get("user_id") or "").strip():
+            record["user_id"] = user_id
+            record["updated_at"] = _now_str()
+            members[idx] = record
+            roster["members"] = members
+            return save_roster(roster)
+    return False
+
+
 # ---------------------------------------------------------------------------
 # 身份解析
 # ---------------------------------------------------------------------------
@@ -230,6 +254,11 @@ def resolve_identity(user_id="", phone=""):
     if phone:
         for m in roster.get("members", []):
             if str(m.get("phone") or "").strip() == phone:
+                # [2026-09-20] [成员管理交付看板与企业透视改造] 首次登录回写：
+                # 若会话带 user_id 且花名册该成员 user_id 为空，写回落盘
+                if user_id and not str(m.get("user_id") or "").strip():
+                    sync_member_user_id_on_login(phone, user_id)
+                    m["user_id"] = user_id
                 return _member_to_identity(m)
 
     return _anonymous()
@@ -320,6 +349,18 @@ def upsert_member(payload, key=None):
         if phone and phone in dev_phones:
             return False, "该手机号属于开发者，禁止登记为运营人员", None
 
+        # 3) 权限处理：// [2026-09-20] [成员管理交付看板与企业透视改造] 开通默认赋予全部 PERMISSION_CODES
+        if "permissions" in payload and payload["permissions"] is not None:
+            raw_perms = payload["permissions"]
+            if idx < 0 and not raw_perms:
+                perms = list(PERMISSION_CODES)
+            else:
+                perms = [p for p in raw_perms if p in PERMISSION_CODES]
+        elif existing:
+            perms = [p for p in existing.get("permissions", []) if p in PERMISSION_CODES]
+        else:
+            perms = list(PERMISSION_CODES)
+
         now = _now_str()
         record = {
             "user_id": user_id or existing.get("user_id", ""),
@@ -328,7 +369,7 @@ def upsert_member(payload, key=None):
             "role": ROLE_OPERATOR,  # 恒为 operator，不接受外部传入
             "status": payload.get("status", existing.get("status", STATUS_ACTIVE)),
             "allowed_projects": list(payload.get("allowed_projects", existing.get("allowed_projects", []) or [])),
-            "permissions": [p for p in payload.get("permissions", existing.get("permissions", []) or []) if p in PERMISSION_CODES],
+            "permissions": perms,
             "created_at": existing.get("created_at") or now,
             "updated_at": now,
         }
@@ -362,31 +403,21 @@ def delete_member(key):
         return False, "花名册写入失败"
 
 
-def append_member_allowed_project(user_id=None, phone=None, project_id=None):
-    """// [2026-09-19] [员工自主建企与代理免选专注交付] 运营建企成功后，把 project_id 追加进该成员 allowed_projects。找不到成员则返回 False。
-
-    整个读-改-写过程包在 _ROSTER_LOCK 内。
-    """
-    user_id = str(user_id or "").strip()
-    phone = str(phone or "").strip()
+def assign_member_project(key, project_id):
+    """// [2026-09-20] [成员管理交付看板与企业透视改造] 追加成员管辖项目，原子加锁。返回 (bool, str)"""
+    key = str(key or "").strip()
     project_id = str(project_id or "").strip()
+    if not key:
+        return False, "成员标识不能为空"
     if not project_id:
-        return False
-    if not user_id and not phone:
-        return False
+        return False, "企业代号不能为空"
 
     with _ROSTER_LOCK:
         roster = load_roster()
         members = roster.get("members", [])
-        idx = -1
-        if user_id:
-            idx = _find_member_index(members, user_id)
-        if idx < 0 and phone:
-            idx = _find_member_index(members, phone)
+        idx = _find_member_index(members, key)
         if idx < 0:
-            logger.warning("[RBAC] 追加管辖项目失败：未找到成员 user_id=%s phone=%s", user_id, phone)
-            return False
-
+            return False, "未找到该成员"
         record = members[idx]
         allowed = list(record.get("allowed_projects") or [])
         if project_id not in allowed:
@@ -395,8 +426,55 @@ def append_member_allowed_project(user_id=None, phone=None, project_id=None):
             record["updated_at"] = _now_str()
             members[idx] = record
             roster["members"] = members
-            return save_roster(roster)
-        return True
+            if save_roster(roster):
+                return True, "已成功分配企业管辖权"
+            return False, "花名册写入失败"
+        return True, "该企业已在管辖名单中"
+
+
+def unassign_member_project(key, project_id):
+    """// [2026-09-20] [成员管理交付看板与企业透视改造] 收回成员管辖项目，原子加锁。返回 (bool, str)"""
+    key = str(key or "").strip()
+    project_id = str(project_id or "").strip()
+    if not key:
+        return False, "成员标识不能为空"
+    if not project_id:
+        return False, "企业代号不能为空"
+
+    with _ROSTER_LOCK:
+        roster = load_roster()
+        members = roster.get("members", [])
+        idx = _find_member_index(members, key)
+        if idx < 0:
+            return False, "未找到该成员"
+        record = members[idx]
+        allowed = list(record.get("allowed_projects") or [])
+        if project_id in allowed:
+            allowed.remove(project_id)
+            record["allowed_projects"] = allowed
+            record["updated_at"] = _now_str()
+            members[idx] = record
+            roster["members"] = members
+            if save_roster(roster):
+                return True, "已收回企业管辖权"
+            return False, "花名册写入失败"
+        return True, "该企业不在管辖名单中"
+
+
+def append_member_allowed_project(user_id=None, phone=None, project_id=None):
+    """// [2026-09-19] [员工自主建企与代理免选专注交付] 运营建企成功后，把 project_id 追加进该成员 allowed_projects。
+    // [2026-09-20] 复用 assign_member_project，双键兜底（user_id 优先、phone 兜底），保持唯一真相源 (SSOT)。
+    """
+    u = str(user_id or "").strip()
+    p = str(phone or "").strip()
+    if u:
+        ok, _ = assign_member_project(u, project_id)
+        if ok:
+            return True
+    if p:
+        ok, _ = assign_member_project(p, project_id)
+        return ok
+    return False
 
 
 # ---------------------------------------------------------------------------

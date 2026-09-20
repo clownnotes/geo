@@ -161,9 +161,10 @@ def parse_simple_yaml(content: str) -> dict:
                 
     return data
 
-def load_project_config(project_id: str) -> dict:
+def load_project_config(project_id: str, projects_dir: str = None) -> dict:
     """加载指定客户的项目配置文件 project.yaml"""
-    project_dir = os.path.join(PROJECTS_DIR, project_id)
+    base_dir = projects_dir or PROJECTS_DIR
+    project_dir = os.path.join(base_dir, project_id)
     config_file = os.path.join(project_dir, "project.yaml")
     
     if not os.path.exists(config_file):

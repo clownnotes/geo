@@ -498,6 +498,14 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                 }
                 save_sessions(ACTIVE_SESSIONS)
 
+                # [2026-09-20] [成员管理交付看板与企业透视改造] 首次登录回写：补齐花名册空缺的 user_id
+                if user_id and phone:
+                    try:
+                        from .rbac import sync_member_user_id_on_login
+                        sync_member_user_id_on_login(phone, user_id)
+                    except Exception:
+                        pass
+
                 self.send_json({
                     "success": True,
                     "code": 0,
@@ -543,6 +551,14 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                     "source": "nextdoor_wx",
                 }
                 save_sessions(ACTIVE_SESSIONS)
+
+                # [2026-09-20] [成员管理交付看板与企业透视改造] 首次微信登录回写
+                if user_id and data.get("phone"):
+                    try:
+                        from .rbac import sync_member_user_id_on_login
+                        sync_member_user_id_on_login(data.get("phone"), user_id)
+                    except Exception:
+                        pass
                 self.send_json(resp, headers={"Set-Cookie": f"geo_token={token}; Path=/; HttpOnly; SameSite=Lax"})
             else:
                 self.send_json(resp, status=400)
@@ -622,6 +638,30 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                 from .rbac import upsert_member
                 ok, msg, record = upsert_member(self.read_json_body())
                 self.send_json({"success": ok, "message": msg, "member": record},
+                               status=200 if ok else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # [2026-09-20] [成员管理交付看板与企业透视改造] 开发者专属：追加分配企业管辖
+        if path.startswith("/api/admin/members/") and path.endswith("/projects"):
+            if not self.rbac_is_developer():
+                self.send_json({"success": False, "message": "无此操作权限（开发者专属）"}, status=403)
+                return
+            try:
+                from .rbac import assign_member_project
+                key = unquote(path[len("/api/admin/members/"): -len("/projects")].strip("/"))
+                body = self.read_json_body()
+                project_id = str(body.get("project_id") or body.get("client_id") or "").strip()
+                if not project_id:
+                    self.send_json({"success": False, "message": "企业代号不能为空"}, status=400)
+                    return
+                project_dir = os.path.join(PROJECTS_DIR, project_id)
+                if not os.path.isdir(project_dir):
+                    self.send_json({"success": False, "message": f"企业 [{project_id}] 不存在"}, status=404)
+                    return
+                ok, msg = assign_member_project(key, project_id)
+                self.send_json({"success": ok, "message": msg, "project_id": project_id},
                                status=200 if ok else 400)
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
@@ -2775,6 +2815,24 @@ core_values:
         if not self.rbac_guard(path):
             return
 
+        # [2026-09-20] [成员管理交付看板与企业透视改造] 开发者专属：收回成员管辖企业
+        # 铁律：必须先匹配 /projects/{project_id}，防止被下方的成员删除路由截胡
+        m_proj = re.match(r"^/api/admin/members/([^/]+)/projects/([^/]+)$", path)
+        if m_proj:
+            if not self.rbac_is_developer():
+                self.send_json({"success": False, "message": "无此操作权限（开发者专属）"}, status=403)
+                return
+            try:
+                from .rbac import unassign_member_project
+                key = unquote(m_proj.group(1))
+                project_id = unquote(m_proj.group(2))
+                ok, msg = unassign_member_project(key, project_id)
+                self.send_json({"success": ok, "message": msg, "project_id": project_id},
+                               status=200 if ok else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
         # [2026-09-18] [运营人员权限隔离] 开发者专属：移除运营人员
         if path.startswith("/api/admin/members/"):
             if not self.rbac_is_developer():
@@ -3711,17 +3769,20 @@ core_values:
                 return
 
 
-            # [2026-09-18] [运营人员权限隔离] 开发者专属：成员花名册读取
+            # [2026-09-20] [成员管理交付看板与企业透视改造] 开发者专属：带企业透视的成员列表读取
             if path == "/api/admin/members":
                 if not self.rbac_is_developer():
                     self.send_json({"success": False, "message": "无此操作权限（开发者专属）"}, status=403)
                     return
                 try:
                     from .rbac import list_members, load_roster, PERMISSION_CODES
+                    from .perspective import build_members_perspective
+                    raw_members = list_members()
+                    enriched_members = build_members_perspective(raw_members, PROJECTS_DIR)
                     self.send_json({
                         "success": True,
                         "developer_phones": list(load_roster().get("developer_phones", [])),
-                        "members": list_members(),
+                        "members": enriched_members,
                         "permission_codes": list(PERMISSION_CODES),
                     })
                 except Exception as e:

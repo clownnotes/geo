@@ -395,64 +395,27 @@
 </div>
 </section>
 
-<!-- 成员与权限管理（仅开发者可见） -->
+<!-- 成员交付看板（仅开发者可见） -->
 <section id="panel-home-members" class="home-panel hidden space-y-6" data-page-node-id="yTRsHOPqCEYEloBFTzIg6A">
-<header class="geo-page-head" data-page-node-id="w003SrfhmWDfge0ba4nJMD">
+<header class="geo-page-head flex flex-wrap items-center justify-between gap-4" data-page-node-id="w003SrfhmWDfge0ba4nJMD">
 <div data-page-node-id="WMi3PukXwx6BlfqYLfluUw">
 <h1 class="geo-page-title" data-page-node-id="U2fta4w0stL5HT9V257BCG">成员管理</h1>
-<p class="geo-page-desc" data-page-node-id="Z7XTcW5kyEWd2tNSe85eC8">开通运营同事账号、划定其管辖的客户项目与可用的业务功能。运营人员无法进入本页，也无法跨项目访问未授权数据。</p>
+<p class="geo-page-desc" data-page-node-id="Z7XTcW5kyEWd2tNSe85eC8">查看员工交付大盘、透视自建与分配客户、一键增减客户管辖权。</p>
+</div>
+<div class="flex items-center gap-2">
+<button type="button" onclick="openAddMemberModal()" class="geo-btn geo-btn-primary flex items-center gap-1.5">
+<i data-lucide="user-plus" class="w-4 h-4"></i>
+<span>+ 新增成员</span>
+</button>
+<button type="button" onclick="memberLoad()" class="geo-btn flex items-center gap-1.5">
+<i data-lucide="rotate-cw" class="w-4 h-4"></i>
+<span>刷新</span>
+</button>
 </div>
 </header>
 
-<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4 max-w-5xl" data-page-node-id="WJnHTmvaassvQFVpHxu64t">
-<h2 class="text-sm font-bold text-slate-800" data-page-node-id="MbCKCFnENKA36Bbzuzam2k">新增 / 修改运营人员</h2>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-3" data-page-node-id="0B3SMjVFpNaYGZ68UWkV1L">
-<label class="text-xs font-semibold text-slate-600" data-page-node-id="ybPUvLBOZAh5MLSGEOgTNg">姓名
-<input id="member-name" type="text" placeholder="张三" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" data-page-node-id="ao2a9oedKzLeXZ6B77nDSx">
-</label>
-<label class="text-xs font-semibold text-slate-600" data-page-node-id="b1DPnpr5YKuLdfg11LxLNg">手机号
-<input id="member-phone" type="text" placeholder="13900000001" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" data-page-node-id="FQwgL9bwEHLVXgpZCy6AF9">
-</label>
-<label class="text-xs font-semibold text-slate-600" data-page-node-id="qojGXn4acpBATYnC4tOvRP">小毛驴 user_id（选填，建议填）
-<input id="member-uid" type="text" placeholder="1829384756102938475" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" data-page-node-id="uDaVffTHyIR0NF2CKGZcRq">
-</label>
-</div>
-<label class="block text-xs font-semibold text-slate-600" data-page-node-id="lZ03KrAjAuvDsWOgyZ5cJW">管辖项目（多选）
-<select id="member-projects" multiple size="5" class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm" data-page-node-id="jPp4y2bSD1V9WpYHDr4TE9"></select>
-</label>
-<div class="space-y-1" data-page-node-id="7kDHaR2WolcIGMMAzeYMlW">
-<span class="text-xs font-semibold text-slate-600" data-page-node-id="o6BcArDTC5JqinD8LfYFPy">业务权限</span>
-<div id="member-perms" class="flex flex-wrap gap-3 text-sm text-slate-700" data-page-node-id="UVCv9e3XnCQPEiGPkIn4N9"></div>
-</div>
-<div class="flex flex-wrap gap-2 pt-1" data-page-node-id="ztbcOuBNL5fSlmTHg5vKRG">
-<button type="button" onclick="memberSave()" class="geo-btn geo-btn-primary" data-page-node-id="FeIiaehv9BDqTEODaBUQZC">保存成员</button>
-<button type="button" onclick="memberResetForm()" class="geo-btn" data-page-node-id="bMzg8qNBAcmyWqvpCbivkB">清空表单</button>
-<span class="text-[11px] text-slate-500 self-center" data-page-node-id="6WIEACKbPYDylr3OPvRrBK">保存后即刻生效；修改时会按手机号或 user_id 定位已有成员。</span>
-</div>
-</div>
-
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm max-w-5xl overflow-hidden" data-page-node-id="mGmhFspBZuTfgCW77r0Tmz">
-<div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between" data-page-node-id="20hE6WZBOymkoERHxJPIjZ">
-<h2 class="text-sm font-bold text-slate-800" data-page-node-id="ERFGxkAuHa6mHzpNSAL3bZ">运营人员花名册</h2>
-<button type="button" onclick="memberLoad()" class="geo-btn" data-page-node-id="TLRdj9rHlD26d1IOosFn9F">刷新</button>
-</div>
-<div class="overflow-x-auto" data-page-node-id="KI96vy6iAXxg2bNwtuQRvO">
-<table class="w-full text-sm" data-page-node-id="7gdBCnltOggi7ItMs1Pgsr">
-<thead class="bg-slate-50 text-slate-600 text-xs" data-page-node-id="D648nXNhW3wT8tVDxFCcm7">
-<tr data-page-node-id="DomR2D3KzXmFhAH0VGxFse">
-<th class="px-5 py-2 text-left font-semibold" data-page-node-id="GbD3ZLqXRPz1HyhnWSERT9">姓名</th>
-<th class="px-5 py-2 text-left font-semibold" data-page-node-id="SLBaglUa8vlyAoGImspWOh">手机号</th>
-<th class="px-5 py-2 text-left font-semibold" data-page-node-id="YBkvLeEobIoYjNGAHQOl0H">user_id</th>
-<th class="px-5 py-2 text-left font-semibold" data-page-node-id="4avEVD7P5SGLRH8Xcj3qNt">管辖项目</th>
-<th class="px-5 py-2 text-left font-semibold" data-page-node-id="dnLQAyFE2qQR1BUsNYfYcv">权限</th>
-<th class="px-5 py-2 text-left font-semibold" data-page-node-id="pTSI7oblfIIYEXJDFka8kF">状态</th>
-<th class="px-5 py-2 text-left font-semibold" data-page-node-id="sMSMKMnuxyDLsjXv5Xeqeh">操作</th>
-</tr>
-</thead>
-<tbody id="member-table-body" class="divide-y divide-slate-100" data-page-node-id="ev9FMvRkddQNtMaGd8IIwm"></tbody>
-</table>
-</div>
-</div>
+<!-- 员工交付看板卡片流 -->
+<div id="members-cards-container" class="space-y-4 max-w-5xl"></div>
 </section>
 
 <!-- 系统设置 -->
@@ -2097,10 +2060,44 @@
 <button type="button" id="profile-drawer-save" class="py-2 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg" data-page-node-id="RiAwDiOTXVES7CGqV5jA0S">保存修改</button>
 <button type="button" id="profile-drawer-enter" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg" data-page-node-id="MF6GtAP0PHbDKEB5T4pCrf">进入流水线</button>
 <button type="button" id="profile-drawer-zip" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg" data-page-node-id="RCLFkQJndJONRvI15qXwaH">下载 ZIP</button>
-<button type="button" onclick="closeProjectProfileDrawer()" class="py-2 px-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-lg" data-page-node-id="SRqg0O8VN97l6IMvaWj3VD">关闭</button>
 </div>
 </aside>
 </div>
+<!-- ================= 3.9 开通新成员模态弹窗 ================= -->
+<div id="add-member-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+<div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+<h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+<i data-lucide="user-plus" class="w-5 h-5 text-indigo-600"></i>
+<span>开通新成员</span>
+</h3>
+<button type="button" onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-600">
+<i data-lucide="x" class="w-5 h-5"></i>
+</button>
+</div>
+<form onsubmit="handleMemberCreate(event)" class="p-6 space-y-4 text-sm">
+<div>
+<label class="block font-semibold text-slate-700 mb-1">姓名 <span class="text-rose-500">*</span></label>
+<input id="new-member-name" type="text" required placeholder="例如：李四" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+</div>
+<div>
+<label class="block font-semibold text-slate-700 mb-1">手机号 <span class="text-rose-500">*</span></label>
+<input id="new-member-phone" type="tel" required placeholder="例如：13805206070" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+</div>
+<div class="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1">
+<p class="font-medium text-slate-700">开通说明：</p>
+<p>1. 极简开通：仅凭姓名和手机号即可完成成员入职开通；</p>
+<p>2. 权限预赋：默认开通全部五项交付原子权限（词库、AI生成、文章编辑、预览、报告）；</p>
+<p>3. 自动绑定：成员首次登录时系统将自动回写并绑定其小毛驴身份标识。</p>
+</div>
+<div class="flex items-center justify-end gap-3 pt-2">
+<button type="button" onclick="closeAddMemberModal()" class="geo-btn">取消</button>
+<button type="submit" class="geo-btn geo-btn-primary">立即开通</button>
+</div>
+</form>
+</div>
+</div>
+
 <!-- ================= 4. 新建客户项目模态弹窗 ================= -->
 <div id="new-project-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6" data-page-node-id="9elfHAIZk7bfRMehQ5iIvg">
 <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden" data-page-node-id="4NKfhNAGmvb0YxAKOmiMOX">
@@ -5345,13 +5342,8 @@ GitHub 开源仓库：https://github.com/company/repo
     })();
 
     // ---- 成员与权限管理（仅开发者可见） ----
-    const MEMBER_PERM_LABELS = {
-      'keyword:manage': '词库管理',
-      'ai:generate': 'AI 生成',
-      'article:edit': '文章编辑',
-      'preview:view': '站点预览',
-      'report:view': '报告查看'
-    };
+    // ---- 成员交付看板管理（仅开发者可见） ----
+    let membersCache = [];
 
     function memberAuthHeaders(json) {
       const h = { 'Authorization': `Bearer ${currentAuthToken}` };
@@ -5360,111 +5352,339 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     function memberInitForm() {
-      const sel = document.getElementById('member-projects');
-      if (sel && typeof projectsCache !== 'undefined' && projectsCache.length) {
-        const cur = Array.from(sel.selectedOptions || []).map(o => o.value);
-        sel.innerHTML = projectsCache.map(p =>
-          `<option value="${p.client_id}">${p.client_name} (${p.client_id})</option>`).join('');
-        cur.forEach(v => { const o = sel.querySelector(`option[value="${v}"]`); if (o) o.selected = true; });
-      }
-      const box = document.getElementById('member-perms');
-      if (box && !box.dataset.ready) {
-        box.innerHTML = Object.keys(MEMBER_PERM_LABELS).map(code =>
-          `<label class="inline-flex items-center gap-1.5"><input type="checkbox" value="${code}" class="rounded border-slate-300"> ${MEMBER_PERM_LABELS[code]}</label>`
-        ).join('');
-        box.dataset.ready = '1';
-      }
+      // 保留空函数，保证 switchHomeView 调用不报错
     }
 
     function memberResetForm() {
-      const ids = ['member-name', 'member-phone', 'member-uid'];
-      ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-      const sel = document.getElementById('member-projects');
-      if (sel) Array.from(sel.options).forEach(o => { o.selected = false; });
-      const box = document.getElementById('member-perms');
-      if (box) Array.from(box.querySelectorAll('input[type=checkbox]')).forEach(c => { c.checked = false; });
+      // 保留空函数
     }
 
-    async function memberSave() {
-      const phone = (document.getElementById('member-phone')?.value || '').trim();
-      const uid = (document.getElementById('member-uid')?.value || '').trim();
-      if (!phone && !uid) { showToast('手机号与 user_id 至少填一个', 'error'); return; }
-      const sel = document.getElementById('member-projects');
-      const allowed_projects = sel ? Array.from(sel.selectedOptions).map(o => o.value) : [];
-      const box = document.getElementById('member-perms');
-      const permissions = box ? Array.from(box.querySelectorAll('input[type=checkbox]:checked')).map(c => c.value) : [];
+    function openAddMemberModal() {
+      const modal = document.getElementById('add-member-modal');
+      if (modal) {
+        const nameInput = document.getElementById('new-member-name');
+        const phoneInput = document.getElementById('new-member-phone');
+        if (nameInput) nameInput.value = '';
+        if (phoneInput) phoneInput.value = '';
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+      }
+    }
+
+    function closeAddMemberModal() {
+      const modal = document.getElementById('add-member-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function handleMemberCreate(e) {
+      if (e) e.preventDefault();
+      const name = (document.getElementById('new-member-name')?.value || '').trim();
+      const phone = (document.getElementById('new-member-phone')?.value || '').trim();
+      if (!name) {
+        showToast('请填写成员姓名', 'error');
+        return;
+      }
+      if (!phone) {
+        showToast('请填写成员手机号', 'error');
+        return;
+      }
       try {
         const res = await fetch('/api/admin/members', {
           method: 'POST',
           headers: memberAuthHeaders(true),
-          body: JSON.stringify({
-            name: (document.getElementById('member-name')?.value || '').trim(),
-            phone: phone,
-            user_id: uid,
-            allowed_projects: allowed_projects,
-            permissions: permissions
-          })
+          body: JSON.stringify({ name, phone, allowed_projects: [] })
         });
         const d = await res.json();
-        if (d.success) { showToast('成员已保存', 'success'); memberResetForm(); memberLoad(); }
-        else showToast(d.message || '保存失败', 'error');
-      } catch (e) { showToast('保存失败: ' + e.message, 'error'); }
+        if (d.success) {
+          showToast('成员开通成功', 'success');
+          closeAddMemberModal();
+          memberLoad();
+        } else {
+          showToast(d.message || '开通失败', 'error');
+        }
+      } catch (err) {
+        showToast('开通失败: ' + err.message, 'error');
+      }
+    }
+
+    function getMemberProjectProgress(p) {
+      if (p.steps_done >= 5) {
+        return { text: '已结案', cls: 'bg-emerald-50 text-emerald-700 border border-emerald-200' };
+      }
+      if (p.probe_status === 'unprobed') {
+        return { text: '还在豆包摸底', cls: 'bg-amber-50 text-amber-700 border border-amber-200' };
+      }
+      if (p.probe_status === 'baseline_ready' && (!p.steps_done || p.steps_done === 0)) {
+        return { text: '豆包答案已存进项目', cls: 'bg-sky-50 text-sky-700 border border-sky-200' };
+      }
+      if (p.probe_status === 'awaiting_retest' && (!p.steps_done || p.steps_done === 0)) {
+        return { text: '待复测', cls: 'bg-purple-50 text-purple-700 border border-purple-200' };
+      }
+      if (p.steps_done > 0) {
+        return {
+          text: `交付第 ${p.steps_done} 步 / 共 5 步 · 已完成 ${p.progress_pct}%`,
+          cls: 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+        };
+      }
+      return { text: '交付准备中', cls: 'bg-slate-100 text-slate-600 border border-slate-200' };
     }
 
     async function memberLoad() {
+      const container = document.getElementById('members-cards-container');
+      if (!container) return;
       try {
         const res = await fetch('/api/admin/members', { headers: memberAuthHeaders(false) });
         const d = await res.json();
-        if (!d.success) { showToast(d.message || '加载失败', 'error'); return; }
-        const tbody = document.getElementById('member-table-body');
-        if (!tbody) return;
-        const list = d.members || [];
-        if (!list.length) {
-          tbody.innerHTML = '<tr><td colspan="7" class="px-5 py-4 text-slate-400">暂无运营人员，请在上方添加。</td></tr>';
+        if (!d.success) {
+          showToast(d.message || '加载失败', 'error');
           return;
         }
-        tbody.innerHTML = list.map(m => {
-          const perms = (m.permissions || []).map(p => MEMBER_PERM_LABELS[p] || p).join('、') || '—';
-          const projs = (m.allowed_projects || []).join('、') || '—';
-          const active = m.status === 'active';
+        membersCache = d.members || [];
+        if (!membersCache.length) {
+          container.innerHTML = `
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-8 text-center space-y-3">
+              <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400">
+                <i data-lucide="users" class="w-6 h-6"></i>
+              </div>
+              <p class="text-sm font-medium text-slate-700">暂无运营人员</p>
+              <p class="text-xs text-slate-400">点击上方【+ 新增成员】按钮，输入姓名与手机号即可极简开通。</p>
+              <div>
+                <button type="button" onclick="openAddMemberModal()" class="geo-btn geo-btn-primary text-xs">立即新增成员</button>
+              </div>
+            </div>`;
+          lucide.createIcons();
+          return;
+        }
+
+        container.innerHTML = membersCache.map(m => {
           const key = m.phone || m.user_id || '';
-          return `<tr>
-            <td class="px-5 py-2">${m.name || '—'}</td>
-            <td class="px-5 py-2 font-mono text-xs">${m.phone || '—'}</td>
-            <td class="px-5 py-2 font-mono text-xs">${m.user_id || '—'}</td>
-            <td class="px-5 py-2 text-xs">${projs}</td>
-            <td class="px-5 py-2 text-xs">${perms}</td>
-            <td class="px-5 py-2"><span class="${active ? 'text-emerald-600' : 'text-slate-400'}">${active ? '启用' : '停用'}</span></td>
-            <td class="px-5 py-2 whitespace-nowrap">
-              <button type="button" class="geo-btn" onclick="memberToggle('${key}','${active ? 'disabled' : 'active'}')">${active ? '停用' : '启用'}</button>
-              <button type="button" class="geo-btn" onclick="memberRemove('${key}')">删除</button>
-            </td>
-          </tr>`;
+          const active = m.status === 'active';
+          const projects = m.projects || [];
+          const totalCount = m.total_count ?? projects.length;
+          const selfCreatedCount = m.self_created_count ?? 0;
+          const assignedCount = m.assigned_count ?? (totalCount - selfCreatedCount);
+
+          let projectsHtml = '';
+          if (!projects.length) {
+            projectsHtml = `
+              <div class="text-xs text-slate-400 py-4 text-center bg-slate-50/60 rounded-lg border border-dashed border-slate-200">
+                暂未管辖任何企业，可点击上方【+ 分配企业】追加。
+              </div>`;
+          } else {
+            projectsHtml = `
+              <div class="grid grid-cols-1 gap-2.5">
+                ${projects.map(p => {
+                  const prog = getMemberProjectProgress(p);
+                  return `
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 bg-white hover:border-slate-300 transition">
+                      <div class="flex flex-wrap items-center gap-2 min-w-0">
+                        <button type="button" onclick="enterWizard('${escapeHtmlSafe(p.client_id)}')" class="font-semibold text-xs text-slate-800 hover:text-indigo-600 truncate text-left" title="点击进入该项目交付流水线">
+                          ${escapeHtmlSafe(p.client_name)}
+                        </button>
+                        <span class="font-mono text-[11px] text-slate-400">(${escapeHtmlSafe(p.client_id)})</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded font-medium ${p.is_self_created ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                          ${escapeHtmlSafe(p.origin_label || (p.is_self_created ? '自建' : '老板分配'))}
+                        </span>
+                        <span class="text-[11px] px-2 py-0.5 rounded font-medium ${prog.cls}">
+                          ${prog.text}
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-[11px] text-slate-400" title="最近活动时间">
+                          ${p.updated_at ? escapeHtmlSafe(p.updated_at) : '暂无活动记录'}
+                        </span>
+                        <button type="button" onclick="memberUnassignProject('${escapeHtmlSafe(key)}', '${escapeHtmlSafe(p.client_id)}', '${escapeHtmlSafe(p.client_name)}')" class="text-xs text-slate-400 hover:text-rose-600 px-2 py-0.5 rounded hover:bg-rose-50 transition" title="收回该企业管辖权">
+                          收回
+                        </button>
+                      </div>
+                    </div>`;
+                }).join('')}
+              </div>`;
+          }
+
+          return `
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4" data-member-key="${escapeHtmlSafe(key)}">
+              <!-- 头部：姓名、手机号、状态与启停删除 -->
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div class="flex flex-wrap items-center gap-2.5">
+                  <span class="text-base font-bold text-slate-900">${escapeHtmlSafe(m.name || '未命名')}</span>
+                  <span class="font-mono text-xs text-slate-500">${escapeHtmlSafe(m.phone || '无手机号')}</span>
+                  ${m.user_id ? `<span class="font-mono text-[11px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded" title="小毛驴身份标识">UID: ${escapeHtmlSafe(m.user_id)}</span>` : `<span class="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">待首次登录绑定UID</span>`}
+                  <span class="text-xs px-2 py-0.5 rounded font-medium ${active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
+                    ${active ? '正常' : '停用'}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" class="geo-btn text-xs py-1" onclick="memberToggle('${escapeHtmlSafe(key)}','${active ? 'disabled' : 'active'}')">${active ? '停用' : '启用'}</button>
+                  <button type="button" class="geo-btn text-xs py-1 text-rose-600 hover:text-rose-700" onclick="memberRemove('${escapeHtmlSafe(key)}')">删除成员</button>
+                </div>
+              </div>
+
+              <!-- 统计栏与分配操作 -->
+              <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50/80 px-4 py-2.5 rounded-lg border border-slate-100">
+                <div class="text-xs text-slate-700">
+                  负责客户 <span class="font-bold text-slate-900">${totalCount}</span> 家
+                  <span class="text-slate-400 mx-1">（</span>
+                  自建 <span class="font-bold text-indigo-600">${selfCreatedCount}</span> 家
+                  <span class="text-slate-400 mx-1">·</span>
+                  分配 <span class="font-bold text-slate-600">${assignedCount}</span> 家
+                  <span class="text-slate-400 mx-1">）</span>
+                </div>
+                <div class="relative">
+                  <button type="button" class="geo-btn text-xs py-1 text-indigo-600 border-indigo-200 hover:bg-indigo-50 flex items-center gap-1" onclick="toggleAssignDropdown('${escapeHtmlSafe(key)}')">
+                    <span>+ 分配企业</span>
+                  </button>
+                  <div id="assign-dropdown-${escapeHtmlSafe(key)}" class="hidden absolute right-0 mt-1 w-80 bg-white rounded-xl shadow-xl border border-slate-200 p-3 z-30 space-y-2 text-left">
+                    <div class="text-xs font-bold text-slate-800 pb-1 border-b border-slate-100 flex items-center justify-between">
+                      <span>选择要分配的企业</span>
+                      <button type="button" onclick="closeAssignDropdown('${escapeHtmlSafe(key)}')" class="text-slate-400 hover:text-slate-600">×</button>
+                    </div>
+                    <input type="text" placeholder="搜索企业名称或代号..." oninput="filterAssignDropdown('${escapeHtmlSafe(key)}', this.value)" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                    <div id="assign-list-${escapeHtmlSafe(key)}" class="max-h-48 overflow-y-auto space-y-1 text-xs divide-y divide-slate-50">
+                      <!-- 动态填充 -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 企业透视列表 -->
+              <div class="space-y-2">
+                <div class="text-xs font-semibold text-slate-600">管辖企业交付透视</div>
+                ${projectsHtml}
+              </div>
+            </div>`;
         }).join('');
-      } catch (e) { showToast('加载失败: ' + e.message, 'error'); }
+        lucide.createIcons();
+      } catch (err) {
+        showToast('加载失败: ' + err.message, 'error');
+      }
+    }
+
+    function toggleAssignDropdown(key) {
+      const dropdown = document.getElementById(`assign-dropdown-${key}`);
+      if (!dropdown) return;
+      const isHidden = dropdown.classList.contains('hidden');
+      document.querySelectorAll('[id^="assign-dropdown-"]').forEach(el => el.classList.add('hidden'));
+      if (isHidden) {
+        dropdown.classList.remove('hidden');
+        renderAssignOptions(key);
+      }
+    }
+
+    function closeAssignDropdown(key) {
+      const dropdown = document.getElementById(`assign-dropdown-${key}`);
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    function renderAssignOptions(key, keyword = '') {
+      const listEl = document.getElementById(`assign-list-${key}`);
+      if (!listEl) return;
+      const member = membersCache.find(m => (m.phone || m.user_id) === key);
+      const assignedSet = new Set((member?.projects || []).map(p => p.client_id));
+      const allProjects = Array.isArray(projectsCache) ? projectsCache : [];
+      const available = allProjects.filter(p => !assignedSet.has(p.client_id));
+
+      const kw = (keyword || '').trim().toLowerCase();
+      const filtered = kw ? available.filter(p =>
+        (p.client_id || '').toLowerCase().includes(kw) ||
+        (p.client_name || '').toLowerCase().includes(kw)
+      ) : available;
+
+      if (!filtered.length) {
+        listEl.innerHTML = `<div class="py-3 text-center text-slate-400 text-xs">${kw ? '无匹配企业' : '所有企业均已在管辖名单中'}</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(p => `
+        <div class="py-1.5 px-2 hover:bg-slate-50 rounded flex items-center justify-between gap-2 cursor-pointer" onclick="memberAssignProject('${escapeHtmlSafe(key)}', '${escapeHtmlSafe(p.client_id)}')">
+          <div class="truncate">
+            <span class="font-medium text-slate-800">${escapeHtmlSafe(p.client_name)}</span>
+            <span class="text-[11px] text-slate-400 font-mono">(${escapeHtmlSafe(p.client_id)})</span>
+          </div>
+          <button type="button" class="text-indigo-600 hover:text-indigo-700 text-xs shrink-0 font-medium">+ 分配</button>
+        </div>
+      `).join('');
+    }
+
+    function filterAssignDropdown(key, val) {
+      renderAssignOptions(key, val);
+    }
+
+    async function memberAssignProject(key, projectId) {
+      try {
+        const res = await fetch(`/api/admin/members/${encodeURIComponent(key)}/projects`, {
+          method: 'POST',
+          headers: memberAuthHeaders(true),
+          body: JSON.stringify({ project_id: projectId })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('已成功分配企业管辖', 'success');
+          closeAssignDropdown(key);
+          memberLoad();
+        } else {
+          showToast(d.message || '分配失败', 'error');
+        }
+      } catch (err) {
+        showToast('分配失败: ' + err.message, 'error');
+      }
+    }
+
+    async function memberUnassignProject(key, projectId, clientName) {
+      if (!confirm(`确认收回该成员对企业 [${clientName || projectId}] 的管辖权？`)) return;
+      try {
+        const res = await fetch(`/api/admin/members/${encodeURIComponent(key)}/projects/${encodeURIComponent(projectId)}`, {
+          method: 'DELETE',
+          headers: memberAuthHeaders(false)
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('已收回企业管辖权', 'success');
+          memberLoad();
+        } else {
+          showToast(d.message || '收回失败', 'error');
+        }
+      } catch (err) {
+        showToast('收回失败: ' + err.message, 'error');
+      }
     }
 
     async function memberToggle(key, status) {
       try {
         const res = await fetch(`/api/admin/members/${encodeURIComponent(key)}`, {
-          method: 'PUT', headers: memberAuthHeaders(true), body: JSON.stringify({ status: status })
+          method: 'PUT',
+          headers: memberAuthHeaders(true),
+          body: JSON.stringify({ status: status })
         });
         const d = await res.json();
-        if (d.success) { showToast(status === 'active' ? '已启用' : '已停用', 'success'); memberLoad(); }
-        else showToast(d.message || '操作失败', 'error');
-      } catch (e) { showToast('操作失败: ' + e.message, 'error'); }
+        if (d.success) {
+          showToast(status === 'active' ? '已启用' : '已停用', 'success');
+          memberLoad();
+        } else {
+          showToast(d.message || '操作失败', 'error');
+        }
+      } catch (e) {
+        showToast('操作失败: ' + e.message, 'error');
+      }
     }
 
     async function memberRemove(key) {
-      if (!confirm(`确认移除成员 [${key}] ？该操作不可撤销。`)) return;
+      if (!confirm(`确认删除成员 [${key}] ？该操作不可撤销。`)) return;
       try {
         const res = await fetch(`/api/admin/members/${encodeURIComponent(key)}`, {
-          method: 'DELETE', headers: memberAuthHeaders(false)
+          method: 'DELETE',
+          headers: memberAuthHeaders(false)
         });
         const d = await res.json();
-        if (d.success) { showToast('已移除', 'success'); memberLoad(); }
-        else showToast(d.message || '删除失败', 'error');
-      } catch (e) { showToast('删除失败: ' + e.message, 'error'); }
+        if (d.success) {
+          showToast('已删除成员', 'success');
+          memberLoad();
+        } else {
+          showToast(d.message || '删除失败', 'error');
+        }
+      } catch (e) {
+        showToast('删除失败: ' + e.message, 'error');
+      }
     }
 
     function getStep0BridgeProps() {
