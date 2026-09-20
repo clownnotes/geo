@@ -95,6 +95,27 @@ def create_session(username: str, user_id: str = "", phone: str = "", role: str 
     save_sessions(ACTIVE_SESSIONS)
     return token
 
+def revoke_sessions_for(user_id: str = "", phone: str = "") -> int:
+    """吊销某人的全部活跃会话（离职 / 停用 / 可疑抓取时调用）。返回吊销条数。"""
+    user_id = str(user_id or "").strip()
+    phone = str(phone or "").strip()
+    if not user_id and not phone:
+        return 0
+    removed = 0
+    for token, sess in list(ACTIVE_SESSIONS.items()):
+        hit = False
+        if user_id and str(sess.get("user_id", "")).strip() == user_id:
+            hit = True
+        elif phone and str(sess.get("phone", "")).strip() == phone:
+            hit = True
+        if hit:
+            ACTIVE_SESSIONS.pop(token, None)
+            removed += 1
+    if removed:
+        save_sessions(ACTIVE_SESSIONS)
+    return removed
+
+
 def is_authenticated(token: str) -> bool:
     global ACTIVE_SESSIONS
     if not token:
@@ -236,7 +257,11 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         # 1. 尝试从 Authorization Header 获取
         auth_header = self.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
-            return auth_header[7:].strip()
+            # [2026-09-19] [运营账号反AI抓取] 空 Bearer 必须继续回落到 Cookie，
+            # 否则「登录票不再从 /api/auth/status 下发」之后，纯 Cookie 会话会被判成未登录。
+            bearer = auth_header[7:].strip()
+            if bearer:
+                return bearer
         # 2. 尝试从 URL query 获取
         if "?" in self.path:
             try:
@@ -289,7 +314,14 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         if not token or not is_authenticated(token):
             return False
         ident = self.rbac_identity()
-        return bool(ident and getattr(ident, "matched", False))
+        if not (ident and getattr(ident, "matched", False)):
+            return False
+        # [2026-09-19] [运营账号反AI抓取] 花名册里已被停用的成员：立刻吊销其全部会话。
+        # 否则「离职后 30 天会话仍然有效」这条口子会一直开着。
+        if not ident.is_developer and getattr(ident, "status", "") == "disabled":
+            revoke_sessions_for(user_id=ident.user_id, phone=ident.phone)
+            return False
+        return True
 
     def _serve_login_page(self):
         """下发纯净独立的未登录页面 web/login.html"""
@@ -324,6 +356,28 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         # 1. 检查是否有有效登录凭证
         authed = self.check_auth()
         if authed:
+            # [2026-09-19] [运营账号反AI抓取] 已登录运营：先过反抓取护栏，再放行。
+            # 开发者不受限流与审计约束；审计只记 /api/ 调用，静态资源不入日志。
+            try:
+                from . import opsguard
+            except Exception:
+                opsguard = None
+            if opsguard is not None:
+                ident = self.rbac_identity()
+                ok, st, msg = opsguard.check(ident, path, method)
+                if not ok:
+                    if str(path).startswith("/api/"):
+                        opsguard.record(ident, method, path, st, {"ip": self.get_client_ip()})
+                    self.send_json({
+                        "success": False,
+                        "code": st,
+                        "message": msg,
+                        "msg": msg,
+                        "data": None,
+                    }, status=st)
+                    return False
+                if str(path).startswith("/api/"):
+                    opsguard.record(ident, method, path, 200, {"ip": self.get_client_ip()})
             # 已登录且命中花名册有效人员：总门放行
             return True
 
@@ -506,6 +560,16 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             }, headers={"Set-Cookie": "geo_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax"})
             return
 
+        # [2026-09-19] [运营账号反AI抓取] /api/share/** 是给甲方客户的公开面，
+        # 但它整条链路排在路由守卫之前。运营一旦登录就能自建分享票再下整包，
+        # 把 /export 与 /acceptance/download-zip 的开发者锁全部绕开。
+        # 规则：带登录态的非开发者访问 /api/share/** 一律 404；匿名客户不受影响。
+        if path.startswith("/api/share/"):
+            _sh_ident = self.rbac_identity()
+            if _sh_ident and getattr(_sh_ident, "matched", False) and not _sh_ident.is_developer:
+                self._serve_404_not_found()
+                return
+
         # 专属甲方只读沙箱实时测序公开 API: /api/share/{token}/simulate
         if path.startswith("/api/share/") and path.endswith("/simulate"):
             parts = path.split("/")
@@ -559,6 +623,20 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
                 ok, msg, record = upsert_member(self.read_json_body())
                 self.send_json({"success": ok, "message": msg, "member": record},
                                status=200 if ok else 400)
+            except Exception as e:
+                self.send_json({"success": False, "message": str(e)}, status=500)
+            return
+
+        # [2026-09-19] [运营账号反AI抓取] 开发者一键吊销某人全部会话（离职 / 可疑抓取）
+        if path == "/api/admin/sessions/revoke":
+            if not self.rbac_is_developer():
+                self.send_json({"success": False, "message": "无此操作权限（开发者专属）"}, status=403)
+                return
+            try:
+                body = self.read_json_body()
+                n = revoke_sessions_for(user_id=str(body.get("user_id") or ""),
+                                        phone=str(body.get("phone") or ""))
+                self.send_json({"success": True, "revoked": n, "message": f"已吊销 {n} 条会话"})
             except Exception as e:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
@@ -1877,6 +1955,39 @@ core_values:
                 self.send_json({"success": False, "message": str(e)}, status=500)
             return
 
+        # [2026-09-19] 阶段四小毛驴智能改写成稿: POST /api/projects/{id}/answer-rewrite/ai-generate
+        if path.startswith("/api/projects/") and path.endswith("/answer-rewrite/ai-generate"):
+            project_id = path.split("/")[3]
+            try:
+                body = self.read_json_body() if hasattr(self, "read_json_body") else {}
+                if not isinstance(body, dict):
+                    body = {}
+                channel = (body.get("channel") or "toutiao").strip() or "toutiao"
+                from .answer_audit import generate_channel_article_ai
+                res = generate_channel_article_ai(project_id, channel=channel)
+                status = 200 if res.get("success") else 500
+                self.send_json(res, status=status)
+            except Exception as e:
+                self.send_json({"success": False, "message": "这次没改好，请再点一次"}, status=500)
+            return
+
+        # [2026-09-19] 阶段四在线编辑保存定稿: POST /api/projects/{id}/answer-rewrite/save-final
+        if path.startswith("/api/projects/") and path.endswith("/answer-rewrite/save-final"):
+            project_id = path.split("/")[3]
+            try:
+                body = self.read_json_body() if hasattr(self, "read_json_body") else {}
+                if not isinstance(body, dict):
+                    body = {}
+                channel = (body.get("channel") or "toutiao").strip() or "toutiao"
+                content = str(body.get("content") or "")
+                from .answer_audit import save_channel_final
+                res = save_channel_final(project_id, channel=channel, content=content)
+                status = 200 if res.get("success") else 400
+                self.send_json(res, status=status)
+            except Exception as e:
+                self.send_json({"success": False, "message": "定稿保存失败，请稍后重试"}, status=500)
+            return
+
         # 一键生成今日头条/微头条发稿包: /api/projects/{id}/toutiao/build
         if path.startswith("/api/projects/") and path.endswith("/toutiao/build"):
             project_id = path.split("/")[3]
@@ -2799,6 +2910,15 @@ core_values:
         if not self.console_gate(path, "GET"):
             return
 
+        # [2026-09-19] [运营账号反AI抓取] /api/share/** 只服务匿名甲方客户。
+        # 带登录态的运营一律 404：这批分支排在路由守卫之前，此前可以绕过
+        # /export 的开发者锁，用 /api/share/{token}/download 把整个 outputs 打成 ZIP 抱走。
+        if path.startswith("/api/share/"):
+            _sh_ident = self.rbac_identity()
+            if _sh_ident and getattr(_sh_ident, "matched", False) and not _sh_ident.is_developer:
+                self._serve_404_not_found()
+                return
+
         # 1. 检查鉴权状态 API
         if path == "/api/auth/status":
             token = self.get_auth_token()
@@ -2825,20 +2945,26 @@ core_values:
 
             # [2026-09-18] [运营人员权限隔离] 权限以本地花名册为唯一权威源下发，上游 role 不参与鉴权
             _ident = self.rbac_identity()
-            repo_root = os.path.abspath(PROJECT_ROOT)
-            self.send_json({
+            # [2026-09-19] [运营账号反AI抓取] 登录票与仓库绝对路径只对开发者下发。
+            # 运营拿到 token 就能整根拔走、贴进自己的 AI/脚本绕开界面打全站接口；
+            # 仓库路径则直接暴露机房结构。运营侧一律改用 HttpOnly Cookie 维持会话。
+            _is_dev = bool(_ident and _ident.is_developer)
+            payload = {
                 "authenticated": authed,
                 "username": user,
                 "user_id": user_id,
                 "role": role,
                 "credits": credits,
-                "token": token if authed else "",
-                "repo_root": repo_root,
-                "cd_cmd": f"cd {shlex.quote(repo_root)}",
-                "is_developer": bool(_ident and _ident.is_developer),
+                "is_developer": _is_dev,
                 "allowed_projects": list(_ident.allowed_projects) if _ident else [],
                 "permissions": list(_ident.permissions) if _ident else [],
-            }, headers=_set_cookie_headers)
+            }
+            if _is_dev:
+                repo_root = os.path.abspath(PROJECT_ROOT)
+                payload["token"] = token if authed else ""
+                payload["repo_root"] = repo_root
+                payload["cd_cmd"] = f"cd {shlex.quote(repo_root)}"
+            self.send_json(payload, headers=_set_cookie_headers)
             return
 
         # 1.1 [2026-09-18] [接入小毛驴统一API] 用户画像接口 (GET /api/v1/xiulan/me 或 /api/auth/me)
@@ -2994,6 +3120,15 @@ core_values:
                 self.end_headers()
                 self.wfile.write(b"400 Bad Request: Invalid project_id format")
                 return
+
+            # [2026-09-19] [运营账号反AI抓取] 已登录运营也必须按 allowed_projects 裁剪。
+            # 本分支排在路由守卫之前，此前任何已登录运营都能枚举 /sites/{任意客户}/ 拉整站。
+            # 未授权返回 404（不是 403），避免泄露「这个客户站是否存在」。
+            _site_ident = self.rbac_identity()
+            if not (_site_ident and getattr(_site_ident, "is_developer", False)):
+                if not (_site_ident and project_id in (_site_ident.allowed_projects or [])):
+                    self._serve_404_not_found()
+                    return
 
             proj_dir = os.path.join(PROJECTS_DIR, project_id)
             site_dir = os.path.join(proj_dir, "outputs", "site")
@@ -4243,8 +4378,24 @@ server {{
                 try:
                     query_params = parse_qs(parsed.query)
                     channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
-                    from .answer_audit import build_rewrite_brief
-                    self.send_json(build_rewrite_brief(project_id, channel=channel))
+                    from .answer_audit import build_rewrite_brief, sanitize_brief_for_operator
+                    brief = build_rewrite_brief(project_id, channel=channel)
+                    # [2026-09-19] 运营端脱敏：移除模具、禁写条、写回路径与底层规范
+                    if not self.rbac_is_developer():
+                        brief = sanitize_brief_for_operator(brief)
+                    self.send_json(brief)
+                except Exception as e:
+                    self.send_json({"success": False, "message": str(e)}, status=500)
+                return
+
+            # [2026-09-19] 在线工作台当前草稿或定稿正文读取: GET /api/projects/{id}/answer-rewrite/content?channel=toutiao
+            if path.startswith("/api/projects/") and path.endswith("/answer-rewrite/content"):
+                project_id = path.split("/")[3]
+                try:
+                    query_params = parse_qs(parsed.query)
+                    channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
+                    from .answer_audit import load_channel_content
+                    self.send_json(load_channel_content(project_id, channel=channel))
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
@@ -4310,7 +4461,11 @@ server {{
                     query_params = parse_qs(parsed.query)
                     channel = (query_params.get("channel") or ["toutiao"])[0] or "toutiao"
                     from .answer_audit import check_writeback_status
-                    self.send_json(check_writeback_status(project_id, channel=channel))
+                    wb_res = check_writeback_status(project_id, channel=channel)
+                    if not self.rbac_is_developer():
+                        wb_res.pop("writeback_path", None)
+                        wb_res.pop("source_file", None)
+                    self.send_json(wb_res)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)
                 return
@@ -5133,6 +5288,17 @@ server {{
                 # URL 解码并使用 basename 防止路径穿越攻击（支持中文字符）
                 raw_filename = unquote("/".join(parts[5:]))
                 filename = os.path.basename(raw_filename)
+                # [2026-09-19] [运营账号反AI抓取] 运营读产出文件改白名单。
+                # 原黑名单只挡 9因子/语料/prompt/SOP/.py，漏掉了躺在 outputs/ 里的
+                # *_archive.zip 整包归档与 probe_script_*.json 等配方资产，
+                # 配 ?raw=1 即可原样下载整包。现改为只放行纯成品文本。
+                if not self.rbac_is_developer():
+                    from .answer_audit import operator_may_read_output
+                    if not operator_may_read_output(filename):
+                        from .opsguard import record_sensitive_denial
+                        record_sensitive_denial(self.rbac_identity(), path)
+                        self.send_json({"success": False, "code": "FORBIDDEN", "message": "该文件属于核心技术资产，非开发者不可直接读取"}, status=403)
+                        return
                 try:
                     cfg = load_project_config(project_id)
                     out_dir = os.path.realpath(cfg["_outputs_dir"])

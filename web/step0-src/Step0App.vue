@@ -11,23 +11,16 @@
 
     <!-- 步骤 1, 2, 3 主列表 -->
     <ol class="space-y-3 text-xs text-slate-700 list-none p-0 m-0">
-      <!-- 第 1 步：让 Cursor 写出要问的题 -->
+      <!-- 第 1 步：在本页准备要问的题 -->
       <ProbeStep1
-        :project-id="projectId"
         :is-retest="isRetest"
         :step1-blurb-text="step1BlurbText"
-        :copy-prompt-label="copyPromptLabel"
         :script-hint-text="scriptHintText"
         :generating-script="generatingScript"
-        :cd-cmd-text="cdCmdText"
-        :script-cmd-text="scriptCmdText"
-        @copy-quality-prompt="copyQualityPrompt"
         @generate-script="generateScript"
-        @copy-cmd="copyCmd"
-        @copy-cursor-prompt="copyCursorPrompt"
       />
 
-      <!-- 第 2 步：反重力去豆包问完题 -->
+      <!-- 第 2 步：去豆包问 -->
       <ProbeStep2
         :scripts="scripts"
         :selected-script-file="selectedScriptFile"
@@ -35,16 +28,11 @@
         :probe-status="probeStatus"
         :active-script="activeScript"
         :script-kind-text="scriptKindText"
-        :script-path-rel="scriptPathRel"
-        :script-path-abs="scriptPathAbs"
         :expected-result="expectedResult"
         :checking-disk="checkingDisk"
         @refresh-script-list="refresh({ asScriptCheck: true })"
         @select-script="selectScriptFile"
         @delete-script="deleteScriptFile"
-        @copy-antigravity-prompt="copyAntigravityPrompt"
-        @copy-antigravity-save-prompt="copyAntigravitySavePrompt"
-        @copy-cmd="copyCmd"
         @check-result-on-disk="checkResultOnDisk"
       />
 
@@ -68,12 +56,10 @@
         @delete-result="deleteResultFile"
         @update:merge="merge = $event"
         @update:write-topics="writeTopics = $event"
-        @copy-preview-for-ide="copyPreviewForIde"
         @preview-from-disk="previewFromDisk"
         @apply-from-disk="applyFromDisk"
         @preview-upload="previewUpload"
         @apply-upload="applyUpload"
-        @copy-cmd="copyCmd"
       />
     </ol>
 
@@ -149,14 +135,9 @@ const {
   deleteScriptFile,
   copyQualityPrompt,
   generateScript,
-  copyCmd,
-  copyCursorPrompt,
-  copyAntigravityPrompt,
-  copyAntigravitySavePrompt,
   checkResultOnDisk,
   selectResultFile,
   deleteResultFile,
-  copyPreviewForIde,
   previewFromDisk,
   applyFromDisk,
   previewUpload,

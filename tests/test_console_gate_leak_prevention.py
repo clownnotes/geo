@@ -10,11 +10,14 @@
 """
 
 import os
+import sys
 import unittest
 import urllib.request
 import urllib.error
 import json
 import time
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 SERVER_URL = os.environ.get("GEO_TEST_SERVER", "http://127.0.0.1:8088")
 

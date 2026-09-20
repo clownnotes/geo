@@ -80,7 +80,7 @@ defineProps({
   emptyText: {
     type: String,
     default:
-      '还没有要问豆包的问题清单文件。若刚在 Cursor 聊天中出了题，请在对话框回复「可以落盘」，保存文件后再点「刷新列表」。',
+      '还没有要问豆包的问题清单文件。请先在本页生成问题清单，再点「刷新列表」。',
   },
   errorText: { type: String, default: '读取问题清单失败' },
   kindLabel: { type: Function, required: true },

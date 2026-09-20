@@ -9,6 +9,7 @@ __pycache__/
 data/shares.json
 data/sessions.json
 .sessions.json
+data/operator_audit.jsonl
 gateway/config.yaml
 gateway/gateway
 .env

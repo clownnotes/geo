@@ -9,18 +9,12 @@ import {
   step1Blurb,
   scriptHint,
   baselineMeta,
-  cdCmd,
-  probeScriptCmd,
-  expectedResultAbs,
-  outputsAbs,
-  cursorPromptText,
-  qualityPromptText,
-  antigravityPromptText,
-  antigravitySavePromptText,
-  buildPreviewCopyText,
   syncExpectedResultUI,
   uploadExpectedText,
   scriptKindLabel,
+  outputsAbs,
+  cdCmd,
+  probeScriptCmd,
 } from './plainCopy.js';
 
 function defaultEscapeHtml(s) {
@@ -125,10 +119,6 @@ export function useStep0(bridge) {
   const cdCmdText = computed(() => cdCmd(geoCdCmd.value, geoRepoRoot.value, guide.value));
 
   const scriptCmdText = computed(() => probeScriptCmd(projectId.value));
-
-  const cursorPrompt = computed(() =>
-    cursorPromptText(projectId.value, geoCdCmd.value, geoRepoRoot.value, guide.value),
-  );
 
   const scripts = computed(() =>
     guide.value && Array.isArray(guide.value.scripts) ? guide.value.scripts : [],
@@ -437,7 +427,7 @@ export function useStep0(bridge) {
             'warning',
           );
         } else {
-          toast('还没有豆包结果文件：请先让反重力问完并写文件', 'error');
+          toast('还没有豆包结果文件：请先按第 2 步问完豆包并写好文件', 'error');
         }
       } else if (asScriptCheck) {
         if (hasQuestionList) {
@@ -446,7 +436,7 @@ export function useStep0(bridge) {
             'success',
           );
         } else {
-          toast('还没有要问豆包的问题清单。请先做第 1 步让 Cursor 写题并保存。', 'error');
+          toast('还没有要问豆包的问题清单。请先做第 1 步在本页生成并保存。', 'error');
         }
       } else if (!silent) {
         const q = hasQuestionList
@@ -544,15 +534,7 @@ export function useStep0(bridge) {
   }
 
   async function copyQualityPrompt() {
-    try {
-      await fetchGuide();
-    } catch {
-      /* fallback to projectData */
-    }
-    const st = resolveProbeStatus(guide.value, projectData.value);
-    const mode = st === 'baseline_ready' || st === 'awaiting_retest' ? '复测' : '首轮';
-    const text = qualityPromptText(projectId.value, st, projectData.value);
-    await copyText(text, `已复制：高质量出题提示词（${mode} · probe_status=${st}）`);
+    toast(UI.refuseExternalCopy, 'info');
   }
 
   async function generateScript(btnState) {
@@ -760,30 +742,19 @@ export function useStep0(bridge) {
   }
 
   async function copyAntigravityPrompt() {
-    const text = antigravityPromptText(projectId.value, activeScript.value);
-    await copyText(text, '已复制①怎么问 → 贴反重力后，务必再 @ 问题清单文件');
+    toast(UI.refuseExternalCopy, 'info');
   }
 
   async function copyAntigravitySavePrompt() {
-    const text = antigravitySavePromptText(
-      projectId.value,
-      activeScript.value,
-      guide.value,
-      geoRepoRoot.value,
-    );
-    await copyText(text, '已复制②收工说明书 → 再贴同一反重力对话，等它写完文件');
+    toast(UI.refuseExternalCopy, 'info');
   }
 
   async function copyCursorPrompt() {
-    await copyText(cursorPrompt.value, '已复制：给 Cursor 执行该命令');
+    toast(UI.refuseExternalCopy, 'info');
   }
 
   async function copyPreviewForIde() {
-    if (!previewCopyText.value) {
-      toast('还没有可复制的预览，先选文件并刷新预览', 'error');
-      return;
-    }
-    await copyText(previewCopyText.value, '已复制侦察摘要 → 可直接贴给 IDE');
+    toast(UI.refuseExternalCopy, 'info');
   }
 
   function goStep1() {
@@ -818,7 +789,6 @@ export function useStep0(bridge) {
     scriptHintText,
     cdCmdText,
     scriptCmdText,
-    cursorPrompt,
     scripts,
     results,
     expectedResult,
@@ -850,19 +820,5 @@ export function useStep0(bridge) {
     copyPreviewForIde,
     goStep1,
     refreshLucide,
-    qualityPromptText: () =>
-      qualityPromptText(
-        projectId.value,
-        resolveProbeStatus(guide.value, projectData.value),
-        projectData.value,
-      ),
-    antigravityPromptText: () => antigravityPromptText(projectId.value, activeScript.value),
-    antigravitySavePromptText: () =>
-      antigravitySavePromptText(
-        projectId.value,
-        activeScript.value,
-        guide.value,
-        geoRepoRoot.value,
-      ),
   };
 }

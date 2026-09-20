@@ -461,6 +461,17 @@ ROUTE_DEVELOPER_VERBS = frozenset({
 ROUTE_DEVELOPER_SUFFIXES = (
     "/delete",          # shutil.rmtree 直接删项目
     "/site/download",
+    # [2026-09-19] [运营端去IDE化与小毛驴算力内嵌闭环] 配方口、整包下载与机房配置仅开发者专属
+    "/answer-rewrite/ide-pack",
+    "/answer-rewrite/writeback-cmd",
+    "/answer-audit/ide-clipboard",
+    "/diag/deepen-prompt",
+    "/diag/boss-audit-pack",
+    "/export",
+    "/acceptance/download-zip",
+    "/site/nginx-conf",
+    # [2026-09-19] [运营账号反AI抓取] 分享票自建：运营不得给自己开后门再下整包
+    "/share/create",
 )
 
 # C 档：项目级动作 -> 原子权限映射（顺序敏感，长后缀优先）
@@ -559,27 +570,28 @@ ROUTE_PERMISSION_SUFFIXES = (
     ("/pitch/print", "report:view"),
     ("/acceptance/data", "report:view"),
     ("/acceptance/print", "report:view"),
-    ("/acceptance/download-zip", "report:view"),
+    # /acceptance/download-zip 已移入 ROUTE_DEVELOPER_SUFFIXES
     ("/certificate", "report:view"),
     ("/report/print", "report:view"),
     ("/benchmark", "report:view"),
     ("/history", "report:view"),
     ("/meta", "report:view"),  # 读；POST 改归属见 _is_developer_route
-    ("/export", "report:view"),
-    ("/export-audit-html", "report:view"),
-    ("/diag/boss-audit-pack", "report:view"),
-    ("/diag/deepen-prompt", "report:view"),
+    # /export 已移入 ROUTE_DEVELOPER_SUFFIXES
+    ("/export-audit-html", "report:view"),  # 客户单份体检报告，保留给运营
+    # /diag/boss-audit-pack 与 /diag/deepen-prompt 已移入 ROUTE_DEVELOPER_SUFFIXES
     ("/diag/probe-answer-audit", "report:view"),
+    # [2026-09-19] [运营端去IDE化与小毛驴算力内嵌闭环] 在线改写闭环接口
     ("/answer-rewrite/brief", "report:view"),
-    ("/answer-rewrite/ide-pack", "report:view"),
-    ("/answer-rewrite/writeback-cmd", "article:edit"),
+    ("/answer-rewrite/content", "report:view"),
+    ("/answer-rewrite/ai-generate", "ai:generate"),
+    ("/answer-rewrite/save-final", "article:edit"),
     ("/answer-rewrite/writeback-status", "report:view"),
-    ("/answer-audit/ide-clipboard", "report:view"),
+    # /answer-rewrite/ide-pack, /answer-rewrite/writeback-cmd, /answer-audit/ide-clipboard 已移入 ROUTE_DEVELOPER_SUFFIXES
     ("/distribute/latest-log", "report:view"),
     ("/monitor/metrics", "report:view"),
-    ("/monitor/prompts", "report:view"),
+    ("/monitor/prompts", "report:view"),  # 真机实测试题，保留给运营
     ("/site/status", "preview:view"),
-    ("/site/nginx-conf", "preview:view"),
+    # /site/nginx-conf 已移入 ROUTE_DEVELOPER_SUFFIXES
     ("/tasks", "ai:generate"),
     ("/reports", "report:view"),
     ("/bundles", "report:view"),
@@ -617,7 +629,10 @@ ROUTE_PERMISSION_SUBSTRINGS = (
     ("/distribution/rich-content/", "report:view", None),
 )
 
-# 只读兜底：以上未命中时按通用后缀判为只读
+# 已打过「仅靠兜底放行」警告的路径，避免每条请求刷日志
+_READONLY_FALLBACK_WARNED = set()
+
+# 只读兜底：以上未命中时按通用后缀判为只读（仅 GET 生效）
 ROUTE_READONLY_SUFFIXES = (
     "/status", "/report", "/report30", "/data", "/svg", "/query",
     "/preview", "/copy", "/readme", "/llms", "/whitepaper", "/baike", "/qa",
@@ -634,7 +649,12 @@ _PROJECT_ROUTE_RE = re.compile(r"^/api/(?:v1/)?projects/([^/]+)(/.*)?$")
 
 
 def _match_permission(path, method=None):
-    """按后缀 -> 子串(方法感知) -> 通用只读后缀的顺序匹配所需原子权限。未登记返回 None。"""
+    """按后缀 -> 子串(方法感知) -> 通用只读后缀的顺序匹配所需原子权限。未登记返回 None。
+
+    // [2026-09-19] [运营账号反AI抓取] 通用只读兜底只对 GET 生效。
+    原实现对任意方法（含 POST/PUT/DELETE）都判给 report:view，等于给运营开了一扇
+    「写操作自动放行」的后门，且与 design.md 的 fail-closed 原则冲突。
+    """
     method = (method or "GET").upper()
     for suffix, perm in ROUTE_PERMISSION_SUFFIXES:
         if path.endswith(suffix):
@@ -642,8 +662,14 @@ def _match_permission(path, method=None):
     for substr, perm, verb in ROUTE_PERMISSION_SUBSTRINGS:
         if substr in path and (verb is None or verb == method):
             return perm
+    if method != "GET":
+        # 非只读方法一律不兜底 -> 落 fail-closed，仅开发者可用
+        return None
     for suffix in ROUTE_READONLY_SUFFIXES:
         if path.endswith(suffix):
+            if path not in _READONLY_FALLBACK_WARNED:
+                _READONLY_FALLBACK_WARNED.add(path)
+                logger.warning("[RBAC] 路由仅靠只读兜底放行，开发者应显式登记: GET %s", path)
             return "report:view"
     return None
 

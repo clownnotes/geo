@@ -4,7 +4,7 @@
 
     <div class="text-[11px] text-slate-600 leading-relaxed bg-indigo-50/60 border border-indigo-100 rounded-lg px-3 py-2.5 space-y-1.5">
       <p class="font-semibold text-slate-800">这一步在干什么？（一句话）</p>
-      <p>反重力已经把答案写成了一个 JSON 文件。现在你要告诉管理台：「就用这个文件」，先<strong>看一眼会改什么</strong>，觉得没问题再<strong>真正写进去</strong>。</p>
+      <p>豆包问完后，结果会写成一个文件。你在这里选中它，先看一眼会改什么，觉得没问题再确认写入。</p>
       <p class="text-slate-500">比喻：作业本在桌上了（第 2 步落盘）。第 3 步是：选哪本作业本 → 先翻开看一眼 → 再交到老师那里存档。</p>
       <p class="text-amber-800">下面 A、B、C 三个按钮都在本卡片里往下滚就能看到，不是藏在别处。</p>
     </div>
@@ -32,7 +32,7 @@
           <div v-if="resultListState === 'loading'" class="text-slate-400">加载中…</div>
           <div v-else-if="resultListState === 'error'" class="text-amber-700">无法读取已存在结果列表。</div>
           <div v-else-if="!results.length" class="text-amber-700">
-            目前还没有任何结果文件。请先做完第 2 步让反重力落盘，再点「刷新列表」。
+            目前还没有任何结果文件。先做完第 2 步去豆包问完，再点「刷新列表」。
           </div>
           <template v-else>
             <div
@@ -111,22 +111,13 @@
           </div>
           <button
             type="button"
-            class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-            :disabled="!previewCopyText"
-            @click="$emit('copy-preview-for-ide')"
+            class="w-full sm:w-auto px-4 py-2.5 rounded-lg border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-[11px] font-semibold flex items-center justify-center gap-1.5"
+            @click="$emit('preview-from-disk')"
           >
-            一键复制给 IDE
-          </button>
-        </div>
-
-        <button
-          type="button"
-          class="w-full sm:w-auto px-4 py-2.5 rounded-lg border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-[11px] font-semibold flex items-center justify-center gap-1.5"
-          @click="$emit('preview-from-disk')"
-        >
           <i data-lucide="eye" class="w-3.5 h-3.5"></i>
           <span>刷新预览</span>
         </button>
+        </div>
 
         <div
           v-if="previewData"
@@ -196,7 +187,7 @@
         </div>
         <p class="text-[10px] text-slate-500 leading-relaxed">
           <strong class="text-rose-700">红色「还没把豆包答案存进项目」</strong> = 新建客户，或还没点过上面的「确认写入」——这时只能写「第一次要问的题」。<br />
-          <strong class="text-emerald-700">绿色「豆包答案已存进项目」</strong> = 第 3 步已经把某份豆包结果存进去了——这才是摸底存档，不是 Cursor 写的题目。之后出题会变成「再测一遍」。<br />
+          <strong class="text-emerald-700">绿色「豆包答案已存进项目」</strong> = 第 3 步已经把某份豆包结果存进去了。这才是摸底存档。之后出题会变成「再测一遍」。<br />
           点「重新检查进度」只是再读一遍电脑和项目状态；不会凭空变出豆包答案。
         </p>
         <p v-if="baselineMetaText" class="text-[10px] font-mono text-slate-400 break-all">
@@ -214,10 +205,9 @@
         </div>
       </div>
 
-      <!-- 备用：上传与CLI -->
       <details class="bg-white border border-dashed border-slate-200 rounded-lg p-3">
         <summary class="text-[11px] font-semibold text-slate-600 cursor-pointer select-none">
-          备用：本机上传文件 / CLI（一般不用）
+          备用：从本机选一个结果文件上传
         </summary>
         <div class="mt-2 space-y-2">
           <input
@@ -240,32 +230,6 @@
               @click="$emit('apply-upload', fileInputRef)"
             >
               上传后确认回填
-            </button>
-          </div>
-
-          <div class="flex flex-wrap items-stretch gap-2">
-            <div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
-              <code class="flex-1 break-all select-all">{{ cmdPreview }}</code>
-            </div>
-            <button
-              type="button"
-              class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold"
-              @click="$emit('copy-cmd', cmdPreview)"
-            >
-              复制
-            </button>
-          </div>
-
-          <div class="flex flex-wrap items-stretch gap-2">
-            <div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
-              <code class="flex-1 break-all select-all">{{ cmdApply }}</code>
-            </div>
-            <button
-              type="button"
-              class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold"
-              @click="$emit('copy-cmd', cmdApply)"
-            >
-              复制
             </button>
           </div>
         </div>
@@ -299,12 +263,10 @@ const emit = defineEmits([
   'delete-result',
   'update:merge',
   'update:write-topics',
-  'copy-preview-for-ide',
   'preview-from-disk',
   'apply-from-disk',
   'preview-upload',
   'apply-upload',
-  'copy-cmd',
 ]);
 
 const localMerge = ref(props.merge);
