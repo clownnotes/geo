@@ -483,6 +483,7 @@ def append_member_allowed_project(user_id=None, phone=None, project_id=None):
 
 # A 档：公开白名单（无需登录即可访问）
 ROUTE_PUBLIC = frozenset({
+    "/api/auth/status",
     "/api/auth/login",
     "/api/v1/xiulan/login",
     "/api/v1/sessions",
@@ -514,6 +515,8 @@ ROUTE_AUTHENTICATED = frozenset({
     ("/api/portfolio/summary", "GET"),
     ("/api/portfolio/report", "GET"),
     ("/api/portfolio/patrol", "POST"),  # 只读健康扫描，不发 Webhook
+    # 行业大盘对标：只读公开汇总
+    ("/api/benchmark/industries", "GET"),
 })
 
 # B 档：开发者专属（运营一律 403）
@@ -666,6 +669,7 @@ ROUTE_PERMISSION_SUFFIXES = (
     ("/answer-rewrite/writeback-status", "report:view"),
     # /answer-rewrite/ide-pack, /answer-rewrite/writeback-cmd, /answer-audit/ide-clipboard 已移入 ROUTE_DEVELOPER_SUFFIXES
     ("/distribute/latest-log", "report:view"),
+    ("/publish/preview", "report:view"),
     ("/monitor/metrics", "report:view"),
     ("/monitor/prompts", "report:view"),  # 真机实测试题，保留给运营
     ("/site/status", "preview:view"),
@@ -895,6 +899,7 @@ def filter_check_ledger(payload, identity):
         "overdue": sum(1 for r in rows if r.get("status") == "overdue"),
         "warn": sum(1 for r in rows if r.get("status") == "warn"),
         "ok": sum(1 for r in rows if r.get("status") == "ok"),
+        "sov_alert_count": sum(1 for r in rows if r.get("sov_alert")),
         "total": len(rows),
     }
 

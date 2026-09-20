@@ -122,6 +122,12 @@ def _policy_from_settings(settings: dict | None = None) -> dict:
         "overdue_days": float(s.get("overdue_days", 14) or 14),
         "min_manual_keywords": int(s.get("min_manual_keywords", 1) or 1),
         "overdue_webhook_enabled": bool(s.get("overdue_webhook_enabled", False)),
+        # 与 patrol.check_alert_conditions 同源，避免台账用默认阈值、通知页用另一套
+        "min_sov_threshold": float(s.get("min_sov_threshold", 50.0) or 50.0),
+        "drop_threshold_pct": float(s.get("drop_threshold_pct", 15.0) or 15.0),
+        "notify_on_sov_drop": bool(s.get("notify_on_sov_drop", True)),
+        "notify_on_intercept": bool(s.get("notify_on_intercept", True)),
+        "notify_on_placeholder": bool(s.get("notify_on_placeholder", True)),
     }
 
 
@@ -208,6 +214,59 @@ def build_check_ledger(now: datetime | None = None) -> dict:
             sample_note = ""
             if valid and kw_count <= 1:
                 sample_note = "样本量小，仅供参考"
+
+            # // [2026-09-20] [运营端仪表盘角色视角改造] 提取豆包位次与声量异动状态
+            doubao_rank = None
+            doubao_rank_label = "暂无数据"
+            out_dir = cfg.get("_outputs_dir", "")
+            probes_file = os.path.join(out_dir, "05_manual_probes.json")
+            if os.path.exists(probes_file):
+                try:
+                    with open(probes_file, "r", encoding="utf-8") as pf:
+                        pdata = json.load(pf)
+                    if isinstance(pdata, dict) and pdata:
+                        target_rec = None
+                        for k, v in pdata.items():
+                            if isinstance(v, dict):
+                                m = str(v.get("model") or "").lower()
+                                if "doubao" in m:
+                                    target_rec = v
+                                    break
+                        if not target_rec:
+                            for k, v in pdata.items():
+                                if isinstance(v, dict):
+                                    target_rec = v
+                                    break
+                        if target_rec:
+                            r = target_rec.get("rank")
+                            mentioned = target_rec.get("mentioned", True)
+                            if not mentioned or r == 0:
+                                doubao_rank = 0
+                                doubao_rank_label = "未上榜"
+                            elif r is not None and isinstance(r, (int, float)) and 1 <= r <= 10:
+                                doubao_rank = int(r)
+                                doubao_rank_label = f"豆包第 {int(r)} 位"
+                except Exception:
+                    pass
+
+            sov_alert = False
+            alert_reason = ""
+            try:
+                from .patrol import get_project_history, check_alert_conditions
+                hist = get_project_history(item, limit=12)
+                if hist:
+                    cur = hist[-1]
+                    sov_alert, alert_reason, _ = check_alert_conditions(cur, hist, policy, cfg)
+                    if doubao_rank is None and cur.get("top3_pct", 0) > 0:
+                        doubao_rank_label = f"Top3率 {int(cur.get('top3_pct', 0))}%"
+                elif sov is not None:
+                    min_thresh = float(policy.get("min_sov_threshold", 50.0) or 50.0)
+                    if sov < min_thresh and sov > 0:
+                        sov_alert = True
+                        alert_reason = f"当前声量 ({sov}%) 低于安全线 ({min_thresh}%)"
+            except Exception:
+                pass
+
             rows.append({
                 "project_id": item,
                 "client_name": cfg.get("client_name") or cfg.get("company_name") or item,
@@ -216,6 +275,10 @@ def build_check_ledger(now: datetime | None = None) -> dict:
                 "manual_keyword_count": unique_kw,
                 "last_event_keyword_count": kw_count,
                 "last_sov_pct": sov,
+                "doubao_rank": doubao_rank,
+                "doubao_rank_label": doubao_rank_label,
+                "sov_alert": sov_alert,
+                "alert_reason": alert_reason,
                 "sample_note": sample_note,
                 "days_since": round(days, 2) if days is not None else None,
             })
@@ -227,6 +290,7 @@ def build_check_ledger(now: datetime | None = None) -> dict:
         "overdue": sum(1 for r in rows if r["status"] == "overdue"),
         "warn": sum(1 for r in rows if r["status"] == "warn"),
         "ok": sum(1 for r in rows if r["status"] == "ok"),
+        "sov_alert_count": sum(1 for r in rows if r.get("sov_alert")),
         "total": len(rows),
     }
     return {

@@ -125,10 +125,14 @@
 <section id="panel-home-dashboard" class="home-panel space-y-6" data-page-node-id="9bs8dm5ZXdSARdjEK83lrF">
 <header class="geo-page-head" data-page-node-id="UnBXPgxQhGF3cA7TJ19uqZ">
 <div data-page-node-id="f6Mu9XaYy92j8ce901EfG6">
-<h1 class="geo-page-title" data-page-node-id="d7hew6UyNjSp6W5kNGd1iB">仪表盘</h1>
-<p class="geo-page-desc" data-page-node-id="t3s9eHbT9PuUSjFlUXhOYI">一眼看全局健康与商业数字；客户档案请到「企业管理」。</p>
+<h1 class="geo-page-title" id="dashboard-main-title" data-page-node-id="d7hew6UyNjSp6W5kNGd1iB">仪表盘</h1>
+<p class="geo-page-desc" id="dashboard-desc-dev" data-geo-dev-only data-page-node-id="t3s9eHbT9PuUSjFlUXhOYI">一眼看全局健康与商业数字；客户档案请到「企业管理」。</p>
+<p class="geo-page-desc hidden" id="dashboard-desc-ops" data-page-node-id="dashboardDescOps">今天先看哪家企业要真机、哪家声量掉了；点进去就能开工。</p>
 </div>
 </header>
+
+<!-- 开发者专属大盘板块 (data-geo-dev-only) -->
+<div id="dashboard-dev-section" data-geo-dev-only class="space-y-6">
 <div id="home-patrol-alert" class="geo-alert flex flex-wrap items-center justify-between gap-3" data-page-node-id="HKmYs6CeYGJZ5mlUkKXdyA">
 <div class="flex items-start gap-3 min-w-0" data-page-node-id="Hy0HUZzBcrSaJ7EKcaBwAk">
 <span class="geo-status-dot geo-status-warn shrink-0 mt-1" data-page-node-id="HYHjHFwdyLCxWH0Pc9iBKX"></span>
@@ -167,6 +171,77 @@
 </div>
 <div id="attention-list" class="divide-y divide-slate-100 text-sm" data-page-node-id="V47YucUBNqYFpm134nltMd">
 <div class="px-5 py-4 text-slate-400 text-xs" data-page-node-id="dSj4SIO0PA2Nno11fOwIpO">加载中...</div>
+</div>
+</div>
+</div>
+
+<!-- 运营专属作业看板板块 (仅非开发者呈现) -->
+<div id="dashboard-ops-section" class="space-y-6 hidden">
+<div class="geo-alert flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-start gap-3 min-w-0">
+<span class="geo-status-dot geo-status-ok shrink-0 mt-1"></span>
+<div>
+<div class="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
+真机实测作业引导
+<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'ops_probe_badge')" title="查看说明" aria-label="查看说明">?</button>
+</div>
+<p class="text-xs text-slate-600 mt-0.5">
+用手机打开豆包等大模型提问，把回答复制回来粘贴；系统会按回填天数自动计算绿黄红灯。
+</p>
+</div>
+</div>
+<button type="button" class="geo-btn shrink-0" onclick="switchHomeView('home-ops')" title="查看各企业检测日志与台账详情">检测台账详情</button>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" title="分给你负责的客户家数">
+<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+<span>我的管辖企业</span>
+<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'ops_stat_my_projects')" title="查看含义" aria-label="查看含义">?</button>
+</div>
+<div id="ops-stat-my-projects" class="text-2xl font-bold text-slate-900 mt-1">0</div>
+<div class="text-[11px] text-slate-400 mt-0.5">已分配管辖名单</div>
+</div>
+
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" title="超过 14 天没回填、或从没回填过；需要你拿手机问豆包并粘贴答案">
+<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+<span>待真机实测</span>
+<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'ops_stat_need_probe')" title="查看含义" aria-label="查看含义">?</button>
+</div>
+<div id="ops-stat-need-probe" class="text-2xl font-bold text-rose-600 mt-1">0</div>
+<div class="text-[11px] text-slate-400 mt-0.5">已逾期或从未真机</div>
+</div>
+
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" title="交付流水线还没走到最后一步的客户">
+<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+<span>未完成交付</span>
+<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'ops_stat_pending_stage')" title="查看含义" aria-label="查看含义">?</button>
+</div>
+<div id="ops-stat-pending-stage" class="text-2xl font-bold text-amber-600 mt-1">0</div>
+<div class="text-[11px] text-slate-400 mt-0.5">阶段进度不足 5 步</div>
+</div>
+
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" title="豆包里品牌声量掉了或跌出前排；点待办行可看位次并去复测">
+<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+<span>声量异常数</span>
+<button type="button" class="geo-metric-hint" onclick="toggleMetricHint(event,'ops_stat_sov_alert')" title="查看含义" aria-label="查看含义">?</button>
+</div>
+<div id="ops-stat-sov-alert" class="text-2xl font-bold text-indigo-600 mt-1">0</div>
+<div class="text-[11px] text-slate-400 mt-0.5">跌破安全线或环比突降</div>
+</div>
+</div>
+
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+<div>
+<h2 class="text-sm font-bold text-slate-900">今日待办与企业卡点</h2>
+<p class="text-xs text-slate-500 mt-0.5">优先处理：真机逾期、声量掉榜</p>
+</div>
+<button type="button" class="text-xs text-indigo-600 font-semibold" onclick="switchHomeView('home-enterprises')">全部企业</button>
+</div>
+<div id="ops-action-list" class="divide-y divide-slate-100 text-sm">
+<div class="px-5 py-4 text-slate-400 text-xs">加载中...</div>
+</div>
 </div>
 </div>
 </section>
@@ -5303,6 +5378,20 @@ GitHub 开源仓库：https://github.com/company/repo
         if (isDeveloper()) descOps.classList.add('hidden');
         else descOps.classList.remove('hidden');
       }
+      // // [2026-09-20] [运营端仪表盘角色视角改造] 仪表盘角色视图与说明互斥切换
+      const descDashOps = document.getElementById('dashboard-desc-ops');
+      if (descDashOps) {
+        if (isDeveloper()) descDashOps.classList.add('hidden');
+        else descDashOps.classList.remove('hidden');
+      }
+      const opsSection = document.getElementById('dashboard-ops-section');
+      if (opsSection) {
+        if (isDeveloper()) opsSection.classList.add('hidden');
+        else {
+          opsSection.classList.remove('hidden');
+          renderOpsDashboard();
+        }
+      }
       // 运营不按合作方筛客户，始终看自己白名单内的全部企业
       if (!isDeveloper()) {
         const pf = document.getElementById('ent-filter-partner');
@@ -6327,11 +6416,16 @@ GitHub 开源仓库：https://github.com/company/repo
       }
     }
 
+    // [2026-09-20] [去真机回填轻量化与403拦截修复] 归属大模型问答探针 (mon-probing) 业务场景，仪表盘直接打开真机回填框，避免调用 enterWizard 导致预载非授权阶段产物与 403 报警
     async function openManualCheckForProject(projectId) {
-      await enterWizard(projectId, 'mon-probing');
-      setTimeout(() => {
-        try { openManualProbeModal(); } catch (e) {}
-      }, 400);
+      currentProjectId = projectId;
+      currentViewId = 'mon-probing';
+      try {
+        await openManualProbeModal();
+      } catch (e) {
+        console.error('打开真机回填框失败:', e);
+        showToast('打不开真机回填框，请重试', 'error');
+      }
     }
 
     // 登录处理（小毛驴统一账号：手机号+密码）
@@ -6649,8 +6743,13 @@ GitHub 开源仓库：https://github.com/company/repo
         const doneEl = document.getElementById('stat-completed-projects');
         if (totalEl) totalEl.innerText = list.length;
         if (doneEl) doneEl.innerText = list.filter(p => p.steps_done === 5).length;
-        loadPortfolioSummaryForDashboard();
-        renderAttentionList(list);
+        // // [2026-09-20] [运营端仪表盘角色视角改造] 角色分流：开发者调财务大盘与全量关注，运营端调专属作业看板
+        if (isDeveloper()) {
+          loadPortfolioSummaryForDashboard();
+          renderAttentionList(list);
+        } else {
+          renderOpsDashboard();
+        }
         fillIndustryFilter(list);
         fillInsightsProjectSelect();
         fillCollabProjectSelect();
@@ -6658,6 +6757,145 @@ GitHub 开源仓库：https://github.com/company/repo
       } catch (err) {
         console.error(err);
       }
+    }
+
+    // // [2026-09-20] [运营端仪表盘角色视角改造] 运营端专属作业看板与待办台账渲染
+    async function renderOpsDashboard() {
+      if (isDeveloper()) return;
+      const myCountEl = document.getElementById('ops-stat-my-projects');
+      const needProbeEl = document.getElementById('ops-stat-need-probe');
+      const pendingStageEl = document.getElementById('ops-stat-pending-stage');
+      const sovAlertEl = document.getElementById('ops-stat-sov-alert');
+      const listEl = document.getElementById('ops-action-list');
+
+      const list = projectsCache || [];
+      if (myCountEl) myCountEl.innerText = list.length;
+      if (pendingStageEl) pendingStageEl.innerText = list.filter(p => (p.steps_done || 0) < 5).length;
+
+      let ledgerMap = {};
+      let alertCount = 0;
+      let needProbeCount = 0;
+      try {
+        const res = await fetch('/api/ops/check-ledger', {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const d = await res.json();
+        if (d && d.success) {
+          (d.rows || []).forEach(r => {
+            ledgerMap[r.project_id] = r;
+          });
+          if (d.summary) {
+            alertCount = d.summary.sov_alert_count || 0;
+            needProbeCount = (d.summary.never || 0) + (d.summary.overdue || 0);
+          }
+        }
+      } catch (e) {
+        console.error('加载运营待办台账失败:', e);
+      }
+
+      if (needProbeEl) needProbeEl.innerText = needProbeCount;
+      if (sovAlertEl) sovAlertEl.innerText = alertCount;
+
+      if (!listEl) return;
+      if (!list.length) {
+        listEl.innerHTML = '<div class="px-5 py-6 text-center text-slate-400 text-xs">暂无分配给您的管辖企业。</div>';
+        return;
+      }
+
+      // 优先级排序：声量异常且真机逾期(1) > 仅真机逾期/从未(2) > 仅声量异常(3) > 其余未结案(4) > 其余已结案(5)
+      const decorated = list.map(p => {
+        const led = ledgerMap[p.client_id] || {};
+        const probeStatus = led.status || 'never';
+        const isProbeIssue = (probeStatus === 'never' || probeStatus === 'overdue');
+        const isSovAlert = Boolean(led.sov_alert);
+        let priority = 4;
+        if (isSovAlert && isProbeIssue) priority = 1;
+        else if (isProbeIssue) priority = 2;
+        else if (isSovAlert) priority = 3;
+        else if ((p.steps_done || 0) < 5) priority = 4;
+        else priority = 5;
+
+        return {
+          project: p,
+          ledger: led,
+          priority: priority,
+          probeStatus: probeStatus,
+          isSovAlert: isSovAlert,
+        };
+      });
+
+      decorated.sort((a, b) => a.priority - b.priority);
+
+      listEl.innerHTML = decorated.map(item => {
+        const p = item.project;
+        const led = item.ledger;
+        const st = item.probeStatus;
+
+        let statusBadgeCls = 'bg-slate-800 text-white border-slate-800';
+        let statusLabel = '从未真机';
+        let probeHint = '还没有有效真机回填';
+        if (st === 'ok') {
+          statusBadgeCls = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+          statusLabel = '正常';
+          probeHint = (led.days_since !== null && led.days_since !== undefined) ? `距上次回填 ${led.days_since} 天` : '窗口期内';
+        } else if (st === 'warn') {
+          statusBadgeCls = 'bg-amber-50 text-amber-800 border-amber-200';
+          statusLabel = '将逾期';
+          probeHint = (led.days_since !== null && led.days_since !== undefined) ? `距上次回填 ${led.days_since} 天，临近预警` : '请尽快复测';
+        } else if (st === 'overdue') {
+          statusBadgeCls = 'bg-rose-50 text-rose-700 border-rose-200';
+          statusLabel = '已逾期';
+          probeHint = (led.days_since !== null && led.days_since !== undefined) ? `已超 ${led.days_since} 天未回填` : '超过 14 天未回填';
+        }
+
+        const rankLabel = led.doubao_rank_label || '暂无数据';
+        const sovVal = (led.last_sov_pct !== null && led.last_sov_pct !== undefined) ? `声量 ${led.last_sov_pct}%` : '声量 —';
+
+        let alertBadgeHtml = '';
+        if (item.isSovAlert) {
+          // 界面主句用人话：把内部缩写 SOV 换成「声量」
+          const reasonRaw = String(led.alert_reason || '声量异常');
+          const reason = reasonRaw.replace(/\bSOV\b/g, '声量');
+          alertBadgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200" title="系统对比历史发现声量掉了或排名掉了；建议尽快真机复测确认。 ${escapeHtmlSafe(reason)}">声量异常</span>`;
+        } else {
+          alertBadgeHtml = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-50 text-slate-500 border border-slate-200" title="系统对比历史发现声量掉了或排名掉了；建议尽快真机复测确认">正常</span>';
+        }
+
+        let btnHtml = '';
+        if (st === 'never' || st === 'overdue') {
+          // 必须打开粘贴框，禁止 enterWizard(..., 5) 误进「阶段五验收」
+          btnHtml = `<button type="button" onclick="openManualCheckForProject('${p.client_id}')" class="geo-btn geo-btn-primary shrink-0" title="用手机打开豆包提问，把完整回答复制回来粘贴">去真机回填</button>`;
+        } else {
+          btnHtml = `<button type="button" onclick="enterWizard('${p.client_id}')" class="geo-btn shrink-0" title="打开这家客户的交付步骤（摸底、写稿、监测等）">进入流水线</button>`;
+        }
+
+        const stepsDone = p.steps_done || 0;
+        const progressCls = stepsDone === 5 ? 'text-emerald-600 font-medium' : 'text-slate-600';
+
+        return `
+          <div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition">
+            <div class="min-w-0 space-y-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-slate-900 text-sm">${escapeHtmlSafe(p.client_name)}</span>
+                <span class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full font-semibold border ${statusBadgeCls}" title="颜色按距上次你粘贴豆包答案的天数自动算，不是手点的">${statusLabel}</span>
+                ${alertBadgeHtml}
+              </div>
+              <div class="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                <span title="豆包最近实测排位">${escapeHtmlSafe(rankLabel)}</span>
+                <span class="text-slate-300">·</span>
+                <span>${escapeHtmlSafe(sovVal)}</span>
+                <span class="text-slate-300">·</span>
+                <span class="${progressCls}">阶段进度 ${stepsDone}/5</span>
+                <span class="text-slate-300">·</span>
+                <span class="text-slate-400">${escapeHtmlSafe(probeHint)}</span>
+              </div>
+            </div>
+            <div class="shrink-0 flex items-center gap-2">
+              ${btnHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function fillIndustryFilter(list) {
@@ -7958,6 +8196,38 @@ function backToDashboard() {
       ops_overdue_status: {
         title: '真机逾期状态',
         body: '从未真机：还没有有效真机回填。将逾期：距上次有效真机 ≥ 将逾期天数。已逾期：≥ 已逾期天数。正常：在窗口内。有效 = 真机模式且词数达到最少要求。'
+      },
+      ops_stat_my_projects: {
+        title: '我的管辖企业',
+        body: '分给你负责的客户家数。'
+      },
+      ops_stat_need_probe: {
+        title: '待真机实测',
+        body: '超过 14 天没回填、或从没回填过；需要你拿手机问豆包并粘贴答案。'
+      },
+      ops_stat_pending_stage: {
+        title: '未完成交付',
+        body: '交付流水线还没走到最后一步的客户。'
+      },
+      ops_stat_sov_alert: {
+        title: '声量异常数',
+        body: '豆包里品牌声量掉了或跌出前排；点待办行可看位次并去复测。'
+      },
+      ops_probe_badge: {
+        title: '真机检测状态',
+        body: '颜色按距上次你粘贴豆包答案的天数自动算，不是手点的。<br>绿灯：7天内测过；黄灯：7~14天未测；红灯：超14天未测；黑灰：从未真机。'
+      },
+      ops_sov_alert_badge: {
+        title: '声量异常说明',
+        body: '系统对比历史发现声量掉了或排名掉了；建议尽快真机复测确认。'
+      },
+      ops_action_probe: {
+        title: '去真机回填',
+        body: '用手机打开豆包提问，把完整回答复制回来粘贴。'
+      },
+      ops_action_wizard: {
+        title: '进入流水线',
+        body: '打开这家客户的交付步骤（摸底、写稿、监测等）。'
       }
     };
 
@@ -9096,8 +9366,10 @@ function backToDashboard() {
       } else {
         loadScaffoldTab(currentScaffoldTab);
       }
-      // Step 3
-      loadMarkdownToElem('03_普林斯顿9因子高权威语料库.md', 'preview-step-3');
+      // Step 3 (语料库属于核心配方资产，仅开发者可直接读取，运营端跳过预载防403报错)
+      if (isDeveloper()) {
+        loadMarkdownToElem('03_普林斯顿9因子高权威语料库.md', 'preview-step-3');
+      }
       // Step 4
       loadDistributionLedger();
       loadFidelityScoresForCards();
@@ -9434,6 +9706,11 @@ function backToDashboard() {
         loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
         if (typeof loadProjectRoiEvaluation === 'function') loadProjectRoiEvaluation();
         if (typeof loadAcceptanceData === 'function') loadAcceptanceData();
+        // [2026-09-20] [真机回填即时刷新] 若在仪表盘回填，即时刷新待办大盘与企业红黄绿灯
+        const dashView = document.getElementById('dashboard-view');
+        if (dashView && !dashView.classList.contains('hidden')) {
+          if (typeof renderOpsDashboard === 'function') renderOpsDashboard();
+        }
       } catch (e) {
         showToast('请求异常', 'error');
       } finally {

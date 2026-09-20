@@ -1,8 +1,8 @@
 {
-  "run_id": "dist_run_20260919_152348",
-  "timestamp": "2026-09-19T15:23:48+08:00",
+  "run_id": "dist_run_20260920_185707",
+  "timestamp": "2026-09-20T18:57:07+08:00",
   "project_id": "demo_corp",
-  "total_duration_ms": 10,
+  "total_duration_ms": 11,
   "llm_duration_ms": 42,
   "llm_runtime": {
     "provider": "nextdoor",
@@ -33,7 +33,7 @@
     }
   ],
   "packs": {
-    "toutiao": false,
+    "toutiao": true,
     "deepseek": false,
     "wechat": false,
     "kimi_baidu": false
