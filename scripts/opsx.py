@@ -215,11 +215,11 @@ def cmd_status(args):
 
 def cmd_archive(args):
     current = get_current_changes()
-    if not current:
+    if not current and not args:
         print_yellow("📭 没有找到需要归档的变更任务。")
         return
         
-    folder_name = current[0]
+    folder_name = args[0] if args else current[0]
     src_path = os.path.join(CHANGES_DIR, folder_name)
     archive_dir = os.path.join(CHANGES_DIR, "archive")
     dest_path = os.path.join(archive_dir, folder_name)
