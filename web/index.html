@@ -85,7 +85,8 @@
 <div id="home-group-home-main" class="submenu-list" data-page-node-id="Cgg348x2mEBGZRgFnyEhIg">
 <button type="button" id="nav-home-dashboard" onclick="switchHomeView('home-dashboard')" class="sidebar-nav-item active" data-page-node-id="MfIAYFpDfeXFnWZLu67VQT"><span class="truncate" data-page-node-id="Bn9EWicv2x0bhnoAgFzFBJ">仪表盘</span></button>
 <button type="button" id="nav-home-insights" data-geo-dev-only onclick="switchHomeView('home-insights')" class="sidebar-nav-item" data-page-node-id="y0Uj5DC70g7Y65Fu0cqFtP"><span class="truncate" data-page-node-id="iQwM7pitHMgmoyNGTAgaUO">商业洞察</span></button>
-<button type="button" id="nav-home-ops" onclick="switchHomeView('home-ops')" class="sidebar-nav-item" data-page-node-id="5QmoNgrxQPzM6iw2qruiHV"><span class="truncate" data-page-node-id="CvB7tbM18PfRACzf5ykUYZ">运维告警</span></button>
+<!-- // [2026-09-21] [写文角色权限纯粹化] 运维告警收敛为开发者专属，写文同事侧边栏隐藏 -->
+<button type="button" id="nav-home-ops" data-geo-dev-only onclick="switchHomeView('home-ops')" class="sidebar-nav-item" data-page-node-id="5QmoNgrxQPzM6iw2qruiHV"><span class="truncate" data-page-node-id="CvB7tbM18PfRACzf5ykUYZ">运维告警</span></button>
 <button type="button" id="nav-home-settings" data-geo-dev-only onclick="switchHomeView('home-settings')" class="sidebar-nav-item" data-page-node-id="u11AswJcfURi2BCvv6HtcZ"><span class="truncate" data-page-node-id="kYRDVr9CgdMDKYLJhADyCc">系统设置</span></button>
 <button type="button" id="nav-home-collab" onclick="switchHomeView('home-collab')" class="sidebar-nav-item" data-page-node-id="pZge618on5nA6NTDVkwa3n"><span class="truncate" data-page-node-id="dj2orlHGUs2zkxoG8Ew8ar">协作与任务</span></button>
 <button type="button" id="nav-home-members" data-geo-dev-only onclick="switchHomeView('home-members')" class="sidebar-nav-item" data-page-node-id="RpPbYBC26Q21XPXEMRNyxf"><span class="truncate" data-page-node-id="0TPzmSOgwZqGCgu56mpzBL">成员管理</span></button>
@@ -104,7 +105,8 @@
 <button type="button" class="accordion-header" onclick="onHomePartnersGroupClick()" data-page-node-id="p9GFKDpOKdPkijdiStZujV" data-geo-dev-only><span class="category-title" data-page-node-id="XFyuGC8tkm4kDDWHaqzTXz">合作方管理</span><span class="arrow-indicator" data-home-arrow="partners" data-page-node-id="hKAdsahl0xb99znLompvXF">▼</span>
 </button>
 <div id="home-group-partners" class="submenu-list" data-page-node-id="yFGHr9avdgtTbMUKfLVcWr" data-geo-dev-only>
-<button type="button" id="nav-home-partners" onclick="switchHomeView('home-partners')" class="sidebar-nav-item" data-page-node-id="z9EG6GdAGQrwpuF5LNhsUU"><span class="truncate" data-page-node-id="A05C9aUAM26DJhpJiBHeid">合作方名册</span></button>
+<!-- // [2026-09-21] [写文角色权限纯粹化] 合作方名册收敛为开发者专属，写文同事侧边栏隐藏 -->
+<button type="button" id="nav-home-partners" data-geo-dev-only onclick="switchHomeView('home-partners')" class="sidebar-nav-item" data-page-node-id="z9EG6GdAGQrwpuF5LNhsUU"><span class="truncate" data-page-node-id="A05C9aUAM26DJhpJiBHeid">合作方名册</span></button>
 </div>
 </div>
 <button type="button" onclick="handleLogout()" class="logout-nav" data-page-node-id="z2qRbkHh28SHu50OPBoVZJ">退出登录</button>
@@ -190,7 +192,8 @@
 </p>
 </div>
 </div>
-<button type="button" class="geo-btn shrink-0" onclick="switchHomeView('home-ops')" title="查看各企业检测日志与台账详情">检测台账详情</button>
+<!-- // [2026-09-21] [写文角色权限纯粹化] 检测台账详情跳转收敛为开发者专属，写文同事专属看待办开工 -->
+<button type="button" class="geo-btn shrink-0" data-geo-dev-only onclick="switchHomeView('home-ops')" title="查看各企业检测日志与台账详情">检测台账详情</button>
 </div>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -641,7 +644,7 @@
 <span id="pipeline-gate-hint" class="hidden max-w-[9rem] sm:max-w-[14rem] text-[10px] leading-snug text-amber-700 text-right" data-page-node-id="ASFKibFhZOfzhC6mWCEYK3"></span>
 <button onclick="runPipelineAll()" id="btn-run-all" class="geo-btn geo-btn-primary" title="批量生成阶段1～5草稿（不含摸底步骤，需人工验收）" data-page-node-id="NSktzutM4bxLmIOxYHrJ3a"><i data-lucide="play" class="w-3.5 h-3.5" data-page-node-id="2xNFiD2ep5zyBEmookg5aY"></i><span class="hidden sm:inline" data-page-node-id="T8KaJtQmjBztZkUnRfr9It">批量生成草稿</span>
 </button>
-<button onclick="downloadDeliverables()" class="geo-btn" data-page-node-id="mEr1SPpeEmrAFt4fBiNBIK"><i data-lucide="download" class="w-3.5 h-3.5" data-page-node-id="uetJk43HU83fIKYBxRnCNC"></i><span class="hidden sm:inline" data-page-node-id="snSkXAwX6btpaD8MBRLWJl">导出 ZIP</span>
+<button onclick="downloadDeliverables()" data-geo-dev-only class="geo-btn" data-page-node-id="mEr1SPpeEmrAFt4fBiNBIK"><i data-lucide="download" class="w-3.5 h-3.5" data-page-node-id="uetJk43HU83fIKYBxRnCNC"></i><span class="hidden sm:inline" data-page-node-id="snSkXAwX6btpaD8MBRLWJl">导出 ZIP</span>
 </button>
 <button type="button" onclick="location.reload()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500" title="刷新" data-page-node-id="aONLZTscVd49u4axPgd56Q"><i data-lucide="refresh-cw" class="w-4 h-4" data-page-node-id="jluf47G6kHoGDA9ZBXCNZF"></i>
 </button>
@@ -1628,7 +1631,7 @@
 </div>
 </div>
 <div class="flex items-center gap-2" data-page-node-id="VqNGmwo6L7HwskSZO8oHmB">
-<button onclick="handleDownloadZip()" class="py-2 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm" data-page-node-id="nLPxslacAvaTNS696HYlZQ"><i data-lucide="folder-archive" class="w-3.5 h-3.5" data-page-node-id="sL7kIA5I937lw8GNdqu108"></i><span data-page-node-id="ZjwMJDcCSEBZcIf3CTtWDe">下载全套成果 ZIP</span>
+<button onclick="handleDownloadZip()" data-geo-dev-only class="py-2 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm" data-page-node-id="nLPxslacAvaTNS696HYlZQ"><i data-lucide="folder-archive" class="w-3.5 h-3.5" data-page-node-id="sL7kIA5I937lw8GNdqu108"></i><span data-page-node-id="ZjwMJDcCSEBZcIf3CTtWDe">下载全套成果 ZIP</span>
 </button>
 <button onclick="handlePrintAcceptance()" class="py-2 px-3.5 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5" data-page-node-id="Bf2NDjksVEQfJnliQeyDHp"><i data-lucide="printer" class="w-3.5 h-3.5" data-page-node-id="3kPYInxgPAQCuVTEyKFZFg"></i><span data-page-node-id="LfetWkvB64nKInvBR1AZhz">打印盖章结案单</span>
 </button>
@@ -1963,8 +1966,8 @@
 <button onclick="handlePrintReport(event)" class="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 text-left flex items-center gap-2" data-page-node-id="RVY9C8tg03FadidYRv7Law"><i data-lucide="printer" class="w-3.5 h-3.5" data-page-node-id="SYx35cuCNAHtT5Bz0umkzw"></i>导出美化周报</button>
 <button onclick="handlePrintAcceptance()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 text-left flex items-center gap-2" data-page-node-id="K2QiRoytA6YhqU8S2TlYMS"><i data-lucide="file-check-2" class="w-3.5 h-3.5" data-page-node-id="z5R0UYFYqPcyY0QyYEsKrW"></i>结案验收单</button>
 <button onclick="handlePrintCertificate()" class="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200 text-left flex items-center gap-2" data-page-node-id="XyFBvi7139necIADbUfVUk"><i data-lucide="award" class="w-3.5 h-3.5" data-page-node-id="LYz1sZeHvCnikKZdufwINi"></i>资产移交证书</button>
-<button onclick="handleDownloadZip()" class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-lg border border-indigo-200 text-left flex items-center gap-2" data-page-node-id="jFECz3qr8XHVeIJDszi9jT"><i data-lucide="folder-archive" class="w-3.5 h-3.5" data-page-node-id="GCgduyUvtf0DtE4EJB8aWZ"></i>归档 ZIP</button>
-<button onclick="downloadDeliverables()" class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg text-left flex items-center gap-2" data-page-node-id="VPioLSd8powzphD1qb5E1A"><i data-lucide="download" class="w-3.5 h-3.5" data-page-node-id="x3xI8UcaMvqzHPpzLDaOv0"></i>一键打包导出 (.zip)</button>
+<button onclick="handleDownloadZip()" data-geo-dev-only class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-lg border border-indigo-200 text-left flex items-center gap-2" data-page-node-id="jFECz3qr8XHVeIJDszi9jT"><i data-lucide="folder-archive" class="w-3.5 h-3.5" data-page-node-id="GCgduyUvtf0DtE4EJB8aWZ"></i>归档 ZIP</button>
+<button onclick="downloadDeliverables()" data-geo-dev-only class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg text-left flex items-center gap-2" data-page-node-id="VPioLSd8powzphD1qb5E1A"><i data-lucide="download" class="w-3.5 h-3.5" data-page-node-id="x3xI8UcaMvqzHPpzLDaOv0"></i>一键打包导出 (.zip)</button>
 </div>
 </div>
 </div>
@@ -2129,8 +2132,8 @@
 </div>
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 max-w-2xl" data-page-node-id="cYhmilGEik6l0R1hwWDGff">
 <div class="grid grid-cols-1 gap-2" data-page-node-id="C1AdQxmQCiYAaPTBeXePkh">
-<button onclick="downloadDeliverables()" class="w-full py-2 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg text-left flex items-center gap-2" data-page-node-id="OGSDrqAUEY2DFdJGGDQZ29"><i data-lucide="download" class="w-3.5 h-3.5" data-page-node-id="EK1iCPctvF2tiMOpWVEbmm"></i>一键打包导出 (.zip)</button>
-<button onclick="handleDownloadZip()" class="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 text-left flex items-center gap-2" data-page-node-id="aLRGcIZncl770vJhpVdvJh"><i data-lucide="folder-archive" class="w-3.5 h-3.5" data-page-node-id="OsI8JZoPlKMwHLycNCCNTf"></i>归档 ZIP</button>
+<button onclick="downloadDeliverables()" data-geo-dev-only class="w-full py-2 px-3 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg text-left flex items-center gap-2" data-page-node-id="OGSDrqAUEY2DFdJGGDQZ29"><i data-lucide="download" class="w-3.5 h-3.5" data-page-node-id="EK1iCPctvF2tiMOpWVEbmm"></i>一键打包导出 (.zip)</button>
+<button onclick="handleDownloadZip()" data-geo-dev-only class="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 text-left flex items-center gap-2" data-page-node-id="aLRGcIZncl770vJhpVdvJh"><i data-lucide="folder-archive" class="w-3.5 h-3.5" data-page-node-id="OsI8JZoPlKMwHLycNCCNTf"></i>归档 ZIP</button>
 </div>
 </div>
 </div>
@@ -5612,7 +5615,7 @@ GitHub 开源仓库：https://github.com/company/repo
               <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400">
                 <i data-lucide="users" class="w-6 h-6"></i>
               </div>
-              <p class="text-sm font-medium text-slate-700">暂无运营人员</p>
+              <p class="text-sm font-medium text-slate-700">暂无写文同事</p>
               <p class="text-xs text-slate-400">点击上方【+ 新增成员】按钮，输入姓名与手机号即可极简开通。</p>
               <div>
                 <button type="button" onclick="openAddMemberModal()" class="geo-btn geo-btn-primary text-xs">立即新增成员</button>
@@ -5678,6 +5681,9 @@ GitHub 开源仓库：https://github.com/company/repo
                   ${m.user_id ? `<span class="font-mono text-[11px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded" title="小毛驴身份标识">UID: ${escapeHtmlSafe(m.user_id)}</span>` : `<span class="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">待首次登录绑定UID</span>`}
                   <span class="text-xs px-2 py-0.5 rounded font-medium ${active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
                     ${active ? '正常' : '停用'}
+                  </span>
+                  <span class="text-xs px-2 py-0.5 rounded font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                    写文同事
                   </span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -6258,10 +6264,10 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     async function switchHomeView(viewId, skipRoute) {
-      // [2026-09-20] [商业洞察权限收敛] 商业洞察为开发者专属视图，前端体验层拦截，服务端守卫兜底
-      if (viewId === 'home-insights' && !isDeveloper()) {
-        showToast('该功能仅开发者可用', 'error');
-        return;
+      // // [2026-09-21] [写文角色权限纯粹化] 非写文视图（商业洞察/运维告警/合作方名册/系统设置/成员管理）对写文同事拦截并安全回退至仪表盘
+      const devOnlyViews = ['home-insights', 'home-ops', 'home-partners', 'home-settings', 'home-members'];
+      if (devOnlyViews.includes(viewId) && !isDeveloper()) {
+        viewId = 'home-dashboard';
       }
       currentHomeView = viewId || 'home-dashboard';
       document.querySelectorAll('.home-panel').forEach(el => el.classList.add('hidden'));
