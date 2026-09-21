@@ -194,8 +194,6 @@ class TestConversionReport(unittest.TestCase):
         for boss_step in (
             "① 真抓网络与底座指标",
             "② 直出商业诊断与焦虑转化初稿（程序生成 · 0 幻觉）",
-            "③ 复制商业报告与转化初稿（给 IDE 润色）",
-            "④ 追加豆包问答稿与提示词（给 IDE 参考）",
         ):
             self.assertIn(boss_step, boss_panel)
 
@@ -208,8 +206,6 @@ class TestConversionReport(unittest.TestCase):
         for tech_step in (
             "① 真抓网络与底座指标",
             "② 直出技术体检与改造方案初稿（程序生成 · 0 幻觉）",
-            "③ 复制技术指标与改造方案初稿（给 IDE 再审）",
-            "④ 追加豆包问答稿与提示词（给 IDE 参考）",
         ):
             self.assertIn(tech_step, tech_panel)
 
@@ -269,7 +265,7 @@ class TestConversionReport(unittest.TestCase):
             self.assertNotIn(e, clip)
 
     def test_10_button_help_tooltips_and_optional_tag(self):
-        """阶段 9：8 个主步骤小问号 + 可选小毛驴文案"""
+        """阶段 9：主步骤小问号 + 可选小毛驴文案"""
         with open(
             os.path.join(os.path.dirname(__file__), "..", "web", "index.html"),
             encoding="utf-8",
@@ -279,12 +275,9 @@ class TestConversionReport(unittest.TestCase):
         end = html.find('id="panel-step-2-scaffold"')
         panel = html[start:end]
 
-        self.assertGreaterEqual(panel.count('data-lucide="help-circle"'), 8)
+        self.assertGreaterEqual(panel.count('data-lucide="help-circle"'), 5)
         self.assertIn("调小毛驴补反差话术（可选）", panel)
         self.assertIn("贩卖焦虑", panel)
-        self.assertIn("问题清单 + 对应改造步骤", panel)
-        self.assertIn("焦虑转化润色提示词", panel)
-        self.assertIn("架构师改造提示词", panel)
 
     def test_11_boss_conversion_html_template(self):
         """测试高转化老板商业诊断报告 HTML 纯原生自包含模板生成与 7 大核心区块"""

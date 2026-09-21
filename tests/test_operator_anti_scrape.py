@@ -237,14 +237,14 @@ class TestScrapeAutoDisable(AntiScrapeTestBase):
             member = rbac.get_member(OP_USER_ID)
             self.assertEqual(member.get("status"), "active")
 
-            # 继续连续触碰超限，超过 TOO_MANY_429_PER_HOUR 次后自动停用并返回 403
+            # [2026-09-21] [阶段一帮助提示剥离与连点封禁逻辑废除] 继续连续触碰超限，依然返回 429，绝不停用账号
             for _ in range(2):
                 opsguard.check(ident, "/api/projects/nextgeo/output/f99.md", "GET")
             ok, status, _ = opsguard.check(ident, "/api/projects/nextgeo/output/f99.md", "GET")
             self.assertFalse(ok)
-            self.assertEqual(status, 403)
+            self.assertEqual(status, 429)
             member = rbac.get_member(OP_USER_ID)
-            self.assertEqual(member.get("status"), "disabled")
+            self.assertEqual(member.get("status"), "active")
         finally:
             opsguard.OUTPUT_READ_PER_HOUR = orig_reads
             opsguard.DISTINCT_FILENAME_PER_HOUR = orig_names

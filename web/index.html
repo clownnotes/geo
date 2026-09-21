@@ -682,18 +682,31 @@
 <h2 class="text-base font-bold text-slate-900" data-page-node-id="4jogp0fF4x4Pa1BFp79d99">阶段一：AI 可见度商业转化诊断（老板决策版）</h2>
 <p class="text-xs text-slate-500 mt-1" data-page-node-id="OdhyW67m5uZTDx8iWoFuaz">基于真抓现实<strong data-page-node-id="vLkazc6T8bshWlSLPSna0Y">贩卖焦虑</strong>：先确权资产，再算 3 类询盘流失账，点明「竞品在吃入口、不做就晚了」，最后给破局路线与 30 天愿景——专门用于对客签单。</p>
 </div>
-<div class="flex flex-wrap gap-2 pt-1 items-center" data-page-node-id="0r5A7Eq2wNboxPEDEqvtBY">
-<button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-boss-crawl" data-geo-perm="ai:generate" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5" data-page-node-id="4VpP7sSWvZKGGsdnAYxVRG">
-  <span data-page-node-id="AE9mBqWJ7lqlHsSXCYgvLM">① 真抓网络与底座指标</span>
-  <span class="inline-flex items-center text-violet-200 hover:text-white" title="必须真抓：探测 SSR、/llms.txt、Schema、robots、文本密度，落盘 audit_metrics.json，杜绝胡编。" data-page-node-id="fVfddvsgSYJIoE7YnImCZw"><i data-lucide="help-circle" class="w-3.5 h-3.5" data-page-node-id="BTk3T7rcWtHSEGy512jytk"></i></span>
-</button>
-<button type="button" onclick="runStep1Audit(event, 'boss_direct')" id="btn-step-1-boss-direct" data-geo-perm="ai:generate" class="py-2.5 px-3.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5" data-page-node-id="2KdJhwcwYcomyDmE3Iznr5">
-  <span data-page-node-id="aBEa7lVpkGHSDJ0F3k5huj">② 直出商业诊断与焦虑转化初稿（程序生成 · 0 幻觉）</span>
-  <span class="inline-flex items-center text-slate-400 hover:text-slate-600" title="程序算账：四维卡、流失询盘、「不做就晚了」与四步破局/30 天愿景；可选后再调小毛驴补反差话术。" data-page-node-id="sQTClKMCYgkEKNduNe8OUd"><i data-lucide="help-circle" class="w-3.5 h-3.5" data-page-node-id="KuORdpCcpChFA0OSGaAfAq"></i></span>
-</button>
+<div class="flex flex-wrap gap-3 pt-1 items-center" data-page-node-id="0r5A7Eq2wNboxPEDEqvtBY">
+  <!-- [2026-09-21] [阶段一帮助提示剥离与连点封禁逻辑废除] 主执行按钮与问号解耦为复合按钮组，点击问号阻止冒泡且弹窗展示说明 -->
+  <div class="inline-flex items-center rounded-lg shadow-sm bg-[#7c5bf5] hover:bg-[#6846e3] transition overflow-hidden">
+    <button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-boss-crawl" data-geo-perm="ai:generate" class="py-2.5 pl-3.5 pr-2.5 text-white text-xs font-semibold flex items-center gap-1.5" data-page-node-id="4VpP7sSWvZKGGsdnAYxVRG">
+      <span data-page-node-id="AE9mBqWJ7lqlHsSXCYgvLM">① 真抓网络与底座指标</span>
+    </button>
+    <button type="button" onclick="showStepHelp(event, 'crawl')" class="py-2.5 px-2.5 text-violet-200 hover:text-white hover:bg-black/10 transition border-l border-white/20 flex items-center justify-center" title="点击查看本步业务说明">
+      <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+    </button>
+  </div>
+  <div class="inline-flex items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 transition overflow-hidden shadow-xs">
+    <button type="button" onclick="runStep1Audit(event, 'boss_direct')" id="btn-step-1-boss-direct" data-geo-perm="ai:generate" class="py-2.5 pl-3.5 pr-2.5 text-slate-700 text-xs font-semibold flex items-center gap-1.5" data-page-node-id="2KdJhwcwYcomyDmE3Iznr5">
+      <span data-page-node-id="aBEa7lVpkGHSDJ0F3k5huj">② 直出商业诊断与焦虑转化初稿（程序生成 · 0 幻觉）</span>
+    </button>
+    <button type="button" onclick="showStepHelp(event, 'boss_direct')" class="py-2.5 px-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition border-l border-slate-200 flex items-center justify-center" title="点击查看本步业务说明">
+      <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+    </button>
+  </div>
 </div>
-<p class="text-[10px] text-slate-500" data-page-node-id="HCf4mWazKoiA4fOToInL1U">提示：第一步真抓底座指标，第二步直出商业诊断报告；亦可点击
-<button type="button" onclick="runStep1Audit(event, 'interpret')" id="btn-step-1-interpret" class="text-[#7c5bf5] hover:underline font-medium" data-page-node-id="OlYnpAsKoV34puepfPXbVc">调小毛驴补反差话术（可选）</button>。
+<p class="text-[10px] text-slate-500 flex items-center gap-1" data-page-node-id="HCf4mWazKoiA4fOToInL1U">
+  <span>提示：第一步真抓底座指标，第二步直出商业诊断报告；亦可点击</span>
+  <button type="button" onclick="runStep1Audit(event, 'interpret')" id="btn-step-1-interpret" class="text-[#7c5bf5] hover:underline font-medium" data-page-node-id="OlYnpAsKoV34puepfPXbVc">调小毛驴补反差话术（可选）</button>
+  <button type="button" onclick="showStepHelp(event, 'interpret')" class="text-slate-400 hover:text-slate-600 inline-flex items-center p-0.5 rounded hover:bg-slate-100 transition" title="点击查看话术增补说明">
+    <i data-lucide="help-circle" class="w-3 h-3"></i>
+  </button>
 </p>
 </div>
 
@@ -751,15 +764,24 @@
 指标真源：<code class="text-[10px] bg-slate-100 px-1 rounded" data-page-node-id="K6Qde5zqQHQL5yt1afQ57W">outputs/audit_metrics.json</code>
 </p>
 </div>
-<div class="flex flex-wrap gap-2 pt-1 items-center" data-page-node-id="WhbVkBBs8Kxp28s92QocD6">
-<button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-crawl" data-geo-perm="ai:generate" class="py-2.5 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5" data-page-node-id="4S7eHYzxxs1K02jg5UzQOl">
-  <span data-page-node-id="HLQQU5iSB0h8u9NMiLneR7">① 真抓网络与底座指标</span>
-  <span class="inline-flex items-center text-violet-200 hover:text-white" title="必须真抓：探测 SSR、/llms.txt、Schema、robots、文本密度，落盘 audit_metrics.json，杜绝胡编。" data-page-node-id="aU5MMxqDNv9748zg10wEDm"><i data-lucide="help-circle" class="w-3.5 h-3.5" data-page-node-id="ktkP6BZ7HeKhvds3X1aJF1"></i></span>
-</button>
-<button type="button" onclick="runStep1Audit(event, 'tech_direct')" id="btn-step-1-tech-direct" data-geo-perm="ai:generate" class="py-2.5 px-3.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5" data-page-node-id="mxsJf0KQZBeDETAAX9dhDC">
-  <span data-page-node-id="TgDekVkefdThwBcG4Qs0VR">② 直出技术体检与改造方案初稿（程序生成 · 0 幻觉）</span>
-  <span class="inline-flex items-center text-slate-400 hover:text-slate-600" title="问题清单 + 对应改造步骤（给内部施工），不卖焦虑、不塞体验价。" data-page-node-id="z4pODIIxwHuVjrLx5XF79j"><i data-lucide="help-circle" class="w-3.5 h-3.5" data-page-node-id="EybCPqEAASwADYOwaddvvM"></i></span>
-</button>
+<div class="flex flex-wrap gap-3 pt-1 items-center" data-page-node-id="WhbVkBBs8Kxp28s92QocD6">
+  <!-- [2026-09-21] [阶段一帮助提示剥离与连点封禁逻辑废除] 主执行按钮与问号解耦为复合按钮组 -->
+  <div class="inline-flex items-center rounded-lg shadow-sm bg-[#7c5bf5] hover:bg-[#6846e3] transition overflow-hidden">
+    <button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-crawl" data-geo-perm="ai:generate" class="py-2.5 pl-3.5 pr-2.5 text-white text-xs font-semibold flex items-center gap-1.5" data-page-node-id="4S7eHYzxxs1K02jg5UzQOl">
+      <span data-page-node-id="HLQQU5iSB0h8u9NMiLneR7">① 真抓网络与底座指标</span>
+    </button>
+    <button type="button" onclick="showStepHelp(event, 'crawl')" class="py-2.5 px-2.5 text-violet-200 hover:text-white hover:bg-black/10 transition border-l border-white/20 flex items-center justify-center" title="点击查看本步业务说明">
+      <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+    </button>
+  </div>
+  <div class="inline-flex items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 transition overflow-hidden shadow-xs">
+    <button type="button" onclick="runStep1Audit(event, 'tech_direct')" id="btn-step-1-tech-direct" data-geo-perm="ai:generate" class="py-2.5 pl-3.5 pr-2.5 text-slate-700 text-xs font-semibold flex items-center gap-1.5" data-page-node-id="mxsJf0KQZBeDETAAX9dhDC">
+      <span data-page-node-id="TgDekVkefdThwBcG4Qs0VR">② 直出技术体检与改造方案初稿（程序生成 · 0 幻觉）</span>
+    </button>
+    <button type="button" onclick="showStepHelp(event, 'tech_direct')" class="py-2.5 px-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition border-l border-slate-200 flex items-center justify-center" title="点击查看本步业务说明">
+      <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+    </button>
+  </div>
 </div>
 <p class="text-[10px] text-slate-500" data-page-node-id="XXUKMxaEzWIUleRULMJ8rv">说明：第一步真抓底座指标，第二步直出问题清单与改造方案。</p>
 <p id="diag-deepen-probe-hint" class="text-[10px] text-amber-700 hidden" data-page-node-id="bdVuDUEX8obDnSzFusnrR3"></p>
@@ -2352,6 +2374,60 @@
 </div>
 </div>
 </div>
+</div>
+<!-- ================= 阶段一业务步骤帮助说明弹窗 (0 Emoji) ================= -->
+<div id="step-help-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6" onclick="if(event.target === this) closeStepHelp()">
+  <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-violet-100 text-[#7c5bf5] flex items-center justify-center shrink-0">
+          <i data-lucide="help-circle" class="w-4 h-4"></i>
+        </div>
+        <div class="min-w-0">
+          <h3 id="step-help-modal-title" class="text-sm font-bold text-slate-900 truncate">步骤说明</h3>
+          <span id="step-help-modal-tag" class="inline-block mt-0.5 px-2 py-0.5 bg-violet-50 text-[#7c5bf5] border border-violet-200 rounded text-[10px] font-semibold">业务指南</span>
+        </div>
+      </div>
+      <button type="button" onclick="closeStepHelp()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition" title="关闭说明">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <div class="p-6 space-y-4 text-xs text-slate-700 max-h-[75vh] overflow-y-auto">
+      <div class="space-y-1.5 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+        <div class="text-[11px] font-bold text-slate-900 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#7c5bf5]"></span>
+          <span>【核心目的】</span>
+        </div>
+        <p id="step-help-modal-purpose" class="text-[11px] text-slate-600 leading-relaxed pl-3"></p>
+      </div>
+      <div class="space-y-1.5 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+        <div class="text-[11px] font-bold text-slate-900 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+          <span>【前置条件】</span>
+        </div>
+        <p id="step-help-modal-prereq" class="text-[11px] text-slate-600 leading-relaxed pl-3"></p>
+      </div>
+      <div class="space-y-1.5 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+        <div class="text-[11px] font-bold text-slate-900 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span>【交付产出】</span>
+        </div>
+        <p id="step-help-modal-output" class="text-[11px] text-slate-600 leading-relaxed pl-3"></p>
+      </div>
+      <div class="space-y-1.5 p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl">
+        <div class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+          <span>【注意事项】</span>
+        </div>
+        <p id="step-help-modal-notice" class="text-[11px] text-amber-800 leading-relaxed pl-3"></p>
+      </div>
+    </div>
+    <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
+      <button type="button" onclick="closeStepHelp()" class="py-1.5 px-4 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition">
+        我知道了
+      </button>
+    </div>
+  </div>
 </div>
 <!-- ================= 4.3 批量并发生产调度模态弹窗 ================= -->
 <!-- ================= 4.4 三级搜索意图拓扑与长尾裂变模态弹窗 ================= -->
@@ -8644,7 +8720,89 @@ function backToDashboard() {
       }
     }
 
+    // [2026-09-21] [阶段一帮助提示剥离与连点封禁逻辑废除] 阶段一各子步骤业务指南定义 (五年级纯白话 · 0 Emoji)
+    const STEP_HELP_DEFINITIONS = {
+      crawl: {
+        title: '阶段一步骤说明：① 真抓网络与底座指标',
+        tag: '实网摸底 · 真实数据',
+        purpose: '系统真去客户的官网访问一圈，看看网站打不打得开、打开快不快、大模型能不能读懂网页上的文字，记录真实的检查数据。',
+        prereq: '必须先在上方填好客户的官网网址或主域名。',
+        output: 'audit_metrics.json（体检各项得分的底座数据表）。',
+        notice: '这是最基础的第一步，必须先真抓拿到真实数据，后面才能出报告。'
+      },
+      boss_direct: {
+        title: '阶段一步骤说明：② 直出商业诊断初稿',
+        tag: '系统速算 · 不用等',
+        purpose: '根据刚才真实摸底抓到的数据，系统自动算出客户网站有哪几类询盘正在流失、哪些地方被竞品抢占了入口，自动写出一份给老板看的诊断报告初稿。',
+        prereq: '必须先点「① 真抓网络与底座指标」。',
+        output: '01_企业AI可见度商业诊断报告.md。',
+        notice: '这是系统按固定规则自动计算生成的，几秒钟就能出结果，专门用于帮销售去和老板谈合作。'
+      },
+      tech_direct: {
+        title: '阶段一步骤说明：② 直出技术体检与改造方案初稿',
+        tag: '系统排查 · 施工清单',
+        purpose: '根据真实摸底抓到的数据，详细列出客户网站所有的技术毛病（比如打不开的死链接、爬虫进不来的拦截设置），并给出对应的修复施工清单。',
+        prereq: '必须先点「① 真抓网络与底座指标」。',
+        output: '01_企业底座技术体检审计报告.md。',
+        notice: '这是给技术团队和程序员看的施工方案，告诉他们具体怎么改代码。'
+      },
+      interpret: {
+        title: '阶段一步骤说明：调小毛驴补反差话术（可选）',
+        tag: 'AI润色 · 选做步骤',
+        purpose: '让后台的 AI 助手再帮报告加几句更接地气、更有冲击力的说服话术，把客户不做转型的后果说得更直白。',
+        prereq: '必须已经有了商业诊断初稿，且后台连接正常。',
+        output: '润色更新后的商业诊断报告。',
+        notice: '这一步需要调用 AI 模型，耗时约半分钟到一分钟，是可选步骤；即使不点这一步，也不影响直出初稿的使用。'
+      }
+    };
+
+    function showStepHelp(e, mode) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const item = STEP_HELP_DEFINITIONS[mode] || STEP_HELP_DEFINITIONS.crawl;
+      const modal = document.getElementById('step-help-modal');
+      if (!modal) return;
+
+      const titleEl = document.getElementById('step-help-modal-title');
+      const tagEl = document.getElementById('step-help-modal-tag');
+      const purposeEl = document.getElementById('step-help-modal-purpose');
+      const prereqEl = document.getElementById('step-help-modal-prereq');
+      const outputEl = document.getElementById('step-help-modal-output');
+      const noticeEl = document.getElementById('step-help-modal-notice');
+
+      if (titleEl) titleEl.textContent = item.title;
+      if (tagEl) tagEl.textContent = item.tag;
+      if (purposeEl) purposeEl.textContent = item.purpose;
+      if (prereqEl) prereqEl.textContent = item.prereq;
+      if (outputEl) outputEl.textContent = item.output;
+      if (noticeEl) noticeEl.textContent = item.notice;
+
+      modal.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeStepHelp() {
+      const modal = document.getElementById('step-help-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeStepHelp();
+      }
+    });
+
+    let isStep1AuditRunning = false;
+
     async function runStep1Audit(e, mode) {
+      // 1. 防连点互斥锁检测：已经在跑直接提示并返回，绝不放开锁
+      if (isStep1AuditRunning) {
+        showToast('上一步还在做，请稍等', 'warning');
+        return;
+      }
+
       const validModes = ['boss_direct', 'interpret', 'crawl', 'tech_direct'];
       const m = validModes.includes(mode) ? mode : 'crawl';
       const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
@@ -8652,33 +8810,15 @@ function backToDashboard() {
         showToast('请先选择项目', 'error');
         return;
       }
-      const checkHasMetrics = async () => {
-        try {
-          const chk = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('audit_metrics.json')}`, {
-            headers: { 'Authorization': `Bearer ${currentAuthToken}` }
-          });
-          const chkData = await chk.json();
-          return !!(chkData && chkData.success && chkData.content);
-        } catch (_) {
-          return false;
-        }
-      };
 
-      // 直出/解读依赖真抓指标
-      if (m === 'interpret' || m === 'boss_direct' || m === 'tech_direct') {
-        const hasMetrics = await checkHasMetrics();
-        if (!hasMetrics) {
-          showToast('请先点「① 真抓网络与底座指标」', 'error');
-          return;
-        }
-      }
-
+      // 2. 关键规范：上锁必须在第一个 await 之前！彻底杜绝查指标期间的并发连击
+      isStep1AuditRunning = true;
       const btn = (e && e.currentTarget) ? e.currentTarget : null;
       const originalText = btn ? btn.innerHTML : '';
       if (btn) {
         btn.disabled = true;
         let loadingText = '正在处理中…';
-        if (m === 'boss_direct') loadingText = '正在直出商业诊断与焦虑转化初稿…';
+        if (m === 'boss_direct') loadingText = '正在直出商业诊断初稿…';
         else if (m === 'interpret') loadingText = '正在调小毛驴补反差话术…';
         else if (m === 'crawl') loadingText = '正在真抓网络与底座指标…';
         else if (m === 'tech_direct') loadingText = '正在直出技术体检与改造方案初稿…';
@@ -8686,11 +8826,35 @@ function backToDashboard() {
         if (window.lucide) lucide.createIcons();
       }
 
+      const checkHasMetrics = async () => {
+        try {
+          const chk = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('audit_metrics.json')}`, {
+            headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+          });
+          if (!chk.ok) return false;
+          const chkText = await chk.text();
+          const chkData = JSON.parse(chkText);
+          return !!(chkData && chkData.success && chkData.content);
+        } catch (_) {
+          return false;
+        }
+      };
+
       const timeoutMs = m === 'interpret' ? 180000 : (m === 'crawl' ? 120000 : 30000);
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       const stayTab = currentAuditTopTab || 'boss';
+
       try {
+        // 3. 直出/解读依赖真抓指标，在已上锁的受控状态下执行前置检查
+        if (m === 'interpret' || m === 'boss_direct' || m === 'tech_direct') {
+          const hasMetrics = await checkHasMetrics();
+          if (!hasMetrics) {
+            showToast('请先点「① 真抓网络与底座指标」', 'error');
+            return;
+          }
+        }
+
         const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/run/audit`, {
           method: 'POST',
           headers: {
@@ -8700,7 +8864,13 @@ function backToDashboard() {
           body: JSON.stringify({ mode: m }),
           signal: controller.signal
         });
-        const data = await res.json();
+        const resText = await res.text();
+        let data = null;
+        try {
+          data = JSON.parse(resText);
+        } catch (_) {
+          throw new Error(resText.slice(0, 100) || `服务响应异常 (${res.status})`);
+        }
         if (data.success) {
           if (m === 'boss_direct' || m === 'interpret') {
             switchAuditTopTab('boss');
@@ -8712,7 +8882,7 @@ function backToDashboard() {
           }
           await loadStepPreviews();
           let defaultMsg = '操作已完成';
-          if (m === 'boss_direct') defaultMsg = '② 商业诊断与焦虑转化初稿已直出';
+          if (m === 'boss_direct') defaultMsg = '② 商业诊断初稿已直出';
           else if (m === 'interpret') defaultMsg = '小毛驴反差话术已叠加（可选）';
           else if (m === 'crawl') defaultMsg = '① 真抓网络与底座指标已完成';
           else if (m === 'tech_direct') defaultMsg = '② 技术体检与改造方案初稿已直出';
@@ -8728,6 +8898,8 @@ function backToDashboard() {
       } catch (err) {
         showToast('请求失败: ' + err.message, 'error');
       } finally {
+        // 4. 无论成功、提前返回、报错还是超时，统一在 finally 中释放互斥锁并恢复按钮
+        isStep1AuditRunning = false;
         clearTimeout(timer);
         if (btn) {
           btn.disabled = false;

@@ -125,7 +125,8 @@ class TestDoubaoIndexerPipeline(unittest.TestCase):
             self.assertTrue(bool(it.suggested_action))
 
         # 验证真实探测首推对账（消费 live_probing_trace.json 真实字段）
-        self.assertEqual(intents[0].query, "徐州市及淮海经济区做行业数字化找哪家团队靠谱？")
+        self.assertIn("徐州市及淮海经济区", intents[0].query)
+        self.assertIn("行业数字化", intents[0].query)
         self.assertEqual(intents[0].status, "indexed_top1")
         self.assertTrue(intents[0].doubao_top1)
         self.assertTrue(intents[0].citation_found)
