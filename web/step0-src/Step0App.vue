@@ -11,33 +11,48 @@
 
     <!-- 步骤 1, 2, 3 主列表 -->
     <ol class="space-y-3 text-xs text-slate-700 list-none p-0 m-0">
-      <!-- 第 1 步：在本页准备要问的题 -->
+      <!-- 第 1 步：准备要问的题（开发者带 Cursor 与 CLI，写文纯网页） -->
       <ProbeStep1
+        :is-developer="isDeveloper"
+        :project-id="projectId"
         :is-retest="isRetest"
         :step1-blurb-text="step1BlurbText"
+        :copy-prompt-label="copyPromptLabel"
         :script-hint-text="scriptHintText"
         :generating-script="generatingScript"
+        :cd-cmd-text="cdCmdText"
+        :script-cmd-text="scriptCmdText"
+        @copy-quality-prompt="copyQualityPrompt"
         @generate-script="generateScript"
+        @copy-cmd="copyCmd"
+        @copy-cursor-prompt="copyCursorPrompt"
       />
 
-      <!-- 第 2 步：去豆包问 -->
+      <!-- 第 2 步：去豆包问（开发者带反重力与收工说明书，写文纯白话与落盘检查） -->
       <ProbeStep2
+        :is-developer="isDeveloper"
         :scripts="scripts"
         :selected-script-file="selectedScriptFile"
         :script-list-state="scriptListState"
         :probe-status="probeStatus"
         :active-script="activeScript"
         :script-kind-text="scriptKindText"
+        :script-path-rel="scriptPathRel"
+        :script-path-abs="scriptPathAbs"
         :expected-result="expectedResult"
         :checking-disk="checkingDisk"
         @refresh-script-list="refresh({ asScriptCheck: true })"
         @select-script="selectScriptFile"
         @delete-script="deleteScriptFile"
+        @copy-antigravity-prompt="copyAntigravityPrompt"
+        @copy-antigravity-save-prompt="copyAntigravitySavePrompt"
+        @copy-cmd="copyCmd"
         @check-result-on-disk="checkResultOnDisk"
       />
 
-      <!-- 第 3 步：把豆包结果存进项目 -->
+      <!-- 第 3 步：把豆包结果存进项目（开发者带 IDE 摘要复制与 CLI，写文纯预览写入） -->
       <ProbeStep3
+        :is-developer="isDeveloper"
         :results="results"
         :selected-result-file="selectedResultFile"
         :result-list-state="resultListState"
@@ -56,10 +71,12 @@
         @delete-result="deleteResultFile"
         @update:merge="merge = $event"
         @update:write-topics="writeTopics = $event"
+        @copy-preview-for-ide="copyPreviewForIde"
         @preview-from-disk="previewFromDisk"
         @apply-from-disk="applyFromDisk"
         @preview-upload="previewUpload"
         @apply-upload="applyUpload"
+        @copy-cmd="copyCmd"
       />
     </ol>
 
@@ -81,7 +98,7 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue';
+import { onMounted } from 'vue';
 import { useStep0 } from './useStep0.js';
 import Step0Header from './components/Step0Header.vue';
 import ProbeStep1 from './components/ProbeStep1.vue';
@@ -95,6 +112,7 @@ const props = defineProps({
 const s0 = useStep0(props.bridge);
 
 const {
+  isDeveloper,
   projectData,
   qlistBadge,
   writeStatusBadge,
@@ -138,10 +156,15 @@ const {
   checkResultOnDisk,
   selectResultFile,
   deleteResultFile,
+  copyPreviewForIde,
   previewFromDisk,
   applyFromDisk,
   previewUpload,
   applyUpload,
+  copyCmd,
+  copyCursorPrompt,
+  copyAntigravityPrompt,
+  copyAntigravitySavePrompt,
   goStep1,
 } = s0;
 

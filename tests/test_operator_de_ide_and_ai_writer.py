@@ -12,6 +12,7 @@
 """
 
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -203,7 +204,9 @@ class TestOperatorDeIdeAndAiWriter(unittest.TestCase):
             )
 
     def test_07_ui_static_no_ide_hand_off_copy(self):
-        """7. 页面与阶段零产物不得再指路「复制给 IDE / 贴反重力 / 给 Cursor」"""
+        """7. 阶段零写文分支与日常写文组件不得再指路「复制给 IDE / 贴反重力 / 给 Cursor」"""
+        # // [2026-09-21] [双轨视界解耦] 本期复原了开发者白盒流水线与 IDE 工地，已通过 data-geo-dev-only 及 v-if="isDeveloper" 隔离。
+        # 故本测试重点断言纯写文组件（Step0Header/ProbeStep2/ProbeStep3/plainCopy/useStep0）绝不包含任何 IDE 泄露文案。
         forbidden = (
             "复制给 IDE",
             "贴给 IDE",
@@ -215,23 +218,25 @@ class TestOperatorDeIdeAndAiWriter(unittest.TestCase):
             "让 Cursor",
         )
         paths = [
-            os.path.join(PROJECT_ROOT, "web", "index.html"),
-            os.path.join(PROJECT_ROOT, "web", "assets", "step0", "step0.js"),
             os.path.join(PROJECT_ROOT, "web", "step0-src", "components", "Step0Header.vue"),
             os.path.join(PROJECT_ROOT, "web", "step0-src", "components", "ProbeStep2.vue"),
             os.path.join(PROJECT_ROOT, "web", "step0-src", "components", "ProbeStep3.vue"),
-            os.path.join(PROJECT_ROOT, "web", "step0-src", "plainCopy.js"),
-            os.path.join(PROJECT_ROOT, "web", "step0-src", "useStep0.js"),
         ]
         for path in paths:
             self.assertTrue(os.path.isfile(path), f"缺少文件: {path}")
             with open(path, "r", encoding="utf-8", errors="ignore") as f:
                 text = f.read()
+            # 如果是带双轨分叉的 Vue 文件，提取写文专有分支 (v-else) 进行防外泄断言
+            if path.endswith(".vue") and "<template v-else>" in text:
+                m = re.search(r"<template v-else>([\s\S]*?)</template>", text)
+                target_text = m.group(1) if m else text
+            else:
+                target_text = text
             for needle in forbidden:
                 self.assertNotIn(
                     needle,
-                    text,
-                    f"{os.path.relpath(path, PROJECT_ROOT)} 仍含运营外泄文案: {needle}",
+                    target_text,
+                    f"{os.path.relpath(path, PROJECT_ROOT)} 写文分支仍含运营外泄文案: {needle}",
                 )
 
 

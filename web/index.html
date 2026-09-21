@@ -145,7 +145,7 @@
  · 声量告警：<span id="patrol-alert-status" class="font-semibold text-slate-700" data-page-node-id="WtGDxR4IPEHeDUe74OZi0r">加载中...</span></p>
 </div>
 </div>
-<button type="button" class="geo-btn shrink-0" onclick="switchHomeView('home-ops')" data-page-node-id="a5slHFv8uHGVNgnfjNlNxk">运维详情</button>
+<button type="button" class="geo-btn shrink-0" data-geo-dev-only onclick="switchHomeView('home-ops')" data-page-node-id="a5slHFv8uHGVNgnfjNlNxk">运维详情</button>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" data-page-node-id="8UT8AynytpnUmarhZ9iDDH">
 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" data-page-node-id="wy4SvfaxEBcBTniL95Sv5T">
@@ -674,19 +674,18 @@
 <!-- 阶段一顶层纯文字双 Tab 导航（0 Emoji） -->
 <div class="flex border-b border-slate-200 gap-8 text-sm font-semibold" data-page-node-id="CQl8262UHqw0sDKJxo8gnz">
 <button type="button" id="tab-audit-top-boss" onclick="switchAuditTopTab('boss')" class="pb-3 border-b-2 border-[#7c5bf5] text-[#7c5bf5] transition" data-page-node-id="IQypSKTAMzeIqDmvNSK2kg">老板商业转化版</button>
-<button type="button" id="tab-audit-top-tech" onclick="switchAuditTopTab('tech')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition" data-page-node-id="A1Dd0I9QumQjfncbCxVytt">工程师技术体检版</button>
+<button type="button" id="tab-audit-top-tech" data-geo-dev-only onclick="switchAuditTopTab('tech')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition" data-page-node-id="A1Dd0I9QumQjfncbCxVytt">工程师技术体检版</button>
 </div>
 
 <!-- 视图 1：老板商业转化版专属容器（默认展示） -->
 <div id="view-audit-boss" class="space-y-6" data-page-node-id="J69XBF2tFJs0GbE2gu0Kbm">
-<!-- 老板版专属操作卡片 -->
-<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3" data-page-node-id="iWQvwGq9UK4pQWwhx88qPm">
+<!-- 开发者专属操作卡片：白盒四步流水线 -->
+<div data-geo-dev-only class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3" data-page-node-id="iWQvwGq9UK4pQWwhx88qPm">
 <div class="min-w-0" data-page-node-id="d4P4SHf3UjrpSLauxmQ4ZH">
 <h2 class="text-base font-bold text-slate-900" data-page-node-id="4jogp0fF4x4Pa1BFp79d99">阶段一：AI 可见度商业转化诊断（老板决策版）</h2>
 <p class="text-xs text-slate-500 mt-1" data-page-node-id="OdhyW67m5uZTDx8iWoFuaz">基于真抓现实<strong data-page-node-id="vLkazc6T8bshWlSLPSna0Y">贩卖焦虑</strong>：先确权资产，再算 3 类询盘流失账，点明「竞品在吃入口、不做就晚了」，最后给破局路线与 30 天愿景——专门用于对客签单。</p>
 </div>
 <div class="flex flex-wrap gap-3 pt-1 items-center" data-page-node-id="0r5A7Eq2wNboxPEDEqvtBY">
-  <!-- [2026-09-21] [阶段一帮助提示剥离与连点封禁逻辑废除] 主执行按钮与问号解耦为复合按钮组，点击问号阻止冒泡且弹窗展示说明 -->
   <div class="inline-flex items-center rounded-lg shadow-sm bg-[#7c5bf5] hover:bg-[#6846e3] transition overflow-hidden">
     <button type="button" onclick="runStep1Audit(event, 'crawl')" id="btn-step-1-boss-crawl" data-geo-perm="ai:generate" class="py-2.5 pl-3.5 pr-2.5 text-white text-xs font-semibold flex items-center gap-1.5" data-page-node-id="4VpP7sSWvZKGGsdnAYxVRG">
       <span data-page-node-id="AE9mBqWJ7lqlHsSXCYgvLM">① 真抓网络与底座指标</span>
@@ -703,14 +702,37 @@
       <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
     </button>
   </div>
+  <button type="button" onclick="copyBossAuditToIde(this)" id="btn-step-1-boss-copy-ide" class="py-2.5 px-3.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-xs">
+    <span>③ 复制商业报告与转化初稿（给 IDE 润色）</span>
+    <span class="inline-flex items-center text-slate-400 hover:text-slate-600" title="打包商业初稿 + 焦虑转化润色提示词，给 IDE 去水、加强签约说服力。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+  </button>
+  <button type="button" onclick="copyDiagDeepenPrompt(this, 'boss')" id="btn-step-1-boss-deepen" class="py-2.5 px-3.5 border-2 border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-900 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-xs">
+    <span>④ 追加豆包问答稿与提示词（给 IDE 参考）</span>
+    <span class="inline-flex items-center text-violet-500 hover:text-violet-700" title="豆包一手长问答路径 + 竞品截流分析提示，补流失实锤。"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+  </button>
 </div>
 <p class="text-[10px] text-slate-500 flex items-center gap-1" data-page-node-id="HCf4mWazKoiA4fOToInL1U">
-  <span>提示：第一步真抓底座指标，第二步直出商业诊断报告；亦可点击</span>
+  <span>提示：先①真抓 → ②直出焦虑转化初稿 → ③复制给 IDE 润色 → ④追加豆包实锤；亦可点击</span>
   <button type="button" onclick="runStep1Audit(event, 'interpret')" id="btn-step-1-interpret" class="text-[#7c5bf5] hover:underline font-medium" data-page-node-id="OlYnpAsKoV34puepfPXbVc">调小毛驴补反差话术（可选）</button>
   <button type="button" onclick="showStepHelp(event, 'interpret')" class="text-slate-400 hover:text-slate-600 inline-flex items-center p-0.5 rounded hover:bg-slate-100 transition" title="点击查看话术增补说明">
     <i data-lucide="help-circle" class="w-3 h-3"></i>
   </button>
 </p>
+</div>
+
+<!-- 写文同事专属操作卡片：小毛驴一键深度撰写 -->
+<div data-geo-writer-only class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+<div class="min-w-0">
+  <h2 class="text-base font-bold text-slate-900">阶段一：AI 可见度商业转化诊断（小毛驴深度撰写）</h2>
+  <p class="text-xs text-slate-500 mt-1">系统将自动校验阶段零摸底数据，自动抓取底座并调用小毛驴大模型撰写完整的商业诊断报告与高转化视觉大屏。</p>
+</div>
+<div class="flex flex-wrap gap-3 pt-1 items-center">
+  <button type="button" onclick="runWriterStep1AiGenerate(event)" id="btn-step-1-writer-ai" data-geo-perm="ai:generate" class="py-2.5 px-5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold flex items-center gap-2 shadow transition">
+    <i data-lucide="sparkles" class="w-4 h-4"></i>
+    <span>用小毛驴写商业诊断</span>
+  </button>
+</div>
+<p class="text-[10px] text-slate-400">生成完成后，将在下方大屏和文字稿中呈现。若需对外展示，请直接点击下方「客户报告链接」或「全屏大屏」。</p>
 </div>
 
 <!-- 老板版专属交付物与预览卡片（纯净商业版，不含底座 metrics.json） -->
@@ -785,8 +807,16 @@
       <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
     </button>
   </div>
+  <button type="button" onclick="copyStep1AuditToIde(this)" id="btn-step-1-copy-tech-ide" class="py-2.5 px-3.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-xs" data-page-node-id="sKNPEjSD1zGelzJkz0nmRr">
+    <span data-page-node-id="nQond3PrzGXGbyUh3xEViP">③ 复制技术指标与改造方案初稿（给 IDE 再审）</span>
+    <span class="inline-flex items-center text-slate-400 hover:text-slate-600" title="指标 JSON + 技术初稿 + 架构师改造提示词。" data-page-node-id="0I05Bt8teyLQNMM7WEev31"><i data-lucide="help-circle" class="w-3.5 h-3.5" data-page-node-id="Tdqt5hBaYFA9GUVGbwG8wa"></i></span>
+  </button>
+  <button type="button" onclick="copyDiagDeepenPrompt(this, 'tech')" id="btn-step-1-copy-deepen" class="py-2.5 px-3.5 border-2 border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-900 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-xs" data-page-node-id="miGzvErF09O6x5BgDzZd63">
+    <span data-page-node-id="Cj4JgBBPvyLWZHFtW2jlix">④ 追加豆包问答稿与提示词（给 IDE 参考）</span>
+    <span class="inline-flex items-center text-violet-500 hover:text-violet-700" title="豆包长答路径 + 爬虫/索引排障提示。" data-page-node-id="odEi3eX9J7m9D7VLnWbPC7"><i data-lucide="help-circle" class="w-3.5 h-3.5" data-page-node-id="cdrBLq6EZ0LMTfKxtQNvfW"></i></span>
+  </button>
 </div>
-<p class="text-[10px] text-slate-500" data-page-node-id="XXUKMxaEzWIUleRULMJ8rv">说明：第一步真抓底座指标，第二步直出问题清单与改造方案。</p>
+<p class="text-[10px] text-slate-500" data-page-node-id="XXUKMxaEzWIUleRULMJ8rv">说明：①真抓指标 → ②直出问题与改造方案 → ③复制给 IDE 出补丁 → ④追加豆包问答排查收录缺口。</p>
 <p id="diag-deepen-probe-hint" class="text-[10px] text-amber-700 hidden" data-page-node-id="bdVuDUEX8obDnSzFusnrR3"></p>
 </div>
 
@@ -905,9 +935,9 @@
 <div class="flex items-center gap-2 flex-wrap" data-page-node-id="uzgYKtaFnBRDpL39mQYgLY">
 <button onclick="openPureSite()" class="py-2 px-3.5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition" data-page-node-id="yYDjBI9ulMrDduqZumg7gw"><i data-lucide="external-link" class="w-3.5 h-3.5" data-page-node-id="fiZ6UKIfWVE8yLwnoN5mN9"></i><span data-page-node-id="ZFIH0HtDf7BRWDgBpqMl8V">独立站点直达</span>
 </button>
-<button onclick="openVpsNginxModal()" class="py-2 px-3.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition" data-page-node-id="0FvlJ8TTcbqsv57d5nlxzN"><i data-lucide="server" class="w-3.5 h-3.5 text-indigo-600" data-page-node-id="JUeHzNVyJ3t6v1BNX9UvCz"></i><span data-page-node-id="Z26dEgHVH2OjNOY898McNl">查看/复制 VPS 反代配置</span>
+<button onclick="openVpsNginxModal()" data-geo-dev-only class="py-2 px-3.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition" data-page-node-id="0FvlJ8TTcbqsv57d5nlxzN"><i data-lucide="server" class="w-3.5 h-3.5 text-indigo-600" data-page-node-id="JUeHzNVyJ3t6v1BNX9UvCz"></i><span data-page-node-id="Z26dEgHVH2OjNOY898McNl">查看/复制 VPS 反代配置</span>
 </button>
-<button onclick="downloadSiteZip()" class="py-2 px-3.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition" title="下载全量源码包作为客户资产离线兜底" data-page-node-id="MDcMZKE68VRfpdkeySR1vd"><i data-lucide="archive" class="w-3.5 h-3.5" data-page-node-id="SdCl4cIknxI0niFLadBDPQ"></i><span data-page-node-id="wbPWktJqpEdaA6HPmkWfEv">导出源码包 (.zip)</span>
+<button onclick="downloadSiteZip()" data-geo-dev-only class="py-2 px-3.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition" title="下载全量源码包作为客户资产离线兜底" data-page-node-id="MDcMZKE68VRfpdkeySR1vd"><i data-lucide="archive" class="w-3.5 h-3.5" data-page-node-id="SdCl4cIknxI0niFLadBDPQ"></i><span data-page-node-id="wbPWktJqpEdaA6HPmkWfEv">导出源码包 (.zip)</span>
 </button>
 </div>
 </div>
@@ -1098,7 +1128,7 @@
 </button>
 <button type="button" onclick="runRewriteStep(event, 'full')" id="btn-step-3-full" class="py-1.5 px-2.5 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold rounded-lg border border-slate-300 flex items-center gap-1 transition" data-page-node-id="dWsiVBCdjZYmFVi99kk7MO"><i data-lucide="refresh-cw" class="w-3.5 h-3.5" data-page-node-id="RGPOOhX7aVNF8HS8rXDz7G"></i><span data-page-node-id="pWnxoZlfkdfcEPfzIg4Cip">强制全量</span>
 </button>
-<button onclick="copyOutput('03_普林斯顿9因子高权威语料库.md')" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1" data-page-node-id="Ra44xEKkmkipnX4DNd3qKH"><i data-lucide="copy" class="w-3.5 h-3.5" data-page-node-id="mQmQMAbiz85yBmQjYDdnrm"></i><span data-page-node-id="mC5UOsONoAivGlnHZJdzvF">复制全文</span>
+<button onclick="copyOutput('03_普林斯顿9因子高权威语料库.md')" data-geo-dev-only class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1" data-page-node-id="Ra44xEKkmkipnX4DNd3qKH"><i data-lucide="copy" class="w-3.5 h-3.5" data-page-node-id="mQmQMAbiz85yBmQjYDdnrm"></i><span data-page-node-id="mC5UOsONoAivGlnHZJdzvF">复制全文</span>
 </button>
 </div>
 </div>
@@ -1244,6 +1274,19 @@
   <div class="bg-amber-50/60 border border-amber-200/80 rounded-lg p-2.5 mb-3 text-[11px] text-amber-900 leading-normal">
     <strong>微调核对清单</strong>：核对品牌名、电话、服务项目是否准确；严格杜绝彩色 Emoji；禁止编造未经确认的数据。
   </div>
+
+  <!-- 开发者专属：IDE 工地（改写包 + 写回口令） -->
+  <div data-geo-dev-only class="space-y-2 mb-3 pt-3 border-t border-slate-100">
+    <div class="text-[11px] font-bold text-slate-800">IDE 工地（白盒改写落盘）</div>
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="copyIdeRewritePack('toutiao', this)" class="flex-1 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm">
+        <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>复制给 IDE 改写</span>
+      </button>
+      <button type="button" onclick="copyWritebackCommand('toutiao', this)" class="flex-1 py-2 bg-white hover:bg-violet-50 text-violet-800 text-xs font-semibold rounded-lg border-2 border-violet-300 transition flex items-center justify-center gap-1.5">
+        <i data-lucide="folder-input" class="w-3.5 h-3.5"></i><span>复制写回口令</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <details class="rounded-lg border border-slate-200 bg-slate-50/80 mt-2">
@@ -1300,6 +1343,19 @@
 
   <div class="bg-blue-50/60 border border-blue-200/80 rounded-lg p-2.5 mb-3 text-[11px] text-blue-900 leading-normal">
     <strong>知乎选型规范</strong>：面向深度技术选型；包含痛点对比与客观 Q&A；0 彩色 Emoji。
+  </div>
+
+  <!-- 开发者专属：IDE 工地（改写包 + 写回口令） -->
+  <div data-geo-dev-only class="space-y-2 mb-3 pt-3 border-t border-slate-100">
+    <div class="text-[11px] font-bold text-slate-800">IDE 工地（白盒改写落盘）</div>
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="copyIdeRewritePack('zhihu', this)" class="flex-1 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm">
+        <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>复制给 IDE 改写</span>
+      </button>
+      <button type="button" onclick="copyWritebackCommand('zhihu', this)" class="flex-1 py-2 bg-white hover:bg-violet-50 text-violet-800 text-xs font-semibold rounded-lg border-2 border-violet-300 transition flex items-center justify-center gap-1.5">
+        <i data-lucide="folder-input" class="w-3.5 h-3.5"></i><span>复制写回口令</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1482,6 +1538,21 @@
 </div>
 </div>
 
+<!-- 开发者与交付团队专属：运营发稿执行指引与派单任务卡 (SOP) -->
+<div data-geo-dev-only class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4 flex-wrap" data-page-node-id="HHOhnVq8tKphgZZGFCBur8">
+<div class="flex items-center gap-3 min-w-0" data-page-node-id="SqQDHWBeg6S9Bap2Q4qxbS">
+<div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center shrink-0" data-page-node-id="jns9WClTSouOw4cPQcTf0y"><i data-lucide="clipboard-check" class="w-5 h-5" data-page-node-id="wq760rUUBDG3sDvh0HUGYs"></i>
+</div>
+<div class="min-w-0" data-page-node-id="x28TFbIWt82ety6WVMAj0p">
+<div class="text-xs font-bold text-slate-800 flex items-center gap-2" data-page-node-id="SoEzTSgdEojwERQShGCkYU"><span data-page-node-id="PaOOGj1F31iIZetpKsH4be">运营发稿执行指引与派单任务卡 (SOP)</span><span class="text-[10px] font-normal text-slate-400 font-mono" data-page-node-id="XxLqdzm1Z1HZIK56NbDSGL">dist_channels_checklist.md</span>
+</div>
+<div class="text-xs text-slate-500 mt-0.5" data-page-node-id="ogYCEk7g3GcIUGUZWojwm7">汇总各平台后台直达入口、对应发稿文件、发布要点与打勾回填项；可一键复制直接发给运营同事或客户照单执行。</div>
+</div>
+</div>
+<button onclick="copyOutput('dist_channels_checklist.md')" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shrink-0" data-page-node-id="flTSIiUEOOsIGpvMKpkqiC"><i data-lucide="copy" class="w-3.5 h-3.5" data-page-node-id="DDy6ON1Ah5UDvsGMZrg7CR"></i><span data-page-node-id="KX0JDA0ZxFnqDnujIWVqRB">一键复制发稿 SOP 派单卡</span>
+</button>
+</div>
+
 <div class="flex items-center justify-between pt-4 border-t border-slate-200 mt-6" data-page-node-id="xvMWdHww9qdXkbECfqBc58">
 <button onclick="prevStep()" id="btn-prev-step" class="py-2.5 px-5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition" data-page-node-id="BSQWH7Tv6Ug8Tf17kwHDDu"><i data-lucide="chevron-left" class="w-4 h-4" data-page-node-id="TsgIGCAhRji8FiFA8MbBxG"></i><span data-page-node-id="Q8wMnlVs34pZJyUygfwJST">上一步</span>
 </button>
@@ -1551,8 +1622,8 @@
 </div>
 </div>
 </div>
-<!-- 商业 ROI 测算与客户续约预测看板 -->
-<div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 rounded-2xl shadow-xl p-6 text-white space-y-5" data-page-node-id="yPfnpxGWhCfJviBGrFEgUA">
+<!-- 商业 ROI 测算与客户续约预测看板 (开发者专属) -->
+<div data-geo-dev-only class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 rounded-2xl shadow-xl p-6 text-white space-y-5" data-page-node-id="yPfnpxGWhCfJviBGrFEgUA">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4" data-page-node-id="4WGdVXi7U9dDzRBS8KeQsJ">
 <div class="flex items-center gap-3" data-page-node-id="Nk2kVYJBLm5xTJDa1ECaSb">
 <div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center text-xl font-bold shadow-inner" data-page-node-id="KU6nGrCI0AhzyOObUlPoXd">
@@ -5452,6 +5523,15 @@ GitHub 开源仓库：https://github.com/company/repo
           el.classList.add('hidden');
         }
       });
+      // [2026-09-21] [开发者与写文同事双轨视界解耦与白盒流水线复原] 按角色显示/隐藏写文同事专属入口
+      const writerOnly = document.querySelectorAll('[data-geo-writer-only]');
+      writerOnly.forEach(function (el) {
+        if (!isDeveloper()) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
       // 运营文案：企业管理页说明（开发者看带「归属合作方」的那句）
       const descOps = document.getElementById('ent-page-desc-ops');
       if (descOps) {
@@ -5865,6 +5945,7 @@ GitHub 开源仓库：https://github.com/company/repo
         getProjectData: () => currentProjectData,
         getAuthToken: () => currentAuthToken,
         getLucide: () => window.lucide,
+        isDeveloper: () => (typeof isDeveloper === 'function' ? isDeveloper() : true),
         escapeHtml: (s) => (typeof escapeHtmlSafe === 'function' ? escapeHtmlSafe(s) : String(s ?? '')),
         setProjectData: (data) => {
           currentProjectData = data;
@@ -6116,8 +6197,9 @@ GitHub 开源仓库：https://github.com/company/repo
             permissions: Array.isArray(data.permissions) ? data.permissions : [],
             role: data.role || ''
           };
-          showDashboard(data.username);
+          // [2026-09-21] [权限先于渲染] 立即应用 RBAC 隐藏规则，严禁在异步渲染后才后知后觉过滤
           applyRbacUi();
+          await showDashboard(data.username);
         } else {
           showLogin();
         }
@@ -6134,29 +6216,35 @@ GitHub 开源仓库：https://github.com/company/repo
     async function showDashboard(username) {
       document.getElementById('login-view').classList.add('hidden');
       if (username) {
-        document.getElementById('current-user-name').innerText = username;
+        const displayName = isDeveloper() ? username : ((username === '运营同事' || !username) ? '写文同事' : username);
+        document.getElementById('current-user-name').innerText = displayName;
         const homeUser = document.getElementById('home-sidebar-user');
-        if (homeUser) homeUser.innerText = username;
+        if (homeUser) homeUser.innerText = displayName;
       }
       lucide.createIcons();
 
       const route = parseCurrentRoute();
       if (route.view === 'wizard' && route.projectId) {
         await enterWizard(route.projectId, route.viewId || route.step, route.tab);
-        loadPatrolStatus();
+        if (isDeveloper()) loadPatrolStatus();
         return;
       }
 
       document.getElementById('dashboard-view').classList.remove('hidden');
       document.getElementById('wizard-view').classList.add('hidden');
-      const homeView = (route.homeView && String(route.homeView).startsWith('home-'))
+      const devOnlyViews = ['home-insights', 'home-ops', 'home-partners', 'home-settings', 'home-members'];
+      let homeView = (route.homeView && String(route.homeView).startsWith('home-'))
         ? route.homeView
         : 'home-dashboard';
+      if (devOnlyViews.includes(homeView) && !isDeveloper()) {
+        homeView = 'home-dashboard';
+      }
       if (homeView === 'home-enterprises') {
         await openEnterprisesByPartner(route.partner || '', true);
       } else {
         await switchHomeView(homeView, true);
       }
+      applyRbacUi();
       lucide.createIcons();
     }
 
@@ -6280,14 +6368,14 @@ GitHub 开源仓库：https://github.com/company/repo
       await loadPartnersCache();
       renderHomeEnterpriseNav();
       await loadProjectsList();
-      loadPatrolStatus();
+      if (isDeveloper()) loadPatrolStatus();
       if (currentHomeView === 'home-settings') {
         switchHomeSettingsTab('llm');
       }
       if (currentHomeView === 'home-partners') {
         renderPartnersAdmin();
       }
-      if (currentHomeView === 'home-ops') {
+      if (currentHomeView === 'home-ops' && isDeveloper()) {
         refreshOpsLedger();
       }
       if (currentHomeView === 'home-insights') fillInsightsProjectSelect();
@@ -6300,6 +6388,8 @@ GitHub 开源仓库：https://github.com/company/repo
         memberInitForm();
         memberLoad();
       }
+      // [2026-09-21] [工作台视图切换权限守卫] 切换视图后必须重新执行权限过滤
+      applyRbacUi();
       if (!skipRoute) updateRouteState();
       lucide.createIcons();
     }
@@ -6347,6 +6437,8 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     async function loadPatrolStatus() {
+      // [2026-09-21] [写文角色权限纯粹化] 巡检告警状态仅开发者运维使用，写文同事不发起任何请求
+      if (!isDeveloper()) return;
       const targets = [
         ['patrol-last-time', 'patrol-alert-status'],
         ['ops-patrol-last-time', 'ops-patrol-alert-status'],
@@ -6417,6 +6509,8 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     async function refreshOpsLedger() {
+      // [2026-09-21] [写文角色权限纯粹化] 运维检测台账仅开发者专属，写文同事禁止加载
+      if (!isDeveloper()) return;
       const body = document.getElementById('ops-ledger-body');
       const counts = document.getElementById('ops-ledger-counts');
       const filter = document.getElementById('ops-log-project-filter');
@@ -6475,6 +6569,8 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     async function refreshOpsCheckLogs() {
+      // [2026-09-21] [写文角色权限纯粹化] 开发者专属路由，写文同事物理掐断，绝不调用
+      if (!isDeveloper()) return;
       const body = document.getElementById('ops-check-logs-body');
       if (!body) return;
       const pid = document.getElementById('ops-log-project-filter')?.value || '';
@@ -8556,16 +8652,272 @@ function backToDashboard() {
       switchView('step-1-diag');
     }
 
-    async function copyBossAuditToIde() {
-      showToast('这一步已改成在网页里做，不用复制出去', 'info');
+    // [2026-09-21] [开发者与写文同事双轨视界解耦与白盒流水线复原] 开发者专属：复制商业转化初稿与润色包给 IDE
+    async function copyBossAuditToIde(btn) {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>正在打包转化初稿…</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/diag/boss-audit-pack`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.clipboard) {
+          const anxietyPrefix = [
+            `【GEO 阶段一 · 老板商业转化诊断 · 焦虑转化润色包】`,
+            `【IDE 商业顾问任务】：`,
+            `1. 以【GEO 资深商业交付顾问】身份润色，五年级也能听懂；`,
+            `2. 强化现实焦虑：3 类流失询盘、竞品截流、「不做就晚了」；先安抚资产能打，再暴击丢单；`,
+            `3. 破局路线与 30 天愿景要可签约、可验收，禁止堆砌生涩技术名词与体验价以外的乱承诺；`,
+            `4. 严禁彩色 Emoji；写回 projects/${pid}/outputs/01_企业AI可见度商业诊断报告.md`,
+            ``,
+          ].join('\n');
+          copyStep0Text(anxietyPrefix + data.clipboard, btn, '已复制商业报告与转化初稿 → 贴给 IDE');
+          return;
+        }
+      } catch (e) { /* ignore and fallback */ }
+      finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+
+      // 降级兜底方案
+      let bossContent = '';
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('01_企业AI可见度商业诊断报告.md')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) bossContent = String(data.content).trim();
+      } catch (e) { /* ignore */ }
+      const lines = [
+        `【GEO 阶段一 · 老板商业转化诊断 · 焦虑转化润色包】`,
+        `项目：${pid}`,
+        `企业名称：${(currentProjectData && (currentProjectData.company_name || currentProjectData.name)) || ''}`,
+        `官网：${(currentProjectData && currentProjectData.official_url) || ''}`,
+        ``,
+        `【IDE 商业顾问任务】：`,
+        `1. 强化现实焦虑：3 类流失询盘、竞品截流、「不做就晚了」；先安抚再暴击。`,
+        `2. 严禁彩色 Emoji；破局/30 天要可签约。`,
+        `3. 写回 projects/${pid}/outputs/01_企业AI可见度商业诊断报告.md`,
+        ``,
+        `—— 01_企业AI可见度商业诊断报告.md 原文 ——`,
+        bossContent || '（尚未生成：请先点「① 真抓」再点「② 直出商业诊断初稿」）',
+      ];
+      copyStep0Text(lines.join('\n'), btn, '已复制商业报告与转化初稿 → 贴给 IDE');
     }
 
-    async function copyStep1AuditToIde() {
-      showToast('这一步已改成在网页里做，不用复制出去', 'info');
+    // [2026-09-21] [开发者与写文同事双轨视界解耦与白盒流水线复原] 开发者专属：复制技术指标与改造方案初稿给 IDE
+    async function copyStep1AuditToIde(btn) {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      let metricsText = '';
+      let techMd = '';
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('audit_metrics.json')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) metricsText = String(data.content).trim();
+      } catch (e) { /* ignore */ }
+      try {
+        const res2 = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('01_企业底座技术体检审计报告.md')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data2 = await res2.json();
+        if (data2.success && data2.content) techMd = String(data2.content).trim();
+      } catch (e) { /* ignore */ }
+      const lines = [
+        `【GEO 阶段一 · 站点底座技术体检 · 工程师改造包】`,
+        `项目：${pid}`,
+        `官网：${(currentProjectData && currentProjectData.official_url) || ''}`,
+        ``,
+        `【IDE 工程师任务】：`,
+        `1. 以【系统架构师】身份核实扣分项是否客观；`,
+        `2. 针对 SSR、/llms.txt、Schema、文本密度缺口，给出可落地的改造步骤/补丁要点；`,
+        `3. 严禁写入营销推销与体验价 CTA；保持 0 Emoji；`,
+        `4. 写回 projects/${pid}/outputs/01_企业底座技术体检审计报告.md`,
+        ``,
+        `—— audit_metrics.json ——`,
+        metricsText || '（尚未生成：请先点「① 真抓网络与底座指标」）',
+        ``,
+        `—— 01_企业底座技术体检审计报告.md ——`,
+        techMd || '（尚未生成：请先点「② 直出技术体检与改造方案初稿」）',
+      ];
+      copyStep0Text(lines.join('\n'), btn, '已复制技术指标与改造方案初稿 → 贴给 IDE');
     }
 
-    async function copyDiagDeepenPrompt() {
-      showToast('这一步已改成在网页里做，不用复制出去', 'info');
+    // [2026-09-21] [开发者与写文同事双轨视界解耦与白盒流水线复原] 开发者专属：追加豆包一手问答稿与提示词给 IDE
+    async function copyDiagDeepenPrompt(btn, audience) {
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const view = (audience === 'boss' || audience === 'tech')
+        ? audience
+        : (currentAuditTopTab === 'boss' ? 'boss' : 'tech');
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner"></span><span>生成中…</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/diag/deepen-prompt`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (!data.success || !data.clipboard) {
+          showToast(data.message || '生成豆包问答稿提示词失败', 'error');
+          return;
+        }
+        const audit = data.probe_audit || {};
+        const usable = !!audit.has_usable_full_answers;
+        const prefix = view === 'boss'
+          ? [
+              `【IDE 商业心智与竞品截流参考】`,
+              `请从【买家决策心智与竞品截流】角度排查：豆包把客流推荐给了哪几家竞品？买家最关心什么？`,
+              `把这些实锤补进「坏消息」与「流失询盘账本」，服务焦虑转化。`,
+              ``,
+            ].join('\n')
+          : [
+              `【IDE 抓取与收录排障参考】`,
+              `请从【网络爬虫抓取与 Clean Markdown 索引覆盖】角度排查：`,
+              `为什么豆包没有抓取或引用客户官网？是否存在 robots 拦截、内链缺失或动态渲染阻断？`,
+              ``,
+            ].join('\n');
+        copyStep0Text(
+          prefix + data.clipboard,
+          btn,
+          usable
+            ? '已复制豆包问答稿与提示词 → 贴给 IDE'
+            : '已复制；豆包答案缺全文，提示词末尾已附缺口说明'
+        );
+        refreshDiagDeepenProbeHint();
+      } catch (err) {
+        showToast('请求异常: ' + err.message, 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    // [2026-09-21] [开发者与写文同事双轨视界解耦与白盒流水线复原] 写文同事专属：一键小毛驴 AI 商业诊断深度生成
+    async function runWriterStep1AiGenerate(e) {
+      if (isStep1AuditRunning) {
+        showToast('上一步还在做，请稍等', 'warning');
+        return;
+      }
+      const pid = currentProjectId || (currentProjectData && currentProjectData.client_id) || '';
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+
+      // [2026-09-21] [防连点上锁提前] 立即上锁并置灰按钮，防在查摸底网络往返期间被快速连点
+      isStep1AuditRunning = true;
+      const btn = (e && e.currentTarget) ? e.currentTarget : null;
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>正在校验摸底数据与底座指标…</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+
+      try {
+        // 1. 前置检查：阶段零是否摸底
+        const checkHasProbe = async () => {
+          try {
+            const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/diag/probe-answer-audit`, {
+              headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+            });
+            const d = await res.json();
+            return !!(d && d.success && (d.items_total > 0 || d.has_usable_full_answers));
+          } catch (_) {
+            return true; // 网络异常不强行阻断
+          }
+        };
+
+        const hasProbe = await checkHasProbe();
+        if (!hasProbe) {
+          showToast('请先前往【00 先去豆包摸底】完成问答实测，否则商业诊断缺乏真实依据！', 'warning');
+          return;
+        }
+
+        if (btn) {
+          btn.innerHTML = `<span>小毛驴正在结合底座与豆包数据深度生成中…</span>`;
+          if (window.lucide) lucide.createIcons();
+        }
+        // 2. 先检查是否有底座指标，没有则静默先抓一次底座
+        let hasMetrics = false;
+        try {
+          const chk = await fetch(`/api/projects/${encodeURIComponent(pid)}/output/${encodeURIComponent('audit_metrics.json')}`, {
+            headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+          });
+          if (chk.ok) {
+            const chkData = await chk.json();
+            hasMetrics = !!(chkData && chkData.success && chkData.content);
+          }
+        } catch (_) {}
+
+        if (!hasMetrics) {
+          if (btn) {
+            btn.innerHTML = `<span>正在真抓官网网络底座…</span>`;
+            if (window.lucide) lucide.createIcons();
+          }
+          await fetch(`/api/projects/${encodeURIComponent(pid)}/run/audit`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${currentAuthToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'crawl' })
+          });
+        }
+
+        // 3. 真正调用小毛驴生成商业解读与高转化报告 (interpret)
+        if (btn) {
+          btn.innerHTML = `<span>小毛驴正在撰写商业诊断与签约建议…</span>`;
+          if (window.lucide) lucide.createIcons();
+        }
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/run/audit`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentAuthToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'interpret' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          switchAuditTopTab('boss');
+          await loadStepPreviews();
+          showToast('小毛驴 AI 商业诊断报告已深度生成完毕！', 'success');
+        } else {
+          showToast('生成失败: ' + (data.message || '请稍后重试'), 'error');
+        }
+      } catch (err) {
+        showToast('请求异常: ' + err.message, 'error');
+      } finally {
+        isStep1AuditRunning = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
     }
 
     async function refreshDiagDeepenProbeHint() {
@@ -10477,6 +10829,8 @@ function backToDashboard() {
         if (viewTech) viewTech.classList.add('hidden');
         switchBossReportStyle(currentBossReportStyle);
       }
+      // [2026-09-21] [页签切换防洗掉角色权限] 重新执行角色 UI 过滤，防止替换 className 将非开发者的 hidden 抹除
+      applyRbacUi();
     }
 
     // 兼容旧别名
@@ -13124,12 +13478,88 @@ function backToDashboard() {
       }
     }
 
-    // 兼容历史调用占位
+    // [2026-09-21] [开发者与写文同事双轨视界解耦与白盒流水线复原] 开发者专属：复制改写包与写回口令
     async function copyIdeRewritePack(channel, btn) {
-      showToast('这一步已改成在网页里改，不用复制出去', 'info');
+      const pid = currentProjectId;
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const ch = channel || 'toutiao';
+      const original = btn ? btn.innerHTML : '';
+      try {
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span>打包中…</span>';
+        }
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/answer-rewrite/pack?channel=${encodeURIComponent(ch)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (res.status === 404 || data.error === 'Not Found') {
+          showToast('改写包接口未加载：请重启本机管理台后再试', 'error');
+          return;
+        }
+        if (!data.success || !data.clipboard) {
+          showToast(data.message || '复制失败', 'error');
+          return;
+        }
+        await navigator.clipboard.writeText(data.clipboard);
+        showToast(data.has_draft
+          ? '已复制「给 IDE 的改写包」→ 贴到 Cursor 写定稿'
+          : '已复制说明书（尚无草稿，请先点「生成草稿」）');
+        if (data.brief) renderRewriteBrief(data.brief);
+      } catch (e) {
+        showToast('复制失败，请检查剪贴板权限', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = original;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
     }
+
     async function copyWritebackCommand(channel, btn) {
-      showToast('这一步已改成在网页里保存，不用复制出去', 'info');
+      const pid = currentProjectId;
+      if (!pid) {
+        showToast('请先选择项目', 'error');
+        return;
+      }
+      const ch = channel || 'toutiao';
+      const original = btn ? btn.innerHTML : '';
+      try {
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span>复制中…</span>';
+        }
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/answer-rewrite/writeback-cmd?channel=${encodeURIComponent(ch)}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (res.status === 404 || data.error === 'Not Found') {
+          showToast('写回口令接口未加载：请重启本机管理台后再试', 'error');
+          return;
+        }
+        if (!data.success || !data.clipboard) {
+          showToast(data.message || '复制失败', 'error');
+          return;
+        }
+        await navigator.clipboard.writeText(data.clipboard);
+        showToast('已复制「写回口令」→ 贴回 IDE，把定稿写入规定路径');
+      } catch (e) {
+        showToast('复制失败，请检查剪贴板权限', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = original;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    async function copyAnswerAuditToIde(channel, btn) {
+      return copyIdeRewritePack(channel, btn);
     }
 
     async function copyToutiaoRichHtml() {
@@ -13257,7 +13687,20 @@ function backToDashboard() {
     }
 
     async function copyWechatSop() {
-      showToast('这一步不用复制', 'info');
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent('wechat_pack/03_微信搜一搜关键词配置与发稿SOP.txt')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          await navigator.clipboard.writeText(data.content);
+          showToast('微信搜一搜关键词与发稿 SOP 已复制！');
+        } else {
+          showToast('请先点击「生成微信发稿包」', 'error');
+        }
+      } catch (e) {
+        showToast('复制 SOP 失败', 'error');
+      }
     }
 
     // ===== DeepSeek / 知乎 / GitHub 发稿中心控制器 =====
@@ -13332,7 +13775,20 @@ function backToDashboard() {
     }
 
     async function copyDeepseekSop() {
-      showToast('这一步不用复制', 'info');
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent('deepseek_pack/04_知乎专栏与GitHub开源分发SOP.txt')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          await navigator.clipboard.writeText(data.content);
+          showToast('知乎与 GitHub 开源分发 SOP 已复制！');
+        } else {
+          showToast('请先点击「生成 DeepSeek 技术包」', 'error');
+        }
+      } catch (e) {
+        showToast('复制 SOP 失败', 'error');
+      }
     }
 
     // ===== Kimi & 百度文心发稿中心控制器 =====
@@ -13406,7 +13862,20 @@ function backToDashboard() {
     }
 
     async function copyKimiBaiduSop() {
-      showToast('这一步不用复制', 'info');
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}/output/${encodeURIComponent('kimi_baidu_pack/04_Kimi与百度生态分发SOP.txt')}`, {
+          headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+        });
+        const data = await res.json();
+        if (data.success && data.content) {
+          await navigator.clipboard.writeText(data.content);
+          showToast('Kimi 与百度生态分发 SOP 已复制！');
+        } else {
+          showToast('请先点击「生成 Kimi/百度包」', 'error');
+        }
+      } catch (e) {
+        showToast('复制 SOP 失败', 'error');
+      }
     }
 
     // ===== 知乎学术风富文本与大模型爬虫保真度透视 =====

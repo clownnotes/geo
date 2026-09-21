@@ -1,102 +1,99 @@
 <template>
   <li class="bg-slate-50 border border-slate-100 rounded-lg p-3 space-y-3 list-none">
-    <div class="font-semibold text-slate-900">3. 把豆包问到的结果，存进这个客户项目</div>
+    <div class="font-semibold text-slate-900">3. 把豆包结果存进项目</div>
 
     <div class="text-[11px] text-slate-600 leading-relaxed bg-indigo-50/60 border border-indigo-100 rounded-lg px-3 py-2.5 space-y-1.5">
       <p class="font-semibold text-slate-800">这一步在干什么？（一句话）</p>
-      <p>豆包问完后，结果会写成一个文件。你在这里选中它，先看一眼会改什么，觉得没问题再确认写入。</p>
+      <p>{{ isDeveloper
+        ? '反重力已经把答案写成了一个 JSON 文件。现在你要告诉管理台：「就用这个文件」，先看一眼会改什么，觉得没问题再真正写进去。'
+        : '豆包问完后，结果会写成一个文件。你在这里选中它，先看一眼会改什么，觉得没问题再确认写入。'
+      }}</p>
       <p class="text-slate-500">比喻：作业本在桌上了（第 2 步落盘）。第 3 步是：选哪本作业本 → 先翻开看一眼 → 再交到老师那里存档。</p>
       <p class="text-amber-800">下面 A、B、C 三个按钮都在本卡片里往下滚就能看到，不是藏在别处。</p>
     </div>
 
-    <div class="space-y-2.5">
-      <!-- A. 选结果文件 -->
+    <div class="space-y-3">
+      <!-- A. 选作业本 -->
       <div class="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="text-[11px] font-bold text-slate-900">A. 选哪一份结果（选中后立刻能看见里面问了啥）</div>
+          <div class="text-[11px] font-bold text-slate-900">A. 选一份结果文件（准备交哪本作业）</div>
           <button
             type="button"
-            class="px-2.5 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 text-[10px] font-semibold text-slate-600"
+            class="px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-[10px] font-semibold text-slate-600 flex items-center gap-1"
+            title="重新读取电脑里的结果文件"
             @click="$emit('refresh-results')"
           >
-            刷新列表
+            <i data-lucide="refresh-cw" class="w-3 h-3"></i>刷新列表
           </button>
         </div>
         <p class="text-[10px] text-slate-500">
-          不是盲选。点某一行后，下面会展开：问了哪些题、提没提我们、冒出哪些竞品。只有一份时也要勾一下，等于告诉系统「就用这一份」；有多份时，看日期和摘要挑对的（一般选最新，或带 retest 的复测）。
+          选中的那份文件，后面 B「预览」和 C「确认写入」就对它生效。点某一行 = 选中；点删除 = 删那一份文件。
         </p>
-        <p class="text-[10px] text-slate-500 break-all">{{ uploadExpected }}</p>
 
-        <!-- 结果列表 -->
-        <div class="text-[11px] text-slate-600 space-y-1.5 bg-slate-50 border border-slate-100 rounded-md px-2.5 py-2 min-h-[2.5rem]">
-          <div v-if="resultListState === 'loading'" class="text-slate-400">加载中…</div>
-          <div v-else-if="resultListState === 'error'" class="text-amber-700">无法读取已存在结果列表。</div>
-          <div v-else-if="!results.length" class="text-amber-700">
-            目前还没有任何结果文件。先做完第 2 步去豆包问完，再点「刷新列表」。
+        <!-- 结果文件列表 -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden text-xs">
+          <div v-if="resultListState === 'loading'" class="text-slate-400 p-3">加载中…</div>
+          <div v-else-if="resultListState === 'error'" class="text-amber-700 p-3">无法读取已存在结果列表。</div>
+          <div v-else-if="!results.length" class="text-amber-700 p-3">
+            目前还没有任何结果文件。请先做完第 2 步去豆包问完，再点「刷新列表」。
           </div>
           <template v-else>
             <div
-              v-for="r in results"
-              :key="r.file"
-              class="flex items-start gap-2 border rounded-md px-2 py-1.5 cursor-pointer"
-              :class="
-                r.file === selectedResultFile
-                  ? 'border-indigo-200 bg-indigo-50/60'
-                  : 'border-slate-100 bg-white'
-              "
-              @click="$emit('select-result', r.file)"
+              v-for="f in results"
+              :key="f.name"
+              class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50/80 cursor-pointer"
+              :class="selectedResultFile === f.name ? 'bg-indigo-50/70 border-l-4 border-l-[#7c5bf5]' : ''"
+              @click="$emit('select-result', f.name)"
             >
-              <input
-                type="radio"
-                name="step0-result-pick"
-                class="mt-1"
-                :checked="r.file === selectedResultFile"
-                @change="$emit('select-result', r.file)"
-              />
-              <div class="min-w-0 flex-1">
-                <div class="font-semibold text-slate-800 break-all">
-                  {{ r.file }}
-                  <span
-                    v-if="r.file === selectedResultFile"
-                    class="ml-1 px-1 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-100 text-[9px] font-semibold"
-                  >
-                    选用中
-                  </span>
-                </div>
-                <div class="text-[10px] text-slate-400">
-                  {{ r.mtime || '' }}{{ r.item_count != null ? ` · ${r.item_count} 题` : '' }}{{ r.model ? ` · ${r.model}` : '' }}
-                </div>
+              <div class="flex items-center gap-2 min-w-0">
+                <input
+                  type="radio"
+                  name="selected-result"
+                  :value="f.name"
+                  :checked="selectedResultFile === f.name"
+                  class="text-[#7c5bf5] shrink-0"
+                  @change="$emit('select-result', f.name)"
+                />
+                <span class="font-mono text-[11px] font-semibold text-slate-800 truncate">{{ f.name }}</span>
+                <span v-if="f.item_count != null" class="text-[10px] text-slate-400 shrink-0">({{ f.item_count }} 题)</span>
               </div>
-              <!-- [2026-09-17] [阶段零结果文件删除] 结果文件行右侧手动删除键 -->
-              <button
-                type="button"
-                class="shrink-0 px-2 py-1 text-[10px] font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded border border-rose-200 transition-colors"
-                title="删除此份结果文件"
-                @click.stop="$emit('delete-result', r.file)"
-              >
-                删除
-              </button>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-[10px] text-slate-400">{{ f.mtime_text || f.time || '' }}</span>
+                <button
+                  type="button"
+                  class="text-rose-500 hover:text-rose-700 p-1 text-[10px]"
+                  title="删除该文件"
+                  @click.stop="$emit('delete-result', f.name)"
+                >
+                  删除
+                </button>
+              </div>
             </div>
           </template>
         </div>
 
-        <label class="flex items-center gap-2 text-[11px] text-slate-600 select-none pt-1">
+        <p class="text-[10px] text-slate-400 font-mono break-all">
+          {{ uploadExpected }}
+        </p>
+
+        <!-- 选项勾选 -->
+        <label class="flex items-center gap-2 text-[11px] text-slate-700 cursor-pointer">
           <input
             v-model="localMerge"
             type="checkbox"
-            class="rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]"
+            class="text-[#7c5bf5] rounded"
             @change="$emit('update:merge', localMerge)"
           />
-          <span>写入时合并旧内容（项目里已有精修选题/竞品时请勾上，避免被盖掉）</span>
+          <span>合并写入（保留历史已有维度与题目，推荐）</span>
         </label>
-        <label class="flex items-start gap-2 text-[11px] text-slate-600 select-none pt-1">
+        <label class="flex items-center gap-2 text-[11px] text-slate-700 cursor-pointer">
           <input
             v-model="localWriteTopics"
             type="checkbox"
-            class="mt-0.5 rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]"
+            class="text-[#7c5bf5] rounded"
             @change="$emit('update:write-topics', localWriteTopics)"
           />
-          <span><strong>同时把本题长问写入选题清单</strong>（推荐）。短词会被自动拒收；写入后可去「日常运维 · 选题长问清单」跟客户确认。</span>
+          <span>同时提炼竞品与潜在搜索主题</span>
         </label>
       </div>
 
@@ -106,17 +103,28 @@
           <div class="min-w-0">
             <div class="text-[11px] font-bold text-slate-900">B. 看这份结果里「豆包怎么说」+「准备写入项目什么」</div>
             <p class="text-[10px] text-slate-500 mt-1">
-              这里<strong>不是</strong>豆包网页聊天全文（全文在豆包会话里）。落盘文件里存的是每题的结论摘要。下面分两块：① 每题答案摘要；② 若点确认，会写进项目的竞品/问句。题少 = 这份结果文件里本来就只有这么多题（邻里 GEO 第一次摸底只有 3 题），不是被界面截断了。
+              这里<strong>不是</strong>豆包网页聊天全文。落盘文件里存的是每题的结论摘要。
             </p>
           </div>
-          <button
-            type="button"
-            class="w-full sm:w-auto px-4 py-2.5 rounded-lg border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-[11px] font-semibold flex items-center justify-center gap-1.5"
-            @click="$emit('preview-from-disk')"
-          >
-          <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-          <span>刷新预览</span>
-        </button>
+          <div class="flex items-center gap-2">
+            <button
+              v-if="isDeveloper"
+              type="button"
+              class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+              :disabled="!previewCopyText"
+              @click="$emit('copy-preview-for-ide')"
+            >
+              一键复制给 IDE
+            </button>
+            <button
+              type="button"
+              class="w-full sm:w-auto px-4 py-2.5 rounded-lg border-2 border-[#7c5bf5] bg-white hover:bg-violet-50 text-[#7c5bf5] text-[11px] font-semibold flex items-center justify-center gap-1.5"
+              @click="$emit('preview-from-disk')"
+            >
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+              <span>刷新预览</span>
+            </button>
+          </div>
         </div>
 
         <div
@@ -160,11 +168,11 @@
       <div class="bg-white border-2 border-[#7c5bf5]/35 rounded-lg p-3 space-y-2">
         <div class="text-[11px] font-bold text-slate-900">C. 点「确认写入」——真正存进项目</div>
         <p class="text-[10px] text-slate-500">
-          选中文件并出现预览后，这个按钮才会亮。点它 = 真正写入项目；右上角应出现<strong>「确认已写入」</strong>。只有你亲手点 B「刷新预览」时才会提示「已预览」，两者不要搞混。
+          选中文件并出现预览后，这个按钮才会亮。点它 = 真正写入项目；右上角应出现<strong>「确认已写入」</strong>。
         </p>
         <button
           type="button"
-          class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+          class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
           :disabled="!diskPreviewReady"
           @click="$emit('apply-from-disk')"
         >
@@ -187,8 +195,7 @@
         </div>
         <p class="text-[10px] text-slate-500 leading-relaxed">
           <strong class="text-rose-700">红色「还没把豆包答案存进项目」</strong> = 新建客户，或还没点过上面的「确认写入」——这时只能写「第一次要问的题」。<br />
-          <strong class="text-emerald-700">绿色「豆包答案已存进项目」</strong> = 第 3 步已经把某份豆包结果存进去了。这才是摸底存档。之后出题会变成「再测一遍」。<br />
-          点「重新检查进度」只是再读一遍电脑和项目状态；不会凭空变出豆包答案。
+          <strong class="text-emerald-700">绿色「豆包答案已存进项目」</strong> = 第 3 步已经把某份豆包结果存进去了。这才是摸底存档。之后出题会变成「再测一遍」。
         </p>
         <p v-if="baselineMetaText" class="text-[10px] font-mono text-slate-400 break-all">
           {{ baselineMetaText }}
@@ -207,7 +214,7 @@
 
       <details class="bg-white border border-dashed border-slate-200 rounded-lg p-3">
         <summary class="text-[11px] font-semibold text-slate-600 cursor-pointer select-none">
-          备用：从本机选一个结果文件上传
+          {{ isDeveloper ? '备用：本机上传文件 / CLI（一般不用）' : '备用：从本机选一个结果文件上传' }}
         </summary>
         <div class="mt-2 space-y-2">
           <input
@@ -232,6 +239,35 @@
               上传后确认回填
             </button>
           </div>
+
+          <!-- 开发者专属：CLI 命令行 -->
+          <template v-if="isDeveloper">
+            <div class="flex flex-wrap items-stretch gap-2">
+              <div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+                <code class="flex-1 break-all select-all">{{ cmdPreview }}</code>
+              </div>
+              <button
+                type="button"
+                class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold"
+                @click="$emit('copy-cmd', cmdPreview)"
+              >
+                复制
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-stretch gap-2">
+              <div class="flex-1 min-w-[12rem] flex items-center font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+                <code class="flex-1 break-all select-all">{{ cmdApply }}</code>
+              </div>
+              <button
+                type="button"
+                class="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[#7c5bf5] text-[11px] font-semibold"
+                @click="$emit('copy-cmd', cmdApply)"
+              >
+                复制
+              </button>
+            </div>
+          </template>
         </div>
       </details>
     </div>
@@ -242,6 +278,7 @@
 import { ref } from 'vue';
 
 const props = defineProps({
+  isDeveloper: { type: Boolean, default: true },
   results: { type: Array, default: () => [] },
   selectedResultFile: { type: String, default: '' },
   resultListState: { type: String, default: 'idle' },
@@ -263,10 +300,12 @@ const emit = defineEmits([
   'delete-result',
   'update:merge',
   'update:write-topics',
+  'copy-preview-for-ide',
   'preview-from-disk',
   'apply-from-disk',
   'preview-upload',
   'apply-upload',
+  'copy-cmd',
 ]);
 
 const localMerge = ref(props.merge);

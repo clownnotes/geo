@@ -544,6 +544,7 @@ ROUTE_DEVELOPER_SUFFIXES = (
     "/site/download",
     # [2026-09-19] [运营端去IDE化与小毛驴算力内嵌闭环] 配方口、整包下载与机房配置仅开发者专属
     "/answer-rewrite/ide-pack",
+    "/answer-rewrite/pack",
     "/answer-rewrite/writeback-cmd",
     "/answer-audit/ide-clipboard",
     "/diag/deepen-prompt",

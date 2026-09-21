@@ -3009,15 +3009,18 @@ core_values:
             role = sess.get("role", "user")
             credits = sess.get("credits", 0)
 
-            # [2026-09-18] [运营人员权限隔离] 权限以本地花名册为唯一权威源下发，上游 role 不参与鉴权
             _ident = self.rbac_identity()
             # [2026-09-19] [运营账号反AI抓取] 登录票与仓库绝对路径只对开发者下发。
             # 运营拿到 token 就能整根拔走、贴进自己的 AI/脚本绕开界面打全站接口；
             # 仓库路径则直接暴露机房结构。运营侧一律改用 HttpOnly Cookie 维持会话。
             _is_dev = bool(_ident and _ident.is_developer)
+            # [2026-09-21] [写文角色纯粹化] 优先采用本地花名册权威姓名，非开发者统一规范化为「写文同事」，消除历史 session 脏数据
+            display_user = (_ident.name if (_ident and _ident.name) else user) or ("开发者" if _is_dev else "写文同事")
+            if not _is_dev and display_user == "运营同事":
+                display_user = "写文同事"
             payload = {
                 "authenticated": authed,
-                "username": user,
+                "username": display_user,
                 "user_id": user_id,
                 "role": role,
                 "credits": credits,
@@ -3129,7 +3132,7 @@ core_values:
 
         # 4. 页面路由处理
         if path == "/" or path == "/index.html" or path == "/admin":
-            # 返回前端单页应用
+            # 返回前端单页应用（强制 no-cache，杜绝开发态与调试期浏览器死锁静态缓存）
             index_path = os.path.join(WEB_DIR, "index.html")
             if os.path.exists(index_path):
                 with open(index_path, "rb") as f:
@@ -3137,6 +3140,9 @@ core_values:
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
                 self.send_header("Content-Length", str(len(content)))
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+                self.send_header("Pragma", "no-cache")
+                self.send_header("Expires", "0")
                 self.end_headers()
                 self.wfile.write(content)
                 return

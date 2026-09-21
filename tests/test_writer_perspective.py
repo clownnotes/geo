@@ -87,10 +87,22 @@ class WriterPerspectiveTest(unittest.TestCase):
         self.assertIsNotNone(top_zip)
         self.assertIn("data-geo-dev-only", top_zip.group(0), "顶部导出 ZIP 必须带 data-geo-dev-only")
 
+        # 仪表盘真机台账告警区的「运维详情」
+        ops_detail_btn = re.search(r'<button[^>]*switchHomeView\([\'"]home-ops[\'"]\)[^>]*>运维详情</button>', self.html)
+        self.assertIsNotNone(ops_detail_btn, "未找到运维详情按钮")
+        self.assertIn("data-geo-dev-only", ops_detail_btn.group(0), "运维详情必须带 data-geo-dev-only")
+
         # 阶段五「下载全套成果 ZIP」
         s5_zip = re.search(r'<button[^>]*onclick="handleDownloadZip\(\)"[^>]*>[\s\S]*?下载全套成果 ZIP[\s\S]*?</button>', self.html)
         self.assertIsNotNone(s5_zip)
         self.assertIn("data-geo-dev-only", s5_zip.group(0), "阶段五下载全套成果 ZIP 必须带 data-geo-dev-only")
+
+    def test_writer_functions_do_not_call_dev_apis(self):
+        """2b. 运维与巡检函数必须有 if (!isDeveloper()) return; 物理阻断非开发者网络请求"""
+        for fn in ["loadPatrolStatus", "refreshOpsLedger", "refreshOpsCheckLogs"]:
+            match = re.search(r'async\s+function\s+' + fn + r'\s*\([^\)]*\)\s*\{([\s\S]*?)\n\s*\}', self.html)
+            self.assertIsNotNone(match, f"未找到 {fn} 函数")
+            self.assertIn("!isDeveloper()", match.group(1), f"{fn} 必须在第一行校验 !isDeveloper() 退出")
 
     def test_writer_dashboard_endpoints_all_200(self):
         """3. 写文同事进入仪表盘正常发起的全部请求必须 100% 通过（403 次数为 0）"""

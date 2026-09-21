@@ -15,6 +15,10 @@ import {
   outputsAbs,
   cdCmd,
   probeScriptCmd,
+  cursorPromptText,
+  qualityPromptText,
+  antigravityPromptText,
+  antigravitySavePromptText,
 } from './plainCopy.js';
 
 function defaultEscapeHtml(s) {
@@ -119,6 +123,10 @@ export function useStep0(bridge) {
   const cdCmdText = computed(() => cdCmd(geoCdCmd.value, geoRepoRoot.value, guide.value));
 
   const scriptCmdText = computed(() => probeScriptCmd(projectId.value));
+  const cursorPrompt = computed(() =>
+    cursorPromptText(projectId.value, geoCdCmd.value, geoRepoRoot.value, guide.value),
+  );
+  const isDeveloper = computed(() => (bridge.isDeveloper ? bridge.isDeveloper() : true));
 
   const scripts = computed(() =>
     guide.value && Array.isArray(guide.value.scripts) ? guide.value.scripts : [],
@@ -534,7 +542,15 @@ export function useStep0(bridge) {
   }
 
   async function copyQualityPrompt() {
-    toast(UI.refuseExternalCopy, 'info');
+    try {
+      await fetchGuide();
+    } catch {
+      /* fallback to projectData */
+    }
+    const st = resolveProbeStatus(guide.value, projectData.value);
+    const mode = st === 'baseline_ready' || st === 'awaiting_retest' ? '复测' : '首轮';
+    const text = qualityPromptText(projectId.value, st, projectData.value);
+    await copyText(text, `已复制：高质量出题提示词（${mode} · probe_status=${st}）`);
   }
 
   async function generateScript(btnState) {
@@ -742,19 +758,30 @@ export function useStep0(bridge) {
   }
 
   async function copyAntigravityPrompt() {
-    toast(UI.refuseExternalCopy, 'info');
+    const text = antigravityPromptText(projectId.value, activeScript.value);
+    await copyText(text, '已复制①怎么问 → 贴反重力后，务必再 @ 问题清单文件');
   }
 
   async function copyAntigravitySavePrompt() {
-    toast(UI.refuseExternalCopy, 'info');
+    const text = antigravitySavePromptText(
+      projectId.value,
+      activeScript.value,
+      guide.value,
+      geoRepoRoot.value,
+    );
+    await copyText(text, '已复制②收工说明书 → 再贴同一反重力对话，等它写完文件');
   }
 
   async function copyCursorPrompt() {
-    toast(UI.refuseExternalCopy, 'info');
+    await copyText(cursorPrompt.value, '已复制：给 Cursor 执行该命令');
   }
 
   async function copyPreviewForIde() {
-    toast(UI.refuseExternalCopy, 'info');
+    if (!previewCopyText.value) {
+      toast('还没有可复制的预览，先选文件并刷新预览', 'error');
+      return;
+    }
+    await copyText(previewCopyText.value, '已复制侦察摘要 → 可直接贴给 IDE');
   }
 
   function goStep1() {
@@ -762,6 +789,7 @@ export function useStep0(bridge) {
   }
 
   return {
+    isDeveloper,
     guide,
     loading,
     guideError,
@@ -789,6 +817,7 @@ export function useStep0(bridge) {
     scriptHintText,
     cdCmdText,
     scriptCmdText,
+    cursorPrompt,
     scripts,
     results,
     expectedResult,
