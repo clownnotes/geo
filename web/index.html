@@ -88,7 +88,7 @@
 <!-- // [2026-09-21] [写文角色权限纯粹化] 运维告警收敛为开发者专属，写文同事侧边栏隐藏 -->
 <button type="button" id="nav-home-ops" data-geo-dev-only onclick="switchHomeView('home-ops')" class="sidebar-nav-item" data-page-node-id="5QmoNgrxQPzM6iw2qruiHV"><span class="truncate" data-page-node-id="CvB7tbM18PfRACzf5ykUYZ">运维告警</span></button>
 <button type="button" id="nav-home-settings" data-geo-dev-only onclick="switchHomeView('home-settings')" class="sidebar-nav-item" data-page-node-id="u11AswJcfURi2BCvv6HtcZ"><span class="truncate" data-page-node-id="kYRDVr9CgdMDKYLJhADyCc">系统设置</span></button>
-<button type="button" id="nav-home-collab" onclick="switchHomeView('home-collab')" class="sidebar-nav-item" data-page-node-id="pZge618on5nA6NTDVkwa3n"><span class="truncate" data-page-node-id="dj2orlHGUs2zkxoG8Ew8ar">协作与任务</span></button>
+<button type="button" id="nav-home-collab" data-geo-dev-only onclick="switchHomeView('home-collab')" class="sidebar-nav-item" data-page-node-id="pZge618on5nA6NTDVkwa3n"><span class="truncate" data-page-node-id="dj2orlHGUs2zkxoG8Ew8ar">协作与任务</span></button>
 <button type="button" id="nav-home-members" data-geo-dev-only onclick="switchHomeView('home-members')" class="sidebar-nav-item" data-page-node-id="RpPbYBC26Q21XPXEMRNyxf"><span class="truncate" data-page-node-id="0TPzmSOgwZqGCgu56mpzBL">成员管理</span></button>
 </div>
 </div>
@@ -6232,7 +6232,7 @@ GitHub 开源仓库：https://github.com/company/repo
 
       document.getElementById('dashboard-view').classList.remove('hidden');
       document.getElementById('wizard-view').classList.add('hidden');
-      const devOnlyViews = ['home-insights', 'home-ops', 'home-partners', 'home-settings', 'home-members'];
+      const devOnlyViews = ['home-insights', 'home-ops', 'home-partners', 'home-settings', 'home-members', 'home-collab'];
       let homeView = (route.homeView && String(route.homeView).startsWith('home-'))
         ? route.homeView
         : 'home-dashboard';
@@ -6353,7 +6353,7 @@ GitHub 开源仓库：https://github.com/company/repo
 
     async function switchHomeView(viewId, skipRoute) {
       // // [2026-09-21] [写文角色权限纯粹化] 非写文视图（商业洞察/运维告警/合作方名册/系统设置/成员管理）对写文同事拦截并安全回退至仪表盘
-      const devOnlyViews = ['home-insights', 'home-ops', 'home-partners', 'home-settings', 'home-members'];
+      const devOnlyViews = ['home-insights', 'home-ops', 'home-partners', 'home-settings', 'home-members', 'home-collab'];
       if (devOnlyViews.includes(viewId) && !isDeveloper()) {
         viewId = 'home-dashboard';
       }

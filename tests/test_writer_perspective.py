@@ -75,6 +75,21 @@ class WriterPerspectiveTest(unittest.TestCase):
         self.assertIsNotNone(member_btn)
         self.assertIn("data-geo-dev-only", member_btn.group(0))
 
+        # 协作与任务：只藏侧栏按钮，协作面板本身不能带 data-geo-dev-only（会和 home-panel 的 hidden 打架）
+        collab_btn = re.search(r'<button[^>]*id="nav-home-collab"[^>]*>', self.html)
+        self.assertIsNotNone(collab_btn, "未找到 nav-home-collab 按钮")
+        self.assertIn("data-geo-dev-only", collab_btn.group(0), "nav-home-collab 必须带 data-geo-dev-only")
+        panel = re.search(r'<section[^>]*id="panel-home-collab"[^>]*>', self.html)
+        self.assertIsNotNone(panel, "未找到协作与任务面板")
+        self.assertNotIn("data-geo-dev-only", panel.group(0), "协作面板禁止挂 data-geo-dev-only")
+
+    def test_collab_view_guarded_in_both_lists(self):
+        """1b. 恢复页面与切页两处名单都必须拦住 home-collab"""
+        lists = re.findall(r"const devOnlyViews = \[([^\]]+)\]", self.html)
+        self.assertGreaterEqual(len(lists), 2, "devOnlyViews 应至少出现在 showDashboard 与 switchHomeView")
+        for raw in lists:
+            self.assertIn("'home-collab'", raw, "每一份 devOnlyViews 都要包含 home-collab")
+
     def test_dashboard_and_pipeline_danger_buttons_hidden(self):
         """2. 仪表盘与交付流水线中的非写文高危按钮必须带 data-geo-dev-only"""
         # 仪表盘真机引导区的「检测台账详情」
