@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 ROSTER_FILE = os.path.join(DATA_DIR, "rbac_members.json")
+GROUPS_FILE = os.path.join(DATA_DIR, "groups.json")
 
 SCHEMA_VERSION = 1
 
@@ -511,12 +512,6 @@ ROUTE_AUTHENTICATED = frozenset({
     ("/api/ops/check-ledger", "GET"),   # 响应须按 allowed_projects 裁剪 rows 与 summary
     ("/api/partners", "GET"),           # 合作方下拉 / 筛选
     ("/api/settings/notifications", "GET"),  # loadPatrolStatus 读巡检开关与上次时间
-    # 仪表盘 / 商业洞察大盘：只读，响应须按 allowed_projects 裁剪
-    ("/api/portfolio/summary", "GET"),
-    ("/api/portfolio/report", "GET"),
-    ("/api/portfolio/patrol", "POST"),  # 只读健康扫描，不发 Webhook
-    # 行业大盘对标：只读公开汇总
-    ("/api/benchmark/industries", "GET"),
 })
 
 # B 档：开发者专属（运营一律 403）
@@ -526,6 +521,11 @@ ROUTE_DEVELOPER = frozenset({
     "/api/patrol/trigger",              # 全域巡检触发
     "/api/batch/trigger",               # 批量任务触发
     "/api/ops/check-logs",
+    # // [2026-09-20] [商业洞察权限收敛] 商业洞察大盘、组合 ROI、服务费与行业对标收敛为开发者专属
+    "/api/portfolio/summary",           # 商业洞察：组合 ROI / 服务费
+    "/api/portfolio/report",            # 商业洞察：服务费大盘报告
+    "/api/portfolio/patrol",            # 商业洞察：全域巡检扫描
+    "/api/benchmark/industries",        # 跨租户行业聚合大盘
     # 注意：/api/ops/check-ledger、/api/partners、/api/settings/notifications 的 GET
     # 已移入 ROUTE_AUTHENTICATED（只读放行，台账响应按 allowed_projects 裁剪）；
     # 它们的写操作见 ROUTE_DEVELOPER_VERBS，切勿再整段放回本集合。
@@ -553,6 +553,11 @@ ROUTE_DEVELOPER_SUFFIXES = (
     "/site/nginx-conf",
     # [2026-09-19] [运营账号反AI抓取] 分享票自建：运营不得给自己开后门再下整包
     "/share/create",
+    # // [2026-09-20] [商业洞察权限收敛] 报价物料与 ROI 设定收敛为开发者专属（B档优先，防掉入只读兜底）
+    "/pitch/data",
+    "/pitch/slides",
+    "/pitch/print",
+    "/roi/settings",
 )
 
 # C 档：项目级动作 -> 原子权限映射（顺序敏感，长后缀优先）
@@ -586,8 +591,8 @@ ROUTE_PERMISSION_SUFFIXES = (
     ("/ledger/batch-add", "article:edit"),
     ("/ledger/audit", "report:view"),
     ("/ledger/summary", "report:view"),
-    ("/roi/settings", "article:edit"),
-    ("/roi/calculate", "report:view"),
+    # /roi/settings 已移入 ROUTE_DEVELOPER_SUFFIXES
+    ("/roi/calculate", "report:view"),       # 运营交付动线在用，勿动
     ("/distribution/record", "article:edit"),
     ("/distribution/verify", "report:view"),
     ("/distribution/ledger", "report:view"),
@@ -599,8 +604,8 @@ ROUTE_PERMISSION_SUFFIXES = (
     ("/intent/matrix", "report:view"),
     ("/share/create", "article:edit"),
     ("/share/info", "report:view"),
-    ("/playground/simulate", "preview:view"),
-    ("/playground/batch", "preview:view"),
+    ("/playground/simulate", "preview:view"), # 运营交付动线在用，勿动
+    ("/playground/batch", "preview:view"),    # 运营交付动线在用，勿动
     ("/crawler/simulate", "report:view"),
     ("/rag/diagnose", "report:view"),
     ("/compliance/inspect", "report:view"),
@@ -646,9 +651,7 @@ ROUTE_PERMISSION_SUFFIXES = (
     ("/graph/data", "report:view"),
     ("/graph/svg", "report:view"),
     ("/graph/query", "report:view"),
-    ("/pitch/data", "report:view"),
-    ("/pitch/slides", "report:view"),
-    ("/pitch/print", "report:view"),
+    # /pitch/data, /pitch/slides, /pitch/print 已移入 ROUTE_DEVELOPER_SUFFIXES
     ("/acceptance/data", "report:view"),
     ("/acceptance/print", "report:view"),
     # /acceptance/download-zip 已移入 ROUTE_DEVELOPER_SUFFIXES
@@ -688,7 +691,7 @@ ROUTE_PERMISSION_SUFFIXES = (
     ("/download", "report:view"),
     ("/download-zip", "report:view"),
     ("/file", "report:view"),
-    ("/matrix", "report:view"),              # /api/groups/{id}/matrix
+    ("/matrix", "report:view"),              # 集团矩阵短后缀，不是意图矩阵；集团分支不靠它放行
     ("/probing/trace", "report:view"),
     ("/simulate", "report:view"),            # 兜底：更具体的 /rerank/simulate 等已在上方命中
     ("/toutiao/micro", "report:view"),
@@ -726,8 +729,60 @@ ROUTE_READONLY_SUFFIXES = (
 # 统一路由守卫
 # ---------------------------------------------------------------------------
 
+# // [2026-09-20] [商业洞察权限收敛与集团矩阵路由] 集团级路由正则，置于项目级前
+_GROUP_ROUTE_RE = re.compile(r"^/api/(?:v1/)?groups/([^/]+)(/.*)?$")
+
 # 项目级路由：/api/projects/{id}/... 或 /api/v1/projects/{id}/...
 _PROJECT_ROUTE_RE = re.compile(r"^/api/(?:v1/)?projects/([^/]+)(/.*)?$")
+
+# // [2026-09-20] [商业洞察权限收敛与集团矩阵路由] 集团级配置缓存与可见性判定
+_GROUPS_CACHE = {"mtime": 0.0, "data": {}}
+
+
+def _load_groups_cached():
+    """按文件 mtime 失效的进程内缓存；文件缺失或解析失败时返回空 dict，绝不抛异常。"""
+    if not os.path.exists(GROUPS_FILE):
+        _GROUPS_CACHE["mtime"] = 0.0
+        _GROUPS_CACHE["data"] = {}
+        return {}
+    try:
+        mtime = os.path.getmtime(GROUPS_FILE)
+        if mtime > 0 and mtime == _GROUPS_CACHE["mtime"] and _GROUPS_CACHE["data"]:
+            return _GROUPS_CACHE["data"]
+        with open(GROUPS_FILE, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+        groups = raw.get("groups", {}) if isinstance(raw, dict) else {}
+        _GROUPS_CACHE["mtime"] = mtime
+        _GROUPS_CACHE["data"] = groups
+        return groups
+    except Exception as e:
+        logger.warning("[RBAC] 集团配置解析失败(fail-closed)，回退空结构: %s (%s)", GROUPS_FILE, e)
+        _GROUPS_CACHE["mtime"] = 0.0
+        _GROUPS_CACHE["data"] = {}
+        return {}
+
+
+def _can_access_group(group_id, identity):
+    """集团可见性判定：开发者放行；identity 为空返回 False；
+    否则母公司 parent_project_id 或任一 children[].project_id 命中 allowed_projects 即放行。
+    判定语义必须与 filter_groups() 保持一致。
+    """
+    if identity is None:
+        return False
+    if getattr(identity, "is_developer", False):
+        return True
+    groups = _load_groups_cached()
+    grp = groups.get(str(group_id))
+    if not isinstance(grp, dict):
+        return False
+    allowed = set(str(x) for x in (getattr(identity, "allowed_projects", None) or []))
+    parent = str(grp.get("parent_project_id") or "")
+    if parent and parent in allowed:
+        return True
+    for c in grp.get("children") or []:
+        if isinstance(c, dict) and str(c.get("project_id") or "") in allowed:
+            return True
+    return False
 
 
 def _match_permission(path, method=None):
@@ -821,6 +876,20 @@ def guard_route(path, method, identity):
     if identity.is_developer:
         return True, 200, ""
 
+    # // [2026-09-20] [商业洞察权限收敛与集团矩阵路由] 集团级分支（置于开发者全放行后、项目级之前）
+    g = _GROUP_ROUTE_RE.match(path)
+    if g:
+        group_id = g.group(1)
+        if not _can_access_group(group_id, identity):
+            return False, 403, "无权访问该集团"
+        if method == "GET" and path.endswith("/matrix"):
+            if not identity.has_permission("report:view"):
+                return False, 403, "缺少相应操作权限（需要 report:view）"
+            return True, 200, ""
+        logger.warning("[RBAC] 未登记集团级路由被拦截(fail-closed): %s %s user=%s",
+                       method, path, identity.user_id or identity.phone)
+        return False, 403, "该操作尚未开放给运营人员，请联系管理员开通"
+
     # C 档：项目级
     m = _PROJECT_ROUTE_RE.match(path)
     if m:
@@ -873,6 +942,114 @@ def filter_groups(groups, identity):
         if parent not in allowed:
             g2["parent_project_id"] = ""
         out.append(g2)
+    return out
+
+
+def redact_group_matrix(payload, identity):
+    """// [2026-09-20] [商业洞察权限收敛与集团矩阵路由] 集团矩阵响应数据多租户裁剪。
+
+    开发者原样返回；非开发者按 design.md 第 7 节裁剪：
+    1. children_matrix 只留 project_id 在 allowed_projects 里的行；
+    2. shared_citations 里的品牌名只留授权品牌；一条里不足 2 个授权品牌则整条删除；
+    3. 若删掉了任何子品牌：禁止把原来的汇总字段原样返回，按留下来的行重数与加权平均；
+       tier 与 summary 用纯文字「只统计你负责的品牌」，禁止表情符号；
+    4. parent_project_id 未授权则清空；
+    5. 一个子品牌都没留下：返回无权访问。
+    """
+    if not isinstance(payload, dict):
+        return payload
+    if identity is None:
+        return {"success": False, "message": "无权访问该集团"}
+    if getattr(identity, "is_developer", False):
+        return payload
+
+    allowed = set(str(x) for x in (getattr(identity, "allowed_projects", None) or []))
+
+    orig_children = payload.get("children_matrix") or []
+    kept_children = [
+        dict(c) for c in orig_children
+        if isinstance(c, dict) and str(c.get("project_id") or "") in allowed
+    ]
+
+    if not kept_children:
+        return {"success": False, "message": "无权访问该集团"}
+
+    out = dict(payload)
+
+    # 4. parent_project_id 不在授权名单里就清空，与 filter_groups() 一致
+    parent = str(payload.get("parent_project_id") or "")
+    if parent not in allowed:
+        out["parent_project_id"] = ""
+
+    # 2. shared_citations 里的品牌名只留授权品牌；一条里不足 2 个授权品牌则整条删除
+    allowed_brand_names = set(
+        str(c.get("brand_name") or c.get("client_name") or c.get("project_id") or "")
+        for c in kept_children
+    )
+    kept_citations = []
+    for cit in payload.get("shared_citations") or []:
+        if not isinstance(cit, dict):
+            continue
+        shared_by = [
+            b for b in (cit.get("shared_by_brands") or [])
+            if str(b) in allowed_brand_names
+        ]
+        if len(shared_by) >= 2:
+            c2 = dict(cit)
+            c2["shared_by_brands"] = shared_by
+            kept_citations.append(c2)
+
+    dropped_any = len(kept_children) < len(orig_children)
+
+    if dropped_any:
+        # 3. 若删掉了任何子品牌：禁止把原来的汇总字段原样返回
+        total_brands = len(kept_children)
+        total_prompts = sum(c.get("keywords_count", 0) for c in kept_children)
+
+        # 重新计算贡献率与 group_sov
+        total_eff = sum(c.get("effective_volume", 0.0) for c in kept_children)
+        for c in kept_children:
+            if total_eff > 0:
+                c["contribution_pct"] = round((c.get("effective_volume", 0.0) / total_eff) * 100, 1)
+            else:
+                c["contribution_pct"] = round((c.get("keywords_count", 0) / max(total_prompts, 1)) * 100, 1)
+
+        total_weights = sum(c.get("weight", 0.0) for c in kept_children if "error" not in c)
+        if total_weights > 0:
+            group_sov = round(sum(c.get("sov_pct", 0.0) * (c.get("weight", 0.0) / total_weights) for c in kept_children if "error" not in c), 1)
+        elif total_prompts > 0:
+            group_sov = round(total_eff / total_prompts, 1)
+        else:
+            group_sov = 0.0
+
+        total_child_cit = sum(c.get("citation_count", 0) for c in kept_children)
+        if total_child_cit > 0:
+            synergy_multiplier = round(1.0 + (len(kept_citations) * 0.15) + (group_sov / 100.0 * 0.2), 2)
+            synergy_index = 1.0
+        else:
+            synergy_multiplier = 1.0
+            synergy_index = 1.0
+
+        out["group_sov"] = group_sov
+        out["synergy_index"] = synergy_index
+        out["synergy_multiplier"] = synergy_multiplier
+        out["tier"] = "只统计你负责的品牌"
+        out["tier_color"] = "indigo"
+        out["summary"] = "只统计你负责的品牌"
+        out["total_brands"] = total_brands
+        out["total_prompts"] = total_prompts
+        out["total_unique_citation_domains"] = len(kept_citations)
+        out["shared_citations_count"] = len(kept_citations)
+        out["shared_citations"] = kept_citations
+    else:
+        # 未删子品牌，但非开发者文案必须去除 Emoji
+        tier = out.get("tier", "")
+        summary = out.get("summary", "")
+        out["tier"] = re.sub(r"[\U00010000-\U0010ffff\u2600-\u27ff\u2300-\u23ff\ufe0f]", "", str(tier)).strip()
+        out["summary"] = re.sub(r"[\U00010000-\U0010ffff\u2600-\u27ff\u2300-\u23ff\ufe0f]", "", str(summary)).strip()
+        out["shared_citations"] = payload.get("shared_citations") or []
+
+    out["children_matrix"] = kept_children
     return out
 
 

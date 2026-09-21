@@ -84,7 +84,7 @@
 </button>
 <div id="home-group-home-main" class="submenu-list" data-page-node-id="Cgg348x2mEBGZRgFnyEhIg">
 <button type="button" id="nav-home-dashboard" onclick="switchHomeView('home-dashboard')" class="sidebar-nav-item active" data-page-node-id="MfIAYFpDfeXFnWZLu67VQT"><span class="truncate" data-page-node-id="Bn9EWicv2x0bhnoAgFzFBJ">仪表盘</span></button>
-<button type="button" id="nav-home-insights" onclick="switchHomeView('home-insights')" class="sidebar-nav-item" data-page-node-id="y0Uj5DC70g7Y65Fu0cqFtP"><span class="truncate" data-page-node-id="iQwM7pitHMgmoyNGTAgaUO">商业洞察</span></button>
+<button type="button" id="nav-home-insights" data-geo-dev-only onclick="switchHomeView('home-insights')" class="sidebar-nav-item" data-page-node-id="y0Uj5DC70g7Y65Fu0cqFtP"><span class="truncate" data-page-node-id="iQwM7pitHMgmoyNGTAgaUO">商业洞察</span></button>
 <button type="button" id="nav-home-ops" onclick="switchHomeView('home-ops')" class="sidebar-nav-item" data-page-node-id="5QmoNgrxQPzM6iw2qruiHV"><span class="truncate" data-page-node-id="CvB7tbM18PfRACzf5ykUYZ">运维告警</span></button>
 <button type="button" id="nav-home-settings" data-geo-dev-only onclick="switchHomeView('home-settings')" class="sidebar-nav-item" data-page-node-id="u11AswJcfURi2BCvv6HtcZ"><span class="truncate" data-page-node-id="kYRDVr9CgdMDKYLJhADyCc">系统设置</span></button>
 <button type="button" id="nav-home-collab" onclick="switchHomeView('home-collab')" class="sidebar-nav-item" data-page-node-id="pZge618on5nA6NTDVkwa3n"><span class="truncate" data-page-node-id="dj2orlHGUs2zkxoG8Ew8ar">协作与任务</span></button>
@@ -301,6 +301,7 @@
 </section>
 
 <!-- 商业洞察 -->
+<!-- [2026-09-20] [商业洞察权限收敛] 商业洞察为开发者专属视图：导航入口加 data-geo-dev-only，switchHomeView() 拦截，本面板严禁加 data-geo-dev-only（防与 hidden 冲突导致面板常驻） -->
 <section id="panel-home-insights" class="home-panel hidden space-y-6" data-page-node-id="azJQIpAKcFsfSwLYyP91qE">
 <header class="geo-page-head" data-page-node-id="rWBna9QIH7t77Wsbpv5jUo">
 <div data-page-node-id="IG77mS76x1nPOOtiFXuYcj">
@@ -312,10 +313,10 @@
 </div>
 </header>
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" data-page-node-id="zVLxYKPCChjoHN4mhQ4zqz">
-<button type="button" onclick="openEdiCustomerModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="KRKIdD3JvvN69grkVnGP2m"><div class="text-sm font-bold text-slate-900" data-page-node-id="BoSMZPayBIYan7Lee8LBcn">适合客群 (EDI)</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="JvgtLNRBiMgQkm9czzC45g">购买前解释型决策客群画像</p></button>
+<button type="button" onclick="openEdiCustomerModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="KRKIdD3JvvN69grkVnGP2m"><div class="text-sm font-bold text-slate-900" data-page-node-id="BoSMZPayBIYan7Lee8LBcn">适合什么样的客户</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="JvgtLNRBiMgQkm9czzC45g">购买前解释型决策客群画像</p></button>
 <button type="button" onclick="openPitchModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="W0ZtAfm6jQKtxyrEjFgil4"><div class="text-sm font-bold text-slate-900" data-page-node-id="6EXbagRCMb0aky6br35msc">售前 Pitch</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="20idHdBegYvir1LCZkZh98">商业 Pitch Deck</p></button>
-<button type="button" onclick="openPortfolioModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="1EIC47khZOi5e0J1ucOg6Y"><div class="text-sm font-bold text-slate-900" data-page-node-id="UwL4itFVDECRbGRnrimDm3">全域大盘驾驶舱</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="D6VqSrCCIfnFpkPaXYTkde">多项目组合价值</p></button>
-<button type="button" onclick="showBenchmarkModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="5F7Wy9ptRvoX2D3Q4aVBkZ"><div class="text-sm font-bold text-slate-900" data-page-node-id="RRiE65kJQItTCJaLN3GLA8">工业化对标透视</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="kwPoM9v27xVy25qEe9Ujim">流水线 vs 手工代运营</p></button>
+<button type="button" onclick="openPortfolioModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="1EIC47khZOi5e0J1ucOg6Y"><div class="text-sm font-bold text-slate-900" data-page-node-id="UwL4itFVDECRbGRnrimDm3">全部客户的经营数字</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="D6VqSrCCIfnFpkPaXYTkde">多项目组合价值</p></button>
+<button type="button" onclick="showBenchmarkModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="5F7Wy9ptRvoX2D3Q4aVBkZ"><div class="text-sm font-bold text-slate-900" data-page-node-id="RRiE65kJQItTCJaLN3GLA8">流水线和手工代运营差在哪</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="kwPoM9v27xVy25qEe9Ujim">流水线 vs 手工代运营</p></button>
 <button type="button" onclick="openIndustryBenchmarkModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="MMj1vXzTkH4cD6sQXvKLpP"><div class="text-sm font-bold text-slate-900" data-page-node-id="BjtdN9jjKhymhpkgjafMkx">行业大盘基准</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="6vfFrEv4frJgIZqp6ZWbDY">行业均值对照</p></button>
 <button type="button" onclick="openGroupMatrixModal()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="YPCxyKA9bExy9doPTmAqvY"><div class="text-sm font-bold text-slate-900" data-page-node-id="PQwVcFCrsySxrn4PeMo6eU">集团多品牌矩阵</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="uSHPhihiJ0BEnLBPEiORIQ">母子协同大盘</p></button>
 <button type="button" onclick="openPlaygroundFromDashboard()" class="text-left bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition" data-page-node-id="Acy3mpbI2xRUHAhAtUU1A9"><div class="text-sm font-bold text-slate-900" data-page-node-id="xrix0m5tLPmXsYaQV66wyo">AI 测序沙箱</div><p class="text-xs text-slate-500 mt-1" data-page-node-id="FQXR9p16kCEzveqUDmxQWe">Before/After 双轨（需演示项目）</p></button>
@@ -6181,6 +6182,11 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     async function switchHomeView(viewId, skipRoute) {
+      // [2026-09-20] [商业洞察权限收敛] 商业洞察为开发者专属视图，前端体验层拦截，服务端守卫兜底
+      if (viewId === 'home-insights' && !isDeveloper()) {
+        showToast('该功能仅开发者可用', 'error');
+        return;
+      }
       currentHomeView = viewId || 'home-dashboard';
       document.querySelectorAll('.home-panel').forEach(el => el.classList.add('hidden'));
       const panel = document.getElementById(`panel-${currentHomeView}`);
@@ -6420,6 +6426,10 @@ GitHub 开源仓库：https://github.com/company/repo
     async function openManualCheckForProject(projectId) {
       currentProjectId = projectId;
       currentViewId = 'mon-probing';
+      // 强制按新企业重置粘贴框（即使上次没关干净）
+      if (typeof resetManualProbeUiForProject === 'function') {
+        resetManualProbeUiForProject(projectId);
+      }
       try {
         await openManualProbeModal();
       } catch (e) {
@@ -9482,7 +9492,8 @@ function backToDashboard() {
       items: [],
       selectedKeyword: '',
       selectedModel: 'deepseek',
-      brandName: ''
+      brandName: '',
+      boundProjectId: ''  // 绑定当前粘贴框所属企业，换企业时清空残留
     };
 
     function closeManualProbeModal() {
@@ -9490,10 +9501,27 @@ function backToDashboard() {
       if (el) el.classList.add('hidden');
     }
 
+    function resetManualProbeUiForProject(projectId) {
+      // 换企业时清掉上一份提问词与答案，避免 A 企业的词串到 B
+      manualProbeState.boundProjectId = projectId || '';
+      manualProbeState.selectedKeyword = '';
+      manualProbeState.platforms = [];
+      manualProbeState.items = [];
+      manualProbeState.brandName = '';
+      const answerEl = document.getElementById('mp-answer-input');
+      if (answerEl) answerEl.value = '';
+      const kwInput = document.getElementById('mp-ingest-keyword');
+      if (kwInput) kwInput.value = '';
+      try { if (typeof updateManualProbeCharCount === 'function') updateManualProbeCharCount(); } catch (e) {}
+    }
+
     async function openManualProbeModal() {
       if (!currentProjectId) {
         showToast('请先选择项目', 'error');
         return;
+      }
+      if (manualProbeState.boundProjectId !== currentProjectId) {
+        resetManualProbeUiForProject(currentProjectId);
       }
       const modal = document.getElementById('manual-probe-modal');
       if (!modal) return;
@@ -9510,8 +9538,9 @@ function backToDashboard() {
         manualProbeState.platforms = data.platforms || [];
         manualProbeState.items = data.items || [];
         manualProbeState.brandName = data.brand_name || data.client_name || '';
-        if (!manualProbeState.selectedKeyword && manualProbeState.items.length) {
-          manualProbeState.selectedKeyword = manualProbeState.items[0].keyword;
+        const kwSet = new Set((manualProbeState.items || []).map(it => it.keyword).filter(Boolean));
+        if (!manualProbeState.selectedKeyword || !kwSet.has(manualProbeState.selectedKeyword)) {
+          manualProbeState.selectedKeyword = (manualProbeState.items[0] && manualProbeState.items[0].keyword) || '';
         }
         if (!manualProbeState.platforms.find(p => p.id === manualProbeState.selectedModel)) {
           manualProbeState.selectedModel = (manualProbeState.platforms[0] || {}).id || 'deepseek';
@@ -10778,9 +10807,21 @@ function backToDashboard() {
     // ==========================================
     // 集团多品牌/子公司层级矩阵协同大盘
     // ==========================================
-    async function openGroupMatrixModal(groupId = 'xuanyuan_group') {
+    // // [2026-09-20] [商业洞察权限收敛与集团矩阵路由] 根据当前项目反查所属集团ID
+    function resolveGroupIdByProject(projectId) {
+      if (!projectId || !groupMapCache) return '';
+      const info = groupMapCache[projectId];
+      return info ? (info.group_id || '') : '';
+    }
+
+    async function openGroupMatrixModal(groupId) {
+      const gid = groupId || resolveGroupIdByProject(currentProjectId);
+      if (!gid) {
+        showToast('当前企业不属于任何集团', 'warning');
+        return;
+      }
       document.getElementById('group-matrix-modal').classList.remove('hidden');
-      await loadGroupMatrixData(groupId);
+      await loadGroupMatrixData(gid);
       lucide.createIcons();
     }
 
@@ -10788,7 +10829,11 @@ function backToDashboard() {
       document.getElementById('group-matrix-modal').classList.add('hidden');
     }
 
-    async function loadGroupMatrixData(groupId = 'xuanyuan_group') {
+    async function loadGroupMatrixData(groupId) {
+      if (!groupId) {
+        showToast('当前企业不属于任何集团', 'warning');
+        return;
+      }
       try {
         const res = await fetch(`/api/groups/${groupId}/matrix`, {
           headers: { 'Authorization': `Bearer ${currentAuthToken}` }
@@ -10804,19 +10849,21 @@ function backToDashboard() {
 
           // 渲染子品牌表格
           const tbody = document.getElementById('grp-children-tbody');
-          tbody.innerHTML = data.children_matrix.map(c => `
-            <tr class="hover:bg-slate-50 transition"><td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${c.role.includes('母公司') ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-700'}">${c.role}
-                </span></td><td class="px-4 py-3 font-semibold text-slate-800">${c.client_name}
-                <div class="text-[10px] text-slate-400 font-normal">品牌: ${c.brand_name} ｜ ID: ${c.project_id}</div></td><td class="px-4 py-3 text-center font-bold text-indigo-600">${c.sov_pct}%</td><td class="px-4 py-3 text-center text-slate-600">${c.keywords_count} 组</td><td class="px-4 py-3 text-right"><span class="font-bold text-emerald-600">${c.contribution_pct}%</span></td></tr>`).join('');
+          tbody.innerHTML = (data.children_matrix || []).map(c => `
+            <tr class="hover:bg-slate-50 transition"><td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${(c.role || '').includes('母公司') ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-700'}">${c.role || ''}
+                </span></td><td class="px-4 py-3 font-semibold text-slate-800">${c.client_name || ''}
+                <div class="text-[10px] text-slate-400 font-normal">品牌: ${c.brand_name || ''} ｜ ID: ${c.project_id || ''}</div></td><td class="px-4 py-3 text-center font-bold text-indigo-600">${c.sov_pct || 0}%</td><td class="px-4 py-3 text-center text-slate-600">${c.keywords_count || 0} 组</td><td class="px-4 py-3 text-right"><span class="font-bold text-emerald-600">${c.contribution_pct || 0}%</span></td></tr>`).join('');
 
           // 渲染共享信源
           const citBox = document.getElementById('grp-shared-citations-list');
           if (data.shared_citations && data.shared_citations.length > 0) {
             citBox.innerHTML = data.shared_citations.map(sc => `
-              <div class="p-2 bg-white border border-slate-200 rounded-lg flex items-center justify-between"><div><strong class="text-indigo-600">${sc.name}</strong><span class="text-slate-400 text-[10px]">(${sc.domain})</span></div><div class="text-[10px] text-slate-500">赋能: <span class="font-semibold text-slate-700">${sc.shared_by_brands.join('、')}</span></div></div>`).join('');
+              <div class="p-2 bg-white border border-slate-200 rounded-lg flex items-center justify-between"><div><strong class="text-indigo-600">${sc.name}</strong><span class="text-slate-400 text-[10px]">(${sc.domain})</span></div><div class="text-[10px] text-slate-500">赋能: <span class="font-semibold text-slate-700">${(sc.shared_by_brands || []).join('、')}</span></div></div>`).join('');
           } else {
             citBox.innerHTML = `<div class="text-slate-400 py-2">暂无跨品牌共享信源，建议矩阵协同分发。</div>`;
           }
+        } else {
+          showToast(data.message || '加载集团矩阵失败', 'error');
         }
       } catch (err) {
         console.error('加载集团矩阵异常:', err);

@@ -177,6 +177,52 @@ def classify_status(days: float | None, policy: dict, has_manual: bool) -> str:
     return "ok"
 
 
+def _probe_record_model(key, rec: dict) -> str:
+    m = str((rec or {}).get("model") or "").strip().lower()
+    if m:
+        return m
+    k = str(key or "")
+    if "__" in k:
+        return k.split("__", 1)[0].strip().lower()
+    return ""
+
+
+def _pick_latest_probe_record(pdata: dict, *, prefer_doubao: bool = True) -> dict | None:
+    """从 05_manual_probes.json 取最近一次回填（按 updated_at）。优先豆包。"""
+    if not isinstance(pdata, dict) or not pdata:
+        return None
+    candidates = []
+    for k, v in pdata.items():
+        if not isinstance(v, dict):
+            continue
+        ts = str(v.get("updated_at") or "").strip()
+        model = _probe_record_model(k, v)
+        candidates.append((ts, model, v))
+    if not candidates:
+        return None
+    if prefer_doubao:
+        doubao = [c for c in candidates if "doubao" in (c[1] or "")]
+        pool = doubao if doubao else candidates
+    else:
+        pool = candidates
+    # updated_at 为 YYYY-MM-DD HH:MM:SS，字典序即时间序；空串垫底
+    pool.sort(key=lambda x: x[0] or "", reverse=True)
+    return pool[0][2]
+
+
+def _rank_label_from_probe(rec: dict | None) -> tuple:
+    """返回 (doubao_rank, doubao_rank_label)。"""
+    if not rec:
+        return None, "暂无数据"
+    r = rec.get("rank")
+    mentioned = rec.get("mentioned", True)
+    if not mentioned or r == 0:
+        return 0, "未上榜"
+    if r is not None and isinstance(r, (int, float)) and 1 <= r <= 10:
+        return int(r), f"豆包第 {int(r)} 位"
+    return None, "暂无数据"
+
+
 def build_check_ledger(now: datetime | None = None) -> dict:
     """聚合全部项目台账行。"""
     policy = _policy_from_settings()
@@ -215,7 +261,7 @@ def build_check_ledger(now: datetime | None = None) -> dict:
             if valid and kw_count <= 1:
                 sample_note = "样本量小，仅供参考"
 
-            # // [2026-09-20] [运营端仪表盘角色视角改造] 提取豆包位次与声量异动状态
+            # // [2026-09-20] [运营端仪表盘角色视角改造] 提取豆包位次与声量异动状态（按 updated_at 取最近）
             doubao_rank = None
             doubao_rank_label = "暂无数据"
             out_dir = cfg.get("_outputs_dir", "")
@@ -224,28 +270,8 @@ def build_check_ledger(now: datetime | None = None) -> dict:
                 try:
                     with open(probes_file, "r", encoding="utf-8") as pf:
                         pdata = json.load(pf)
-                    if isinstance(pdata, dict) and pdata:
-                        target_rec = None
-                        for k, v in pdata.items():
-                            if isinstance(v, dict):
-                                m = str(v.get("model") or "").lower()
-                                if "doubao" in m:
-                                    target_rec = v
-                                    break
-                        if not target_rec:
-                            for k, v in pdata.items():
-                                if isinstance(v, dict):
-                                    target_rec = v
-                                    break
-                        if target_rec:
-                            r = target_rec.get("rank")
-                            mentioned = target_rec.get("mentioned", True)
-                            if not mentioned or r == 0:
-                                doubao_rank = 0
-                                doubao_rank_label = "未上榜"
-                            elif r is not None and isinstance(r, (int, float)) and 1 <= r <= 10:
-                                doubao_rank = int(r)
-                                doubao_rank_label = f"豆包第 {int(r)} 位"
+                    target_rec = _pick_latest_probe_record(pdata, prefer_doubao=True)
+                    doubao_rank, doubao_rank_label = _rank_label_from_probe(target_rec)
                 except Exception:
                     pass
 

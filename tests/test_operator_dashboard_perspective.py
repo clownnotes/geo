@@ -240,10 +240,31 @@ class OperatorDashboardPerspectiveTest(unittest.TestCase):
         self.assertIn("if (isDeveloper())", lp_code)
         self.assertIn("03_普林斯顿9因子高权威语料库.md", lp_code)
 
-        # 3. 检查 RBAC 路由表
+        # 3. 检查 RBAC 路由表（[2026-09-20] 行业大盘基准已收敛为开发者专属）
         self.assertIn("/api/auth/status", rbac.ROUTE_PUBLIC)
-        self.assertIn(("/api/benchmark/industries", "GET"), rbac.ROUTE_AUTHENTICATED)
+        self.assertIn("/api/benchmark/industries", rbac.ROUTE_DEVELOPER)
         self.assertTrue(any(s[0] == "/publish/preview" for s in rbac.ROUTE_PERMISSION_SUFFIXES))
+
+    def test_manual_probe_resets_on_project_switch(self):
+        """9. 换企业打开粘贴框必须重置词与答案（防跨企业状态残留）"""
+        self.assertIn("function resetManualProbeUiForProject(", self.html_content)
+        self.assertIn("boundProjectId", self.html_content)
+        # openManualCheckForProject 必须主动 reset
+        fn_m = re.search(
+            r"async function openManualCheckForProject\([\s\S]*?\n    \}",
+            self.html_content,
+        )
+        self.assertIsNotNone(fn_m)
+        self.assertIn("resetManualProbeUiForProject", fn_m.group(0))
+        # openManualProbeModal 换企业时也要 reset
+        modal_m = re.search(
+            r"async function openManualProbeModal\(\) \{[\s\S]*?\n    \}",
+            self.html_content,
+        )
+        self.assertIsNotNone(modal_m)
+        modal = modal_m.group(0)
+        self.assertIn("boundProjectId !== currentProjectId", modal)
+        self.assertIn("resetManualProbeUiForProject", modal)
 
 
 if __name__ == "__main__":

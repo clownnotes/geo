@@ -4391,8 +4391,14 @@ server {{
             if path.startswith("/api/groups/") and path.endswith("/matrix"):
                 group_id = path.split("/")[3]
                 from .group import calculate_group_matrix
+                from .rbac import redact_group_matrix
                 try:
                     matrix = calculate_group_matrix(group_id)
+                    # // [2026-09-20] [商业洞察权限收敛与集团矩阵路由] 矩阵大盘数据按身份多租户裁剪
+                    matrix = redact_group_matrix(matrix, self.rbac_identity())
+                    if isinstance(matrix, dict) and not matrix.get("success", True):
+                        self.send_json(matrix, status=403)
+                        return
                     self.send_json(matrix)
                 except Exception as e:
                     self.send_json({"success": False, "message": str(e)}, status=500)

@@ -119,6 +119,45 @@ class TestCheckLedger(unittest.TestCase):
         d = cl.days_since_utc(at, now=now)
         self.assertAlmostEqual(d, 7.0, places=5)
 
+    def test_pick_latest_probe_record_prefers_newest_doubao(self):
+        """豆包位次必须按 updated_at 取最近一次，而非字典第一个。"""
+        pdata = {
+            "doubao__旧词": {
+                "model": "doubao",
+                "rank": 3,
+                "mentioned": True,
+                "updated_at": "2026-09-01 10:00:00",
+            },
+            "deepseek__其它": {
+                "model": "deepseek",
+                "rank": 1,
+                "mentioned": True,
+                "updated_at": "2026-09-20 18:00:00",
+            },
+            "doubao__新词": {
+                "model": "doubao",
+                "rank": 1,
+                "mentioned": True,
+                "updated_at": "2026-09-20 12:00:00",
+            },
+        }
+        rec = cl._pick_latest_probe_record(pdata, prefer_doubao=True)
+        self.assertIsNotNone(rec)
+        self.assertEqual(rec.get("rank"), 1)
+        self.assertEqual(rec.get("updated_at"), "2026-09-20 12:00:00")
+        rank, label = cl._rank_label_from_probe(rec)
+        self.assertEqual(rank, 1)
+        self.assertEqual(label, "豆包第 1 位")
+
+        # 无豆包时退回其它模型里最新一条
+        only_other = {
+            "deepseek__a": {"model": "deepseek", "rank": 2, "mentioned": True, "updated_at": "2026-09-10 00:00:00"},
+            "kimi__b": {"model": "kimi", "rank": 1, "mentioned": True, "updated_at": "2026-09-18 00:00:00"},
+        }
+        rec2 = cl._pick_latest_probe_record(only_other, prefer_doubao=True)
+        self.assertEqual(rec2.get("rank"), 1)
+        self.assertEqual(rec2.get("model"), "kimi")
+
 
 if __name__ == "__main__":
     unittest.main()

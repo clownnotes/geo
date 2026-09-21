@@ -17,6 +17,7 @@
 
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -611,14 +612,16 @@ class TestPortfolioRoutesForOperator(RbacTestBase):
         self.op = rbac.resolve_identity(user_id=OP_USER_ID)
         self.dev = rbac.resolve_identity(phone=DEV_PHONE)
 
-    def test_portfolio_routes_allowed_for_operator(self):
+    def test_portfolio_routes_forbidden_for_operator(self):
+        # [2026-09-20] [商业洞察权限收敛] 商业洞察大盘接口收敛为开发者专属，运营访问应为 403
         for path, method in (
             ("/api/portfolio/summary", "GET"),
             ("/api/portfolio/report", "GET"),
             ("/api/portfolio/patrol", "POST"),
         ):
             ok, status, msg = rbac.guard_route(path, method, self.op)
-            self.assertTrue(ok, f"{method} {path} 应对运营放行: {msg}")
+            self.assertFalse(ok, f"{method} {path} 应对运营拦截: {msg}")
+            self.assertEqual(status, 403)
 
     def test_portfolio_summary_scoped_to_allowed_projects(self):
         from tools.geo.portfolio import get_portfolio_summary
@@ -654,6 +657,264 @@ class TestStripPartnerForOperator(RbacTestBase):
         ok, status, _ = rbac.guard_route("/api/projects/nextgeo/meta", "POST", op)
         self.assertFalse(ok)
         self.assertEqual(status, 403)
+
+
+class TestCommercialInsightsAndGroupRoutes(RbacTestBase):
+    """// [2026-09-20] [商业洞察权限收敛与集团矩阵路由] 自动化测试套件 (5.2 - 5.7)"""
+
+    def setUp(self):
+        super().setUp()
+        self._orig_groups_file = rbac.GROUPS_FILE
+        self._orig_groups_cache = dict(rbac._GROUPS_CACHE)
+
+        # 在测试临时目录写入集团测试配置
+        test_groups_file = os.path.join(self.tmp_dir, "groups.json")
+        test_groups_data = {
+            "groups": {
+                "xuanyuan_group": {
+                    "group_id": "xuanyuan_group",
+                    "group_name": "璇源控股集团 (Xuanyuan Group)",
+                    "parent_project_id": "xuzhou_xuanyuan",
+                    "description": "集团测试",
+                    "children": [
+                        {
+                            "project_id": "xuzhou_xuanyuan",
+                            "brand_name": "璇源网络科技",
+                            "role": "集团母公司 / 核心技术中枢",
+                            "weight": 0.6,
+                        },
+                        {
+                            "project_id": "demo_corp",
+                            "brand_name": "智数科技 (Demo Corp)",
+                            "role": "旗下工业数字化应用子公司",
+                            "weight": 0.4,
+                        },
+                    ],
+                }
+            }
+        }
+        with open(test_groups_file, "w", encoding="utf-8") as f:
+            json.dump(test_groups_data, f, ensure_ascii=False)
+
+        rbac.GROUPS_FILE = test_groups_file
+        rbac._GROUPS_CACHE = {"mtime": 0.0, "data": {}}
+
+        self.add_operator(["nextgeo"])
+        self.op = rbac.resolve_identity(user_id=OP_USER_ID)
+        self.dev = rbac.resolve_identity(phone=DEV_PHONE)
+
+    def tearDown(self):
+        rbac.GROUPS_FILE = self._orig_groups_file
+        rbac._GROUPS_CACHE = self._orig_groups_cache
+        super().tearDown()
+
+    def test_commercial_insight_routes_forbidden_for_operator(self):
+        """5.2: 运营身份对 8 条商业洞察路由断言 403，防掉入只读兜底"""
+        routes_to_test = [
+            ("/api/portfolio/summary", "GET"),
+            ("/api/portfolio/report", "GET"),
+            ("/api/portfolio/patrol", "POST"),
+            ("/api/benchmark/industries", "GET"),
+            ("/api/projects/nextgeo/pitch/data", "GET"),
+            ("/api/projects/nextgeo/pitch/slides", "GET"),
+            ("/api/projects/nextgeo/pitch/print", "GET"),
+            ("/api/projects/nextgeo/roi/settings", "POST"),
+        ]
+        for path, method in routes_to_test:
+            ok, status, msg = rbac.guard_route(path, method, self.op)
+            self.assertFalse(ok, f"{method} {path} 应对运营拦截")
+            self.assertEqual(status, 403, f"{method} {path} 状态码应为 403, 实际为 {status}")
+
+    def test_group_level_guard(self):
+        """5.3: 集团级守卫访问权限断言"""
+        # 1. allowed_projects=["xuzhou_xuanyuan"] 访问 GET /api/groups/xuanyuan_group/matrix 放行
+        ok_upsert, msg_up, _ = rbac.upsert_member({
+            "user_id": "op_group_allowed",
+            "phone": "13900000002",
+            "name": "集团授权运营",
+            "allowed_projects": ["xuzhou_xuanyuan"],
+            "permissions": ["report:view"],
+            "status": "active",
+        })
+        self.assertTrue(ok_upsert, msg_up)
+        op_group = rbac.resolve_identity(user_id="op_group_allowed")
+
+        ok, status, msg = rbac.guard_route("/api/groups/xuanyuan_group/matrix", "GET", op_group)
+        self.assertTrue(ok, f"授权子品牌运营访问集团矩阵应放行: {msg}")
+        self.assertEqual(status, 200)
+
+        # 2. allowed_projects=["nextgeo"] 访问 GET /api/groups/xuanyuan_group/matrix 返回 403 无权访问该集团
+        ok, status, msg = rbac.guard_route("/api/groups/xuanyuan_group/matrix", "GET", self.op)
+        self.assertFalse(ok)
+        self.assertEqual(status, 403)
+        self.assertIn("无权访问该集团", msg)
+
+        # 3. 同集团的非 matrix 路径返回 403 (未开放给运营人员)
+        non_matrix_paths = [
+            ("/api/groups/xuanyuan_group/matrix", "POST"),
+            ("/api/groups/xuanyuan_group/other", "GET"),
+            ("/api/groups/xuanyuan_group", "GET"),
+        ]
+        for path, method in non_matrix_paths:
+            ok, status, msg = rbac.guard_route(path, method, op_group)
+            self.assertFalse(ok, f"{method} {path} 应被拦截")
+            self.assertEqual(status, 403)
+            self.assertIn("该操作尚未开放给运营人员", msg)
+
+        # 4. 缺 report:view 权限
+        ok_upsert, msg_up2, _ = rbac.upsert_member({
+            "user_id": "op_no_report",
+            "phone": "13900000003",
+            "name": "无报表权限运营",
+            "allowed_projects": ["xuzhou_xuanyuan"],
+            "permissions": ["article:edit"],
+            "status": "active",
+        })
+        self.assertTrue(ok_upsert, msg_up2)
+        op_no_report = rbac.resolve_identity(user_id="op_no_report")
+        ok, status, msg = rbac.guard_route("/api/groups/xuanyuan_group/matrix", "GET", op_no_report)
+        self.assertFalse(ok)
+        self.assertEqual(status, 403)
+        self.assertIn("缺少相应操作权限（需要 report:view）", msg)
+
+    def test_redact_group_matrix(self):
+        """5.4: redact_group_matrix 裁剪断言"""
+        raw_payload = {
+            "success": True,
+            "group_id": "xuanyuan_group",
+            "group_name": "璇源控股集团",
+            "parent_project_id": "xuzhou_xuanyuan",
+            "description": "集团测试",
+            "group_sov": 45.0,
+            "synergy_index": 1.2,
+            "synergy_multiplier": 1.5,
+            "tier": "🟢 优势协同矩阵 (Synergized Group)",
+            "summary": "【璇源控股集团】母子公司在各自细分领域已建立优势声量。",
+            "total_brands": 2,
+            "total_prompts": 100,
+            "total_unique_citation_domains": 10,
+            "shared_citations_count": 1,
+            "children_matrix": [
+                {
+                    "project_id": "xuzhou_xuanyuan",
+                    "client_name": "璇源网络科技",
+                    "brand_name": "璇源网络科技",
+                    "role": "集团母公司 / 核心技术中枢",
+                    "weight": 0.6,
+                    "keywords_count": 60,
+                    "sov_pct": 50.0,
+                    "effective_volume": 30.0,
+                    "citation_count": 8,
+                    "contribution_pct": 66.7,
+                },
+                {
+                    "project_id": "demo_corp",
+                    "client_name": "智数科技 (Demo Corp)",
+                    "brand_name": "智数科技",
+                    "role": "旗下工业数字化应用子公司",
+                    "weight": 0.4,
+                    "keywords_count": 40,
+                    "sov_pct": 20.0,
+                    "effective_volume": 8.0,
+                    "citation_count": 4,
+                    "contribution_pct": 33.3,
+                },
+            ],
+            "shared_citations": [
+                {
+                    "domain": "zhihu.com",
+                    "name": "知乎",
+                    "total_count": 12,
+                    "shared_by_brands": ["璇源网络科技", "智数科技"],
+                }
+            ],
+        }
+
+        # 开发者：原样返回
+        dev_res = rbac.redact_group_matrix(raw_payload, self.dev)
+        self.assertEqual(len(dev_res["children_matrix"]), 2)
+        self.assertEqual(dev_res["group_sov"], 45.0)
+
+        # 运营只授权 demo_corp
+        ok_upsert, _, _ = rbac.upsert_member({
+            "user_id": "op_demo_only",
+            "phone": "13900000004",
+            "name": "只负责子公司的运营",
+            "allowed_projects": ["demo_corp"],
+            "permissions": ["report:view"],
+            "status": "active",
+        })
+        self.assertTrue(ok_upsert)
+        op_demo = rbac.resolve_identity(user_id="op_demo_only")
+
+        op_res = rbac.redact_group_matrix(raw_payload, op_demo)
+        # 响应 children_matrix 不含 xuzhou_xuanyuan
+        child_pids = [c["project_id"] for c in op_res["children_matrix"]]
+        self.assertEqual(child_pids, ["demo_corp"])
+        # group_sov 不是全集团原值 45.0，重算为 20.0 (demo_corp 单家)
+        self.assertEqual(op_res["group_sov"], 20.0)
+        # parent_project_id 未授权则清空
+        self.assertEqual(op_res["parent_project_id"], "")
+        # shared_citations 不足 2 个授权品牌整条删除
+        self.assertEqual(op_res["shared_citations"], [])
+        self.assertEqual(op_res["shared_citations_count"], 0)
+        # 段位文案禁止表情符号
+        self.assertEqual(op_res["tier"], "只统计你负责的品牌")
+        self.assertNotIn("🟢", op_res["tier"])
+        self.assertEqual(op_res["summary"], "只统计你负责的品牌")
+
+    def test_commercial_insight_routes_allowed_for_developer(self):
+        """5.5: 开发者身份对 8 条商业洞察路由放行；分享链接未登录放行"""
+        routes_to_test = [
+            ("/api/portfolio/summary", "GET"),
+            ("/api/portfolio/report", "GET"),
+            ("/api/portfolio/patrol", "POST"),
+            ("/api/benchmark/industries", "GET"),
+            ("/api/projects/nextgeo/pitch/data", "GET"),
+            ("/api/projects/nextgeo/pitch/slides", "GET"),
+            ("/api/projects/nextgeo/pitch/print", "GET"),
+            ("/api/projects/nextgeo/roi/settings", "POST"),
+        ]
+        for path, method in routes_to_test:
+            ok, status, msg = rbac.guard_route(path, method, self.dev)
+            self.assertTrue(ok, f"开发者对 {method} {path} 应放行: {msg}")
+            self.assertEqual(status, 200)
+
+        # /api/share/demo-token/pitch/print 在未登录 (None) 时仍放行
+        ok, status, msg = rbac.guard_route("/api/share/demo-token/pitch/print", "GET", None)
+        self.assertTrue(ok, f"分享报价链接未登录应放行: {msg}")
+        self.assertEqual(status, 200)
+
+    def test_intent_matrix_retained_for_operator(self):
+        """5.6: /intent/matrix 仍在，运营访问 /api/projects/nextgeo/intent/matrix 放行"""
+        ok, status, msg = rbac.guard_route("/api/projects/nextgeo/intent/matrix", "GET", self.op)
+        self.assertTrue(ok, f"运营访问项目意图矩阵应放行: {msg}")
+        self.assertEqual(status, 200)
+
+        # 检查 rbac.py 中 ("/matrix", "report:view") 的注释
+        found_short_matrix = False
+        with open(rbac.__file__, "r", encoding="utf-8") as f:
+            for line in f:
+                if '("/matrix", "report:view")' in line:
+                    found_short_matrix = True
+                    self.assertIn("集团矩阵短后缀", line)
+                    self.assertIn("不是意图矩阵", line)
+        self.assertTrue(found_short_matrix, "缺少 /matrix 登记")
+
+    def test_home_panel_static_no_geo_dev_only(self):
+        """5.7: 静态断言 data-geo-dev-only 未出现在任何 class 含 home-panel 的元素上"""
+        html_path = os.path.join(PROJECT_ROOT, "web", "index.html")
+        with open(html_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        panel_tags = re.findall(r"<[^>]+class=[\"'][^\"']*home-panel[^\"']*[\"'][^>]*>", content)
+        self.assertGreater(len(panel_tags), 0, "未找到任何 home-panel 元素")
+        for tag in panel_tags:
+            self.assertNotIn(
+                "data-geo-dev-only",
+                tag,
+                f"home-panel 元素不得带 data-geo-dev-only 属性（防与 hidden 冲突导致面板常驻）: {tag}",
+            )
 
 
 if __name__ == "__main__":

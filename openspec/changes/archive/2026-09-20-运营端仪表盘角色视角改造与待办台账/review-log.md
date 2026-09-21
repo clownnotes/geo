@@ -258,3 +258,74 @@ python3 -m unittest tests.test_operator_dashboard_perspective tests.test_check_l
 - 共识维持：**`[已达成共识]`**
 - 本轮仅审查 + 订正 design 一句口径；**未改业务代码、未 archive**。产品可验收后自行决定是否 `/opsx-archive`。
 
+---
+
+## 2026-09-20 Cursor `/opsx-review`：对照规范检查已写代码
+
+### 审查范围
+
+`web/index.html`（运营看板 / 真机入口）、`tools/geo/check_ledger.py`、`tools/geo/rbac.py`（`filter_check_ledger`）、`tests/test_operator_dashboard_perspective.py`。对照 `proposal` / `design` / `tasks` 拍板项。
+
+### 1. 必做项核对（代码）
+
+| 规范要求 | 代码事实 | 结论 |
+| :--- | :--- | :--- |
+| 方案 A 双容器 | `dashboard-dev-section` + `data-geo-dev-only`；`dashboard-ops-section` 运营显示 | ✅ |
+| 运营不调财务 | `loadProjectsList` 仅 `isDeveloper()` 调 `loadPortfolioSummaryForDashboard` | ✅ |
+| 四宫格含声量异常 | `ops-stat-sov-alert`；无「已结案企业」 | ✅ |
+| 待办行字段 | 灯色 / 豆包位次 / 声量 / 异动徽章 / 进度 / 主按钮 | ✅ |
+| 去真机回填打开粘贴框 | `openManualCheckForProject` → 设 `currentProjectId` + `openManualProbeModal`，**无** `enterWizard` | ✅ |
+| 回填后刷新看板 | `submitManualProbeIngest` 在仪表盘可见时调 `renderOpsDashboard()` | ✅ |
+| 台账裁剪 | `filter_check_ledger` 重算含 `sov_alert_count` | ✅ |
+| 帮助文案 | 四宫格 `title` + `toggleMetricHint`；按钮 `title` | ✅ |
+| 自动化 | `test_operator_dashboard_perspective` + `test_check_ledger`：**13 OK** | ✅ |
+
+### 2. 问题分级
+
+**无新增 🔴。** 上轮「进阶段五」已关闭。
+
+**🟡 建议（不挡通过，可后续小修）：**
+
+1. **跨企业粘贴框状态残留**：`openManualProbeModal` 在已有 `selectedKeyword` 时不会按新项目重置。运营从 A 企业回填再点 B 企业，可能仍停在 A 的词上。建议在 `openManualCheckForProject` 或打开时清空 `manualProbeState.selectedKeyword`（及答案框）。
+2. **豆包位次取「字典里第一个豆包记录」**：`05_manual_probes.json` 按 `items()` 扫描，不一定是最新一次回填。多数场景够用；若要严格「最近一次」，应按时间戳取最新。
+3. **黄灯不计「待真机实测」数字**：与现文案一致；产品若要「将逾期也进待办数」再改口径。
+
+**🟢**：缺 `monitor_history` 表时后台打日志已被吞掉；运营区无 Emoji / 无 SOP 主文案。
+
+### 3. 结论
+
+- 代码实现与拍板规范 **对齐**，主路径可交付。
+- 审查结论：**`[通过]`**
+- 共识维持：**`[已达成共识]`**
+- 本轮**只审查、未改代码、未 archive**。若要清掉 🟡-1 跨企业词残留，可再发 `/opsx-fix`。
+
+---
+
+## 2026-09-20 Cursor `/opsx-fix`：关闭审查 🟡-1 / 🟡-2
+
+### 关闭项
+
+| 项 | 处理 |
+| :--- | :--- |
+| 🟡-1 跨企业粘贴框词残留 | **已修**：新增 `resetManualProbeUiForProject`；`openManualCheckForProject` / `openManualProbeModal` 换企业时清空提问词与答案框；`boundProjectId` 绑定当前企业 |
+| 🟡-2 豆包位次非最近一次 | **已修**：`check_ledger._pick_latest_probe_record` 按 `updated_at` 取最新，优先豆包 |
+| 🟡-3 黄灯是否计入待真机数 | **未改**（与现文案一致，产品未要求改口径） |
+
+### 修改文件
+
+- `web/index.html`
+- `tools/geo/check_ledger.py`
+- `tests/test_operator_dashboard_perspective.py`（用例 9）
+- `tests/test_check_ledger.py`（`test_pick_latest_probe_record_prefers_newest_doubao`）
+
+### 验证
+
+```text
+python3 -m unittest tests.test_operator_dashboard_perspective tests.test_check_ledger -v
+→ 15 tests OK
+```
+
+### 状态
+
+**`[已修正]`** — 两处建议已落地。未 archive。
+
