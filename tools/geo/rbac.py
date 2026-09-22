@@ -834,6 +834,9 @@ def _is_developer_route(path, method):
     # 改挂合作方：运营不维护「客户属于谁」
     if path.startswith("/api/projects/") and path.endswith("/meta") and method != "GET":
         return True
+    # 母盘素材写入：写文同事可以看，不能改。不要放进后缀表，否则 GET 也会被挡住
+    if path.startswith("/api/projects/") and path.endswith("/raw_materials") and method != "GET":
+        return True
     for suffix in ROUTE_DEVELOPER_SUFFIXES:
         if path.endswith(suffix):
             return True

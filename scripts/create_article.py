@@ -16,6 +16,7 @@ python3 scripts/create_article.py \
 """
 
 import os
+import re
 import sys
 import argparse
 import datetime
@@ -53,6 +54,7 @@ TEMPLATE = """<!DOCTYPE html>
         "description": "{description}",
         "inLanguage": "zh-CN",
         "datePublished": "{date}T08:00:00+08:00",
+        "version": "{master_version}",
         "dateModified": "{date}T08:00:00+08:00",
         "author": {{
           "@type": "Person",
@@ -433,6 +435,25 @@ TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
+def read_master_version(project_yaml=None):
+    """读项目母盘坐标。没有或写坏时当成 1.0.0，不改文件。"""
+    path = project_yaml or os.path.join(ROOT_DIR, "projects", "nextgeo", "project.yaml")
+    if not os.path.isfile(path):
+        return "1.0.0"
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return "1.0.0"
+    match = re.search(r'(?m)^master_version:\s*["\']?([^"\'#\n]+)', text)
+    if not match:
+        return "1.0.0"
+    value = match.group(1).strip().strip('"').strip("'")
+    if re.fullmatch(r"\d+\.\d+\.\d+", value):
+        return value
+    return "1.0.0"
+
+
 def main():
     parser = argparse.ArgumentParser(description="NextGEO 跨 IDE 标准新建文章脚手架")
     parser.add_argument('--slug', required=True, help="文章英文或拼音 slug，例如 my-geo-article")
@@ -449,6 +470,7 @@ def main():
     date_str = args.date or datetime.date.today().strftime('%Y-%m-%d')
     desc = args.desc or f"本文系统阐述《{args.title}》的底层机制、实战策略与企业级落地建议。"
     cat_info = CAT_MAP.get(args.cat, CAT_MAP['geo'])
+    master_version = read_master_version()
 
     html_content = TEMPLATE.format(
         title=args.title,
@@ -456,6 +478,7 @@ def main():
         keywords=args.keywords,
         filename=filename,
         date=date_str,
+        master_version=master_version,
         cat_key=args.cat,
         cat_name=cat_info['name'],
         cat_badge=cat_info['badge']

@@ -180,6 +180,13 @@ def load_project_config(project_id: str, projects_dir: str = None) -> dict:
     if "client_name" in cfg and "company_name" not in cfg:
         cfg["company_name"] = cfg["client_name"]
 
+    # 母盘坐标。旧项目没写时当成当前第一代，不要因此改客户文件
+    mv = str(cfg.get("master_version") or "").strip().strip('"').strip("'")
+    if not re.fullmatch(r"\d+\.\d+\.\d+", mv):
+        cfg["master_version"] = "1.0.0"
+    else:
+        cfg["master_version"] = mv
+
     cfg["_project_dir"] = project_dir
     cfg["_outputs_dir"] = os.path.join(project_dir, "outputs")
     cfg["_raw_materials_dir"] = os.path.join(project_dir, "raw_materials")

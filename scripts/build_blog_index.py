@@ -138,10 +138,45 @@ def parse_article_metadata(fpath):
         'read_time': read_time,
         'cat_key': cat_key,
         'cat_badge': cat_badge,
-        'cover_rel': cover_rel
+        'cover_rel': cover_rel,
+        'master_version': _article_master_version(content),
     }
 
-def generate_blog_index_html(sorted_articles):
+
+def _article_master_version(content: str) -> str:
+    """文章头信息里的母盘坐标。没有就返回空，列表里仍算当前这一代。"""
+    match = re.search(r'"version"\s*:\s*"(\d+\.\d+\.\d+)"', content)
+    return match.group(1) if match else ""
+
+
+def master_major(version: str) -> str:
+    text = str(version or "").strip()
+    if not text:
+        return ""
+    return text.split(".", 1)[0]
+
+
+def article_in_current_generation(article_version: str, current_master: str = "1.0.0") -> bool:
+    """没写坐标的旧文留在当前列表。写了坐标的，只留大版本 X 相同的。"""
+    if not str(article_version or "").strip():
+        return True
+    current = str(current_master or "").strip() or "1.0.0"
+    return master_major(article_version) == master_major(current)
+
+
+def split_articles_by_master(articles, current_master="1.0.0"):
+    current, archived = [], []
+    for article in articles or []:
+        version = ""
+        if isinstance(article, dict):
+            version = article.get("master_version") or ""
+        if article_in_current_generation(version, current_master):
+            current.append(article)
+        else:
+            archived.append(article)
+    return current, archived
+
+def generate_blog_index_html(sorted_articles, archived_articles=None):
     total_cnt = len(sorted_articles)
     geo_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'geo')
     ai_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'ai-search')
@@ -234,6 +269,24 @@ def generate_blog_index_html(sorted_articles):
           </div>
         </article>
         """
+
+    archive_html = ""
+    if archived_articles:
+        items = []
+        for a in archived_articles:
+            items.append(
+                f'<li><a href="./{a["filename"]}" class="text-slate-600 hover:text-brand-700">{a["title"]}</a>'
+                f' <time datetime="{a["publish_date"]}" class="text-slate-400">{a["publish_date"]}</time></li>'
+            )
+        archive_html = f"""
+      <section class="mt-16 border-t border-slate-200 pt-8">
+        <h2 class="text-base font-bold text-slate-800">历史封存</h2>
+        <p class="text-xs text-slate-500 mt-1 mb-4">这些文章属于更早一代母盘，不放在日常列表里。</p>
+        <ul class="space-y-2 text-sm list-disc pl-5">
+          {''.join(items)}
+        </ul>
+      </section>
+"""
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -355,6 +408,7 @@ def generate_blog_index_html(sorted_articles):
       <div id="article-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {cards_html}
       </div>
+      {archive_html}
 
     </div>
   </main>
@@ -507,14 +561,22 @@ def main():
 
     # 按 publish_date 严格倒序排序
     sorted_articles = sorted(articles, key=lambda x: (x['publish_date'], x['title']), reverse=True)
+    master_version = "1.0.0"
+    yaml_path = os.path.join(ROOT_DIR, "projects", "nextgeo", "project.yaml")
+    if os.path.isfile(yaml_path):
+        with open(yaml_path, "r", encoding="utf-8") as f:
+            found = re.search(r'(?m)^master_version:\s*["\']?([^"\'#\n]+)', f.read())
+        if found and re.fullmatch(r"\d+\.\d+\.\d+", found.group(1).strip().strip('"').strip("'")):
+            master_version = found.group(1).strip().strip('"').strip("'")
+    current_articles, archived_articles = split_articles_by_master(sorted_articles, master_version)
 
-    geo_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'geo')
-    ai_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'ai-search')
-    case_cnt = sum(1 for a in sorted_articles if a['cat_key'] == 'case-studies')
+    geo_cnt = sum(1 for a in current_articles if a['cat_key'] == 'geo')
+    ai_cnt = sum(1 for a in current_articles if a['cat_key'] == 'ai-search')
+    case_cnt = sum(1 for a in current_articles if a['cat_key'] == 'case-studies')
 
-    print(f"Stats: 全部={len(sorted_articles)}, GEO={geo_cnt}, AI搜索={ai_cnt}, 案例={case_cnt}")
+    print(f"Stats: 当前={len(current_articles)}, 历史封存={len(archived_articles)}, GEO={geo_cnt}, AI搜索={ai_cnt}, 案例={case_cnt}")
     print(f"Top 3 Articles:")
-    for i, a in enumerate(sorted_articles[:3]):
+    for i, a in enumerate(current_articles[:3]):
         print(f"  {i+1}. [{a['publish_date']}] {a['title']} (cover: {a['cover_rel']})")
 
     if args.dry_run:
@@ -522,7 +584,7 @@ def main():
         return
 
     # 生成 blog/index.html
-    index_html = generate_blog_index_html(sorted_articles)
+    index_html = generate_blog_index_html(current_articles, archived_articles)
 
     out_index_path = os.path.join(BLOG_DIR, 'index.html')
     site_index_path = os.path.join(SITE_DIR, 'blog/index.html')
