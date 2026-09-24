@@ -54,22 +54,77 @@
       </div>
     </div>
 
+    <!-- [2026-09-22] [管理端功能解答麦肯锡模型与阶段零重构] 重构顶部静态引导为麦肯锡 V-W-W-H 四层卡片与四色侧彩条，保留 modeBanner 与右上角双徽章 -->
+    <!-- 麦肯锡 V-W-W-H 认知引导系统 -->
+    <div class="space-y-2.5">
+      <!-- 1. Value 价值结论（系统主色紫 #7c5bf5，结论先行大卡片） -->
+      <div class="bg-indigo-50/70 border border-indigo-100 border-l-4 border-l-[#7c5bf5] rounded-lg p-3 text-indigo-950">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-[#7c5bf5]">
+          <span class="w-4 h-4 rounded-full bg-indigo-100 text-[#7c5bf5] text-[10px] font-bold inline-flex items-center justify-center">1</span>
+          <span class="px-1.5 py-0.5 rounded bg-indigo-100/90 text-[10px] tracking-wide font-bold">核心交付成果</span>
+          做完后能拿到什么？
+        </div>
+        <div class="text-xs leading-relaxed mt-1.5 text-indigo-950">
+          <p>
+            做完后，项目里会有：<strong>① 一份问题清单</strong>；<strong>② 一份已确认写入的豆包答案存档</strong>。
+          </p>
+          <p class="text-[11px] text-indigo-900/80 mt-1">
+            <strong>业务价值</strong>：后面写什么文章、补什么官网，都拿这份真实摸底当对照，不再凭感觉瞎写。
+          </p>
+        </div>
+      </div>
+
+      <!-- 2. What 与 3. Why 双列并排（提升垂直利用率，不压迫下方操作区） -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+        <!-- What 这是什么（冷调蓝灰色，客观边界） -->
+        <div class="bg-slate-50 border border-slate-200 border-l-4 border-l-sky-500 rounded-lg p-2.5 text-slate-800">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+            <span class="w-4 h-4 rounded-full bg-sky-100 text-sky-700 text-[10px] font-bold inline-flex items-center justify-center">2</span>
+            【这是什么】快速口语摸底，不是建词库
+          </div>
+          <p class="text-[11px] leading-relaxed mt-1 text-slate-600">
+            就像看病前先量个血压：挑 8~10 句客户行业里真人常问的话去问豆包。只管摸清它认不认识你们、推谁、有没有说错。不改官网、不建正式词库。
+          </p>
+        </div>
+
+        <!-- Why 为什么做（暖调琥珀黄，痛点避坑） -->
+        <div class="bg-amber-50/60 border border-amber-200 border-l-4 border-l-amber-500 rounded-lg p-2.5 text-amber-950">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+            <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold inline-flex items-center justify-center">3</span>
+            【为什么做】防止闭门造车与盲人摸象
+          </div>
+          <p class="text-[11px] leading-relaxed mt-1 text-amber-900/80">
+            很多客户以为大模型什么都懂，其实常把客户当竞品或根本搜不到。不摸底就发文章 = 盲人摸象。先找出答错、漏答的地方，后面优化才有的放矢。
+          </p>
+        </div>
+      </div>
+
+      <!-- 4. How 怎么去做（通路翡翠绿，动线闭环） -->
+      <div class="bg-emerald-50/50 border border-emerald-200 border-l-4 border-l-emerald-500 rounded-lg p-3 text-emerald-950">
+        <div class="flex flex-wrap items-center justify-between gap-1">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+            <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-flex items-center justify-center">4</span>
+            【怎么去做】极简三步闭环（约 3 分钟）
+          </div>
+          <span class="text-[10px] text-emerald-700/80 font-medium">本页出题 → 你去豆包真问 → 你点确认写入</span>
+        </div>
+        <ol class="list-decimal list-inside space-y-1 text-[11px] text-emerald-900 mt-1.5 leading-relaxed">
+          <li><strong>1. 出题</strong>：点下方第 1 步按钮，生成并保存问题清单（8~10 题）；</li>
+          <li><strong>2. 真问</strong>：拿着问题清单去豆包网页问一遍，把回答存成结果文件；</li>
+          <li><strong>3. 写入</strong>：在第 3 步点「确认写入」——右上角才亮绿色「豆包答案已存进项目」。摸底才算真正完成。</li>
+        </ol>
+        <p class="text-[10px] text-emerald-800/70 pt-1.5 border-t border-emerald-200/50 mt-1.5">
+          分工说明：管理台自己不会登录豆包，需要你把清单拿去问，并在第 3 步确认存入。
+        </p>
+      </div>
+    </div>
+
+    <!-- 动态轮次状态横幅（首轮 vs 再测） -->
     <div
       v-if="modeBanner"
       :class="modeBanner.className"
       v-html="modeBanner.html"
     ></div>
-
-    <div class="text-[11px] text-slate-600 bg-indigo-50/70 border border-indigo-100 rounded-lg px-3 py-2.5 space-y-1.5">
-      <p class="font-semibold text-slate-800">按这个顺序做（新建客户也一样）</p>
-      <ol class="list-decimal list-inside space-y-0.5 text-slate-600">
-        <li><strong>创建时</strong>：只填品牌、一句话业务，以及客户说过的「会搜什么 / 要对标谁」。这时还<strong>没有</strong>豆包答案。</li>
-        <li><strong>第 1 步</strong>：在本页生成「要问豆包的几句话」，保存成问题清单。</li>
-        <li><strong>第 2 步</strong>：你按清单去豆包真问，把回答存成结果文件。</li>
-        <li><strong>第 3 步</strong>：你点「确认写入」——豆包答案才真正存进这个客户项目。之后再出题，才是「再测一遍」。</li>
-      </ol>
-      <p class="text-slate-500 pt-0.5">谁干什么：本页出题 → 你去豆包问 → 你点确认存进项目。管理台自己不会登录豆包。</p>
-    </div>
   </div>
 </template>
 

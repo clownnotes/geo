@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>阶段零 SOP 布局方案重构演示 (方案 B 升级版)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --geo-primary: #7c5bf5;
+      --geo-primary-hover: #6846e3;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .drawer-open {
+      transform: translateX(0) !important;
+    }
+    .mask-open {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    /* 侧边栏过渡动效 */
+    .sidebar-transition {
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ==================== 顶部导航控制条 ==================== -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#7c5bf5]"></span>
+        <h1 class="text-sm font-bold text-slate-900">阶段零 SOP 布局重构选型演示</h1>
+        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-[#7c5bf5] border border-indigo-100">方案 B 升级版已就绪</span>
+      </div>
+
+      <!-- 方案切换分段控制器 -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+        <button id="btn-layout-b" onclick="switchLayout('b')" class="px-3 py-1 rounded-md text-xs font-semibold transition bg-white text-[#7c5bf5] shadow-xs">
+          方案 B: 关卡树 + 专属文件袋 (当前演示)
+        </button>
+        <button id="btn-layout-a" onclick="switchLayout('a')" class="px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+          方案 A: 垂直向导流 (原对照)
+        </button>
+        <button id="btn-layout-c" onclick="switchLayout('c')" class="px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+          方案 C: 分步卡片 Tab
+        </button>
+      </div>
+
+      <!-- 认知抽屉唤起按钮 -->
+      <button onclick="toggleDrawer(true)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-700 transition">
+        <i data-lucide="book-open" class="w-3.5 h-3.5 text-[#7c5bf5]"></i>
+        <span>麦肯锡 V-W-W-H 避坑手册</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== 统一页面顶栏（状态与终局成果） ==================== -->
+  <section class="bg-white border-b border-slate-200 py-3.5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-base font-bold text-slate-900">阶段零：先去豆包摸底</h2>
+          <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">当前处于：再测一遍</span>
+          <span class="text-[10px] font-mono text-slate-400">客户：nextgeo (邻里GEO)</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">
+          终局交付物：<strong>① 一份问题清单</strong> ➔ <strong>② 一份已确认写入的豆包答案存档</strong>（摸清大模型底牌，不再瞎写）。
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-1 rounded-md text-xs font-semibold bg-sky-50 text-sky-900 border border-sky-200">
+          问题清单已就绪（8 题）
+        </span>
+        <span class="px-2 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+          豆包答案已存进项目
+        </span>
+        <span class="text-[11px] font-mono text-slate-400 bg-slate-50 px-2 py-1 rounded border border-slate-200" title="上次存档编号">
+          probe:doubao:20260917
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 主内容区（切换容器） ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================================================= -->
+    <!-- 方案 B 升级版：步骤关卡树 + 专属文件袋（重点推荐） -->
+    <!-- ========================================================================= -->
+    <div id="layout-b" class="flex gap-5 items-start">
+      
+      <!-- 左栏：步骤关卡树 + 文件袋 (可折叠) -->
+      <aside id="tree-sidebar" class="w-80 sidebar-transition shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+        <!-- 侧栏标题与收起按钮 -->
+        <div class="p-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+          <div id="sidebar-title" class="flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-[#7c5bf5]"></i>
+            <span class="text-xs font-bold text-slate-800">SOP 关卡与文件资产</span>
+          </div>
+          <button onclick="toggleTreeSidebar()" title="折叠/展开侧栏" class="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition">
+            <i id="sidebar-toggle-icon" data-lucide="chevrons-left" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- 关卡树列表 -->
+        <div id="sidebar-content" class="p-3 space-y-3 overflow-y-auto">
+          
+          <!-- 关卡 1：准备要问的题 -->
+          <div class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+            <!-- 关卡头 -->
+            <div onclick="selectStep(1)" class="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">✓</span>
+                <span class="text-xs font-bold text-slate-800">第 1 步：准备题目</span>
+              </div>
+              <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">8 题就绪</span>
+            </div>
+
+            <!-- 挂载的专属文件袋：问题清单袋 -->
+            <div class="p-2 bg-slate-50/60 space-y-1 text-xs">
+              <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase px-1">
+                <span>📁 问题清单袋 (5 份)</span>
+                <span class="text-[#7c5bf5] hover:underline cursor-pointer" onclick="event.stopPropagation(); alert('模拟：新建一轮题单')">+ 出新题</span>
+              </div>
+
+              <!-- 文件项 -->
+              <div onclick="selectScriptFile('round4')" class="p-1.5 rounded bg-indigo-50 border border-indigo-200 flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-1.5 truncate">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#7c5bf5]"></span>
+                  <span class="font-mono text-[11px] text-indigo-950 font-bold truncate">round4.json</span>
+                </div>
+                <span class="text-[10px] font-bold text-[#7c5bf5] shrink-0">当前生效 · 8题</span>
+              </div>
+
+              <div onclick="selectScriptFile('round3')" class="p-1.5 rounded hover:bg-slate-100 flex items-center justify-between cursor-pointer text-slate-500">
+                <div class="flex items-center gap-1.5 truncate">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                  <span class="font-mono text-[11px] truncate">round3.json</span>
+                </div>
+                <span class="text-[10px] shrink-0">历史 · 8题</span>
+              </div>
+
+              <div onclick="selectScriptFile('round2')" class="p-1.5 rounded hover:bg-slate-100 flex items-center justify-between cursor-pointer text-slate-500">
+                <div class="flex items-center gap-1.5 truncate">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                  <span class="font-mono text-[11px] truncate">round2.json</span>
+                </div>
+                <span class="text-[10px] shrink-0">历史 · 6题</span>
+              </div>
+
+              <div onclick="selectScriptFile('draft')" class="p-1.5 rounded hover:bg-slate-100 flex items-center justify-between cursor-pointer text-slate-400">
+                <div class="flex items-center gap-1.5 truncate">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                  <span class="font-mono text-[11px] truncate">draft.json</span>
+                </div>
+                <span class="text-[10px] shrink-0">首轮草稿</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 关卡 2：豆包真机实测 (当前高亮！) -->
+          <div class="rounded-lg border-2 border-[#7c5bf5] bg-white overflow-hidden shadow-xs">
+            <!-- 关卡头 -->
+            <div onclick="selectStep(2)" class="p-2.5 bg-indigo-50/70 flex items-center justify-between cursor-pointer border-b border-indigo-100">
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-[#7c5bf5] text-white text-[10px] font-bold flex items-center justify-center">2</span>
+                <span class="text-xs font-bold text-indigo-950">第 2 步：去豆包实测</span>
+              </div>
+              <span class="text-[10px] font-bold text-white bg-[#7c5bf5] px-1.5 py-0.5 rounded">当前进行中</span>
+            </div>
+
+            <!-- 挂载的专属文件袋：豆包结果袋 -->
+            <div class="p-2 bg-slate-50/60 space-y-1 text-xs">
+              <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase px-1">
+                <span>📁 豆包回答结果袋 (2 份)</span>
+                <span class="text-emerald-700 hover:underline cursor-pointer" onclick="event.stopPropagation(); alert('模拟：检查 outputs 磁盘是否有新结果')">↻ 检查落盘</span>
+              </div>
+
+              <!-- 文件项 -->
+              <div onclick="selectResultFile('20260922')" class="p-1.5 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-1.5 truncate">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  <span class="font-mono text-[11px] text-emerald-950 font-bold truncate">doubao_0922.json</span>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-700 shrink-0">今日实测 · 8题全</span>
+              </div>
+
+              <div onclick="selectResultFile('20260917')" class="p-1.5 rounded hover:bg-slate-100 flex items-center justify-between cursor-pointer text-slate-500">
+                <div class="flex items-center gap-1.5 truncate">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                  <span class="font-mono text-[11px] truncate">doubao_0917.json</span>
+                </div>
+                <span class="text-[10px] shrink-0">基线存档 (旧)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 关卡 3：确认写入项目 -->
+          <div class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+            <!-- 关卡头 -->
+            <div onclick="selectStep(3)" class="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-500 text-[10px] font-bold flex items-center justify-center">3</span>
+                <span class="text-xs font-bold text-slate-700">第 3 步：存入项目</span>
+              </div>
+              <span class="text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">待确认写入</span>
+            </div>
+
+            <!-- 挂载的专属文件袋：沉淀配置 -->
+            <div class="p-2 bg-slate-50/60 text-xs">
+              <div class="text-[10px] font-bold text-slate-400 uppercase px-1 mb-1">
+                <span>📄 最终沉淀真相源</span>
+              </div>
+              <div class="p-1.5 rounded bg-white border border-slate-200 text-[11px] text-slate-600 font-mono">
+                projects/nextgeo/project.yaml
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- 右栏：根据左侧点击联动切换的主作业台 -->
+      <section class="flex-1 min-w-0 space-y-4">
+        
+        <!-- 【作业台 1：出题与题单切换】 -->
+        <div id="workbench-step1" class="hidden bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+                <h3 class="text-base font-bold text-slate-900">第 1 步作业台：准备要问豆包的题</h3>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">负责生成或选择 8~10 道真人长问，定稿后存为 probe_script_*.json 文件。</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              已就绪 (8 题)
+            </span>
+          </div>
+
+          <div class="bg-indigo-50/70 border border-indigo-100 rounded-lg p-3.5 flex items-center justify-between">
+            <div class="text-xs text-indigo-950">
+              <strong>当前正在生效题单：</strong> <code class="font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-200">probe_script_retest_round4.json</code>（共 8 题，由 AI 针对上次答错点精编）。
+            </div>
+            <button class="px-3 py-1.5 rounded bg-[#7c5bf5] text-white text-xs font-semibold hover:bg-[#6846e3]">重新让 AI 出题</button>
+          </div>
+
+          <!-- 题目清单 -->
+          <div class="space-y-2">
+            <h4 class="text-xs font-bold text-slate-800">当前题单内的 8 道长问：</h4>
+            <div class="space-y-1.5 text-xs text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-200 max-h-72 overflow-y-auto">
+              <div class="p-2 bg-white rounded border border-slate-100">1. 我们徐州一家做工程机械配件的工厂，想在 DeepSeek、豆包这类大模型里被推荐...</div>
+              <div class="p-2 bg-white rounded border border-slate-100">2. 老板不懂技术：找人做 GEO，怎么防止被传统 SEO 外包忽悠？验收时看哪些东西？</div>
+              <div class="p-2 bg-white rounded border border-slate-100">3. 邻里GEO 到底是做什么的？和小区附近三公里那种本地生活 GEO 是一回事吗？</div>
+              <div class="p-2 bg-white rounded border border-slate-100">4. 邻里GEO 的官网是哪个？有没有官方站，域名是什么？</div>
+              <div class="p-2 bg-white rounded border border-slate-100">5. 徐州做 GEO 的老白靠谱吗？他跟哪家公司、哪个品牌是一起的？</div>
+              <div class="p-2 bg-white rounded border border-slate-100">6. 徐州璇源网络科技有限公司是干什么的？跟邻里GEO、www.baicl.cc 是什么关系？</div>
+              <div class="p-2 bg-white rounded border border-slate-100">7. 像我们这种徐州制造业，做一次大模型搜索建设大概什么价位？按年还是按效果收？</div>
+              <div class="p-2 bg-white rounded border border-slate-100">8. www.baicl.cc 是什么网站？跟邻里GEO 有没有关系？</div>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button onclick="selectStep(2)" class="px-4 py-2 rounded-lg bg-[#7c5bf5] text-white text-xs font-bold">带着这 8 题进入第 2 步实测 ➔</button>
+          </div>
+        </div>
+
+        <!-- 【作业台 2：豆包真机实战 (当前高亮默认展示)】 -->
+        <div id="workbench-step2" class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-[#7c5bf5] text-white flex items-center justify-center text-xs font-bold">2</span>
+                <h3 class="text-base font-bold text-slate-900">第 2 步实操台：拿着清单去豆包网页真机提问</h3>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">请用已登录的外部 Safari 浏览器问一遍豆包，摸清它认不认识、推谁、有没有说错。</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
+              <span>👤 人工外部实操</span>
+            </span>
+          </div>
+
+          <!-- 动手三步法提示条 -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+              <span class="font-bold text-slate-900 block mb-1">① 复制指令</span>
+              <span class="text-slate-500">点下方紫色按钮，复制 8 道长问提问提示词。</span>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+              <span class="font-bold text-slate-900 block mb-1">② Safari 真问</span>
+              <span class="text-slate-500">在已登录的豆包逐题提问，把回答存入结果文件。</span>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+              <span class="font-bold text-slate-900 block mb-1">③ 检查落盘</span>
+              <span class="text-slate-500">点右侧检查按钮，左侧文件袋出现今日文件即算成功。</span>
+            </div>
+          </div>
+
+          <!-- 核心操作按钮组 -->
+          <div class="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-3">
+            <div class="flex flex-wrap items-center gap-3">
+              <button class="px-4 py-2.5 rounded-lg bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-bold flex items-center gap-2 shadow-xs transition">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+                <span>复制 8 道必测题说明（贴给 Safari 或助手实测）</span>
+              </button>
+              <button class="px-4 py-2.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-2 transition">
+                <i data-lucide="refresh-cw" class="w-4 h-4 text-emerald-600"></i>
+                <span>检查磁盘是否有新结果文件</span>
+              </button>
+            </div>
+            <div class="text-xs text-slate-600 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>检测结论：今日实测文件 <code class="font-mono bg-white px-1 py-0.5 rounded border border-slate-200">competitor_probe_doubao_20260922_retest.json</code> 已就绪 (8/8题)。</span>
+            </div>
+          </div>
+
+          <!-- 待提问清单快速抽检 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+              <span>待提问的 8 道题目快速预览：</span>
+              <span class="text-slate-400 font-normal">来源：左栏 round4.json</span>
+            </div>
+            <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs text-slate-700 space-y-2 max-h-48 overflow-y-auto">
+              <div class="p-2 bg-white rounded border border-slate-100">1. 我们徐州一家做工程机械配件的工厂，想在 DeepSeek、豆包这类大模型里被推荐...</div>
+              <div class="p-2 bg-white rounded border border-slate-100">2. 老板不懂技术：找人做 GEO，怎么防止被传统 SEO 外包忽悠？验收时看哪些东西？</div>
+              <div class="p-2 bg-white rounded border border-slate-100">3. 邻里GEO 到底是做什么的？和小区附近三公里那种本地生活 GEO 是一回事吗？</div>
+            </div>
+          </div>
+
+          <!-- 底部闭环按钮 -->
+          <div class="flex items-center justify-between pt-2">
+            <button onclick="selectStep(1)" class="text-xs text-slate-500 hover:text-slate-800">⬅ 回到第 1 步换题</button>
+            <button onclick="selectStep(3)" class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
+              <span>进入第 3 步确认写入项目</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 【作业台 3：确认写入与基线更新】 -->
+        <div id="workbench-step3" class="hidden bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-[#7c5bf5] text-white flex items-center justify-center text-xs font-bold">3</span>
+                <h3 class="text-base font-bold text-slate-900">第 3 步作业台：把豆包结果真正存进项目</h3>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">从第 2 步的回答中提取有效竞品和问句，写入 project.yaml，完成摸底闭环。</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-[#7c5bf5] border border-indigo-100">
+              ⚙️ 终局闭环
+            </span>
+          </div>
+
+          <!-- 写入数据对账卡 -->
+          <div class="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+            <h4 class="text-xs font-bold text-slate-800">核对即将写入项目的数据：</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold">抽出的核心竞品</span>
+                <span class="font-semibold text-slate-800">卓博企服、徐州华商、百创智企</span>
+              </div>
+              <div class="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold">官网与主体绑定</span>
+                <span class="font-semibold text-emerald-700">已绑定 https://www.baicl.cc</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-2">
+            <p class="text-xs text-emerald-950 font-bold">写入效果：</p>
+            <p class="text-xs text-emerald-900/80">点击下方按钮后，右上角会正式点亮绿字「豆包答案已存进项目」，并更新存档编号。阶段零正式宣告完成！</p>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <button onclick="selectStep(2)" class="text-xs text-slate-500 hover:text-slate-800">⬅ 回到第 2 步重新实测</button>
+            <button onclick="alert('写入成功！右上角已更新为最新存档编号。')" class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>确认写入 project.yaml (完成阶段零)</span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 方案 A：垂直向导流（原对照） -->
+    <!-- ========================================================================= -->
+    <div id="layout-a" class="hidden space-y-4">
+      <div class="p-4 bg-white rounded-xl border border-slate-200 text-xs text-slate-500">
+        （方案 A 垂直手风琴向导内容已完整保留，可随时切换对照体验）
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 方案 C：分步卡片 Tab -->
+    <!-- ========================================================================= -->
+    <div id="layout-c" class="hidden space-y-4">
+      <div class="p-4 bg-white rounded-xl border border-slate-200 text-xs text-slate-500">
+        （方案 C 分步 Tab 内容已完整保留，可随时切换对照体验）
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== 麦肯锡 V-W-W-H 抽屉组件 (Slide-Over Drawer) ==================== -->
+  <div id="drawer-mask" onclick="toggleDrawer(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+
+  <aside id="drawer" class="fixed top-0 right-0 w-full sm:w-[500px] h-full bg-white z-50 shadow-2xl border-l border-slate-200 transform translate-x-full transition-transform duration-300 flex flex-col">
+    <!-- 抽屉头部 -->
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#7c5bf5]"></span>
+        <h3 class="text-sm font-bold text-slate-900">阶段零：麦肯锡认知模型手册</h3>
+      </div>
+      <button onclick="toggleDrawer(false)" class="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- 抽屉滚动内容区（完整保留麦肯锡 4 层卡片规范） -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-3.5 text-slate-800">
+      <p class="text-xs text-slate-500">
+        说明：本手册收录阶段零的核心认知、业务边界、避坑代价与动线分工，供交付同学随时查阅，不打扰主作业区。
+      </p>
+
+      <!-- 1. Value 价值卡片 -->
+      <div class="bg-indigo-50/70 border border-indigo-100 border-l-4 border-l-[#7c5bf5] rounded-lg p-3 text-indigo-950">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-[#7c5bf5]">
+          <span class="w-4 h-4 rounded-full bg-indigo-100 text-[#7c5bf5] text-[10px] font-bold inline-flex items-center justify-center">1</span>
+          <span class="px-1.5 py-0.5 rounded bg-indigo-100/90 text-[10px] tracking-wide font-bold">核心交付成果</span>
+          做完后能拿到什么？
+        </div>
+        <div class="text-xs leading-relaxed mt-1.5 text-indigo-950">
+          <p>
+            做完后，项目里会有：<strong>① 一份问题清单</strong>；<strong>② 一份已确认写入的豆包答案存档</strong>。
+          </p>
+          <p class="text-[11px] text-indigo-900/80 mt-1">
+            <strong>业务价值</strong>：后面写什么文章、补什么官网，都拿这份真实摸底当对照，不再凭感觉瞎写。
+          </p>
+        </div>
+      </div>
+
+      <!-- 2. What 这是什么 -->
+      <div class="bg-slate-50 border border-slate-200 border-l-4 border-l-sky-500 rounded-lg p-3 text-slate-800">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+          <span class="w-4 h-4 rounded-full bg-sky-100 text-sky-700 text-[10px] font-bold inline-flex items-center justify-center">2</span>
+          【这是什么】快速口语摸底，不是建词库
+        </div>
+        <p class="text-[11px] leading-relaxed mt-1 text-slate-600">
+          就像看病前先量个血压：挑 8~10 句客户行业里真人常问的话去问豆包。只管摸清它认不认识你们、推谁、有没有说错。不改官网、不建正式词库。
+        </p>
+      </div>
+
+      <!-- 3. Why 为什么做 -->
+      <div class="bg-amber-50/60 border border-amber-200 border-l-4 border-l-amber-500 rounded-lg p-3 text-amber-950">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+          <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold inline-flex items-center justify-center">3</span>
+          【为什么做】防止闭门造车与盲人摸象
+        </div>
+        <p class="text-[11px] leading-relaxed mt-1 text-amber-900/80">
+          很多客户以为大模型什么都懂，其实常把客户当竞品或根本搜不到。不摸底就发文章 = 盲人摸象。先找出答错、漏答的地方，后面优化才有的放矢。
+        </p>
+      </div>
+
+      <!-- 4. How 怎么去做 -->
+      <div class="bg-emerald-50/50 border border-emerald-200 border-l-4 border-l-emerald-500 rounded-lg p-3 text-emerald-950">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+          <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-flex items-center justify-center">4</span>
+          【怎么去做】极简三步闭环（约 3 分钟）
+        </div>
+        <ol class="list-decimal list-inside space-y-1 text-[11px] text-emerald-900 mt-1.5 leading-relaxed">
+          <li><strong>1. 出题</strong>：点下方第 1 步按钮，生成并保存问题清单（8~10 题）；</li>
+          <li><strong>2. 真问</strong>：拿着问题清单去豆包网页问一遍，把回答存成结果文件；</li>
+          <li><strong>3. 写入</strong>：在第 3 步点「确认写入」——右上角才亮绿色「豆包答案已存进项目」。</li>
+        </ol>
+        <p class="text-[10px] text-emerald-800/70 pt-1.5 border-t border-emerald-200/50 mt-1.5">
+          分工说明：管理台自己不会登录豆包，需要你把清单拿去问，并在第 3 步确认存入。
+        </p>
+      </div>
+    </div>
+
+    <!-- 抽屉底部 -->
+    <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+      <button onclick="toggleDrawer(false)" class="px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold hover:bg-slate-900 transition">
+        我知道了，去干活
+      </button>
+    </div>
+  </aside>
+
+  <script>
+    // 初始化 Lucide 图标
+    lucide.createIcons();
+
+    // 默认展示方案 B
+    let currentLayout = 'b';
+    let isSidebarCollapsed = false;
+
+    // 切换方案 A / B / C
+    function switchLayout(layout) {
+      document.getElementById('layout-a').classList.add('hidden');
+      document.getElementById('layout-b').classList.add('hidden');
+      document.getElementById('layout-c').classList.add('hidden');
+
+      const btnA = document.getElementById('btn-layout-a');
+      const btnB = document.getElementById('btn-layout-b');
+      const btnC = document.getElementById('btn-layout-c');
+
+      [btnA, btnB, btnC].forEach(b => {
+        b.className = 'px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition';
+      });
+
+      if (layout === 'a') {
+        document.getElementById('layout-a').classList.remove('hidden');
+        btnA.className = 'px-3 py-1 rounded-md text-xs font-semibold transition bg-white text-[#7c5bf5] shadow-xs';
+      } else if (layout === 'b') {
+        document.getElementById('layout-b').classList.remove('hidden');
+        btnB.className = 'px-3 py-1 rounded-md text-xs font-semibold transition bg-white text-[#7c5bf5] shadow-xs';
+      } else if (layout === 'c') {
+        document.getElementById('layout-c').classList.remove('hidden');
+        btnC.className = 'px-3 py-1 rounded-md text-xs font-semibold transition bg-white text-[#7c5bf5] shadow-xs';
+      }
+      currentLayout = layout;
+      lucide.createIcons();
+    }
+
+    // 方案 B：左侧关卡点击切换右侧工作台
+    function selectStep(step) {
+      document.getElementById('workbench-step1').classList.add('hidden');
+      document.getElementById('workbench-step2').classList.add('hidden');
+      document.getElementById('workbench-step3').classList.add('hidden');
+
+      const wb = document.getElementById(`workbench-step${step}`);
+      if (wb) wb.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    // 方案 B：左侧折叠收起
+    function toggleTreeSidebar() {
+      const sidebar = document.getElementById('tree-sidebar');
+      const content = document.getElementById('sidebar-content');
+      const title = document.getElementById('sidebar-title');
+      const icon = document.getElementById('sidebar-toggle-icon');
+
+      isSidebarCollapsed = !isSidebarCollapsed;
+      if (isSidebarCollapsed) {
+        sidebar.classList.remove('w-80');
+        sidebar.classList.add('w-12');
+        content.classList.add('hidden');
+        title.classList.add('hidden');
+        icon.setAttribute('data-lucide', 'chevrons-right');
+      } else {
+        sidebar.classList.remove('w-12');
+        sidebar.classList.add('w-80');
+        content.classList.remove('hidden');
+        title.classList.remove('hidden');
+        icon.setAttribute('data-lucide', 'chevrons-left');
+      }
+      lucide.createIcons();
+    }
+
+    // 方案 B：选择题单文件模拟
+    function selectScriptFile(fname) {
+      selectStep(1);
+      alert(`已在左栏选中清单：${fname}。右侧工作台已联动切换为该题单内容！`);
+    }
+
+    // 方案 B：选择结果文件模拟
+    function selectResultFile(fname) {
+      selectStep(2);
+      alert(`已在左栏选中实测结果文件：${fname}。右侧工作台已联动展示其对应详情！`);
+    }
+
+    // 抽屉开关
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('drawer');
+      const mask = document.getElementById('drawer-mask');
+      if (open) {
+        drawer.classList.add('drawer-open');
+        mask.classList.add('mask-open');
+      } else {
+        drawer.classList.remove('drawer-open');
+        mask.classList.remove('mask-open');
+      }
+    }
+  </script>
+</body>
+</html>

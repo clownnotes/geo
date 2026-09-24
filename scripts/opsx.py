@@ -6,6 +6,7 @@ import os
 import sys
 import shutil
 import re
+import subprocess
 from datetime import datetime
 
 # 基础目录配置
@@ -242,6 +243,7 @@ def show_help():
     print("可用命令:")
     print("  ./opsx propose <需求名>  - 初始化新需求变更目录和模板")
     print("  ./opsx status            - 检查当前正在进行的需求和任务进度")
+    print("  ./opsx review-wb         - 调用 WorkBuddy (混元3免费通道) 自动审查当前活跃变更")
     print("  ./opsx archive           - 归档当前已完成的需求")
     print("")
 
@@ -259,6 +261,9 @@ def main():
         cmd_status(args)
     elif cmd == "archive":
         cmd_archive(args)
+    elif cmd in ["review-wb", "review-workbuddy"]:
+        wb_script = os.path.join(PROJECT_ROOT, "scripts", "workbuddy_reviewer.py")
+        subprocess.run([sys.executable, wb_script] + args)
     elif cmd in ["--help", "-h", "help"]:
         show_help()
     else:

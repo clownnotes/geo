@@ -35,6 +35,12 @@ const GeoStep0Bridge = {
     }
   },
 
+  setSubStep(num) {
+    if (currentRootInstance && currentRootInstance.setSubStep) {
+      return currentRootInstance.setSubStep(num);
+    }
+  },
+
   renderPanel() {
     if (currentRootInstance && currentRootInstance.renderPanel) {
       return currentRootInstance.renderPanel();

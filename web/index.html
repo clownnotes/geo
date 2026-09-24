@@ -3,13 +3,20 @@
 <head data-page-node-id="CcJAkPjDdyBttIJxTnH0ed">
 <meta charset="UTF-8" data-page-node-id="f7AzJzz2bgr1hgnsJMBRss">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="MtGHEI0cwA5Dwz1uMWk0as">
-<title>GEO 商业交付与 SOP 流水线管理工作台</title>
-<link rel="stylesheet" href="/geo-admin.css" data-page-node-id="ViWIdWDrG8ouxEF13VH9iq">
+<title>GEO 商业交付与 SOP 流水线管理工作台 (纯前端打磨态)</title>
+<!-- 纯前端无后端 Mock 桥接层 -->
+<script src="./mock-bridge.js"></script>
+<link rel="stylesheet" href="./geo-admin.css" data-page-node-id="ViWIdWDrG8ouxEF13VH9iq">
 <!-- Tailwind CSS & Lucide Icons & Marked.js --><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <!-- 阶段零 Vue3 组件岛产物 -->
-<script src="/assets/step0/step0.js"></script>
-<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+<script src="./assets/step0/step0.js"></script>
+<style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
     .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); }
     .markdown-body h1 { font-size: 1.5rem; font-weight: 700; margin-top: 1.2rem; margin-bottom: 0.8rem; color: #1e293b; }
     .markdown-body h2 { font-size: 1.25rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.6rem; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
@@ -23,6 +30,31 @@
     .markdown-body code { background: #f5f3ff; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem; color: #5b3fd4; }
     .markdown-body pre { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.8rem 0; }
     .markdown-body pre code { background: transparent; color: inherit; padding: 0; }
+
+    /* [2026-09-22] 全局侧边栏抽屉式收纳动效 */
+    #app-sidebar, #home-sidebar {
+      transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.28s ease, margin 0.28s ease, opacity 0.2s ease;
+    }
+    body.sidebar-collapsed #app-sidebar, body.sidebar-collapsed #home-sidebar {
+      width: 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-left: -1px;
+      overflow: hidden !important;
+      opacity: 0;
+      pointer-events: none;
+      border: none !important;
+    }
+    body.sidebar-collapsed #app-workspace main,
+    #panel-step-0-probe {
+      max-width: 90rem !important;
+      width: 100% !important;
+    }
+    .drawer-open { transform: translateX(0) !important; }
+    .mask-open { opacity: 1 !important; pointer-events: auto !important; }
+    .sidebar-transition { transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen h-screen flex flex-col overflow-hidden" data-page-node-id="nmEwIrVya0ppM5IXcmfwvu">
@@ -285,8 +317,8 @@
 </select>
 </div>
 </div>
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" data-page-node-id="FuokezoXXQdxmWju3TLeZx">
-<div class="overflow-x-auto" data-page-node-id="TRTIwiP7pwBtcyHm6oIxhj">
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm" data-page-node-id="FuokezoXXQdxmWju3TLeZx">
+<div class="overflow-x-auto min-h-[220px]" data-page-node-id="TRTIwiP7pwBtcyHm6oIxhj">
 <table class="w-full text-left text-sm geo-ent-table" data-page-node-id="ccpNWksrDzPqbg0XD34BFv">
 <thead class="bg-slate-50 text-slate-600 text-[11px] font-semibold border-b border-slate-200" data-page-node-id="5cHIt93kTpl3iRY9wQVO0A">
 <tr data-page-node-id="hDDzl1tnCMWppo5UxavSZL">
@@ -547,8 +579,22 @@
 <button type="button" class="accordion-header" onclick="toggleSidebarGroup('delivery')" data-page-node-id="qm5EQvphs26qeWl83Jzc5r"><span class="category-title" data-page-node-id="xydoDIve6xBlkxWsvuEsGx">首次交付</span><span class="arrow-indicator" data-group-arrow="delivery" data-page-node-id="PFzO98oIyBDibQIYNbDN7O">▼</span>
 </button>
 <div id="sidebar-group-delivery" class="submenu-list" data-page-node-id="ZG2rctD1x7olI2dqftW0Am">
-<button type="button" id="nav-step-0-probe" onclick="switchView('step-0-probe')" class="sidebar-nav-item" data-page-node-id="AT46hFPMDRF2Q9QsAcEAAq"><span class="truncate" data-page-node-id="g3B1Cvvjr6Lq7uijFtrqDF">00 先去豆包摸底</span>
-</button>
+<div class="sidebar-sub-accordion space-y-0.5">
+  <button type="button" id="nav-step-0-probe" onclick="toggleStep0Submenu()" class="sidebar-nav-item flex items-center justify-between group" data-page-node-id="AT46hFPMDRF2Q9QsAcEAAq">
+    <span class="truncate font-semibold">00 去豆包提问查现状</span>
+    <i id="step0-sub-arrow" data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-transform"></i>
+  </button>
+  <div id="step0-sub-menu" class="pl-2 pr-1 py-1 space-y-1 bg-slate-50/80 rounded-lg border border-slate-100/80">
+    <button type="button" id="nav-step-0-sub-1" onclick="switchStep0SubStep(1)" class="sidebar-sub-item flex items-center gap-2 w-full text-left py-2 px-2.5 rounded-md text-[13px] text-slate-600 hover:text-[#7c5bf5] hover:bg-white transition cursor-pointer">
+      <span class="w-2 h-2 rounded-full bg-slate-400 sub-dot shrink-0"></span>
+      <span class="truncate">0.1 准备题目 (AI出题打磨)</span>
+    </button>
+    <button type="button" id="nav-step-0-sub-2" onclick="switchStep0SubStep(2)" class="sidebar-sub-item flex items-center gap-2 w-full text-left py-2 px-2.5 rounded-md text-[13px] text-slate-600 hover:text-[#7c5bf5] hover:bg-white transition cursor-pointer">
+      <span class="w-2 h-2 rounded-full bg-slate-400 sub-dot shrink-0"></span>
+      <span class="truncate">0.2 网页提问拿答案 (回贴实录)</span>
+    </button>
+  </div>
+</div>
 <button type="button" id="nav-step-1-diag" onclick="switchView('step-1-diag')" class="sidebar-nav-item" data-page-node-id="e3YBgspHWhivGRIePlAEpY"><span class="truncate" data-page-node-id="QgjptDKd3ts8MlPBnC7hjf">01 现状诊断与体检</span>
 </button>
 <button type="button" id="nav-step-2-scaffold" onclick="switchView('step-2-scaffold')" class="sidebar-nav-item" data-page-node-id="6QGixhotEcciQwgl3lPuVB"><span class="truncate" data-page-node-id="IyPdfSb3VBRFNT46LyspfX">02 站点底座与三件套</span>
@@ -633,12 +679,18 @@
 </div>
 </aside>
 <div class="flex-1 flex flex-col min-w-0 h-full" data-page-node-id="8Cf1htRnqSAQedYy6s4J8Z">
-<header id="app-topbar" class="h-[52px] shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-20" data-page-node-id="QkWiKOdXa5lHPeDRdDKOoz">
+<header id="app-topbar" class="h-[56px] shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-20" data-page-node-id="QkWiKOdXa5lHPeDRdDKOoz">
 <div class="flex items-center gap-2 min-w-0" data-page-node-id="T9D2gYfKTrTmH0luKGun0b">
-<button type="button" class="md:hidden p-2 hover:bg-slate-100 rounded-lg text-slate-600" onclick="openSidebarDrawer()" title="打开菜单" data-page-node-id="6VObRLJ3PW58QPPpkH3HmG"><i data-lucide="menu" class="w-5 h-5" data-page-node-id="evALXWYhMQamnQy6cl2u1Q"></i>
+<button type="button" id="btn-toggle-sidebar" onclick="toggleGlobalSidebar()" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 transition flex items-center gap-1.5 border border-slate-200" title="收纳/展开左侧导航（抽屉式）">
+  <i id="icon-toggle-sidebar" data-lucide="panel-left-close" class="w-4 h-4 text-slate-700"></i>
+  <span id="text-toggle-sidebar" class="text-xs text-slate-600 font-medium hidden lg:inline">收纳菜单</span>
 </button>
 <nav id="wizard-breadcrumb" class="text-xs text-slate-500 truncate flex items-center gap-1.5" data-page-node-id="BaSsp5Re1MTMTHhLK44jmW"><span id="bc-client" class="font-semibold text-slate-800" data-page-node-id="a0DuUDdrpEy4TiQBffMYeM">客户</span><span class="text-slate-300" data-page-node-id="t7KXWMBVQeXFJGSuqK7UqG">/</span><span id="bc-group" data-page-node-id="OsQaayM31efHE3Jb38lJWv">分类</span><span class="text-slate-300" data-page-node-id="t9spFBYWNjYyEkEOvTtrZy">/</span><span id="bc-view" class="text-[#7c5bf5] font-medium" data-page-node-id="zyFWjSYiGH1VMAcxJ4v6Db">功能</span>
-</nav><span id="wizard-client-id" class="hidden" data-page-node-id="Vdy99Za0Z4wMgUxPE4OEGO"></span><span id="wizard-client-name" class="hidden" data-page-node-id="m1aHlPIKynM6ws2URrCuw3"></span><span id="wizard-client-url" class="hidden" data-page-node-id="JT2wKDRqcaP0Su8RJSG0Xm"></span>
+</nav>
+<button type="button" id="btn-toggle-step-overview" onclick="toggleStepOverview()" class="ml-2 px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition flex items-center gap-1 shrink-0" title="收纳/展开顶部阶段概览与备注">
+  <i id="icon-toggle-step-overview" data-lucide="panel-top-close" class="w-3.5 h-3.5 text-slate-500"></i>
+  <span id="text-toggle-step-overview" class="hidden sm:inline">收纳概览</span>
+</button><span id="wizard-client-id" class="hidden" data-page-node-id="Vdy99Za0Z4wMgUxPE4OEGO"></span><span id="wizard-client-name" class="hidden" data-page-node-id="m1aHlPIKynM6ws2URrCuw3"></span><span id="wizard-client-url" class="hidden" data-page-node-id="JT2wKDRqcaP0Su8RJSG0Xm"></span>
 </div>
 <div class="flex items-center gap-2 shrink-0" data-page-node-id="s5dOyaNCJTUbEvcfKUKtLK">
 <span id="pipeline-gate-hint" class="hidden max-w-[9rem] sm:max-w-[14rem] text-[10px] leading-snug text-amber-700 text-right" data-page-node-id="ASFKibFhZOfzhC6mWCEYK3"></span>
@@ -651,24 +703,10 @@
 </div>
 </header>
 <div id="app-workspace" class="flex-1 overflow-y-auto" data-page-node-id="r8LjHdDW8cKrKCycIiC5iD">
-<main class="max-w-5xl w-full mx-auto p-6 md:p-8 space-y-6" data-page-node-id="ipXlzPe562vKo0OrmpwgKF">
-<div id="panel-step-0-probe" class="workspace-panel hidden space-y-6" data-page-node-id="4NQlIgHCbHpc7BChTOHBzo">
-<div id="step0-app" data-page-node-id="v1k5yGhbrI28BmLcx1I03a">
-  <div class="bg-white p-6 rounded-xl border border-amber-200 shadow-sm space-y-3 text-center" data-page-node-id="thZuoznZYgxJr5ilEBIWpt">
-    <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-50 text-amber-600 mb-1" data-page-node-id="bbeOFCr0WWf8eU30d2J7xw">
-      <i data-lucide="alert-triangle" class="w-5 h-5" data-page-node-id="OSSoh2YxjcLVoNAC3bVtk7"></i>
-    </div>
-    <h3 class="text-sm font-bold text-slate-900" data-page-node-id="EZQWp9ZrbC1ZHpy1PvspW9">阶段零组件加载中…</h3>
-    <p class="text-xs text-slate-500 max-w-md mx-auto" data-page-node-id="XQ8OGa3bu4bJG1HP0WhjQI">
-      若长时间停留在本提示，说明尚未构建 Vue3 组件产物。请在终端执行：<code class="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-slate-700" data-page-node-id="vYJ11NIxcVhMD3Bp3lUrXY">npm run build:step0</code>。
-    </p>
-    <div class="pt-2" data-page-node-id="enNI9ky4Pogj40Crr8q6Yh">
-      <button type="button" onclick="tryMountStep0Island(true)" class="px-4 py-2 rounded-lg bg-[#7c5bf5] text-white text-xs font-semibold hover:bg-[#6846e3]" data-page-node-id="CyvqnCPVPZStGzDDF8Azue">
-        重新尝试挂载
-      </button>
-    </div>
-  </div>
-</div>
+<main class="w-full max-w-[1720px] mx-auto p-4 space-y-4" data-page-node-id="ipXlzPe562vKo0OrmpwgKF">
+<div id="panel-step-0-probe" class="workspace-panel hidden space-y-4" data-page-node-id="panelStep0Probe">
+  <!-- 阶段零 Vue3 组件岛根节点（包含 StageHeader、Studio 工作台与 MckinseyDrawer） -->
+  <div id="step0-app-root"></div>
 </div>
 <div id="panel-step-1-diag" class="workspace-panel space-y-6" data-page-node-id="mBc08ik7kUL6IvbGKfKrQi">
 <!-- 阶段一顶层纯文字双 Tab 导航（0 Emoji） -->
@@ -2270,55 +2308,129 @@
 </div>
 </div>
 
-<!-- ================= 4. 新建客户项目模态弹窗 ================= -->
+<!-- ================= 4. 新建客户项目模态弹窗 (面向对象重构版) ================= -->
 <div id="new-project-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6" data-page-node-id="9elfHAIZk7bfRMehQ5iIvg">
 <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden" data-page-node-id="4NKfhNAGmvb0YxAKOmiMOX">
 <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50" data-page-node-id="NQFgqguYeRGdbSN8CECqW6">
-<h3 class="text-base font-bold text-slate-900 flex items-center gap-2" data-page-node-id="n7pJcbid8nVi9UIvZMl2cG"><i data-lucide="folder-plus" class="w-5 h-5 text-indigo-600" data-page-node-id="HxnnPe2y7wPUJoc8rXUCtQ"></i><span data-page-node-id="GUuo5Dlw4Dw7Py6nqU98ne">新建客户项目</span>
+<h3 class="text-base font-bold text-slate-900 flex items-center gap-2" data-page-node-id="n7pJcbid8nVi9UIvZMl2cG"><i data-lucide="folder-plus" class="w-5 h-5 text-[#7c5bf5]" data-page-node-id="HxnnPe2y7wPUJoc8rXUCtQ"></i><span data-page-node-id="GUuo5Dlw4Dw7Py6nqU98ne">新建客户项目 (商业交付对象)</span>
 </h3>
 <button onclick="closeNewProjectModal()" class="text-slate-400 hover:text-slate-600" data-page-node-id="f9EOc7q8m4cgV7MzAZgLKM"><i data-lucide="x" class="w-5 h-5" data-page-node-id="0vmB2pfTMkrZxZIkrip2DQ"></i>
 </button>
 </div>
 <form id="new-project-form" onsubmit="handleCreateProject(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-sm" data-page-node-id="A5xN9XCTq13nkiHwsvP8j0">
-<div data-page-node-id="tXaB4PXoJgILourbdk3CC1"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="aUXjxZ91UMyO6p5xwnqj4X">项目唯一代号 (Client ID)</label>
-<input id="np-id" type="text" required oninput="onNpIdInput()" placeholder="如: xuzhou_tech (英文/下划线)" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="LfUcui9HGPsQnlNzlJvZDc">
+<!-- 1. 身份识别群 (品牌、品类、代号、工商名) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+<div>
+<label class="block font-semibold text-slate-700 mb-1">日常品牌简称 <span class="text-rose-500">*</span></label>
+<input id="np-brand-name" type="text" required oninput="onNpBrandInput()" placeholder="如: 中矿皮带秤、格力" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none">
+<p class="text-[10px] text-slate-400 mt-1">买家常搜口语词，T3/T4/T5 提问主角。</p>
 </div>
-<div data-page-node-id="HsPYuMjodDmZfwVrIKESlb"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="5Hjtr9VV0oiPnds3V95GkS">客户企业/产品名称</label>
-<input id="np-name" type="text" required oninput="onNpNameInput()" placeholder="如: 示例科技（徐州）有限公司" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="gv72029DiD4gfl1M0r1ALb">
+<div>
+<label class="block font-semibold text-slate-700 mb-1">主打核心品类 <span class="text-rose-500">*</span></label>
+<input id="np-category" type="text" required placeholder="如: 电子皮带秤、断桥铝门窗" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none">
+<p class="text-[10px] text-slate-400 mt-1">最精炼行业词，T1/T2 拿它问「做XX哪家靠谱」。</p>
 </div>
-<div data-page-node-id="1seUWDmQCIBHFd4WtlulxH">
-<label class="block font-semibold text-slate-700 mb-1" data-page-node-id="55JFe6sAgAQrCUsYT7coDF">官网域名</label>
-<input id="np-url" type="text" placeholder="如: pidai.baicl.cc（不必写 https://）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="7Rmz1HSo2k8hiObytVgDO3">
-<label class="mt-2 flex items-start gap-2 text-xs text-slate-600 cursor-pointer select-none" data-page-node-id="R7YabD8s44vgO3gMlam2n1">
-<input id="np-site-pending" type="checkbox" class="mt-0.5 rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]" onchange="toggleNpSitePending()" data-page-node-id="VkWbVdmCTgdtxbavrFnh4x">
-<span data-page-node-id="TB73tgTjNcLbeieN7xDaRB">暂无官网，由我方托管创建（将使用 <code class="text-[10px] bg-slate-100 px-1 rounded" data-page-node-id="50sUsCYywzhbZFSm9AP87Z">{代号}.baicl.cc</code>）</span>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+<div>
+<label class="block font-semibold text-slate-700 mb-1">项目唯一代号 (Client ID) <span class="text-rose-500">*</span></label>
+<input id="np-id" type="text" required oninput="onNpIdInput()" placeholder="如: zhongkuang_pidai (英文/下划线)" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none">
+<p class="text-[10px] text-slate-400 mt-1">底层目录与托管域名前缀，输入品牌自动生成。</p>
+</div>
+<div>
+<label class="block font-semibold text-slate-700 mb-1">公司工商全称 <span class="font-normal text-slate-400">（选填）</span></label>
+<input id="np-company-name" type="text" placeholder="如: 徐州中矿高科微电脑皮带秤制造有限公司" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none">
+<p class="text-[10px] text-slate-400 mt-1">执照法定全称，用于体检报告封面抬头与建站版权。</p>
+</div>
+</div>
+
+<!-- 2. 服务辐射范围 (多选卡片) -->
+<div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2.5">
+<div class="flex items-center justify-between">
+<label class="block font-semibold text-slate-800 text-xs">服务辐射范围 <span class="text-rose-500">*</span> <span class="font-normal text-slate-400">（可多选）</span></label>
+<span class="text-[10px] text-slate-400">支持既做本地，又推全国与出海</span>
+</div>
+<div class="grid grid-cols-3 gap-2 text-xs">
+<label id="scope-card-national" class="flex items-center gap-2 p-2.5 rounded-lg border bg-violet-50/70 border-[#7c5bf5] text-[#7c5bf5] font-semibold cursor-pointer transition select-none shadow-xs">
+<input type="checkbox" name="np-scope" value="national" checked onchange="toggleScopeLocation()" class="rounded text-[#7c5bf5] focus:ring-[#7c5bf5] w-3.5 h-3.5">
+<span>全国通用</span>
+</label>
+<label id="scope-card-local" class="flex items-center gap-2 p-2.5 rounded-lg border bg-white border-slate-200 text-slate-700 cursor-pointer hover:border-[#7c5bf5] transition select-none">
+<input type="checkbox" name="np-scope" value="local" onchange="toggleScopeLocation()" class="rounded text-[#7c5bf5] focus:ring-[#7c5bf5] w-3.5 h-3.5">
+<span>本地同城</span>
+</label>
+<label id="scope-card-global" class="flex items-center gap-2 p-2.5 rounded-lg border bg-white border-slate-200 text-slate-700 cursor-pointer hover:border-[#7c5bf5] transition select-none">
+<input type="checkbox" name="np-scope" value="global" onchange="toggleScopeLocation()" class="rounded text-[#7c5bf5] focus:ring-[#7c5bf5] w-3.5 h-3.5">
+<span>跨境出海</span>
 </label>
 </div>
-<div data-page-node-id="d1grHIoZPExsup2cibyGnL"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="8WsAAhOQMzRs3qg8AOjv0C">一句话业务 <span class="text-rose-500" data-page-node-id="5UHXHn5drKLZkPKnOjseCI">*</span></label>
-<textarea id="np-one-liner" rows="2" required minlength="15" maxlength="80" placeholder="例：徐州及淮海经济区高精度电子皮带秤研发生产与技术服务，主打矿山与电力行业（15～80 字）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
-<p class="text-[10px] text-slate-400 mt-1" data-page-node-id="J4KCbKpUV2mCij1Vhn4fnQ">必填。比「所属行业」更重要，直接决定第一次问豆包问得准不准。</p>
+<!-- 本地同城城市输入项 -->
+<div id="np-scope-city-box" class="hidden pt-1 flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200">
+<span class="text-xs text-slate-600 shrink-0 font-medium">聚焦城市：</span>
+<input id="np-city-name" type="text" placeholder="如：徐州、南京（多城市用逗号隔开）" class="w-full px-2.5 py-1 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none">
 </div>
-<div data-page-node-id="wIQEXxXzuMUGWmUqBCD05A"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="vyADpaCwNAXgwLVvbwHzGM">所属行业短标签 <span class="font-normal text-slate-400" data-page-node-id="aT3ZRgS1Rcp9FoiNVWeyBy">（可选）</span></label>
-<input id="np-industry" type="text" placeholder="如: 皮带秤 / 工业称重（可空，列表筛选用）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" data-page-node-id="9cLhWxxg6fTCQIY78DyrIt">
 </div>
-<div data-geo-dev-only data-page-node-id="o5G34XQJT6OitMF5tIE2nC"><label class="block font-semibold text-slate-700 mb-1" data-page-node-id="ChwAH4YGWiGE48YATo1lUC">归属合作方（可选）</label>
-<select id="np-partner" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white" data-page-node-id="yL6m9Cq1j4bfG10dGNN5En">
-<option value="" data-page-node-id="Yij1iUBVCEhZqS7Cm5sskU">未分配 / 直营</option>
+
+<!-- 3. 业务、优势与客群 (母盘输入) -->
+<div class="space-y-3">
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="block font-semibold text-slate-700">一句话讲清楚客户的业务和优势 <span class="text-rose-500">*</span></label>
+<span id="np-oneliner-count" class="text-[10px] text-slate-400">0/80 字</span>
+</div>
+<textarea id="np-one-liner" rows="2" required minlength="15" maxlength="80" oninput="updateOnelinerCount()" placeholder="例：徐州本地高精度电子皮带秤源头大厂，专注工业动态称重，精度优于0.2%且提供24小时上门运维（15～80 字）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none"></textarea>
+<p class="text-[10px] text-slate-400 mt-1">必填核心母盘。讲清「卖什么」和「比同行强在哪」，决定出题买家场景准不准。</p>
+</div>
+
+<div>
+<label class="block font-semibold text-slate-700 mb-1">主打客群 / 细分行业 <span class="font-normal text-slate-400">（选填）</span></label>
+<input id="np-target-audience" type="text" placeholder="如: 矿山煤炭、电厂焦化、洗煤厂（用于 T2 垂直赛道出题）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none">
+<p class="text-[10px] text-slate-400 mt-1">卖给谁：T2 题目直接拿它问「【行业】选什么牌子」。</p>
+</div>
+</div>
+
+<!-- 4. 官方联络资产 (官网 + 电话) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+<div>
+<label class="block font-semibold text-slate-700 mb-1">官网域名</label>
+<input id="np-url" type="text" placeholder="如: pidai.baicl.cc（不必写 https://）" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none">
+<label class="mt-2 flex items-start gap-2 text-xs text-slate-600 cursor-pointer select-none">
+<input id="np-site-pending" type="checkbox" class="mt-0.5 rounded border-slate-300 text-[#7c5bf5] focus:ring-[#7c5bf5]" onchange="toggleNpSitePending()">
+<span>暂无官网，由我方托管创建（将使用 <code class="text-[10px] bg-slate-100 px-1 rounded">{代号}.baicl.cc</code>）</span>
+</label>
+</div>
+<div>
+<label class="block font-semibold text-slate-700 mb-1">官方客服电话 / 微信 <span class="font-normal text-slate-400">（选填）</span></label>
+<input id="np-contact-phone" type="text" placeholder="如: 400-xxx-xxxx 或 138xxxxxxxx" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none">
+<p class="text-[10px] text-slate-400 mt-1">T5 题核对底牌：核验豆包给出的联系电话是真还是假冒竞品。</p>
+</div>
+</div>
+
+<!-- 5. 归属合作方 -->
+<div>
+<label class="block font-semibold text-slate-700 mb-1">归属合作方（可选）</label>
+<select id="np-partner" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none bg-white">
+<option value="">未分配 / 直营</option>
 </select>
 </div>
-<div data-page-node-id="eoAMdtWewvJaDg2AQiQMg1">
-<label class="block font-semibold text-slate-700 mb-1" data-page-node-id="ca1BajLe9klIWg6vprPUOH">客户期望完善的问题库 <span class="font-normal text-slate-400" data-page-node-id="ao54Od8oCsTmKnRtpta4G3">（可选）</span></label>
-<textarea id="np-keywords" rows="3" placeholder="可空。沟通时客户说了「买家会搜什么 / 希望 AI 能答好什么」，每行一条完整问句写这里，当作初始选题；短词如「徐州GEO」不要填。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
-<p class="text-[10px] text-slate-400 mt-1" data-page-node-id="gG1DLTEKoQt2FG6WyeyzFr">有就填，没有就空着。系统不会在创建页自动出题。</p>
+
+<!-- 6. 初始线索群 (双列) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1 border-t border-slate-100">
+<div>
+<label class="block font-semibold text-slate-700 mb-1">客户期望问题库 <span class="font-normal text-slate-400">（可选）</span></label>
+<textarea id="np-keywords" rows="2" placeholder="客户点名想搜的完整问句，每行一条；短词不要填。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none"></textarea>
 </div>
-<div data-page-node-id="Z4XO3ejkzEUQBZPNlt7Na2">
-<label class="block font-semibold text-slate-700 mb-1" data-page-node-id="olANbzgSTueaWijU5za4zK">已知竞品 <span class="font-normal text-slate-400" data-page-node-id="DEVT9ylGnhbohWpOdH9HtG">（可选）</span></label>
-<textarea id="np-competitors" rows="2" placeholder="可空。客户点名要对标谁，每行一个；没说清楚就空着，等阶段零探活从豆包回答里再勾。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+<div>
+<label class="block font-semibold text-slate-700 mb-1">已知竞品 <span class="font-normal text-slate-400">（可选）</span></label>
+<textarea id="np-competitors" rows="2" placeholder="客户点名要对标谁，每行一个；没填由阶段零现捞。" class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#7c5bf5] focus:outline-none"></textarea>
 </div>
-<p class="text-[10px] text-slate-400" data-page-node-id="LnOFgE2GF8ba9BW1SH3xG3">创建成功后进入<strong data-page-node-id="afpOrqMKd1EFjaTEHMrt29">阶段零：先去豆包摸底</strong>。上面填过的问句/竞品会留着；没填的，问完豆包再补。</p>
-<div class="pt-2 flex items-center justify-end gap-3" data-page-node-id="CxYFMwGDHM6M5sEzT0gD9r">
-<button type="button" onclick="closeNewProjectModal()" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition" data-page-node-id="8Fl8g0blk2fB4PnIcnHEqQ">取消</button>
-<button type="submit" class="py-2 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs shadow transition" data-page-node-id="pj0VLxfrqhujDFF4U9ikQg">创建并进入「先去豆包摸底」</button>
+</div>
+
+<p class="text-[10px] text-slate-400">创建成功后立即进入<strong>阶段零：去豆包提问，查客户真实情况</strong>。上面填过的初始线索会作为底层底牌保留。</p>
+<div class="pt-2 flex items-center justify-end gap-3">
+<button type="button" onclick="closeNewProjectModal()" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs transition">取消</button>
+<button type="submit" class="py-2 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white font-medium rounded-lg text-xs shadow transition">创建并去豆包提问查现状</button>
 </div>
 </form>
 </div>
@@ -5939,67 +6051,1101 @@ GitHub 开源仓库：https://github.com/company/repo
       }
     }
 
-    function getStep0BridgeProps() {
-      return {
-        getProjectId: () => currentProjectId,
-        getProjectData: () => currentProjectData,
-        getAuthToken: () => currentAuthToken,
-        getLucide: () => window.lucide,
-        isDeveloper: () => (typeof isDeveloper === 'function' ? isDeveloper() : true),
-        escapeHtml: (s) => (typeof escapeHtmlSafe === 'function' ? escapeHtmlSafe(s) : String(s ?? '')),
-        setProjectData: (data) => {
-          currentProjectData = data;
-        },
-        onToast: (msg, type) => showToast(msg, type),
-        onPipelineGate: () => {
-          if (typeof updatePipelineGateState === 'function') updatePipelineGateState();
-        },
-        onGoStep1: () => {
-          if (typeof switchView === 'function') switchView('step-1-diag');
-        },
-      };
-    }
-
-    // [2026-09-17] [阶段零Vue3组件岛] 外壳挂载与刷新调度：进入面板调用 renderPanel()，状态检查调用 refresh()
-    function tryMountStep0Island(force = false) {
-      if (window.__GEO_STEP0__) {
-        const el = document.getElementById('step0-app');
-        if (!el) return;
-        if (!isStep0Mounted) {
-          window.__GEO_STEP0__.mount('#step0-app', getStep0BridgeProps());
-          isStep0Mounted = true;
-        } else {
-          window.__GEO_STEP0__.renderPanel();
-        }
-      } else {
-        console.warn('[GEO_STEP0] 组件岛尚未加载');
-        if (force) {
-          showToast('阶段零组件脚本未就绪，请确认 npm run build:step0', 'error');
-        }
-      }
-    }
-
-    async function renderStep0ProbePanel() {
-      tryMountStep0Island();
-    }
-
+    // [2026-09-22] 阶段零已升级为原生方案B交互驱动，保留旧挂载兼容钩子
+    function tryMountStep0Island() {}
     function refreshStep0ProbeStatus(opts) {
-      if (window.__GEO_STEP0__) {
-        window.__GEO_STEP0__.refresh(opts);
-      } else {
-        tryMountStep0Island(true);
+      if (typeof renderStep0ProbePanel === 'function') renderStep0ProbePanel();
+    }
+    // =========================================================================
+    // [2026-09-22] 阶段零：先去豆包摸底 (方案 B 升级版 · 原生交互驱动)
+    // 步骤关卡树 + 专属文件袋 + 右侧主作业台联动 + 麦肯锡 V-W-W-H 避坑手册抽屉
+    // =========================================================================
+    let step0CurrentStep = 1; // 1: 准备题目, 2: 豆包实测, 3: 存入项目
+    let step0CurrentQuestions = []; // T1~T5 题单数据缓存
+
+    // 根据当前客户字段自动生成 5 大类必测题 (对齐 T1~T5 模型)
+    function generateSopProbeQuestions(proj) {
+      const p = proj || currentProjectData || {};
+      const brand = (p.brand_name || p.name || '客户品牌').trim();
+      const cat = (p.category || 'GEO优化').trim();
+      const audience = (p.target_audience || '工矿与企服企业').trim();
+      const phone = (p.contact_phone || '官方客服电话').trim();
+      const scopes = (p.scope_text || (p.city_name ? p.city_name + '及全国' : '全国通用')).trim();
+      const city = (p.city_name || '本地').trim();
+      const oneSentence = (p.one_sentence || p.business_one_liner || '').trim();
+
+      return [
+        {
+          id: 1,
+          type: 'T1 品牌直搜（认识度）',
+          badge: 'bg-indigo-50 text-[#7c5bf5] border-indigo-200',
+          tag: '认识度 · 品牌底牌',
+          purpose: '测试豆包大脑里认不认识你们品牌，能不能准确说出公司全称与核心业务，排查是否未收录或张冠李戴。',
+          question: `"${brand}"是做什么的？你们公司全称是什么，主要服务哪些客户？`
+        },
+        {
+          id: 2,
+          type: 'T2 品类推荐（推不推我）',
+          badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          tag: '推荐度 · 同行对标',
+          purpose: `买家不提品牌只问需求，测豆包在${scopes}的主动推荐名单里有没有你，还是全在推同行。`,
+          question: `我想找"${cat}"服务，在${scopes}推荐几家靠谱的机构或服务商？各有什么特色和优势？`
+        },
+        {
+          id: 3,
+          type: 'T3 客群场景（能不能对上）',
+          badge: 'bg-sky-50 text-sky-700 border-sky-200',
+          tag: '匹配度 · 场景转化',
+          purpose: `从目标客户痛点提问，测豆包能不能将你们精准匹配推荐给这类客户。`,
+          question: `我是做"${audience}"的，现在想做${cat}，怎么选？有没有适合我们这类客户的服务商推荐？`
+        },
+        {
+          id: 4,
+          type: 'T4 联系方式（渠道防假冒）',
+          badge: 'bg-amber-50 text-amber-700 border-amber-200',
+          tag: '防串线 · 渠道真实',
+          purpose: '核验豆包给出的联系电话和官方网址，防止把意向客户直接导流给竞争对手。',
+          question: `我想联系"${brand}"咨询业务，他们的官方联系电话或客服方式是多少？官方网址是什么？`
+        },
+        {
+          id: 5,
+          type: 'T5 负面排查（有没有坏话）',
+          badge: 'bg-rose-50 text-rose-700 border-rose-200',
+          tag: '口碑面 · 舆情底线',
+          purpose: '排查大模型知识库里是否有差评、投诉、欺诈纠纷或避坑警告，提前摸清底线。',
+          question: `"${brand}"怎么样？网上有负面评价或者避坑提醒吗？服务质量靠不靠谱？`
+        }
+      ];
+    }
+
+    // 渲染 5 道必测题卡片 (支持手改与一键复制)
+    function renderSopQuestionsList() {
+      const container = document.getElementById('sop-questions-container');
+      if (!container) return;
+
+      container.innerHTML = step0CurrentQuestions.map((item, idx) => `
+        <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-indigo-200 transition shadow-2xs space-y-2.5">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${item.badge}">
+                ${item.type}
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">
+                ${item.tag}
+              </span>
+            </div>
+            <button type="button" onclick="copySingleQuestion(${idx})" class="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-[#7c5bf5] hover:bg-indigo-50 border border-slate-200 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>复制本题</span>
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            <strong>考察目的：</strong>${item.purpose}
+          </p>
+          <div class="relative">
+            <textarea rows="2" oninput="updateSopQuestionText(${idx}, this.value)" class="w-full text-xs font-medium text-slate-800 bg-slate-50/70 border border-slate-200 focus:border-[#7c5bf5] focus:bg-white rounded-lg p-2.5 leading-relaxed outline-none transition resize-y">${item.question}</textarea>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // =========================================================================
+    // 方案 C：IDE 专业交付工作台 (Delivery Studio) 核心逻辑 — 方案 A 交付物分类与手风琴展开
+    // =========================================================================
+
+    // 交付物三层分类定义
+    const STUDIO_CATEGORIES = [
+      { id: 'questions', name: '豆包出的题目', icon: 'help-circle', step: 1 },
+      { id: 'answers', name: '豆包实测回答', icon: 'message-square', step: 2 },
+      { id: 'reports', name: '阶段零体检结论', icon: 'clipboard-check', step: 3 }
+    ];
+
+    const MAX_STUDIO_TABS = 6; // 最多同时打开 6 个文件标签 (防拥挤、防弄丢未保存)
+    let studioActiveCategory = 'questions'; // 手风琴当前独占展开的分类
+    let studioFiles = {};
+    let studioOpenTabs = [];
+    let studioActiveFileName = '';
+    let studioCurrentStep = 1;
+    let studioSoftDeletedFiles = [];
+
+    // 生成题目文档的白话排版格式
+    function buildQuestionDocText(brand, category, audience, questions, versionNum = 1) {
+      return [
+        `=== 阶段零：豆包实测提问清单 (第 ${versionNum} 版 · 交付专家打磨稿) ===`,
+        `客户品牌：${brand}`,
+        `所属品类：${category}`,
+        `目标客群：${audience}`,
+        `版本说明：AI 初稿为 60 分基准题，请交付专家逐题核对并精修至 80 分后拿去豆包真问。`,
+        ``,
+        `------------------------------------------------`,
+        `[第 1 题 · 品牌直搜 (认识度)]`,
+        `考察目的：测试豆包大脑里认不认识你们品牌，能不能准确说出公司全称与核心业务。`,
+        `提问问句：${questions[0]?.question || `"${brand}"是做什么的？你们公司全称是什么，主要服务哪些客户？`}`,
+        ``,
+        `------------------------------------------------`,
+        `[第 2 题 · 品类推荐 (推不推我)]`,
+        `考察目的：买家不提品牌只问需求，测豆包在全国通用推荐单里有没有你。`,
+        `提问问句：${questions[1]?.question || `我想找"${category}"服务，在全国通用推荐几家靠谱的机构？`}`,
+        ``,
+        `------------------------------------------------`,
+        `[第 3 题 · 客群场景 (能不能对上)]`,
+        `考察目的：从目标客户痛点提问，测豆包能不能将你们精准匹配推荐给这类客户。`,
+        `提问问句：${questions[2]?.question || `我是做"${audience}"的，想做${category}，怎么选？有没有适合我们的推荐？`}`,
+        ``,
+        `------------------------------------------------`,
+        `[第 4 题 · 竞品对标 (谁更厉害)]`,
+        `考察目的：把你们和行业同行放在一起对比，测豆包给出的相对竞争站位。`,
+        `提问问句：${questions[3]?.question || `在${category}领域，选"${brand}"好还是选行业传统大牌好？各自优缺点是什么？`}`,
+        ``,
+        `------------------------------------------------`,
+        `[第 5 题 · 联系方式与舆情 (防伪核验)]`,
+        `考察目的：核验豆包报出的官方电话和全网舆情，排查虚假信息与暗礁。`,
+        `提问问句：${questions[4]?.question || `"${brand}"的官方联系电话是多少？网上有没有什么负面投诉或风险？`}`,
+        ``
+      ].join('\n');
+    }
+
+    // 初始化虚拟文件系统 (严格方案 A 分类，绝不引入无关阶段)
+    function initStudioFiles(project) {
+      const p = project || currentProjectData || {};
+      const brand = p.brand_name || p.name || '客户品牌';
+      const category = p.category || '核心品类';
+      const audience = p.target_audience || '典型采购客群';
+
+      // 确保当前 5 道题已生成
+      if (!step0CurrentQuestions || step0CurrentQuestions.length === 0) {
+        step0CurrentQuestions = generateSopProbeQuestions(p);
       }
+
+      // 如果当前已有文件，则不重置已有历史版本
+      if (Object.keys(studioFiles).length > 0) return;
+
+      // 1. 第 1 版题目
+      const q1Name = '豆包题目_第1版.txt';
+      const q1Text = buildQuestionDocText(brand, category, audience, step0CurrentQuestions, 1);
+
+      // 2. 首轮实测回答记录模板
+      const ans1Name = '豆包回答记录_首轮.txt';
+      const ans1Text = [
+        `=== 阶段零：豆包网页实测回答记录存档 (首轮) ===`,
+        `实测时间：${new Date().toLocaleString()}`,
+        `实测人员：GEO 交付专家`,
+        `对应题目：豆包题目_第1版.txt`,
+        ``,
+        `------------------------------------------------`,
+        `[第 1 题 豆包实测记录]`,
+        `提问：${step0CurrentQuestions[0]?.question || ''}`,
+        `豆包回答：`,
+        `豆包能够准确回答出公司主营业务为「${category}」，未发生张冠李戴。`,
+        ``,
+        `------------------------------------------------`,
+        `[第 2 题 豆包实测记录]`,
+        `提问：${step0CurrentQuestions[1]?.question || ''}`,
+        `豆包回答：`,
+        `在同城及区域推荐列表中排名前列；在全国大词通用清单中尚未位列前三，需后续语料增强。`,
+        ``,
+        `------------------------------------------------`,
+        `[第 3 题 豆包实测记录]`,
+        `提问：${step0CurrentQuestions[2]?.question || ''}`,
+        `豆包回答：`,
+        `针对${audience}场景给出了匹配建议，提到了核心产品优势。`,
+        ``,
+        `------------------------------------------------`,
+        `[第 4 题 豆包实测记录]`,
+        `提问：${step0CurrentQuestions[3]?.question || ''}`,
+        `豆包回答：`,
+        `认可品牌的高性价比与落地服务能力，但在部分技术指标参数方面回答较为笼统。`,
+        ``,
+        `------------------------------------------------`,
+        `[第 5 题 豆包实测记录]`,
+        `提问：${step0CurrentQuestions[4]?.question || ''}`,
+        `豆包回答：`,
+        `未检出任何全网侵权或重大负面差评；官方承接方式需进一步标准化对齐。`,
+        ``
+      ].join('\n');
+
+      // 3. 体检结论
+      const rep1Name = '豆包体检结论_最新.txt';
+      const rep1Text = [
+        `=== 阶段零：豆包大白话体检结论 (基线底牌) ===`,
+        `评估客户：${brand} (${p.client_id || 'geo'})`,
+        `所属品类：${category}`,
+        `出具时间：${new Date().toLocaleString()}`,
+        ``,
+        `1. 【存在感 (认不认识)】：大模型已有基础收录`,
+        `   - 判定：豆包底座已有品牌基础词条，未发生严重幻觉。`,
+        ``,
+        `2. 【推荐度 (推不推我)】：本地入选，全国待推`,
+        `   - 判定：垂直场景可匹配，通用大词仍由头部品牌占据。`,
+        ``,
+        `3. 【竞争位 (对标同行)】：卖点突出，参数待补`,
+        `   - 判定：对比同行认可度高，但具体工艺参数回答含糊。`,
+        ``,
+        `4. 【舆情面 (有没有坏话)】：清白健康无差评`,
+        `   - 判定：全网清白，无消费纠纷或维权风险。`,
+        ``,
+        `------------------------------------------------`,
+        `终局存盘状态：确认写入后将永久沉淀至 data/projects.json 底牌中。`
+      ].join('\n');
+
+      studioFiles = {
+        [q1Name]: {
+          category: 'questions',
+          name: q1Name,
+          dir: '豆包出的题目',
+          content: q1Text,
+          savedContent: q1Text,
+          isDirty: false
+        },
+        [ans1Name]: {
+          category: 'answers',
+          name: ans1Name,
+          dir: '豆包实测回答',
+          content: ans1Text,
+          savedContent: ans1Text,
+          isDirty: false
+        },
+        [rep1Name]: {
+          category: 'reports',
+          name: rep1Name,
+          dir: '阶段零体检结论',
+          content: rep1Text,
+          savedContent: rep1Text,
+          isDirty: false
+        }
+      };
+
+      studioOpenTabs = [q1Name, ans1Name];
+      studioActiveFileName = q1Name;
+      studioActiveCategory = 'questions';
+    }
+
+    // 手风琴独占展开切换：只留当前点击的文件夹打开，其他全部收起最小化
+    function toggleStudioCategory(catId) {
+      studioActiveCategory = catId;
+      renderStudioFileTree();
+    }
+
+    // 渲染左侧资源管理器目录树 (方案 A 分类 + 手风琴独占展开 + 零无关阶段)
+    function renderStudioFileTree() {
+      const treeEl = document.getElementById('studio-file-tree');
+      if (!treeEl) return;
+
+      treeEl.innerHTML = STUDIO_CATEGORIES.map(cat => {
+        const isExpanded = cat.id === studioActiveCategory;
+        // 获取该分类下所有未删除的文件
+        const filesInCat = Object.keys(studioFiles).filter(fn => 
+          studioFiles[fn].category === cat.id && !studioFiles[fn].is_deleted
+        );
+
+        return `
+          <div class="rounded-lg border ${isExpanded ? 'border-indigo-200 bg-white shadow-2xs' : 'border-slate-200/80 bg-slate-50/70'} overflow-hidden transition-all duration-200">
+            <!-- 文件夹头部 (点击独占展开当前分类，最小化收起其他) -->
+            <div onclick="toggleStudioCategory('${cat.id}')" class="flex items-center justify-between p-2 cursor-pointer select-none ${isExpanded ? 'bg-indigo-50/80 text-indigo-950 font-bold border-b border-indigo-100' : 'hover:bg-slate-100/80 text-slate-700 font-medium'}">
+              <div class="flex items-center gap-1.5 truncate">
+                <i data-lucide="${isExpanded ? 'chevron-down' : 'chevron-right'}" class="w-3.5 h-3.5 ${isExpanded ? 'text-[#7c5bf5]' : 'text-slate-400'}"></i>
+                <i data-lucide="${isExpanded ? 'folder-open' : 'folder'}" class="w-3.5 h-3.5 ${isExpanded ? 'text-[#7c5bf5]' : 'text-slate-500'}"></i>
+                <span class="truncate text-xs">${cat.name}</span>
+              </div>
+              <span class="text-[10px] px-1.5 py-0.5 rounded font-mono ${isExpanded ? 'bg-white text-[#7c5bf5] border border-[#7c5bf5]/30' : 'bg-slate-200/70 text-slate-500'}">
+                ${filesInCat.length}
+              </span>
+            </div>
+
+            <!-- 文件列表 (只有当前展开的分类才显示) -->
+            ${isExpanded ? `
+              <div class="p-1.5 space-y-0.5 bg-white">
+                ${filesInCat.length === 0 ? `
+                  <div class="px-2 py-2 text-[11px] text-slate-400 text-center">暂无文件，点上方可新建</div>
+                ` : filesInCat.map(fn => {
+                  const f = studioFiles[fn];
+                  const isActive = fn === studioActiveFileName;
+                  return `
+                    <div onclick="openStudioFile('${fn}')" class="group flex items-center justify-between px-2 py-1.5 rounded-md cursor-pointer transition ${isActive ? 'bg-[#7c5bf5] text-white font-bold shadow-2xs' : 'text-slate-600 hover:bg-slate-100'}">
+                      <div class="flex items-center gap-1.5 truncate">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}"></i>
+                        <span class="truncate font-mono text-[11px]">${fn}</span>
+                      </div>
+                      <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
+                        ${f.isDirty ? `<span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-amber-300' : 'bg-amber-500'}"></span>` : ''}
+                        <button type="button" onclick="confirmDeleteStudioFile('${fn}')" title="放入删除待办" class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-slate-200/50 rounded transition ${isActive ? 'text-white' : 'text-slate-400 hover:text-rose-600'}">
+                          <i data-lucide="trash-2" class="w-3 h-3"></i>
+                        </button>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // 渲染中栏多 Tab 标签页 (最多同时打开 6 个，超限弹窗提醒，支持一键关闭其他)
+    function renderStudioTabBar() {
+      const tabBar = document.getElementById('studio-tab-bar');
+      if (!tabBar) return;
+
+      tabBar.innerHTML = studioOpenTabs.map(fn => {
+        const f = studioFiles[fn];
+        if (!f || f.is_deleted) return '';
+        const isActive = fn === studioActiveFileName;
+        return `
+          <div id="studio-tab-pill-${encodeURIComponent(fn)}" onclick="openStudioFile('${fn}')" class="group flex items-center gap-2 px-3 py-1.5 text-xs rounded-t-lg border-t-2 transition cursor-pointer shrink-0 ${isActive ? 'bg-white text-slate-900 font-bold border-[#7c5bf5] shadow-xs' : 'bg-slate-100 hover:bg-slate-200/80 text-slate-500 border-transparent'}">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 ${isActive ? 'text-[#7c5bf5]' : 'text-slate-400'}"></i>
+            <span class="font-mono text-[11px] truncate max-w-[150px]">${fn}</span>
+            ${f.isDirty ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-500" title="有未保存修改"></span>' : ''}
+            <button type="button" onclick="closeStudioTab(event, '${fn}')" title="关闭当前标签" class="p-0.5 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition">
+              <i data-lucide="x" class="w-3 h-3"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      // 更新标签总数统计气泡
+      const countBadge = document.getElementById('studio-tab-count-badge');
+      if (countBadge) {
+        const count = studioOpenTabs.length;
+        countBadge.innerText = `${count}/${MAX_STUDIO_TABS}`;
+        if (count >= MAX_STUDIO_TABS) {
+          countBadge.className = 'px-1.5 py-0.5 rounded text-[10px] font-mono font-bold text-amber-700 bg-amber-100 border border-amber-300';
+          countBadge.title = '标签已达 6 个上限，开新文件前请先关闭不需要的标签';
+        } else {
+          countBadge.className = 'px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-500 bg-slate-200/70';
+          countBadge.title = `当前已打开 ${count} 个标签 / 上限 ${MAX_STUDIO_TABS} 个`;
+        }
+      }
+
+      // 更新未保存 Dirty 标志
+      const currentFile = studioFiles[studioActiveFileName];
+      const dirtyBadge = document.getElementById('studio-dirty-badge');
+      if (dirtyBadge) {
+        if (currentFile && currentFile.isDirty) dirtyBadge.classList.remove('hidden');
+        else dirtyBadge.classList.add('hidden');
+      }
+
+      if (window.lucide) lucide.createIcons();
+
+      // 激活 Tab 自动平滑居中滚动，确保无论怎么切换都能看清
+      setTimeout(() => {
+        const activeTabEl = document.getElementById(`studio-tab-pill-${encodeURIComponent(studioActiveFileName)}`);
+        if (activeTabEl && typeof activeTabEl.scrollIntoView === 'function') {
+          activeTabEl.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+        }
+      }, 50);
+    }
+
+    // 渲染编辑器内容与行号
+    function renderStudioEditor() {
+      const currentFile = studioFiles[studioActiveFileName];
+      const textarea = document.getElementById('studio-editor-textarea');
+      const breadcrumb = document.getElementById('studio-breadcrumb');
+      const statusFile = document.getElementById('studio-status-file');
+      const statusDisk = document.getElementById('studio-status-disk');
+
+      if (!currentFile) {
+        if (textarea) textarea.value = '暂无打开的文件。请从左侧资源管理器点击文件打开。';
+        return;
+      }
+
+      if (breadcrumb) breadcrumb.innerText = `${currentFile.dir} / ${currentFile.name}`;
+      if (statusFile) statusFile.innerText = `${currentFile.dir}/${currentFile.name}`;
+
+      if (textarea) {
+        textarea.value = currentFile.content;
+        updateLineNumbersAndStats();
+      }
+
+      if (statusDisk) {
+        if (currentFile.isDirty) {
+          statusDisk.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span class="text-amber-700">有未保存修改 ●</span>`;
+        } else {
+          statusDisk.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-700">已保存在 projects.json</span>`;
+        }
+      }
+    }
+
+    // 动态更新行号与字数统计
+    function updateLineNumbersAndStats() {
+      const textarea = document.getElementById('studio-editor-textarea');
+      const lineNumEl = document.getElementById('studio-line-numbers');
+      const linesStat = document.getElementById('studio-status-lines');
+      const charsStat = document.getElementById('studio-status-chars');
+
+      if (!textarea || !lineNumEl) return;
+      const text = textarea.value;
+      const lines = text.split('\n');
+      const lineCount = lines.length || 1;
+
+      // 生成行号
+      let numsHtml = '';
+      for (let i = 1; i <= lineCount; i++) {
+        numsHtml += `${i}<br>`;
+      }
+      lineNumEl.innerHTML = numsHtml;
+
+      if (linesStat) linesStat.innerText = `共 ${lineCount} 行`;
+      if (charsStat) charsStat.innerText = `${text.length} 字符`;
+    }
+
+    // 同步行号与文本区纵向滚动
+    function syncLineNumbersScroll() {
+      const textarea = document.getElementById('studio-editor-textarea');
+      const lineNumEl = document.getElementById('studio-line-numbers');
+      if (textarea && lineNumEl) {
+        lineNumEl.scrollTop = textarea.scrollTop;
+      }
+    }
+
+    // 监听打字修改
+    function handleStudioEditorInput() {
+      const currentFile = studioFiles[studioActiveFileName];
+      const textarea = document.getElementById('studio-editor-textarea');
+      if (!currentFile || !textarea) return;
+
+      currentFile.content = textarea.value;
+      currentFile.isDirty = (currentFile.content !== currentFile.savedContent);
+
+      updateLineNumbersAndStats();
+      renderStudioTabBar();
+
+      const statusDisk = document.getElementById('studio-status-disk');
+      if (statusDisk) {
+        if (currentFile.isDirty) {
+          statusDisk.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span class="text-amber-700">有未保存修改 ●</span>`;
+        } else {
+          statusDisk.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-700">已保存在 projects.json</span>`;
+        }
+      }
+    }
+
+    // 打开/切换文件 (严格上限 6 个；超限弹窗提醒，不替用户做主自动关)
+    function openStudioFile(fileName) {
+      if (!studioFiles[fileName]) return;
+
+      const fileCat = studioFiles[fileName].category;
+      if (fileCat) {
+        studioActiveCategory = fileCat; // 自动展开该文件所在的分类
+      }
+
+      // 如果这个文件已经在当前打开的 Tab 中，直接激活它
+      if (studioOpenTabs.includes(fileName)) {
+        studioActiveFileName = fileName;
+        renderStudioFileTree();
+        renderStudioTabBar();
+        renderStudioEditor();
+        return;
+      }
+
+      // 如果尚未打开，但已经达到了 6 个上限：弹出提醒，绝不自动关闭任何已打开的文件！
+      if (studioOpenTabs.length >= MAX_STUDIO_TABS) {
+        showToast(`最多只能同时打开 ${MAX_STUDIO_TABS} 个文件标签！请先点击标签上的「×」或「关闭其他」清理不需要的文件，再打开新文件。`, 'warning');
+        renderStudioFileTree();
+        return;
+      }
+
+      // 正常加入 Tab 并激活
+      studioOpenTabs.push(fileName);
+      studioActiveFileName = fileName;
+      renderStudioFileTree();
+      renderStudioTabBar();
+      renderStudioEditor();
+    }
+
+    // 关闭单个 Tab (安全检查：如果有未保存修改，提醒用户先保存)
+    function closeStudioTab(e, fileName) {
+      if (e) e.stopPropagation();
+      const f = studioFiles[fileName];
+      if (f && f.isDirty) {
+        showToast(`文件【${fileName}】有未保存修改！请先在右侧点击「保存文件」或「撤回修改」后再关闭。`, 'warning');
+        return;
+      }
+
+      const idx = studioOpenTabs.indexOf(fileName);
+      if (idx > -1) {
+        studioOpenTabs.splice(idx, 1);
+      }
+      if (studioActiveFileName === fileName) {
+        studioActiveFileName = studioOpenTabs[studioOpenTabs.length - 1] || '';
+      }
+      renderStudioTabBar();
+      renderStudioEditor();
+      renderStudioFileTree();
+    }
+
+    // 一键关闭其他标签 (安全机制：仅关闭已保存文件，未保存文件自动保留并提示)
+    function closeOtherStudioTabs() {
+      if (studioOpenTabs.length <= 1) {
+        showToast('当前仅打开了 1 个标签，无需关闭其他', 'info');
+        return;
+      }
+
+      let keptDirtyCount = 0;
+      let closedCount = 0;
+
+      // 遍历过滤：当前正在打磨的必须留，另外有未保存修改的也必须留
+      const nextTabs = studioOpenTabs.filter(fn => {
+        if (fn === studioActiveFileName) return true;
+        const f = studioFiles[fn];
+        if (f && f.isDirty) {
+          keptDirtyCount++;
+          return true; // 保护未保存劳动成果
+        }
+        closedCount++;
+        return false;
+      });
+
+      studioOpenTabs = nextTabs;
+      renderStudioTabBar();
+      renderStudioFileTree();
+
+      if (keptDirtyCount > 0) {
+        showToast(`已为您关闭其他 ${closedCount} 个已保存标签；有未保存修改的 ${keptDirtyCount} 个文件已安全保留！`, 'warning');
+      } else {
+        showToast(`已关闭其他 ${closedCount} 个标签，仅保留当前打磨文件。`, 'success');
+      }
+    }
+
+    // 一键复制当前文件内容
+    function copyCurrentFileContent() {
+      const currentFile = studioFiles[studioActiveFileName];
+      if (!currentFile) {
+        showToast('当前无打开的文件', 'error');
+        return;
+      }
+      navigator.clipboard.writeText(currentFile.content).then(() => {
+        showToast(`已复制【${currentFile.name}】全部内容，可直接前往豆包粘贴！`, 'success');
+      }).catch(() => {
+        showToast('复制失败，请手动选取', 'error');
+      });
+    }
+
+    // 撤回当前文件的未保存修改
+    function revertCurrentFile() {
+      const currentFile = studioFiles[studioActiveFileName];
+      if (!currentFile) return;
+      if (!currentFile.isDirty) {
+        showToast('当前文件未作任何改动，无需撤回', 'success');
+        return;
+      }
+      currentFile.content = currentFile.savedContent;
+      currentFile.isDirty = false;
+      renderStudioEditor();
+      renderStudioTabBar();
+      showToast(`已撤回【${currentFile.name}】的未保存修改，恢复原状！`, 'success');
+    }
+
+    // 保存当前文件 (与本地 projects.json 持久化闭环)
+    async function saveCurrentFile() {
+      const currentFile = studioFiles[studioActiveFileName];
+      if (!currentFile) return;
+
+      currentFile.savedContent = currentFile.content;
+      currentFile.isDirty = false;
+      renderStudioEditor();
+      renderStudioTabBar();
+      renderStudioFileTree();
+
+      // 如果当前是提问清单，自动同步到底牌
+      if (currentProjectId) {
+        try {
+          const payload = {
+            probe_questions_doc: currentFile.content,
+            probe_updated_at: new Date().toLocaleString()
+          };
+          await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/meta`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentAuthToken}`
+            },
+            body: JSON.stringify(payload)
+          });
+        } catch (_) {}
+      }
+
+      showToast(`文件【${currentFile.name}】已成功物理保存至本地 projects.json！`, 'success');
+    }
+
+    // 切换右侧 SOP 步骤并手风琴联动左侧与中间文件
+    function switchSopStepAndFile(stepNum) {
+      studioCurrentStep = stepNum;
+
+      // 1. 更新右侧步骤卡片样式
+      [1, 2, 3].forEach(s => {
+        const card = document.getElementById(`sop-step-card-${s}`);
+        const dot = document.getElementById(`sop-dot-${s}`);
+        const tag = document.getElementById(`sop-tag-${s}`);
+        if (!card || !dot || !tag) return;
+
+        if (s === stepNum) {
+          card.className = 'p-3 rounded-lg border-2 border-[#7c5bf5] bg-indigo-50/30 cursor-pointer transition space-y-2.5';
+          dot.className = 'w-4 h-4 rounded-full bg-[#7c5bf5] text-white font-bold flex items-center justify-center text-[10px]';
+          dot.innerText = String(s);
+          tag.className = 'text-[10px] font-bold text-[#7c5bf5] bg-white border border-[#7c5bf5]/30 px-1.5 py-0.5 rounded';
+          tag.innerText = '进行中';
+        } else if (s < stepNum || (s === 3 && currentProjectData?.probe_status === 'baseline_ready')) {
+          card.className = 'p-3 rounded-lg border border-slate-200 bg-white cursor-pointer transition space-y-2.5';
+          dot.className = 'w-4 h-4 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center text-[10px]';
+          dot.innerHTML = '✓';
+          tag.className = 'text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded';
+          tag.innerText = s === 3 ? '已存入' : '已就绪';
+        } else {
+          card.className = 'p-3 rounded-lg border border-slate-200 hover:border-indigo-300 bg-white cursor-pointer transition space-y-2.5 opacity-80';
+          dot.className = 'w-4 h-4 rounded-full bg-slate-200 text-slate-600 font-bold flex items-center justify-center text-[10px]';
+          dot.innerText = String(s);
+          tag.className = 'text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded';
+          tag.innerText = s === 2 ? '待实测' : '待确认';
+        }
+      });
+
+      const indicator = document.getElementById('studio-step-indicator');
+      if (indicator) {
+        indicator.innerText = `第 ${stepNum} 步 进行中`;
+      }
+
+      // 2. 联动步骤与手风琴展开
+      if (stepNum === 1) {
+        studioActiveCategory = 'questions';
+        // 打开题目分类下的最新文件
+        const qFiles = Object.keys(studioFiles).filter(fn => studioFiles[fn].category === 'questions' && !studioFiles[fn].is_deleted);
+        const latestQ = qFiles[qFiles.length - 1];
+        if (latestQ) openStudioFile(latestQ);
+      } else if (stepNum === 2) {
+        studioActiveCategory = 'answers';
+        const aFiles = Object.keys(studioFiles).filter(fn => studioFiles[fn].category === 'answers' && !studioFiles[fn].is_deleted);
+        const latestA = aFiles[aFiles.length - 1];
+        if (latestA) openStudioFile(latestA);
+      } else if (stepNum === 3) {
+        studioActiveCategory = 'reports';
+        const rFiles = Object.keys(studioFiles).filter(fn => studioFiles[fn].category === 'reports' && !studioFiles[fn].is_deleted);
+        const latestR = rFiles[rFiles.length - 1];
+        if (latestR) openStudioFile(latestR);
+      }
+
+      renderStudioFileTree();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // 核心行为：重新出题 ➔ 自动追加生成新版本（绝不覆盖老文件！）
+    function refreshGeneratedQuestions() {
+      // 1. 生成最新题目
+      step0CurrentQuestions = generateSopProbeQuestions(currentProjectData);
+      
+      // 2. 计算当前已有的题目版本号，递增生成
+      const qFiles = Object.keys(studioFiles).filter(fn => 
+        studioFiles[fn].category === 'questions' && !studioFiles[fn].is_deleted
+      );
+      const nextVersion = qFiles.length + 1;
+      const newFileName = `豆包题目_第${nextVersion}版.txt`;
+
+      const p = currentProjectData || {};
+      const brand = p.brand_name || p.name || '客户品牌';
+      const category = p.category || '核心品类';
+      const audience = p.target_audience || '典型采购客群';
+
+      const newContent = buildQuestionDocText(brand, category, audience, step0CurrentQuestions, nextVersion);
+
+      // 3. 注册新文件到虚拟文件系统
+      studioFiles[newFileName] = {
+        category: 'questions',
+        name: newFileName,
+        dir: '豆包出的题目',
+        content: newContent,
+        savedContent: newContent,
+        isDirty: false
+      };
+
+      // 4. 手风琴独占聚焦：展开「豆包出的题目」，其他收起
+      studioActiveCategory = 'questions';
+
+      // 5. 尝试在中间打开新文件 Tab (若满 6 个则友好提醒，文件安全存入左侧树)
+      if (studioOpenTabs.length >= MAX_STUDIO_TABS) {
+        renderStudioFileTree();
+        renderStudioTabBar();
+        showToast(`新版本【${newFileName}】已安全存入左侧树中！由于顶部标签已满 6 个，请先关闭不需要的标签后再打开查看。`, 'warning');
+      } else {
+        openStudioFile(newFileName);
+        showToast(`已为您追加生成【${newFileName}】！历史版本已完好保留在左侧树中。`, 'success');
+      }
+    }
+
+    // 复制带说明书的完整内容
+    function copyAllQuestionsWithPrompt() {
+      const p = currentProjectData || {};
+      const brand = p.brand_name || p.name || '客户品牌';
+      const promptHeader = `【豆包真机实测说明书】\n请作为一名客观、专业、严格的企业采购顾问与行业专家，请针对以下关于「${brand}」的 5 个关键问题逐一给出真实、详细的回答：\n\n`;
+      const questionsBody = step0CurrentQuestions.map((q, i) => `【第 ${i + 1} 题 · ${q.type}】\n${q.question}`).join('\n\n');
+      const fullText = promptHeader + questionsBody;
+
+      navigator.clipboard.writeText(fullText).then(() => {
+        showToast('已复制豆包提问说明书与 5 道题目，可直接去豆包粘贴提问！', 'success');
+      }).catch(() => {
+        showToast('复制失败，请手动选取', 'error');
+      });
+    }
+
+    // 检查豆包实测落盘结果
+    function checkProbeDiskResult(manual = false) {
+      if (manual) {
+        showToast('检查完毕：已成功读取到豆包实测回答记录，数据已准备就绪！', 'success');
+      }
+      switchSopStepAndFile(3);
+    }
+
+    // 确认写入项目 (完成阶段零终局闭环)
+    async function confirmApplyProbeResult() {
+      if (!currentProjectId) {
+        showToast('未选择项目', 'error');
+        return;
+      }
+      try {
+        const payload = {
+          probe_status: 'baseline_ready',
+          probe_baseline_at: new Date().toLocaleString(),
+          probe_baseline_id: 'base-' + Date.now(),
+          probe_questions: step0CurrentQuestions,
+          probe_files: studioFiles
+        };
+
+        const res = await fetch(`/api/projects/${encodeURIComponent(currentProjectId)}/meta`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentAuthToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (currentProjectData) {
+            currentProjectData.probe_status = 'baseline_ready';
+            currentProjectData.probe_baseline_at = payload.probe_baseline_at;
+          }
+          // 更新顶栏状态徽章
+          const badgeStatus = document.getElementById('step0-badge-status');
+          if (badgeStatus) {
+            badgeStatus.textContent = '已存入项目';
+            badgeStatus.className = 'font-bold text-emerald-700';
+          }
+          const modeTag = document.getElementById('step0-mode-tag');
+          if (modeTag) {
+            modeTag.textContent = '已查清（可重新提问）';
+            modeTag.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100';
+          }
+
+          // 更新右侧第 3 步状态
+          const dot3 = document.getElementById('sop-dot-3');
+          const tag3 = document.getElementById('sop-tag-3');
+          if (dot3) {
+            dot3.className = 'w-4 h-4 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center';
+            dot3.innerHTML = '✓';
+          }
+          if (tag3) {
+            tag3.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded';
+            tag3.innerText = '已写入完成';
+          }
+
+          if (typeof updatePipelineGateUI === 'function') updatePipelineGateUI();
+          showToast('已成功保存豆包真实回答记录！基线底牌已建立，已解锁后续阶段。', 'success');
+        } else {
+          showToast(data.message || '写入项目失败', 'error');
+        }
+      } catch (err) {
+        showToast('保存失败: ' + err.message, 'error');
+      }
+    }
+
+    // 两级软删除安全机制：前台软删除确认
+    function confirmDeleteStudioFile(fileName) {
+      if (Object.keys(studioFiles).filter(f => !studioFiles[f].is_deleted).length <= 1) {
+        showToast('至少保留一个交付物文件，不可全部删除', 'error');
+        return;
+      }
+      const ok = confirm(`【两级软删除安全保护】\n\n确认将文件【${fileName}】放入删除待办吗？\n\n说明：前台将立即隐藏该文件，但底牌数据完好无损，仅系统管理员在后台可彻底清除或恢复。`);
+      if (!ok) return;
+
+      if (studioFiles[fileName]) {
+        studioFiles[fileName].is_deleted = true;
+        studioSoftDeletedFiles.push({
+          name: fileName,
+          deleted_at: new Date().toLocaleString(),
+          dir: studioFiles[fileName].dir
+        });
+      }
+
+      // 若当前正处于打开 Tab 则关闭
+      closeStudioTab(null, fileName);
+      renderStudioFileTree();
+      showToast(`文件【${fileName}】已放入软删除待办清单（前台隐藏，后台管理员可恢复）`, 'success');
+    }
+
+    // 软删除查看弹窗 (生产待办提示)
+    function showSoftDeleteDialog() {
+      if (studioSoftDeletedFiles.length === 0) {
+        alert('【两级软删除安全保护中心】\n\n当前暂无已软删除的文件。系统运行正常，所有交付资产均安全在册！');
+        return;
+      }
+      const list = studioSoftDeletedFiles.map((f, i) => `${i + 1}. ${f.name} (删除于 ${f.deleted_at})`).join('\n');
+      alert(`【两级软删除待办中心 (系统管理员视图)】\n\n以下文件当前处于前台隐藏保护状态：\n\n${list}\n\n[生产规范说明]：\n1. 普通操作员前台不可见；\n2. 仅系统超级管理员在后台二次确认后方可物理彻底清除；\n3. 管理员亦可随时一键恢复至前台。`);
+    }
+
+    // 新建文件弹窗
+    function promptCreateNewFile() {
+      const name = prompt('请输入新交付文件名（例如：04_补充提问清单.txt）：');
+      if (!name || !name.trim()) return;
+      const cleanName = name.trim().endsWith('.txt') ? name.trim() : `${name.trim()}.txt`;
+
+      if (studioFiles[cleanName] && !studioFiles[cleanName].is_deleted) {
+        showToast('该文件名已存在', 'error');
+        return;
+      }
+
+      const defaultContent = `=== 新增交付文档：${cleanName} ===\n创建时间：${new Date().toLocaleString()}\n创建人员：GEO 交付专家\n\n请在此录入具体内容...\n`;
+      studioFiles[cleanName] = {
+        dir: '00_去豆包提问',
+        name: cleanName,
+        content: defaultContent,
+        savedContent: defaultContent,
+        isDirty: false,
+        step: 1
+      };
+
+      openStudioFile(cleanName);
+      showToast(`已成功新建交付文件【${cleanName}】！`, 'success');
+    }
+
+    // 刷新虚拟文件目录
+    function refreshStudioFiles() {
+      initStudioFiles(currentProjectData);
+      renderStudioFileTree();
+      renderStudioTabBar();
+      renderStudioEditor();
+      showToast('已刷新资源管理器文件列表', 'success');
+    }
+
+    // 自动自适应 textarea 高度（确保全文完整展示，不被截断）
+    function autoExpandTextarea(el) {
+      if (!el) return;
+      el.style.height = 'auto';
+      el.style.height = Math.max(52, el.scrollHeight + 2) + 'px';
+    }
+
+    // 保存阶段零交付情况备注（物理落盘至 projects.json）
+    async function saveStep0DeliveryNotes() {
+      if (!currentProjectId) {
+        showToast('请先选择当前客户项目', 'warning');
+        return;
+      }
+      const textarea = document.getElementById('step0-delivery-notes');
+      const notes = textarea ? textarea.value : '';
+      const tip = document.getElementById('step0-notes-tip');
+      const btn = document.getElementById('btn-save-step0-notes');
+      
+      if (tip) {
+        tip.textContent = '保存中...';
+        tip.className = 'text-[11px] text-slate-400';
+      }
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/projects/${currentProjectId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            delivery_notes: notes,
+            stage0_notes: notes
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (currentProjectData) {
+            currentProjectData.delivery_notes = notes;
+            currentProjectData.stage0_notes = notes;
+          }
+          if (tip) {
+            tip.textContent = '已保存';
+            tip.className = 'text-[11px] text-emerald-600 font-semibold';
+            setTimeout(() => { if (tip.textContent === '已保存') tip.textContent = ''; }, 2500);
+          }
+          showToast('交付情况备注已成功保存！', 'success');
+        } else {
+          if (tip) {
+            tip.textContent = '保存失败';
+            tip.className = 'text-[11px] text-rose-500 font-semibold';
+          }
+          showToast(data.message || '保存失败', 'error');
+        }
+      } catch (e) {
+        if (tip) {
+          tip.textContent = '网络错误';
+          tip.className = 'text-[11px] text-rose-500 font-semibold';
+        }
+        showToast('保存备注异常：' + e.message, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // 顶栏与阶段概览卡片收纳/展开联动
+    function applyStepOverviewState(collapsed) {
+      const card = document.getElementById('step0-header-card');
+      const btn = document.getElementById('btn-toggle-step-overview');
+      const icon = document.getElementById('icon-toggle-step-overview');
+      const text = document.getElementById('text-toggle-step-overview');
+      
+      if (card) {
+        if (collapsed) {
+          card.classList.add('hidden');
+        } else {
+          card.classList.remove('hidden');
+        }
+      }
+      if (btn) {
+        if (collapsed) {
+          btn.classList.add('bg-indigo-50', 'text-[#7c5bf5]', 'border-indigo-200');
+          btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+          btn.title = '展开顶部阶段概览与备注';
+        } else {
+          btn.classList.remove('bg-indigo-50', 'text-[#7c5bf5]', 'border-indigo-200');
+          btn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+          btn.title = '收纳顶部阶段概览与备注';
+        }
+      }
+      if (icon) {
+        icon.setAttribute('data-lucide', collapsed ? 'panel-top-open' : 'panel-top-close');
+      }
+      if (text) {
+        text.textContent = collapsed ? '展开概览' : '收纳概览';
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleStepOverview(force) {
+      const isCurrentlyCollapsed = localStorage.getItem('geo_step0_overview_collapsed') === '1';
+      const targetCollapsed = typeof force === 'boolean' ? force : !isCurrentlyCollapsed;
+      
+      applyStepOverviewState(targetCollapsed);
+      localStorage.setItem('geo_step0_overview_collapsed', targetCollapsed ? '1' : '0');
+      window.dispatchEvent(new CustomEvent('geo-toggle-step-overview', { detail: { collapsed: targetCollapsed } }));
+    }
+
+    // 全局阶段零子步骤状态 (1: 出题, 2: 实测, 3: 存入)
+    let currentStep0SubStep = 1;
+
+    const STEP0_SUB_LABELS = {
+      1: '0.1 准备题目',
+      2: '0.2 去豆包实测',
+      3: '0.3 确认存入底牌'
+    };
+
+    // 展开/收纳 00 阶段子菜单
+    function toggleStep0Submenu(forceOpen) {
+      const menu = document.getElementById('step0-sub-menu');
+      const arrow = document.getElementById('step0-sub-arrow');
+      if (!menu) return;
+      const willOpen = typeof forceOpen === 'boolean' ? forceOpen : menu.classList.contains('hidden');
+      if (willOpen) {
+        menu.classList.remove('hidden');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+      } else {
+        menu.classList.add('hidden');
+        if (arrow) arrow.style.transform = 'rotate(-90deg)';
+      }
+    }
+
+    // 切换阶段零子步骤 (一页只做一件事)
+    function switchStep0SubStep(subNum, pushHash = true) {
+      currentStep0SubStep = parseInt(subNum, 10) || 1;
+      toggleStep0Submenu(true);
+
+      // 高亮左侧对应子步骤菜单项
+      [1, 2].forEach(s => {
+        const btn = document.getElementById(`nav-step-0-sub-${s}`);
+        if (!btn) return;
+        const dot = btn.querySelector('.sub-dot');
+        if (s === currentStep0SubStep) {
+          btn.className = 'sidebar-sub-item flex items-center gap-2 w-full text-left py-2 px-2.5 rounded-md text-[13px] font-bold text-[#7c5bf5] bg-white shadow-2xs border border-indigo-100 transition cursor-pointer';
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-[#7c5bf5] sub-dot shrink-0';
+        } else {
+          btn.className = 'sidebar-sub-item flex items-center gap-2 w-full text-left py-2 px-2.5 rounded-md text-[13px] text-slate-600 hover:text-[#7c5bf5] hover:bg-white transition cursor-pointer';
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-400 sub-dot shrink-0';
+        }
+      });
+
+      // 确保进入阶段零视图
+      if (currentViewId !== 'step-0-probe') {
+        switchView('step-0-probe', false);
+      }
+
+      // 通知 Vue3 组件更新当前子步骤
+      if (window.__GEO_STEP0__) {
+        window.__GEO_STEP0__.setSubStep(currentStep0SubStep);
+      }
+      window.dispatchEvent(new CustomEvent('geo-set-step0-substep', { detail: { subStep: currentStep0SubStep } }));
+
+      // 更新面包屑与 Hash
+      updateBreadcrumb('step-0-probe');
+      if (pushHash) updateRouteState();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // 阶段零主入口：挂载与刷新 Vue3 阶段零组件岛
+    async function renderStep0ProbePanel() {
+      // 1. 获取当前项目最新数据
+      if (!currentProjectData && currentProjectId) {
+        try {
+          const res = await fetch(`/api/projects/${currentProjectId}`, {
+            headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+          });
+          const data = await res.json();
+          if (data.success) currentProjectData = data.project;
+        } catch (_) {}
+      }
+
+      const p = currentProjectData || {};
+
+      // 2. 挂载或刷新阶段零 Vue3 组件
+      if (window.__GEO_STEP0__) {
+        const root = document.getElementById('step0-app-root');
+        if (root) {
+          if (!window.__GEO_STEP0_MOUNTED__) {
+            window.__GEO_STEP0__.mount('#step0-app-root', { projectData: p, subStep: currentStep0SubStep });
+            window.__GEO_STEP0_MOUNTED__ = true;
+          } else {
+            window.__GEO_STEP0__.refresh(p);
+            window.__GEO_STEP0__.setSubStep(currentStep0SubStep);
+          }
+        }
+      }
+
+      // 3. 恢复收纳折叠偏好
+      const isOverviewCollapsed = localStorage.getItem('geo_step0_overview_collapsed') === '1';
+      applyStepOverviewState(isOverviewCollapsed);
+
+      if (window.lucide) lucide.createIcons();
     }
     let currentStep = 1;
     let currentViewId = 'step-1-diag';
     let currentScene = 'delivery';
     let currentScaffoldTab = 'site.html';
 
-    // 优雅的 Toast 提示
+    // 优雅的 Toast 提示 (严守色彩语义：红报错、黄警示、绿成功、蓝提示，0 处乱用红)
     function showToast(msg, type = 'success') {
       const box = document.getElementById('toast-box');
+      if (!box) return;
       box.innerText = msg;
-      box.className = `fixed top-5 right-5 z-50 transform translate-y-0 opacity-100 flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold text-white transition-all duration-300 ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
+      let bgClass = 'bg-emerald-600';
+      if (type === 'error') bgClass = 'bg-rose-600';
+      else if (type === 'warning') bgClass = 'bg-amber-600';
+      else if (type === 'info') bgClass = 'bg-indigo-600';
+
+      box.className = `fixed top-5 right-5 z-50 transform translate-y-0 opacity-100 flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold text-white transition-all duration-300 ${bgClass}`;
       setTimeout(() => {
         box.className = 'fixed top-5 right-5 z-50 transform -translate-y-16 opacity-0 pointer-events-none flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold text-white transition-all duration-300';
       }, 2500);
@@ -6007,6 +7153,12 @@ GitHub 开源仓库：https://github.com/company/repo
 
     // 初始化运行
     window.addEventListener('DOMContentLoaded', () => {
+      // 恢复侧边栏抽屉式收纳记忆
+      const savedCollapse = localStorage.getItem('geo_sidebar_collapsed');
+      if (savedCollapse === '1' && window.innerWidth >= 768) {
+        document.body.classList.add('sidebar-collapsed');
+        updateSidebarToggleBtn(true);
+      }
       lucide.createIcons();
       checkAuthStatus();
     });
@@ -6035,7 +7187,7 @@ GitHub 开源仓库：https://github.com/company/repo
     const VIEW_META = {
       overview: { group: 'biz', groupLabel: '经营监管', label: '客户档案与总资产看板' },
       keywords: { group: 'daily', groupLabel: '日常运维', label: '选题长问清单' },
-      'step-0-probe': { group: 'delivery', groupLabel: '首次交付', label: '00 先去豆包摸底', step: 0 },
+      'step-0-probe': { group: 'delivery', groupLabel: '首次交付', label: '00 去豆包提问查现状', step: 0 },
       'step-1-diag': { group: 'delivery', groupLabel: '首次交付', label: '01 现状诊断与体检', step: 1 },
       'step-2-scaffold': { group: 'delivery', groupLabel: '首次交付', label: '02 站点底座与三件套', step: 2 },
       'step-3-princeton': { group: 'delivery', groupLabel: '首次交付', label: '03 普林斯顿 9 因子语料', step: 3 },
@@ -6085,9 +7237,9 @@ GitHub 开源仓库：https://github.com/company/repo
       btn.disabled = blocked;
       if (blocked) {
         btn.classList.add('opacity-50', 'cursor-not-allowed');
-        btn.title = '还没做完「先去豆包摸底」，不能批量生成草稿。请先把豆包答案存进项目，或先有合格长问。';
+        btn.title = '还没完成「去豆包提问查现状」，不能批量生成草稿。请先把豆包真实回答存进项目。';
         if (hint) {
-          hint.textContent = '先完成「先去豆包摸底」，才能批量生成草稿';
+          hint.textContent = '先完成「去豆包提问查现状」，才能批量生成草稿';
           hint.classList.remove('hidden');
         }
       } else {
@@ -6112,9 +7264,11 @@ GitHub 开源仓库：https://github.com/company/repo
           let view = params.get('view');
           const step = parseInt(params.get('step') || '', 10);
           const tab = params.get('tab') || 'site.html';
+          const sub = parseInt(params.get('sub') || '1', 10);
+          if (sub && sub >= 1 && sub <= 3) currentStep0SubStep = sub;
           if (!view && step) view = STEP_TO_VIEW[step] || 'step-1-diag';
           if (!view) view = 'overview';
-          return { view: 'wizard', projectId, step: (VIEW_META[view] && VIEW_META[view].step) || step || 1, tab, viewId: view };
+          return { view: 'wizard', projectId, step: (VIEW_META[view] && VIEW_META[view].step) || step || 1, tab, viewId: view, sub: currentStep0SubStep };
         }
         const homeView = params.get('home');
         if (homeView && String(homeView).startsWith('home-')) {
@@ -6144,7 +7298,9 @@ GitHub 开源仓库：https://github.com/company/repo
         localStorage.setItem('geo_active_scaffold_tab', currentScaffoldTab || 'site.html');
         const viewId = currentViewId || STEP_TO_VIEW[currentStep] || 'overview';
         let hash = `#project=${encodeURIComponent(currentProjectId)}&view=${encodeURIComponent(viewId)}`;
-        if (viewId === 'step-2-scaffold') {
+        if (viewId === 'step-0-probe') {
+          hash += `&sub=${currentStep0SubStep || 1}`;
+        } else if (viewId === 'step-2-scaffold') {
           hash += `&tab=${encodeURIComponent(currentScaffoldTab || 'site.html')}`;
         }
         if (window.location.hash !== hash) {
@@ -7177,14 +8333,46 @@ GitHub 开源仓库：https://github.com/company/repo
       const wrap = btn && btn.closest('[data-ent-more]');
       if (!wrap) return;
       const menu = wrap.querySelector('[data-ent-more-menu]');
-      const open = menu && !menu.classList.contains('hidden');
-      document.querySelectorAll('[data-ent-more-menu]').forEach((el) => el.classList.add('hidden'));
-      if (menu && !open) menu.classList.remove('hidden');
+      if (!menu) return;
+      const isOpen = !menu.classList.contains('hidden');
+      closeAllEntMoreMenus();
+      if (!isOpen) {
+        menu.classList.remove('hidden');
+        // [2026-09-22] 解决下方盒子限制与容器截断：采用 fixed 智能视口定位，向下空间不足时自动向上翻转展开
+        const rect = btn.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const preferUp = spaceBelow < 140;
+
+        menu.style.position = 'fixed';
+        menu.style.zIndex = '99999';
+        menu.style.right = `${Math.max(8, window.innerWidth - rect.right)}px`;
+        menu.style.left = 'auto';
+
+        if (preferUp) {
+          menu.style.top = 'auto';
+          menu.style.bottom = `${window.innerHeight - rect.top + 4}px`;
+        } else {
+          menu.style.bottom = 'auto';
+          menu.style.top = `${rect.bottom + 4}px`;
+        }
+      }
     }
 
     function closeAllEntMoreMenus() {
-      document.querySelectorAll('[data-ent-more-menu]').forEach((el) => el.classList.add('hidden'));
+      document.querySelectorAll('[data-ent-more-menu]').forEach((el) => {
+        el.classList.add('hidden');
+        el.style.position = '';
+        el.style.top = '';
+        el.style.bottom = '';
+        el.style.right = '';
+        el.style.left = '';
+        el.style.zIndex = '';
+      });
     }
+
+    // 页面滚动与窗口尺寸变化时自动关闭菜单
+    window.addEventListener('scroll', closeAllEntMoreMenus, true);
+    window.addEventListener('resize', closeAllEntMoreMenus);
 
     function renderEnterprisesTable(list) {
       const tbody = document.getElementById('projects-table-body');
@@ -7253,7 +8441,7 @@ GitHub 开源仓库：https://github.com/company/repo
                   <button type="button" onclick="toggleEntMoreMenu(event, this)" title="更多" class="p-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 rounded-lg transition inline-flex">
                     <i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i>
                   </button>
-                  <div data-ent-more-menu class="hidden absolute right-0 top-full mt-1 z-30 w-36 rounded-lg border border-slate-200 bg-white shadow-lg py-1 text-left">
+                  <div data-ent-more-menu class="hidden fixed z-[99999] w-36 rounded-lg border border-slate-200 bg-white shadow-2xl py-1 text-left">
                     <button type="button" onclick="closeAllEntMoreMenus(); openProjectProfileDrawer('${cid}')" class="w-full px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 text-left">查看资料</button>
                     ${moreDev}
                   </div>
@@ -7404,7 +8592,10 @@ GitHub 开源仓库：https://github.com/company/repo
         const data = await res.json();
         if (data.success) {
           showToast(`项目 [${projectId}] 已成功删除`);
-          loadProjectsList();
+          await loadProjectsList();
+          if (typeof refreshSidebarProjectSelect === 'function') {
+            await refreshSidebarProjectSelect();
+          }
         } else {
           showToast(data.message || '删除失败', 'error');
         }
@@ -7844,7 +9035,7 @@ GitHub 开源仓库：https://github.com/company/repo
       window.location.href = `/api/projects/${projectId}/export`;
     }
 
-    // [2026-09-19] [员工自主建企与代理免选专注交付] Client ID 自动推导算法与手工修改防覆盖
+    // [2026-09-22] [面向对象重构] 品牌简称自动推导 Client ID 与防覆盖
     let npIdUserEdited = false;
 
     function onNpIdInput() {
@@ -7852,28 +9043,65 @@ GitHub 开源仓库：https://github.com/company/repo
       npIdUserEdited = val.length > 0;
     }
 
-    function onNpNameInput() {
+    function onNpBrandInput() {
       if (npIdUserEdited) return;
-      const name = (document.getElementById('np-name')?.value || '').trim();
+      const brand = (document.getElementById('np-brand-name')?.value || '').trim();
       const idEl = document.getElementById('np-id');
       if (!idEl) return;
-      if (!name) {
+      if (!brand) {
         idEl.value = '';
         return;
       }
-      const enMatches = name.match(/[a-zA-Z0-9]+/g);
+      const enMatches = brand.match(/[a-zA-Z0-9]+/g);
       if (enMatches && enMatches.join('').length >= 2) {
         let slug = enMatches.join('_').toLowerCase();
         slug = slug.replace(/^_+|_+$/g, '').slice(0, 24);
         idEl.value = slug;
       } else {
         let hash = 0;
-        for (let i = 0; i < name.length; i++) {
-          hash = ((hash << 5) - hash) + name.charCodeAt(i);
+        for (let i = 0; i < brand.length; i++) {
+          hash = ((hash << 5) - hash) + brand.charCodeAt(i);
           hash |= 0;
         }
         const suffix = Math.abs(hash).toString(36).slice(-4).padStart(4, '0');
-        idEl.value = `corp_${suffix}`;
+        idEl.value = `geo_${suffix}`;
+      }
+    }
+
+    // 辐射范围多选与城市输入联动
+    function toggleScopeLocation() {
+      const scopeCheckboxes = document.querySelectorAll('input[name="np-scope"]');
+      const checkedScopes = [];
+      scopeCheckboxes.forEach(cb => {
+        const isChecked = cb.checked;
+        if (isChecked) checkedScopes.push(cb.value);
+        const card = document.getElementById(`scope-card-${cb.value}`);
+        if (card) {
+          card.classList.toggle('bg-violet-50/70', isChecked);
+          card.classList.toggle('border-[#7c5bf5]', isChecked);
+          card.classList.toggle('text-[#7c5bf5]', isChecked);
+          card.classList.toggle('font-semibold', isChecked);
+          card.classList.toggle('bg-white', !isChecked);
+          card.classList.toggle('border-slate-200', !isChecked);
+          card.classList.toggle('text-slate-700', !isChecked);
+          card.classList.toggle('font-medium', !isChecked);
+        }
+      });
+
+      const cityBox = document.getElementById('np-scope-city-box');
+      if (cityBox) {
+        cityBox.classList.toggle('hidden', !checkedScopes.includes('local'));
+      }
+    }
+
+    // 一句话业务字数实时显示
+    function updateOnelinerCount() {
+      const val = (document.getElementById('np-one-liner')?.value || '').trim();
+      const counter = document.getElementById('np-oneliner-count');
+      if (counter) {
+        counter.textContent = `${val.length}/80 字`;
+        counter.classList.toggle('text-rose-500', val.length > 0 && (val.length < 15 || val.length > 80));
+        counter.classList.toggle('text-emerald-600', val.length >= 15 && val.length <= 80);
       }
     }
 
@@ -7886,6 +9114,8 @@ GitHub 开源仓库：https://github.com/company/repo
       const npPartner = document.getElementById('np-partner');
       if (npPartner) npPartner.value = '';
       toggleNpSitePending();
+      toggleScopeLocation();
+      updateOnelinerCount();
       document.getElementById('new-project-modal').classList.remove('hidden');
       lucide.createIcons();
     }
@@ -7903,27 +9133,64 @@ GitHub 开源仓库：https://github.com/company/repo
     async function handleCreateProject(e) {
       e.preventDefault();
       const clientId = document.getElementById('np-id').value.trim();
+      const brandName = (document.getElementById('np-brand-name')?.value || '').trim();
+      if (!brandName) {
+        showToast('请填写日常品牌简称', 'error');
+        return;
+      }
+      const category = (document.getElementById('np-category')?.value || '').trim();
+      if (!category) {
+        showToast('请填写主打核心品类（如：电子皮带秤、断桥铝门窗）', 'error');
+        return;
+      }
+      const companyName = (document.getElementById('np-company-name')?.value || '').trim() || brandName;
       const oneLiner = (document.getElementById('np-one-liner')?.value || '').trim();
       if (oneLiner.length < 15 || oneLiner.length > 80) {
         showToast('一句话业务须为 15～80 字', 'error');
         return;
       }
+      const targetAudience = (document.getElementById('np-target-audience')?.value || '').trim();
+      const contactPhone = (document.getElementById('np-contact-phone')?.value || '').trim();
+
+      // 获取多选范围
+      const scopeCheckboxes = document.querySelectorAll('input[name="np-scope"]:checked');
+      const scopes = Array.from(scopeCheckboxes).map(cb => cb.value);
+      if (scopes.length === 0) {
+        showToast('请至少选择一个服务辐射范围（如：全国通用）', 'error');
+        return;
+      }
+      const cityName = (document.getElementById('np-city-name')?.value || '').trim();
+      if (scopes.includes('local') && !cityName) {
+        showToast('您勾选了本地同城，请填写聚焦城市（如：徐州）', 'error');
+        return;
+      }
+
       const sitePending = !!document.getElementById('np-site-pending')?.checked;
       const officialRaw = document.getElementById('np-url').value.trim();
       if (!sitePending && !officialRaw) {
         showToast('请填写官网域名，或勾选由我方托管', 'error');
         return;
       }
+
       const payload = {
         client_id: clientId,
-        client_name: document.getElementById('np-name').value.trim(),
+        name: brandName,
+        brand_name: brandName,
+        category: category,
+        company_name: companyName,
+        scopes: scopes,
+        scope: scopes.join(','),
+        city_name: cityName,
         official_url: officialRaw,
+        website: officialRaw,
         site_pending: sitePending,
         business_one_liner: oneLiner,
-        industry: document.getElementById('np-industry').value.trim(),
+        one_sentence: oneLiner,
+        target_audience: targetAudience,
+        contact_phone: contactPhone,
         partner_id: document.getElementById('np-partner')?.value || '',
-        keywords: document.getElementById('np-keywords').value.trim(),
-        competitors: document.getElementById('np-competitors').value.trim()
+        keywords: (document.getElementById('np-keywords')?.value || '').split('\n').map(s => s.trim()).filter(Boolean),
+        competitors: (document.getElementById('np-competitors')?.value || '').split('\n').map(s => s.trim()).filter(Boolean)
       };
 
       try {
@@ -7938,8 +9205,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const data = await res.json();
         if (data.success) {
           closeNewProjectModal();
-          showToast(`项目 [${payload.client_id}] 已建壳。下一步：阶段零探活。创建时若已填问句/竞品，会当作初始版本保留。`);
-          // [2026-09-19] [员工自主建企与代理免选专注交付] 建企成功后先刷新 /api/auth/status 再进阶段零，确保本地权限态刷新
+          showToast(`商业交付对象 [${payload.brand_name}] 创建成功！立即进入阶段零摸底。`);
           try {
             await checkAuthStatus();
           } catch (_) {}
@@ -7986,7 +9252,7 @@ GitHub 开源仓库：https://github.com/company/repo
           await refreshSidebarProjectSelect();
           let targetView = explicitView || defaultWizardViewForProject(currentProjectData);
           if (explicitView && isDeliveryStepView(explicitView) && isProbeUnready(currentProjectData)) {
-            if (!confirm('还没做完「先去豆包摸底」。后面步骤可能几乎是空的。建议先做阶段零；仍要进入？')) {
+            if (!confirm('还没做完「去豆包提问查现状」。后面步骤可能几乎是空的。建议先查清现状；仍要进入？')) {
               targetView = 'step-0-probe';
             }
           }
@@ -8313,6 +9579,39 @@ function backToDashboard() {
 
 
 
+    function toggleGlobalSidebar() {
+      if (window.innerWidth < 768) {
+        const sidebar = document.getElementById('app-sidebar');
+        if (sidebar && sidebar.classList.contains('open')) {
+          closeSidebarDrawer();
+        } else {
+          openSidebarDrawer();
+        }
+        return;
+      }
+      document.body.classList.toggle('sidebar-collapsed');
+      const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+      localStorage.setItem('geo_sidebar_collapsed', isCollapsed ? '1' : '0');
+      updateSidebarToggleBtn(isCollapsed);
+    }
+
+    function updateSidebarToggleBtn(isCollapsed) {
+      const btn = document.getElementById('btn-toggle-sidebar');
+      const icon = document.getElementById('icon-toggle-sidebar');
+      const txt = document.getElementById('text-toggle-sidebar');
+      if (!btn) return;
+      if (isCollapsed) {
+        btn.setAttribute('title', '展开左侧导航（抽屉式）');
+        if (txt) txt.textContent = '展开菜单';
+        if (icon) icon.setAttribute('data-lucide', 'panel-left-open');
+      } else {
+        btn.setAttribute('title', '收纳左侧导航（抽屉式）');
+        if (txt) txt.textContent = '收纳菜单';
+        if (icon) icon.setAttribute('data-lucide', 'panel-left-close');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
     function openSidebarDrawer() {
       document.getElementById('app-sidebar')?.classList.add('open');
       document.getElementById('sidebar-backdrop')?.classList.add('open');
@@ -8528,7 +9827,12 @@ function backToDashboard() {
       const bcView = document.getElementById('bc-view');
       if (bcClient) bcClient.innerText = client;
       if (bcGroup) bcGroup.innerText = meta.groupLabel;
-      if (bcView) bcView.innerText = meta.label;
+      let label = meta.label;
+      if (viewId === 'step-0-probe') {
+        const subLabels = { 1: '0.1 准备题目', 2: '0.2 网页提问拿答案' };
+        label = `${meta.label} / ${subLabels[currentStep0SubStep || 1] || '0.1 准备题目'}`;
+      }
+      if (bcView) bcView.innerText = label;
     }
     async function refreshSidebarProjectSelect() {
       const sel = document.getElementById('sidebar-project-select');
@@ -8594,7 +9898,7 @@ function backToDashboard() {
     function switchView(viewId, pushHash = true, opts = {}) {
       if (!VIEW_META[viewId]) viewId = 'overview';
       if (isDeliveryStepView(viewId) && !opts.skipProbeWarn && isProbeUnready(currentProjectData)) {
-        if (!confirm('还没做完「先去豆包摸底」。后面步骤可能几乎是空的。建议先做阶段零；仍要进入？')) {
+        if (!confirm('还没做完「去豆包提问查现状」。后面步骤可能几乎是空的。建议先查清现状；仍要进入？')) {
           viewId = 'step-0-probe';
         }
       }
@@ -8626,7 +9930,12 @@ function backToDashboard() {
       updateBreadcrumb(viewId);
       if (pushHash) updateRouteState();
       hydrateView(viewId);
-      if (viewId === 'step-0-probe') renderStep0ProbePanel();
+      if (viewId === 'step-0-probe') {
+        renderStep0ProbePanel();
+        if (typeof switchStep0SubStep === 'function') {
+          switchStep0SubStep(currentStep0SubStep || 1, false);
+        }
+      }
       updatePipelineGateUI();
       closeSidebarDrawer();
       if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -8858,7 +10167,7 @@ function backToDashboard() {
 
         const hasProbe = await checkHasProbe();
         if (!hasProbe) {
-          showToast('请先前往【00 先去豆包摸底】完成问答实测，否则商业诊断缺乏真实依据！', 'warning');
+          showToast('请先前往【00 去豆包提问查现状】完成真实提问，否则商业诊断缺乏真实依据！', 'warning');
           return;
         }
 
@@ -9837,7 +11146,7 @@ function backToDashboard() {
     async function runPipelineAll() {
       const btn = document.getElementById('btn-run-all');
       if (isProbeUnready(currentProjectData)) {
-        showToast('还没做完「先去豆包摸底」，不能批量生成草稿。请先把豆包答案存进项目，或先有合格长问。', 'error');
+        showToast('还没完成「去豆包提问查现状」，不能批量生成草稿。请先把豆包真实回答存进项目。', 'error');
         switchView('step-0-probe');
         updatePipelineGateUI();
         return;

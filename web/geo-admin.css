@@ -27,6 +27,19 @@
   --geo-sidebar-width: 220px;
 }
 
+/* 全局字体栈与平滑抗锯齿（100% 对齐反重力 IDE 现代字体） */
+html, body, button, input, select, textarea {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 等宽字体栈对齐反重力 IDE */
+.font-mono, textarea.font-mono, code, pre {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
 /* ===== 侧栏壳（对齐 App.vue .global-sidebar） ===== */
 #app-sidebar, #home-sidebar {
   width: var(--geo-sidebar-width);
@@ -94,8 +107,8 @@
   align-items: center;
   cursor: pointer;
   background: var(--geo-group-bg);
-  color: #475569;
-  font-size: 0.8rem;
+  color: #334155;
+  font-size: 0.875rem;
   font-weight: 700;
   transition: background 0.2s;
   user-select: none;
@@ -115,7 +128,7 @@
 }
 
 #app-sidebar .arrow-indicator, #home-sidebar .arrow-indicator {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--geo-muted);
   flex-shrink: 0;
 }
@@ -141,8 +154,8 @@
 /* 二级项：对齐 .job-item */
 #app-sidebar .sidebar-nav-item, #home-sidebar .sidebar-nav-item,
 #app-sidebar .job-item, #home-sidebar .job-item {
-  padding: 6px 12px 6px 16px;
-  font-size: 0.78rem;
+  padding: 7px 12px 7px 16px;
+  font-size: 0.85rem;
   cursor: pointer;
   border-radius: 8px;
   display: flex;

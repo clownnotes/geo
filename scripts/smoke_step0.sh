@@ -35,17 +35,26 @@ echo "   OK web/assets/step0/step0.js ($((FILE_SIZE / 1024)) KB)"
 
 echo ">> 3/4 /assets 路由（8088 可选）"
 if curl -s --connect-timeout 1 "http://127.0.0.1:8088/" > /dev/null 2>&1; then
-  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:8088/assets/step0/step0.js")
+  # [2026-09-22] [安全鉴权冒烟对齐] 对照 2026-09-19 纯内部物理隔离：从 data/sessions.json 读取本地活跃 token 注入请求头
+  AUTH_HEADER=()
+  SESSIONS_FILE="$REPO_ROOT/data/sessions.json"
+  if [ -f "$SESSIONS_FILE" ]; then
+    TOKEN=$(python3 -c "import json; d=json.load(open('$SESSIONS_FILE')); valid=[k for k, v in d.items() if v.get('role') in ('developer', 'admin') or v.get('phone')]; print(valid[0] if valid else (list(d.keys())[0] if d else ''))" 2>/dev/null || true)
+    if [ -n "$TOKEN" ]; then
+      AUTH_HEADER=(-H "Authorization: Bearer $TOKEN")
+    fi
+  fi
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${AUTH_HEADER[@]}" "http://127.0.0.1:8088/assets/step0/step0.js")
   if [ "$HTTP_CODE" != "200" ]; then
     echo "FAIL: /assets/step0/step0.js HTTP $HTTP_CODE (期望 200)"
     exit 1
   fi
-  NOT_FOUND_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:8088/assets/step0/non_existent_test.js")
+  NOT_FOUND_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${AUTH_HEADER[@]}" "http://127.0.0.1:8088/assets/step0/non_existent_test.js")
   if [ "$NOT_FOUND_CODE" != "404" ]; then
     echo "FAIL: 缺文件应 404，实际 HTTP $NOT_FOUND_CODE"
     exit 1
   fi
-  echo "   OK 8088 静态映射 (200 / 404)"
+  echo "   OK 8088 静态映射 (带鉴权 200 / 404)"
 else
   echo "   SKIP 8088 未运行（构建与产物已通过）"
 fi

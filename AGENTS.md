@@ -23,6 +23,8 @@
    - **代码/功能/Bug/测试缺陷**：使用专属快捷指令 **`/opsx-fix`**（或 `/opsx-apply`），直接定位源码与测试脚本进行修复，通过自动化回归后在 `review-log.md` 标记 `[已修正]`，然后**立即停步**等待复审，严禁擅自归档。
 5. **任务跟踪**：
    - 使用 `./opsx status` 查看当前进度。
+6. **WorkBuddy 独立自动化审查 (混元3免费通道)**：
+   - 终端随时执行 `./opsx review-wb --stage [design|code]` 或聊天触发 `/opsx-review-workbuddy`，调用独立 Reviewer 进行严苛对抗审查并将意见自动记入 `review-log.md`。
 
 ---
 
@@ -50,6 +52,12 @@
 4. **内容流与发布时序规范（严格时间倒序）**：
    - 凡是在首页（`Canonical Answers` 精选板块）或博客知识库列表展示的文章，**一律严格按照发表时间（`datePublished`）由新到旧倒序（Descending）排列**；
    - 新增、修改或同步博文后，必须执行自动排序校验（如运行 `./scripts/sort_homepage_articles.py`），杜绝任何时序错乱。
+5. **管理端功能文字解答与引导说明规范（麦肯锡 V-W-W-H 标准）**：
+   - 详细规范见：[`docs/specs/ui-feature-explanation-standard.md`](docs/specs/ui-feature-explanation-standard.md) 与 [`.cursor/rules/plain-speak.mdc`](.cursor/rules/plain-speak.mdc)；
+   - **V-W-W-H 四层金字塔（结论先行）**：管理端所有功能页面的顶部说明，严格按 Value（核心交付成果与价值）、What（本质比喻与边界）、Why（不做的严重后果与避坑）、How（极简 1-2-3 动线与人机分工）四层组织；
+   - **四色语义与令牌**：主色紫严格引用 [`docs/specs/geo-admin-ui-tokens.md`](docs/specs/geo-admin-ui-tokens.md) 的 `--geo-primary: #7c5bf5`（Value），搭配冷调蓝灰（What）、暖调琥珀黄（Why）、通路翡翠绿（How）；采用浅底（`-50`）+ `border-l-4` 侧彩条；
+   - **红色 100% 绝对保护**：红色保留给运行报错与危险删除，功能说明中 100% 严禁出现红色；0 处 Emoji 表情；
+   - **阶段零两件真东西禁混谈条款**：文案只谈「问题清单」与「豆包答案存档」，严禁自造「底牌报告 / 基线 / 剧本 / 探活」充当主文案；How 三步必须对应页内 1/2/3 步（出题 ➔ 真问 ➔ 写入），严禁把落盘与写入混谈；保留动态 `modeBanner`（首轮/再测）与状态芯片。
 
 ---
 
@@ -154,3 +162,22 @@
 5. **脚手架编译防覆盖锁定机制 (Scaffold Override Protection)**：
    - 当 `project.yaml` 声明 `custom_site: true` 时，阶段二脚手架（`scaffold.py`）**严禁重新生成并覆盖 `index.html`**，严禁覆盖存量定制子站目录（about/services/blog 等）；
    - `/llms.txt` 与 `/schema.jsonld` 若已存在定制版本则严格保留，仅允许刷新 `/robots.txt` 放行规则。
+
+---
+
+## 8. 极速前端原型沙盒与物理持久化规范（新项目起手最高效路径）
+
+> 详细技术规范与克隆流程见：[`docs/specs/prototype-frontend-workflow-for-agents.md`](docs/specs/prototype-frontend-workflow-for-agents.md)  
+> 外挂盘总规则手册见：`/Volumes/联想120/临时前端/README_给Agent看的极速前端规范.md`
+
+1. **先原型后大后端（拒绝闭门造车）**：
+   - 新项目或复杂交付动线探索期，**严禁一上来就写复杂的 Go/Python 大后端或直接建数据库表**；
+   - 必须先通过“外挂盘极速前端沙盒”打磨高保真原型，待产品经理在浏览器里亲手操作、顺畅跑通、拍板确认后，再回迁主工程并补全后端。
+2. **本地 JSON 真实物理落盘（严禁纯内存假交互）**：
+   - 严禁仅靠 `localStorage` 或前端内存变量存数据（刷新就丢无法连贯测试）；
+   - 必须依托标准库 `server.py` 将增删改查物理写入 `data/projects.json`（或项目 JSON），确保 Safari 刷新或关闭后数据永不丢失。
+3. **新项目 1 分钟快速克隆拉起**：
+   - 复制 `/Volumes/联想120/临时前端/邻里GEO 的临时前端/` 成为新目录；
+   - 改写 `server.py` 与启动脚本的端口（如 `5189`、`5190`）；
+   - 清空并初始化 `data/projects.json` 骨架数据，启动后台服务即可对客/对内交付体验。
+
