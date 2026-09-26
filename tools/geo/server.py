@@ -625,14 +625,15 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
         # 5. 代持机器密钥，NE1 本地回环请求小毛驴后端
         base_url = os.environ.get("NEXTDOOR_BASE_URL", "").strip().rstrip("/")
-        if not base_url:
-            base_url = "http://127.0.0.1:3002"
-
         voice_key = os.environ.get("NEXTDOOR_VOICE_KEY") or os.environ.get("NEXTDOOR_API_KEY") or ""
-        if not voice_key:
+        if not base_url or not voice_key:
             load_dotenv()
+            base_url = os.environ.get("NEXTDOOR_BASE_URL", "").strip().rstrip("/")
             voice_key = os.environ.get("NEXTDOOR_VOICE_KEY") or os.environ.get("NEXTDOOR_API_KEY") or ""
-            base_url = os.environ.get("NEXTDOOR_BASE_URL", "").strip().rstrip("/") or base_url
+
+        if not base_url:
+            self.send_json({"code": 500, "msg": "GEO 服务端未配置 NEXTDOOR_BASE_URL (请在 .env 中显式指定 :3002 开发 或 :3001 生产)"}, status=500)
+            return
 
         if not voice_key:
             self.send_json({"code": 500, "msg": "GEO 服务端未配置 NEXTDOOR_VOICE_KEY / NEXTDOOR_API_KEY"}, status=500)
