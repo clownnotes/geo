@@ -276,25 +276,25 @@ TEMPLATE = """<!DOCTYPE html>
 
   <!-- 顶部导航栏 -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-200/80 shadow-xs">
-    <div class="geo-container h-20 flex items-center justify-between gap-6">
+    <div class="geo-container min-h-[74px] py-3 flex flex-col items-start justify-between gap-6 lg:h-20 lg:py-0 lg:flex-row lg:items-center lg:justify-between">
       <a href="../" class="flex items-center gap-3.5 group">
         <div class="relative">
           <img src="../assets/logo.jpg" alt="老白 / 邻里GEO" class="w-11 h-11 rounded-full border border-brand-300 shadow-xs object-cover">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
-          <div class="font-black text-xl text-slate-900 leading-none flex items-center">
-            NextGEO <span class="text-brand-600 font-extrabold ml-1.5">邻里GEO</span>
+          <div class="font-black text-xl text-brand-600 leading-none flex items-center">
+            邻里GEO
           </div>
           <div class="text-xs text-slate-500 font-medium tracking-tight mt-1">中文企业级GEO方法研究与实战</div>
         </div>
       </a>
 
-      <nav class="flex items-center gap-6 sm:gap-8 text-sm sm:text-base font-semibold text-slate-600">
-        <a href="../" class="hover:text-brand-600 transition">首页</a>
-        <a href="./" class="text-brand-700 font-bold border-b-2 border-brand-600 pb-1">博客</a>
-        <a href="../services/" class="hover:text-brand-600 transition">服务</a>
-        <a href="../about/" class="hover:text-brand-600 transition">关于</a>
+      <nav class="flex items-center gap-1 overflow-x-auto whitespace-nowrap text-sm font-normal text-slate-600">
+        <a href="../" class="inline-block px-3 py-2.5 text-sm text-slate-600 hover:text-brand-600 transition">首页</a>
+        <a href="./" class="inline-block px-3 py-2.5 text-sm text-brand-700 font-medium border-b-2 border-brand-600">博客</a>
+        <a href="../services/" class="inline-block px-3 py-2.5 text-sm text-slate-600 hover:text-brand-600 transition">服务</a>
+        <a href="../about/" class="inline-block px-3 py-2.5 text-sm text-slate-600 hover:text-brand-600 transition">关于</a>
       </nav>
     </div>
   </header>
@@ -416,17 +416,17 @@ TEMPLATE = """<!DOCTYPE html>
 
   <!-- 页脚 -->
   <footer class="border-t border-slate-200/90 py-10 text-slate-500 text-xs sm:text-sm bg-white/90 mt-16">
-    <div class="geo-container flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="geo-container flex flex-col items-start gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <strong class="text-slate-900 font-bold">邻里GEO (NextGEO)</strong>
-        <div class="text-slate-400 text-xs mt-0.5">中文企业级GEO方法研究与实战 · 淮海经济区</div>
+        <strong class="text-slate-900 font-bold">邻里GEO</strong>
+        <div class="text-slate-500 text-xs mt-1">中文企业级GEO方法研究与实战</div>
       </div>
-      <div class="flex items-center gap-4 text-slate-600 font-medium text-xs sm:text-sm">
-        <a href="../services/#contact" class="hover:text-brand-600 transition">联系老白</a>
-        <span>·</span>
-        <a href="../llms.txt" class="hover:text-brand-600 transition font-mono">llms.txt</a>
-        <span>·</span>
-        <a href="../sitemap.xml" class="hover:text-brand-600 transition font-mono">sitemap.xml</a>
+      <div class="flex flex-wrap items-center text-slate-600">
+        <a href="../services/#contact" class="hover:text-brand-600 transition underline-offset-2 hover:underline">联系老白</a>
+        <span class="px-1.5 text-slate-400">·</span>
+        <a href="../llms.txt" class="hover:text-brand-600 transition underline-offset-2 hover:underline">llms.txt</a>
+        <span class="px-1.5 text-slate-400">·</span>
+        <a href="../sitemap.xml" class="hover:text-brand-600 transition underline-offset-2 hover:underline">sitemap.xml</a>
       </div>
     </div>
   </footer>

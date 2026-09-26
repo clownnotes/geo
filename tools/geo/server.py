@@ -64,11 +64,20 @@ WEB_DIR = os.path.join(PROJECT_ROOT, "web")
 VOICE_CHUNK_RATE_LIMIT = 60
 VOICE_CHUNK_IP_RECORDS = {}
 VOICE_CHUNK_LOCK = threading.Lock()
+VOICE_CHUNK_LAST_CLEANUP = 0
 
 def check_voice_rate_limit(ip: str) -> bool:
-    """校验客户端 IP 在 60 秒内的伴读请求次数，超过 60 次拦截"""
+    """校验客户端 IP 在 60 秒内的伴读请求次数，超过 60 次拦截。定期淘汰过期 IP 记录防内存无界膨胀"""
     now = time.time()
     with VOICE_CHUNK_LOCK:
+        global VOICE_CHUNK_LAST_CLEANUP
+        # 每 60 秒全局淘汰一次所有过期 IP 记录，或在容量超限时自动修剪
+        if now - VOICE_CHUNK_LAST_CLEANUP > 60.0 or len(VOICE_CHUNK_IP_RECORDS) > 5000:
+            VOICE_CHUNK_LAST_CLEANUP = now
+            expired_ips = [k for k, v in VOICE_CHUNK_IP_RECORDS.items() if not v or (now - v[-1] >= 60.0)]
+            for k in expired_ips:
+                del VOICE_CHUNK_IP_RECORDS[k]
+
         records = VOICE_CHUNK_IP_RECORDS.get(ip, [])
         records = [t for t in records if now - t < 60.0]
         if len(records) >= VOICE_CHUNK_RATE_LIMIT:
@@ -302,15 +311,19 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         return ""
 
     def get_client_ip(self) -> str:
-        forwarded = self.headers.get("X-Forwarded-For")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
-        real_ip = self.headers.get("X-Real-IP")
-        if real_ip:
-            return real_ip.strip()
-        if hasattr(self, "client_address") and self.client_address:
-            return self.client_address[0]
-        return "127.0.0.1"
+        direct_ip = self.client_address[0] if (hasattr(self, "client_address") and self.client_address) else "127.0.0.1"
+        # 仅当直连对端为本机反向代理 (127.0.0.1 / ::1 / localhost) 时，才信任代理转发头；直连请求绝不信任伪造头
+        if direct_ip in ("127.0.0.1", "::1", "localhost"):
+            real_ip = self.headers.get("X-Real-IP")
+            if real_ip and real_ip.strip():
+                return real_ip.strip()
+            # 若无 X-Real-IP 但有 X-Forwarded-For，取紧邻反代的真实客户端 IP (列表最后一位)，防客户端在头部前插伪造 IP
+            forwarded = self.headers.get("X-Forwarded-For")
+            if forwarded and forwarded.strip():
+                parts = [p.strip() for p in forwarded.split(",") if p.strip()]
+                if parts:
+                    return parts[-1]
+        return direct_ip
 
     def is_local_dev_request(self) -> bool:
         """
@@ -563,6 +576,10 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         # 强正则白名单，防目录遍历 (铁律防御)
         if not article_id or not re.match(r"^[a-zA-Z0-9_-]+$", article_id):
             self.send_json({"code": 400, "msg": "非法或缺失的 article_id (仅允许字母、数字、下划线与短横线)"}, status=400)
+            return
+
+        if not voice or not re.match(r"^[a-zA-Z0-9_-]+$", voice):
+            self.send_json({"code": 400, "msg": "非法或缺失的 voice (仅允许字母、数字、下划线与短横线)"}, status=400)
             return
 
         try:

@@ -430,3 +430,60 @@ html {
    python3 scripts/check_article_styles.py
    ```
    自动核验所有文章是否符合本规范。
+
+---
+
+## 5. AI 语音伴读条挂载与爬虫隔离规范 (Voice Companion Standard)
+
+为了给访客提供边看边听的多模态伴读体验，同时杜绝污染 AI 搜索引擎（如豆包、Kimi）和爬虫提取的 Clean Markdown，所有文章挂载语音伴读条时必须严格遵循以下标准：
+
+### 5.1 挂载位置与层级约束
+* **精准挂载位**：位于文章内页左侧主内容栏内，紧随文章头部 `<header class="mb-8">`（包含主标题 `h1`、分类徽章与发表时间）正下方，在正文首个章节 `#block-1` 之前。
+* **严禁越界挂载**：绝对严禁将伴读条挂载在双栏栅格容器之外，严禁插入到右侧 280px 吸顶目录栏（`<aside class="toc-card">`）内部。
+
+### 5.2 爬虫绝对隔离 (Crawler Isolation)
+* 伴读条容器必须显式注入：
+  ```html
+  <div id="geo-voice-player-container" class="my-6" data-crawler-ignore="true" role="region" aria-label="文章智能伴读">
+  ```
+* `Crawl4AI` 与 `Firecrawl` 嗅探器会根据 `data-crawler-ignore="true"` 自动剥离该区域，保证输出的 Clean Markdown 纯净度，杜绝播放器按钮字样（如“播放/暂停/倍速”）混入正文。
+
+### 5.3 DOM 平衡与 0 Emoji 铁律
+* 伴读卡片内部的 HTML 标签必须成对闭合，确保全页 `open_divs == close_divs` 绝对平衡，防止右侧吸顶目录被挤出栅格下坠至页底；
+* 遵循企业级设计规范，严禁使用任何彩色表情 Emoji（如 ⚡️、💡、🔊），统一采用专业 SVG 图标与 `--geo-primary: #7c5bf5` 主色令牌。
+
+### 5.4 标准 HTML 伴读条骨架片段
+```html
+<!-- [标准伴读条挂载位: 位于文章 header 大标题下方，在 #block-1 之前] -->
+<div id="geo-voice-player-container" class="my-6" data-crawler-ignore="true" role="region" aria-label="文章智能伴读">
+  <div class="bg-white border border-slate-200/80 rounded-xl p-4 shadow-xs">
+    <div class="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-[#7c5bf5] border border-purple-100">
+          AI 语音伴读
+        </span>
+        <span class="text-xs text-slate-400" id="voice-chunk-indicator">准备就绪</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label for="voice-select" class="text-xs text-slate-500 font-medium">音色</label>
+        <select id="voice-select" class="text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded px-2 py-1">
+          <option value="standard_female_warm">温婉知性 · 佳悦</option>
+          <option value="standard_male_magnetic">磁性沉稳 · 晨阳</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex items-center justify-between gap-4 pt-3">
+      <button type="button" id="voice-play-btn" class="w-8 h-8 rounded-full bg-[#7c5bf5] text-white flex items-center justify-center hover:bg-[#6b4ae6]">
+        <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div id="voice-progress-bar" class="h-full bg-[#7c5bf5] w-0"></div>
+      </div>
+      <div class="flex items-center gap-1 border-l border-slate-200 pl-3">
+        <button class="px-2 py-0.5 text-xs rounded bg-purple-100 text-[#7c5bf5] font-semibold">1.0x</button>
+        <button class="px-2 py-0.5 text-xs rounded text-slate-500">1.25x</button>
+      </div>
+    </div>
+  </div>
+</div>
+```

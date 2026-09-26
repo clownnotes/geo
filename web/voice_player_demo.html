@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nextdoor 语音合成 (Voice) 官网文章智能伴读与 SDK 演示</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --geo-primary: #7c5bf5;
+      --geo-primary-hover: #6b4ae6;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .active-chunk {
+      background-color: #f5f3ff;
+      border-left: 3px solid #7c5bf5;
+      padding-left: 0.75rem;
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto space-y-8">
+    
+    <!-- 头部导航与架构安全指引 -->
+    <header class="border-b border-slate-200 pb-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[#7c5bf5]">
+            生产级能力包
+          </span>
+          <h1 class="text-2xl font-bold text-slate-900 mt-2">数字人与语音合成 (Voice) 模块接入演示</h1>
+          <p class="text-sm text-slate-500 mt-1">
+            双模智能驱动 · 毫秒级首段直出 · 浏览器离线缓存 · 前端零凭证防盗刷架构
+          </p>
+        </div>
+        <div class="text-right">
+          <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-xs">
+            BFF 网关中继保护中 (前端 0 密钥暴露)
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 安全防护金字塔说明 (麦肯锡 V-W-W-H 模型) -->
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="p-3.5 bg-white border-l-4 border-[#7c5bf5] border border-slate-200/80 rounded-r-lg shadow-xs">
+        <div class="text-xs font-semibold text-[#7c5bf5] uppercase tracking-wider">Value 交付价值</div>
+        <div class="text-xs text-slate-700 mt-1 leading-relaxed">
+          为官网文章带来丝滑的伴听体验，首段毫秒发声，相同内容二次播放 0 算力开销。
+        </div>
+      </div>
+      <div class="p-3.5 bg-white border-l-4 border-slate-400 border border-slate-200/80 rounded-r-lg shadow-xs">
+        <div class="text-xs font-semibold text-slate-600 uppercase tracking-wider">What 本质边界</div>
+        <div class="text-xs text-slate-700 mt-1 leading-relaxed">
+          前端仅调用本地同源网关接口，ndsk_ 机器密钥严密封存在后端环境变量中。
+        </div>
+      </div>
+      <div class="p-3.5 bg-white border-l-4 border-amber-500 border border-slate-200/80 rounded-r-lg shadow-xs">
+        <div class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Why 避坑防刷</div>
+        <div class="text-xs text-slate-700 mt-1 leading-relaxed">
+          若直接写在前端，F12 秒级提取 Key 并刷光算力；网关施加 IP 限流与字数校验。
+        </div>
+      </div>
+      <div class="p-3.5 bg-white border-l-4 border-emerald-500 border border-slate-200/80 rounded-r-lg shadow-xs">
+        <div class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">How 动线分工</div>
+        <div class="text-xs text-slate-700 mt-1 leading-relaxed">
+          文章自然断句切片(≤280字) -> 首段同步秒播 -> 后台静默预加载下一段 -> 本地缓存。
+        </div>
+      </div>
+    </section>
+
+    <!-- 文章伴读组件实际运行区域 -->
+    <main class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-slate-800">官网文章详情页伴读体验区</h2>
+        <span class="text-xs text-slate-400">组件挂载模式: 原生 TypeScript / Web Component</span>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- 伴听播放器嵌入卡片 (爬虫隔离) -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-xs space-y-3" data-crawler-ignore="true" role="region" aria-label="文章智能伴读">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200/60">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-[#7c5bf5]">
+                AI 伴读条
+              </span>
+              <span id="cache-badge" class="hidden px-2 py-0.5 rounded text-xs font-normal bg-emerald-100 text-emerald-700">
+                本地缓存命中 (0 算力)
+              </span>
+              <span id="chunk-indicator" class="text-xs text-slate-400">
+                等待就绪
+              </span>
+            </div>
+
+            <!-- 音色选择 -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500">音色:</span>
+              <select id="voice-select" class="text-xs text-slate-700 bg-white border border-slate-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#7c5bf5]">
+                <option value="standard_female_warm">温婉知性 · 佳悦 (博客伴读)</option>
+                <option value="standard_male_magnetic">磁性沉稳 · 晨阳 (深度解说)</option>
+                <option value="standard_female_news">专业播报 · 晓涵 (权威资讯)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 当前朗读文字显示 -->
+          <div class="min-h-[44px] flex items-center">
+            <p id="current-text-display" class="text-xs text-slate-600 italic">
+              准备好开始伴读。点击下方播放按钮即可开始智能朗读当前文章...
+            </p>
+          </div>
+
+          <!-- 控制动线 -->
+          <div class="flex items-center justify-between gap-4 pt-1">
+            <div class="flex items-center gap-2">
+              <button id="btn-toggle" class="w-9 h-9 rounded-full bg-[#7c5bf5] text-white flex items-center justify-center hover:bg-[#6b4ae6] active:scale-95 transition-all shadow-xs">
+                <svg id="icon-play" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="icon-pause" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
+                <svg id="icon-loading" class="w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              </button>
+              <button id="btn-stop" class="text-xs text-slate-500 hover:text-slate-800 px-2 py-1">停止</button>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="flex-1 flex items-center gap-2">
+              <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-[#7c5bf5] w-0 transition-all duration-300"></div>
+              </div>
+              <span id="progress-text" class="text-xs font-mono text-slate-400 w-8 text-right">0%</span>
+            </div>
+
+            <!-- 倍速 -->
+            <div class="flex items-center gap-1 border-l border-slate-200 pl-3">
+              <button class="btn-speed px-2 py-0.5 text-xs rounded bg-purple-100 text-[#7c5bf5] font-semibold" data-speed="1.0">1.0x</button>
+              <button class="btn-speed px-2 py-0.5 text-xs rounded text-slate-500 hover:text-slate-800" data-speed="1.25">1.25x</button>
+              <button class="btn-speed px-2 py-0.5 text-xs rounded text-slate-500 hover:text-slate-800" data-speed="1.5">1.5x</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 模拟文章正文内容 (带段落实时联动) -->
+        <article class="prose prose-slate max-w-none space-y-4 text-sm leading-relaxed text-slate-700">
+          <div id="p-0" class="p-2 rounded transition-all">
+            <strong>第一段（导读）：</strong> 生成式引擎优化 (GEO) 正在成为下一代企业获客与心智占领的关键战场。与传统 SEO 追求搜索结果列表的第一名不同，GEO 致力于让品牌成为各大 AI 模型（如豆包、Kimi、DeepSeek 等）生成回答时的推荐信源。
+          </div>
+          <div id="p-1" class="p-2 rounded transition-all">
+            <strong>第二段（痛点）：</strong> 很多企业投入了大量人力编写常规宣传稿，但在 AI 模型眼里，这些内容缺乏权威事实支撑、数据量化不足，且没有配备大模型友好的结构化协议。
+          </div>
+          <div id="p-2" class="p-2 rounded transition-all">
+            <strong>第三段（方案）：</strong> 通过部署 Clean Markdown、Schema.org 实体图谱以及针对自然语言断句调优的 AI 伴读语音流，企业可以实现人机协同的完整数字化交付。
+          </div>
+        </article>
+      </div>
+    </main>
+
+    <!-- 开发者接入代码示例 -->
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <h3 class="text-base font-semibold text-slate-900">工程调用方式 (SDK 接入模式)</h3>
+      <div class="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-xs overflow-x-auto space-y-2">
+        <p class="text-slate-400">// 1. 引入客户端与伴读控制器 (前端零密钥，直连同源本地网关)</p>
+        <p><span class="text-purple-400">import</span> { NextdoorVoiceClient, ArticleAudioPlayer } <span class="text-purple-400">from</span> <span class="text-emerald-300">'@/gateway/client'</span>;</p>
+        <br>
+        <p class="text-slate-400">// 2. 初始化客户端</p>
+        <p><span class="text-blue-400">const</span> client = <span class="text-blue-400">new</span> NextdoorVoiceClient({ baseURL: <span class="text-emerald-300">'http://127.0.0.1:8090'</span> });</p>
+        <br>
+        <p class="text-slate-400">// 3. 创建伴读播放器并载入长文章 (自动切片 ≤ 280 字符并静默预加载)</p>
+        <p><span class="text-blue-400">const</span> player = <span class="text-blue-400">new</span> ArticleAudioPlayer({</p>
+        <p>&nbsp;&nbsp;client,</p>
+        <p>&nbsp;&nbsp;defaultVoiceAlias: <span class="text-emerald-300">'standard_female_warm'</span>,</p>
+        <p>&nbsp;&nbsp;onChunkStart: (index, total, text) =&gt; {</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;console.log(<span class="text-emerald-300">`正在播报第 ${index + 1}/${total} 段: ${text}`</span>);</p>
+        <p>&nbsp;&nbsp;}</p>
+        <p>});</p>
+        <p>player.loadArticle(document.querySelector(<span class="text-emerald-300">'article'</span>).innerText);</p>
+        <p>player.play();</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 前端轻量模拟器脚本 (在本地未启动真实语音卡时支持高保真演示) -->
+  <script>
+    (function() {
+      const btnToggle = document.getElementById('btn-toggle');
+      const btnStop = document.getElementById('btn-stop');
+      const iconPlay = document.getElementById('icon-play');
+      const iconPause = document.getElementById('icon-pause');
+      const iconLoading = document.getElementById('icon-loading');
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      const currentTextDisplay = document.getElementById('current-text-display');
+      const chunkIndicator = document.getElementById('chunk-indicator');
+      const cacheBadge = document.getElementById('cache-badge');
+      const voiceSelect = document.getElementById('voice-select');
+      const speedButtons = document.querySelectorAll('.btn-speed');
+
+      const paragraphs = [
+        "生成式引擎优化 (GEO) 正在成为下一代企业获客与心智占领的关键战场。与传统 SEO 追求搜索结果列表的第一名不同，GEO 致力于让品牌成为各大 AI 模型（如豆包、Kimi、DeepSeek 等）生成回答时的推荐信源。",
+        "很多企业投入了大量人力编写常规宣传稿，但在 AI 模型眼里，这些内容缺乏权威事实支撑、数据量化不足，且没有配备大模型友好的结构化协议。",
+        "通过部署 Clean Markdown、Schema.org 实体图谱以及针对自然语言断句调优的 AI 伴读语音流，企业可以实现人机协同的完整数字化交付。"
+      ];
+
+      let currentIndex = 0;
+      let isPlaying = false;
+      let timer = null;
+      let progress = 0;
+      let speed = 1.0;
+      const cachedChunks = new Set([0]); // 模拟第 1 段已进本地缓存
+
+      function updateUI() {
+        chunkIndicator.textContent = `第 ${currentIndex + 1} / ${paragraphs.length} 段`;
+        currentTextDisplay.textContent = `"${paragraphs[currentIndex]}"`;
+        
+        // 高亮对应段落
+        for (let i = 0; i < paragraphs.length; i++) {
+          const el = document.getElementById(`p-${i}`);
+          if (el) {
+            if (i === currentIndex && isPlaying) {
+              el.classList.add('active-chunk');
+            } else {
+              el.classList.remove('active-chunk');
+            }
+          }
+        }
+
+        // 缓存标识
+        if (cachedChunks.has(currentIndex)) {
+          cacheBadge.classList.remove('hidden');
+        } else {
+          cacheBadge.classList.add('hidden');
+        }
+      }
+
+      function startPlay() {
+        isPlaying = true;
+        iconPlay.classList.add('hidden');
+        iconPause.classList.remove('hidden');
+        updateUI();
+
+        timer = setInterval(() => {
+          progress += (2 * speed);
+          if (progress > 100) {
+            progress = 0;
+            cachedChunks.add(currentIndex); // 播完沉淀至本地缓存
+            if (currentIndex + 1 < paragraphs.length) {
+              currentIndex++;
+              updateUI();
+            } else {
+              stopPlay();
+              return;
+            }
+          }
+          progressBar.style.width = progress + '%';
+          progressText.textContent = Math.round(progress) + '%';
+        }, 100);
+      }
+
+      function pausePlay() {
+        isPlaying = false;
+        clearInterval(timer);
+        iconPause.classList.add('hidden');
+        iconPlay.classList.remove('hidden');
+        updateUI();
+      }
+
+      function stopPlay() {
+        pausePlay();
+        currentIndex = 0;
+        progress = 0;
+        progressBar.style.width = '0%';
+        progressText.textContent = '0%';
+        currentTextDisplay.textContent = '点击播放按钮即可开始智能朗读当前文章...';
+        chunkIndicator.textContent = '等待就绪';
+        cacheBadge.classList.add('hidden');
+        updateUI();
+      }
+
+      btnToggle.addEventListener('click', () => {
+        if (isPlaying) pausePlay();
+        else startPlay();
+      });
+
+      btnStop.addEventListener('click', stopPlay);
+
+      voiceSelect.addEventListener('change', () => {
+        cachedChunks.clear(); // 换音色清缓存
+        if (isPlaying) {
+          pausePlay();
+          startPlay();
+        }
+      });
+
+      speedButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          speedButtons.forEach(b => {
+            b.className = 'btn-speed px-2 py-0.5 text-xs rounded text-slate-500 hover:text-slate-800';
+          });
+          btn.className = 'btn-speed px-2 py-0.5 text-xs rounded bg-purple-100 text-[#7c5bf5] font-semibold';
+          speed = parseFloat(btn.dataset.speed);
+        });
+      });
+
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

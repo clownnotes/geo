@@ -493,6 +493,7 @@ ROUTE_PUBLIC = frozenset({
     "/api/v1/auth/wechat-qr",
     "/api/v1/community/auth/wx-login",
     "/api/llm/status",
+    "/api/voice/article-chunk",
 })
 
 # 公开前缀（分享链接靠 URL 内的 token 自证，不走登录态）

@@ -1,6 +1,6 @@
 <template>
   <!-- [2026-09-23] [阶段零组件化] 中间多 Tab 代码与文本编辑器子组件 -->
-  <section class="flex-1 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
+  <section class="flex-1 min-w-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
     <!-- Tab 标签栏 + 右侧快捷操作 -->
     <div class="bg-slate-50 border-b border-slate-200 flex items-center justify-between px-2 pt-2 gap-2 overflow-x-auto select-none">
       <!-- 打开的文件标签列表 -->

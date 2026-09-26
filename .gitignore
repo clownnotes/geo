@@ -24,4 +24,6 @@ projects/*/outputs/site/
 projects/*/outputs/assets/
 projects/*/outputs/*_geo_delivery_archive.zip
 projects/*/outputs/*delivery*.zip
+storage/
+
 

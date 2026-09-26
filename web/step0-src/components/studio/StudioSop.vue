@@ -1,6 +1,6 @@
 <template>
   <!-- [2026-09-23] [阶段零子页面纯粹化] 右侧 SOP 面板：阶段零极简两步闭环，0.2 贴回答后直接收口通关 -->
-  <aside class="w-full lg:w-84 shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
+  <aside class="w-full lg:w-80 shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
     <!-- 顶栏：显示当前小步交付动作 (字号对齐反重力 IDE 顶栏) -->
     <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">

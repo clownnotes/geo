@@ -19,6 +19,10 @@ source_client: "geo-custom-brand"
 # 支持从环境变量 NEXTDOOR_JWT_TOKEN 覆盖
 jwt_token: "your_nextdoor_jwt_token_here"
 
-# 6. 超时配置
+# 6. 开放平台机器密钥 (ndsk_ 开头，仅保存在后端环境变量或配置中，严禁写在前端)
+# 支持从环境变量 NEXTDOOR_VOICE_KEY 覆盖
+voice_key: "ndsk_your_voice_machine_key_here"
+
+# 7. 超时配置
 header_timeout_sec: 15
 json_timeout_sec: 15

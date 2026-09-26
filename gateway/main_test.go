@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -181,3 +182,260 @@ func (p *pipeResponseWriter) Write(b []byte) (int, error) {
 }
 func (p *pipeResponseWriter) WriteHeader(statusCode int) { p.code = statusCode }
 func (p *pipeResponseWriter) Flush()                     {}
+
+// =========================================================================
+// 5. 语音模块 (Voice) 安全代理测试套件
+// =========================================================================
+
+// 5.0 测试公网默认严密阻断任意文本 TTS 代理 (未显式开启 ALLOW_OPEN_TTS_PROXY=1 时返回 403 / 40301)
+func TestVoiceTTSForbiddenByDefault(t *testing.T) {
+	t.Setenv("ALLOW_OPEN_TTS_PROXY", "")
+	cfg := defaultConfig()
+	cfg.VoiceKey = "ndsk_test_key"
+	mux := setupMux(cfg)
+
+	body := bytes.NewBufferString(`{"text":"测试公网未授权代理拦截"}`)
+	req := httptest.NewRequest("POST", "/api/open/v1/voice/tts", body)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusForbidden {
+		t.Fatalf("未开启代理标志时预期 403 Forbidden, 实际得到: %d", rec.Code)
+	}
+	var res map[string]interface{}
+	_ = json.Unmarshal(rec.Body.Bytes(), &res)
+	if int(res["code"].(float64)) != 40301 {
+		t.Fatalf("预期安全拦截错误码 40301, 实际得到: %v", res["code"])
+	}
+}
+
+// 5.1 测试未配置 VoiceKey 时严密拒绝 401 / 40101
+func TestVoiceTTSMissingKeyRejection(t *testing.T) {
+	t.Setenv("ALLOW_OPEN_TTS_PROXY", "1")
+	cfg := defaultConfig()
+	cfg.VoiceKey = ""
+	cfg.AllowMissingJWT = false
+	mux := setupMux(cfg)
+
+	body := bytes.NewBufferString(`{"text":"测试未配置密钥"}`)
+	req := httptest.NewRequest("POST", "/api/open/v1/voice/tts", body)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("未配置 VoiceKey 预期状态码 401, 实际得到: %d", rec.Code)
+	}
+
+	var res map[string]interface{}
+	_ = json.Unmarshal(rec.Body.Bytes(), &res)
+	if int(res["code"].(float64)) != 40101 {
+		t.Fatalf("预期业务错误码 40101, 实际得到: %v", res["code"])
+	}
+}
+
+// 5.2 测试文本超过 2000 字符硬顶拦截 400 / 40001
+func TestVoiceTTSTextTruncation(t *testing.T) {
+	t.Setenv("ALLOW_OPEN_TTS_PROXY", "1")
+	cfg := defaultConfig()
+	cfg.VoiceKey = "ndsk_test_key"
+	mux := setupMux(cfg)
+
+	// 构造 2001 字符超长文本 (对齐上游 2000 字符限制)
+	overLimitText := strings.Repeat("字", 2001)
+	payload, _ := json.Marshal(map[string]string{"text": overLimitText})
+	req := httptest.NewRequest("POST", "/api/open/v1/voice/tts", bytes.NewReader(payload))
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("超过 2000 字符预期被拒绝为 400 Bad Request, 实际得到: %d", rec.Code)
+	}
+
+	var res map[string]interface{}
+	_ = json.Unmarshal(rec.Body.Bytes(), &res)
+	if int(res["code"].(float64)) != 40001 {
+		t.Fatalf("预期业务错误码 40001, 实际得到: %v", res["code"])
+	}
+}
+
+// 5.3 测试彻底剥离客户端 Authorization，强制使用服务端 VoiceKey
+func TestVoiceOpenProxyAuthorizationStripping(t *testing.T) {
+	t.Setenv("ALLOW_OPEN_TTS_PROXY", "1")
+	var capturedAuth string
+	var capturedSourceClient string
+
+	// 构造模拟上游
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedAuth = r.Header.Get("Authorization")
+		capturedSourceClient = r.Header.Get("vio-source-client")
+		w.Header().Set("Content-Type", "audio/mpeg")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("fake-mp3-bytes"))
+	}))
+	defer upstream.Close()
+
+	cfg := defaultConfig()
+	cfg.BaseURL = upstream.URL
+	cfg.SourceClient = "geo-test"
+	cfg.VoiceKey = "ndsk_server_secret_voice_key"
+	mux := setupMux(cfg)
+
+	body := bytes.NewBufferString(`{"text":"正常短文本"}`)
+	req := httptest.NewRequest("POST", "/api/open/v1/voice/tts", body)
+	// 客户端恶意或误传 Authorization
+	req.Header.Set("Authorization", "Bearer evil_client_jwt_or_key")
+
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("预期成功 200, 实际得到: %d", rec.Code)
+	}
+	// 断言上游收到的是服务端 VoiceKey，而不是客户端的 evil token
+	expectedAuth := "Bearer ndsk_server_secret_voice_key"
+	if capturedAuth != expectedAuth {
+		t.Fatalf("客户端 Authorization 未被彻底剥离！预期上游收到 %s, 实际收到: %s", expectedAuth, capturedAuth)
+	}
+	if capturedSourceClient != "geo-test" {
+		t.Fatalf("上游未收到正确的 source_client: %s", capturedSourceClient)
+	}
+}
+
+// 5.4 测试单 IP 触发防刷限流 429 / 42901
+func TestVoiceTTSRateLimiting(t *testing.T) {
+	t.Setenv("ALLOW_OPEN_TTS_PROXY", "1")
+	cfg := defaultConfig()
+	cfg.VoiceKey = "ndsk_test_key"
+	mux := setupMux(cfg)
+
+	// 临时创建一个极小限额限流器用于快速单测
+	origLimiter := voiceTTSLimiter
+	voiceTTSLimiter = newIPRateLimiter(2, 1*time.Minute)
+	defer func() { voiceTTSLimiter = origLimiter }()
+
+	payload := `{"text":"限流测试文本"}`
+	testIP := "192.168.100.200:12345"
+
+	// 第 1 次：允许
+	req1 := httptest.NewRequest("POST", "/api/open/v1/voice/tts", bytes.NewBufferString(payload))
+	req1.RemoteAddr = testIP
+	rec1 := httptest.NewRecorder()
+	mux.ServeHTTP(rec1, req1)
+	if rec1.Code == http.StatusTooManyRequests {
+		t.Fatalf("第 1 次请求不应被限流")
+	}
+
+	// 第 2 次：允许
+	req2 := httptest.NewRequest("POST", "/api/open/v1/voice/tts", bytes.NewBufferString(payload))
+	req2.RemoteAddr = testIP
+	rec2 := httptest.NewRecorder()
+	mux.ServeHTTP(rec2, req2)
+	if rec2.Code == http.StatusTooManyRequests {
+		t.Fatalf("第 2 次请求不应被限流")
+	}
+
+	// 第 3 次：触发限流 429
+	req3 := httptest.NewRequest("POST", "/api/open/v1/voice/tts", bytes.NewBufferString(payload))
+	req3.RemoteAddr = testIP
+	rec3 := httptest.NewRecorder()
+	mux.ServeHTTP(rec3, req3)
+	if rec3.Code != http.StatusTooManyRequests {
+		t.Fatalf("第 3 次请求预期被限流 429, 实际得到: %d", rec3.Code)
+	}
+
+	var res map[string]interface{}
+	_ = json.Unmarshal(rec3.Body.Bytes(), &res)
+	if int(res["code"].(float64)) != 42901 {
+		t.Fatalf("预期限流业务码 42901, 实际得到: %v", res["code"])
+	}
+}
+
+// 5.5 测试官网文章伴读切片接口 (POST /api/voice/article-chunk)
+func TestArticleChunkEndpoint(t *testing.T) {
+	var upstreamCalled int32
+	var capturedVoiceReq map[string]interface{}
+
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&upstreamCalled, 1)
+		_ = json.NewDecoder(r.Body).Decode(&capturedVoiceReq)
+		w.Header().Set("Content-Type", "audio/mpeg")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("mock-mp3-stream-data"))
+	}))
+	defer upstream.Close()
+
+	cfg := defaultConfig()
+	cfg.BaseURL = upstream.URL
+	cfg.VoiceKey = "ndsk_chunk_test_key"
+	mux := setupMux(cfg)
+
+	// 准备临时缓存目录并清空测试残留
+	cacheFile := "storage/audio_cache/ai-agents-unbundle-search-direct-answers_0_standard_female_warm.mp3"
+	_ = os.Remove(cacheFile)
+	defer os.Remove(cacheFile)
+
+	// Case A: 非法方法 GET
+	reqGet := httptest.NewRequest("GET", "/api/voice/article-chunk", nil)
+	recGet := httptest.NewRecorder()
+	mux.ServeHTTP(recGet, reqGet)
+	if recGet.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("GET 请求预期 405, 实际得到: %d", recGet.Code)
+	}
+
+	// Case B: 路径穿越非法 article_id
+	badBody := bytes.NewBufferString(`{"article_id":"../../etc/passwd","chunk_index":0}`)
+	reqBad := httptest.NewRequest("POST", "/api/voice/article-chunk", badBody)
+	recBad := httptest.NewRecorder()
+	mux.ServeHTTP(recBad, reqBad)
+	if recBad.Code != http.StatusBadRequest {
+		t.Fatalf("路径穿越预期 400, 实际得到: %d", recBad.Code)
+	}
+
+	// Case C: 文章未找到 404
+	notFoundBody := bytes.NewBufferString(`{"article_id":"non-existent-article-xyz","chunk_index":0}`)
+	reqNotFound := httptest.NewRequest("POST", "/api/voice/article-chunk", notFoundBody)
+	recNotFound := httptest.NewRecorder()
+	mux.ServeHTTP(recNotFound, reqNotFound)
+	if recNotFound.Code != http.StatusNotFound {
+		t.Fatalf("不存在文章预期 404, 实际得到: %d", recNotFound.Code)
+	}
+
+	// Case D: 首次正常请求 (MISS -> 请求上游小毛驴 -> 写入磁盘缓存)
+	validBody := bytes.NewBufferString(`{"article_id":"ai-agents-unbundle-search-direct-answers","chunk_index":0,"voice":"standard_female_warm"}`)
+	reqValid := httptest.NewRequest("POST", "/api/voice/article-chunk", validBody)
+	recValid := httptest.NewRecorder()
+	mux.ServeHTTP(recValid, reqValid)
+
+	if recValid.Code != http.StatusOK {
+		t.Fatalf("首次正常请求预期 200, 实际得到: %d, body: %s", recValid.Code, recValid.Body.String())
+	}
+	if recValid.Header().Get("X-GEO-Cache") != "MISS" {
+		t.Fatalf("首次请求预期 X-GEO-Cache: MISS, 实际: %s", recValid.Header().Get("X-GEO-Cache"))
+	}
+	if recValid.Body.String() != "mock-mp3-stream-data" {
+		t.Fatalf("返回音频内容与上游不一致: %s", recValid.Body.String())
+	}
+	if atomic.LoadInt32(&upstreamCalled) != 1 {
+		t.Fatalf("预期上游被调用 1 次, 实际: %d", atomic.LoadInt32(&upstreamCalled))
+	}
+	// 断言向小毛驴发出的上游请求使用的是标准契约字段
+	if capturedVoiceReq["voice"] != "standard_female_warm" || capturedVoiceReq["rate"] != 1.0 {
+		t.Fatalf("上游请求字段与契约不符: %+v", capturedVoiceReq)
+	}
+
+	// Case E: 二次请求命中 30 天 LRU 本地磁盘缓存 (HIT -> 0 上游调用)
+	reqHit := httptest.NewRequest("POST", "/api/voice/article-chunk", bytes.NewBufferString(`{"article_id":"ai-agents-unbundle-search-direct-answers","chunk_index":0,"voice":"standard_female_warm"}`))
+	recHit := httptest.NewRecorder()
+	mux.ServeHTTP(recHit, reqHit)
+
+	if recHit.Code != http.StatusOK {
+		t.Fatalf("二次缓存命中请求预期 200, 实际得到: %d", recHit.Code)
+	}
+	if recHit.Header().Get("X-GEO-Cache") != "HIT" {
+		t.Fatalf("二次请求预期 X-GEO-Cache: HIT, 实际: %s", recHit.Header().Get("X-GEO-Cache"))
+	}
+	// 上游调用次数应该仍然为 1 (0 上游调用)
+	if atomic.LoadInt32(&upstreamCalled) != 1 {
+		t.Fatalf("二次缓存命中请求不应调用上游！实际调用次数: %d", atomic.LoadInt32(&upstreamCalled))
+	}
+}
