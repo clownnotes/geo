@@ -46,6 +46,10 @@ from .auth_sso import get_auth_client, DEFAULT_NEXTDOOR_BASE_URL, DEFAULT_SOURCE
 from .idgen import new_id
 from .task_runner import get_task_manager, TaskStatus, GeoTask
 from .kb_client import get_kb_client
+from .llm import load_dotenv
+
+# 加载 .env 环境变量
+load_dotenv()
 
 # [2026-09-18] [接入小毛驴统一API] 废除本地独立硬编码账密，全面收敛至小毛驴统一用户中心
 
@@ -55,6 +59,25 @@ os.makedirs(DATA_DIR, exist_ok=True)
 SESSIONS_FILE = os.path.join(DATA_DIR, "sessions.json")
 SESSION_TIMEOUT_HOURS = 24 * 30  # 30 天超长有效期，避免频繁登录
 WEB_DIR = os.path.join(PROJECT_ROOT, "web")
+
+# [2026-09-26] [伴读专线安全护栏] 针对 /api/voice/article-chunk 的 IP 令牌桶限流 (60次/分钟)
+VOICE_CHUNK_RATE_LIMIT = 60
+VOICE_CHUNK_IP_RECORDS = {}
+VOICE_CHUNK_LOCK = threading.Lock()
+
+def check_voice_rate_limit(ip: str) -> bool:
+    """校验客户端 IP 在 60 秒内的伴读请求次数，超过 60 次拦截"""
+    now = time.time()
+    with VOICE_CHUNK_LOCK:
+        records = VOICE_CHUNK_IP_RECORDS.get(ip, [])
+        records = [t for t in records if now - t < 60.0]
+        if len(records) >= VOICE_CHUNK_RATE_LIMIT:
+            VOICE_CHUNK_IP_RECORDS[ip] = records
+            return False
+        records.append(now)
+        VOICE_CHUNK_IP_RECORDS[ip] = records
+        return True
+
 
 def load_sessions() -> dict:
     """从磁盘加载未过期的会话缓存"""
@@ -156,6 +179,7 @@ def is_authenticated(token: str) -> bool:
 
 class GeoWebHandler(SimpleHTTPRequestHandler):
     """自定义 HTTP 请求处理器"""
+    protocol_version = "HTTP/1.1"
 
     def log_message(self, format, *args):
         """屏蔽默认的 HTTP 访问日志噪音，只保留关键错误"""
@@ -340,11 +364,13 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
     def _serve_404_not_found(self):
         """未登录或未授权请求标准 404 响应，绝不返回文件内容与仓库路径"""
+        msg = b"404 Not Found"
         self.send_response(404)
         self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(msg)))
         self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
         self.end_headers()
-        self.wfile.write(b"404 Not Found")
+        self.wfile.write(msg)
 
     def console_gate(self, path: str, method: str) -> bool:
         """
@@ -403,6 +429,10 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
             (method == "GET" and path == "/api/auth/status")
         )
         if is_login_api:
+            return True
+
+        # 2.2 [2026-09-26] [伴读专线放行] 文章智能伴读切片公开接口（免密公开，防刷由专线令牌桶限流防护）
+        if path == "/api/voice/article-chunk" and method in ("GET", "POST", "HEAD"):
             return True
 
         # 3. 其它任何内部请求（包括 /.env, /tools/geo/server.py, /AGENTS.md, /docs/, /api/projects 等）：一律 404
@@ -464,6 +494,197 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
         except Exception:
             return {}
 
+    def _send_audio_data(self, audio_data: bytes, cache_hit: str):
+        total_len = len(audio_data)
+        range_header = self.headers.get("Range")
+        if range_header and range_header.startswith("bytes="):
+            ranges = range_header[len("bytes="):].strip().split("-")
+            try:
+                start = int(ranges[0]) if ranges[0] else 0
+                end = int(ranges[1]) if len(ranges) > 1 and ranges[1] else total_len - 1
+                if end >= total_len:
+                    end = total_len - 1
+                content_len = end - start + 1
+                self.send_response(206)
+                self.send_header("Content-Type", "audio/mpeg")
+                self.send_header("Content-Range", f"bytes {start}-{end}/{total_len}")
+                self.send_header("Content-Length", str(content_len))
+                self.send_header("Accept-Ranges", "bytes")
+                self.send_header("X-GEO-Cache", cache_hit)
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Access-Control-Expose-Headers", "X-GEO-Cache, Content-Length, Content-Range, Accept-Ranges")
+                self.end_headers()
+                self.wfile.write(audio_data[start:end+1])
+                return
+            except Exception:
+                pass
+
+        self.send_response(200)
+        self.send_header("Content-Type", "audio/mpeg")
+        self.send_header("Content-Length", str(total_len))
+        self.send_header("Accept-Ranges", "bytes")
+        self.send_header("X-GEO-Cache", cache_hit)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Expose-Headers", "X-GEO-Cache, Content-Length, Accept-Ranges")
+        self.end_headers()
+        self.wfile.write(audio_data)
+
+    def handle_article_chunk(self):
+        """
+        [2026-09-26] [文章智能伴读切片中继] 生产 SSOT 原生伴读专线
+        1. 针对客户端 IP 进行 60次/分钟令牌桶限流，超限返回 429
+        2. 仅接收 { article_id, chunk_index, voice }，杜绝任意文本透传
+        3. 优先探测本地 30 天 LRU 磁盘缓存 (storage/audio_cache/{id}_{chunk}_{voice}.mp3)
+        4. 缓存未命中时从本地 assets/audio_meta/{id}.json 提取段落文字
+        5. 通过 NE1 本地回环 (NEXTDOOR_BASE_URL) 代持密钥请求小毛驴开发/生产后端
+        6. 写入本地 30 天磁盘缓存并流式透传 audio/mpeg
+        """
+        import urllib.request
+        import urllib.error
+
+        # 1. 客户端 IP 限流 (60次/分钟)
+        client_ip = self.get_client_ip()
+        if not check_voice_rate_limit(client_ip):
+            self.send_json({"code": 429, "msg": "请求过于频繁，请稍后再试 (Rate limit exceeded: 60/min)"}, status=429)
+            return
+
+        # 2. 读取并校验入参 (支持 GET 原生 <audio src> 播放与 POST 契约请求)
+        if getattr(self, "command", "POST") == "GET":
+            qs = parse_qs(urlparse(self.path).query)
+            article_id = (qs.get("article_id") or [""])[0].strip()
+            raw_chunk = (qs.get("chunk_index") or ["0"])[0]
+            voice = (qs.get("voice") or ["standard_female_warm"])[0].strip()
+        else:
+            body = self.read_json_body()
+            article_id = str(body.get("article_id") or "").strip()
+            raw_chunk = body.get("chunk_index")
+            voice = str(body.get("voice") or "standard_female_warm").strip()
+
+        # 强正则白名单，防目录遍历 (铁律防御)
+        if not article_id or not re.match(r"^[a-zA-Z0-9_-]+$", article_id):
+            self.send_json({"code": 400, "msg": "非法或缺失的 article_id (仅允许字母、数字、下划线与短横线)"}, status=400)
+            return
+
+        try:
+            chunk_index = int(raw_chunk)
+            if chunk_index < 0:
+                raise ValueError()
+        except (ValueError, TypeError):
+            self.send_json({"code": 400, "msg": "chunk_index 必须为非负整数"}, status=400)
+            return
+
+        # 3. 检查本地磁盘 30 天 LRU 缓存
+        cache_dir = os.path.join(PROJECT_ROOT, "storage", "audio_cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        cache_file = os.path.join(cache_dir, f"{article_id}_{chunk_index}_{voice}.mp3")
+
+        if os.path.exists(cache_file):
+            mtime = os.path.getmtime(cache_file)
+            if time.time() - mtime < 30 * 86400:
+                try:
+                    with open(cache_file, "rb") as f:
+                        audio_data = f.read()
+                    self._send_audio_data(audio_data, "HIT")
+                    return
+                except Exception:
+                    pass
+
+        # 4. 读取切片索引元数据
+        meta_paths = [
+            os.path.join(PROJECT_ROOT, "projects", "nextgeo", "outputs", "site", "assets", "audio_meta", f"{article_id}.json"),
+            os.path.join(PROJECT_ROOT, "projects", "nextgeo", "outputs", "assets", "audio_meta", f"{article_id}.json"),
+            os.path.join(PROJECT_ROOT, "outputs", "site", "assets", "audio_meta", f"{article_id}.json"),
+            os.path.join(PROJECT_ROOT, "outputs", "assets", "audio_meta", f"{article_id}.json"),
+        ]
+        meta_file = None
+        for p in meta_paths:
+            if os.path.exists(p):
+                meta_file = p
+                break
+
+        if not meta_file:
+            self.send_json({"code": 404, "msg": f"未找到文章伴读切片元数据: {article_id}"}, status=404)
+            return
+
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+        except Exception as e:
+            self.send_json({"code": 500, "msg": f"解析文章伴读切片失败: {str(e)}"}, status=500)
+            return
+
+        chunks = meta.get("chunks", [])
+        if chunk_index >= len(chunks):
+            self.send_json({"code": 400, "msg": f"段落序号越界: {chunk_index} >= {len(chunks)}"}, status=400)
+            return
+
+        chunk_text = chunks[chunk_index].get("text", "").strip()
+        if not chunk_text:
+            self.send_json({"code": 400, "msg": "段落切片内容为空"}, status=400)
+            return
+
+        # 5. 代持机器密钥，NE1 本地回环请求小毛驴后端
+        base_url = os.environ.get("NEXTDOOR_BASE_URL", "").strip().rstrip("/")
+        if not base_url:
+            base_url = "http://127.0.0.1:3002"
+
+        voice_key = os.environ.get("NEXTDOOR_VOICE_KEY") or os.environ.get("NEXTDOOR_API_KEY") or ""
+        if not voice_key:
+            load_dotenv()
+            voice_key = os.environ.get("NEXTDOOR_VOICE_KEY") or os.environ.get("NEXTDOOR_API_KEY") or ""
+            base_url = os.environ.get("NEXTDOOR_BASE_URL", "").strip().rstrip("/") or base_url
+
+        if not voice_key:
+            self.send_json({"code": 500, "msg": "GEO 服务端未配置 NEXTDOOR_VOICE_KEY / NEXTDOOR_API_KEY"}, status=500)
+            return
+
+        req_payload = {
+            "text": chunk_text,
+            "voice": voice,
+            "rate": 1.0,
+            "pitch": 1.0,
+            "async": False
+        }
+        req_data = json.dumps(req_payload).encode("utf-8")
+        tts_url = f"{base_url}/api/open/v1/voice/tts"
+
+        req = urllib.request.Request(tts_url, data=req_data, headers={
+            "Authorization": f"Bearer {voice_key}",
+            "vio-source-client": "geo",
+            "Content-Type": "application/json",
+            "User-Agent": "GEO-Server-8088/1.0"
+        })
+
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                status_code = resp.getcode()
+                content_type = resp.headers.get("Content-Type", "")
+                audio_data = resp.read()
+
+                if status_code == 200 and "audio" in content_type:
+                    # 写入 30 天磁盘缓存 (原子重命名防并发损坏)
+                    try:
+                        tmp_file = f"{cache_file}.tmp_{os.getpid()}_{int(time.time()*1000)}"
+                        with open(tmp_file, "wb") as f:
+                            f.write(audio_data)
+                        os.replace(tmp_file, cache_file)
+                    except Exception:
+                        pass
+
+                    # 流式透传给浏览器 (支持原生 Range 请求与 Safari 硬件解码)
+                    self._send_audio_data(audio_data, "MISS")
+                    return
+                else:
+                    self.send_json({"code": 502, "msg": "上游未返回预期音频流"}, status=502)
+                    return
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode("utf-8", errors="ignore")
+            self.send_json({"code": e.code, "msg": f"小毛驴语音后端响应异常: {err_body}"}, status=e.code)
+            return
+        except Exception as e:
+            self.send_json({"code": 502, "msg": f"请求小毛驴语音后端失败: {str(e)}"}, status=502)
+            return
+
     def do_POST(self):
         from .utils import load_project_config
         parsed = urlparse(self.path)
@@ -471,6 +692,11 @@ class GeoWebHandler(SimpleHTTPRequestHandler):
 
         # [2026-09-19] [纯内部安全加固] 一道总门：未登录且不在白名单一律拦截
         if not self.console_gate(path, "POST"):
+            return
+
+        # 0. [2026-09-26] [文章智能伴读切片中继] 生产 SSOT 原生伴读专线 (公开免密，带 60次/分 IP 限流与 30天本地磁盘缓存)
+        if path == "/api/voice/article-chunk":
+            self.handle_article_chunk()
             return
 
         # 1. [2026-09-18] [接入小毛驴统一API] 登录认证接口 (全面收敛至小毛驴，公开)
@@ -2974,6 +3200,11 @@ core_values:
 
         # [2026-09-19] [纯内部安全加固] 一道总门：未登录且不在白名单一律拦截
         if not self.console_gate(path, "GET"):
+            return
+
+        # 0. [2026-09-26] [文章智能伴读切片中继] 原生伴读专线 GET 请求支持 (原生 <audio src> 流式播放与缓存)
+        if path == "/api/voice/article-chunk":
+            self.handle_article_chunk()
             return
 
         # [2026-09-19] [运营账号反AI抓取] /api/share/** 只服务匿名甲方客户。
