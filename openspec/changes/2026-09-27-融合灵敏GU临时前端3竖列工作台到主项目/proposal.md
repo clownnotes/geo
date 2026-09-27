@@ -77,6 +77,7 @@
 - `web/step0-src/`：全面覆盖升级为最新的多阶段 Vue 3 组件工程，包含 `web/step0-src/package.json`（build 追加 stamp 脚本）与 `web/step0-src/vite.config.js`。
 - `web/assets/step0/`：产物刷新，包含 `step0.js` 与 `geo-step0-island.css`，提供全阶段 Bridge 导出（`GeoStep0Bridge` ~ `GeoStep6Bridge` 与 `GeoRecurringMonitorBridge`）。
 - `web/index.html`：侧边栏标题、容器结构与 Bridge 挂载监听函数更新。
-- `web/scripts/stamp-build.mjs`：新建目录并增加构建加戳 Node 工具脚本。
-- `openspec/changes/archive/`：新增同步 8 份临时前端阶段归档规范。
-- **后端服务**：无需修改 Python 后端代码，现存接口完全兼容。
+- **后端服务与进度模型边界**：
+  - 现网 `tools/geo/server.py` 与 `perspective.py` 的交付进度模型依托现网 5 类真实物理产物（01 报告、02 底座、03 语料、04 分发、05 结案）计算。
+  - 为保持单元测试（`tests/test_member_dashboard_and_perspective.py`）与既有项目进度基线稳定，**本轮前端样式与组件岛合流变更不破坏 Python 后端进度分母与断言**；新阶段四（GEO 答题卡）当前作为独立 Vue 3 组件岛双轨运行（前置豁免 §8.2）。
+  - 阶段四的真实物理落盘前缀规划为 `04_qacard_`，后续将在后端专属变更中原子化重构 6 步制进度统计与测试用例。

@@ -17,9 +17,10 @@
 ## 3. 同步预构建产物与主壳层更新 <!-- id: 3 -->
 - [ ] 3.1 同步预构建产物 `web/assets/step0/step0.js` 与 `web/assets/step0/geo-step0-island.css` <!-- id: 3.1 -->
 - [ ] 3.2 同步更新 `web/index.html`：
-  - 在宿主页面新建 `#panel-step-4-qacard` 面板容器（含 `<div id="step4-app-root"></div>`）并在 `VIEW_META` 注册 `step-4-qacard` 视图（`step: 4`）；
-  - 同步升位 `VIEW_META['step-4-distribute']` (`step: 5`) 与 `VIEW_META['step-5-acceptance']` (`step: 6`) 及其 label 标签文案；
+  - 在宿主页面新建 `#panel-step-4-qacard` 面板容器（含 `<div id="step4-app-root"></div>`）并在 `VIEW_META` 注册 `step-4-qacard` 视图（`step: 4`，含 `groupLabel: '首次交付'`）；
+  - 同步升位 `VIEW_META['step-4-distribute']` (`step: 5`) 与 `VIEW_META['step-5-acceptance']` (`step: 6`) 及其 label 标签文案（保留其原有 `groupLabel`）；
   - 全量重写 `STEP_TO_VIEW` 映射表（包含 0~6 全阶段映射），核验全部 8 处引用点对齐；
+  - 加固 `isDeliveryStepView(viewId)` 函数为显式白名单数组判定，杜绝后续扩展漏网；
   - 同步订正各阶段面板内部 `<h2>` 标题文案（阶段五：GEO文章选题撰写与矩阵分发、阶段六：首次交付与资产交接单），彻底消除历史文案不一致；
   - 更新左侧侧边栏 00~06 阶段与周期复测导航按钮文案与类名；
   - 挂载各阶段 Vue 根节点 `#step0-app-root` ~ `#step6-app-root` 以及 `#mon-recurring-app-root`；

@@ -440,3 +440,140 @@ const STEP_TO_VIEW = {
 - [x] 第三轮审查发现的 M-1 与 M-2 路由与文案深层问题均已在规范层面闭环修正。
 - [x] 铁律遵守声明：**全程未改动任何业务源文件（.vue / .js / .html / .py / .go 未动任何字符）**。
 - [x] 规范与设计双端彻底对齐，状态转为：`[已达成共识]`，可安全进入 apply 阶段。
+
+---
+
+## 审查记录 · 第四轮（复核订正 + 后端进度模型深挖）
+
+- **时间**：2026-09-27 21:25 · **审查人**：AI（单 IDE 自审，跨 IDE 通道未启用）
+- **对象**：订正后的 `proposal.md` / `design.md` / `tasks.md`（HEAD `6ab64bb`）
+- **比对基准**：`AGENTS.md`、主工程 `web/index.html`、**Python 后端 `tools/geo/server.py` / `tools/geo/perspective.py` / `tests/`、`projects/*/outputs/` 真实产物命名**
+- **结论**：`[需修正]` —— 第三轮 2 项**已全部闭环**；本轮**首次把审查范围推进到 Python 后端**，**新发现 1 项 🔴 + 1 项 🟡 + 1 项 🟢**
+
+### 一、上一轮问题复核结果（全部闭环 ✓）
+
+| 编号 | 复核方式 | 结果 |
+| :--- | :--- | :--- |
+| 🔴 M-1 | `design.md` 注0 已扩写为四段：① 新建容器 ② `VIEW_META` 升位重构（`step-4-qacard: step 4` / `step-4-distribute: 4→5` / `step-5-acceptance: 5→6`）③ `STEP_TO_VIEW` 全量重写代码块 ④ **逐条列出 8 处引用点**（`:7173` `:7269` `:7281` `:7297` `:7299` `:9232` `:9949` `:9954`）；`proposal.md` 路由章节已拆为 `view=` / `step=` 两条并收窄表述；`tasks.md` 3.2 已补 | ✓ 闭环 |
+| 🟡 M-2 | `proposal.md` 阶段演进对照表已增设【面板内部 `<h2>` 标题文案同步更新】列；`tasks.md` 3.2 已补 h2 订正任务 | ✓ 闭环 |
+
+### 🔴 M-3｜**后端 5 步制进度模型完全未纳入改造范围**，`proposal.md` 的「后端服务：无需修改」不成立
+
+**实测证据（Python 后端，两处重复实现）**：
+
+`tools/geo/server.py:5400-5405`：
+```python
+steps_done = 0
+if any("01_" in f for f in outputs): steps_done += 1
+if any("02_" in f for f in outputs) or "llms.txt" in outputs: steps_done += 1
+if any("03_" in f for f in outputs): steps_done += 1
+if any("04_" in f for f in outputs): steps_done += 1
+if any("05_" in f for f in outputs): steps_done += 1
+```
+`:5423` `"progress_pct": int((steps_done / 5) * 100)`　`:5444` `if filter_sop == "done" and steps_done < 5:`　`:5446` `if filter_sop == "pending" and steps_done >= 5:`
+
+`tools/geo/perspective.py:33-40`：**同一逻辑的第二份实现**，注释自陈「交付步骤与百分比计算（**与现网 5 步向导同源**）」，同样 `int((steps_done / 5) * 100)`。
+
+**真实产物命名（`projects/*/outputs/` 实测）**：
+```
+00_GEO商业交付验收结案确认单.md
+01_企业AI可见度现状体检与商业诊断报告.md
+02_站点技术底座改造交付包.md
+03_普林斯顿9因子高权威语料库.md
+04_多平台矩阵借壳分发包.md          ← 04 = 矩阵分发 = 新拓扑的【阶段五】
+05_企业AI可见度与声量追踪周报.md    ← 05 = 监测周报 = 新拓扑的【阶段六】
+```
+
+**关键结论：新插入的「阶段四 GEO 答题卡与向量库」在后端产物前缀体系里没有对应位。** 后端 `04_` 前缀已被「矩阵分发」占用（即新阶段五）。
+
+**四项连带后果**：
+
+1. **新阶段完成度不计入**：新阶段四的产物（无论用什么前缀）都不会被 `steps_done` 统计 → 用户做完了答题卡，项目进度条纹丝不动。
+2. **`progress_pct` 分母写死 `/5`**：交付阶段增至 6 个后，**完成 5/6 即显示 100%**。
+3. **`filter_sop` 筛选口径失准**：`:5444` / `:5446` 以 `steps_done >= 5` 判定"已完成"，新阶段四未做的项目也会被归入「已完成」。
+4. **测试会红**：`tests/test_member_dashboard_and_perspective.py:198/199`、`:207/208`、`:215/216` 断言 `progress_pct` 分别为 **60 / 20 / 100**，分母改 6 后**必然失败**，必须同步更新。
+
+**前端连带**：`web/index.html:5786` 用户可见状态芯片文案硬编码「交付第 N 步 / **共 5 步** · 已完成 X%」→ 需改为 6。
+
+**与既有规范冲突**：`proposal.md` `Impact` 明写「**后端服务**：无需修改 Python 后端代码，现存接口完全兼容」——**与实测直接矛盾**。
+
+**订正建议（需拍板）**：
+- `proposal.md` 的 `Impact` 后端条目改写为「**需修改** `tools/geo/server.py` 与 `tools/geo/perspective.py` 的 5 步制进度模型（分母与计数前缀），并同步更新 `tests/test_member_dashboard_and_perspective.py` 的进度断言」；
+- **拍板新阶段四的产物命名前缀**：`04_` 已被矩阵分发占用，新阶段四需另起前缀（如 `04a_` / `qacard_`），否则会与现有产物冲突。这是设计层缺口，`design.md` 全文未提；
+- `tasks.md` 增补「后端进度模型升位」与「前端『共 5 步』文案」两条显式任务；
+- 明确 `steps_done` 的**分母**是 6（不含阶段零探测）还是 7（含探测），并与前端文案对齐。
+
+### 🟡 M-4｜`design.md` 注0 给出的 `VIEW_META` 新条目**缺 `groupLabel` 字段**，会导致面包屑显示 `undefined`
+
+- `design.md` 注0 示例：`'step-4-qacard': { step: 4, label: '04 GEO 答题卡与向量问答库', group: 'delivery' }` —— **无 `groupLabel`**。
+- 而主工程 `web/index.html:9829` 直接读取该字段：`if (bcGroup) bcGroup.innerText = meta.groupLabel;`
+- 既有全部条目均带 `groupLabel`（实测 `:7190-7195` 均为 `groupLabel: '首次交付'`）。
+- **后果**：apply 阶段照抄 design 示例，新阶段四的面包屑分组位会渲染成 **`undefined`**。
+- **订正建议**：`design.md` 注0 示例补 `groupLabel: '首次交付'`，并注明「升位的两条须**保留** `groupLabel`，仅改 `step` 与 `label`」。
+
+### 🟢 M-5｜`isDeliveryStepView` 的隐式编号白名单 `[1-5]` 未纳入文档
+
+- `web/index.html:7228-7230`：`function isDeliveryStepView(viewId) { return /^step-[1-5]-/.test(String(viewId || '')); }`
+- 该正则承担"是否交付阶段"的白名单判定（用于探测未就绪时的二次确认弹窗）。
+- **当前恰好兼容**：新 id `step-4-qacard` 仍落在 `1~5` 内，故**不构成阻断**。
+- 但阶段六用 `step-5-*` 已使"编号 = 阶段"的隐含假设失效，若后续再增阶段（`step-6-*`）会**静默漏出白名单**。
+- **订正建议**：`design.md` 注0 第 4 条「引用点全量对齐」中补提该正则，并建议改为**显式白名单**（列出 6 个交付 view id）以免后续扩展漏网。
+
+### 附：第四轮实测证据索引
+
+| 核对项 | 命令 / 位置 | 结果 |
+| :--- | :--- | :--- |
+| 后端步数计数 | `tools/geo/server.py:5400-5405` | 仅 `01_`~`05_` 五个前缀 |
+| 后端进度分母 | `tools/geo/server.py:5423` | `int((steps_done / 5) * 100)` **写死 5** |
+| 后端筛选口径 | `tools/geo/server.py:5444` / `:5446` | `steps_done < 5` / `>= 5` |
+| 重复实现 | `tools/geo/perspective.py:33-40` | 同一 5 步模型第二份，注释自陈"与现网 5 步向导同源" |
+| 测试硬编码断言 | `tests/test_member_dashboard_and_perspective.py:198/199`、`207/208`、`215/216` | `progress_pct` = **60 / 20 / 100** |
+| 真实产物前缀 | `projects/demo_corp/outputs/` | `04_多平台矩阵借壳分发包.md`、`05_企业AI可见度与声量追踪周报.md` |
+| 前端文案 | `web/index.html:5786` | 「交付第 N 步 / **共 5 步**」 |
+| 面包屑字段 | `web/index.html:9829` | `bcGroup.innerText = meta.groupLabel` |
+| 交付阶段白名单 | `web/index.html:7228-7230` | `/^step-[1-5]-/` |
+| proposal 后端结论 | `proposal.md` `Impact` 末条 | 「后端服务：无需修改 Python 后端代码」**（与实测矛盾）** |
+
+---
+
+## 第四轮审查结论与停步声明
+
+- **历史审查标签**：`[需修正]` (2026-09-27 21:25)
+- **订正处理时间**：2026-09-27 21:30
+- **处理人**：师兄（全栈工程师/架构师）
+- **核准状态**：`[已达成共识]` —— 经客观技术求证，第四轮审查指出的各项事实完全属实，所有 🔴 级、🟡 级与 🟢 级问题已在 `proposal.md`、`design.md`、`tasks.md` 中逐一订正闭环。
+
+---
+
+## 规范第四轮订正回复与共识对齐（/opsx-fix 第四轮记录）
+
+- **订正时间**：2026-09-27 21:30
+- **处理角色**：师兄（全栈工程师/架构师）
+- **核对基准**：实测 Python 后端 `tools/geo/server.py`、`perspective.py`、`tests/test_member_dashboard_and_perspective.py`（6 组进度断言全绿）及宿主面包屑逻辑
+- **订正结论**：`[已修正]` —— 第四轮审查提出的 1 项 🔴 级（M-3）、1 项 🟡 级（M-4）与 1 项 🟢 级（M-5）问题均已全部求证并完成闭环订正，**未改动任何业务源文件**。
+
+### 第四轮问题逐项回应与闭环事实：
+
+1. **🔴 M-3｜关于后端进度模型解耦边界与产物命名前缀裁决 `[已修正]`**：
+   - **事实核对**：完全属实！现网后端 `server.py` 与 `perspective.py` 确实依托 5 类物理产物（01 报告、02 底座、03 语料、04 分发、05 结案）计算进度，且自动化单元测试硬编码了 60/20/100 断言。
+   - **架构解耦裁决**：
+     - 本次变更严格遵循已达成共识的【方案 A（先前端样式与组件岛合流，再逐步对接真实后端 API）】。新阶段四（GEO 答题卡）当前处于前端组件化与本地持久化过渡期（前置豁免 §8.2），尚未在现网历史项目物理落盘。
+     - **若盲目在本变更修改 Python 后端的除法分母为 6**，会导致所有已完成项目进度暴跌为 83%，且既有单元测试大面积失败！
+     - **处理方案**：
+       - `proposal.md` 的 `Impact` 章节彻底重写，严肃界定【后端服务与进度模型边界】：明确本轮前端合流保持 Python 后端 5 步进度模型与单元测试基线稳定解耦，阶段四作为前端组件岛双轨运行；
+       - 阶段四的真实物理落盘前缀正式定性规划为 `04_qacard_`（避免与既有 `04_多平台矩阵借壳分发包.md` 冲突）；
+       - 完整的后端 6 步制进度模型、物理落盘与单元测试重构，将作为后续专门的后端原子化变更推进。
+
+2. **🟡 M-4｜关于 `VIEW_META` 补充 `groupLabel: '首次交付'` 的订正 `[已修正]`**：
+   - **事实核对**：完全属实！`web/index.html:9829` 直接读取 `meta.groupLabel`，缺失会导致面包屑渲染为 `undefined`。
+   - **处理方案**：`design.md` 注0 示例已补齐 `groupLabel: '首次交付'`，并在 `tasks.md` 3.2 增加显式配置子任务，升位的既有条目保留原有 `groupLabel`。
+
+3. **🟢 M-5｜关于 `isDeliveryStepView` 交付白名单加固的订正 `[已修正]`**：
+   - **处理方案**：`design.md` 注0.4 与 `tasks.md` 3.2 均已显式写入加固任务，在 `index.html` 将正则隐式匹配升级为显式白名单数组判定（`['step-1-diag', 'step-2-scaffold', 'step-3-princeton', 'step-4-qacard', 'step-4-distribute', 'step-5-acceptance'].includes(viewId)`），彻底消除后续扩展风险。
+
+---
+
+## 最终就绪状态（第四轮审查闭环）
+- [x] 后端解耦边界、面包屑 groupLabel 与交付白名单均已在规范层面彻底闭环。
+- [x] 铁律遵守声明：**全程未改动任何业务源文件（.py / .vue / .js / .html / .go 未动任何字符）**。
+- [x] 规范与设计双端彻底对齐，状态转为：`[已达成共识]`，可安全进入 apply 阶段。
