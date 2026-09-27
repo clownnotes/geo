@@ -58,7 +58,8 @@
 >    ```  
 > 4. **引用点与白名单全量对齐**：  
 >    - 核对并确保主工程内依赖 `STEP_TO_VIEW` 的全部 8 处引用（`:7173`、`:7269` 深链解析、`:7281` 缓存回退、`:7297` / `:7299` 路由落盘、`:9232` `enterWizard`、`:9949` / `:9954` 上下一步导航）以及 `currentStep = meta.step` 的门禁 UI（`updatePipelineGateUI`）步进完全统一；  
->    - 加固 `isDeliveryStepView(viewId)` 函数为显式交付白名单数组判定（`['step-1-diag', 'step-2-scaffold', 'step-3-princeton', 'step-4-qacard', 'step-4-distribute', 'step-5-acceptance'].includes(viewId)`），杜绝正则隐式匹配带来的遗漏隐患。  
+>    - 加固 `isDeliveryStepView(viewId)` 函数为显式交付白名单数组判定（`['step-1-diag', 'step-2-scaffold', 'step-3-princeton', 'step-4-qacard', 'step-4-distribute', 'step-5-acceptance'].includes(viewId)`），杜绝正则隐式匹配带来的遗漏隐患；  
+> 5. **产物落盘前缀防碰撞规范**：阶段四后续真实物理落盘前缀规范定为 `04a_qacard_`，后续后端演进必须采用精确前缀匹配（如 `f.startswith(prefix)` 且最长前缀优先），实测 `"04_" in "04a_qacard_..."` 为 `False`，绝不干扰既有 5 个项目的 `04_` 分发产物判定。  
 > **注1（历史编号保留铁律）**：宿主容器 `#panel-step-4-distribute`（对应 05 矩阵分发）与 `#panel-step-5-acceptance`（对应 06 商业验收）系主工程历史遗留命名，其内部根节点已准确对齐为 `#step5-app-root` 与 `#step6-app-root`。此为既有规范事实，**严禁在 apply 阶段擅自修改宿主面板 ID**。  
 > **注2（根节点与类名修正）**：周期运营挂载根节点规范订正为实测值 `#mon-recurring-app-root`，Bridge 导出类名规范订正为 `GeoRecurringMonitorBridge`。
 
