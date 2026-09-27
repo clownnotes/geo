@@ -21,10 +21,10 @@
 3. **主壳层页面与侧边栏映射升级**：
    - 同步升级 `web/index.html`，更新左侧导航栏（00 现状摸底、01 商业诊断、02 普林斯顿母盘、03 交钥匙官网、04 GEO答题卡、05 矩阵分发、06 商业验收、周期复测）。
    - **在宿主页面全新创建 `#panel-step-4-qacard` 面板容器**，并挂载各阶段的根节点容器（`#step0-app-root` ~ `#step6-app-root` 及 `#mon-recurring-app-root`），在切换标签时触发对应 Bridge 实例的挂载与数据刷新。
-   - 阶段 1~3 保留 `legacy-stepX-container` 作为安全兜底容器；阶段 0/4/5/6 与运营老 DOM 随 3 竖列改造整体替换，确保老脚本回调不报错。
+   - 阶段 1~3 新建 `legacy-step1~3-container` 兜底容器包裹老 DOM；阶段五（原分发）与阶段六（原验收）老 DOM 整体替换为组件岛独立根容器（仅保留 `<div id="stepX-app-root">`），宿主老脚本回调（如 `loadProjectRoiEvaluation`、`loadProjectBenchmarkEvaluation`、`loadMonitorDashboardMetrics` 等）统一补齐空节点安全守卫（`if (!el) return;`），彻底保证控制台 0 报错。
 4. **构建流水线与防缓存版本戳**：
    - 新建 `web/scripts/` 目录并引入 `stamp-build.mjs` 脚本，在 `npm run build:step0` 完成后自动在 `index.html` 的产物链接追加构建时间戳（如 `?v=20260927...`），防止浏览器（尤其是 Safari）强缓存导致样式不刷新。
-   - 同步更新预构建产物 `web/assets/step0/step0.js` 与 `web/assets/step0/geo-step0-island.css`。
+   - 同步更新预构建产物 `web/assets/step0/step0.js` 与 `web/assets/step0/geo-step0-island.css`，并在宿主 `index.html` 头部显式补充 `<link rel="stylesheet" href="./assets/step0/geo-step0-island.css">`。
 5. **数据绑定策略（融合双轨模式）**：
    - 优先通过 Bridge 接收后端 `/api/projects/:id` 注入的真实项目上下文（项目名称、行业、定位客群等）。
    - 针对阶段 1~6 尚未接通真实后端 API 的写操作（如打磨保存、前进步骤、备注记录等），采用 `localStorage` 进行优雅降级本地持久化，保证交互闭环流畅、零报错。
@@ -32,18 +32,18 @@
 ---
 
 ## 阶段编号位移与路由兼容性设计 (Routing Compatibility)
-1. **阶段演进对照表（含面板内部 `<h2>` 标题三处拉齐）**：
+1. **阶段演进对照表（含面板内部标题由 StageHeader 统一渲染）**：
 
-| 阶段编号 | 业务名称 | 视图 ID | 宿主面板容器 ID | 面板内部 `<h2>` 标题文案同步更新 | 备注与变更动作 |
+| 阶段编号 | 业务名称 | 视图 ID | 宿主面板容器 ID | 面板内部标题渲染机制 | 备注与变更动作 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **00** | 现状摸底 (探测) | `step-0-probe` | `#panel-step-0-probe` | 阶段零：去豆包提问查现状 | 保持不变 |
-| **01** | 商业诊断与转化 | `step-1-diag` | `#panel-step-1-diag` | 阶段一：商业诊断与转化建议书 | 保持不变 |
-| **02** | 普林斯顿母盘与素材 | `step-2-scaffold` | `#panel-step-2-scaffold` | 阶段二：普林斯顿 9 因子素材博文库 | 保持不变 (历史 ID) |
-| **03** | 交钥匙官网与三件套 | `step-3-princeton`| `#panel-step-3-princeton`| 阶段三：交钥匙官网与三件套交付 | 保持不变 (历史 ID) |
-| **04** | **GEO 答题卡与向量库** | **`step-4-qacard`** | **`#panel-step-4-qacard`** | **阶段四：GEO 答题卡与向量问答库** | **【全新插入，需新建容器】** |
-| **05** | 矩阵分发与链接检查 | `step-4-distribute`| `#panel-step-4-distribute`| **阶段五：GEO 文章选题撰写与矩阵分发** | **【原 04 升位，订正内部旧 h2】** |
-| **06** | 首次交付与资产交接 | `step-5-acceptance`| `#panel-step-5-acceptance`| **阶段六：首次交付与资产交接单** | **【原 05 升位，订正内部旧 h2】** |
-| **运营** | 周期复测与商业月报 | `mon-recurring` | `#panel-mon-recurring` | 周期复测与商业运营月报 | **【全新独立看板，需新建容器】** |
+| **00** | 现状摸底 (探测) | `step-0-probe` | `#panel-step-0-probe` | 由 Step0Header 统一渲染 | 保持不变 |
+| **01** | 商业诊断与转化 | `step-1-diag` | `#panel-step-1-diag` | 由组件岛 StageHeader 统一规范渲染 | 保持不变 |
+| **02** | 普林斯顿母盘与素材 | `step-2-scaffold` | `#panel-step-2-scaffold` | 由组件岛 StageHeader 统一规范渲染 | 保持不变 (历史 ID) |
+| **03** | 交钥匙官网与三件套 | `step-3-princeton`| `#panel-step-3-princeton`| 由组件岛 StageHeader 统一规范渲染 | 保持不变 (历史 ID) |
+| **04** | **GEO 答题卡与向量库** | **`step-4-qacard`** | **`#panel-step-4-qacard`** | **由组件岛 StageHeader 渲染新阶段标题** | **【全新插入，需新建容器】** |
+| **05** | 矩阵分发与链接检查 | `step-4-distribute`| `#panel-step-4-distribute`| **移除宿主旧 h2，由组件岛 StageHeader 渲染** | **【原 04 升位，旧 DOM 替换+脚本加守卫】** |
+| **06** | 首次交付与资产交接 | `step-5-acceptance`| `#panel-step-5-acceptance`| **移除宿主旧 h2，由组件岛 StageHeader 渲染** | **【原 05 升位，旧 DOM 替换+脚本加守卫】** |
+| **运营** | 周期复测与商业月报 | `mon-recurring` | `#panel-mon-recurring` | 由 RecurringMonitorStudio 统一渲染 | **【全新独立看板，需新建容器】** |
 
 2. **Hash 路由与既有深链兼容策略**：
    - 宿主 `web/index.html` 采用基于 hash 的单页视图路由（`window.location.hash` 与 `VIEW_META`）。

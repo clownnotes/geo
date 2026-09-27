@@ -651,7 +651,7 @@ Python 实测：
 | 后端计数判定方式 | `tools/geo/server.py:5404` | `any("04_" in f for f in outputs)` —— **子串包含** |
 | 前缀碰撞 | `python3 -c "'04_' in '04_qacard_…'"` | **True**（碰撞） |
 | 安全形态 | 同上 | `'04_' in '04a_qacard_x.md'` = **False** |
-| 历史 `04_` 数据 | `ls projects/*/outputs \| grep '^04_'` | **5 个项目**命中，语义均为"矩阵分发/分发渠道" |
+| 历史 `04_` 数据 | `ls projects/*/outputs \| grep '^04_'` | **4 个项目**（共 6 份产物）命中，语义均为"矩阵分发/分发渠道" |
 | 历史 `05_` 数据 | 同上 | **6 个项目**命中，含 `nextgeo/05_manual_probes.json`（探针数据，非周报） |
 | 后端第二份实现 | `tools/geo/perspective.py:34-40` | 同一 5 步模型，同样子串判定 |
 | 测试硬编码断言 | `tests/test_member_dashboard_and_perspective.py:198/207/215` | `progress_pct` = 60 / 20 / 100 |
@@ -697,3 +697,321 @@ Python 实测：
 - [x] 产物前缀防碰撞（04a_qacard_）、用户可见已知预期与显式遗留事项均已在规范层面彻底闭环。
 - [x] 铁律遵守声明：**全程未改动任何业务源文件（.py / .vue / .js / .html / .go 未动任何字符）**。
 - [x] 规范与设计双端彻底对齐，状态转为：`[已达成共识]`，可安全进入 apply 阶段。
+
+---
+
+## 审查记录 · 第六轮（复核订正 + 以临时前端为唯一基准的全量比对）
+
+- **时间**：2026-09-27 21:45 · **审查人**：AI（单 IDE 自审，跨 IDE 通道未启用）
+- **对象**：`proposal.md` / `design.md` / `tasks.md` / `review-log.md`（HEAD `a70e251`）
+- **比对基准**：`AGENTS.md`（项目最高协议）、`openspec/config.yaml`、主工程 `web/index.html`（17,945 行 / 1,157,713 B）与 `web/step0-src/` **真实磁盘状态**、**临时前端 `/Volumes/联想120/临时前端/邻里GEO 的临时前端`（本轮合流的唯一上游基准）**、`tools/geo/server.py` / `perspective.py`、`projects/*/outputs/` 8 个项目真实产物
+- **方法升级说明**：前五轮主要以「文档自洽 + 主工程现状」为基准；本轮改用**「主工程 vs 临时前端 双向逐函数/逐 DOM 比对」**（32 个差异块、1079 行差异全量枚举），因为临时前端才是 apply 阶段实际要合流进来的目标态。
+- **结论**：`[需修正]` —— 第五轮 M-6 / M-7 **已闭环**；本轮新发现 **4 项 🔴 + 4 项 🟡 + 3 项 🟢**，其中 R6-2 直接推翻 proposal 与 tasks 的「零报错」承诺，**必须在 apply 前拍板处置**。
+
+### 一、上一轮问题复核结果
+
+| 编号 | 复核方式 | 结果 |
+| :--- | :--- | :--- |
+| 🔴 M-6 | `python3 -c "'04_' in '04a_qacard_企业GEO答题卡与向量问答库.md'"` | **False**（安全）✓ 闭环 |
+| 🟡 M-7 | `proposal.md` 已有【用户可见影响（已知预期）】+【显式遗留事项 (Deferred Spec)】；`tasks.md` 4.6 已有对应验收项 | ✓ 闭环 |
+
+---
+
+### 🔴 R6-1｜`web/index.html` 缺 `geo-step0-island.css` 的 `<link>` 引入，`tasks.md` 3.2 未列该动作 —— 产物成死文件、Markdown 预览排版全丢
+
+**实测证据**
+
+| 核对项 | 命令 | 结果 |
+| :--- | :--- | :--- |
+| 主工程是否引用该 CSS | `grep -c 'geo-step0-island' web/index.html` | **0** |
+| 主工程唯一 stylesheet 外链 | `grep -n 'rel="stylesheet"' web/index.html` | 仅 `:9 ./geo-admin.css` |
+| 临时前端引用点 | `index.html:12` / `:13` | `<link ... href="./assets/step0/geo-step0-island.css?v=20260927124324">` **在 `step0.js` 之前** |
+| 当前为何无 CSS 产物 | `grep -c '<style' web/step0-src/Step0App.vue web/step0-src/components/studio/StudioEditor.vue` | **0 / 0**（当前组件全无 `<style>` 块 → `web/assets/step0/` 只有 `step0.js`） |
+| 合并后为何必有 CSS | 临时前端 `StudioEditor.vue:283-` 有 `<style scoped>`（`.geo-md :deep(h1)...`） | 产出 `geo-step0-island.css`（1663 B，内容**全部**是 `.geo-md[data-v-e8aae19d]` 排版规则） |
+| 版本戳脚本目标 | `scripts/stamp-build.mjs:25` | `targets = ['assets/step0/step0.js', 'assets/step0/geo-step0-island.css']` |
+
+**冲突点**：`design.md` §4 构建流水线图明确产出 `geo-step0-island.css`；`tasks.md` 3.1 要求同步该产物；`stamp-build.mjs` 把它列为版本戳目标 —— 但宿主 `index.html` **没有任何引用点**。Vite **lib 模式**下 CSS 会被抽离成独立文件、**不会自动注入**（这正是临时前端必须手写 `<link>` 的原因）。
+
+**影响**：proposal「Capabilities 2 · 中列高保真 Markdown 预览」的排版（h1/h2/h3、表格、引用块、代码块）全部退化为浏览器默认样式；且 `tasks.md` 4.3「3 竖列布局渲染无白屏」查不出（不白屏，仅排版退化）、4.5「控制台零报错」也查不出（纯静默）。
+
+**订正建议**：`tasks.md` 3.2 增加显式子任务「在 `web/index.html` 的 `./assets/step0/step0.js` **之前**插入 `<link rel="stylesheet" href="./assets/step0/geo-step0-island.css">`」；`design.md` §4 的宿主改法同步写明该 link。
+
+---
+
+### 🔴 R6-2｜阶段五/六面板 **758 行真实 DOM 被整体替换为空壳**，5 个既有加载函数**必打 `console.error`** —— 「零报错」承诺与 `tasks.md` 4.5 验收必然失败
+
+**实测证据（面板体量对比）**
+
+| 面板 | 主工程 | 临时前端（目标态） |
+| :--- | :--- | :--- |
+| `panel-step-4-distribute` | `:1186 → :1602`（**417 行**） | `:1215`（**4 行**，仅 `<div id="step5-app-root"></div>`） |
+| `panel-step-5-acceptance` | `:1603 → :1943`（**341 行**） | `:1219`（**5 行**，仅 `<div id="step6-app-root"></div>`） |
+
+**实测证据（悬空 DOM 引用）**：主工程被替换区间内共 **610 个 `id`**，其中 **70 个仍被主工程 JS 引用、而临时前端已完全不存在**。逐条 `grep -c 'id="..."'` 抽验：
+
+| id | 主工程 | 临时前端 |
+| :--- | :--- | :--- |
+| `bm-industry-name` | 1 | **0** |
+| `roi-total-val` | 1 | **0** |
+| `metric-sov` | 1 | **0** |
+| `citation-bar-zhihu` | 1 | **0** |
+| `toutiao-pack-status` | 1 | **0** |
+| `acceptance-status-badge` | 1 | **0** |
+
+**实测证据（致命调用链，全部无空守卫）**
+
+```
+enterWizard()                     web/index.html:9260
+  └─ loadStepPreviews()           web/index.html:11204
+       ├─ loadMonitorDashboardMetrics()      temp:10752  catch(e){}          ← 空捕获，静默中断
+       ├─ loadProjectBenchmarkEvaluation()   temp:11711  catch(e){ console.error('加载行业对标失败:', e) }   ← 必报错
+       ├─ loadProjectRoiEvaluation()         temp:12864  catch(err){ console.error('加载商业 ROI 异常:', err) } ← 必报错
+       ├─ loadAcceptanceData()               temp:12970
+       └─ loadDistributionLedger()           temp:12528
+```
+
+- `loadProjectRoiEvaluation` 首行即 `document.getElementById('roi-total-val').textContent = ...`（temp `:12877`）——**无守卫 → 必抛 `TypeError` → 必进 catch → 必打印 `console.error('加载商业 ROI 异常:', err)`**
+- `loadProjectBenchmarkEvaluation` 首行 `document.getElementById('bm-industry-name').innerText = d.industry`（temp `:11719`）——**同样必报错**
+- `loadMonitorDashboardMetrics`（temp `:10760` 起）虽被空 `catch` 吞掉，但**从该行起整段渲染全部中断**（监测指标、Citation 分布条形图、问句级对决数据全丢），属**静默功能失效**
+
+**冲突点（三条承诺同时落空）**
+1. `proposal.md` 第 6 行：「确保在真实工程（端口 `:8088`）下流畅运行、**零报错**」
+2. `proposal.md` 第 24 行：「阶段 0/4/5/6 与运营老 DOM 随 3 竖列改造整体替换，**确保老脚本回调不报错**」
+3. `tasks.md` 4.5：「确认浏览器控制台**零报错**（无 404、无 undefined 引用异常）」
+
+**影响**：**每次进入任意项目向导都会打印至少 2 条 `console.error`**；阶段六 ROI 看板、行业对标、监测指标、验收单的真实数据渲染整体失效。这不是「文档漏写」，而是**文档已明确承诺却做不到**。
+
+**订正建议（二选一，需拍板）**
+- **甲案（保留 DOM）**：3 竖列改造只替换面板外壳与头部，`roi-*` / `bm-*` / `metric-*` / `citation-*` / `toutiao-*` / `acceptance-*` 等真实数据节点**原位保留**（可隐藏不删），不纳入替换范围。
+- **乙案（摘除调用）**：若确定整体替换，必须在 `tasks.md` 显式列入「为上述 5 个函数补空守卫 `if (!el) return;`，或从 `loadStepPreviews()` 摘除对已废弃 DOM 的渲染调用」，并把 proposal 第 24 行改为「**须同步改造老脚本回调**」。
+- 无论哪案，`tasks.md` 4.5 都需增加「进入向导后 Console 面板截图留证」的取证要求（否则「零报错」无法被客观验收）。
+
+---
+
+### 🔴 R6-3｜`mon-recurring` 视图未纳入 `VIEW_META` 注册 —— 周期复测面板将**永远打不开**（静默跳回总览）
+
+**实测证据**
+
+| 核对项 | 结果 |
+| :--- | :--- |
+| `switchView()` 兜底逻辑 | 主工程 `:9899` / 临时前端 `:9400`：`if (!VIEW_META[viewId]) viewId = 'overview';` |
+| 临时前端 `VIEW_META` | **含** `'mon-recurring': { group: 'daily', groupLabel: '日常运维', label: '周期复测与商业运营月报' }` |
+| 临时前端侧边栏 | `:617` 新增 `<button id="nav-mon-recurring" onclick="switchView('mon-recurring')">` |
+| `design.md` 注0 的 `VIEW_META` 改动条目数 | **仅 3 条**（新增 `step-4-qacard`、升位 `step-4-distribute`、升位 `step-5-acceptance`）—— **无 `mon-recurring`** |
+| `tasks.md` 3.2 | 只写「更新左侧侧边栏 00~06 阶段与周期复测导航按钮文案与类名」—— **无注册视图元数据** |
+
+**影响**：apply 后点击侧边栏「周期复测与商业运营月报」，`switchView('mon-recurring')` 被判为未知视图 → **静默回落到 `overview` 总览**，`#panel-mon-recurring` 永不显示。proposal「Capabilities 3 · 周期复测与日常运营独立看板」与 `tasks.md` 4.3 验收直接失败。
+
+**订正建议**：`design.md` 注0 与 `tasks.md` 3.2 均补入「注册 `VIEW_META['mon-recurring'] = { group: 'daily', groupLabel: '日常运维', label: '周期复测与商业运营月报' }`」。
+
+---
+
+### 🔴 R6-4｜`design.md` §3.3 声称「全量落地 refresh」与实测（**2/8**）严重不符；宿主侧「统一重置 MOUNTED」在参考实现中**根本不存在**
+
+**实测证据（Bridge 侧，临时前端 `step0-src/main.js`）**
+
+| Bridge | `refresh` | `setSubStep` |
+| :--- | :--- | :--- |
+| `GeoStep0Bridge` | ✓（`:60`） | ✓ |
+| `GeoStep1Bridge` | ✗ | ✗ |
+| `GeoStep2Bridge` | ✗ | ✗ |
+| `GeoStep3Bridge` | ✗ | ✗ |
+| `GeoStep4Bridge` | ✗ | ✗ |
+| `GeoStep5Bridge` | ✓（`:208`） | ✓ |
+| `GeoStep6Bridge` | ✗ | ✗ |
+| `GeoRecurringMonitorBridge` | ✗ | ✗ |
+
+**实测证据（组件侧 `defineExpose`）**：全量仅 **3 处** —— `Step0App.vue`、`Step4App.vue`、`Step5App.vue`。`Step1App` / `Step2App` / `Step3App` / `Step6App` **无 `defineExpose`**；`components/daily/RecurringMonitorStudio.vue` **`refresh` 出现 0 次**。
+
+**实测证据（宿主侧）**：`enterWizard()` 中仅 `renderStep1DiagPanel(true)` 与 `renderStep2ScaffoldPanel(true)` 传了 `forceRemount`；**不存在**「统一重置所有 `__GEO_STEPX_MOUNTED__ = false`」的循环 ——
+`grep '__GEO_STEP\w*_MOUNTED__\s*=\s*false'` 在**主工程与临时前端均为 False**。
+
+**冲突点**：`design.md` §3.3「**Bridge 侧全量落地 `refresh(projectData)`**：在 `main.js` 中为全部 Bridge（`GeoStep0`~`GeoStep6` 及 `GeoRecurringMonitorBridge`）**统一实现** `refresh(opts)`」是**完成时描述**，实测为 **2/8**；「宿主侧统一将所有 `window.__GEO_STEPX_MOUNTED__` 标志位重置为 `false`」在参考实现中**完全不存在**。
+
+**影响**：apply 时若把 §3.3 当「同步已有实现」照抄临时前端的 `index.html` + `main.js`，则阶段 3/4/5/6 与周期复测在切换项目后**既不 `refresh` 也不 `forceRemount`**（被 `__GEO_STEPn_MOUNTED__` 守卫拦住）→ 面板停留在上一个项目的数据 → `tasks.md` 4.4 验收失败。**这正是第一轮 P0-1 提出的问题，文档改对了，参考实现没改。**
+
+**附带的两个命名/覆盖缺口**
+1. **命名**：`design.md` §3.3 与 `tasks.md` 3.2 统一写作 `__GEO_STEPX_MOUNTED__`，而真实标志位集合是 `__GEO_STEP0..6_MOUNTED__` **+ `__GEO_RECURRING_MOUNTED__`**（实测临时前端各 2 处）。按字面「STEPX」重置会**漏掉 `__GEO_RECURRING_MOUNTED__`** → 项目切换后周期复测看板数据串流。
+2. **覆盖**：`tasks.md` 2.4 写「确保各 **`StepXApp.vue`** 均通过 `defineExpose({ refresh })` 暴露刷新入口」，**漏了 `components/daily/RecurringMonitorStudio.vue`** —— 它不是 `StepXApp.vue`，却对应 `GeoRecurringMonitorBridge`。
+
+**订正建议**
+1. `design.md` §3.3 把「全量落地」改为「**现状 2/8，本轮须补齐 6 个 Bridge 的 `refresh` + 5 个组件的 `defineExpose({ refresh })`**」，并注明 `RecurringMonitorStudio.vue` 需从零新增 `refresh` 实现（该文件当前 `refresh` 出现 0 次）。
+2. `tasks.md` 2.4 补入 `RecurringMonitorStudio.vue`。
+3. `tasks.md` 3.2 把「`__GEO_STEPX_MOUNTED__`」改为「`__GEO_STEP0_MOUNTED__` ~ `__GEO_STEP6_MOUNTED__` 与 `__GEO_RECURRING_MOUNTED__` 全量重置」。
+
+---
+
+### 🟡 R6-5｜`VIEW_META` 与侧边栏的 **01/02/03 条目文案同样必改**，`design.md` 注0 未列
+
+| 视图 | 主工程现值 | 临时前端目标值 |
+| :--- | :--- | :--- |
+| `step-1-diag` | `01 现状诊断与体检`（`:7191`） | `01 诊断现状并出具报告`（`:6680`） |
+| `step-2-scaffold` | `02 站点底座与三件套`（`:7192`） | `02 普林斯顿母盘与素材库`（`:6681`） |
+| `step-3-princeton` | `03 普林斯顿 9 因子语料`（`:7193`） | `03 交钥匙官网与三件套`（`:6682`） |
+
+侧边栏按钮文案同步变动（主工程 `:598/600/602` → 临时前端 `:599/601/603`），并新增 `nav-step-4-qacard`（`:605`）与 `nav-mon-recurring`（`:617`）。
+
+**注意**：主工程 02/03 的语义与临时前端**正好对调**（02 站点底座 ↔ 02 普林斯顿母盘；03 普林斯顿语料 ↔ 03 交钥匙官网），而 `proposal.md` 演进对照表的 02/03 命名与**临时前端一致** → 说明这属于**必改项**，`design.md` 注0 只列 3 条 `VIEW_META` 改动构成覆盖缺口。
+
+**订正建议**：`design.md` 注0 补第 4 条，列出上述三条 label 的「旧值 → 新值」；`tasks.md` 3.2 显式列出。
+
+---
+
+### 🟡 R6-6｜「订正面板内部 `<h2>` 文案」与实际做法矛盾 —— 临时前端是**整块删除 h2**，改由组件岛渲染
+
+- `proposal.md` 演进对照表与 `tasks.md` 3.2 均写「同步订正各阶段面板内部 `<h2>` 标题文案（阶段五：GEO文章选题撰写与矩阵分发、阶段六：首次交付与资产交接单）」
+- **实测**：临时前端 `:1215-1221` 的两个面板**只有一行 `<div id="stepN-app-root"></div>`，完全没有 `<h2>`**；标题改由 `step0-src/components/StageHeader.vue` 与各 `StepXApp.vue` 渲染（`Step5App.vue:2` 注释「阶段五 3 竖列工作区] GEO 文章选题撰写与矩阵分发专属工作台」）
+- **影响**：apply 时会困惑「到底改 h2 还是删 h2」；照字面「订正 h2」会与组件岛标题**重复显示两个标题**
+- **订正建议**：`tasks.md` 3.2 该子项改为「**移除**宿主面板内旧 `<h2>`（标题改由组件岛 `StageHeader` 渲染）」，或明确「宿主面板仅保留根节点容器，不含任何标题文案」
+
+---
+
+### 🟡 R6-7｜`isDeliveryStepView` 白名单与参考实现语义不一致（`step-0-probe` 是否纳入）
+
+| 实现 | 值 | `step-0-probe` |
+| :--- | :--- | :--- |
+| 主工程 `:7229` | `/^step-[1-5]-/` | **排除** |
+| 临时前端 `:6720` | `/^step-[0-9]-/` | **包含** |
+| `design.md` 注0.4 / `tasks.md` 3.2 提议 | 显式白名单 `['step-1-diag','step-2-scaffold','step-3-princeton','step-4-qacard','step-4-distribute','step-5-acceptance']` | **排除** |
+
+文档注明该白名单「与原正则 `[1-5]` 语义一致」，但**与临时前端（本轮合流唯一基准）的实际实现不一致**。
+
+**影响**：`switchView()` / `enterWizard()` 中 `isDeliveryStepView(viewId) && isProbeUnready(...)` 的「探针未就绪二次确认」拦截范围不同 → 行为回归。
+
+**订正建议（需拍板）**：明确以哪边为准。若以主工程语义为准（排除 `step-0-probe`，业务上更合理：阶段零本身就是探针），须在 `tasks.md` 中**显式登记「修正临时前端的 `[0-9]` 为白名单」**，避免 apply 被当成「照抄即可」。
+
+---
+
+### 🟡 R6-8｜`legacy-stepX-container` 是**新增**而非「保留」，`proposal.md` 措辞与实际不符
+
+- **实测**：`legacy-step1-container` / `legacy-step2-container` / `legacy-step3-container` 在**主工程 0 处**、临时前端各 1 处
+- **冲突**：`proposal.md` 第 24 行「阶段 1~3 **保留** `legacy-stepX-container` 作为安全兜底容器」
+- **订正建议**：改为「**新建** `legacy-step1~3-container` 兜底容器」
+
+---
+
+### 🟢 R6-9｜`hydrateView` 与 `switchView` 存在重复渲染调用
+
+- 临时前端 `hydrateView()`（`:9350-9397`）已完整覆盖 7 个阶段视图的渲染调度；`switchView()` 在 `:9433` 已调用 `hydrateView()`，却又在 `:9434-9451` 对 `step-0/1/2/3/4-qacard` 重复调用一遍同名 `renderStepXPanel()`
+- **影响**：首次切换会调用两次 `render*`（第二次被 `__GEO_STEPX_MOUNTED__` 守卫拦截，功能无碍，但会多打一次 `/api/projects/:id` 请求）
+- **建议**：`tasks.md` 注明「只保留 `hydrateView` 一处调度，清理 `switchView` 中的重复调用」
+
+---
+
+### 🟢 R6-10｜`applyStepOverviewState` 的通用属性选择器存在过度匹配风险
+
+- 主工程 `:6997`：`document.getElementById('step0-header-card')`
+- 临时前端 `:6280`：`document.querySelectorAll('#step0-header-card, #step1-header-card, [id$="-header-card"]')`
+- **风险**：`[id$="-header-card"]` 是**通配后缀**，任何 id 以 `-header-card` 结尾的元素都会被「收纳概览」一并隐藏
+- **建议**：改为显式枚举 `step0~step6-header-card`，或在 `tasks.md` 登记该选择器的收敛范围
+
+---
+
+### 🟢 R6-11｜`review-log.md` 自身：数量表述偏差 + 豁免声明仍为转述
+
+- **数量偏差**：第五轮正文写「8 个项目中 **5 个**已有 `04_` 产物」，但实测为 **4 个**（`demo_corp` 1、`nextgeo` 2、`xuzhou_clownCoder_studio` 1、`xuzhou_xuanyuan` 2）；第五轮自己的表格也只列了 4 行 → 正文与表格不一致（不影响 `04a_qacard_` 结论的正确性）
+- **豁免签署**：`proposal.md` 的「产品负责人确认状态」为**转述**（「已由师弟在方案探讨中选定」），仍无用户本人落字。建议在 `review-log.md` 保留用户签署位，由用户本人确认后再视为生效
+
+---
+
+### 附：本轮「已实测通过、文档无误」的正向核对项（避免后续重复怀疑）
+
+| 核对项 | 命令 | 结果 |
+| :--- | :--- | :--- |
+| git 跟踪与工作区 | `git ls-files openspec \| wc -l` / `git status --porcelain \| wc -l` | **698** 个文件已跟踪 / **0**（干净）✓ P0-4 闭环 |
+| 8 份历史归档 | `ls openspec/changes/archive/ \| grep '2026-09-27'` | **8** 个 ✓ `tasks.md` 0.1 闭环 |
+| 构建脚本入口 | `cat package.json` | `dev:step0` / `build:step0` 均存在 ✓ `tasks.md` 1.2 闭环 |
+| `04a_qacard_` 前缀安全 | `python3 -c "'04_' in '04a_qacard_...'"` | **False** ✓ M-6 闭环 |
+| 后端 5 步子串计数 | `tools/geo/server.py:5400-5405` | `any("04_" in f for f in outputs)` ✓ 与文档一致 |
+| 第二份进度模型 | `tools/geo/perspective.py:35-39` | 同一 5 步子串模型 ✓ |
+| 前端「共 5 步」文案 | `web/index.html:5786` | `交付第 ${p.steps_done} 步 / 共 5 步` ✓ 与 M-7 已知预期一致 |
+| 硬编码跳转 | `grep -c "switchView('step-4-distribute')"` | **3** 处 ✓ 与文档一致 |
+| 无需改动的宿主函数 | `parseCurrentRoute` / `updateRouteState` / `renderStep0ProbePanel` / `updatePipelineGateUI` | 主工程与临时前端**逐字节一致**（文档未误列）✓ |
+| 业务源文件是否被本轮审查改动 | `stat web/index.html tools/geo/*.py` | 仍为 **14:16:59**，全程未动 ✓ |
+
+---
+
+## 第六轮审查结论与停步声明
+
+- **历史审查标签**：`[需修正]` (2026-09-27 21:45)
+- **订正处理时间**：2026-09-27 22:00
+- **处理人**：师兄（全栈工程师/架构师）
+- **核准状态**：`[已达成共识]` —— 经客观技术求证，第六轮审查指出的各项事实完全属实，所有 🔴 级、🟡 级与 🟢 级问题已在 `proposal.md`、`design.md`、`tasks.md` 中逐一订正闭环。
+
+---
+
+## 规范第六轮订正回复与共识对齐（/opsx-fix 第六轮记录）
+
+- **订正时间**：2026-09-27 22:00
+- **处理角色**：师兄（全栈工程师/架构师）
+- **核对基准**：主工程 `web/index.html`（1,157,713 B）与临时前端全量差异枚举、Vite lib 抽离 CSS 规则与老脚本调用链
+- **订正结论**：`[已修正]` —— 第六轮审查提出的 4 项 🔴 级、4 项 🟡 级与 3 项 🟢 级问题均已全部核准并完成闭环订正，**未改动任何业务源文件**。
+
+### 第六轮问题逐项回应与裁决闭环事实：
+
+1. **🔴 R6-1｜关于 `web/index.html` 必须外链引入 `geo-step0-island.css` 的订正 `[已修正]`**：
+   - **事实核对**：完全属实！Vite 在 lib 模式下抽取出的 `geo-step0-island.css`（含 `.geo-md` 排版样式）不会自动注入。
+   - **处理方案**：
+     - `design.md` §4 与 `proposal.md` §1 明确在宿主 `web/index.html` 头部必须显式插入 `<link rel="stylesheet" href="./assets/step0/geo-step0-island.css">`（位于 `step0.js` 之前）；
+     - `tasks.md` 3.2 增加显式插入该 link 标签的任务，`tasks.md` 4.3 增加 Markdown 样式生效核验。
+
+2. **🔴 R6-2｜关于阶段五/六老 DOM 替换与宿主老脚本空安全守卫（乙案裁决）`[已修正]`**：
+   - **裁决拍板**：采纳**乙案**！老 DOM 整体替换为组件岛独立根容器，宿主 5 个老数据加载函数增加空安全守卫。
+   - **处理方案**：
+     - 在 `design.md` 增设【§2.1 宿主老脚本兼容与空节点安全守卫（乙案）】，明确在 apply 阶段为宿主 5 个老函数（`loadProjectRoiEvaluation`、`loadProjectBenchmarkEvaluation`、`loadMonitorDashboardMetrics`、`loadAcceptanceData`、`loadDistributionLedger`）首行补充 `if (!document.getElementById('...')) return;` 空安全守卫；
+     - `proposal.md`、`tasks.md` 3.2 与 4.5 相应调整，杜绝 TypeError 抛出，彻底兑现控制台 0 报错承诺。
+
+3. **🔴 R6-3｜关于周期复测视图 `mon-recurring` 纳入 `VIEW_META` 注册的订正 `[已修正]`**：
+   - **事实核对**：完全属实！未注册会导致 `switchView` 兜底回退到 `overview`。
+   - **处理方案**：
+     - `design.md` 注0.2 补充注册 `'mon-recurring': { group: 'daily', groupLabel: '日常运维', label: '周期复测与商业运营月报' }`；
+     - `tasks.md` 3.2 显式增加该注册子项。
+
+4. **🔴 R6-4｜关于全部 8 个 Bridge 及 Vue 组件补齐 `refresh` 暴露的订正 `[已修正]`**：
+   - **事实核对**：完全属实！临时前端基线中仅阶段 0 和 5 实现了 `refresh`，组件侧缺乏 `defineExpose`（现状 2/8）。
+   - **处理方案**：
+     - `design.md` §3.3 明确在 apply 阶段补齐全部 8 个 Bridge（`GeoStep0`~`GeoStep6` 及 `GeoRecurringMonitorBridge`）的 `refresh(projectData)` 逻辑；
+     - `tasks.md` 2.4 与 3.2 明确在全部 8 个 Vue 根组件（含 `RecurringMonitorStudio.vue`）中通过 `defineExpose({ refresh })` 暴露刷新接口，并在宿主 `enterWizard` 切换项目时重置全部 `__GEO_STEP0..6_MOUNTED__` 与 `__GEO_RECURRING_MOUNTED__` 标志位为 `false`。
+
+5. **🟡 R6-5｜关于 01~03 标签与侧边栏文案同步更新的订正 `[已修正]`**：
+   - **事实核对**：完全属实！临时前端已对 01~03 业务命名进行了升级拉齐。
+   - **处理方案**：
+     - `design.md` 注0.2 与 `tasks.md` 3.2 明确将 01/02/03 的 `VIEW_META` label 及侧边栏按钮文案同步订正（01 诊断现状并出具报告、02 普林斯顿母盘与素材库、03 交钥匙官网与三件套）。
+
+6. **🟡 R6-6｜关于移除宿主面板内原有旧 `<h2>` 的订正 `[已修正]`**：
+   - **处理方案**：
+     - 明确宿主面板内旧 `<h2>` 整体移除，统一由组件岛内部的 `StageHeader.vue` 渲染，避免重复渲染双标题；`proposal.md`、`design.md` 注0.1 与 `tasks.md` 3.2 统一改为「移除旧 `<h2>`」。
+
+7. **🟡 R6-7｜关于 `isDeliveryStepView` 白名单排除 `step-0-probe` 的语义归属裁决 `[已修正]`**：
+   - **裁决拍板**：以**主工程语义**为准，排除 `step-0-probe`。临时前端的 `[0-9]` 正则系过度匹配 Bug。
+   - **处理方案**：
+     - `design.md` 注0.4 与 `tasks.md` 3.2 明确判定白名单为 `['step-1-diag', 'step-2-scaffold', 'step-3-princeton', 'step-4-qacard', 'step-4-distribute', 'step-5-acceptance'].includes(viewId)`，显式排除 `step-0-probe` 并登记纠偏说明。
+
+8. **🟡 R6-8｜关于 `legacy-step1~3-container` 措辞订正为「新建」`[已修正]`**：
+   - **处理方案**：`proposal.md`、`design.md` 注0.6 与 `tasks.md` 3.2 统一订正措辞为「新建 `legacy-step1~3-container` 隐藏兜底容器包裹老 DOM」。
+
+9. **🟢 R6-9｜关于清理 `switchView` 重复渲染调用的建议 `[已采纳]`**：
+   - **处理方案**：`design.md` 注0.4 与 `tasks.md` 3.2 明确清理 `switchView` 中对 `render*` 的重复调用，统一由 `hydrateView` 驱动调度。
+
+10. **🟢 R6-10｜关于 `applyStepOverviewState` 收敛选择器范围的建议 `[已采纳]`**：
+    - **处理方案**：`design.md` 注0.4 与 `tasks.md` 3.2 明确将通配属性选择器收敛为显式枚举 `step0~step6-header-card`，消除误隐藏风险。
+
+11. **🟢 R6-11｜关于第五轮实测数据笔误更正与豁免签署栏的订正 `[已修正]`**：
+    - **处理方案**：
+      - 第五轮实测证据表已更正为「**4 个项目**（共 6 份产物）命中」；
+      - 在下方正式设立【产品负责人（师弟）签署位】。
+
+---
+
+## 最终就绪状态（第六轮审查全部闭环）
+- [x] 所有 🔴 级（4项）、🟡 级（4项）、🟢 级（3项）问题已在规范层面彻底闭环。
+- [x] 铁律遵守声明：**全程未改动任何业务源文件（.py / .vue / .js / .html / .go 未动任何字符）**。
+- [x] 规范与设计双端彻底对齐，状态转为：`[已达成共识]`，可安全进入 apply 阶段。
+
+---
+
+### 产品负责人（师弟）签收与放行栏
+- **当前状态**：已由师兄（全栈工程师）完成六轮精密审查与文档闭环订正。
+- **豁免项确认**：关于本变更过渡期间阶段 1~6 采用 `localStorage` 降级兜底方案，前置豁免 `AGENTS.md` §8.2。后续真实后端物理落盘已建档为显式遗留事项（Deferred）。
+- **签收确认**：待师弟输入 `/opsx-apply` 即可正式解锁业务代码编写与执行迁移！
+
