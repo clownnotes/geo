@@ -32,19 +32,24 @@
 ---
 
 ## 阶段编号位移与路由兼容性设计 (Routing Compatibility)
-1. **阶段演进对照表**：
-   - `00`：现状摸底 (`step-0-probe`) —— 保持不变
-   - `01`：商业诊断 (`step-1-diag`) —— 保持不变
-   - `02`：普林斯顿母盘 (`step-2-scaffold`) —— 保持不变
-   - `03`：交钥匙官网 (`step-3-princeton`) —— 保持不变
-   - **`04`【全新插入】**：GEO 答题卡与向量库 (`step-4-qacard`) —— **主工程需新建容器 `#panel-step-4-qacard`**
-   - **`05`【原 04 升位】**：矩阵分发与链接检查 (`step-4-distribute`) —— 沿用历史面板 ID，根节点为 `#step5-app-root`
-   - **`06`【原 05 升位】**：首次交付与资产交接 (`step-5-acceptance`) —— 沿用历史面板 ID，根节点为 `#step6-app-root`
-   - **`运营`【全新独立】**：周期复测与商业月报 (`mon-recurring`) —— 新建面板容器 `#panel-mon-recurring`
+1. **阶段演进对照表（含面板内部 `<h2>` 标题三处拉齐）**：
+
+| 阶段编号 | 业务名称 | 视图 ID | 宿主面板容器 ID | 面板内部 `<h2>` 标题文案同步更新 | 备注与变更动作 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **00** | 现状摸底 (探测) | `step-0-probe` | `#panel-step-0-probe` | 阶段零：去豆包提问查现状 | 保持不变 |
+| **01** | 商业诊断与转化 | `step-1-diag` | `#panel-step-1-diag` | 阶段一：商业诊断与转化建议书 | 保持不变 |
+| **02** | 普林斯顿母盘与素材 | `step-2-scaffold` | `#panel-step-2-scaffold` | 阶段二：普林斯顿 9 因子素材博文库 | 保持不变 (历史 ID) |
+| **03** | 交钥匙官网与三件套 | `step-3-princeton`| `#panel-step-3-princeton`| 阶段三：交钥匙官网与三件套交付 | 保持不变 (历史 ID) |
+| **04** | **GEO 答题卡与向量库** | **`step-4-qacard`** | **`#panel-step-4-qacard`** | **阶段四：GEO 答题卡与向量问答库** | **【全新插入，需新建容器】** |
+| **05** | 矩阵分发与链接检查 | `step-4-distribute`| `#panel-step-4-distribute`| **阶段五：GEO 文章选题撰写与矩阵分发** | **【原 04 升位，订正内部旧 h2】** |
+| **06** | 首次交付与资产交接 | `step-5-acceptance`| `#panel-step-5-acceptance`| **阶段六：首次交付与资产交接单** | **【原 05 升位，订正内部旧 h2】** |
+| **运营** | 周期复测与商业月报 | `mon-recurring` | `#panel-mon-recurring` | 周期复测与商业运营月报 | **【全新独立看板，需新建容器】** |
+
 2. **Hash 路由与既有深链兼容策略**：
    - 宿主 `web/index.html` 采用基于 hash 的单页视图路由（`window.location.hash` 与 `VIEW_META`）。
-   - 既有深链中访问 `#step-4-distribute` 依然无缝打开分发排版工作台，访问 `#step-5-acceptance` 依然打开商业验收工作台，历史书签完全不失效、不产生 404 断链。
-   - 宿主主流程正文引导中 3 处硬编码 `switchView('step-4-distribute')` 全量排查核对，按业务动线顺序正确导向新阶段。
+   - **`view=` 形式深链**：既有书签若采用 `#project=x&view=step-4-distribute`，依然精准直达分发排版工作台；若采用 `#project=x&view=step-5-acceptance`，依然直达商业验收工作台，历史书签完全不失效、不产生 404 断链。
+   - **`step=` 数字形式遗留深链与缓存位移**：主工程 `STEP_TO_VIEW` 将整体重写（扩充 `6`，`4`/`5` 改指新视图），`step=4` 将遵循新业务拓扑导向新阶段四（GEO 答题卡）；同时在项目切换或页面初始加载时，自动校准 `localStorage` 的 `geo_active_step` 缓存，消除双重错位隐患。
+   - **硬编码排查**：宿主主流程正文引导中 3 处硬编码 `switchView('step-4-distribute')` 全量排查核对，按业务动线顺序正确导向新阶段。
 
 ---
 

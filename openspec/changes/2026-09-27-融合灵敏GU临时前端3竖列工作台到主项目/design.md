@@ -38,7 +38,25 @@
 | **06** | 首次交付与资产交接 | `#panel-step-5-acceptance` *(注1)* | `#step6-app-root` | `window.__GEO_STEP6__` (`GeoStep6Bridge`) |
 | **运营** | 周期复测与商业月报 | `#panel-mon-recurring` | `#mon-recurring-app-root` *(注2)* | `window.__GEO_RECURRING__` (`GeoRecurringMonitorBridge`) |
 
-> **注0（主工程需新建容器）**：宿主面板容器 `#panel-step-4-qacard`（对应全新 04 GEO 答题卡与向量库）在主工程基线中**不存在**，必须在 `web/index.html` 中新建该容器，内部放置 `<div id="step4-app-root"></div>`，并在 `VIEW_META` 注册视图 ID `step-4-qacard`。  
+> **注0（主工程需新建容器与路由元数据重写规范）**：  
+> 1. **新建容器**：宿主面板容器 `#panel-step-4-qacard`（对应全新 04 GEO 答题卡与向量库）在主工程基线中**不存在**，必须在 `web/index.html` 中新建该容器，内部放置 `<div id="step4-app-root"></div>`；  
+> 2. **`VIEW_META` 升位重构**：  
+>    - 注册新视图：`'step-4-qacard': { step: 4, label: '04 GEO 答题卡与向量问答库', group: 'delivery' }`；  
+>    - 升位分发视图：`'step-4-distribute': { step: 5, label: '05 矩阵分发与链接检查', group: 'delivery' }`（`step: 4 -> 5`）；  
+>    - 升位验收视图：`'step-5-acceptance': { step: 6, label: '06 首次交付与资产交接单', group: 'delivery' }`（`step: 5 -> 6`）；  
+> 3. **`STEP_TO_VIEW` 路由表全量重写**：  
+>    ```javascript
+>    const STEP_TO_VIEW = {
+>      0: 'step-0-probe',
+>      1: 'step-1-diag',
+>      2: 'step-2-scaffold',
+>      3: 'step-3-princeton',
+>      4: 'step-4-qacard',
+>      5: 'step-4-distribute',
+>      6: 'step-5-acceptance',
+>    };
+>    ```  
+> 4. **引用点全量对齐**：核对并确保主工程内依赖 `STEP_TO_VIEW` 的全部 8 处引用（`:7173`、`:7269` 深链解析、`:7281` 缓存回退、`:7297` / `:7299` 路由落盘、`:9232` `enterWizard`、`:9949` / `:9954` 上下一步导航）以及 `currentStep = meta.step` 的门禁 UI（`updatePipelineGateUI`）步进完全统一。  
 > **注1（历史编号保留铁律）**：宿主容器 `#panel-step-4-distribute`（对应 05 矩阵分发）与 `#panel-step-5-acceptance`（对应 06 商业验收）系主工程历史遗留命名，其内部根节点已准确对齐为 `#step5-app-root` 与 `#step6-app-root`。此为既有规范事实，**严禁在 apply 阶段擅自修改宿主面板 ID**。  
 > **注2（根节点与类名修正）**：周期运营挂载根节点规范订正为实测值 `#mon-recurring-app-root`，Bridge 导出类名规范订正为 `GeoRecurringMonitorBridge`。
 
