@@ -33,19 +33,21 @@
 | **01** | 商业诊断与转化 | `#panel-step-1-diag` | `#step1-app-root` | `window.__GEO_STEP1__` (`GeoStep1Bridge`) |
 | **02** | 普林斯顿母盘与素材 | `#panel-step-2-scaffold` | `#step2-app-root` | `window.__GEO_STEP2__` (`GeoStep2Bridge`) |
 | **03** | 交钥匙官网与三件套 | `#panel-step-3-princeton`| `#step3-app-root` | `window.__GEO_STEP3__` (`GeoStep3Bridge`) |
-| **04** | GEO 答题卡与向量库 | `#panel-step-4-qacard` | `#step4-app-root` | `window.__GEO_STEP4__` (`GeoStep4Bridge`) |
+| **04** | GEO 答题卡与向量库 | `#panel-step-4-qacard` *(注0)* | `#step4-app-root` | `window.__GEO_STEP4__` (`GeoStep4Bridge`) |
 | **05** | 矩阵分发与链接检查 | `#panel-step-4-distribute` *(注1)* | `#step5-app-root` | `window.__GEO_STEP5__` (`GeoStep5Bridge`) |
 | **06** | 首次交付与资产交接 | `#panel-step-5-acceptance` *(注1)* | `#step6-app-root` | `window.__GEO_STEP6__` (`GeoStep6Bridge`) |
 | **运营** | 周期复测与商业月报 | `#panel-mon-recurring` | `#mon-recurring-app-root` *(注2)* | `window.__GEO_RECURRING__` (`GeoRecurringMonitorBridge`) |
 
+> **注0（主工程需新建容器）**：宿主面板容器 `#panel-step-4-qacard`（对应全新 04 GEO 答题卡与向量库）在主工程基线中**不存在**，必须在 `web/index.html` 中新建该容器，内部放置 `<div id="step4-app-root"></div>`，并在 `VIEW_META` 注册视图 ID `step-4-qacard`。  
 > **注1（历史编号保留铁律）**：宿主容器 `#panel-step-4-distribute`（对应 05 矩阵分发）与 `#panel-step-5-acceptance`（对应 06 商业验收）系主工程历史遗留命名，其内部根节点已准确对齐为 `#step5-app-root` 与 `#step6-app-root`。此为既有规范事实，**严禁在 apply 阶段擅自修改宿主面板 ID**。  
 > **注2（根节点与类名修正）**：周期运营挂载根节点规范订正为实测值 `#mon-recurring-app-root`，Bridge 导出类名规范订正为 `GeoRecurringMonitorBridge`。
 
-### Bridge 标准接口定义
+### Bridge 标准接口定义与参数透传约定
 ```javascript
 export const GeoStepXBridge = {
-  // 挂载组件岛到宿主 DOM
-  mount(containerEl, { projectData, subStep }) {},
+  // 挂载组件岛到宿主 DOM（内部将 bridge 参数原样注入 Vue 组件 Props: { bridge }）
+  // 宿主侧调用传参形状: mount(containerEl, { projectData, subStep })
+  mount(el, bridge) {},
   // 卸载组件岛并清理全局监听
   unmount() {},
   // 响应外部项目切换，更新响应式上下文
