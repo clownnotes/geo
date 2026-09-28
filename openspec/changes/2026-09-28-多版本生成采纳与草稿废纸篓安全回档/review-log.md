@@ -200,3 +200,21 @@
 所有 1 项 🔴 P0、3 项 🟡 P1、4 项 🟢 P2 均已全量订正闭环，OpenSpec 规范体系（proposal / design / tasks / review-log）已达到最高严谨交付标准。
 当前状态：`[已达成共识]`，AI 保持**严格立定停步**，未修改任何业务代码，等待师弟发出开工编码指令。
 
+---
+
+## 2026-09-28 20:05 · 师兄 (Antigravity) · 第二轮：编码完成与跨端验证通过
+
+- **时间**：2026-09-28 20:05 · **记录人**：师兄（全栈工程师/架构师）
+- **对象**：编码实现与端到端构建交付
+- **比对基准**：`AGENTS.md`（§1/§3/§4）、`tasks.md`、NE1 服务器构建与冒烟测试产物
+- **审查标签**：`[通过]`
+- **实施要点自检**：
+  1. **零彩色 Emoji 铁律**：经 Python 全量扫描 git diff，改动代码与文案中 Emoji 数量为 0，严格遵守 `AGENTS.md §3.3`。
+  2. **组件防污染边界**：`StudioFileTree.vue` 保持 `showStatusBadge` 默认值为 `false`，仅在 `Step1App.vue` 显式开启 `:show-status-badge="true"`，不波及阶段二/三。
+  3. **受保护底牌防呆**：`handleDeleteFile` 与 UI 模板双重守卫，`isActive === true` 的文件禁止删除且不渲染删除按钮。
+  4. **废纸篓与就地回档**：底部抽屉使用项目既有先例的 Lucide `rotate-cw` 恢复图标，点击一键恢复为未删除草稿并自动定位。
+  5. **多版本采纳引擎**：`StudioEditor.vue` 放宽白名单，支持阶段一 `materials`、`drafts`、`reports` 及带版本标签草稿采纳为客户底牌，同分类旧底牌自动退回草稿。
+  6. **生成时间戳与版本透出**：中栏底部状态栏清晰展示 `generatedAt` 与 `versionTag`，重新抓取/生成时自动更新时间戳。
+  7. **NE1 跨端零编译**：严格遵守 `AGENTS.md §4.5`，本地零编译，通过 SSH 在 NE1 服务器执行 `npm run build:step0`（414ms 完成）与 `npm run smoke:step0`（4/4 全部 PASS），产物安全同步回本地。
+
+

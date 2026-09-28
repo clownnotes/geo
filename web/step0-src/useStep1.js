@@ -21,23 +21,42 @@ export function useStep1(projectData = {}) {
   }
 
   const initialFiles = buildStage1Files(ctx);
-  // 如果之前编辑并保存了文件，恢复保存的内容
+  // 如果之前编辑并保存了文件，恢复保存的内容与多版本状态
   if (savedState && savedState.files) {
     Object.keys(savedState.files).forEach((fn) => {
+      const sf = savedState.files[fn];
       if (initialFiles[fn]) {
         // [2026-09-27] [底牌溯源继承] 阶段零问答素材属于上游交付物底牌，始终采用最新生效血统章
-        if (fn === '01_阶段零豆包实测问答素材.md') {
-          return;
+        if (fn !== '01_阶段零豆包实测问答素材.md') {
+          let content = sf.content;
+          // 如果历史初稿未打上溯源血统章，自动补齐
+          if (fn === '01_商业诊断与转化初稿.md' && content && !content.includes('[溯源血统]')) {
+            const stamp = `> [溯源血统]：本报告基于阶段零生效底牌【${ctx.activeQaVersion}】（${ctx.activeQuestionFile} + ${ctx.activeAnswerFile}）直出\n\n`;
+            content = content.replace(/^#\s+[^\n]+\n\n?/, (match) => match + stamp);
+          }
+          initialFiles[fn].content = content;
+          initialFiles[fn].savedContent = content;
+          initialFiles[fn].isDirty = false;
         }
-        let content = savedState.files[fn].content;
-        // 如果历史初稿未打上溯源血统章，自动补齐
-        if (fn === '01_商业诊断与转化初稿.md' && content && !content.includes('[溯源血统]')) {
-          const stamp = `> [溯源血统]：本报告基于阶段零生效底牌【${ctx.activeQaVersion}】（${ctx.activeQuestionFile} + ${ctx.activeAnswerFile}）直出\n\n`;
-          content = content.replace(/^#\s+[^\n]+\n\n?/, (match) => match + stamp);
-        }
-        initialFiles[fn].content = content;
-        initialFiles[fn].savedContent = content;
-        initialFiles[fn].isDirty = false;
+        // [2026-09-28] 恢复采纳状态、版本标签、生成时间戳与废纸篓软删除标记
+        if (sf.isActive !== undefined) initialFiles[fn].isActive = sf.isActive;
+        if (sf.versionTag) initialFiles[fn].versionTag = sf.versionTag;
+        if (sf.generatedAt) initialFiles[fn].generatedAt = sf.generatedAt;
+        if (sf.is_deleted !== undefined) initialFiles[fn].is_deleted = sf.is_deleted;
+      } else if (sf && typeof sf === 'object') {
+        // 动态派生的草稿文件（如新版本候选试算草稿），恢复至工作区
+        initialFiles[fn] = {
+          name: fn,
+          category: sf.category || 'materials',
+          renderMode: fn.endsWith('.html') ? 'html' : 'markdown',
+          content: sf.content || '',
+          savedContent: sf.content || '',
+          isDirty: false,
+          isActive: sf.isActive || false,
+          versionTag: sf.versionTag || 'V2-Draft',
+          generatedAt: sf.generatedAt || '',
+          is_deleted: sf.is_deleted || false,
+        };
       }
     });
   }
@@ -88,7 +107,18 @@ export function useStep1(projectData = {}) {
         notes: notes.value,
         crawledMetrics: crawledMetrics.value, // [2026-09-28] 持久化底座抓取完成态
         files: Object.fromEntries(
-          Object.entries(files.value).map(([k, v]) => [k, { content: v.content, isDirty: v.isDirty }])
+          Object.entries(files.value).map(([k, v]) => [
+            k,
+            {
+              content: v.content,
+              isDirty: v.isDirty,
+              isActive: v.isActive,
+              versionTag: v.versionTag,
+              generatedAt: v.generatedAt,
+              is_deleted: v.is_deleted,
+              category: v.category,
+            },
+          ])
         ),
       };
       localStorage.setItem(storageKey, JSON.stringify(stateToSave));
@@ -154,6 +184,65 @@ export function useStep1(projectData = {}) {
     }
   }
 
+  // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 设为客户采纳底牌
+  function handleAdoptFile(filename) {
+    const file = files.value[filename];
+    if (!file) return;
+    const cat = file.category;
+    // 将同分类下的其他文件取消采纳
+    Object.values(files.value).forEach((f) => {
+      if (f.category === cat && f.name !== filename) {
+        f.isActive = false;
+      }
+    });
+    file.isActive = true;
+    file.is_deleted = false;
+    saveState();
+    showStudioToast(`已将【${filename}】设为客户采纳生效版本！`);
+  }
+
+  // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 软删除草稿文件（已采纳底牌受保护不可删除）
+  function handleDeleteFile(filename) {
+    const file = files.value[filename];
+    if (!file) return;
+    if (file.isActive) {
+      showStudioToast('已采纳的底牌文件受系统保护，无法删除！如需删除请先采纳其他版本', 'warning');
+      return;
+    }
+    file.is_deleted = true;
+    // 如果当前选中的是被删除文件，平滑切换到其他未被删除的文件
+    if (activeFileName.value === filename) {
+      const remainingTabs = openTabs.value.filter((t) => t !== filename && !files.value[t]?.is_deleted);
+      if (remainingTabs.length > 0) {
+        handleSelectTab(remainingTabs[0]);
+      } else {
+        const availableFile = Object.values(files.value).find((f) => !f.is_deleted);
+        if (availableFile) {
+          handleSelectTab(availableFile.name);
+        } else {
+          activeFileName.value = '';
+        }
+      }
+    }
+    // 从 openTabs 中移除
+    const tIdx = openTabs.value.indexOf(filename);
+    if (tIdx !== -1) {
+      openTabs.value.splice(tIdx, 1);
+    }
+    saveState();
+    showStudioToast(`已将草稿【${filename}】移入废纸篓，可在左侧底部展开恢复`);
+  }
+
+  // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 从废纸篓还原文件
+  function handleRestoreFile(filename) {
+    const file = files.value[filename];
+    if (!file) return;
+    file.is_deleted = false;
+    handleSelectTab(filename);
+    saveState();
+    showStudioToast(`已成功恢复草稿【${filename}】并打开`);
+  }
+
   function handleGateChange(gateVal) {
     selectedGate.value = gateVal;
     saveState();
@@ -215,10 +304,12 @@ export function useStep1(projectData = {}) {
           crawledMetrics.value = true;
           // [2026-09-28] [阶段一底座抓取动线视线引导优化] 根据后端真机探测指标实时重构并回填中栏
           const freshMarkdown = buildCrawledMetricsMarkdown(ctx, data.metrics || {});
+          const nowStr = new Date().toLocaleString('zh-CN', { hour12: false });
           if (files.value['01_网络底座指标_待对照.md']) {
             files.value['01_网络底座指标_待对照.md'].content = freshMarkdown;
             files.value['01_网络底座指标_待对照.md'].savedContent = freshMarkdown;
             files.value['01_网络底座指标_待对照.md'].isDirty = false;
+            files.value['01_网络底座指标_待对照.md'].generatedAt = nowStr;
           }
           handleSelectTab('01_网络底座指标_待对照.md');
           saveState();
@@ -232,10 +323,21 @@ export function useStep1(projectData = {}) {
         isCrawling.value = false;
       }
     } else if (actionType === 'generateDraft') {
+      const nowStr = new Date().toLocaleString('zh-CN', { hour12: false });
+      if (files.value['01_商业诊断与转化初稿.md']) {
+        files.value['01_商业诊断与转化初稿.md'].generatedAt = nowStr;
+      }
       handleSelectTab('01_商业诊断与转化初稿.md');
       saveState();
       showStudioToast('商业诊断与转化初稿已生成！可复制去外部润色');
     } else if (actionType === 'generateFinalReports') {
+      const nowStr = new Date().toLocaleString('zh-CN', { hour12: false });
+      if (files.value['01_老板商业诊断报告_好看大屏.html']) {
+        files.value['01_老板商业诊断报告_好看大屏.html'].generatedAt = nowStr;
+      }
+      if (files.value['01_老板商业诊断报告_文字版.md']) {
+        files.value['01_老板商业诊断报告_文字版.md'].generatedAt = nowStr;
+      }
       handleSelectTab('01_老板商业诊断报告_好看大屏.html');
       if (!openTabs.value.includes('01_老板商业诊断报告_文字版.md')) {
         openTabs.value.push('01_老板商业诊断报告_文字版.md');
@@ -370,5 +472,8 @@ export function useStep1(projectData = {}) {
     handleProceed,
     handleSkip,
     handleRefreshFiles,
+    handleAdoptFile,
+    handleDeleteFile,
+    handleRestoreFile,
   };
 }

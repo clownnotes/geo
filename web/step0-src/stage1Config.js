@@ -254,8 +254,14 @@ export function buildStage1Files(ctx) {
   };
 
   // [2026-09-27] [SSOT单一真相源] 文件对象的 dir 属性统一由 CATEGORY_DIR_MAP 动态注入，消除硬编码与死代码分支
+  // [2026-09-28] [多版本生成采纳与草稿废纸篓] 初始骨干文件统一注入生效底牌标记、V1版本标签、生成时间戳与未删除状态
+  const nowStr = new Date().toLocaleString('zh-CN', { hour12: false });
   Object.keys(files).forEach((fn) => {
     files[fn].dir = CATEGORY_DIR_MAP[files[fn].category] || '交付文件';
+    if (files[fn].isActive === undefined) files[fn].isActive = true;
+    if (!files[fn].versionTag) files[fn].versionTag = 'V1';
+    if (!files[fn].generatedAt) files[fn].generatedAt = nowStr;
+    if (files[fn].is_deleted === undefined) files[fn].is_deleted = false;
   });
 
   return files;

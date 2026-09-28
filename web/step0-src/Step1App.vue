@@ -26,9 +26,12 @@
         :active-file-name="activeFileName"
         :allow-new-file="false"
         :allow-refresh="true"
+        :show-status-badge="true"
         @toggle-category="handleToggleCategory"
         @open-file="handleOpenFile"
         @refresh-files="handleRefreshFiles"
+        @delete-file="handleDeleteFile"
+        @restore-file="handleRestoreFile"
       />
 
       <!-- 中间：多 Tab 在线打磨区 (Markdown源码 / HTML 视觉大屏实时预览) -->
@@ -42,6 +45,8 @@
         @update-content="handleUpdateContent"
         @copy-content="handleCopyContent"
         @save-file="handleSaveActiveFile"
+        @adopt-file="handleAdoptFile"
+        @adoptFile="handleAdoptFile"
         @fullscreen="fullscreenVisible = true"
       />
 
@@ -157,5 +162,8 @@ const {
   handleProceed,
   handleSkip,
   handleRefreshFiles,
+  handleAdoptFile,
+  handleDeleteFile,
+  handleRestoreFile,
 } = useStep1(props.bridge?.projectData || {});
 </script>

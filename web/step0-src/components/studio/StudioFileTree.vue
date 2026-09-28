@@ -103,6 +103,17 @@
                 >
                   草稿
                 </span>
+
+                <!-- [2026-09-28] [多版本生成采纳与草稿废纸篓] 草稿文件 hover 允许删除 (已采纳受保护不可删) -->
+                <button
+                  v-if="!files[fn]?.isActive"
+                  type="button"
+                  title="删除此草稿 (移入废纸篓)"
+                  class="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded transition cursor-pointer"
+                  @click.stop="$emit('deleteFile', fn)"
+                >
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
               </template>
               <span
                 v-if="files[fn]?.isDirty"
@@ -113,12 +124,56 @@
           </div>
         </div>
       </div>
+
+      <!-- [2026-09-28] [多版本生成采纳与草稿废纸篓] 底部废纸篓/已归档折叠抽屉 -->
+      <div
+        v-if="trashFiles.length > 0"
+        class="rounded-lg border border-slate-200 bg-slate-50/80 overflow-hidden text-xs transition"
+      >
+        <div
+          class="flex items-center justify-between p-2 cursor-pointer select-none hover:bg-slate-100 text-slate-600 font-medium"
+          @click="isTrashExpanded = !isTrashExpanded"
+        >
+          <div class="flex items-center gap-1.5 truncate">
+            <i
+              :data-lucide="isTrashExpanded ? 'chevron-down' : 'chevron-right'"
+              class="w-3.5 h-3.5 text-slate-400"
+            ></i>
+            <i data-lucide="trash" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>已归档 / 废纸篓</span>
+          </div>
+          <span class="text-[10px] px-1.5 py-0.2 rounded font-mono bg-slate-200 text-slate-600">
+            {{ trashFiles.length }}
+          </span>
+        </div>
+        <div v-show="isTrashExpanded" class="p-1 space-y-1 bg-white border-t border-slate-100">
+          <div
+            v-for="fn in trashFiles"
+            :key="fn"
+            class="flex items-center justify-between p-1.5 rounded hover:bg-slate-50 text-slate-500 text-[12px]"
+          >
+            <div class="truncate mr-1 flex items-center gap-1.5 text-slate-400 line-through">
+              <i data-lucide="file-minus" class="w-3.5 h-3.5 shrink-0"></i>
+              <span class="truncate">{{ fn }}</span>
+            </div>
+            <button
+              type="button"
+              title="一键恢复回档"
+              class="px-2 py-0.5 text-[11px] font-medium text-[#7c5bf5] bg-[#7c5bf5]/10 hover:bg-[#7c5bf5]/20 rounded transition flex items-center gap-1 shrink-0 cursor-pointer"
+              @click.stop="$emit('restoreFile', fn)"
+            >
+              <i data-lucide="rotate-cw" class="w-3 h-3"></i>
+              <span>恢复</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { onMounted, nextTick, watch } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 
 const props = defineProps({
   categories: { type: Array, required: true },
@@ -129,14 +184,25 @@ const props = defineProps({
   allowNewFile: { type: Boolean, default: true },
   /** 是否允许刷新目录 */
   allowRefresh: { type: Boolean, default: true },
-  /** [2026-09-28] [出题草稿采纳流] 是否展示二元状态徽章（仅阶段零启用，防污染阶段一/二/三） */
+  /** [2026-09-28] [出题草稿采纳流] 是否展示二元状态徽章（默认 false，防污染阶段二/三；阶段一显式传 true 开启） */
   showStatusBadge: { type: Boolean, default: false },
 });
 
-defineEmits(['toggleCategory', 'openFile', 'newFile', 'refreshFiles']);
+// [2026-09-28] [多版本生成采纳与草稿废纸篓] 派发 deleteFile 与 restoreFile 事件
+defineEmits([
+  'toggleCategory', 'openFile', 'newFile', 'refreshFiles',
+  'deleteFile', 'restoreFile',
+]);
+
+const isTrashExpanded = ref(false);
+
+const trashFiles = computed(() => {
+  if (!props.files) return [];
+  return Object.keys(props.files).filter(fn => props.files[fn]?.is_deleted);
+});
 
 function getFilesInCat(catId) {
-  return Object.keys(props.files).filter(
+  return Object.keys(props.files || {}).filter(
     (fn) => props.files[fn].category === catId && !props.files[fn].is_deleted
   );
 }
@@ -153,7 +219,7 @@ onMounted(() => {
   refreshIcons();
 });
 
-watch([() => props.activeCategory, () => props.activeFileName, () => props.files], () => {
+watch([() => props.activeCategory, () => props.activeFileName, () => props.files, isTrashExpanded], () => {
   refreshIcons();
 }, { deep: true });
 </script>

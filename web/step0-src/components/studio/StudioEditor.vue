@@ -141,12 +141,20 @@
     <!-- 底部状态栏 -->
     <div class="px-3.5 py-1.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[12px] text-slate-500 select-none">
       <div class="flex items-center gap-3">
-        <span class="font-medium text-slate-700">{{ activeFile ? `${activeFile.dir}/${activeFile.name}` : '未打开文件' }}</span>
+        <span class="font-medium text-slate-700">{{ activeFile ? `${activeFile.dir || ''}/${activeFile.name}` : '未打开文件' }}</span>
         <span>共 {{ lineCount }} 行</span>
         <span>{{ (activeFile?.content || '').length }} 字符</span>
         <span class="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-600 font-medium">{{ renderModeLabel }}</span>
+        <span v-if="activeFile?.generatedAt" class="text-slate-400">生成时间: {{ activeFile.generatedAt }}</span>
       </div>
       <div class="flex items-center gap-2">
+        <span
+          v-if="activeFile?.versionTag"
+          class="px-1.5 py-0.5 rounded text-[11px] font-mono border"
+          :class="activeFile?.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold' : 'bg-slate-100 text-slate-600 border-slate-200'"
+        >
+          {{ activeFile.versionTag }}
+        </span>
         <span v-if="activeFile?.isDirty" class="flex items-center gap-1 text-amber-700 font-medium">
           <span class="w-2 h-2 rounded-full bg-amber-500"></span>
           <span>有未保存修改 ●</span>
@@ -179,6 +187,7 @@ const emit = defineEmits([
   'saveFile',
   'fullscreen',
   'adoptFile',
+  'adopt-file',
 ]);
 
 const textareaRef = ref(null);
@@ -188,11 +197,12 @@ const viewMode = ref('edit');
 const currentFile = computed(() => props.files[props.activeFileName] || null);
 const activeFile = currentFile;
 
-/** [2026-09-27] [采纳操作判定] 仅当文件未采纳且属于 questions 或 answers 分类时可被设为生效底牌 */
+/** [2026-09-28] [采纳操作判定] 放宽为全阶段通用白名单或含版本号草稿 */
 const canAdoptCurrentFile = computed(() => {
   if (!currentFile.value) return false;
   if (currentFile.value.isActive) return false;
-  return currentFile.value.category === 'questions' || currentFile.value.category === 'answers';
+  const cat = currentFile.value.category;
+  return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat) || Boolean(currentFile.value.versionTag);
 });
 
 const canPreview = computed(() => props.renderMode === 'markdown' || props.renderMode === 'html');
