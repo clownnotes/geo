@@ -97,9 +97,19 @@
   - `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" ... />`
   - `<StudioEditor @adopt-file="handleAdoptFile" ... />`
 
-### 3. 阶段一业务逻辑 (`GEO/web/step0-src/useStep1.js`)
+### 3. 阶段零业务胶水层 (`GEO/web/step0-src/Step0App.vue`)
+- **草稿软删除 (`handleDeleteFile`)**：
+  校验 `if (files.value[filename]?.isActive) return;` 保护生效底牌；置 `files.value[filename].is_deleted = true`；若当前打开文件是被删文件，平滑切至分类下首个未删除文件；调用 `saveStep0FilesToStorage()` 持久化；Toast 提示“已将草稿移入废纸篓”。
+- **废纸篓恢复 (`handleRestoreFile`)**：
+  置 `files.value[filename].is_deleted = false`；调用 `saveStep0FilesToStorage()`；自动定位打开该文件。
+- **模板绑定**：
+  `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" ... />`
+
+### 4. 阶段一业务逻辑 (`GEO/web/step0-src/useStep1.js`)
 - **采纳逻辑 (`handleAdoptFile`)**：
   将目标文件设为 `isActive: true`，将同交付物工序槽位（或同一分类互斥版本）的旧生效版本置为 `isActive: false`，调用 `saveState()` 并 Toast 提示“已将【xxx】设为客户采纳生效版本！”；
+- **重新抓取派生新版 (`handleAction('crawlMetrics')`)**：
+  若当前已有底座指标文件，点击重新抓取探测成功后，计算已存在版本数并动态生成递增新文件（如 `01_网络底座指标_第${count + 1}版.md`），设置 `isActive: false`（草稿态，受保护的原版保持生效）、`versionTag: 'V${count + 1}-Draft'`、最新生成时间戳，自动加入 `files` 并选中打开；原底座指标不受破坏，待交付专家确认满意后点击【设为客户采纳】才升格生效；
 - **软删除逻辑 (`handleDeleteFile`)**：
   严格校验 `if (files.value[filename]?.isActive) return;` 杜绝误删生效版本。设置 `files.value[filename].is_deleted = true`。若当前打开的文件是被删文件，三级平滑降级切换：① 剩余未删除 openTabs 首项；② 全局未删除文件首项；③ 空态。调用 `saveState()` 并提示“已将草稿移入废纸篓，可在左侧底部展开恢复”；
 - **恢复逻辑 (`handleRestoreFile`)**：

@@ -3,7 +3,7 @@
 ## 1. 准备与规范核对
 
 - [x] 1.1 核对 `AGENTS.md §3.3`（文案杜绝彩色 Emoji）、`§3.5`（克制视觉）、`§4.5`（本地零编译，打包构建必须在 NE1 服务器）。
-- [x] 1.2 确认修改涉及的核心文件：`StudioFileTree.vue`、`stage1Config.js`、`useStep1.js`、`Step1App.vue`、`StudioEditor.vue`。
+- [x] 1.2 确认修改涉及的核心文件：`StudioFileTree.vue`、`stage1Config.js`、`useStep1.js`、`Step1App.vue`、`StudioEditor.vue`、`Step0App.vue`。
 
 ## 2. 前端组件与业务逻辑编码
 
@@ -26,15 +26,22 @@
   - `Step1App.vue` 补齐 `<StudioEditor>` 的 `@adopt-file="handleAdoptFile"` 绑定；
   - 中栏编辑器展示文件生成时间戳与版本号，针对草稿文件展示【设为客户采纳】动作按钮。
 - [x] 2.5 文案与代码 Emoji 规整自检：检索改动文件，确保不引入任何彩色 Emoji 表情。
+- [ ] 2.6 为阶段零主应用 `GEO/web/step0-src/Step0App.vue` 补齐草稿删除与废纸篓恢复能力：
+  - 实现 `handleDeleteFile(filename)` 与 `handleRestoreFile(filename)`；
+  - 在 `<StudioFileTree>` 上绑定 `@delete-file="handleDeleteFile"` 与 `@restore-file="handleRestoreFile"`；
+  - 联动持久化 `localStorage` 中的阶段零文件草稿与废纸篓状态，杜绝点击垃圾桶无反应。
+- [ ] 2.7 完善阶段一底座重新抓取多版本生成逻辑 (`GEO/web/step0-src/useStep1.js`)：
+  - 在 `handleAction('crawlMetrics')` 中，若已有底座指标文件，重新抓取时生成递增新版草稿（如 `01_网络底座指标_第2版.md` 或 `01_网络底座指标_第N版.md`），设置 `isActive: false`、`versionTag: 'V2-Draft'`、`is_deleted: false`，带最新生成时间戳并自动在中栏打开；
+  - 保留原有已采纳的底座指标原版不受破坏；交付专家核对满意后手动点击【设为客户采纳】才升格为生效版本，同工序槽位原版本退为草稿；不满意则可直接点垃圾桶删入废纸篓。
 
 ## 3. 构建与端到端真机验收
 
-- [x] 3.1 跨端构建（严格遵守 `AGENTS.md §4.5`）：在 NE1 服务器执行仓库根构建命令 `npm run build:step0`，产物写入 `web/assets/step0/` 并由 `stamp-build.mjs` 打版本戳。
-- [x] 3.2 运行端到端冒烟测试（`npm run smoke:step0`），确保 4/4 项全部 PASS。
+- [ ] 3.1 跨端构建（严格遵守 `AGENTS.md §4.5`）：在 NE1 服务器执行仓库根构建命令 `npm run build:step0`，产物写入 `web/assets/step0/` 并由 `stamp-build.mjs` 打版本戳。
+- [ ] 3.2 运行端到端冒烟测试（`npm run smoke:step0`），确保 4/4 项全部 PASS。
 - [ ] 3.3 浏览器真机验证（NE1 开发环境 8088 端口 · 人工浏览器验收项，AI 不得代勾）：
-  - 观察草稿文件 hover 出现删除垃圾桶图标，点击成功移入废纸篓；
+  - 观察阶段零与阶段一草稿文件 hover 均出现删除垃圾桶图标，点击成功移入废纸篓；
   - 观察已采纳文件受到强制保护，不出现删除按钮；
   - 观察左栏底部的【已归档 / 废纸篓】抽屉展开展示被删文件，点击【恢复】一键原位复原；
-  - 观察点击中栏【设为客户采纳】，该文件成功获得紫色已采纳徽章，原底牌自动退回为普通草稿；
-  - 观察中栏顶部清晰展示生成时间戳与版本信息；
+  - 观察阶段一点击【已抓取真实指标（点击重新抓取）】，成功在左栏生成 `01_网络底座指标_第2版.md` 草稿并自动打开；
+  - 观察点击中栏【设为客户采纳】，新版获得已采纳徽章，原版本退回为普通草稿；
   - 观察刷新页面后，采纳标记、时间戳与废纸篓状态 100% 保持。

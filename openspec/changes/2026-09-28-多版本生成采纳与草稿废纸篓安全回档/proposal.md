@@ -38,6 +38,8 @@
 - `GEO/web/step0-src/Step1App.vue`：
   - 胶水层连接 `StudioFileTree` 的 `delete-file` 与 `restore-file` 事件，连接 `<StudioEditor>` 的 `adopt-file` 采纳事件；
   - 为 `<StudioFileTree>` 显式绑定 `:show-status-badge="true"`，在阶段一开启采纳状态与废纸篓能力；
+- `GEO/web/step0-src/Step0App.vue`：
+  - 阶段零补齐胶水层连接：实现 `handleDeleteFile` 与 `handleRestoreFile`，绑定 `<StudioFileTree>` 的 `delete-file` 与 `restore-file` 事件，实现全阶段草稿删除与废纸篓回档闭环；
 - `GEO/web/step0-src/components/studio/StudioEditor.vue`：
   - 放宽 `canAdoptCurrentFile` 判定守卫（支持阶段一的 materials/drafts/reports 分类或带 versionTag 的文件），点击派发 `adoptFile` 事件；
   - 顶部与底部状态栏透出文件生成时间戳与版本号。
