@@ -55,18 +55,22 @@
   - 保留右侧【恢复】按钮 `@click.stop="$emit('restoreFile', fn)"`，防止冒泡。
 - [ ] 4.2 重构中栏编辑器顶栏为双行独立架构 (`GEO/web/step0-src/components/studio/StudioEditor.vue`)：
   - 第一行（状态与操作工具栏）：左侧展示当前文件状态（若为废纸篓展示醒目的 `[废纸篓归档 · 只读状态]` 提示）；右侧偏右对齐排布快捷功能按钮；
-  - 若为废纸篓文件，右侧提供醒目的【一键恢复此文件】高亮按钮（派发 `@restoreFile` 事件），隐藏【设为采纳】与【保存文件】；
+  - 若为废纸篓文件，右侧提供醒目的【一键恢复此文件】高亮按钮（派发 `@restoreFile` 事件，严格遵循 AGENTS §3.3 使用系统主色紫 `#7c5bf5`，严禁使用红色），直接隐藏【设为采纳】与【保存文件】；
   - 若为正常文件，展示【客户生效底牌】/【设为客户采纳】、【源码/预览】、【全屏】、【一键复制】、【保存文件】；
   - 第二行（Tab 标签栏）：独立一行平铺 `openTabs`，废纸篓文件在 Tab 标签上标注 `[废纸篓]` 浅色标识，彻底解决多文件拥挤问题。
-- [ ] 4.3 废纸篓文件只读编辑保护 (`GEO/web/step0-src/components/studio/StudioEditor.vue`)：
-  - 当 `currentFile?.is_deleted` 为 `true` 时，文本编辑区 `<textarea>` 自动置为 `:readonly="true"` 并应用只读浅色背景，防止误操作。
+- [ ] 4.3 废纸篓文件只读编辑保护与快捷键守卫 (`GEO/web/step0-src/components/studio/StudioEditor.vue`)：
+  - 当 `currentFile?.is_deleted` 为 `true` 时，文本编辑区 `<textarea>` 自动置为 `:readonly="true"` 并应用只读浅色背景，防止误操作；
+  - 拦截 `Ctrl+S / Cmd+S` 保存快捷键，只读态下提示“当前文件处于废纸篓只读状态，不可保存；请先点击【一键恢复】”。
 - [ ] 4.4 胶水层连接与恢复联动 (`Step0App.vue` & `Step1App.vue`)：
   - 在 `<StudioEditor>` 上绑定 `@restore-file="handleRestoreFile"`；
-  - 恢复后，文件 `is_deleted` 置为 `false`，Tab 标签恢复为正常草稿，自动解除只读。
+  - 恢复后，文件 `is_deleted` 置为 `false`，Tab 标签恢复为正常草稿，自动解除只读与快捷键拦截。
 - [ ] 4.5 跨端构建与端到端冒烟验证：
-  - 严格在 NE1 服务器执行 `npm run build:step0` 与 `npm run smoke:step0`（确保 4/4 项全部 PASS）。
+  - 严格在 NE1 服务器执行 `npm run build:step0` 与 `npm run smoke:step0`（确保 4/4 项全部 PASS）；
+  - 验证版本递增防重名算法与单 slotKey 唯一生效不变量。
 - [ ] 4.6 浏览器真机验收（NE1 8088 端口 · 人工验收项，AI 不得代勾）：
   - 点击左栏底部的废纸篓文件，验证在中栏成功打开只读预览，第二行 Tab 出现 `[废纸篓]` 标识；
-  - 验证第一行右侧偏右对齐展示【一键恢复此文件】等按钮，且编辑器不可打字输入；
-  - 点击【一键恢复此文件】，验证文件立即变回可编辑正常草稿，原位恢复。
+  - 验证第一行右侧偏右对齐展示【一键恢复此文件】等按钮，且编辑器不可打字输入、按 Cmd+S 会提示拦截；
+  - 点击【一键恢复此文件】，验证文件立即变回可编辑正常草稿，原位恢复；
+  - 验证阶段零与阶段一在双行顶栏下均正常展示、无视觉截断或错位。
+
 

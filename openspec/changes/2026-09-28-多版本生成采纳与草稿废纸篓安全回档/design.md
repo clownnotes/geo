@@ -27,33 +27,51 @@
 
 #### (1) 工序槽位映射字典 (slotKey)
 为杜绝“同分类互斥导致其他交付物断链”的致命隐患，系统按**交付物工序槽位**独立隔离，并在字典中显式固化派生主干名前缀 `baseSlotName`：
-| 槽位键 (`slotKey`) | 初始核心文件名 | 派生主干名前缀 (`baseSlotName`) | 派生草稿统一命名规则 | 所属分类 |
-| :--- | :--- | :--- | :--- | :--- |
-| `slot_metrics` | `01_网络底座指标_待对照.md` | `01_网络底座指标` | `01_网络底座指标_第${N}版.md` | `materials` |
-| `slot_draft` | `01_商业诊断与转化初稿.md` | `01_商业诊断与转化初稿` | `01_商业诊断与转化初稿_第${N}版.md` | `drafts` |
-| `slot_report_screen` | `01_老板商业诊断报告_好看大屏.html` | `01_老板商业诊断报告_好看大屏` | `01_老板商业诊断报告_好看大屏_第${N}版.html` | `reports` |
-| `slot_report_text` | `01_老板商业诊断报告_文字版.md` | `01_老板商业诊断报告_文字版` | `01_老板商业诊断报告_文字版_第${N}版.md` | `reports` |
-| `slot_report_tech` | `01_技术开发底牌_工单版.md` | `01_技术开发底牌_工单版` | `01_技术开发底牌_工单版_第${N}版.md` | `reports` |
-| `slot_report_sales` | `01_售前避坑手册_团队共享版.md` | `01_售前避坑手册_团队共享版` | `01_售前避坑手册_团队共享版_第${N}版.md` | `reports` |
-| `slot_stage0_questions` | `01_豆包提问清单_推荐版.txt` | `01_豆包题目` | `01_豆包题目_第${N}版.txt` | `questions` |
-| `slot_stage0_answers` | `02_豆包实测回答记录_初测.txt` | `02_豆包回答` | `02_豆包回答_第${N}版.txt` | `answers` |
+| 槽位键 (`slotKey`) | 初始核心文件名 | 派生主干名前缀 (`baseSlotName`) | 派生草稿统一命名规则 | 所属分类 | 阶段适用 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `slot_metrics` | `01_网络底座指标_待对照.md` | `01_网络底座指标` | `01_网络底座指标_第${N}版.md` | `materials` | 阶段一 |
+| `slot_draft` | `01_商业诊断与转化初稿.md` | `01_商业诊断与转化初稿` | `01_商业诊断与转化初稿_第${N}版.md` | `drafts` | 阶段一 |
+| `slot_report_screen` | `01_老板商业诊断报告_好看大屏.html` | `01_老板商业诊断报告_好看大屏` | `01_老板商业诊断报告_好看大屏_第${N}版.html` | `reports` | 阶段一 |
+| `slot_report_text` | `01_老板商业诊断报告_文字版.md` | `01_老板商业诊断报告_文字版` | `01_老板商业诊断报告_文字版_第${N}版.md` | `reports` | 阶段一 |
+| `slot_report_tech` | `01_技术开发底牌_工单版.md` | `01_技术开发底牌_工单版` | `01_技术开发底牌_工单版_第${N}版.md` | `reports` | 阶段一 |
+| `slot_report_sales` | `01_售前避坑手册_团队共享版.md` | `01_售前避坑手册_团队共享版` | `01_售前避坑手册_团队共享版_第${N}版.md` | `reports` | 阶段一 |
+| `slot_stage0_questions` | `01_豆包提问清单_推荐版.txt` | `01_豆包题目` | `01_豆包题目_第${N}版.txt` | `questions` | 阶段零 |
+| `slot_stage0_answers` | `02_豆包实测回答记录_初测.txt` | `02_豆包回答` | `02_豆包回答_第${N}版.txt` | `answers` | 阶段零 |
 
 #### (2) 版本号递增与防重名防覆盖算法 (Anti-Collision Counter)
 重新生成时，扫描当前工作区内的**全量文件（包含 `is_deleted: true` 在废纸篓中的文件）**：
 1. 找出所有属于该 `slotKey` 的文件；
 2. **严格受控提取版本序号**：
    - 文件名提取：严格执行 `/第(\d+)版/` 正则捕获组；
-   - 标签提取：严格执行 `/V(\d+)(?:-Draft)?/i` 或 `/QA-V(\d+)/i` 正则捕获组；
+   - 标签提取：严格执行 `/^QA-V(\d+)/i`（阶段零）或 `/^V(\d+)/i`（阶段一~六）正则捕获组；
    - **安全铁律**：严禁对文件名使用松散的 `\d+` 全词提取，杜绝将 `01_`、`02_` 等前缀编号误读为版本序号！
 3. 计算最大序号：`maxVersion = Math.max(...versions, 1)`；
 4. 查字典获取对应 `slotKey` 的 `baseSlotName`，新文件严格统一命名为：`${baseSlotName}_第${maxVersion + 1}版.${ext}`；
-5. 新版本号初始为：`versionTag: 'V${maxVersion + 1}-Draft'`。
+5. 新版本号规则：
+   - 阶段零：`versionTag: 'QA-V${maxVersion + 1}-Draft'`；
+   - 阶段一~六：`versionTag: 'V${maxVersion + 1}-Draft'`。
 > **防冲突保障**：即便用户抓取生成了 `第2版` 并丢入废纸篓，下次抓取依然自动递增生成 `第3版`，绝对不会发生同名覆盖或废纸篓唯一键丢失！
 
 #### (3) versionTag 状态流转规则
-- **生成态**：草稿文件创建时，带有 `-Draft` 标记（如 `V2-Draft`），`isActive: false`；
-- **采纳态**：交付专家点击【设为客户采纳】时，新文件升格为 `isActive: true`，且其 `versionTag` 自动规整剥离 `-Draft` 后缀，变为正式版本号（如 `V2-Draft` -> `V2`）；
-- **退级态**：原同 `slotKey` 生效版本退回为草稿（`isActive: false`），保持其原有版本号（如 `V1`）。
+- **生成态**：草稿文件创建时，带有 `-Draft` 标记（如阶段零 `QA-V2-Draft`，阶段一 `V2-Draft`），`isActive: false`；
+- **采纳态**：交付专家点击【设为客户采纳】时，新文件升格为 `isActive: true`，且其 `versionTag` 自动规整剥离 `-Draft` 后缀（如 `QA-V2-Draft` -> `QA-V2`，`V2-Draft` -> `V2`）；
+- **退级态**：原同 `slotKey` 生效版本退回为草稿（`isActive: false`），保持其原有版本号（如 `V1` 或 `QA-V1`）。
+
+#### (4) slotKey 确定性双向映射与派生算法 (Deterministic Slot Resolution)
+- **反向推导算法**：
+  1. 若文件已有 `file.slotKey`，直接使用；
+  2. 查字典白名单精确匹配：`EXPLICIT_SLOT_MAP[filename]`；
+  3. 遍历槽位字典（**严格按 `baseSlotName` 字符长度降序排序匹配**）：若 `filename.startsWith(item.baseSlotName)`，命中并返回其 `slotKey`（长前缀优先，杜绝 `好看大屏` 与 `文字版` 互串）；
+  4. 若均未命中，派生为专属独立槽位 `'slot_' + filename.replace(/\.[^/.]+$/, '')`，该槽位不与任何既有槽位产生采纳互斥。
+
+---
+
+### 3. 同 slotKey 单一生效不变量与收敛策略 (Single-Active Invariant)
+- **核心不变量**：任何时刻，同一个 `slotKey` 下有且仅有最多 1 个文件处于 `isActive: true` 状态。
+- **冲突自愈收敛规则**：
+  - 在初始化或从本地存储反序列化时：若该 `slotKey` 下已有任何文件标记为 `isActive: true`，初始骨干文件绝不强制重置为 `true`，而是保持其真实状态；
+  - 仅当该 `slotKey` 下**全量文件均无任何 active 文件（首次全新初始化）**时，初始骨干文件才赋默认值 `isActive: true`；
+  - 采纳新版本时，原子化遍历同 `slotKey` 的所有其他文件将 `isActive` 置为 `false`，确保不变量始终成立。
 
 ---
 
@@ -116,20 +134,24 @@
   - 头部折叠条：【已归档 / 废纸篓 (`trashFiles.length`)】；
   - 展开列表：展示被删草稿名，**支持整行点击触发 `emit('openFile', fn)`**，在中栏打开进行只读查验；右侧提供【恢复】按钮（使用已有先例的 Lucide `rotate-cw` 图标），点击触发 `emit('restoreFile', fn)`。
 
-### 2. 中栏编辑器双行架构与只读预览 (`StudioEditor.vue` & 胶水层)
+### 2. 中栏编辑器双行架构与只读预览 (`GEO/web/step0-src/components/studio/StudioEditor.vue`)
+- **消费方分析与向下兼容保障**：
+  - 当前消费方为 `Step0App.vue` 与 `Step1App.vue`；
+  - 顶栏双行解耦重构（第一行操作栏偏右对齐，第二行 Tab 标签栏）为纯 UI 空间优化，天然向下兼容各阶段。
 - **顶栏解耦为双行独立架构**：
   为彻底解决单行同时承载多 Tab 标签与快捷操作按钮导致的拥挤与遮挡，中栏顶栏重构为双行排布：
   1. **第一行（状态与操作工具栏）**：
-     - **左侧状态区**：若当前文件处于废纸篓中（`currentFile.is_deleted`），显示醒目的【废纸篓归档 · 只读状态】灰色徽章提示；若为正常文件，展示文件属性、字数或生成时间。
+     - **左侧状态区**：若当前文件处于废纸篓中（`currentFile.is_deleted`），显示醒目的【废纸篓归档 · 只读状态】中性灰徽章提示（`bg-slate-100 text-slate-600 border-slate-200`）；若为正常文件，展示文件属性、字数或生成时间。
      - **右侧操作区（偏右对齐）**：
-       - 若为废纸篓文件：提供醒目的【一键恢复此文件】高亮按钮（触发 `@restore-file`）、【源码/预览】切换、【全屏】、【一键复制】；禁用并隐藏【设为客户采纳】与【保存文件】按钮；
+       - 若为废纸篓文件：提供醒目的【一键恢复此文件】高亮按钮（触发 `@restore-file`，**严格遵循 AGENTS §3.3 视觉红线，采用系统主色紫 `bg-[#7c5bf5] text-white hover:bg-[#6c4be5]`，严禁使用红色**）；**直接隐藏**【设为客户采纳】与【保存文件】按钮；提供【源码/预览】切换、【全屏】、【一键复制】；
        - 若为正常文件：按原逻辑展示【客户生效底牌】/【设为客户采纳】、【源码/预览】、【全屏】、【一键复制】与【保存文件】按钮。
   2. **第二行（文件 Tab 标签栏）**：
      - 独立一行专门承载 `openTabs` 各文件切换与关闭；
-     - 若该 Tab 属于废纸篓文件（`files[fn]?.is_deleted`），在文件名后标注 `[废纸篓]` 专属浅色标识；
-     - 点击 Tab 正常切换激活文件；点击 `×` 正常关闭标签页。
-- **废纸篓内容只读保护**：
-  - 当 `currentFile?.is_deleted` 为 `true` 时，源码编辑区域的 `<textarea>` 自动置为 `:readonly="true"`，背景调整为轻微只读灰底，防止误改已归档草稿；
+     - 若该 Tab 属于废纸篓文件（`files[fn]?.is_deleted`），在文件名后标注 `[废纸篓]` 浅灰/浅紫标识；
+     - 点击 Tab 正常切换激活文件；点击 `×` 正常关闭标签页（文件依然安全留在废纸篓中）。
+- **废纸篓内容只读保护与快捷键拦截**：
+  - 当 `currentFile?.is_deleted` 为 `true` 时，源码编辑区域的 `<textarea>` 自动置为 `:readonly="true"`，背景调整为轻微只读灰底（`bg-slate-50/70`），防止误改已归档草稿；
+  - **快捷键安全守卫**：监听全局或文本框键盘事件，在废纸篓只读态下拦截 `Ctrl+S / Cmd+S`，提示“当前文件处于废纸篓只读状态，不可保存；如需修改请先点击【一键恢复】”，彻底杜绝键盘快捷键误覆盖；
   - 交付人员查验内容确认需要后，点击第一行工具栏或左侧抽屉的【一键恢复】，即可将该文件解除只读，无缝转正为正常可编辑草稿。
 - **采纳守卫条件 (`StudioEditor.vue`)**：
   仅针对白名单分类中的未采纳正常文件开放采纳动作，严格守住安全边界：
@@ -141,24 +163,33 @@
     return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat);
   });
   ```
-- **胶水层串联 (`Step0App.vue` & `Step1App.vue`)**：
-  - `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" @open-file="handleOpenFile" ... />`
-  - `<StudioEditor @adopt-file="handleAdoptFile" @restore-file="handleRestoreFile" ... />`
 
-### 4. 阶段一业务逻辑 (`GEO/web/step0-src/useStep1.js`)
+### 3. 阶段零业务胶水与状态管理 (`GEO/web/step0-src/Step0App.vue`)
+- **草稿软删除 (`handleDeleteFile`)**：
+  1. 逻辑层校验 `if (files.value[filename]?.isActive)`，若命中弹出警告 Toast：“已采纳的生效底牌受系统保护，无法删除！如需删除请先采纳其他版本”，杜绝误删底牌；
+  2. 置 `files.value[filename].is_deleted = true`；
+  3. 平滑回退兜底：若当前打开文件是被删文件，先切到剩余未删除 Tab；若无则切到同分类首个未删除文件；若分类全空，切到下一个有效分类或置空态，并从 `openTabs` 清除；
+  4. 调用 `saveStep0FilesToStorage()` 持久化；Toast 提示“已将草稿移入废纸篓”。
+- **废纸篓恢复 (`handleRestoreFile`)**：
+  置 `files.value[filename].is_deleted = false`；调用 `saveStep0FilesToStorage()`；自动定位打开该文件。
+- **模板绑定**：
+  `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" @open-file="handleOpenFile" ... />`
+  `<StudioEditor @adopt-file="handleAdoptFile" @restore-file="handleRestoreFile" ... />`
+
+### 4. 阶段一业务逻辑与状态管理 (`GEO/web/step0-src/useStep1.js`)
 - **采纳逻辑 (`handleAdoptFile`)**：
-  1. 获取目标文件的 `slotKey`（若无则派生）；
+  1. 获取目标文件的 `slotKey`（查字典反向推导）；
   2. 遍历全量文件，将所有相同 `slotKey` 且 `name !== filename` 的旧生效版本设为 `isActive = false`；
   3. 将目标文件设为 `isActive: true`，且 `versionTag` 剥离 `-Draft` 规整为正式版（如 `V2-Draft` -> `V2`）；
   4. 调用 `saveState()` 并 Toast 提示“已将【xxx】设为客户采纳生效版本！”；
 - **重新抓取派生新版 (`handleAction('crawlMetrics')`)**：
-  1. 扫描当前所有包含 `slot_metrics` 的文件（含废纸篓）；
+  1. 扫描当前所有包含 `slot_metrics` 的文件（含废纸篓 `is_deleted: true`）；
   2. 提取并计算最大序号 `maxVersion = Math.max(...versions, 1)`；
-  3. 动态生成新文件 `01_网络底座指标_第${maxVersion + 1}版.md`；
+  3. 查字典获取 `baseSlotName = '01_网络底座指标'`，动态生成新文件 `01_网络底座指标_第${maxVersion + 1}版.md`；
   4. 注入属性：`slotKey: 'slot_metrics'`、`category: 'materials'`、`isActive: false`（草稿态，原底牌保持受保护）、`versionTag: 'V${maxVersion + 1}-Draft'`、格式化最新生成时间戳；
   5. 自动在中栏打开新草稿；原有底牌完好保留，等待交付专家核对后手动采纳。
 - **软删除逻辑 (`handleDeleteFile`)**：
-  逻辑层严格校验 `if (files.value[filename]?.isActive) return;` 杜绝误删生效版本。设置 `files.value[filename].is_deleted = true`。若当前打开文件是被删文件，三级平滑降级切换：① 剩余未删除 openTabs 首项；② 全局未删除文件首项；③ 空态。调用 `saveState()` 并提示“已将草稿移入废纸篓，可在左侧底部展开恢复”；
+  逻辑层严格校验 `if (files.value[filename]?.isActive)`，若命中弹出警告 Toast：“已采纳的底牌文件受系统保护，无法删除！如需删除请先采纳其他版本”。设置 `files.value[filename].is_deleted = true`。若当前打开文件是被删文件，三级平滑降级切换：① 剩余未删除 openTabs 首项；② 全局未删除文件首项；③ 空态。调用 `saveState()` 并提示“已将草稿移入废纸篓，可在左侧底部展开恢复”；
 - **恢复逻辑 (`handleRestoreFile`)**：
   设置 `files.value[filename].is_deleted = false`，调用 `saveState()` 并自动打开选中该文件。
 
@@ -208,6 +239,7 @@
       }
     },
     "activeFileName": "01_网络底座指标_待对照.md",
+    "// 状态说明": "下例展示交付专家正在只读查验废纸篓中【第2版】草稿时的状态（故第2版临时进入 openTabs 以只读模式渲染；若未打开查验，openTabs 中严禁包含 is_deleted 为 true 的文件）",
     "openTabs": ["01_网络底座指标_待对照.md", "01_网络底座指标_第2版.md"]
   }
   ```
