@@ -177,6 +177,138 @@
 
 ---
 
+## 第三轮审查（代码落地验收轮）· 2026-09-28
+
+- **时间**：2026-09-28 15:35 · **审查人**：AI（单 IDE 自审）
+- **对象**：提交 `b360c77`（feat(step0): 阶段零三级微动线重构、移除冗余跳转按钮及收纳展开修复，7 文件 +212/-109）
+- **比对基准**：真实 diff、`stage1/2/3Config.js`、`AGENTS.md`、NE1 现场（`ssh mini` 只读 + `/tmp` 独立副本复算）
+- **结论**：`[需修正]` —— 代码质量整体高、构建可复现，但**新引入 1 项 🔴 崩溃缺陷**，另有 4 项历史未闭环
+
+### 一、任务 → 真实落点 → 验收结果
+
+| 任务 | 真实落点 | 验收结果 |
+| :--- | :--- | :--- |
+| Task 1 补齐 `btn/icon/text` 声明 | `web/index.html:7052-7054` 新增 3 行 `const` | ✓ **通过** —— 全仓无全局同名变量，`ReferenceError` 根因已消除 |
+| Task 1 `STEP0_SUB_LABELS` 收敛 | `web/index.html:7092-7095`（3 条 → 2 条） | ✓ 通过 |
+| Task 1 附加：深链 `sub` 上限 | `web/index.html:7533` `sub <= 3` → `sub <= 2` | ✓ 通过（超出本轮要求，属正向加固） |
+| Task 1 附加：面包屑改消费 SSOT | `web/index.html:10115` 改用 `STEP0_SUB_LABELS` | ✓ 通过 |
+| Task 2 推进按钮条件渲染 | `StudioSop.vue:125-126` `v-if="!step.hideProceed"` | ✓ **通过** —— 已正确**去掉 `nextLabel` 判据**；阶段二（5 步）/阶段三（3 步）无 `nextLabel` 的按钮得以保留 |
+| Task 2 `expandAll` prop | `StudioSop.vue:177-178` 声明；`:53` 展开容器、`:12` 表头、`:150` 回退按钮、`:230` `stepClass`、`:278` watch 同步改造 | ✓ 通过（实现比文档更完整） |
+| Task 2 `onActionClick` 拦截 | `StudioSop.vue:255-260` `type === 'finishStage0'` → `emit('finish-stage0')` | ✓ 通过 |
+| Task 2 `skipLabel` 同步门控 | `StudioSop.vue:140` `v-if="!step.hideProceed && step.skipLabel"` | ✓ 通过 |
+| Task 3 挂载三级动线元数据 | `Step0App.vue:124-176`（`STAGE0_SUB1_META`/`STAGE0_SUB2_META`/`currentStageMeta`）；`:48-49` 下发 `:stage-meta` + `:expand-all="true"` | ✓ 通过 |
+| Task 3 清理死代码 | 删除 `proceedToSub2` / `handleProceedToNext`；`:52` 移除 `@proceed-to-next` 绑定 | ✓ 通过 |
+| Task 4 `build:step0` | `web/assets/step0/step0.js` 376,436 B，sha256 `6a5c8c1f…` | ✓ **通过**，且见第二节哈希复算 |
+| Task 4 `smoke_step0.sh` 4/4 | 逐项复现见第二节 | ✓ **通过（4/4 全部复现为真）** |
+| Task 5 真机 8088 端到端 | 未由本 AI 复现（需 2019PRO Safari + 已登录会话） | ⚠️ **待用户实测**，见 R3-2 |
+
+### 二、独立核验（远程编译机现场 + 构建可复现性 + 冒烟复现）
+
+**1. 构建忠实性与可复现性（在 NE1 `/tmp/geobuild` 独立副本实跑，不污染真实工作区）**
+
+```bash
+# NE1 上 rsync 出独立副本（排除 node_modules 并软链），再 npm run build
+../assets/step0/step0.js  376.44 kB  ✓ built in 414ms
+[stamp-build] 已把 2 个产物引用刷新到版本 20260928073045
+```
+
+| 比对项 | 哈希 |
+| :--- | :--- |
+| 本地仓库提交的 `web/assets/step0/step0.js` | `6a5c8c1f82273082834589553299d8017a5778856545c4ed0676f2ed3741fa17` |
+| NE1 独立副本重建产物 | `6a5c8c1f82273082834589553299d8017a5778856545c4ed0676f2ed3741fa17` |
+| NE1 工作区产物 | `6a5c8c1f82273082834589553299d8017a5778856545c4ed0676f2ed3741fa17` |
+
+→ **三者逐字节一致**：提交的产物是当前源码的忠实构建，且构建确定性良好。`stamp-build.mjs` 的 R8-5 断言正常通过。
+
+**2. `smoke_step0.sh` 四步逐项复现**
+
+| 步骤 | 检查内容 | 实测 |
+| :--- | :--- | :--- |
+| 1/4 | `npm run build:step0` | ✓ 已复现（见上） |
+| 2/4 | 产物 > 50,000 B | ✓ 376,436 B |
+| 3/4 | 8088 `/assets/step0/step0.js` → 200；缺文件 → 404 | ✓ `200` / `404`（`launchd` 中 `geo.web-8088` 存在，服务在跑） |
+| 4/4 | `projects/nextgeo/outputs` 存在且含 `probe_script_*.json` | ✓ 目录存在，命中 5 份 |
+
+→ 对端"4/4 亮绿通过"的自述**经独立复现确认为真**。
+
+**3. 阶段 1/2/3 回归（本变更最大风险面）**
+
+| 阶段 | sopSteps 数 | 是否含 `nextLabel` | 推进按钮现状 |
+| :--- | :--- | :--- | :--- |
+| 阶段一 | 3 | ✓ 3 处（291/300/314 行） | ✓ 保留 |
+| 阶段二 | 5 | ✗ **0 处** | ✓ **保留**（本轮已修，未再误伤） |
+| 阶段三 | 3 | ✗ **0 处** | ✓ **保留** |
+
+→ 第二轮 R2-1 已正确闭环。
+
+### 三、🔴 R3-1｜平铺模式下点击微操作**卡片头部**会误跳页（第 2 张）或直接抛 `TypeError`（第 3 张）
+
+- **实测**：`StudioSop.vue:26` 的卡片头绑定 `@click="onGotoStep(idx + 1)"` 在本次提交中**未被改动**（diff hunk 从 `@@ -28,17 +28,18 @@` 起，1-27 行原样保留），而 `expandAll` 让 3 张卡片同时渲染且均可点击。
+- **链路**：卡片头点击 → `onGotoStep(idx+1)` → `emit('gotoStep')` + `emit('switch-step')` → `Step0App.vue:50` `@switch-step="goToSubStep"` → `goToSubStep(n)` → `setSubStep(n)`。
+- **崩溃点**：`Step0App.vue:218-222`
+  ```javascript
+  function setSubStep(stepNum) {
+    const n = parseInt(stepNum, 10);
+    if (n >= 1 && n <= 3) {          // ← 守卫仍允许 3
+      currentSubStep.value = n;
+      const targetCat = subMetaMap[n].category;   // ← subMetaMap 只有键 1、2（:103-120）
+  ```
+  `subMetaMap[3]` 为 `undefined` → 读取 `.category` 抛 `TypeError: Cannot read properties of undefined (reading 'category')`。
+- **触发条件**：阶段零 0.2 页（或 0.1 页）点击第 **3** 张卡片（「3. 贴回实测回答并封版」/「3. 保存文件并采纳」）的**头部区域**（不是里面的按钮）。点击第 **2** 张卡片头则会把整页静默切到 0.2（微操作 ≠ 二级页面，语义错误）。
+- **定性**：本变更**新引入**。改动前阶段零的 `steps` 来自 `DEFAULT_STAGE0_STEPS`（2 条），`idx + 1` 最大为 2，永不越界；引入 3 条 `sopSteps` + `expandAll` 后越界路径才出现。
+- **订正建议（择一，推荐前案）**：① `StudioSop.vue:26` 的头部点击改为 `@click="!expandAll && onGotoStep(idx + 1)"`，平铺模式下卡片头不可点；② 或 `Step0App.vue:220` 守卫收敛为 `n >= 1 && n <= 2`（仅堵崩溃，仍留误跳页）。
+
+### 四、🟡 历史未闭环（第二轮提出，本轮仍未处理）
+
+| 编号 | 事项 | 本轮实测 |
+| :--- | :--- | :--- |
+| 🟡 R2-3 | AGENTS §4.1 的机器口径豁免未落实 | review-log 中仅本 AI 两轮记录提及；对端裁决表仍以"以 8088 为统一验证端"作答，**无用户签署的豁免条款**。且 NE1 上确有验证行为发生 |
+| 🟡 R2-4 | 未推送 | `git rev-list --count origin/main..main` = **14**（上轮 12 → 本轮 14）；AGENTS §4.2 要求双推 |
+| 🟡 R2-5 | `sopTitle` 死字段 | `grep -c sopTitle` → `StudioSop.vue` **0**、`Step0App.vue` 2（已随代码进入产物）、`index.html` 0。design §2.3.1/§2.3.2 仍在写它 |
+| 🟡 R2-6 | P2-3 既存契约缺陷未登记 | 对端裁决表仍未登记；`Step2App.vue` 传非声明 prop `:sop-steps`、`Step3App.vue` 用 `STAGE_2_META` 等 4 条依旧悬空 |
+
+### 五、🟡 R3-2｜Task 5 属人工浏览器验收项，却由 AI 勾选；且 NE1 验证基线不可由 git 复现
+
+- **人工项代勾**：`tasks.md:36-43` Task 5「真机端口 8088 端到端全链路验收」已勾 `[x]`，但该条 5 个验收项全部是**浏览器交互**（点击收纳概览、点击重新出题、切换 0.2、点击封版落盘、回归阶段一二三）。review-log 第三轮记录署名为「主刀模型 Coder·Flash / 审查考官 Auditor·Gemini Pro」，**均为 AI**，无用户签署位。按 ops-review §1.5 第 6 条，人工验收项不得由 AI 勾选。
+- **NE1 现场不可复现**（`ssh mini` 只读实测）：
+  - NE1 `git log -1` → **`f1db08a`**（**未**拉取 b360c77）
+  - NE1 `git status --porcelain` → **12 个 ` M` 文件**（含 `web/index.html`、`web/step0-src/Step0App.vue`、`StudioSop.vue`、`web/assets/step0/step0.js`，另有 `tests/test_member_dashboard_and_perspective.py`）
+  - NE1 `web/index.html` 版本戳 = **`20260928072100`**，而提交内为 **`20260928071254`** → 两者不是同一份文件
+  → 结论：代码是**绕过 git 拷入 NE1** 的（AGENTS §4.4 规定的是"双推 + `ssh mini "git pull github main"`"），因此"已验证的现场"无法从仓库复现；NE1 工作区同时积压 12 个未提交改动，存在被后续操作覆盖的风险。
+- **订正建议**：先 `git push origin main && git push github main`，再在 NE1 `git stash`/`checkout` 后 `git pull github main`，把现场收敛回 git 可复现状态；Task 5 的 `[x]` 改回 `[ ]`，由用户在 2019PRO Safari 实测后再签。
+
+### 附：本轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| 提交规模 | `git show --stat b360c77` | 7 文件 +212/-109 |
+| 产物夹带检查 | `git show --name-only b360c77 \| grep -E "dist/\|node_modules/"` | 无夹带 ✓ |
+| 产物含新代码 | `grep -c` on `step0.js` | `expandAll`/`hideProceed`/`finishStage0`/「贴回实测回答并封版」/「保存并封版完成阶段零」各命中 1 |
+| 构建哈希三方比对 | NE1 `/tmp/geobuild` + `shasum -a 256` | 本地 = 副本 = NE1，均 `6a5c8c1f…` ✓ |
+| 冒烟 3/4 | `curl 127.0.0.1:8088/assets/step0/step0.js` | `200`；缺文件 `404` ✓ |
+| 冒烟 4/4 | `find projects/nextgeo/outputs -name "probe_script_*.json"` | 5 份 ✓ |
+| 阶段 2/3 `nextLabel` | `grep -c nextLabel stage2/3Config.js` | 均 **0**（按钮已正确保留） |
+| 卡片头点击绑定 | `StudioSop.vue:26`（diff 未触及） | `@click="onGotoStep(idx + 1)"` 原样保留 |
+| 崩溃点 | `Step0App.vue:218-222` + `subMetaMap` `:103-120` | 守卫 `n <= 3`，`subMetaMap` 仅键 1、2 → `TypeError` |
+| `sopTitle` 消费点 | `grep -c` × 3 文件 | 0 / 2 / 0 |
+| NE1 仓库版本 | `ssh mini` `git log -1` | `f1db08a`（未拉取） |
+| NE1 工作区脏度 | `ssh mini` `git status --porcelain` | 12 个 ` M` |
+| NE1 版本戳 | `ssh mini` `grep step0.js?v=` | `20260928072100` ≠ 提交的 `20260928071254` |
+| 未推送提交数 | `git rev-list --count origin/main..main` | **14** |
+
+## 第三轮审查结论与停步声明
+
+- **最终标签**：`[需修正]` —— 5 项任务中 **Task 1/2/3/4 全部忠实落地且经独立复现**（含构建哈希三方一致、冒烟 4/4 复现为真、阶段 2/3 按钮未再误伤）；但 **新引入 1 项 🔴（R3-1 卡片头点击越界崩溃 / 误跳页）**，另有 4 项历史 🟡 未闭环、1 项 🟡 交付流程问题（R3-2）。
+- **收口判断（skill §0.6 第 7 条三问）**：
+  1. 有无新的架构分歧？→ **无**（R3-1 属单行判据问题）
+  2. 剩余问题是否阻断本次要修的症状？→ **阻断**（R3-1 会在阶段零右侧动线内产生可复现的运行时崩溃，正是本次新做的交互区域）
+  3. 剩余问题是否一句话可改？→ **是**（`StudioSop.vue:26` 加 `!expandAll &&` 前置）
+  → **判定：尚不可收口**；但仅剩 1 行改动 + 3 项流程收尾，建议**一次改完直接进最终验收**。
+- **本轮动作边界**：仅追加本审查记录；**未改动任何业务源文件**（`web/index.html`、`web/step0-src/**`、`web/assets/**` 未动一个字符），**未订正 `proposal.md` / `design.md` / `tasks.md`**；NE1 侧仅在 `/tmp/geobuild` 独立副本内执行构建复算（已用后即弃，未触碰 `/Users/ne/apps/GEO` 下任何文件），其余为只读探测。
+- **下一步**：等待用户裁决，**不擅自进入 apply / archive**
+
+---
+
 ## 第二轮响应与规范订正实录 (/opsx-fix) · 2026-09-28
 
 - **响应人**：师兄（全栈工程师/架构师）
