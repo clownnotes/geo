@@ -43,13 +43,14 @@
         @adopt-file="handleAdoptFile"
       />
 
-      <!-- 右栏：SOP 交付动线面板 (原右侧列，按步骤展示专属操作与前进按钮) -->
+      <!-- 右栏：SOP 交付动线面板 (三级微动线指引，平铺展示当前小节操作) -->
       <StudioSop
         :current-step="currentSubStep"
+        :stage-meta="currentStageMeta"
+        :expand-all="true"
         :is-ready="isReady"
         @switch-step="goToSubStep"
         @refresh-questions="handleRefreshQuestions"
-        @proceed-to-next="handleProceedToNext"
         @finish-stage0="handleFinishStage0"
       />
     </div>
@@ -119,6 +120,60 @@ const subMetaMap = {
 };
 
 const currentSubMeta = computed(() => subMetaMap[currentSubStep.value] || subMetaMap[1]);
+
+// [2026-09-28] [动线层级重构] 阶段零 0.1 与 0.2 各自专属的三级微动线指引 (含出题查看、润色打磨、保存采纳及封版通关)
+const STAGE0_SUB1_META = {
+  sopTitle: '0.1 准备题目动线',
+  sopSteps: [
+    {
+      id: 'view_or_refresh',
+      name: '1. AI 出题与查看',
+      desc: '系统已根据客户定位预生成核心题清单。若需换一批，可点击下方重新出题。',
+      extraAction: { label: '重新出题（生成新版）', icon: 'sparkles', type: 'refreshQuestions' },
+      hideProceed: true
+    },
+    {
+      id: 'edit_in_editor',
+      name: '2. 中间区润色打磨',
+      desc: '交付专家可在中间编辑器直接润色修改，从 60 分打磨至 80 分。',
+      hideProceed: true
+    },
+    {
+      id: 'save_and_adopt',
+      name: '3. 保存文件并采纳',
+      desc: '题目打磨满意后，在中间工具栏点击【保存文件】，并可点击【设为客户采纳】生效为基线文件。',
+      hideProceed: true
+    }
+  ]
+};
+
+const STAGE0_SUB2_META = {
+  sopTitle: '0.2 网页提问动线',
+  sopSteps: [
+    {
+      id: 'copy_questions',
+      name: '1. 一键复制提问内容',
+      desc: '点击中间编辑区的【一键复制内容】，获得打磨完毕的提问清单。',
+      hideProceed: true
+    },
+    {
+      id: 'ask_doubao_web',
+      name: '2. 豆包网页版逐题提问',
+      desc: '前往豆包网页版逐题提问，观察并记录 AI 推荐的服务商和排位。',
+      linkAction: { label: '打开豆包网页版提问', icon: 'external-link', href: 'https://www.doubao.com' },
+      hideProceed: true
+    },
+    {
+      id: 'paste_and_save_answers',
+      name: '3. 贴回实测回答并封版',
+      desc: '将豆包的实测回答完整贴回中间的 02 回答记录文件，点击下方完成阶段零封版。',
+      action: { label: '保存并封版完成阶段零', icon: 'check-circle-2', type: 'finishStage0' },
+      hideProceed: true
+    }
+  ]
+};
+
+const currentStageMeta = computed(() => currentSubStep.value === 2 ? STAGE0_SUB2_META : STAGE0_SUB1_META);
 
 // 交付备注计算与绑定
 const currentNotes = computed({
@@ -193,16 +248,6 @@ function goToSubStep(n) {
   if (typeof window !== 'undefined' && window.switchStep0SubStep) {
     window.switchStep0SubStep(n);
   }
-}
-
-function proceedToSub2() {
-  handleSaveActiveFile();
-  goToSubStep(2);
-  showToast('已进入：0.2 网页提问拿答案！', 'info');
-}
-
-function handleProceedToNext(target) {
-  if (target === 2) proceedToSub2();
 }
 
 // [2026-09-27] [阶段零生效底牌封版与通关] 封版当前激活的题目与回答，将最新 activeQaVersion、activeQuestionFile、activeAnswerFile 持久化至 localStorage

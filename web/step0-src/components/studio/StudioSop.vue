@@ -9,7 +9,7 @@
         <i data-lucide="list-ordered" class="w-4 h-4 text-[#7c5bf5]"></i>
         <span class="text-[13px] font-bold text-slate-800 uppercase tracking-wider">交付动线</span>
       </div>
-      <span class="text-[12px] text-slate-500 font-medium">第 {{ currentStep }} / {{ steps.length }} 步</span>
+      <span class="text-[12px] text-slate-500 font-medium">{{ expandAll ? `共 ${steps.length} 项操作` : `第 ${currentStep} / ${steps.length} 步` }}</span>
     </div>
 
     <!-- 动线卡片区 -->
@@ -28,17 +28,18 @@
           <div class="flex items-center gap-2 min-w-0">
             <span
               class="w-5.5 h-5.5 rounded-full font-bold flex items-center justify-center text-[12px] shrink-0"
-              :class="idx + 1 < currentStep ? 'bg-emerald-500 text-white' : (idx + 1 === currentStep ? 'bg-[#7c5bf5] text-white' : 'bg-slate-200 text-slate-500')"
+              :class="expandAll ? 'bg-[#7c5bf5]/10 text-[#7c5bf5]' : (idx + 1 < currentStep ? 'bg-emerald-500 text-white' : (idx + 1 === currentStep ? 'bg-[#7c5bf5] text-white' : 'bg-slate-200 text-slate-500'))"
             >
-              <span v-if="idx + 1 < currentStep">✓</span>
+              <span v-if="!expandAll && idx + 1 < currentStep">✓</span>
               <span v-else>{{ idx + 1 }}</span>
             </span>
             <span
               class="font-bold text-[14px] truncate"
-              :class="idx + 1 === currentStep ? 'text-slate-900' : 'text-slate-500'"
+              :class="expandAll || idx + 1 === currentStep ? 'text-slate-900' : 'text-slate-500'"
             >{{ step.name }}</span>
           </div>
           <span
+            v-if="!expandAll"
             class="text-[11px] px-2 py-0.5 rounded font-bold shrink-0"
             :class="idx + 1 < currentStep
               ? 'text-emerald-700 bg-emerald-50 border border-emerald-200'
@@ -49,7 +50,7 @@
         </div>
 
         <!-- 当前步骤展开：说明 + 动作/门禁/按钮 -->
-        <div v-if="idx + 1 === currentStep" class="px-3 pb-3 space-y-3">
+        <div v-if="expandAll || idx + 1 === currentStep" class="px-3 pb-3 space-y-3">
           <p class="text-[13px] text-slate-700 leading-relaxed">{{ step.desc }}</p>
 
           <!-- 步骤门禁单选判定 (如阶段一耐心确认门禁) -->
@@ -121,8 +122,9 @@
               </button>
             </div>
 
-            <!-- 主推进按钮：下一步 / 完成阶段 -->
+            <!-- 主推进按钮：下一步 / 完成阶段 (仅在未显式声明 hideProceed 时渲染) -->
             <button
+              v-if="!step.hideProceed"
               type="button"
               class="w-full py-2.5 rounded-lg text-white text-[14px] font-bold transition flex items-center justify-center gap-1.5 shadow cursor-pointer"
               :class="isProceedDisabled(step) ? 'bg-slate-300 cursor-not-allowed text-slate-500 shadow-none' : 'bg-[#7c5bf5] hover:bg-[#6846e3]'"
@@ -135,7 +137,7 @@
 
             <!-- 次要跳过动作 (如跳过润色直接出报告) -->
             <button
-              v-if="step.skipLabel"
+              v-if="!step.hideProceed && step.skipLabel"
               type="button"
               class="w-full py-1 text-slate-500 hover:text-slate-800 text-[12px] transition text-center underline cursor-pointer"
               @click.stop="onSkipClick(step, idx)"
@@ -145,13 +147,18 @@
 
             <!-- 回退上一步 -->
             <button
-              v-if="idx > 0"
+              v-if="!expandAll && idx > 0"
               type="button"
               class="w-full py-1 text-slate-400 hover:text-slate-600 text-[12px] transition text-center cursor-pointer"
               @click.stop="onGotoStep(idx)"
             >
               ← 返回上一步
             </button>
+
+            <!-- 阶段零三级微动线完成提示 -->
+            <div v-if="step.hideProceed && idx === steps.length - 1" class="pt-2 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+              提示：本小节工作完成后，可直接在左侧菜单切换至下一项
+            </div>
           </div>
         </div>
       </div>
@@ -167,6 +174,8 @@ const props = defineProps({
   stageMeta: { type: Object, default: () => null },
   /** 当前步骤序号，1 起 */
   currentStep: { type: Number, default: 1 },
+  /** [2026-09-28] 是否平铺展开所有三级微操作卡片（阶段零专用） */
+  expandAll: { type: Boolean, default: false },
   /** 兼容阶段零 ready 状态 */
   isReady: { type: Boolean, default: false },
   /** 门禁单选值 (confirmed / suspended) */
@@ -220,6 +229,7 @@ const steps = computed(() => {
 });
 
 function stepClass(idx) {
+  if (props.expandAll) return 'border-slate-200 bg-white shadow-2xs';
   if (idx + 1 === props.currentStep) return 'border-[#7c5bf5] bg-indigo-50/20';
   if (idx + 1 < props.currentStep) return 'border-emerald-200 bg-emerald-50/30';
   return 'border-slate-200 bg-slate-50/60';
@@ -244,6 +254,10 @@ function onExtraAction(type) {
 
 function onActionClick(type) {
   emit('action', type);
+  // [2026-09-28] [动线层级重构] 显式支持 finishStage0 封版通关事件发射
+  if (type === 'finishStage0') {
+    emit('finish-stage0');
+  }
 }
 
 function onProceedClick(step, idx) {
@@ -261,7 +275,7 @@ function onSkipClick(step, idx) {
   emit('proceed', step);
 }
 
-watch([() => props.currentStep, () => props.stageMeta], () => {
+watch([() => props.currentStep, () => props.stageMeta, () => props.expandAll], () => {
   nextTick(() => {
     if (window.lucide) window.lucide.createIcons();
   });

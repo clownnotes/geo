@@ -9,8 +9,8 @@
 <link rel="stylesheet" href="./geo-admin.css" data-page-node-id="ViWIdWDrG8ouxEF13VH9iq">
 <!-- Tailwind CSS & Lucide Icons & Marked.js --><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <!-- 阶段零 Vue3 组件岛产物 -->
-<link rel="stylesheet" href="./assets/step0/geo-step0-island.css?v=20260928061903">
-<script src="./assets/step0/step0.js?v=20260928061903"></script>
+<link rel="stylesheet" href="./assets/step0/geo-step0-island.css?v=20260928071254">
+<script src="./assets/step0/step0.js?v=20260928071254"></script>
 <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -7049,6 +7049,10 @@ GitHub 开源仓库：https://github.com/company/repo
           }
         }
       });
+      // [2026-09-28] [收纳展开修复] 安全获取顶栏收纳概览按钮/图标/文本DOM，彻底解决 ReferenceError: btn is not defined
+      const btn = document.getElementById('btn-toggle-step-overview');
+      const icon = document.getElementById('icon-toggle-step-overview');
+      const text = document.getElementById('text-toggle-step-overview');
       if (btn) {
         if (collapsed) {
           btn.classList.add('bg-indigo-50', 'text-[#7c5bf5]', 'border-indigo-200');
@@ -7060,13 +7064,20 @@ GitHub 开源仓库：https://github.com/company/repo
           btn.title = '收纳顶部阶段概览与备注';
         }
       }
-      if (icon) {
-        icon.setAttribute('data-lucide', collapsed ? 'panel-top-open' : 'panel-top-close');
+      if (icon && btn) {
+        // [2026-09-28] [性能与防叠加] 替换为干净的 i 节点，防止 SVG 节点被反复包装导致 class 属性无限膨胀，同时限定局部扫描范围
+        const newIcon = document.createElement('i');
+        newIcon.id = 'icon-toggle-step-overview';
+        newIcon.className = 'w-3.5 h-3.5 ' + (collapsed ? 'text-[#7c5bf5]' : 'text-slate-500');
+        newIcon.setAttribute('data-lucide', collapsed ? 'panel-top-open' : 'panel-top-close');
+        icon.parentNode.replaceChild(newIcon, icon);
+        if (window.lucide) {
+          lucide.createIcons({ root: btn });
+        }
       }
       if (text) {
         text.textContent = collapsed ? '展开概览' : '收纳概览';
       }
-      if (window.lucide) lucide.createIcons();
     }
 
     function toggleStepOverview(force) {
@@ -7078,13 +7089,13 @@ GitHub 开源仓库：https://github.com/company/repo
       window.dispatchEvent(new CustomEvent('geo-toggle-step-overview', { detail: { collapsed: targetCollapsed } }));
     }
 
-    // 全局阶段零子步骤状态 (1: 出题, 2: 实测, 3: 存入)
+    // 全局阶段零子步骤状态 (1: 出题, 2: 实测)
     let currentStep0SubStep = 1;
 
+    // [2026-09-28] [动线层级重构] 收敛为真实的 0.1 与 0.2 两项二级小步骤
     const STEP0_SUB_LABELS = {
       1: '0.1 准备题目',
-      2: '0.2 去豆包实测',
-      3: '0.3 确认存入底牌'
+      2: '0.2 网页提问拿答案'
     };
 
     // 展开/收纳 00 阶段子菜单
@@ -7519,7 +7530,7 @@ GitHub 开源仓库：https://github.com/company/repo
           const step = parseInt(params.get('step') || '', 10);
           const tab = params.get('tab') || 'site.html';
           const sub = parseInt(params.get('sub') || '1', 10);
-          if (sub && sub >= 1 && sub <= 3) currentStep0SubStep = sub;
+          if (sub && sub >= 1 && sub <= 2) currentStep0SubStep = sub;
           if (!view && step) view = STEP_TO_VIEW[step] || 'step-1-diag';
           if (!view) view = 'overview';
           return { view: 'wizard', projectId, step: (VIEW_META[view] && VIEW_META[view].step) || step || 1, tab, viewId: view, sub: currentStep0SubStep };
@@ -10101,8 +10112,8 @@ function backToDashboard() {
       if (bcGroup) bcGroup.innerText = meta.groupLabel;
       let label = meta.label;
       if (viewId === 'step-0-probe') {
-        const subLabels = { 1: '0.1 准备题目', 2: '0.2 网页提问拿答案' };
-        label = `${meta.label} / ${subLabels[currentStep0SubStep || 1] || '0.1 准备题目'}`;
+        const subLabel = STEP0_SUB_LABELS[currentStep0SubStep || 1] || STEP0_SUB_LABELS[1];
+        label = `${meta.label} / ${subLabel}`;
       }
       if (bcView) bcView.innerText = label;
     }

@@ -18,27 +18,33 @@
 `StudioSop.vue` 是一个被 `Step0App.vue`、`Step1App.vue`、`Step2App.vue`、`Step3App.vue` 4 个阶段共同复用的通用组件。
 **严禁从模板中物理删除主推进按钮**，否则阶段 1/2/3 将失去唯一的前进与通关入口。
 
-### 2.2 `StudioSop.vue` 条件渲染设计
-在 `StudioSop.vue` 中保持现有 `props.stageMeta` 统一通道，仅对推进按钮增加条件判断：
+### 2.2 `StudioSop.vue` 条件渲染与平铺设计
+在 `StudioSop.vue` 中保持现有 `props.stageMeta` 统一通道，新增 `expandAll: { type: Boolean, default: false }` prop，并对推进按钮增加精准条件判断：
 ```html
-<!-- 主推进按钮：仅在未声明 hideProceed 且存在 nextLabel 时渲染 -->
-<button
-  v-if="!step.hideProceed && step.nextLabel"
-  type="button"
-  class="w-full py-2.5 rounded-lg text-white text-[14px] font-bold transition flex items-center justify-center gap-1.5 shadow cursor-pointer"
-  :class="isProceedDisabled(step) ? 'bg-slate-300 cursor-not-allowed text-slate-500 shadow-none' : 'bg-[#7c5bf5] hover:bg-[#6846e3]'"
-  :disabled="isProceedDisabled(step)"
-  @click.stop="onProceedClick(step, idx)"
->
-  <span>{{ step.nextLabel }}</span>
-  <i data-lucide="arrow-right" class="w-4 h-4"></i>
-</button>
-```
-当 `step.hideProceed === true` 时，该大按钮自动隐藏，并在面板底部展示轻量指引：
-```html
-<div v-if="step.hideProceed" class="p-2.5 bg-slate-50 border-t border-slate-200 text-xs text-slate-400 text-center">
-  提示：本小节工作完成后，可直接在左侧菜单切换至下一项
+<!-- 卡片详情展开：expandAll 为真时全部平铺展开，否则按步骤折叠 -->
+<div v-if="expandAll || idx + 1 === currentStep" class="px-3 pb-3 space-y-3">
+  ...
+  <!-- 主推进按钮：仅在未声明 hideProceed 时渲染（避免判 nextLabel 导致阶段 2/3 丢失默认按钮） -->
+  <button
+    v-if="!step.hideProceed"
+    type="button"
+    class="w-full py-2.5 rounded-lg text-white text-[14px] font-bold transition flex items-center justify-center gap-1.5 shadow cursor-pointer"
+    :class="isProceedDisabled(step) ? 'bg-slate-300 cursor-not-allowed text-slate-500 shadow-none' : 'bg-[#7c5bf5] hover:bg-[#6846e3]'"
+    :disabled="isProceedDisabled(step)"
+    @click.stop="onProceedClick(step, idx)"
+  >
+    <span>{{ step.nextLabel || '前往下一步' }}</span>
+    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+  </button>
+  <div v-if="step.hideProceed" class="p-2.5 bg-slate-50 border-t border-slate-200 text-xs text-slate-400 text-center">
+    提示：本小节工作完成后，可直接在左侧菜单切换至下一项
+  </div>
 </div>
+```
+顶栏进度显示：
+```html
+<span v-if="expandAll" class="text-[12px] text-slate-500 font-medium">共 {{ steps.length }} 项操作</span>
+<span v-else class="text-[12px] text-slate-500 font-medium">第 {{ currentStep }} / {{ steps.length }} 步</span>
 ```
 
 ### 2.3 `Step0App.vue` 动线数据下发规范
