@@ -20,6 +20,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
+        assetFileNames: 'geo-step0-island.[ext]',
       },
     },
   },

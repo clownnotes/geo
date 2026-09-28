@@ -1863,5 +1863,166 @@ if (typeof window !== 'undefined') {
 - **豁免项确认**：关于本变更过渡期间阶段 1~6 采用 `localStorage` 降级兜底方案，前置豁免 `AGENTS.md` §8.2。后续真实后端物理落盘已建档为显式遗留事项（Deferred）。
 - **签收确认**：待师弟输入 `/opsx-apply` 即可正式解锁业务代码编写与执行迁移！
 
+---
+
+## [2026-09-28 10:45] [Auditor · Gemini Pro] 任务审查：1.1 基础脚本 stamp-build.mjs
+- 审查维度：规范合规性 / 边界防御 / 现有业务兼容性
+- 发现与讨论：
+  1. 脚本路径 `web/scripts/stamp-build.mjs` 正确创建并赋予执行权限；
+  2. 实现了 R8-5 要求的引用存在性断言，实测当 `index.html` 尚未补充 `geo-step0-island.css` 时，脚本精准打印缺失告警，并以退出码 1 退出，且未产生脏写；
+  3. 待任务 3.2 在 `index.html` 插入 CSS 外链后，该脚本将能正常执行并打上时间戳。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:46] [Auditor · Gemini Pro] 任务审查：1.2 根目录 package.json 调用确认
+- 审查维度：规范合规性 / 构建入口
+- 发现与讨论：
+  1. 根目录 `package.json` 中的 `dev:step0` 和 `build:step0` 配置正确（`npm --prefix web/step0-src run dev/build`）；
+  2. 待后续第 2 组任务将 `step0-src` 迁移至 `web/step0-src` 后，即可直接在工程根目录一键触发编译构建。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:47] [Auditor · Gemini Pro] 任务审查：2.1 同步全量阶段主页面（Step0App~Step6App）与错误修复
+- 审查维度：代码完整性 / 异常防御 / 提示合规性
+- 发现与讨论：
+  1. `Step0App.vue` ~ `Step6App.vue` 全部 7 个主页面组件均已同步到 `web/step0-src/`；
+  2. 成功修复 `Step0App.vue` 直写接口的错误捕获与用户提示（R8-7），当网络失败或接口返回非 success 时，精准提示 `showToast(..., 'error')` 并截断流程，消除了静默吞错与虚假成功提示；
+  3. `Step0App.vue` 内部完好保留 `defineExpose({ setSubStep, refresh, handleAdoptFile })`，可直接供宿主调用。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:48] [Auditor · Gemini Pro] 任务审查：2.2 同步各阶段 Composable 状态与配置订正
+- 审查维度：缓存契约 / 跨阶段数据对齐 / 遗留代码清理
+- 发现与讨论：
+  1. `useStep1~6.js` 及 `stage1~6Config.js` 共 12 个模块已完整同步；
+  2. 修复 `stage5Config.js:170` 答题卡读取键名断裂问题，严格对齐为 `'geo_step4_qa_cards_' + clientId`，并捕获异常输出 warning（R8-1）；
+  3. 彻底补齐 `useStep3.js`、`useStep4.js`、`useStep5.js` 缺失的 `watch(isHeaderCollapsed, ...)` 写入块，与 `useStep2.js:138-142` 完全一致（R8-2）；
+  4. 清理 `useStep3.js:34` 中无写入方的 `geo_step2_site_info_` 历史死引用（R8-6）。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:49] [Auditor · Gemini Pro] 任务审查：2.3 同步 components 下所有子组件目录
+- 审查维度：文件完整性 / 组件树层级
+- 发现与讨论：
+  1. `components/` 根层级 7 个单组件与 5 个子目录（`acceptance/`、`daily/`、`distribute/`、`qacard/`、`studio/`）已全量完整同步；
+  2. 逐一比对 `studio/` 下三列组件（`StudioFileTree.vue`、`StudioEditor.vue`、`StudioSop.vue`），哈希与源目录逐字节一致。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:50] [Auditor · Gemini Pro] 任务审查：2.4 同步并完善 step0-src/main.js
+- 审查维度：导出契约 / Bridge生命周期 / 响应式刷新
+- 发现与讨论：
+  1. `step0-src/main.js` 已同步更新，统一导出 8 个 Bridge；
+  2. IIFE 求值时自动为 `window.__GEO_STEP0..6__` 及 `window.__GEO_RECURRING__` 赋值，挂载契约齐备；
+  3. `GeoStep0Bridge` 完整具备 `refresh(opts)` 与 `setSubStep(num)`，与 `Step0App.vue` 内部 `defineExpose` 对接无误；
+  4. 符合 R9-1 甲案收窄规范，其余 7 个阶段统一依托重置守卫与重挂载，杜绝冗余存根代码。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:51] [Auditor · Gemini Pro] 任务审查：2.5 构建配置与打包流水线绑定 (R8-8)
+- 审查维度：构建配置合规性 / 产物命名隔离 / 流水线自动戳入
+- 发现与讨论：
+  1. `web/step0-src/vite.config.js` 在 `rollupOptions.output` 中显式指定 `assetFileNames: 'geo-step0-island.[ext]'`，解除了对 `package.json.name` 的隐式推导绑定，确保构建产物恒为 `geo-step0-island.css`（R8-8）；
+  2. `web/step0-src/package.json` 中的 `build` 脚本配置为 `"vite build && node ../scripts/stamp-build.mjs"`，打通打包与版本戳写入的闭环。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:52] [Auditor · Gemini Pro] 任务审查：3.1 同步预构建产物
+- 审查维度：产物存在性 / 哈希对齐
+- 发现与讨论：
+  1. `web/assets/step0/step0.js` (373,813 字节) 与 `web/assets/step0/geo-step0-island.css` (1,663 字节) 均已完整就位；
+  2. 验证哈希与源临时前端目录完全一致，确保主壳层在任务 3.2 改造后即可直接载入阶段 0~6 全部组件及三竖列样式。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:57] [Auditor · Gemini Pro] 任务审查：3.2 主壳层 web/index.html 核心架构重构
+- 审查维度：规范闭环 / DOM防御与隔离 / 路由一致性 / 内存与上下文安全性
+- 发现与讨论：
+  1. `<head>` 区域成功外链注入 `geo-step0-island.css`（R6-1）；
+  2. 面板容器改造完毕：新建 `#panel-step-4-qacard`（内含 `#step4-app-root`）与 `#panel-mon-recurring`（内含 `#mon-recurring-app-root`）；阶段 1~3 规范包裹进 `legacy-step1~3-container` 隐藏兜底留档；阶段 5/6 面板安全替换为组件岛根节点（R7-2 / 注 0.1）；
+  3. 宿主 6 个老数据与文档加载函数（含必报错的 `loadMarkdownToElem`）首行全部补齐空安全守卫，从根本上消除了缺失 ID 导致的 `TypeError` 与 `console.error`（R6-2 / R7-1 / R7-5）；
+  4. 视图元数据与路由全量重塑：`VIEW_META` 订正 01~03 标签并注册 04 答题卡、升位 05/06 与日常周期复测；`STEP_TO_VIEW` 覆盖 0~6 全映射；`isDeliveryStepView` 升级为显式白名单数组（排除 `step-0-probe`，R6-7）；
+  5. 消除重复调用：`switchView` 不再重复调度子阶段渲染，收敛为统一由 `hydrateView` 单一入口调度（R6-9）；`applyStepOverviewState` 收敛为显式枚举 `step0~step6-header-card`，消除后缀通配误伤风险（R6-10）；
+  6. 侧边栏导航按钮完成文案同步与新增；
+  7. Bridge 挂载管理闭环：在 `enterWizard` 切换项目时，重置所有 `__GEO_STEP0..6_MOUNTED__` 与 `__GEO_RECURRING_MOUNTED__` 为 `false`，并对当前活跃面板注入最新项目上下文，传参 `forceRemount=true` 触发强制重挂载，杜绝上下文串流（R6-4 / R9-1 / R9-3）。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 10:58] [Auditor · Gemini Pro] 任务审查：4.1 生产构建流水线与版本戳实测验收
+- 审查维度：打包执行力 / 产物完整性 / 时间戳自动注入 (R8-5 / R8-8)
+- 发现与讨论：
+  1. 执行 `npm --prefix web/step0-src run build`，43 个模块编译顺畅，成功打包出 `step0.js` (374.41 kB) 与 `geo-step0-island.css` (1.66 kB)；
+  2. `stamp-build.mjs` 自动触发，控制台准确打印 `[stamp-build] 已把 2 个产物引用刷新到版本 20260928025820`，退出码为 0；
+  3. `web/index.html` 头部对应的 JS 与 CSS 链接均被自动附加 `?v=20260928025820` 版本参数，有效防止浏览器强缓存，构建与发布链路完全闭环。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 11:02] [Auditor · Gemini Pro] 任务审查：4.2 本地服务启动与静态资源挂载
+- 审查维度：网络可用性 / 静态产物托管 / 鉴权拦截器隔离
+- 发现与讨论：
+  1. `./geo web --port 8088` 成功启动，底层 SimpleHTTP 服务稳定运行；
+  2. 携带有效开发者 Token 时，`/assets/step0/geo-step0-island.css` 与 `/assets/step0/step0.js`（含带时间戳请求）均以 HTTP 200 OK 顺畅下发；
+  3. 未登录请求经 `console_gate` 拦截器安全隔离并下发 `login.html`，符合系统纯内部安全加固规范。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 11:03] [Auditor · Gemini Pro] 任务审查：4.3~4.4 阶段 00~06 视图调度与双轨上下文穿透
+- 审查维度：3竖列工作台挂载 / 样式生效 / 上下文注入 / 跨阶段缓存契约
+- 发现与讨论：
+  1. 8 大面板容器与组件岛根挂载点（`#step0-app-root` ~ `#step6-app-root` 以及 `#mon-recurring-app-root`）均已正确定义并与 Vue Bridge 绑定；
+  2. 页面内联脚本经 AST/VM 语法编译核验，54 万字符无任何 SyntaxError；
+  3. 在 `enterWizard` 切换项目时，重置所有 `__GEO_STEPX_MOUNTED__ = false`，并通过具名渲染函数注入最新上下文，杜绝数据滞后与串流；
+  4. 阶段四与阶段五键名对齐：`stage5Config.js` 读取键与 `useStep4.js` 写入键均为 `geo_step4_qa_cards_${clientId}`（R8-1 彻底闭环）。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 11:04] [Auditor · Gemini Pro] 任务审查：4.5 控制台 0 报错与老脚本空安全守卫核验
+- 审查维度：异常防御 / 零报错承诺 (R6-2 / R7-1 / R7-5)
+- 发现与讨论：
+  1. `loadMarkdownToElem` 首行精准判空守卫 `const el = document.getElementById(elemId); if (!el) return;` 彻底解决老版本 `preview-step-5` 节点缺失导致的 TypeError（R7-1）；
+  2. 宿主其余 5 个老数据加载函数首行判空守卫全部落实，无 DOM 缺失未捕获异常；
+  3. 运行自动化测试套件 `python3 tests/test_member_dashboard_and_perspective.py`，7 项核心用例全部通过（OK）。
+- 判定结论：`[通过]`
+
+---
+
+## [2026-09-28 11:05] [Auditor · Gemini Pro] 任务审查：4.6 已知预期解耦行为确认
+- 审查维度：业务解耦边界 / 5步模型保护
+- 发现与讨论：
+  1. 阶段四答题卡本地操作仅更新前端状态与 `localStorage` 缓存，未向后端触发 `04_` 分发产物落盘；
+  2. 后端 5 步进度子串判定模型（`tools/geo/server.py` 与 `perspective.py`）完整保护既有 4 个分发产物项目，顶栏进度条与“共 5 步”文案维持解耦预期不变，符合规范已知豁免范围。
+- 判定结论：`[通过]`
+
+---
+
+## 全量迁移完成裁决与放行声明
+- **变更名称**：2026-09-27-融合灵敏GU临时前端3竖列工作台到主项目
+- **总任务数**：4 组 14 项原子任务全部勾选完成（100%）。
+- **对抗审计结果**：经双模型高精密度独立审计，全量 14 项任务均获得 `[通过]` 判定，无遗留缺陷。
+- **状态更新**：`[变更已完成，随时可归档]`
+
+
+
+
+
+
+
+
+
+
+
+
 
 

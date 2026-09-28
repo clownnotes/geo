@@ -238,7 +238,7 @@ probe_status: "{probe_status}"
         self.assertIsNotNone(panel_match, "未找到 panel-home-members 节点")
         panel_html = panel_match.group(0)
 
-        js_match = re.search(r'// ---- 成员交付看板管理[\s\S]*?function getStep0BridgeProps', content)
+        js_match = re.search(r'// ---- 成员交付看板管理[\s\S]*?function tryMountStep0Island', content)
         self.assertIsNotNone(js_match, "未找到成员管理 JS 区域")
         member_js = js_match.group(0)
 

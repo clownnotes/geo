@@ -129,16 +129,14 @@ async function handleSave() {
   notesTipSuccess.value = false;
 
   try {
-    const success = await emit('saveNotes', props.notes);
-    if (success !== false) {
-      notesTip.value = '已保存';
-      notesTipSuccess.value = true;
-      setTimeout(() => {
-        if (notesTip.value === '已保存') notesTip.value = '';
-      }, 2500);
-    } else {
-      notesTip.value = '保存失败';
-    }
+    const currentNotes = textareaRef.value ? textareaRef.value.value : props.notes;
+    emit('update:notes', currentNotes);
+    emit('saveNotes', currentNotes);
+    notesTip.value = '已保存';
+    notesTipSuccess.value = true;
+    setTimeout(() => {
+      if (notesTip.value === '已保存') notesTip.value = '';
+    }, 2500);
   } catch (_) {
     notesTip.value = '保存失败';
   } finally {

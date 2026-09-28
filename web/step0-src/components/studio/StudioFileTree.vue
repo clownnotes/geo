@@ -7,8 +7,10 @@
         <i data-lucide="folder-git-2" class="w-4 h-4 text-[#7c5bf5]"></i>
         <span class="text-[13px] font-bold text-slate-800 uppercase tracking-wider">资源管理器</span>
       </div>
+      <!-- [2026-09-27] [按阶段显隐控制] 支持 allowNewFile 与 allowRefresh prop，消除死按钮 -->
       <div class="flex items-center gap-1">
         <button
+          v-if="allowNewFile"
           type="button"
           title="新建文件"
           class="p-1 hover:bg-slate-200 rounded text-slate-500 hover:text-slate-800 transition cursor-pointer"
@@ -17,6 +19,7 @@
           <i data-lucide="file-plus" class="w-4 h-4"></i>
         </button>
         <button
+          v-if="allowRefresh"
           type="button"
           title="刷新目录"
           class="p-1 hover:bg-slate-200 rounded text-slate-500 hover:text-slate-800 transition cursor-pointer"
@@ -77,15 +80,26 @@
             :class="fn === activeFileName ? 'bg-[#7c5bf5]/10 text-[#7c5bf5] font-bold border border-[#7c5bf5]/20' : 'hover:bg-slate-100 text-slate-700 border border-transparent'"
             @click="$emit('openFile', fn)"
           >
-            <div class="flex items-center gap-2 truncate">
+            <div class="flex items-center gap-2 truncate mr-1.5">
               <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
               <span class="truncate text-[13px]">{{ fn }}</span>
             </div>
-            <span
-              v-if="files[fn]?.isDirty"
-              class="w-2 h-2 rounded-full bg-amber-500 shrink-0"
-              title="有未保存修改"
-            ></span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <!-- [2026-09-27] [血统溯源与采纳标注] 已采纳高亮徽章 (纯 Lucide 图标，零 Emoji) -->
+              <span
+                v-if="files[fn]?.isActive"
+                class="text-[10px] px-1.5 py-0.5 rounded font-mono font-medium bg-[#7c5bf5]/15 text-[#7c5bf5] border border-[#7c5bf5]/30 flex items-center gap-1 shrink-0"
+              >
+                <i data-lucide="check" class="w-3 h-3 text-[#7c5bf5]"></i>
+                <span>已采纳</span>
+                <span class="opacity-80">[{{ files[fn]?.versionTag || 'QA-V1' }}]</span>
+              </span>
+              <span
+                v-if="files[fn]?.isDirty"
+                class="w-2 h-2 rounded-full bg-amber-500 shrink-0"
+                title="有未保存修改"
+              ></span>
+            </div>
           </div>
         </div>
       </div>
@@ -94,13 +108,17 @@
 </template>
 
 <script setup>
-import { nextTick, watch } from 'vue';
+import { onMounted, nextTick, watch } from 'vue';
 
 const props = defineProps({
   categories: { type: Array, required: true },
   files: { type: Object, required: true },
   activeCategory: { type: String, default: 'questions' },
   activeFileName: { type: String, default: '' },
+  /** 是否允许新建文件（阶段一固定交付物，传 false 隐藏按钮） */
+  allowNewFile: { type: Boolean, default: true },
+  /** 是否允许刷新目录 */
+  allowRefresh: { type: Boolean, default: true },
 });
 
 defineEmits(['toggleCategory', 'openFile', 'newFile', 'refreshFiles']);
@@ -111,9 +129,19 @@ function getFilesInCat(catId) {
   );
 }
 
-watch([() => props.activeCategory, () => props.files], () => {
+function refreshIcons() {
   nextTick(() => {
-    if (window.lucide) window.lucide.createIcons();
+    if (typeof window !== 'undefined' && window.lucide) {
+      window.lucide.createIcons();
+    }
   });
+}
+
+onMounted(() => {
+  refreshIcons();
 });
+
+watch([() => props.activeCategory, () => props.activeFileName, () => props.files], () => {
+  refreshIcons();
+}, { deep: true });
 </script>

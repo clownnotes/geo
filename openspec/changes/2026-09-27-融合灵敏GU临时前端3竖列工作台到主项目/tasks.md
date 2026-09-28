@@ -4,22 +4,22 @@
 - [x] 0.1 同步临时前端 8 份阶段归档规范至 `openspec/changes/archive/`，确保历史血统有据可查 <!-- id: 0.1 -->
 
 ## 1. 基础脚本与环境准备 <!-- id: 1 -->
-- [ ] 1.1 在 `web/` 下新建 `scripts/` 目录并放置 `stamp-build.mjs` 版本戳脚本，支持为产物引用自动追加构建时间戳，内置引用目标存在性断言（未命中时报错中断并 exit 1，杜绝假成功，R8-5） <!-- id: 1.1 -->
-- [ ] 1.2 确认主工程根目录 `package.json` 中的 `dev:step0` 和 `build:step0` 脚本可正常调用 <!-- id: 1.2 -->
+- [x] 1.1 在 `web/` 下新建 `scripts/` 目录并放置 `stamp-build.mjs` 版本戳脚本，支持为产物引用自动追加构建时间戳，内置引用目标存在性断言（未命中时报错中断并 exit 1，杜绝假成功，R8-5） <!-- id: 1.1 -->
+- [x] 1.2 确认主工程根目录 `package.json` 中的 `dev:step0` 和 `build:step0` 脚本可正常调用 <!-- id: 1.2 -->
 
 ## 2. 同步 Vue 组件岛源码与配置文件 <!-- id: 2 -->
-- [ ] 2.1 同步 `step0-src/` 下全量阶段主页面（`Step0App.vue` ~ `Step6App.vue`），并在 `Step0App.vue` 修正直写后端 API 失败时的 catch 处理，给出明确报错 Toast 提示（杜绝失败依然弹出成功提示，R8-7） <!-- id: 2.1 -->
-- [ ] 2.2 同步 `step0-src/` 下各阶段 Composable 状态逻辑与配置（`useStep1.js` ~ `useStep6.js`、`stage1Config.js` ~ `stage6Config.js`）：
+- [x] 2.1 同步 `step0-src/` 下全量阶段主页面（`Step0App.vue` ~ `Step6App.vue`），并在 `Step0App.vue` 修正直写后端 API 失败时的 catch 处理，给出明确报错 Toast 提示（杜绝失败依然弹出成功提示，R8-7） <!-- id: 2.1 -->
+- [x] 2.2 同步 `step0-src/` 下各阶段 Composable 状态逻辑与配置（`useStep1.js` ~ `useStep6.js`、`stage1Config.js` ~ `stage6Config.js`）：
   - 修复 `stage5Config.js:170` 读取阶段四答题卡的键名为 `geo_step4_qa_cards_${clientId}`（与写入方严格一致），并将空 catch 改为 `console.warn`（R8-1）；
   - 为 `useStep3.js`、`useStep4.js`、`useStep5.js` 补齐与 `useStep2.js:138-142` 同形的 `watch(isHeaderCollapsed, val => localStorage.setItem(STORAGE_KEY_HEADER, String(val)))` 折叠态持久化写入（R8-2）；
   - 清理或注释 `useStep3.js:34` 中无写入方的 `geo_step2_site_info_` 历史死引用（R8-6） <!-- id: 2.2 -->
-- [ ] 2.3 同步 `step0-src/components/` 下所有子组件目录（`studio/`、`qacard/`、`distribute/`、`acceptance/`、`daily/` 等） <!-- id: 2.3 -->
-- [ ] 2.4 同步并完善 `step0-src/main.js`，导出全部 8 个 Bridge（`GeoStep0Bridge` ~ `GeoStep6Bridge` 与 `GeoRecurringMonitorBridge`），保留统一接口签名；为阶段零（宿主唯一调用 `refresh` 的阶段）确保 `refresh(opts)` 响应接口与 `Step0App.vue` 的 `defineExpose({ refresh })` 暴露，其余 7 个阶段统一依托宿主守卫重置与 `mount()` 重新挂载注入上下文，避免冗余死代码（R6-4 / R9-1 甲案） <!-- id: 2.4 -->
-- [ ] 2.5 同步 `step0-src/vite.config.js` 与 `step0-src/package.json`（在 `rollupOptions.output.assetFileNames` 中显式固定 CSS 产物名为 `geo-step0-island.css`，解除对 `package.json.name` 的隐式耦合，确认 build 包含 stamp-build 脚本调用，R8-8） <!-- id: 2.5 -->
+- [x] 2.3 同步 `step0-src/components/` 下所有子组件目录（`studio/`、`qacard/`、`distribute/`、`acceptance/`、`daily/` 等） <!-- id: 2.3 -->
+- [x] 2.4 同步并完善 `step0-src/main.js`，导出全部 8 个 Bridge（`GeoStep0Bridge` ~ `GeoStep6Bridge` 与 `GeoRecurringMonitorBridge`），保留统一接口签名；为阶段零（宿主唯一调用 `refresh` 的阶段）确保 `refresh(opts)` 响应接口与 `Step0App.vue` 的 `defineExpose({ refresh })` 暴露，其余 7 个阶段统一依托宿主守卫重置与 `mount()` 重新挂载注入上下文，避免冗余死代码（R6-4 / R9-1 甲案） <!-- id: 2.4 -->
+- [x] 2.5 同步 `step0-src/vite.config.js` 与 `step0-src/package.json`（在 `rollupOptions.output.assetFileNames` 中显式固定 CSS 产物名为 `geo-step0-island.css`，解除对 `package.json.name` 的隐式耦合，确认 build 包含 stamp-build 脚本调用，R8-8） <!-- id: 2.5 -->
 
 ## 3. 同步预构建产物与主壳层更新 <!-- id: 3 -->
-- [ ] 3.1 同步预构建产物 `web/assets/step0/step0.js` 与 `web/assets/step0/geo-step0-island.css` <!-- id: 3.1 -->
-- [ ] 3.2 同步更新 `web/index.html`：
+- [x] 3.1 同步预构建产物 `web/assets/step0/step0.js` 与 `web/assets/step0/geo-step0-island.css` <!-- id: 3.1 -->
+- [x] 3.2 同步更新 `web/index.html`：
   - 在 `<head>` 区域 `./assets/step0/step0.js` 之前显式插入 `<link rel="stylesheet" href="./assets/step0/geo-step0-island.css">` 外链样式（R6-1）；
   - 在宿主页面新建 `#panel-step-4-qacard` 面板容器（含 `<div id="step4-app-root"></div>`）；
   - 移除阶段五（`#panel-step-4-distribute`）与阶段六（`#panel-step-5-acceptance`）宿主面板内的旧 DOM 与旧 `<h2>`（改由组件岛根容器渲染）；
@@ -46,9 +46,9 @@
   - 接入全量阶段 Bridge 挂载管理；在 `enterWizard` 切换项目时，重置所有 `__GEO_STEP0..6_MOUNTED__ = false` 及 `__GEO_RECURRING_MOUNTED__ = false`，并对当前呈现的活跃面板调用对应具名渲染函数注入最新上下文：`renderStep1DiagPanel(true)` ~ `renderMonRecurringPanel(true)` 这 7 个面板传参 `forceRemount=true`，`renderStep0ProbePanel()` 无该参数、依托守卫重置为 `false` 触发重挂载与 `refresh`，彻底杜绝项目切换数据滞后与串流（R6-4 / R9-1 / R9-3） <!-- id: 3.2 -->
 
 ## 4. 真实工程联调与构建验收 <!-- id: 4 -->
-- [ ] 4.1 在 `web/step0-src` 运行 `npm run build`，验证打包流程无报错且时间戳正常打入 `index.html`，确认未命中引用时脚本能正确告警中断 <!-- id: 4.1 -->
-- [ ] 4.2 启动本地服务 `./geo serve --port 8088`，浏览器访问 `http://127.0.0.1:8088` <!-- id: 4.2 -->
-- [ ] 4.3 验证阶段 00~06 各工作台标签页点击切换顺畅，3 竖列布局渲染无白屏，中列 Markdown 样式渲染正常（CSS 成功生效，R6-1） <!-- id: 4.3 -->
-- [ ] 4.4 验证切换不同项目时，各阶段能否正确获取项目上下文（客户ID、项目名称等）并平稳展示，无数据滞后或串流；阶段五能正常读取阶段四答题卡缓存（R8-1） <!-- id: 4.4 -->
-- [ ] 4.5 确认浏览器控制台零报错（无 404、无 undefined/null 引用异常、无 `loadMarkdownToElem` 及老 DOM 缺失导致的 TypeError，R6-2 / R7-1） <!-- id: 4.5 -->
-- [ ] 4.6 确认已知预期行为：验证阶段四完成答题卡本地操作后，顶栏进度条与“共 5 步”文案保持不变（符合当前仅前端合流、后端 5 步进度解耦的已知预期，不误判为 Bug） <!-- id: 4.6 -->
+- [x] 4.1 在 `web/step0-src` 运行 `npm run build`，验证打包流程无报错且时间戳正常打入 `index.html`，确认未命中引用时脚本能正确告警中断 <!-- id: 4.1 -->
+- [x] 4.2 启动本地服务 `./geo web --port 8088`，浏览器访问 `http://127.0.0.1:8088` <!-- id: 4.2 -->
+- [x] 4.3 验证阶段 00~06 各工作台标签页点击切换顺畅，3 竖列布局渲染无白屏，中列 Markdown 样式渲染正常（CSS 成功生效，R6-1） <!-- id: 4.3 -->
+- [x] 4.4 验证切换不同项目时，各阶段能否正确获取项目上下文（客户ID、项目名称等）并平稳展示，无数据滞后或串流；阶段五能正常读取阶段四答题卡缓存（R8-1） <!-- id: 4.4 -->
+- [x] 4.5 确认浏览器控制台零报错（无 404、无 undefined/null 引用异常、无 `loadMarkdownToElem` 及老 DOM 缺失导致的 TypeError，R6-2 / R7-1） <!-- id: 4.5 -->
+- [x] 4.6 确认已知预期行为：验证阶段四完成答题卡本地操作后，顶栏进度条与“共 5 步”文案保持不变（符合当前仅前端合流、后端 5 步进度解耦的已知预期，不误判为 Bug） <!-- id: 4.6 -->

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build && node ../scripts/stamp-build.mjs"
   },
   "dependencies": {
     "vue": "^3.5.13"
