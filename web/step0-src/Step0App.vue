@@ -20,6 +20,7 @@
     <div class="flex gap-4 items-stretch flex-col lg:flex-row h-[700px] min-h-[580px]">
       <!-- 左栏：资源管理器 (纯粹化：仅展示当前子步骤对应的文件分类) -->
       <StudioFileTree
+        :stage="'step0'"
         :categories="currentStepCategories"
         :files="files"
         :active-category="activeCategory"
@@ -35,6 +36,8 @@
 
       <!-- 中间：多 Tab 编辑打磨区 -->
       <StudioEditor
+        :stage="'step0'"
+        :valid-adopt-slots="['slot_stage0_questions', 'slot_stage0_answers']"
         :open-tabs="openTabs"
         :active-file-name="activeFileName"
         :files="files"
@@ -44,6 +47,9 @@
         @copy-content="handleCopyContent"
         @save-file="handleSaveActiveFile"
         @adopt-file="handleAdoptFile"
+        @adoptFile="handleAdoptFile"
+        @restore-file="handleRestoreFile"
+        @restoreFile="handleRestoreFile"
       />
 
       <!-- 右栏：SOP 交付动线面板 (三级微动线指引，平铺展示当前小节操作) -->
@@ -87,6 +93,16 @@ import StudioFileTree from './components/studio/StudioFileTree.vue';
 import StudioEditor from './components/studio/StudioEditor.vue';
 import StudioSop from './components/studio/StudioSop.vue';
 import MckinseyDrawer from './components/MckinseyDrawer.vue';
+import {
+  CANONICAL_SLOT_DICT,
+  resolveSlotKey,
+  computeNextVersion,
+  computeSaveResult,
+  computeAdoptResult,
+  computeRestoreResult,
+  computeDeleteResult,
+  migrateAndNormalizeFiles,
+} from './config/studioArtifactConfig.js';
 
 const props = defineProps({
   bridge: { type: Object, default: () => ({}) },
@@ -236,7 +252,7 @@ function setSubStep(stepNum) {
 
     // 打开对应分类下的最新文件
     const catFiles = Object.keys(files.value).filter(
-      (fn) => files.value[fn].category === targetCat && !files.value[fn].is_deleted
+      (fn) => files.value[fn].category === targetCat && !files.value[fn].isDeleted
     );
     if (catFiles.length > 0) {
       handleOpenFile(catFiles[catFiles.length - 1]);
@@ -263,11 +279,11 @@ async function handleFinishStage0() {
 
   const pId = projectData.value?.client_id || (typeof window !== 'undefined' && window.currentProjectId) || 'geo';
 
-  // 1. 查找当前生效的题目与回答文件
-  const activeQFile = Object.values(files.value).find(f => f.category === 'questions' && f.isActive)
-    || Object.values(files.value).find(f => f.category === 'questions');
-  const activeAFile = Object.values(files.value).find(f => f.category === 'answers' && f.isActive)
-    || Object.values(files.value).find(f => f.category === 'answers');
+  // 1. 查找当前生效的题目与回答文件（排除废纸篓文件）
+  const activeQFile = Object.values(files.value).find(f => f.category === 'questions' && f.isActive && !f.isDeleted)
+    || Object.values(files.value).find(f => f.category === 'questions' && !f.isDeleted);
+  const activeAFile = Object.values(files.value).find(f => f.category === 'answers' && f.isActive && !f.isDeleted)
+    || Object.values(files.value).find(f => f.category === 'answers' && !f.isDeleted);
 
   const activeQaVersion = (activeQFile && activeQFile.versionTag)
     || (activeAFile && activeAFile.versionTag)
@@ -393,7 +409,7 @@ function stampActiveQaHeader(content, { versionTag, brand, clientId, pairFile })
   return header + '\n\n' + content.trimStart();
 }
 
-// 采纳切换函数：实现单底牌互斥、版本号自动递增、首行元数据头更新及本地持久化
+// [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 阶段零采纳生效版本（SSOT 纯函数收敛）
 function handleAdoptFile(fileName) {
   const targetFile = files.value[fileName];
   if (!targetFile) {
@@ -401,56 +417,57 @@ function handleAdoptFile(fileName) {
     return;
   }
 
+  const res = computeAdoptResult({
+    candidateName: fileName,
+    files: files.value,
+    stage: 'step0',
+  });
+  if (!res.success) {
+    if (res.reason === 'EMPTY_CONTENT') {
+      showToast('当前草稿内容为空，无法设为采纳底牌！请先编写或贴入内容', 'warning');
+    } else {
+      showToast(`采纳失败: ${res.reason}`, 'error');
+    }
+    return;
+  }
+  files.value = res.files;
+
+  // 联动配对文件 pairFile 与标准头
   const clientId = projectData.value?.client_id || (typeof window !== 'undefined' && window.currentProjectId) || 'geo';
   const brand = projectData.value?.brand_name || projectData.value?.name || '客户品牌';
-
-  // 1. 版本号逻辑：若当前文件已有 versionTag 则沿用，若为新文件/草稿则从当前项目最大版本号自动递增
-  let versionTag = targetFile.versionTag;
-  if (!versionTag) {
-    const maxVer = getMaxQaVersionNumber();
-    versionTag = `QA-V${maxVer + 1}`;
-    targetFile.versionTag = versionTag;
-  }
-
-  // 2. 单底牌互斥原则：遍历同 category 文件，将其 isActive 设为 false
-  Object.values(files.value).forEach(f => {
-    if (f.category === targetFile.category) {
-      f.isActive = false;
-    }
-  });
-  targetFile.isActive = true;
-
-  // 3. 确定配对文件 pairFile 与版本号联动
-  const pairCategory = targetFile.category === 'questions' ? 'answers' : 'questions';
-  const pairFileObj = Object.values(files.value).find(f => f.category === pairCategory && f.isActive)
-    || Object.values(files.value).find(f => f.category === pairCategory);
+  const currentAdopted = files.value[fileName];
+  const pairCategory = currentAdopted.category === 'questions' ? 'answers' : 'questions';
+  const pairFileObj = Object.values(files.value).find(f => f.category === pairCategory && f.isActive && !f.isDeleted)
+    || Object.values(files.value).find(f => f.category === pairCategory && !f.isDeleted);
   const pairFileName = pairFileObj ? pairFileObj.name : '';
-  targetFile.pairFile = pairFileName;
-
+  currentAdopted.pairFile = pairFileName;
   if (pairFileObj) {
-    pairFileObj.versionTag = versionTag;
-    pairFileObj.pairFile = targetFile.name;
+    pairFileObj.pairFile = currentAdopted.name;
   }
 
-  // 4. 更新文件首行元数据头（严禁 Emoji，规范见 design.md 1.3 节）
-  const updatedContent = stampActiveQaHeader(targetFile.content || '', {
-    versionTag,
+  // 为采纳文件盖上标准元数据头
+  const stamped = stampActiveQaHeader(currentAdopted.content || '', {
+    versionTag: res.versionTag,
     brand,
     clientId,
-    pairFile: pairFileName
+    pairFile: pairFileName,
   });
-  targetFile.content = updatedContent;
-  targetFile.savedContent = updatedContent;
-  targetFile.isDirty = false;
+  currentAdopted.content = stamped;
+  currentAdopted.savedContent = stamped;
+  currentAdopted.isDirty = false;
 
-  // 5. 更新本地存储 localStorage
-  const activeQuestionFile = targetFile.category === 'questions' ? targetFile.name : pairFileName;
-  const activeAnswerFile = targetFile.category === 'answers' ? targetFile.name : pairFileName;
+  // 若存在规范镜像骨干，保持镜像同步
+  if (res.canonicalName && files.value[res.canonicalName]) {
+    files.value[res.canonicalName].content = stamped;
+  }
 
+  // 持久化到 active_qa
+  const activeQuestionFile = currentAdopted.category === 'questions' ? currentAdopted.name : pairFileName;
+  const activeAnswerFile = currentAdopted.category === 'answers' ? currentAdopted.name : pairFileName;
   const storageKey = `geo_step0_active_qa_${clientId}`;
   const qaPayload = {
     clientId,
-    activeQaVersion: versionTag,
+    activeQaVersion: res.versionTag,
     activeQuestionFile,
     activeAnswerFile,
     updatedAt: new Date().toISOString()
@@ -464,59 +481,44 @@ function handleAdoptFile(fileName) {
     console.warn('[Step0App] 保存阶段零底牌本地存储异常:', err);
   }
 
-  // 同步持久化文件字典至本地存储
   saveStep0FilesToStorage();
 
-  // 6. 派发组件间/全局联动事件并提示 Toast
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('geo-step0-file-adopted', {
-      detail: { fileName: targetFile.name, versionTag, qaPayload }
+      detail: { fileName: currentAdopted.name, versionTag: res.versionTag, qaPayload }
     }));
   }
 
-  showToast(`已成功将【${targetFile.name}】设为客户采纳底牌（版本: ${versionTag}）！`, 'success');
-
+  showToast(`已成功将【${currentAdopted.name}】设为客户采纳底牌（版本: ${res.versionTag}）！`, 'success');
   nextTick(() => {
     if (window.lucide) window.lucide.createIcons();
   });
 }
 
-// [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 阶段零草稿软删除（已采纳底牌受保护不可删除）
+// [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 阶段零草稿软删除（Fail-Closed 保护与平滑回退）
 function handleDeleteFile(filename) {
-  const file = files.value[filename];
-  if (!file) return;
-  if (file.isActive) {
-    showToast('已采纳的生效底牌受系统保护，无法删除！如需删除请先采纳其他版本', 'warning');
+  const res = computeDeleteResult({
+    filename,
+    files: files.value,
+    stage: 'step0',
+    currentSelected: activeFileName.value,
+    openTabs: openTabs.value,
+  });
+  if (!res.success) {
+    if (res.reason === 'FILE_PROTECTED_CANNOT_DELETE') {
+      showToast('已采纳的生效底牌受系统保护，无法删除！如需删除请先采纳其他版本', 'warning');
+    } else {
+      showToast(`删除失败: ${res.reason}`, 'error');
+    }
     return;
   }
-  file.is_deleted = true;
-
-  // 平滑回退兜底：如果当前激活的文件是被删除文件
-  if (activeFileName.value === filename) {
-    const remainingTabs = openTabs.value.filter(t => t !== filename && !files.value[t]?.is_deleted);
-    if (remainingTabs.length > 0) {
-      handleOpenFile(remainingTabs[0]);
-    } else {
-      const catFiles = Object.values(files.value).filter(f => f.category === file.category && !f.is_deleted);
-      if (catFiles.length > 0) {
-        handleOpenFile(catFiles[0].name);
-      } else {
-        const anyAvailable = Object.values(files.value).find(f => !f.is_deleted);
-        if (anyAvailable) {
-          handleOpenFile(anyAvailable.name);
-        } else {
-          activeFileName.value = '';
-        }
-      }
-    }
+  files.value = res.files;
+  openTabs.value = res.newOpenTabs;
+  if (res.nextSelected) {
+    handleOpenFile(res.nextSelected);
+  } else {
+    activeFileName.value = '';
   }
-
-  // 从 openTabs 中移除被删除的文件
-  const tIdx = openTabs.value.indexOf(filename);
-  if (tIdx !== -1) {
-    openTabs.value.splice(tIdx, 1);
-  }
-
   saveStep0FilesToStorage();
   showToast(`已将草稿【${filename}】移入废纸篓，可在左侧底部展开恢复`, 'info');
   nextTick(() => {
@@ -526,9 +528,16 @@ function handleDeleteFile(filename) {
 
 // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 阶段零废纸篓一键原位恢复
 function handleRestoreFile(filename) {
-  const file = files.value[filename];
-  if (!file) return;
-  file.is_deleted = false;
+  const res = computeRestoreResult({
+    filename,
+    files: files.value,
+    stage: 'step0',
+  });
+  if (!res.success) {
+    showToast(`恢复失败: ${res.reason}`, 'error');
+    return;
+  }
+  files.value = res.files;
   handleOpenFile(filename);
   saveStep0FilesToStorage();
   showToast(`已成功恢复草稿【${filename}】并打开`, 'success');
@@ -604,7 +613,9 @@ function initDefaultFiles(p = {}) {
       isDirty: false,
       isActive: false,
       versionTag: 'QA-V1',
-      pairFile: ans1Name
+      pairFile: ans1Name,
+      slotKey: 'slot_stage0_questions',
+      isDeleted: false,
     },
     [ans1Name]: {
       category: 'answers',
@@ -615,11 +626,13 @@ function initDefaultFiles(p = {}) {
       isDirty: false,
       isActive: false,
       versionTag: 'QA-V1',
-      pairFile: q1Name
+      pairFile: q1Name,
+      slotKey: 'slot_stage0_answers',
+      isDeleted: false,
     }
   };
 
-  files.value = { ...defaultFiles };
+  let mergedFiles = { ...defaultFiles };
 
   // 2. 尝试从 localStorage (geo_step0_files_${clientId}) 读取历史文件列表并合并恢复到 files.value
   const filesStorageKey = `geo_step0_files_${clientId}`;
@@ -629,26 +642,19 @@ function initDefaultFiles(p = {}) {
       if (rawFiles) {
         const parsedFiles = JSON.parse(rawFiles);
         if (parsedFiles && typeof parsedFiles === 'object') {
-          // 合并恢复：保留基础模版属性，同时恢复用户新增或修改的历史文件（如 01_豆包题目_第2版.txt）
-          files.value = {
+          mergedFiles = {
             ...defaultFiles,
             ...parsedFiles
           };
-          // 重置未保存脏标记，保证状态纯净
-          Object.values(files.value).forEach(f => {
-            if (f) {
-              f.isDirty = false;
-              if (typeof f.savedContent === 'undefined') {
-                f.savedContent = f.content || '';
-              }
-            }
-          });
         }
       }
     }
   } catch (err) {
     console.warn('[Step0App] 读取阶段零文件字典本地缓存异常:', err);
   }
+
+  // [2026-09-28] [SSOT收敛] 统一使用 migrateAndNormalizeFiles 进行存量收敛与单槽 active 校验
+  files.value = migrateAndNormalizeFiles(mergedFiles, 'step0');
 
   // 3. 读取 localStorage 获取持久化底牌并执行双向一致性校验
   const qaStorageKey = `geo_step0_active_qa_${clientId}`;
@@ -670,17 +676,17 @@ function initDefaultFiles(p = {}) {
   if (savedQa && savedQa.activeQuestionFile && savedQa.activeAnswerFile) {
     const candidateQ = savedQa.activeQuestionFile;
     const candidateA = savedQa.activeAnswerFile;
-    const isQValid = !!files.value[candidateQ];
-    const isAValid = !!files.value[candidateA];
+    const isQValid = !!files.value[candidateQ] && !files.value[candidateQ].isDeleted;
+    const isAValid = !!files.value[candidateA] && !files.value[candidateA].isDeleted;
 
     if (isQValid && isAValid) {
-      // 题目与回答均真实存在于 files 中：正常采纳生效
+      // 题目与回答均真实存在且非废纸篓文件：正常采纳生效
       finalActiveQ = candidateQ;
       finalActiveA = candidateA;
       finalVer = savedQa.activeQaVersion || 'QA-V1';
     } else {
-      // 引用了不存在的文件：立即执行【校验纠偏与回退】，回退到默认 q1Name 与 ans1Name，版本号重置为 QA-V1
-      console.warn(`[Step0App] 检测到底牌引用不存在的文件(Q: ${candidateQ}存在=${isQValid}, A: ${candidateA}存在=${isAValid})，立即执行纠偏回退至默认底牌`);
+      // 引用了不存在或在废纸篓的文件：立即执行【校验纠偏与回退】，回退到默认 q1Name 与 ans1Name，版本号重置为 QA-V1
+      console.warn(`[Step0App] 检测到底牌引用无效文件(Q: ${candidateQ}有效=${isQValid}, A: ${candidateA}有效=${isAValid})，立即执行纠偏回退至默认底牌`);
       finalActiveQ = q1Name;
       finalActiveA = ans1Name;
       finalVer = 'QA-V1';
@@ -696,6 +702,7 @@ function initDefaultFiles(p = {}) {
     if (f.category === 'questions') {
       if (f.name === finalActiveQ) {
         f.isActive = true;
+        f.isDeleted = false;
         f.versionTag = finalVer;
         f.pairFile = finalActiveA;
       } else {
@@ -704,6 +711,7 @@ function initDefaultFiles(p = {}) {
     } else if (f.category === 'answers') {
       if (f.name === finalActiveA) {
         f.isActive = true;
+        f.isDeleted = false;
         f.versionTag = finalVer;
         f.pairFile = finalActiveQ;
       } else {
@@ -821,7 +829,9 @@ function handlePromptNewFile() {
     isDirty: true,
     isActive: false,
     versionTag: '',
-    pairFile: ''
+    isManual: true,
+    slotKey: 'slot_manual',
+    isDeleted: false,
   };
 
   // 持久化文件字典至本地存储
@@ -878,22 +888,38 @@ function handleCopyContent() {
   });
 }
 
+// [2026-09-28] [SSOT收敛] 保存文件统一接入 computeSaveResult
 async function handleSaveActiveFile() {
-  const f = files.value[activeFileName.value];
-  if (!f) return;
-  f.savedContent = f.content;
-  f.isDirty = false;
+  const currentFn = activeFileName.value;
+  const currentF = files.value[currentFn];
+  if (!currentF) return;
+
+  const res = computeSaveResult({
+    targetName: currentFn,
+    content: currentF.content,
+    files: files.value,
+    stage: 'step0',
+  });
+  if (!res.success) {
+    if (res.reason === 'READ_ONLY_LOCKED') {
+      showToast('该文件为只读状态，无法保存！', 'warning');
+    } else {
+      showToast(`保存失败: ${res.reason}`, 'error');
+    }
+    return;
+  }
+  files.value = res.files;
 
   const pId = projectData.value?.client_id || (typeof window !== 'undefined' && window.currentProjectId);
   if (pId) {
     try {
-      const res = await fetch(`/api/projects/${pId}`, {
+      const resFetch = await fetch(`/api/projects/${pId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [`file_${f.name}`]: f.content })
+        body: JSON.stringify({ [`file_${currentFn}`]: currentF.content })
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.success === false) {
+      const data = await resFetch.json().catch(() => ({}));
+      if (!resFetch.ok || data.success === false) {
         showToast(data.message || '文件保存到后端失败', 'error');
         return;
       }
@@ -904,17 +930,18 @@ async function handleSaveActiveFile() {
   }
   // 持久化文件字典至本地存储
   saveStep0FilesToStorage();
-  showToast(`文件【${f.name}】已成功保存！`, 'success');
+  showToast(`文件【${currentFn}】已成功保存！`, 'success');
 }
 
 // [2026-09-27] [血统溯源机制] 新生成的第 N 版题目默认为草稿态（isActive: false），由交付专家打磨满意后手动点击顶栏【设为客户采纳】生效
 function handleRefreshQuestions() {
-  const qCount = Object.keys(files.value).filter(fn => files.value[fn].category === 'questions').length;
-  const newName = `01_豆包题目_第${qCount + 1}版.txt`;
+  const { nextVer } = computeNextVersion(files.value, 'slot_stage0_questions');
+  const slotItem = CANONICAL_SLOT_DICT['slot_stage0_questions'];
+  const newName = `${slotItem.baseSlotName}_第${nextVer}版${slotItem.ext}`;
   const brand = projectData.value.brand_name || '客户品牌';
 
   const content = [
-    `=== 阶段零：豆包大白话提问清单 (第 ${qCount + 1} 版) ===`,
+    `=== 阶段零：豆包大白话提问清单 (第 ${nextVer} 版) ===`,
     `客户品牌：${brand}`,
     `生成时间：${new Date().toLocaleString()}`,
     ``,
@@ -933,15 +960,16 @@ function handleRefreshQuestions() {
     savedContent: content,
     isDirty: false,
     isActive: false,
-    versionTag: '',
-    pairFile: ''
+    versionTag: `V${nextVer}-Draft`,
+    slotKey: 'slot_stage0_questions',
+    isDeleted: false,
   };
 
   // 持久化文件字典至本地存储
   saveStep0FilesToStorage();
 
   handleOpenFile(newName);
-  showToast(`已生成第 ${qCount + 1} 版草稿题目【${newName}】，打磨满意后可点击顶栏【设为客户采纳】生效！`, 'info');
+  showToast(`已生成第 ${nextVer} 版草稿题目【${newName}】，打磨满意后可点击顶栏【设为客户采纳】生效！`, 'info');
 
   nextTick(() => {
     if (typeof window !== 'undefined' && window.lucide) {

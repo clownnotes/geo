@@ -269,8 +269,8 @@ export function buildStage1Files(ctx) {
     files[fn].slotKey = SLOT_KEY_MAP[fn] || ('slot_' + fn.replace(/\.[^/.]+$/, ''));
     if (files[fn].isActive === undefined) files[fn].isActive = true;
     if (!files[fn].versionTag) files[fn].versionTag = 'V1';
-    if (!files[fn].generatedAt) files[fn].generatedAt = nowStr;
-    if (files[fn].is_deleted === undefined) files[fn].is_deleted = false;
+    if (files[fn].isDeleted === undefined) files[fn].isDeleted = false;
+    delete files[fn].is_deleted;
   });
 
   return files;

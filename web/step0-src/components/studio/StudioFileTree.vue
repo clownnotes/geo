@@ -104,9 +104,9 @@
                   草稿
                 </span>
 
-                <!-- [2026-09-28] [多版本生成采纳与草稿废纸篓] 草稿文件 hover 允许删除 (已采纳受保护不可删) -->
+                <!-- [2026-09-28] [多版本生成采纳与草稿废纸篓] 依据 canDeleteFile 严格门控删除按钮，根除死按钮 (解决 P0-3 & P1-2) -->
                 <button
-                  v-if="!files[fn]?.isActive"
+                  v-if="canDeleteFile(files[fn], stage)"
                   type="button"
                   title="删除此草稿 (移入废纸篓)"
                   class="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded transition cursor-pointer"
@@ -125,9 +125,9 @@
         </div>
       </div>
 
-      <!-- [2026-09-28] [多版本生成采纳与草稿废纸篓] 底部废纸篓/已归档折叠抽屉 -->
+      <!-- [2026-09-28] [多版本生成采纳与草稿废纸篓] 底部废纸篓抽屉 (严格受 showStatusBadge 门控，防污染阶段二至六 · 解决 P1-7) -->
       <div
-        v-if="trashFiles.length > 0"
+        v-if="showStatusBadge && trashFiles.length > 0"
         class="rounded-lg border border-slate-200 bg-slate-50/80 overflow-hidden text-xs transition"
       >
         <div
@@ -147,10 +147,13 @@
           </span>
         </div>
         <div v-show="isTrashExpanded" class="p-1 space-y-1 bg-white border-t border-slate-100">
+          <!-- 废纸篓条目整行可点击打开只读查验预览 (解决 P1-8) -->
           <div
             v-for="fn in trashFiles"
             :key="fn"
-            class="flex items-center justify-between p-1.5 rounded hover:bg-slate-50 text-slate-500 text-[12px]"
+            class="flex items-center justify-between p-1.5 rounded hover:bg-slate-50 text-slate-500 text-[12px] cursor-pointer group"
+            :class="fn === activeFileName ? 'bg-[#7c5bf5]/10 text-[#7c5bf5] font-medium' : ''"
+            @click="$emit('openFile', fn)"
           >
             <div class="truncate mr-1 flex items-center gap-1.5 text-slate-400 line-through">
               <i data-lucide="file-minus" class="w-3.5 h-3.5 shrink-0"></i>
@@ -174,12 +177,15 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue';
+import { canDeleteFile } from '../../config/studioArtifactConfig.js';
 
 const props = defineProps({
   categories: { type: Array, required: true },
   files: { type: Object, required: true },
   activeCategory: { type: String, default: 'questions' },
   activeFileName: { type: String, default: '' },
+  /** 当前阶段标识 ('step0' | 'step1' 等)，未传时安全降级不白屏 (解决 P1-7) */
+  stage: { type: String, default: '' },
   /** 是否允许新建文件（阶段一固定交付物，传 false 隐藏按钮） */
   allowNewFile: { type: Boolean, default: true },
   /** 是否允许刷新目录 */
@@ -188,7 +194,7 @@ const props = defineProps({
   showStatusBadge: { type: Boolean, default: false },
 });
 
-// [2026-09-28] [多版本生成采纳与草稿废纸篓] 派发 deleteFile 与 restoreFile 事件
+// [2026-09-28] [多版本生成采纳与草稿废纸篓] 锁定标准事件契约 (解决 P1-11)
 defineEmits([
   'toggleCategory', 'openFile', 'newFile', 'refreshFiles',
   'deleteFile', 'restoreFile',
@@ -198,12 +204,12 @@ const isTrashExpanded = ref(false);
 
 const trashFiles = computed(() => {
   if (!props.files) return [];
-  return Object.keys(props.files).filter(fn => props.files[fn]?.is_deleted);
+  return Object.keys(props.files).filter((fn) => Boolean(props.files[fn]?.isDeleted || props.files[fn]?.is_deleted));
 });
 
 function getFilesInCat(catId) {
   return Object.keys(props.files || {}).filter(
-    (fn) => props.files[fn].category === catId && !props.files[fn].is_deleted
+    (fn) => props.files[fn].category === catId && !props.files[fn].isDeleted && !props.files[fn].is_deleted
   );
 }
 

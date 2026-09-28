@@ -20,6 +20,7 @@
     <div class="flex gap-4 items-stretch flex-col lg:flex-row h-[700px] min-h-[580px]">
       <!-- 左栏：文件资源树 -->
       <StudioFileTree
+        :stage="'step1'"
         :categories="STAGE_1_META.categories"
         :files="files"
         :active-category="activeCategory"
@@ -36,6 +37,8 @@
 
       <!-- 中间：多 Tab 在线打磨区 (Markdown源码 / HTML 视觉大屏实时预览) -->
       <StudioEditor
+        :stage="'step1'"
+        :valid-adopt-slots="['slot_metrics', 'slot_stage0_qa', 'slot_draft', 'slot_report_screen', 'slot_report_text', 'slot_report_tech']"
         :open-tabs="openTabs"
         :active-file-name="activeFileName"
         :files="files"
@@ -47,6 +50,8 @@
         @save-file="handleSaveActiveFile"
         @adopt-file="handleAdoptFile"
         @adoptFile="handleAdoptFile"
+        @restore-file="handleRestoreFile"
+        @restoreFile="handleRestoreFile"
         @fullscreen="fullscreenVisible = true"
       />
 

@@ -5,16 +5,19 @@
  */
 import { ref, computed, onUnmounted } from 'vue';
 import { resolveContext, buildStage1Files, STAGE_1_META, buildCrawledMetricsMarkdown } from './stage1Config.js';
+import {
+  CANONICAL_SLOT_DICT,
+  resolveSlotKey,
+  computeNextVersion,
+  computeSaveResult,
+  computeAdoptResult,
+  computeRestoreResult,
+  computeDeleteResult,
+  migrateAndNormalizeFiles,
+} from './config/studioArtifactConfig.js';
 
 export function getSlotKey(filename) {
-  if (!filename) return 'slot_default';
-  if (filename.startsWith('01_网络底座指标')) return 'slot_metrics';
-  if (filename.startsWith('01_商业诊断与转化初稿')) return 'slot_draft';
-  if (filename.startsWith('01_老板商业诊断报告_好看大屏')) return 'slot_report_screen';
-  if (filename.startsWith('01_老板商业诊断报告_文字版')) return 'slot_report_text';
-  if (filename.startsWith('01_工程师底座技术审计')) return 'slot_report_tech';
-  if (filename.startsWith('01_阶段零豆包实测问答素材')) return 'slot_stage0_qa';
-  return 'slot_' + filename.replace(/\.[^/.]+$/, '');
+  return resolveSlotKey(filename, 'step1');
 }
 
 export function useStep1(projectData = {}) {
@@ -32,6 +35,7 @@ export function useStep1(projectData = {}) {
   }
 
   const initialFiles = buildStage1Files(ctx);
+  const mergedFiles = { ...initialFiles };
   // 如果之前编辑并保存了文件，恢复保存的内容与多版本状态
   if (savedState && savedState.files) {
     Object.keys(savedState.files).forEach((fn) => {
@@ -45,36 +49,46 @@ export function useStep1(projectData = {}) {
             const stamp = `> [溯源血统]：本报告基于阶段零生效底牌【${ctx.activeQaVersion}】（${ctx.activeQuestionFile} + ${ctx.activeAnswerFile}）直出\n\n`;
             content = content.replace(/^#\s+[^\n]+\n\n?/, (match) => match + stamp);
           }
-          initialFiles[fn].content = content;
-          initialFiles[fn].savedContent = content;
-          initialFiles[fn].isDirty = false;
+          mergedFiles[fn].content = content;
+          mergedFiles[fn].savedContent = content;
+          mergedFiles[fn].isDirty = false;
         }
         // [2026-09-28] 恢复槽位、采纳状态、版本标签、生成时间戳与废纸篓软删除标记
-        if (sf.slotKey) initialFiles[fn].slotKey = sf.slotKey;
-        if (sf.isActive !== undefined) initialFiles[fn].isActive = sf.isActive;
-        if (sf.versionTag) initialFiles[fn].versionTag = sf.versionTag;
-        if (sf.generatedAt) initialFiles[fn].generatedAt = sf.generatedAt;
-        if (sf.is_deleted !== undefined) initialFiles[fn].is_deleted = sf.is_deleted;
+        if (sf.slotKey) mergedFiles[fn].slotKey = sf.slotKey;
+        if (sf.isActive !== undefined) mergedFiles[fn].isActive = sf.isActive;
+        if (sf.versionTag) mergedFiles[fn].versionTag = sf.versionTag;
+        if (sf.generatedAt) mergedFiles[fn].generatedAt = sf.generatedAt;
+        if (sf.isDeleted !== undefined) mergedFiles[fn].isDeleted = sf.isDeleted;
+        else if (sf.is_deleted !== undefined) mergedFiles[fn].isDeleted = sf.is_deleted;
+        if (sf.isRetired !== undefined) mergedFiles[fn].isRetired = sf.isRetired;
+        if (sf.isCanonicalMirror !== undefined) mergedFiles[fn].isCanonicalMirror = sf.isCanonicalMirror;
+        if (sf.isProtectedArchive !== undefined) mergedFiles[fn].isProtectedArchive = sf.isProtectedArchive;
+        if (sf.isManual !== undefined) mergedFiles[fn].isManual = sf.isManual;
       } else if (sf && typeof sf === 'object') {
         // 动态派生的草稿文件（如新版本候选试算草稿），恢复至工作区
-        initialFiles[fn] = {
+        mergedFiles[fn] = {
           name: fn,
           category: sf.category || 'materials',
-          slotKey: sf.slotKey || getSlotKey(fn),
+          slotKey: sf.slotKey || resolveSlotKey(fn, 'step1', sf.isManual),
           renderMode: fn.endsWith('.html') ? 'html' : 'markdown',
           content: sf.content || '',
           savedContent: sf.content || '',
           isDirty: false,
           isActive: sf.isActive || false,
+          isRetired: sf.isRetired || false,
+          isCanonicalMirror: sf.isCanonicalMirror || false,
+          isProtectedArchive: sf.isProtectedArchive || false,
+          isManual: sf.isManual || false,
           versionTag: sf.versionTag || 'V2-Draft',
           generatedAt: sf.generatedAt || '',
-          is_deleted: sf.is_deleted || false,
+          isDeleted: sf.isDeleted !== undefined ? sf.isDeleted : Boolean(sf.is_deleted),
         };
       }
     });
   }
 
-  const files = ref(initialFiles);
+  // [2026-09-28] [SSOT收敛] 统一经过 migrateAndNormalizeFiles 清洗存量数据与收敛单一 active
+  const files = ref(migrateAndNormalizeFiles(mergedFiles, 'step1'));
   const activeCategory = ref(savedState?.activeCategory || 'materials');
   const activeFileName = ref(savedState?.activeFileName || '01_网络底座指标_待对照.md');
   const openTabs = ref(savedState?.openTabs || ['01_网络底座指标_待对照.md', '01_阶段零豆包实测问答素材.md']);
@@ -126,11 +140,15 @@ export function useStep1(projectData = {}) {
               content: v.content,
               isDirty: v.isDirty,
               isActive: v.isActive,
+              isRetired: v.isRetired,
+              isCanonicalMirror: v.isCanonicalMirror,
+              isProtectedArchive: v.isProtectedArchive,
+              isManual: v.isManual,
               versionTag: v.versionTag,
               generatedAt: v.generatedAt,
-              is_deleted: v.is_deleted,
+              isDeleted: Boolean(v.isDeleted),
               category: v.category,
-              slotKey: v.slotKey || getSlotKey(k),
+              slotKey: v.slotKey || resolveSlotKey(k, 'step1', v.isManual),
             },
           ])
         ),
@@ -189,64 +207,74 @@ export function useStep1(projectData = {}) {
     }
   }
 
+  // [2026-09-28] [SSOT收敛] 保存文件统一接入 computeSaveResult
   function handleSaveActiveFile() {
-    if (files.value[activeFileName.value]) {
-      files.value[activeFileName.value].savedContent = files.value[activeFileName.value].content;
-      files.value[activeFileName.value].isDirty = false;
-      saveState();
-      showStudioToast('文件保存成功！(已保存至本地)');
+    const currentFn = activeFileName.value;
+    const currentF = files.value[currentFn];
+    if (!currentF) return;
+
+    const res = computeSaveResult({
+      targetName: currentFn,
+      content: currentF.content,
+      files: files.value,
+      stage: 'step1',
+    });
+    if (!res.success) {
+      if (res.reason === 'READ_ONLY_LOCKED') {
+        showStudioToast('该文件为只读状态，无法保存！', 'warning');
+      } else {
+        showStudioToast(`保存失败: ${res.reason}`, 'error');
+      }
+      return;
     }
+    files.value = res.files;
+    saveState();
+    showStudioToast('文件保存成功！(已保存至本地)');
   }
 
   // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 设为客户采纳版本（工序槽位精准隔离）
   function handleAdoptFile(filename) {
-    const file = files.value[filename];
-    if (!file) return;
-    const targetSlot = file.slotKey || getSlotKey(filename);
-    // 仅将同工序槽位 (slotKey) 的其他文件取消采纳，保留历史版本号，绝不误伤同分类下的其他独立报告
-    Object.values(files.value).forEach((f) => {
-      const fSlot = f.slotKey || getSlotKey(f.name);
-      if (fSlot === targetSlot && f.name !== filename) {
-        f.isActive = false;
-      }
+    const res = computeAdoptResult({
+      candidateName: filename,
+      files: files.value,
+      stage: 'step1',
     });
-    file.isActive = true;
-    file.is_deleted = false;
-    // 采纳时将 versionTag 中的 -Draft 后缀规整掉（如 V2-Draft -> V2）
-    if (file.versionTag && file.versionTag.includes('-Draft')) {
-      file.versionTag = file.versionTag.replace('-Draft', '');
+    if (!res.success) {
+      if (res.reason === 'EMPTY_CONTENT') {
+        showStudioToast('候选版本内容为空，拒绝采纳！', 'warning');
+      } else {
+        showStudioToast(`采纳失败: ${res.reason}`, 'error');
+      }
+      return;
     }
+    files.value = res.files;
     saveState();
     showStudioToast(`已将【${filename}】设为客户采纳生效版本！`);
   }
 
-  // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 软删除草稿文件（已采纳底牌受保护不可删除）
+  // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 软删除草稿文件（Fail-Closed 保护与平滑回退）
   function handleDeleteFile(filename) {
-    const file = files.value[filename];
-    if (!file) return;
-    if (file.isActive) {
-      showStudioToast('已采纳的底牌文件受系统保护，无法删除！如需删除请先采纳其他版本', 'warning');
+    const res = computeDeleteResult({
+      filename,
+      files: files.value,
+      stage: 'step1',
+      currentSelected: activeFileName.value,
+      openTabs: openTabs.value,
+    });
+    if (!res.success) {
+      if (res.reason === 'FILE_PROTECTED_CANNOT_DELETE') {
+        showStudioToast('已采纳底牌或核心规范骨干受系统保护，无法删除！', 'warning');
+      } else {
+        showStudioToast(`删除失败: ${res.reason}`, 'error');
+      }
       return;
     }
-    file.is_deleted = true;
-    // 如果当前选中的是被删除文件，平滑切换到其他未被删除的文件
-    if (activeFileName.value === filename) {
-      const remainingTabs = openTabs.value.filter((t) => t !== filename && !files.value[t]?.is_deleted);
-      if (remainingTabs.length > 0) {
-        handleSelectTab(remainingTabs[0]);
-      } else {
-        const availableFile = Object.values(files.value).find((f) => !f.is_deleted);
-        if (availableFile) {
-          handleSelectTab(availableFile.name);
-        } else {
-          activeFileName.value = '';
-        }
-      }
-    }
-    // 从 openTabs 中移除
-    const tIdx = openTabs.value.indexOf(filename);
-    if (tIdx !== -1) {
-      openTabs.value.splice(tIdx, 1);
+    files.value = res.files;
+    openTabs.value = res.newOpenTabs;
+    if (res.nextSelected) {
+      handleSelectTab(res.nextSelected);
+    } else {
+      activeFileName.value = '';
     }
     saveState();
     showStudioToast(`已将草稿【${filename}】移入废纸篓，可在左侧底部展开恢复`);
@@ -254,9 +282,16 @@ export function useStep1(projectData = {}) {
 
   // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 从废纸篓还原文件
   function handleRestoreFile(filename) {
-    const file = files.value[filename];
-    if (!file) return;
-    file.is_deleted = false;
+    const res = computeRestoreResult({
+      filename,
+      files: files.value,
+      stage: 'step1',
+    });
+    if (!res.success) {
+      showStudioToast(`恢复失败: ${res.reason}`, 'error');
+      return;
+    }
+    files.value = res.files;
     handleSelectTab(filename);
     saveState();
     showStudioToast(`已成功恢复草稿【${filename}】并打开`);
@@ -342,25 +377,9 @@ export function useStep1(projectData = {}) {
           } else {
             // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 重新抓取：扫描全量历史（含废纸篓）递增生成新版本候选草稿
             crawledMetrics.value = true;
-            let maxVersion = 1;
-            Object.keys(files.value).forEach((fn) => {
-              const f = files.value[fn];
-              const fSlot = f.slotKey || getSlotKey(fn);
-              if (fSlot === 'slot_metrics' || fn.startsWith('01_网络底座指标')) {
-                const match = fn.match(/第(\d+)版/);
-                if (match) {
-                  const num = parseInt(match[1], 10);
-                  if (num > maxVersion) maxVersion = num;
-                }
-                const tagMatch = (f.versionTag || '').match(/V(\d+)/i);
-                if (tagMatch) {
-                  const num = parseInt(tagMatch[1], 10);
-                  if (num > maxVersion) maxVersion = num;
-                }
-              }
-            });
-            const nextVer = maxVersion + 1;
-            const newName = `01_网络底座指标_第${nextVer}版.md`;
+            const { nextVer } = computeNextVersion(files.value, 'slot_metrics');
+            const slotItem = CANONICAL_SLOT_DICT['slot_metrics'];
+            const newName = `${slotItem.baseSlotName}_第${nextVer}版${slotItem.ext}`;
             files.value[newName] = {
               name: newName,
               category: 'materials',
@@ -373,7 +392,7 @@ export function useStep1(projectData = {}) {
               isActive: false, // 候选草稿，原底牌继续保持生效受保护
               versionTag: `V${nextVer}-Draft`,
               generatedAt: nowStr,
-              is_deleted: false,
+              isDeleted: false,
             };
             handleSelectTab(newName);
             saveState();

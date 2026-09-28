@@ -44,7 +44,7 @@
 
 > **迭代阶段说明**：第 1~3 节代码与冒烟已在上一轮完成并验证入库（commit `f2e1daf`）；第 4 节为本次 Grill-Me 迭代新需求，当前处于纯方案设计阶段（stage=design），本节任务全部保持 `[ ]` 未勾选，严格遵循立定停步铁律，未经 `/opsx-team-apply`（或 `/opsx-apply`）绝不提前编码。
 
-- [ ] 4.1 新建共享配置与算法模块 (`GEO/web/step0-src/config/studioArtifactConfig.js` · 解决 🔴1-🔴4, 🟡2-🟡8, 🟢1-🟢3):
+- [x] 4.1 新建共享配置与算法模块 (`GEO/web/step0-src/config/studioArtifactConfig.js` · 解决 🔴1-🔴4, 🟡2-🟡8, 🟢1-🟢3):
   - 集中定义 8 大核心工序槽位字典 `CANONICAL_SLOT_DICT` 与别名容错字典 `ALIAS_SLOT_MAP`，导出 `resolveSlotKey` 未匹配项统一兜底常量 `slot_misc`（解决 🔴3 & 🟡8）；
   - 导出 `safeStorageGet / safeStorageSet` 薄封装（带环境安全探测，保障纯函数与存储解耦 · 解决 🟢1）；
   - 导出按阶段收窄器 `getSlotsByStage` 与 `getCoreFilesByStage`（未传 stage 时安全降级为空集合并报警，坚决不抛错，彻底杜绝白屏崩溃 · 解决 🟡6, 🟡7）；
@@ -56,25 +56,25 @@
   - 导出恢复纯函数 `computeRestoreResult`：统一返回 `{ success: true, ... }`，无 active 恢复为 active，有 active 保持草稿，手建草稿保持草稿，写回 `isDeleted: false` 并确保 `name` 属性（解决 🔴2, 🔴3, 🟡5）；
   - 导出存量数据迁移函数 `migrateAndNormalizeFiles`：第一行保障 `item.name = fn`（解决 🔴2），`versionTag` 缺失优先从文件名反推（解决 🟡6），末尾按【规范骨干 > 最高版本数值 > 其余】显式排序严格单槽收敛，零 active 激活跳过镜像与母版（保证幂等性 · 解决 🟡2, 🟢2）；
   - 供 Step0App、useStep1 与 StudioEditor 共同引用，彻底杜绝重复代码。
-- [ ] 4.2 改造左栏废纸篓抽屉交互与组件事件规范 (`GEO/web/step0-src/components/studio/StudioFileTree.vue` · 解决 🔴2, 🔴3, 🟡7, 🟡11):
+- [x] 4.2 改造左栏废纸篓抽屉交互与组件事件规范 (`GEO/web/step0-src/components/studio/StudioFileTree.vue` · 解决 🔴2, 🔴3, 🟡7, 🟡11):
   - 显式声明 `stage: { type: String, default: '' }` prop，未传时警告并降级，杜绝崩溃（解决 🟡7）；
   - 锁定组件标准事件契约：`@openFile(filename)`、`@deleteFile(filename)`、`@restoreFile(filename)`（解决 🟡11）；
   - 抽屉受 `v-if="showStatusBadge && trashFiles.length > 0"` 严格约束，彻底杜绝污染阶段二至六；
   - 草稿删除垃圾桶图标仅在 `canDeleteFile(files[fn], props.stage)` 为 `true` 时 hover 渲染（手建非 active 草稿允许删除），根除死按钮；
   - 废纸篓条目绑定整行点击事件 `@click="$emit('openFile', fn)"`，并在右侧保留【恢复】按钮 `@click.stop="$emit('restoreFile', fn)"`。
-- [ ] 4.3 重构中栏编辑器顶栏为双行架构与 Tab 预览机制 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴3, 🟡7, 🟡8, 🟡11):
+- [x] 4.3 重构中栏编辑器顶栏为双行架构与 Tab 预览机制 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴3, 🟡7, 🟡8, 🟡11):
   - 显式声明 `stage: { type: String, default: '' }` 与 `validAdoptSlots: { type: Array, default: () => [] }` props，未传 stage 时安全降级不白屏；
   - 锁定组件标准事件契约：`@adoptFile(filename)`、`@saveFile({ filename, content })`、`@restoreFile(filename)`（解决 🟡11）；
   - 第一行（状态与操作工具栏）：左侧展示当前文件状态徽章（文字说明 + 主题色，无彩色 Emoji）、字数与时间戳（缺失时显示 `生成时间: 未知`）；右侧偏右对齐排布快捷功能按钮；
   - 恢复按钮严格遵循 AGENTS §3.3 视觉红线，采用系统主色紫 `var(--geo-primary, #7c5bf5)`，严禁使用红色；
   - 采纳守卫 `canAdoptCurrentFile` 显式排除手建文件（`isManual`），手建草稿不可作为核心工序底牌被采纳；允许已淘汰历史版本被点采纳实现版本回滚（解决 🔴3 & 🟡7）；
   - 第二行（Tab 标签栏）：独立一行平铺 `openTabs`，废纸篓文件标注 `[废纸篓]` 浅色标识，允许用户中栏只读预览查验（解决 🟡8）。
-- [ ] 4.4 实施正交只读与保存分流联动 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴1, 🔴3, 🔴4):
+- [x] 4.4 实施正交只读与保存分流联动 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴1, 🔴3, 🔴4):
   - 严格依据 `isReadOnlyFile(file, files, props.stage)` 判定只读：仅废纸篓文件、已淘汰历史旧版（`isRetired: true`）、以及具备 `isCanonicalMirror: true` 的规范主干自动镜像强制只读；
   - 当前生效底牌、最新候选工作草稿与手建草稿均完全允许打字编辑，展示【保存文件】按钮（手建文件永不只读 · 解决 🔴1 & 🔴3）；
   - 点击保存时根据当前文件状态分流派发 `@saveFile`（对生效底牌联动调用 `computeSaveResult`，受非空内容守卫保护；对普通草稿仅更新正文，不触发主干镜像 · 解决 🔴1）；
   - 在只读态下拦截 `Ctrl+S / Cmd+S` 保存快捷键并弹出对应原因提示。
-- [ ] 4.5 改造状态胶水层与全仓 SSOT 统一 (`Step0App.vue` & `useStep1.js` · 解决 🔴1-🔴3, 🟡9, 🟡10, 🟢3):
+- [x] 4.5 改造状态胶水层与全仓 SSOT 统一 (`Step0App.vue` & `useStep1.js` · 解决 🔴1-🔴3, 🟡9, 🟡10, 🟢3):
   - 编码前重跑全仓 grep 复核消费方，确认仅 Step0App 与 Step1App 加载 Studio 组件（解决 🟢3）；
   - 运行前全仓核对阶段零（2个）与阶段一（6个）真实生成文件名与 `CANONICAL_SLOT_DICT` 严格全等，且生成新草稿时直接使用 `slotItem.baseSlotName` 拼装文件名，消除重复拼装（解决 🟡10）；
   - 新写入代码（`handleDeleteFile`、`handleRestoreFile` 等）彻底统一写入 camelCase `isDeleted`，显式 `delete item.is_deleted`，彻底消除 snake_case 回潮（解决 🟡9）；
@@ -84,7 +84,7 @@
   - 恢复统一调用 `computeRestoreResult`，守住单槽单一 active 并同步快照；
   - 删除统一调用 `computeDeleteResult`，前置 Fail-Closed 校验 `canDeleteFile`，安全处理 openTabs 移除与平滑选中回退（解决 🟡1）；
   - `Step0App.vue` 与 `Step1App.vue` 向子组件显式传入 `:stage` 与 `:valid-adopt-slots`，且 Step0App 显式传入 `:show-status-badge="true"`。
-- [ ] 4.6 跨端构建与全量自动化断言冒烟验证（NE1 服务器执行 · 解决 🔴1-🔴4, 🟡1, 🟡2, 🟡6, 🟡7）:
+- [x] 4.6 跨端构建与全量自动化断言冒烟验证（NE1 服务器执行 · 解决 🔴1-🔴4, 🟡1, 🟡2, 🟡6, 🟡7）:
   - 严格在 NE1 服务器执行 `npm run build:step0` 与 `npm run smoke:step0`（确保 4/4 项全部 PASS）；
   - 测试装载方式采用独立 node 脚本直接 import `studioArtifactConfig.js` 纯函数，支持注入确定性 `now` 时间戳参数（保证冒烟可复现 · 解决 🟡6, 🟡7）；
   - 针对以下 10 项关键断言进行全量回归自检：
@@ -100,7 +100,7 @@
     - 断言 10（存量旧数据迁移收敛、不变式与幂等性 · 🔴2 固化）：老数据迁移后，所有对象严格具备 `item.name === fn` 硬约束不变式；多 active 脏数据按最高版本严格收敛为 1 个；手建草稿不被篡改；连续多次迁移完全幂等；
     - 断言 11（重载收敛不改写候选 · 🔴1 固化）：生成第 3 版草稿 → 执行 `migrateAndNormalizeFiles` → 断言该草稿 `isRetired === undefined` 且 `isReadOnlyFile === false`，绝不因刷新被误判淘汰（解决 🔴1 & 🟡3）；
     - 断言 12（缺失 stage 无害 Fail-Closed · 🔴2 固化）：`migrateAndNormalizeFiles(files, '')` → 断言 `slotKey` 未被破坏性改写为 `slot_misc`、文件对象不被篡改、无白屏异常（解决 🔴2 & 🟡3）。
-- [ ] 4.7 管理端文案与操作反馈合规自检（按 AGENTS §3.3 / §3.5 执行 · 解决 🟡4, 🟡8, 🟢5, 🟢6）:
+- [x] 4.7 管理端文案与操作反馈合规自检（按 AGENTS §3.3 / §3.5 执行 · 解决 🟡4, 🟡8, 🟢5, 🟢6）:
   - 严格落实 AGENTS §3.5 阶段零禁混谈条款：阶段零 UI 徽章、提示与文案中只使用『提问清单』与『豆包实测回答』等标准文案，严禁出现『底牌报告』等自造词混用（解决 🟡4）；
   - 检查所有新增 UI 文案与徽章：严格 0 彩色 Emoji 表情；
   - 检查操作颜色语义：恢复按钮使用系统主色紫，禁止使用危险红色；提示信息四色语义准确；

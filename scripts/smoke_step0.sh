@@ -59,7 +59,7 @@ else
   echo "   SKIP 8088 未运行（构建与产物已通过）"
 fi
 
-echo ">> 4/4 扫盘 probe_script_*.json"
+echo ">> 4/5 扫盘 probe_script_*.json"
 OUT_DIR="$REPO_ROOT/projects/nextgeo/outputs"
 if [ ! -d "$OUT_DIR" ]; then
   echo "FAIL: 缺少目录 $OUT_DIR"
@@ -67,6 +67,13 @@ if [ ! -d "$OUT_DIR" ]; then
 fi
 SCRIPT_COUNT=$(find "$OUT_DIR" -maxdepth 1 -name "probe_script_*.json" 2>/dev/null | wc -l | tr -d ' ')
 echo "   OK nextgeo 清单份数: $SCRIPT_COUNT"
+
+echo ">> 5/5 studio artifacts 12 项核心断言自检"
+if ! node "$REPO_ROOT/tests/smoke_studio_artifacts.mjs"; then
+  echo "FAIL: smoke_studio_artifacts.mjs"
+  exit 1
+fi
+echo "   OK 12 项断言全部 PASS"
 
 echo "=================================================="
 echo "  smoke:step0 PASS"
