@@ -52,6 +52,8 @@
         :is-ready="isReady"
         @switch-step="goToSubStep"
         @refresh-questions="handleRefreshQuestions"
+        @save-file="handleSaveActiveFile"
+        @adopt-current-file="() => handleAdoptFile(activeFileName)"
         @finish-stage0="handleFinishStage0"
       />
     </div>
@@ -136,13 +138,15 @@ const STAGE0_SUB1_META = {
     {
       id: 'edit_in_editor',
       name: '2. 中间区润色打磨',
-      desc: '交付专家可在中间编辑器直接润色修改，从 60 分打磨至 80 分。',
+      desc: '交付专家可在中间编辑器直接润色修改，从 60 分打磨至 80 分。修改后随时点击下方保存存盘。',
+      action: { label: '保存当前润色修改', icon: 'save', type: 'saveCurrentFile' },
       hideProceed: true
     },
     {
       id: 'save_and_adopt',
-      name: '3. 保存文件并采纳',
-      desc: '题目打磨满意后，在中间工具栏点击【保存文件】，并可点击【设为客户采纳】生效为基线文件。',
+      name: '3. 采纳为生效底牌',
+      desc: '题目打磨满意后，点击下方转正为正式生效版本（自动生成 QA-V2），作为后续实测基线。',
+      action: { label: '采纳为生效底牌 (转正为新版)', icon: 'check-circle-2', type: 'adoptCurrentFile' },
       hideProceed: true
     }
   ]

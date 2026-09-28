@@ -454,4 +454,13 @@
   4. **模板结构与语义**：`template v-if="showStatusBadge"` 嵌套完全符合 Vue 3 规范（无冗余 DOM 节点），脏数据红点 `isDirty` 被独立渲染于其下方，未受模板层级和徽章遮挡影响，视觉语义独立完整。
 - 判定结论：[通过]
 
+---
 
+## 2026-09-28 16:51 · 审查考官 (Auditor · Pro) · 任务审查：Task 3 动线实体动作与页面事件闭环
+- 审查维度：规范合规性 / 动作按钮与文案 / 0.2动线保护 / 事件闭环有效性
+- 发现与讨论：
+  1. **规范合规性**：`STAGE0_SUB1_META` 与 `STAGE0_SUB2_META` 的动线定义与文案严格对齐 `design.md` §2.1 与 §2.2 设计规范，无任何偏差与篡改。
+  2. **动作实体按钮**：微步骤 2 中正确挂载了 `saveCurrentFile` 动作按钮与 `save` 图标；微步骤 3 中正确挂载了 `adoptCurrentFile` 动作按钮与 `check-circle-2` 图标。
+  3. **0.2动线保护**：针对 0.2 网页提问动线 `STAGE0_SUB2_META`，其第 3 步的【完成阶段零并封版】按钮（`action.type === 'finishStage0'`）保留完好无损，严格保护了原有功能不受污染。
+  4. **事件闭环有效性**：在 `Step0App.vue` 调用 `<StudioSop>` 时，正确绑定了 `@save-file="handleSaveActiveFile"` 与 `@adopt-current-file="() => handleAdoptFile(activeFileName)"`；其中 `activeFileName` 参数已有效传递至采纳流程中，事件闭环完美打通。
+- 判定结论：[通过]

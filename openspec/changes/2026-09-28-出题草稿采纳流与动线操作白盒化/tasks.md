@@ -16,11 +16,11 @@
   - 在 `defineEmits` 中声明 `save-file` 和 `adopt-current-file`，彻底清理废弃悬空的 `proceed-to-next` 声明及其在 `onProceedClick` 中的发射点。
 
 ## 3. 阶段零出题打磨动线挂载动作按钮与事件绑定
-- [ ] 3.1 动线微步骤文案改写与动作按钮化（保持 0.2 动线不动）：
+- [x] 3.1 动线微步骤文案改写与动作按钮化（保持 0.2 动线不动）：
   - 在 `GEO/web/step0-src/Step0App.vue` 的 `STAGE0_SUB1_META` 中，为第 2 步增加【保存当前润色修改】实体按钮（`saveCurrentFile`）；
   - 同步改写第 3 步 `name` 为『3. 采纳为生效底牌』、`desc` 改写为『题目打磨满意后，点击下方转正为正式生效版本（自动生成 QA-V2），作为后续实测基线。』，并挂载【采纳为生效底牌 (转正为新版)】实体按钮（`adoptCurrentFile`）；
   - 保持 0.2 提问动线 `STAGE0_SUB2_META` 现状不动，完整保留第 3 步的【完成阶段零并封版】按钮（`finishStage0`）。
-- [ ] 3.2 页面级事件闭环绑定：在 `Step0App.vue` 的 `<StudioSop>` 组件上绑定 `@save-file="handleSaveActiveFile"` 与 `@adopt-current-file="() => handleAdoptFile(activeFileName)"`，打通存盘与采纳转正闭环。
+- [x] 3.2 页面级事件闭环绑定：在 `Step0App.vue` 的 `<StudioSop>` 组件上绑定 `@save-file="handleSaveActiveFile"` 与 `@adopt-current-file="() => handleAdoptFile(activeFileName)"`，打通存盘与采纳转正闭环。
 
 
 ## 4. 前端构建与 NE1 8088 真机环境验证
