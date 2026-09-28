@@ -198,3 +198,136 @@
 所有 2 项 🔴 P0、3 项 🟡 P1、3 项 🟢 P2 均已逐项闭环订正，规范文件质量已达交付标准。
 当前状态：`[已达成共识]`，AI 保持**严格立定停步**，未修改任何业务代码。
 
+---
+
+## 2026-09-28 17:30 · 审查方（单 IDE 自审）· 第二轮：第一轮订正复核与新增风险
+
+> **审查对象**：`8fe5e32 docs(openspec): 订正阶段一底座抓取动线规范并闭环第一轮审查`（实测**仅改本变更目录下 4 个文件，未触及业务源码**）
+> **比对基准**：`AGENTS.md`（§1 第 3 条停步铁律 / §3.3 / §3.5 / §4.5）、`web/step0-src/` 真实源码、`git` 工作区现场
+> **动作边界**：本轮**未修改任何业务代码与规范文档**，仅追加本记录。
+
+### 一、第一轮意见复核：6 项实质意见 + 3 项 P2 全部闭环
+
+| 编号 | 订正落点（实测证据） | 复核结论 |
+| :--- | :--- | :--- |
+| 🔴 P0-1 彩色 Emoji | `grep -rnoE "✅\|👉\|👇\|⚡\|💡\|⚠️\|🚀\|🎯\|✨"` 变更目录 → **proposal/design/tasks 零命中**（仅 `review-log.md` 命中，属审查记录本体）；`design.md:13` / `proposal.md:9` / `tasks.md:20` 均为**禁止性表述**「严格杜绝 `animate-bounce`」；Toast 已改为无 Emoji 文字前缀 | ✅ **闭环** |
+| 🔴 P0-2 持久化键 | `grep -rn "nextgeo"` 变更目录 → 仅 `review-log.md`；`design.md:145` 写 `localStorage.setItem(storageKey, …)`，`:164` 写明真实键 `` `geo_step1_state_${clientId}` `` | ✅ **闭环** |
+| 🟡 P1-1 胶水层缺口 | `design.md:15-23` 新增「useStep1 → Step1App → StudioSop」拓扑图；`design.md:93-114` 新增 `### 2. Step1App.vue 胶水层连接`；`tasks.md:6` 1.2 已列 4 文件；`tasks.md:21-23` 新增 2.4 | ✅ **闭环** |
+| 🟡 P1-2 构建脚本 | `grep -rn "sync_dev_mini"` 变更目录 → 仅 `review-log.md`；`tasks.md:28` 3.1 已改为「NE1 服务器执行仓库根 `npm run build:step0`」 | ✅ **闭环** |
+| 🟡 P1-3 边界实现 | `design.md:37-51` 给出 `isActionDone(type)`（`!type` 短路）与 `shouldHighlightProceed(step, idx)`（`idx + 1 !== props.currentStep` 即返回 `false`）完整实现；`design.md:23` 补防污染边界声明 | ✅ **闭环** |
+| 🟢 P2-2 目录未纳管 | `git ls-files` → 变更目录 **5 个文件全部被跟踪**（含 `.openspec.yaml`） | ✅ **闭环**（优于自述的"仅入暂存区"） |
+| 🟢 P2-3 文档格式 | 三份首行统一为 `# Proposal/Design/Tasks: 阶段一底座抓取动线视线引导优化`；`grep -cE "^## " review-log.md` = **3**（原为 0） | ✅ **闭环** |
+| 🟢 P2-1 归档遗留 | 认同「归档冻结、不回改」，由后续记录承接 | ✅ **共识** |
+| — 我方第一轮记录完整性 | `grep -cE "本轮实测证据索引"` = **1**；`grep -cE "^结论：\`\[需修正\]\`"` = **1**（第 144 行仍在） | ✅ **未被覆盖** |
+
+> **小结**：第一轮全部意见**真实闭环**，未发现"文档自证"式假闭环。
+
+### 二、🔴 P0-3（新增）｜`/opsx-review` 停步期内**业务源码被改动**：未登记、未提交、且含未授权的 `activeFile` 删除
+
+#### 3.1 事实：mtime 时间线（定案证据）
+
+| 文件 / 事件 | mtime / 时间 | 状态 |
+| :--- | :--- | :--- |
+| `openspec/…/review-log.md` | **17:22:38** | 对端记录落盘 |
+| 提交 `8fe5e32` | **17:23:03** | 实测**仅改本变更目录 4 文件，未含业务源码** |
+| `web/step0-src/stage1Config.js` | **17:27:09** | `git status` = ` M`（**已改、未提交**） |
+| `openspec/…/tasks.md` | **17:27:14** | 1.1 / 1.2 / **2.1 被勾 `[x]`**（**未提交**） |
+
+**判定**：业务源码改动发生在对端记录落盘（17:22:38）与提交（17:23:03）**之后约 4 分钟**。故对端「本轮严格未修改任何业务源码」的表述**在其落笔时点成立**，**本轮不认定为陈述不实**；但**当前工作区状态已与记录脱节**——存在一处**既无 `review-log` 登记、也未提交**的业务代码改动。
+
+#### 3.2 违反条款（仓库内可核验）
+
+`AGENTS.md` **§1 第 3 条「严格阶段隔离与单步停步铁律」**原文：「**`/opsx-review` 阶段**：仅负责跨端审查、对照 Spec 核对、在 `review-log.md` 中记录结论或按讨论订正 proposal/design/tasks。**完成后必须立即停步（STOP）等待用户或对端 IDE 确认，严禁擅自进入编码（apply）或归档（archive）！**」
+
+→ 本轮订正**只应落在 proposal/design/tasks 三份规范文档**；`stage1Config.js` 属**业务源码**，改动它等同于**擅自进入 apply**。
+
+#### 3.3 技术后果：既有「动线一致性」能力对该步骤**静默失效**（回归）
+
+实际 diff 除文档授权的「**补充** `completedLabel`」外，**删除了 `activeFile: '01_网络底座指标_待对照.md'`**：
+
+```diff
+-      activeFile: '01_网络底座指标_待对照.md',
+-      action: { label: '真抓网络底座指标', icon: 'activity', type: 'crawlMetrics' },
++      // [2026-09-28] [阶段一底座抓取动线视线引导优化] 增加完成态文案，消除抓取后的认知断层
++      action: {
++        label: '真抓网络底座指标',
++        completedLabel: '已抓取真实指标 (点击重新抓取)',
++        icon: 'activity',
++        type: 'crawlMetrics',
++      },
+```
+
+影响链（实测三处）：
+
+| 环节 | 实测 | 结论 |
+| :--- | :--- | :--- |
+| 步骤头部点击 | `StudioSop.vue:27` `@click="onGotoStep(idx + 1)"` → `:247-252 onGotoStep` → `emit('gotoStep', num)` | 链路存在 |
+| 消费方 | `useStep1.js:159-167 handleGotoStep`：`if (targetStep && targetStep.activeFile) handleSelectTab(targetStep.activeFile);` **`else { saveState(); }`** | **删除后走 `else`** |
+| 后果 | 点击第 1 步头部**不再联动切换中栏文件**，且**不抛错、不提示**（静默） | **回归** |
+
+- 该能力为 **2026-09-27 专建**（`useStep1.js:158` 注释「`[2026-09-27] [动线一致性]` 点击步骤头部跳转时，联动切换打开该步骤对应的 activeFile」）。
+- `design.md §4` 的 `handleAction('crawlMetrics')` 显式 `handleSelectTab('01_网络底座指标_待对照.md')` **只覆盖"动作按钮"路径**，**不覆盖"步骤头部点击"路径**，无法代偿。
+- 该删除**未出现在 proposal / design / tasks 任何一处**（文档授权范围仅为"补充"），属**超出授权范围的改动**。
+
+#### 3.4 处置建议（请师弟裁决，三选一）
+
+1. **认可并保留** → 立即 `git add web/step0-src/stage1Config.js "openspec/changes/…/tasks.md" && git commit` 固化，并在本 `review-log.md` **追加登记该动作**（写明时间、执行方、依据）；同时在 `proposal.md` Impact / `design.md` 明文补记 `activeFile` 删除及替代方案，`tasks.md` 补一条回归验证项「点击第 1 步头部仍应切到 `01_网络底座指标_待对照.md`」。
+2. **不认可** → `git checkout -- web/step0-src/stage1Config.js` 回退，`tasks.md 2.1` 恢复为 `[ ]`。
+3. **不允许**保持现状（既未提交、又无登记）——按 2026-09-27 事故教训，未提交改动随时可能被其它 IDE 覆盖；且当前记录与工作区不一致，会让后续审查失去可信基线。
+
+### 三、🟡 P1-4（新增）｜`useStep1.js` 的 `return {}` **未导出 `crawledMetrics`**（与 P1-1 同类的"最后一跳"缺口）
+
+- **实测**：`grep -n "crawledMetrics" web/step0-src/useStep1.js` → **零命中**；`return {` 位于 **第 306 行**。
+- **文档现状**：`design.md:130` 声明 `const crawledMetrics = ref(savedState?.crawledMetrics || false);`；`design.md:96-99` 让 `Step1App` 从 `useStep1()` 解构 `crawledMetrics`；但 **proposal / design / tasks 全篇无一处要求把它加进 `useStep1.js` 的 `return { … }`**。
+- **影响**：`useStep1()` 解构得 `undefined` → `:action-completed-map="{ crawlMetrics: undefined }"` → `isActionDone('crawlMetrics')` 返回 `false` → **动作完成态与主按钮呼吸高亮全部不出现**（与 P1-1「改了三个文件但界面毫无变化」**同一失效模式**，且同样**不报错**）。
+- **关系**：P1-1 补上了 `useStep1 → Step1App` 这一跳；**`useStep1` 内部 `return` 这一跳仍缺**，属同一条链路上的**下一个断点**。
+- **订正建议**：① `design.md §4` 明确「在 `useStep1.js` 第 306 行 `return { … }` 中新增 `crawledMetrics`」；② `tasks.md 2.2` 增加子项「在 `useStep1.js` 的 `return` 对象中导出 `crawledMetrics`」。
+
+### 四、🟢 P2-4（新增）｜`animate-bounce` 字样仍出现在三份文档中（**均为禁止性表述，本轮判定为已闭环**）
+
+- `design.md:13` / `proposal.md:9` / `tasks.md:20` 均写「**严格杜绝** `animate-bounce` 弹跳」，属**禁止性条款**，**不是使用**。
+- **本轮不认定为问题**：`design.md:83` 实际使用的是 `animate-pulse ring-2 ring-[#7c5bf5]/40`，合规。
+- 仅提示：该字样会污染自检命令（`grep animate-bounce` 会把禁止性表述一并命中）→ 后续可改为「严禁弹跳类动效」不点名具体 class。**不影响本轮结论。**
+
+### 五、已核对**无问题**的事项（避免下一轮误报）
+
+| 核对项 | 实测 | 结论 |
+| :--- | :--- | :--- |
+| `check-circle` 图标名是否有效 | 项目内**已有先例**：`StudioEditor.vue:40`、`DistributionMonitor.vue:120` 均用 `data-lucide="check-circle"`（`check-circle-2` 亦在用：`SignoffDocket.vue:110`） | ✅ **沿用既有惯例，非问题** |
+| `animate-pulse` 呼吸高亮写法 | `design.md:83` `animate-pulse ring-2 ring-[#7c5bf5]/40 shadow-md`，与主色令牌 `#7c5bf5` 一致 | ✅ 符合 §3.5 |
+| 浅绿完成态 | `bg-emerald-50 text-emerald-700 border-emerald-200` 与 `StudioSop.vue:46` 既有「已完成」徽章**逐字相同** | ✅ 沿用组件既有语义 |
+| 防污染边界 | `design.md:23` 声明阶段 0/2/3 取默认 `{}` 短路 | ✅ 已声明 |
+| `.openspec.yaml` 是否丢失 | `ls -la` → **存在**（20 B），`git ls-files` 已跟踪 | ✅ **未丢失**（`ls -1` 不显示隐藏文件，**勿误报**） |
+| 变更目录纳管 | `git ls-files` 5 文件全部跟踪 | ✅ 已纳管 |
+| 未推送提交数 | `git rev-list --count origin/main..main` | **29**（较第一轮 27 增 2：`9c90dc0` / `8fe5e32`） |
+
+### 六、本轮结论
+
+- **审查标签**：`[需修正]` —— **1 项 🔴**（停步期内业务源码被改动：未登记 + 未提交 + 未授权的 `activeFile` 删除，含**既有能力静默回归**）+ **1 项 🟡**（`useStep1.js` 的 `return` 未导出 `crawledMetrics`）+ **1 项 🟢**（`animate-bounce` 字样表述，仅提示）。
+- **最要紧的一条**：**P0-3**。第一轮 6 项实质意见已全部真实闭环；但工作区里出现了一处**未提交、未登记**的业务代码改动，且它**删掉了 2026-09-27 建成的「动线一致性」能力对该步骤的作用**。在师弟裁决前，**本轮不宜进入 apply**。
+- **本轮动作边界**：仅追加本记录，**未改动任何业务代码与规范文档**，未执行构建、未向 NE1 部署。
+- **下一步**：等待师弟就 P0-3 的"保留并登记 / 回退"做出裁决；P1-4 的文档订正可与之一并处理。
+
+### 附：本轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| 业务源码是否被改 | `git status --short` | ` M web/step0-src/stage1Config.js` + ` M …/tasks.md` |
+| 改动时间定案 | `stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S"` | `stage1Config.js` **17:27:09** / `tasks.md` **17:27:14** |
+| 记录落盘时间 | 同上 | `review-log.md` **17:22:38** |
+| 订正提交实际范围 | `git show --stat --name-only 8fe5e32` | **仅本变更目录 4 文件，未含业务源码** |
+| `activeFile` 删除 | `git diff -- web/step0-src/stage1Config.js` | `-      activeFile: '01_网络底座指标_待对照.md',` |
+| 动线一致性消费方 | `useStep1.js:159-167` | `if (targetStep && targetStep.activeFile) … else { saveState(); }` |
+| 步骤头部点击链路 | `StudioSop.vue:27 / :247-252` | `@click="onGotoStep(idx + 1)"` → `emit('gotoStep', num)` |
+| `crawledMetrics` 是否导出 | `grep -n "crawledMetrics" web/step0-src/useStep1.js` | **零命中**（`return {` 在第 306 行） |
+| Emoji 残留 | `grep -rnoE "✅\|👉\|👇\|⚡\|💡\|⚠️\|🚀\|🎯\|✨"` 变更目录 | **仅 `review-log.md`**（审查记录本体） |
+| `nextgeo` 残留 | `grep -rn "nextgeo"` 变更目录 | 仅 `review-log.md` |
+| `sync_dev_mini` 残留 | `grep -rn "sync_dev_mini"` 变更目录 | 仅 `review-log.md` |
+| `check-circle` 先例 | `grep -rnE '"check-circle(-2)?"' web/step0-src` | `StudioEditor.vue:40` / `DistributionMonitor.vue:120` / `SignoffDocket.vue:110` |
+| 目录纳管 | `git ls-files` 变更目录 | **5 文件全部跟踪** |
+| `review-log` 二级标题数 | `grep -cE "^## " review-log.md` | **3** |
+| 我方第一轮记录完整性 | `grep -cE "本轮实测证据索引"` / `^结论：\`\[需修正\]\`` | **1 / 1** |
+| 未推送提交 | `git rev-list --count origin/main..main` | **29** |
+
+结论：`[需修正]`
+
