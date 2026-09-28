@@ -9,8 +9,8 @@
 <link rel="stylesheet" href="./geo-admin.css" data-page-node-id="ViWIdWDrG8ouxEF13VH9iq">
 <!-- Tailwind CSS & Lucide Icons & Marked.js --><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <!-- 阶段零 Vue3 组件岛产物 -->
-<link rel="stylesheet" href="./assets/step0/geo-step0-island.css?v=20260928025820">
-<script src="./assets/step0/step0.js?v=20260928025820"></script>
+<link rel="stylesheet" href="./assets/step0/geo-step0-island.css?v=20260928061903">
+<script src="./assets/step0/step0.js?v=20260928061903"></script>
 <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -1214,10 +1214,772 @@
 <!-- 阶段五 GEO 文章选题撰写与矩阵分发 Vue3 3竖列组件岛根容器 -->
 <div id="panel-step-4-distribute" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep5Distribute">
   <div id="step5-app-root"></div>
+
+  <!-- 原版平铺视图（隐藏留档兜底，确保所有既有 DOM、ID 与回调完好无损） -->
+  <div id="legacy-step4-distribute-container" class="hidden space-y-6">
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4 flex-wrap" data-page-node-id="6GfOwFIXlKvruGJPSutuam">
+<div data-page-node-id="mXbzW8HrVwuqO1vuTH49qD">
+<div class="flex items-center gap-2 flex-wrap" data-page-node-id="HcMtZqhmqAxe2PvYiLpeWZ">
+<h2 class="text-base font-bold text-slate-900" data-page-node-id="0CSARkpeGwmId9pvCNzV0z">阶段四：草稿 → 网页里改定稿 → 再发布</h2><span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200" data-page-node-id="EcZpNh7x9UHeGGjvghH4KO">生成物 = 仅草稿</span>
+</div>
+<p class="text-xs text-slate-500 mt-1" data-page-node-id="lAvYBadePxXQH9OX9bzEJT">顺序固定：先看这篇要答什么 → 在网页里改好这一篇 → 勾选放行再复制发布。勾选不是写作工具。保真度不等于可以发。</p>
+</div>
+<div class="flex items-center gap-2.5 flex-wrap" data-page-node-id="BhaxaHsnpyIY9P6vIVYOCE">
+<button onclick="runSingleStep(event, 'distribute')" id="btn-step-4" class="py-2.5 px-4 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg shadow flex items-center gap-1.5 transition" data-page-node-id="ldSOTIVAnqbgw4UKOVzOf4"><i data-lucide="file-plus" class="w-4 h-4" data-page-node-id="jRLPMmzmPnZOAmsl2AheRM"></i><span data-page-node-id="NCHpiuHAjN8LndT1kE5OCt">生成草稿</span>
+</button>
+</div>
+</div>
+<!-- 阶段四工作日志状态条 -->
+<div id="distribute-run-status-bar" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-page-node-id="2zvZN4oAYFdotbwrPPDdVk">
+<div class="flex items-start gap-2.5 min-w-0" data-page-node-id="dCQacoNvuJVIvgy4rWBkgy">
+<div class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 flex items-center justify-center shrink-0" data-page-node-id="QWpsPBVi1lkxQEWS6mrHmE"><i data-lucide="scroll-text" class="w-4 h-4" data-page-node-id="DtddaAZgF81AAY4lJGd8rm"></i>
+</div>
+<div class="min-w-0" data-page-node-id="d1CHVC36WWCYI0KAEmOmgH">
+<div class="text-xs font-bold text-slate-800" data-page-node-id="YLYbwhR1P2AIf4HEj7XZpS">最新工作日志 / 大模型调用轨迹</div>
+<p id="distribute-run-status-text" class="text-[11px] text-slate-500 mt-0.5 truncate" data-page-node-id="naNPdAJZLCasaQIpLhVJ0n">尚未执行。生成草稿后，将在此显示耗时、模型与产物摘要。</p>
+</div>
+</div>
+<button type="button" id="btn-open-distribute-log" onclick="openDistributeLogModal()"
+            class="py-2 px-3.5 text-xs font-semibold rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 shrink-0 flex items-center gap-1.5 transition" data-page-node-id="cdOnBVFjfziiZej5rvPRWV"><i data-lucide="panel-right-open" class="w-3.5 h-3.5" data-page-node-id="6uLcRJGGvj3OYhN9bAJY1n"></i><span data-page-node-id="1Qr8nL5i8iHQufECgbSuSG">查看完整工作日志</span>
+</button>
+</div>
+<!-- 标准流程 -->
+<div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4 text-xs text-slate-700 space-y-2.5" data-page-node-id="s1UcD8PczxRnrbcvdhEReo">
+<div class="flex items-center gap-2 flex-wrap" data-page-node-id="MCX7xlAZjlV39nvpGV7QNk"><span class="font-bold text-slate-900 flex items-center gap-1.5 text-xs" data-page-node-id="AAaZXJMNhKHZMiuAwP6EGV"><i data-lucide="compass" class="w-4 h-4 text-indigo-600" data-page-node-id="u9I5MWAx8qGV3nRsWtPiNX"></i><span data-page-node-id="5tJlDU89ppDJWojc4uLJo1">标准流程（三段）</span></span><span class="text-[10px] text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-full font-semibold" data-page-node-id="Kz73qOJFhFYX3IfzbNmITb">草稿 ≠ 定稿 ≠ 可发</span>
+<span class="text-[10px] text-slate-500 ml-auto" data-page-node-id="CGXszGtBfFZooR0DfOi68Q">只改眼前这一篇</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2" data-page-node-id="R4jgSBcsDqNx67OPe5jFqt">
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm" data-page-node-id="RylXiWbRjxXCVb7TxzarH7"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center" data-page-node-id="OFYSe1PYw3HjKkgSH0VPPf">A</span><span data-page-node-id="pKfNEUaGH9a9ah4Q37PTt1"><strong data-page-node-id="9aT6ADw8RGLhGYr33gdZwz">看题目</strong>：先看要回答的那句问话（这里不发稿）</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm" data-page-node-id="5qObIsd6c2J8PaCW6lHGCq"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center" data-page-node-id="jmbklbnwXpF5MOgT03shwh">B</span><span data-page-node-id="7Se9Nr5prMiiHTelnpdOWI"><strong data-page-node-id="Lptr1TP4tOJPn1amJ4RSns">网页里改</strong>：点按钮生成这一篇，改完就保存</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm" data-page-node-id="4EzD58szHDBpITJXXd2vEd"><span class="shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center" data-page-node-id="DHhEbI3CCoF6BShJqUpiBc">C</span><span data-page-node-id="OWKeXwXIsrsuNbmJqhBKEY"><strong data-page-node-id="c4EqTPXYOS9XZ3tMsVtWcY">放行确认</strong>：勾「可以发」→ 复制富文本去平台</span></div>
+</div>
+</div>
+<!-- 段 A：说明书（只读）——此处不得放「可以发」或发布复制 -->
+<div class="bg-white border border-slate-200 rounded-xl p-4 space-y-3" data-page-node-id="y9y51KOVNDc6LzrHA8E71G">
+<div class="flex items-center justify-between gap-2 flex-wrap" data-page-node-id="XtUeQeNIzoVRT7VlVRJio3">
+<div class="text-xs font-bold text-slate-800" data-page-node-id="Ct5ALvZ8KUm08YR7xYONW7">段 A · 这篇要写成什么样（说明书）</div>
+<button type="button" onclick="loadRewriteBrief('toutiao')" class="text-[11px] font-semibold text-indigo-700 hover:underline" data-page-node-id="4W6MnrqDTxAFbGX1QHNQFv">刷新说明书</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs" data-page-node-id="JRiIL4ZdxUm2R59dMrmHZI">
+<div class="rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-1.5" data-page-node-id="sfpMY523SWcuamyEg9vACQ">
+<div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide" data-page-node-id="wqnvuCglnZzlYIomKWs6Km">主问句</div>
+<p id="rewrite-brief-question" class="text-slate-800 font-medium leading-relaxed" data-page-node-id="zEuRDoqet1R93H4UWvMt3A">加载中…</p>
+<div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide pt-1" data-page-node-id="NqDjq3wpKvotGYyNmEvXZN">用途</div>
+<p id="rewrite-brief-purpose" class="text-slate-600 leading-relaxed" data-page-node-id="tTRyEFPZd3nfzWb4zEQ4mb">—</p>
+</div>
+<div class="rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-1.5 md:col-span-2" data-page-node-id="CkKDdwAER1bqXdW2omW4oU">
+<div class="flex items-center justify-between gap-2" data-page-node-id="ImDFNzgfwKuzrKFZGsgQOW"><div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide" data-page-node-id="ybSYfCWqdj3XoDpVxuH1rX">可写事实（已确认）</div><span id="rewrite-brief-draft-status" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200" data-page-node-id="Yx9x2d1zjmxOMe0gldj2fW">仅草稿</span></div>
+<ul id="rewrite-brief-facts" class="list-disc pl-4 text-slate-700 space-y-0.5 max-h-28 overflow-y-auto" data-page-node-id="SCM6fcbeqmPvxIF3GWT2HM"></ul>
+<p id="rewrite-brief-source" class="text-[10px] text-slate-400 pt-1" data-page-node-id="PDD6tI66ymH43EimVeFK0W">这篇还没有稿</p>
+</div>
+</div>
+</div>
+<!-- 段 B：在线定稿工作台（小毛驴算力智能改写 · 在线精修落盘） -->
+<div class="bg-violet-50/70 border border-violet-200 rounded-xl p-4 space-y-3" data-page-node-id="NTKy0eJzoGtAqX3BGq2gjD">
+<div class="flex items-center gap-2 flex-wrap" data-page-node-id="gKaDiXk9xwNp294IF1mSFK">
+<span class="text-sm font-bold text-slate-900" data-page-node-id="KS6sjR8a2MgN9cheBBbpb0">段 B · 在线定稿工作台（小毛驴算力内嵌 · 在线精修落盘）</span>
+<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 border border-violet-200">在这个网页里做完</span>
+<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200" data-page-node-id="RQ97CDmMFCNCHbdbAfaCsf">头条必做 · 知乎加分</span>
+</div>
+<p class="text-xs text-violet-950 leading-relaxed font-medium" data-page-node-id="MFyZ14yb8qCikumvRCEZdW">不用离开这个网页。点【小毛驴 AI 智能改写】生成这一篇，核对品牌名和电话后点【保存定稿】。</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs" data-page-node-id="Bf0SWtjCsMDfJpWeO7LIa0">
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-violet-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">1</span><span><strong>选择渠道</strong>（头条必做 / 知乎加分）</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-violet-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">2</span><span><strong>小毛驴 AI 改写</strong>（一键生成专业解答）</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-violet-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">3</span><span><strong>在线微调核对</strong>（核对品牌电话，0 Emoji）</span></div>
+<div class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-violet-100 shadow-sm"><span class="shrink-0 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">4</span><span><strong>保存定稿</strong>（秒级落盘，前往下方复制）</span></div>
+</div>
+<!-- 渠道进度跳转条 -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2" data-page-node-id="BVyRY9B1QGqAYAtx108KLC">
+<button type="button" onclick="scrollToPackCard('pack-card-toutiao')" class="bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 text-left hover:bg-red-100 transition" data-page-node-id="DM2dcX1EfN3qRi1pvUGJxX">
+<div class="flex items-center justify-between gap-2" data-page-node-id="vq2AOYOO0hBAGZaJouwA7F"><span class="text-xs font-bold text-red-900" data-page-node-id="QL1GRBttLPkOwGjPVqyQPD">头条 / 豆包 · 必做</span><span id="toutiao-pack-status" class="text-[10px] font-semibold text-red-600 bg-white px-1.5 py-0.5 rounded-full border border-red-100" data-page-node-id="pCT1xpX1XFFFtwio0VzjX7">待生成草稿</span>
+</div>
+</button>
+<button type="button" onclick="scrollToPackCard('pack-card-zhihu')" class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-left hover:bg-blue-100 transition" data-page-node-id="xBcLIXSKMjgTJBwYKD2Pv5">
+<div class="flex items-center justify-between gap-2" data-page-node-id="fCgM7SbhOL3ODkk1S3groZ"><span class="text-xs font-bold text-blue-900" data-page-node-id="kypljmxoK2nCPYbAoZPUXH">知乎 · 加分</span><span id="deepseek-pack-status" class="text-[10px] font-semibold text-blue-600 bg-white px-1.5 py-0.5 rounded-full border border-blue-100" data-page-node-id="3AxJhgJrnwqscWhHl5PgXN">待生成草稿</span>
+</div>
+</button>
+<button type="button" onclick="scrollToPackCard('pack-card-wechat')" class="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5 text-left hover:bg-emerald-100 transition" data-page-node-id="fVYoeySYKiKwWmqdbMFk7G">
+<div class="flex items-center justify-between gap-2" data-page-node-id="UDwmBlIeMNVM7Q9vzWUAOt"><span class="text-xs font-bold text-emerald-900" data-page-node-id="3uS6DY57FlkG34ns5dRllJ">微信 · 后续</span><span id="wechat-pack-status" class="text-[10px] font-semibold text-emerald-600 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100" data-page-node-id="od9cfLgMIYDSCFdBKB2z0T">后续</span>
+</div>
+</button>
+<button type="button" onclick="scrollToPackCard('pack-card-kimi')" class="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2.5 text-left hover:bg-purple-100 transition" data-page-node-id="jfr68BMRMJSVaJV7iEi8mc">
+<div class="flex items-center justify-between gap-2" data-page-node-id="93lPJ6AupFE7JXQJPeBTv0"><span class="text-xs font-bold text-purple-900" data-page-node-id="kzNCTEmnd8WCeknrxIc7bP">Kimi/百度 · 后续</span><span id="kimi-baidu-pack-status" class="text-[10px] font-semibold text-purple-600 bg-white px-1.5 py-0.5 rounded-full border border-purple-100" data-page-node-id="fC6xEuDUvb1zbXToEFH4gA">后续</span>
+</div>
+</button>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5" data-page-node-id="sZKwTeuyX33FqDC0rpPPSh">
+<!-- 今日头条 · 在线定稿 -->
+<div id="pack-card-toutiao" class="bg-white p-5 rounded-xl border border-red-200 shadow-sm flex flex-col justify-between scroll-mt-24 ring-1 ring-red-50" data-page-node-id="tyvGiFzK8BBsud3UHE30yv">
+<div>
+  <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+    <div class="flex items-center gap-2 text-red-600 font-bold text-sm">
+      <i data-lucide="file-text" class="w-4 h-4"></i><span>今日头条 / 豆包（必做）</span>
+    </div>
+    <div class="flex items-center gap-1.5 flex-wrap">
+      <span id="toutiao-card-pack-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">待生成草稿</span>
+      <span id="toutiao-char-badge" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">字数: 0</span>
+      <span id="toutiao-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">保真度: --</span>
+    </div>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">供豆包/Bytespider 抓取与引用。点【小毛驴 AI 改写】直接生成，在线微调后点【保存定稿】。</p>
+
+  <!-- 操作按钮栏 -->
+  <div class="flex items-center gap-2 mb-3">
+    <button type="button" onclick="aiGenerateAnswer('toutiao', this)" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-1.5">
+      <i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>小毛驴 AI 智能改写</span>
+    </button>
+    <button type="button" onclick="fetchAnswerContent('toutiao')" class="py-2.5 px-3 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition" title="重新从磁盘读取已保存草稿">
+      <span>恢复初始草稿</span>
+    </button>
+    <button type="button" onclick="saveAnswerFinal('toutiao', this)" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5">
+      <i data-lucide="save" class="w-3.5 h-3.5"></i><span>保存定稿</span>
+    </button>
+  </div>
+
+  <!-- 在线编辑器 -->
+  <div class="mb-3">
+    <textarea id="editor-toutiao" oninput="updateCharCount('toutiao')" rows="11" class="w-full p-3 text-xs font-mono text-slate-800 bg-slate-50/80 border border-slate-200 rounded-lg focus:bg-white focus:border-red-500 focus:ring-1 focus:ring-red-500 transition resize-y leading-relaxed outline-none" placeholder="点击上方【小毛驴 AI 智能改写】生成优质解答，或在此处直接编辑..."></textarea>
+  </div>
+
+  <div class="bg-amber-50/60 border border-amber-200/80 rounded-lg p-2.5 mb-3 text-[11px] text-amber-900 leading-normal">
+    <strong>微调核对清单</strong>：核对品牌名、电话、服务项目是否准确；严格杜绝彩色 Emoji；禁止编造未经确认的数据。
+  </div>
+
+  <!-- 开发者专属：IDE 工地（改写包 + 写回口令） -->
+  <div data-geo-dev-only class="space-y-2 mb-3 pt-3 border-t border-slate-100">
+    <div class="text-[11px] font-bold text-slate-800">IDE 工地（白盒改写落盘）</div>
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="copyIdeRewritePack('toutiao', this)" class="flex-1 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm">
+        <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>复制给 IDE 改写</span>
+      </button>
+      <button type="button" onclick="copyWritebackCommand('toutiao', this)" class="flex-1 py-2 bg-white hover:bg-violet-50 text-violet-800 text-xs font-semibold rounded-lg border-2 border-violet-300 transition flex items-center justify-center gap-1.5">
+        <i data-lucide="folder-input" class="w-3.5 h-3.5"></i><span>复制写回口令</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<details class="rounded-lg border border-slate-200 bg-slate-50/80 mt-2">
+  <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+  <div class="px-2 pb-2 space-y-1.5">
+    <button onclick="buildToutiaoPack()" class="w-full py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center justify-center gap-1.5">
+      <i data-lucide="package" class="w-3.5 h-3.5"></i><span>单独生成头条草稿包</span>
+    </button>
+    <button type="button" onclick="runAnswerAudit('toutiao', this)" class="w-full py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-800 text-xs font-medium rounded-lg border border-violet-200 flex items-center justify-center gap-1.5">
+      <i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>小毛驴审定稿（可选）</span>
+    </button>
+    <button onclick="openCleanMarkdownDrawer('toutiao')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5">
+      <i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span>
+    </button>
+    <button onclick="copyToutiaoMicroPosts()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i><span>复制微头条 3 组文案</span>
+    </button>
+  </div>
+</details>
+</div>
+
+<!-- 知乎 · 在线定稿 -->
+<div id="pack-card-zhihu" class="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-between scroll-mt-24 ring-1 ring-blue-50" data-page-node-id="ggD8XqQD9mRZvAUH61Ox3i">
+<div>
+  <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+    <div class="flex items-center gap-2 text-blue-600 font-bold text-sm">
+      <i data-lucide="book-open" class="w-4 h-4"></i><span>知乎专栏 / DeepSeek（加分）</span>
+    </div>
+    <div class="flex items-center gap-1.5 flex-wrap">
+      <span id="deepseek-card-pack-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">待生成草稿</span>
+      <span id="zhihu-char-badge" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">字数: 0</span>
+      <span id="zhihu-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">保真度: --</span>
+    </div>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">供 DeepSeek 等技术引擎参考。没有知乎号不挡验收；点【小毛驴 AI 改写】一键生成。</p>
+
+  <!-- 操作按钮栏 -->
+  <div class="flex items-center gap-2 mb-3">
+    <button type="button" onclick="aiGenerateAnswer('zhihu', this)" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-1.5">
+      <i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>小毛驴 AI 智能改写</span>
+    </button>
+    <button type="button" onclick="fetchAnswerContent('zhihu')" class="py-2.5 px-3 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition" title="重新从磁盘读取已保存草稿">
+      <span>恢复初始草稿</span>
+    </button>
+    <button type="button" onclick="saveAnswerFinal('zhihu', this)" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5">
+      <i data-lucide="save" class="w-3.5 h-3.5"></i><span>保存定稿</span>
+    </button>
+  </div>
+
+  <!-- 在线编辑器 -->
+  <div class="mb-3">
+    <textarea id="editor-zhihu" oninput="updateCharCount('zhihu')" rows="11" class="w-full p-3 text-xs font-mono text-slate-800 bg-slate-50/80 border border-slate-200 rounded-lg focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-y leading-relaxed outline-none" placeholder="点击上方【小毛驴 AI 智能改写】生成选型长文，或在此处直接编辑..."></textarea>
+  </div>
+
+  <div class="bg-blue-50/60 border border-blue-200/80 rounded-lg p-2.5 mb-3 text-[11px] text-blue-900 leading-normal">
+    <strong>知乎选型规范</strong>：面向深度技术选型；包含痛点对比与客观 Q&A；0 彩色 Emoji。
+  </div>
+
+  <!-- 开发者专属：IDE 工地（改写包 + 写回口令） -->
+  <div data-geo-dev-only class="space-y-2 mb-3 pt-3 border-t border-slate-100">
+    <div class="text-[11px] font-bold text-slate-800">IDE 工地（白盒改写落盘）</div>
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="copyIdeRewritePack('zhihu', this)" class="flex-1 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm">
+        <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i><span>复制给 IDE 改写</span>
+      </button>
+      <button type="button" onclick="copyWritebackCommand('zhihu', this)" class="flex-1 py-2 bg-white hover:bg-violet-50 text-violet-800 text-xs font-semibold rounded-lg border-2 border-violet-300 transition flex items-center justify-center gap-1.5">
+        <i data-lucide="folder-input" class="w-3.5 h-3.5"></i><span>复制写回口令</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<details class="rounded-lg border border-slate-200 bg-slate-50/80 mt-2">
+  <summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none">更多操作</summary>
+  <div class="px-2 pb-2 space-y-1.5">
+    <button onclick="buildDeepseekPack()" class="w-full py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 flex items-center justify-center gap-1.5">
+      <i data-lucide="package" class="w-3.5 h-3.5"></i><span>单独生成 DeepSeek 草稿包</span>
+    </button>
+    <button type="button" onclick="runAnswerAudit('zhihu', this)" class="w-full py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-800 text-xs font-medium rounded-lg border border-violet-200 flex items-center justify-center gap-1.5">
+      <i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>小毛驴审定稿（可选）</span>
+    </button>
+    <button onclick="openCleanMarkdownDrawer('zhihu')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5">
+      <i data-lucide="scan-eye" class="w-3.5 h-3.5"></i><span>爬虫保真度透视 (Clean MD)</span>
+    </button>
+  </div>
+</details>
+</div>
+</div>
+</div>
+<!-- 段 C：发布前确认（必须在段 B 之后；勾选 = 放行，不是写作工具） -->
+<div id="dist-section-c" class="bg-white border border-emerald-200 rounded-xl p-4 flex flex-col gap-4 scroll-mt-24" data-page-node-id="iidAjhILdCYJnXnSudpxRE">
+<div class="flex flex-col gap-2" data-page-node-id="8P4otGS1AH7y9sqFXTtYNp">
+<div class="flex items-center gap-2 flex-wrap" data-page-node-id="hJQt8h35hbbILdxe16ZDFM">
+<div class="text-sm font-bold text-slate-900" data-page-node-id="u8dRYRJiGymHzPSshqFara">段 C · 发布前确认</div>
+<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200" data-page-node-id="QAnIDV09DQp6HZRSsh9VjM">只是放行确认 · 不是写作工具</span>
+</div>
+<p class="text-xs text-slate-600 leading-relaxed" data-page-node-id="hgbxyNRqxNSvxdGm3fDpnd">勾选「可以发」不会帮你改文章，也不会自动保存。先在上面保存这一篇，再勾选。勾选只表示：你确认这一篇可以拿去平台粘贴。</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-2" data-page-node-id="B0SAXW9MAvJgm1d3oYFQPs">
+<div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-wrap" data-page-node-id="uW3qvtnyK629bTITd0btDZ">
+<div class="text-xs font-bold text-slate-800" data-page-node-id="6wBoGR8KilEdD9xcurGlMT">这一篇保存好了吗？</div>
+<button type="button" onclick="checkWritebackStatus('toutiao', this)" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold" data-page-node-id="HsjYyynidSSiDBSr4VeunQ">检查头条写回</button>
+<button type="button" onclick="checkWritebackStatus('zhihu', this)" class="px-3 py-1.5 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-800 text-[11px] font-semibold" data-page-node-id="7NLlitnfGGvsRjM9cKNd5l">检查知乎写回</button>
+</div>
+<p id="writeback-path-display" class="hidden" data-page-node-id="GQwWkAhO8XEtLSfQ9rvGDH"></p>
+<p id="writeback-status-label" class="text-xs font-semibold text-slate-700" data-page-node-id="FyUzOxbJS9vq4MRxeN67BM">状态：尚未检查</p>
+<p id="writeback-status-hint" class="text-[11px] text-slate-500" data-page-node-id="FkkqJVBaZB3wTjAclfdt8w">点「检查写回」后，这里会告诉你文件在不在、标题像不像答案、大概多少字。</p>
+<p id="writeback-status-preview" class="text-[11px] text-slate-500 leading-relaxed max-h-24 overflow-y-auto hidden" data-page-node-id="tB97DBl433lUJjcNCi22cn"></p>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap" data-page-node-id="XGOHDebTHJrFEaAbyB5KaX">
+<label class="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer" data-page-node-id="dC7f34iPrfcaLTPsOqm4xx"><input type="radio" name="dist-publish-account" value="client" class="text-indigo-600" checked onchange="onDistPublishAccountChange()" data-page-node-id="tiG1kBSmQCFcI77LAxysow">客户自己的号（优先）</label>
+<label class="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer" data-page-node-id="9Olw7F0kYTy1oWeeAzcHbY"><input type="radio" name="dist-publish-account" value="ours" class="text-indigo-600" onchange="onDistPublishAccountChange()" data-page-node-id="HdMAjNNQYEEq69gQdrhvsw">我方号临时代发</label>
+<label class="inline-flex items-center gap-2 text-xs font-semibold text-emerald-800 cursor-pointer sm:ml-auto bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg" data-page-node-id="1GgTMJQinUTFnSriPLa0sg"><input type="checkbox" id="dist-can-publish" class="text-emerald-600" onchange="onDistCanPublishChange()" data-page-node-id="Ttp4r3KkYWNpcHFVIiLQbW"> 定稿已写好，可以发（放行确认）</label>
+</div>
+<p id="dist-publish-account-hint" class="text-[11px] text-slate-500" data-page-node-id="QBvnI645IFDGYsSTQfxoVc">未勾选时，复制富文本会先提醒你。发答题文，不发公司简介。</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3" data-page-node-id="YPx8HlRD1MFcUQZjaoCNY0">
+<div class="rounded-lg border border-red-100 bg-red-50/40 p-3 space-y-2" data-page-node-id="G591QT07I9pGX4sppD9hUR">
+<div class="text-xs font-bold text-red-800" data-page-node-id="IvFJaDyAQj83kt9b4o5C4l">头条 / 豆包 · 复制去发布</div>
+<button type="button" id="btn-toutiao-publish-copy" onclick="copyToutiaoRichHtml()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 opacity-50" data-page-node-id="hVv2wSHGjB2kzRqmUlYebX"><i data-lucide="send" class="w-3.5 h-3.5" data-page-node-id="4oWfANstcicuxsuZPaZl0D"></i><span data-page-node-id="R9BaPZs1MeV2YAFsHCGTkF">复制富文本去头条（需勾选可发）</span></button>
+<a href="https://mp.toutiao.com/" target="_blank" class="w-full py-2 bg-white hover:bg-red-50 text-red-700 text-xs font-semibold rounded-lg border border-red-200 flex items-center justify-center gap-1.5" data-page-node-id="sf3SORlF3FmkQZVLYy4pRG"><span data-page-node-id="gOFJ889Hsmjx9XdAKz5to7">直达头条号后台</span><i data-lucide="external-link" class="w-3.5 h-3.5" data-page-node-id="DSnEQoDCAyXj98GbwkEurk"></i></a>
+</div>
+<div class="rounded-lg border border-blue-100 bg-blue-50/40 p-3 space-y-2" data-page-node-id="jCTaNIQlYOShjhZgSE9nCg">
+<div class="text-xs font-bold text-blue-800" data-page-node-id="6wSOBQTxGXqT4OOHRWzpYy">知乎 · 复制去发布</div>
+<button type="button" id="btn-zhihu-publish-copy" onclick="copyZhihuRichHtml()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 opacity-50" data-page-node-id="ZGXfjNp1BVvUqQurX2NXH0"><i data-lucide="send" class="w-3.5 h-3.5" data-page-node-id="BICkV49nvBJx9rQiEHjSKL"></i><span data-page-node-id="3PnhTGd6uUq1VmkuaQl1Cz">复制富文本去知乎（需勾选可发）</span></button>
+<a href="https://www.zhihu.com/creator" target="_blank" class="w-full py-2 bg-white hover:bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 flex items-center justify-center gap-1.5" data-page-node-id="oCq7JYFZ2PJSnQKWbrUi1n"><span data-page-node-id="v317n86s3foZHW4qOTuarj">直达知乎创作中心</span><i data-lucide="external-link" class="w-3.5 h-3.5" data-page-node-id="WDXKxNjDsmHkYmgw1jID5y"></i></a>
+</div>
+</div>
+</div>
+<!-- 按需拓展生态（默认折叠） -->
+<details id="extended-ecosystems" class="bg-white rounded-xl border border-slate-200 shadow-sm scroll-mt-24 group" data-page-node-id="n4fSvm0DR2bIlBFTCSx6Wp">
+<summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between gap-3 select-none" data-page-node-id="GscehRbQxJZ2DARe2gYnl6">
+<div data-page-node-id="wXSK3hTEFYh5cVv2UIUbeR">
+<div class="flex items-center gap-2 flex-wrap" data-page-node-id="iBOeLaTN2CCf3bYn1MMyI7"><span class="text-sm font-bold text-slate-800" data-page-node-id="BVSHHGwVmHjxOu8cl7lQYK">按需拓展生态</span><span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200" data-page-node-id="1rrB2QcWMfeZUmh2E9tW4b">默认折叠 · 高客单 / 私域 / 技术型</span>
+</div>
+<p class="text-xs text-slate-500 mt-1" data-page-node-id="TP3dA9xNH4hzffw8tMQpDa">微信 10% · GitHub 10% · Kimi 8% · 百度 7% — 按行业场景展开</p>
+</div><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform" data-page-node-id="iBFOrNuFGNsCa2TfRbWkmP"></i>
+</summary>
+<div class="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-slate-100 pt-4" data-page-node-id="DN0eQutvG4ivJwckl4Rat9">
+<!-- 微信 -->
+<div id="pack-card-wechat" class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 flex flex-col justify-between scroll-mt-24" data-page-node-id="h8UwSVaRi6cP3HSLjSfPiQ">
+<div data-page-node-id="DRRNgOlwa66Yqi4DB2qqns">
+<div class="flex items-center justify-between mb-2" data-page-node-id="fKx1XXVLBAEpRvRdShYDSw">
+<div class="flex items-center gap-2 text-emerald-600 font-bold text-sm" data-page-node-id="Vxw7rYoDxpxHKKH6zttF9G"><i data-lucide="message-square" class="w-4 h-4" data-page-node-id="8vMmbTlKdil56FHXiLmFx1"></i><span data-page-node-id="TNCvmHGu7D9fpOSYCs4rzl">微信 / 元宝 (10%+)</span>
+</div><span id="wechat-fidelity-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200" data-page-node-id="deDCrcUCLYupVt26pOtTMF">保真度: --</span>
+</div>
+<p class="text-[11px] text-slate-500 mb-1" data-page-node-id="dGVXMyJFFRpGGuKGcrQJh0">适用：实体加盟 / 本地生活 / 私域强转化</p>
+<p class="text-xs text-slate-500 mb-3" data-page-node-id="UqON79EcEDJKP6pB0KnB8Y">内联富文本 + 视频号 60 秒口播 + 私域名片。</p>
+</div>
+<div class="space-y-2" data-page-node-id="V86bDqAUpGls9fJ1lOZ8BZ">
+<button onclick="copyWechatRichHtml()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5" data-page-node-id="VAIPFIXJczaSVPWblwXGBR"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5" data-page-node-id="DtXkizk9HlFWWahAmi4VDb"></i><span data-page-node-id="BzwKzipZ22hBfjUQOVTusE">一键复制微信富文本</span>
+</button>
+<details class="rounded-lg border border-slate-200 bg-white" data-page-node-id="fywsLDUdcHWkYZ64cVThKE">
+<summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none" data-page-node-id="xKPQMrH3aO3FKQH669q1J9">更多操作</summary>
+<div class="px-2 pb-2 space-y-1.5" data-page-node-id="mswfe7TxSvLX3f7IhajcDx">
+<button onclick="buildWechatPack()" class="w-full py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 flex items-center justify-center gap-1.5" data-page-node-id="qvAzRPrHVMqKbOoz5JgzBW"><i data-lucide="package" class="w-3.5 h-3.5" data-page-node-id="KQK6jhVQ84sLPfsbUu359A"></i><span data-page-node-id="eA2kTF59K4rXueU3l5jroU">生成微信发稿包</span>
+</button>
+<button onclick="openCleanMarkdownDrawer('wechat')" class="w-full py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-200 flex items-center justify-center gap-1.5" data-page-node-id="Co05X0bl5lckK7BplT6sDg"><i data-lucide="scan-eye" class="w-3.5 h-3.5" data-page-node-id="kGM24AGQJ393hM0O0XBD1j"></i><span data-page-node-id="BCjQEXzjGMChiKt3wb7FV0">爬虫保真度透视</span>
+</button>
+<button onclick="copyWechatVideoScript()" class="w-full py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5" data-page-node-id="9gOYIw4Ci9wD3YHMoOnone"><i data-lucide="video" class="w-3.5 h-3.5" data-page-node-id="fHvrTEAfwDz6hqtDBrbyN6"></i><span data-page-node-id="fXYgGzB6z7VkDIwBSCNy5E">复制视频号 60s 脚本</span>
+</button>
+<a href="https://mp.weixin.qq.com/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1" data-page-node-id="buOJHB6GICZ352KsB6HRqP"><span data-page-node-id="KXMKzaf8BKWxFOfHlmiWdm">直达公众号平台</span><i data-lucide="external-link" class="w-3 h-3" data-page-node-id="NmoHnBqbBsENE5sBrVc6uQ"></i></a>
+</div>
+</details>
+</div>
+</div>
+<!-- GitHub -->
+<div class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 flex flex-col justify-between" data-page-node-id="qNUhJydBkHmlox6ahd9Fg0">
+<div data-page-node-id="rLLvasRGH9vBuZgHEDPebM">
+<div class="flex items-center gap-2 text-slate-800 font-bold text-sm mb-2" data-page-node-id="yFxajydqwsihwNStmtGJiY"><i data-lucide="github" class="w-4 h-4" data-page-node-id="BwkoTYOColCVgPv2D2p2fE"></i><span data-page-node-id="Y34hs58jUMdZmQKiqxanw3">GitHub 开源</span>
+</div>
+<p class="text-[11px] text-slate-500 mb-1" data-page-node-id="zJewtG0HBjOCmVSwaTkIMT">适用：SaaS / 数字化外包 / 技术型企业</p>
+<p class="text-xs text-slate-500 mb-3" data-page-node-id="v7iBFJ0sFOoONqkq3SIITt">Shields 徽标与 Mermaid 架构图。</p>
+</div>
+<div class="space-y-2" data-page-node-id="NNhUOGDSSCT7x8QPoGSOwX">
+<button onclick="copyDeepseekReadme()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5" data-page-node-id="XlA7pMmfjnpRboA9li4vlV"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5" data-page-node-id="8I5mlBqYJK4p9G5nBz44RK"></i><span data-page-node-id="nvlwFS5ePkCvaDBjy9cYwU">一键复制开源 README</span>
+</button>
+<details class="rounded-lg border border-slate-200 bg-white" data-page-node-id="BOgB9FavncHVN4ox7A4UXC">
+<summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none" data-page-node-id="bZCvYApYhIb1UH5lIHA1i9">更多操作</summary>
+<div class="px-2 pb-2 space-y-1.5" data-page-node-id="3RFGLgHNOwFA88ZoLdXkp4">
+<button onclick="buildDeepseekPack()" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg border border-slate-300 flex items-center justify-center gap-1.5" data-page-node-id="HzokrwsqKjUPB0P957RGaa"><i data-lucide="package" class="w-3.5 h-3.5" data-page-node-id="GT6E4nrmaXZzkLBgGe4fZm"></i><span data-page-node-id="2l0iExHEwC1TugheowQsFf">生成 GitHub 技术包</span>
+</button><a href="https://github.com/new" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1" data-page-node-id="o70kQoWNvjYRtNKZXUAgvY"><span data-page-node-id="AvvqxLYUWQ9iWjmgdYGsLk">直达 GitHub New</span><i data-lucide="external-link" class="w-3 h-3" data-page-node-id="28EmQmXrFGsV66tNiFGLIz"></i></a>
+</div>
+</details>
+</div>
+</div>
+<!-- Kimi -->
+<div id="pack-card-kimi" class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 flex flex-col justify-between scroll-mt-24" data-page-node-id="8FoThDHRTTcOPrkpIhgCdn">
+<div data-page-node-id="Kl7EO9OnYT3gVLMgEZVoBi">
+<div class="flex items-center gap-2 text-purple-600 font-bold text-sm mb-2" data-page-node-id="BealVYKddu6BLMhdWFkn5L"><i data-lucide="file-check" class="w-4 h-4" data-page-node-id="ltxHspIYfjMj3wqirYkNkE"></i><span data-page-node-id="6Lzc5y8EDVKKr58w9TxUPC">Kimi 研报 (8%)</span>
+</div>
+<p class="text-[11px] text-slate-500 mb-1" data-page-node-id="FsFPsyFW4sZEj3sW1W4T3U">适用：行业咨询 / IPO 律所 / 高客单大案</p>
+<p class="text-xs text-slate-500 mb-3" data-page-node-id="ohv04kAiSXJgYGceZBZnKd">行业深度选型白皮书，适配长文本抽取。</p>
+</div>
+<div class="space-y-2" data-page-node-id="SGmPHoVCjyoYbLoQw7HhV1">
+<button onclick="copyKimiWhitepaper()" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5" data-page-node-id="BAVWn8CrBLS9BYA2TavHtP"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5" data-page-node-id="lh9oPRpPODjs94WN15GeH2"></i><span data-page-node-id="X6RB8o9OSNRPAoT8KKL2Dp">一键复制行业白皮书</span>
+</button>
+<details class="rounded-lg border border-slate-200 bg-white" data-page-node-id="SFePErYdMvEXOw7qYs6OpE">
+<summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none" data-page-node-id="kLqaMvahgW1Wc2iOkq8I9X">更多操作</summary>
+<div class="px-2 pb-2 space-y-1.5" data-page-node-id="Az3raU93NirBzxKnDJHnAZ">
+<button onclick="buildKimiBaiduPack()" class="w-full py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 flex items-center justify-center gap-1.5" data-page-node-id="0dT9EbPFR8MdVf59nKPuKS"><i data-lucide="package" class="w-3.5 h-3.5" data-page-node-id="CCigDV0Lz9llA07BHxFCKW"></i><span data-page-node-id="lYW3rwtq344M7sKPMaE1sl">生成 Kimi/百度包</span>
+</button><a href="https://kimi.moonshot.cn/" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1" data-page-node-id="F6PVmfHNkBZlYGN59fsZkt"><span data-page-node-id="huF7P7lcd0KXzUJrfo6pQm">直达 Kimi 平台</span><i data-lucide="external-link" class="w-3 h-3" data-page-node-id="6LqZWkSmOeg50x7h2dg6L8"></i></a>
+</div>
+</details>
+</div>
+</div>
+<!-- 百度 -->
+<div class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 flex flex-col justify-between" data-page-node-id="wESmihKQQzKLpQ6lMFSskd">
+<div data-page-node-id="Uu3Sfl9Oy1dk5spHkSq74d">
+<div class="flex items-center gap-2 text-sky-600 font-bold text-sm mb-2" data-page-node-id="Gk4AvuAucYj48dLgpPSRYT"><i data-lucide="award" class="w-4 h-4" data-page-node-id="Vkh768QQWeCwDefTdPF3mJ"></i><span data-page-node-id="pJ497zyoYcjfC8MgDWcdNH">百度百科 (7%)</span>
+</div>
+<p class="text-[11px] text-slate-500 mb-1" data-page-node-id="cxIakwDjUP9AiiVb0iDYBJ">适用：集团品牌 / 政企背书认证</p>
+<p class="text-xs text-slate-500 mb-3" data-page-node-id="TrDFRpGGodaQnnK55zLMRo">百科词条草案 + 文库/知道权威 Q&A。</p>
+</div>
+<div class="space-y-2" data-page-node-id="TTxwWahCrO7Li2EcRPJkqJ">
+<button onclick="copyBaiduBaike()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5" data-page-node-id="sXiRIeUaBpGbc9fiA0ZBAk"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5" data-page-node-id="yCFYW6UQXXSaHYiKSpBpvl"></i><span data-page-node-id="Ey85In2kNV46brIWQyrEM2">一键复制百度百科草案</span>
+</button>
+<details class="rounded-lg border border-slate-200 bg-white" data-page-node-id="mdklw13HVtK4Qj4nzE7h3K">
+<summary class="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 select-none" data-page-node-id="s1C2bWAHFxRnnEZplvoVGn">更多操作</summary>
+<div class="px-2 pb-2 space-y-1.5" data-page-node-id="cVa4G04LbXcYcUrIUYnzc2">
+<button onclick="buildKimiBaiduPack()" class="w-full py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold rounded-lg border border-sky-200 flex items-center justify-center gap-1.5" data-page-node-id="8vkQ1P8wtZZYNlpKGiq9VG"><i data-lucide="package" class="w-3.5 h-3.5" data-page-node-id="ojdIFGehk8uX6WQFFKXYkw"></i><span data-page-node-id="EmQPoDAo1SIS7coGt3EQiU">生成百度/Kimi包</span>
+</button>
+<button onclick="copyBaiduQa()" class="w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium rounded-lg border border-indigo-200 flex items-center justify-center gap-1.5" data-page-node-id="1FaLLBb4zi4QEx2RJa12B5"><i data-lucide="help-circle" class="w-3.5 h-3.5" data-page-node-id="GOf3IAWtitfqj9MZEDBFXM"></i><span data-page-node-id="N3ZV7WpfLd6bp8pwpjZIjv">复制百度文库 Q&A 对</span>
+</button><a href="https://baike.baidu.com/create" target="_blank" class="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium rounded-lg border border-slate-200 flex items-center justify-center gap-1" data-page-node-id="gynfp01Io95ScGSpBHQPEu"><span data-page-node-id="je43HMTlkqDHh0q8mG2xmQ">直达百度百科创建</span><i data-lucide="external-link" class="w-3 h-3" data-page-node-id="5WGXf2o5bWv0IoVAluakXo"></i></a>
+</div>
+</details>
+</div>
+</div>
+</div>
+</details>
+<!-- 全渠道分发台账与外链回填看板 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4" data-page-node-id="lKsVHeNBE9EecZRDv6O3c5">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3" data-page-node-id="pDNlPsU1uAAtHmh2nGC0AF">
+<div data-page-node-id="WYEbxV3YkYZzr6XYYG6xIH">
+<div class="flex items-center gap-2 flex-wrap" data-page-node-id="B4ZRsTOWoqFomaJ4mvh2ZZ"><span class="text-base font-bold text-slate-900" data-page-node-id="TvOQHfFDab5KFWFCgq1xB2">全渠道落地台账与链接回填</span><span id="dist-completion-badge" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[11px] font-bold" data-page-node-id="DKGUHV8X0HL0nDIU0IH4BU">完成率: 0.0%</span><span id="dist-weighted-badge" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-bold" data-page-node-id="u3ARkz5hG563A4r0WNPsL4">链接还在: 0%</span>
+</div>
+<p class="text-xs text-slate-500 mt-1" data-page-node-id="BTyh3H9kW4tBkYWDbt7UkF">把发布后的网址填进来；「检查链接」只看还在不在（是不是 404），不爬正文、也不代表大模型已抓到。存疑时点「访问」自己打开看。</p>
+</div>
+<div class="flex items-center gap-2 flex-wrap" data-page-node-id="HIV7REr4jBPDI8J2q6Yz35">
+<button onclick="openBatchBackfillModal()" class="py-2 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-indigo-200 shadow-sm" data-page-node-id="NHBbSi6HMXPpZIekUa8Y35"><i data-lucide="clipboard-paste" class="w-3.5 h-3.5" data-page-node-id="1PDNMayBfHzRw4H4HDEY7k"></i><span data-page-node-id="oz6lETGxUEBrGteSd7m96s">智能批量回填</span>
+</button>
+<button onclick="handleVerifyAllDistUrls()" id="btn-verify-all-dist" class="py-2 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-emerald-200 shadow-sm" data-page-node-id="2AS8NIgZY3Dq5CUYKmLJ41"><i data-lucide="activity" class="w-3.5 h-3.5" data-page-node-id="7K2CzzoTsdUm4lLoGXu0NZ"></i><span data-page-node-id="XVtBZbtktpkcO6gPYgvqNZ">一键检查链接是否还在</span>
+</button>
+<button onclick="copyOutput('04_全网分发渠道执行与存活台账.md')" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-slate-200 shadow-sm" data-page-node-id="RdF0LD8zxo5pF2oYbZqFtk"><i data-lucide="file-text" class="w-3.5 h-3.5" data-page-node-id="ZBSR3rLBRUnS6r9SmfOeRr"></i><span data-page-node-id="NLVzQtV1Fm6uJCBUYHGlMN">复制台账 MD</span>
+</button>
+</div>
+</div>
+<div id="dist-channels-ledger-list" class="space-y-3" data-page-node-id="9h4vXtDf2sw0kTdNhXMSAH">
+<div class="text-slate-400 text-xs text-center py-4" data-page-node-id="zqpbHWxRRUoxp4GFH652CG">加载分发台账中...</div>
+</div>
+</div>
+
+<!-- 开发者与交付团队专属：运营发稿执行指引与派单任务卡 (SOP) -->
+<div data-geo-dev-only class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4 flex-wrap" data-page-node-id="HHOhnVq8tKphgZZGFCBur8">
+<div class="flex items-center gap-3 min-w-0" data-page-node-id="SqQDHWBeg6S9Bap2Q4qxbS">
+<div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center shrink-0" data-page-node-id="jns9WClTSouOw4cPQcTf0y"><i data-lucide="clipboard-check" class="w-5 h-5" data-page-node-id="wq760rUUBDG3sDvh0HUGYs"></i>
+</div>
+<div class="min-w-0" data-page-node-id="x28TFbIWt82ety6WVMAj0p">
+<div class="text-xs font-bold text-slate-800 flex items-center gap-2" data-page-node-id="SoEzTSgdEojwERQShGCkYU"><span data-page-node-id="PaOOGj1F31iIZetpKsH4be">运营发稿执行指引与派单任务卡 (SOP)</span><span class="text-[10px] font-normal text-slate-400 font-mono" data-page-node-id="XxLqdzm1Z1HZIK56NbDSGL">dist_channels_checklist.md</span>
+</div>
+<div class="text-xs text-slate-500 mt-0.5" data-page-node-id="ogYCEk7g3GcIUGUZWojwm7">汇总各平台后台直达入口、对应发稿文件、发布要点与打勾回填项；可一键复制直接发给运营同事或客户照单执行。</div>
+</div>
+</div>
+<button onclick="copyOutput('dist_channels_checklist.md')" class="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shrink-0" data-page-node-id="flTSIiUEOOsIGpvMKpkqiC"><i data-lucide="copy" class="w-3.5 h-3.5" data-page-node-id="DDy6ON1Ah5UDvsGMZrg7CR"></i><span data-page-node-id="KX0JDA0ZxFnqDnujIWVqRB">一键复制发稿 SOP 派单卡</span>
+</button>
+</div>
+
+<div class="flex items-center justify-between pt-4 border-t border-slate-200 mt-6" data-page-node-id="xvMWdHww9qdXkbECfqBc58">
+<button onclick="prevStep()" id="btn-prev-step" class="py-2.5 px-5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition" data-page-node-id="BSQWH7Tv6Ug8Tf17kwHDDu"><i data-lucide="chevron-left" class="w-4 h-4" data-page-node-id="TsgIGCAhRji8FiFA8MbBxG"></i><span data-page-node-id="Q8wMnlVs34pZJyUygfwJST">上一步</span>
+</button>
+<div class="flex items-center gap-3" data-page-node-id="EXwjJxeHnBxcEswJF2njii">
+<button onclick="nextStep()" id="btn-next-step" class="py-2.5 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow transition" data-page-node-id="ylNxUEwmi5uAsVrkRm7mPO"><span data-page-node-id="Nxkhb70dnNc8V9c2UxvNGQ">下一步</span><i data-lucide="chevron-right" class="w-4 h-4" data-page-node-id="nuoVdxREmiaYzSZakzJZSQ"></i>
+</button>
+</div>
+</div>
+  </div>
 </div>
 
 <div id="panel-step-5-acceptance" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep6Acceptance">
   <div id="step6-app-root"></div>
+
+  <!-- 原版平铺视图（隐藏留档兜底，确保所有既有 DOM、ID 与回调完好无损） -->
+  <div id="legacy-step5-acceptance-container" class="hidden space-y-6">
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between flex-wrap gap-3" data-page-node-id="OdzE7aejKFigyPLBUszTZg">
+<div data-page-node-id="yZB7abHO2PwJIXZ7DfVZxm">
+<h2 class="text-base font-bold text-slate-900" data-page-node-id="Wdf30C05YMzMKpT08NLxQ3">阶段五：首轮监测与验收</h2>
+<p class="text-xs text-slate-500 mt-1" data-page-node-id="UWJWWawq6WHpAvrTVQjcJ0">交付收口：跑一轮声量监测、出周报、开验收单。日常复测见「日常运维 / 监管运维」；维护期继续发帖见「发帖运维」。</p>
+</div>
+<div class="flex items-center gap-2.5 flex-wrap" data-page-node-id="9H8kyqgjdndTs8UYfGg8H2">
+<button onclick="runSingleStep(event, 'monitor')" id="btn-step-5" class="geo-btn geo-btn-primary" data-page-node-id="HF9EiMQ2MQoCgFaUajU3yA"><i data-lucide="line-chart" class="w-4 h-4" data-page-node-id="GtQVaBNQYnG6M8AQp5AWde"></i><span data-page-node-id="e6LnQ9GegNCH9PerHzSyp4">执行实时声量监测</span>
+</button>
+<button type="button" onclick="openManualProbeModal()" id="btn-manual-probe" class="geo-btn" data-page-node-id="Ur0VdPv6CJ2NxnOHQoCvot"><i data-lucide="clipboard-check" class="w-4 h-4" data-page-node-id="nH7BlOCef37FamoGrcecDo"></i><span data-page-node-id="FXOluzECirltlDM5IMQgmY">真机实测回填</span>
+</button>
+<button onclick="handlePrintReport(event)" class="geo-btn" data-page-node-id="RtklrBFA8C6Qw4I6S8gzPi"><i data-lucide="printer" class="w-4 h-4" data-page-node-id="zfp0AI9LaJXPMX2Muo6yXu"></i><span data-page-node-id="JKsV1QoGRg6gMEHO8CDMQA">导出美化周报</span>
+</button>
+<button onclick="handlePrintAcceptance()" class="geo-btn geo-btn-success" data-page-node-id="hapFCjiyBU1YMEHop4zAxi"><i data-lucide="file-check-2" class="w-4 h-4" data-page-node-id="NKRcnlyDV7JIofRr2PrEH2"></i><span data-page-node-id="ZRirfOIOiGoqSS1zt2noth">结案验收单</span>
+</button>
+</div>
+</div>
+<div id="step5-monitor-alert" class="geo-alert geo-alert-danger hidden" role="alert" data-page-node-id="BszbvoItOk48pgumnfmDa9">
+<div class="geo-alert-body" data-page-node-id="7n9q3wpN4x7cyjCuxC4NBA">
+<div class="geo-alert-title" data-page-node-id="cFm7s2at7YPvse0H3YYzRC">监测模式提示</div>
+<div id="step5-monitor-alert-text" data-page-node-id="hBTEBIR4ujDijeuLGQ0nBm">当前为离线摸底或数据未就绪，建议执行真机回填或配置 API Key 后复测。</div>
+</div>
+<button type="button" class="geo-btn geo-btn-success" onclick="openManualProbeModal()" data-page-node-id="dLxoQmWUHzPdYJEynJPGOu">真机回填</button>
+</div>
+<div id="step5-prompt-rows" class="space-y-0" data-page-node-id="9nLq4tNO4S2PCnsWB5ZvH2"></div>
+<!-- 4 维量化核心指标卡 -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-page-node-id="kdGSd7ip5mv7WN0CcFEZN1">
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4" data-page-node-id="fTqEk0AeWKY113R1BnB9Kq">
+<div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold" data-page-node-id="KOEZaRGO5dCmhF1JJuVkZ8"><i data-lucide="pie-chart" class="w-6 h-6" data-page-node-id="FxeIUMluqQKcmkCx4irmHT"></i>
+</div>
+<div data-page-node-id="WKQZdKfvespFBe20tSo3WA">
+<div class="text-xs text-slate-500 font-medium" data-page-node-id="sc1INYuRkRZ1pYQdap6w9X">综合 SOV 声量达成率</div>
+<div id="metric-sov" class="text-xl font-black text-indigo-600 mt-0.5" data-page-node-id="vvrVM5teP7CBS8J5ZBn7MF">--%</div>
+</div>
+</div>
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4" data-page-node-id="rZPqACF5rjZWrYXyA4aAlC">
+<div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold" data-page-node-id="HXvCdhrZ03x4tHMkva7x5L"><i data-lucide="award" class="w-6 h-6" data-page-node-id="L76OYm23iikM4a9e9q2Mjs"></i>
+</div>
+<div data-page-node-id="Lna5zATWhwE3mBRYjrbGY8">
+<div class="text-xs text-slate-500 font-medium" data-page-node-id="6HvkDcmFdLNI1NWDGB0zOU">DeepSeek 首推率</div>
+<div id="metric-deepseek" class="text-xl font-black text-blue-600 mt-0.5" data-page-node-id="nepco1CYNDdO0kTTKw1kZd">--%</div>
+</div>
+</div>
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4" data-page-node-id="N512IWl5GW4R3QW7LK8kNt">
+<div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold" data-page-node-id="2dnW7pOcXX6ZdN2O9jJtgL"><i data-lucide="flame" class="w-6 h-6" data-page-node-id="oMLPj7SXd4FJbiGkxilxIH"></i>
+</div>
+<div data-page-node-id="koONivqqjpznCE7Lr6AsZs">
+<div class="text-xs text-slate-500 font-medium" data-page-node-id="WpgeZR7CeV0DB9gaxpLBwf">豆包 (字节生态) 首推率</div>
+<div id="metric-doubao" class="text-xl font-black text-red-600 mt-0.5" data-page-node-id="GXKwesaE6RmjV8UQRMJeKw">--%</div>
+</div>
+</div>
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4" data-page-node-id="Qlzf7A29SuJ97aQVaN0JP3">
+<div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold" data-page-node-id="9ib7V7TRK1mAbcaLgTYrDF"><i data-lucide="shield-check" class="w-6 h-6" data-page-node-id="M451s5j3UEtIvS3xZUls06"></i>
+</div>
+<div data-page-node-id="FvWOKvCeWWYR6T6ErZjWor">
+<div class="text-xs text-slate-500 font-medium" data-page-node-id="97F40nJdHlAVHG0UCZNODY">综合权威信源评分</div>
+<div id="metric-authority" class="text-xl font-black text-emerald-600 mt-0.5" data-page-node-id="vPPL51AYWkHcJuEK5uQPOl">--/100</div>
+</div>
+</div>
+</div>
+<!-- 商业 ROI 测算与客户续约预测看板 (开发者专属) -->
+<div data-geo-dev-only class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 rounded-2xl shadow-xl p-6 text-white space-y-5" data-page-node-id="yPfnpxGWhCfJviBGrFEgUA">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4" data-page-node-id="4WGdVXi7U9dDzRBS8KeQsJ">
+<div class="flex items-center gap-3" data-page-node-id="Nk2kVYJBLm5xTJDa1ECaSb">
+<div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center text-xl font-bold shadow-inner" data-page-node-id="KU6nGrCI0AhzyOObUlPoXd">
+</div>
+<div data-page-node-id="WQtiZmBuURBoSLx0nTS3C2">
+<div class="flex items-center gap-2" data-page-node-id="7XD9H8KzUYFYzi3wDDt3Ja">
+<h3 class="text-base font-bold text-white" data-page-node-id="OhYHaBAg91N1pcgeyPAt1v">商业投资回报率 (ROI) 测算与客户续约预测</h3><span id="roi-renewal-badge" class="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-bold" data-page-node-id="Raz4ECCw8Wr9CNOyIy0GTZ">极高概率续约 (92分)</span>
+</div>
+<p class="text-xs text-indigo-200 mt-0.5" data-page-node-id="lmoCbhQWn1H1NYLwdrIwQi">将技术指标折算为硬核财务资产，为季度续费复盘与大客户增购提供无可辩驳的商业证明。</p>
+</div>
+</div>
+<div class="flex items-center gap-2" data-page-node-id="sVnFzW6qi2DAPfCrnj4P5y">
+<button onclick="openRoiSettingsModal()" class="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 border border-white/10" data-page-node-id="s9SCVkIAfNlXJII3e6fzFz"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5" data-page-node-id="Oy2XwEelY84uR0eAJWlgjW"></i><span data-page-node-id="zW5oD9p4uCg7FybFeqhQ0q">自定义商业参数</span>
+</button>
+</div>
+</div>
+<!-- 3 大核心财务看板 -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4" data-page-node-id="izCCVA7KhigkBNu0JglHiU">
+<div class="p-4 bg-white/5 rounded-xl border border-white/10" data-page-node-id="KjM8b87BfZSxfGPkVJitIA">
+<div class="text-xs text-indigo-200" data-page-node-id="xXHpN8sHUx1yENvbm3L67v">商业综合创造价值 (年化)</div>
+<div id="roi-total-val" class="text-2xl font-black text-amber-300 mt-1" data-page-node-id="ISEKaQHgLZseWQSVRt0W4q">¥203,845 元</div>
+<div id="roi-net-val" class="text-[11px] text-emerald-300 mt-0.5" data-page-node-id="5x4JHMrBm477FhDKvKdHjI">净商业回报: +¥173,845 元</div>
+</div>
+<div class="p-4 bg-white/5 rounded-xl border border-white/10" data-page-node-id="853Mj3bRZTpTFWvfD0SX38">
+<div class="text-xs text-indigo-200" data-page-node-id="JXsr6JhbFWH6GFSz4DXJno">综合投资回报率 (ROI)</div>
+<div id="roi-pct-val" class="text-2xl font-black text-emerald-400 mt-1" data-page-node-id="PkFrhrFjbE8ocuKXQHO7nu">+579.5%</div>
+<div id="roi-mult-val" class="text-[11px] text-indigo-300 mt-0.5" data-page-node-id="pMI0K1u3TfLj5oBcR2QT5s">价值倍数: 6.79 倍服务费</div>
+</div>
+<div class="p-4 bg-white/5 rounded-xl border border-white/10" data-page-node-id="zpqKuaJdDmhVsjB6lBHV9A">
+<div class="text-xs text-indigo-200" data-page-node-id="lPiRl0V7xHJs8jiAk4jIGP">续约健康度得分</div>
+<div id="roi-score-val" class="text-2xl font-black text-white mt-1" data-page-node-id="JujmUZSRkgNLXQv3QsNs8M">92 / 100 分</div>
+<div id="roi-tier-advice-short" class="text-[11px] text-indigo-200 mt-0.5 truncate" data-page-node-id="A5AHjAXR24dVCGgRd5UTZO">建议主推年度增购包</div>
+</div>
+</div>
+<!-- 三大细分价值条形卡 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs" data-page-node-id="711Z5aO0oCqERL62afdUyn">
+<div class="p-3 bg-white/5 rounded-lg border border-white/5" data-page-node-id="eQVDdw6ovvJuTFCk1hENB3">
+<div class="text-slate-300 font-semibold flex items-center gap-1.5" data-page-node-id="sYIyOymeGU2hDa5tinlYm5"><span data-page-node-id="cs0uVzWb7OUUAKcYF6Rb7g">等效 SEM 竞价替代节省</span>
+</div>
+<div id="roi-sem-val" class="text-base font-bold text-white mt-1" data-page-node-id="QplzcFNFkK1KGKHNmxWI2V">¥166,725 元</div>
+<div class="text-[10px] text-indigo-300 mt-0.5" data-page-node-id="MTxBm9lQ5mhlVlrxUy2jAQ">年化替代关键词搜索竞价广告投入</div>
+</div>
+<div class="p-3 bg-white/5 rounded-lg border border-white/5" data-page-node-id="LBXsoKS9gCEtZ3n4KtIdFi">
+<div class="text-slate-300 font-semibold flex items-center gap-1.5" data-page-node-id="Qll3cHdp6B7CcyT3p6TiSG"><span data-page-node-id="hRcENszOj8HuPU6K7L29T2">AI 首推精准销售线索估值</span>
+</div>
+<div id="roi-leads-val" class="text-base font-bold text-white mt-1" data-page-node-id="dwPiPUElAcm7ggJRqUFR7W">¥13,120 元</div>
+<div class="text-[10px] text-indigo-300 mt-0.5" data-page-node-id="rlvSUuwWLKuDDHZ6mLxVZY">基于行业 CPL 与月度转化频次折算</div>
+</div>
+<div class="p-3 bg-white/5 rounded-lg border border-white/5" data-page-node-id="pVYflwe65380bCuJvhnE5N">
+<div class="text-slate-300 font-semibold flex items-center gap-1.5" data-page-node-id="iRHYSLhxG0HKtUVtRjhaI0"><span data-page-node-id="z7xQd8JLYomRC1e83QhCxo">信任池数字资产沉淀估值</span>
+</div>
+<div id="roi-asset-val" class="text-base font-bold text-white mt-1" data-page-node-id="fluuls8KE3sEHejyd8drtd">¥24,000 元</div>
+<div class="text-[10px] text-indigo-300 mt-0.5" data-page-node-id="nWAWRHWql9Hno2xJXQ9TDN">全网高权重语料库与外链知识资产</div>
+</div>
+</div>
+<!-- 续约谈判核心话术 -->
+<div id="roi-talking-points-box" class="p-3.5 bg-white/5 rounded-xl border border-white/10 space-y-1.5 text-xs text-indigo-100" data-page-node-id="nMnp48g91oKI3wuaVkbbCr">
+<div class="font-bold text-amber-300 flex items-center gap-1" data-page-node-id="I4UZZR8OWAopDU0STpDiEA"><span data-page-node-id="8ULoZ6H1KKCKZWYJWbODW3">季度复盘与续约增购谈判要点：</span>
+</div>
+<div id="roi-talking-points-list" class="space-y-1 pl-1 text-[11px] text-indigo-200" data-page-node-id="CCrwhH2LEXHWaq1M10CQxh">
+<!-- JS 动态注入 -->
+</div>
+</div>
+</div>
+<!-- 商业交付验收与结案归档中枢 (Acceptance Hub) -->
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4" data-page-node-id="WhZxZNRATjMb2swtQvoh24">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3" data-page-node-id="WlYMgHHANJgHuShB7qbON8">
+<div class="flex items-center gap-2.5" data-page-node-id="DxQTgsdApl4iFdFwL1xjtK">
+<div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm" data-page-node-id="oKzEenbDP0xlb5JFhyFpE9">
+</div>
+<div data-page-node-id="5MZfefxiPiK1BByihPeODw">
+<div class="flex items-center gap-2" data-page-node-id="5zr2rZ3wjuAXbLRg6xEkOH">
+<h3 class="text-sm font-bold text-slate-900" data-page-node-id="RlKEnqwabDyQnA1h1UhtTi">商业交付验收与结案归档中枢</h3><span id="acceptance-status-badge" class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold" data-page-node-id="ZHjRVK274xcxZxZHO9ebDZ">符合全额结案回款验收标准 (94.0分)</span>
+</div>
+<p class="text-[11px] text-slate-500" data-page-node-id="d1xp8rJhqz5AmwQXZ0GbHd">自动汇总 S1~S5 全量交付成果，计算 6 维合同履约率并提供盖章级结案单打印与离线 ZIP 下载。</p>
+</div>
+</div>
+<div class="flex items-center gap-2" data-page-node-id="VqNGmwo6L7HwskSZO8oHmB">
+<button onclick="handleDownloadZip()" data-geo-dev-only class="py-2 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-sm" data-page-node-id="nLPxslacAvaTNS696HYlZQ"><i data-lucide="folder-archive" class="w-3.5 h-3.5" data-page-node-id="sL7kIA5I937lw8GNdqu108"></i><span data-page-node-id="ZjwMJDcCSEBZcIf3CTtWDe">下载全套成果 ZIP</span>
+</button>
+<button onclick="handlePrintAcceptance()" class="py-2 px-3.5 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5" data-page-node-id="Bf2NDjksVEQfJnliQeyDHp"><i data-lucide="printer" class="w-3.5 h-3.5" data-page-node-id="3kPYInxgPAQCuVTEyKFZFg"></i><span data-page-node-id="LfetWkvB64nKInvBR1AZhz">打印盖章结案单</span>
+</button>
+</div>
+</div>
+<!-- 6 维履约考核进度网格 -->
+<div id="acceptance-breakdown-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs" data-page-node-id="AsJU0DwHxtTEeeoGHqe8mc">
+<!-- JS 动态注入 -->
+</div>
+<!-- 交付物就绪率底栏 -->
+<div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs" data-page-node-id="I1IjBBSGSMdAZGALzWSYmI">
+<div class="flex items-center gap-2" data-page-node-id="jTbA5HFYHsnR7tUOURl2DC"><span class="font-bold text-slate-700" data-page-node-id="yKTY7TjaP7khHieS0Q9e5c">全套交付资产就绪度：</span><span id="acceptance-manifest-rate" class="text-indigo-600 font-bold" data-page-node-id="tLzd6ZM4ivSf137a6qWk3b">14 / 15 份文件就绪 (93.3%)</span>
+</div>
+<button onclick="copyOutput('00_GEO商业交付验收结案确认单.md')" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1 text-[11px]" data-page-node-id="mFatXbOFaCK4HCWHwEjrYI"><i data-lucide="copy" class="w-3 h-3" data-page-node-id="i3tLbCFhapH0Ahez1rcmQL"></i><span data-page-node-id="9g50FY0BxVW5qMeVeJZYH8">复制结案单 Markdown 文本</span>
+</button>
+</div>
+</div>
+<!-- Citation 权威信源加权渗透图谱 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4" data-page-node-id="uIK7bPDH8ByTOhjHPQO2Pz">
+<div class="flex items-center justify-between border-b border-slate-100 pb-3" data-page-node-id="tNzWBPbJ7ironT1kX788Ci">
+<div class="flex items-center gap-2" data-page-node-id="daWHzUfZ2GmHuzWb80UPpl">
+<div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs" data-page-node-id="XGydGQ95KMEgZp6ko5imkw">
+</div>
+<div data-page-node-id="Fafwg9mzj7LOgTDaGIJVDd">
+<h3 class="text-xs font-bold text-slate-800" data-page-node-id="k0rS5NA2PwwXy9j1iEwjJd">主流大模型高频权威信源（Citation）渗透加权图谱</h3>
+<p class="text-[11px] text-slate-500" data-page-node-id="5NSKjp0LBEleAkaQFdd0hd">统计大模型生成答案时引用的权威域名频次与权威权重模型。</p>
+</div>
+</div><span class="text-xs text-slate-400" data-page-node-id="N3GLk737UZTAF8ftZhcNe0">实时计算模型: 频次 × 平台权威系数</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs" data-page-node-id="S5A4xbLe3Q0eP7zaLAaGUV">
+<div class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200/80" data-page-node-id="VYujUQmD1PgBHxNN5PT0KK">
+<div data-page-node-id="C8O1BD92AdE2so3TVD9vCp">
+<div class="flex justify-between font-semibold text-slate-700 mb-1" data-page-node-id="Khg9PDXSWdpiw696uIpiXc"><span data-page-node-id="PB2ZSuzMoD7jsW4MFJO37S">知乎专栏 / 问答 (zhihu.com) · 权重 1.0</span><span id="citation-pct-zhihu" data-page-node-id="yXJRq3ePCrRwE0rCu8tlRa">42%</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden" data-page-node-id="0no1U45iC1W0AYnzEEjUZw">
+<div id="citation-bar-zhihu" class="bg-blue-600 h-2 rounded-full" style="width: 42%" data-page-node-id="ti4rUdZsOQsw8EmFJQL1dy">
+</div>
+</div>
+</div>
+<div data-page-node-id="RNEKs24Z0GoVRvACwCY8W5">
+<div class="flex justify-between font-semibold text-slate-700 mb-1" data-page-node-id="nqHlGBM4ITnFGBOJfqbjY1"><span data-page-node-id="LTvAMNy56RRbBF5Xo9vSTL">今日头条 / 头条号 (toutiao.com) · 权重 0.9</span><span id="citation-pct-toutiao" data-page-node-id="ZIUAFk4vN2QjhLjNbMyDst">28.5%</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden" data-page-node-id="IF4sh5hCQD4r0UVNOqFsl9">
+<div id="citation-bar-toutiao" class="bg-red-600 h-2 rounded-full" style="width: 28.5%" data-page-node-id="b9VwVloLICk0U61ACYSx7Y">
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200/80" data-page-node-id="xe64M96VRrkhUTB4FgADdu">
+<div data-page-node-id="a2XHZkutdh7WAMvXHgocml">
+<div class="flex justify-between font-semibold text-slate-700 mb-1" data-page-node-id="c3aPt049aLBVyDfCZow9gf"><span data-page-node-id="2Ms2CzLXFy1OLwUIsvfr7U">微信公众号 (weixin.qq.com) · 权重 0.85</span><span id="citation-pct-wechat" data-page-node-id="Cw4AfolNj0fNmcdsy7ypU6">18.2%</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden" data-page-node-id="KjMsDtnr3rJBBHlXw3uQzX">
+<div id="citation-bar-wechat" class="bg-emerald-600 h-2 rounded-full" style="width: 18.2%" data-page-node-id="gEW4t8RnCqrjypBZpJE78X">
+</div>
+</div>
+</div>
+<div data-page-node-id="iOIiHmEmgHuEtcU2aI95CK">
+<div class="flex justify-between font-semibold text-slate-700 mb-1" data-page-node-id="c4AoECNGD4DyF1H1mp80EX"><span data-page-node-id="21FO0vm4GbU5YBLiQYDEmX">GitHub 开源生态 (github.com) · 权重 0.95</span><span id="citation-pct-github" data-page-node-id="CP3G1wwuFZzyExeBB2Re9Y">11.3%</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden" data-page-node-id="FzEpM1bg0glQbgJMVBw1Dw">
+<div id="citation-bar-github" class="bg-slate-800 h-2 rounded-full" style="width: 11.3%" data-page-node-id="FN5J5ePiKKrFSklAmhVefM">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--  行业横向对标与超越战绩 (Industry Benchmark) -->
+<div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white rounded-xl shadow-lg p-6 space-y-4" data-page-node-id="Mgs7ZS0JRi9aq2dZIC2Bzn">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-800/80 pb-3" data-page-node-id="yVV84vsGSAoCMDPRcuOjpz">
+<div class="flex items-center gap-2.5" data-page-node-id="rQA31YHG1gTzbYRNdrGNLp">
+<div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-400/30" data-page-node-id="TsktP12Xap8TyCuvAn9HAE">
+</div>
+<div data-page-node-id="IV2MTQX5cXSdX0jTyiZcPU">
+<h3 class="text-sm font-bold flex items-center gap-2" data-page-node-id="33DdlNIzFF8Rq9vGL9Kejw"><span data-page-node-id="vzE6rzIWHahKnAXnFL9qRz">行业横向对标与超越战绩 (Industry Benchmark)</span><span id="bm-tier-badge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold" data-page-node-id="kPi8Owk7emCM0W0yIYlsc6">计算中...
+                  </span>
+</h3>
+<p class="text-[11px] text-indigo-200/70 mt-0.5" data-page-node-id="lfdNVfJl4B1EmZ9MwMIUBh">所属行业：<span id="bm-industry-name" class="font-bold text-white" data-page-node-id="wmcds0xdQFGxMb1Jf2U10C">--</span> · 横向对标全库同行平均线与顶尖标杆</p>
+</div>
+</div>
+<div class="text-right" data-page-node-id="v56b1lGd94XPCYSBCcoy6V"><span class="text-[10px] text-indigo-300" data-page-node-id="7RH5YdtKUzjatANc5yXsXr">超越同行率</span>
+<div id="bm-beat-rate" class="text-xl font-black text-emerald-400" data-page-node-id="Lpnwo81Ts7dvxQbaiJkoGF">--%</div>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs" data-page-node-id="AvxC8CQ9rOdOmEXZitQcfs">
+<div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1" data-page-node-id="JaikXO2xsrL46Ao5wANTnw">
+<div class="text-indigo-200/80" data-page-node-id="rDTZnJbiqWQw4JWVFMNRQ2">客户当前 SOV</div>
+<div id="bm-client-sov" class="text-2xl font-black text-white" data-page-node-id="kAh5CihOdRDQFcfZDTOPVQ">--%</div>
+<p class="text-[10px] text-emerald-400" id="bm-diff-from-avg" data-page-node-id="tGmxLHntRvpscsbBHgIAjS">对比均值 --</p>
+</div>
+<div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1" data-page-node-id="DYzdokMGUGLpCbJ7P5yQmR">
+<div class="text-indigo-200/80" data-page-node-id="mW58yjX26r0NO8EXHFOUlu">本行业平均 SOV</div>
+<div id="bm-industry-avg" class="text-2xl font-black text-indigo-200" data-page-node-id="P4m3CwzFPN1ipclWegKeU9">--%</div>
+<p class="text-[10px] text-indigo-300/70" data-page-node-id="2EK8iXBqqktT0yH4YnSveS">行业基准基线</p>
+</div>
+<div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1" data-page-node-id="9hnyebQxdbnuxjnQrTuUPv">
+<div class="text-indigo-200/80" data-page-node-id="C8Lmv1ERurpZTevBUG8wmg">行业顶尖标杆线 (Top 10%)</div>
+<div id="bm-industry-top" class="text-2xl font-black text-amber-300" data-page-node-id="GRC3pCBOmFmQQHNtBG1wej">--%</div>
+<p class="text-[10px] text-amber-200/70" data-page-node-id="HPdLfxHUYOtBlH2HZQGfMq">统治级品牌占位线</p>
+</div>
+</div>
+<div id="bm-summary-text" class="text-xs bg-white/10 border border-white/15 rounded-lg p-3 text-indigo-100 leading-relaxed" data-page-node-id="YnmHDcLBpRux4wzKnkgQ2V">正在生成行业对标量化评估结论...
+          </div>
+</div>
+<!-- 问句级实测对决态势矩阵 (Prompt Probe Matrix) -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4" data-page-node-id="ATwAHAArCpiaRXq5ogv1Ll">
+<div class="flex items-center justify-between border-b border-slate-100 pb-3" data-page-node-id="NYGTkjhsfixxTsEMfXkhDE">
+<div class="flex items-center gap-2" data-page-node-id="UaLq5ccAmkQO2BM0LgN7Ku">
+<div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs" data-page-node-id="9U3lDklmEAwZoxyjS4WjCz">
+</div>
+<div data-page-node-id="1KirRdVOokkexLOwY6TfGf">
+<h3 class="text-xs font-bold text-slate-800" data-page-node-id="y6Sp7el6eBVEOOppN6HtHx">全量商业意图词库 · 问句级大模型对决态势</h3>
+<p class="text-[11px] text-slate-500" data-page-node-id="qMsDtIslOvhEGzJxvHMKNq">统计全量 40~50 组意图词在 DeepSeek 与豆包生成式回答中的召回与拦截状态。</p>
+</div>
+</div>
+<div id="monitor-mode-badge" class="text-[11px] font-semibold py-1 px-3 rounded-full bg-slate-100 text-slate-600 border border-slate-200" data-page-node-id="w0ThUNW5aYPAWk36NwHiop">数据读取中...
+            </div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center text-xs" data-page-node-id="Ecq7PqDQOfi7ltY1OlJdPK">
+<div class="p-4 bg-emerald-50/60 border border-emerald-200/80 rounded-xl" data-page-node-id="etine1ZCM7ESW3HeA941bd">
+<div class="text-emerald-700 font-semibold mb-1 flex items-center justify-center gap-1" data-page-node-id="pTbXgnn0RmJvcLC8O77LkS"><span class="w-2 h-2 rounded-full bg-emerald-500" data-page-node-id="ckDSrjFRZDgLlSPqTmTjQf"></span><span data-page-node-id="NjTCnyBxds5sglJKKxApFF">命中首推 / 第一梯队</span>
+</div>
+<div id="prompt-hit-count" class="text-2xl font-black text-emerald-700 mt-1" data-page-node-id="WsFoqawruJbSnvNxcAwMnE">0 组</div>
+<p class="text-[10px] text-emerald-600 mt-1" data-page-node-id="vcnR8ixUQRTS6mEYJBVPJk">已被大模型优先提及并推荐</p>
+</div>
+<div class="p-4 bg-amber-50/60 border border-amber-200/80 rounded-xl" data-page-node-id="5TRb6nrIxmO4zxZl97Qnzm">
+<div class="text-amber-800 font-semibold mb-1 flex items-center justify-center gap-1" data-page-node-id="Y6oIniTR5nHgSsdNpZbIBG"><span class="w-2 h-2 rounded-full bg-amber-500" data-page-node-id="Y58uyAfs1S8Nnms81dj8U2"></span><span data-page-node-id="mH7FyzFwqGyMMGKMqW4ITp">竞品拦截 / 待反击</span>
+</div>
+<div id="prompt-intercept-count" class="text-2xl font-black text-amber-800 mt-1" data-page-node-id="XbApvvohG5K4gjhZB5GEoH">0 组</div>
+<p class="text-[10px] text-amber-700 mt-1" data-page-node-id="ET7ytiSDGcFLmJkzroOG05">大模型提及竞品，建议启动反向包抄</p>
+</div>
+<div class="p-4 bg-slate-50 border border-slate-200 rounded-xl" data-page-node-id="97IvV3hpufifksna7jf5hg">
+<div class="text-slate-600 font-semibold mb-1 flex items-center justify-center gap-1" data-page-node-id="8MKtuYAkomXPkIM3UqJuxS"><span class="w-2 h-2 rounded-full bg-slate-400" data-page-node-id="D6gVX8WJ0phRCFML6SCUgB"></span><span data-page-node-id="1MYvUHw6id9mq6z48v5HRm">暂未上榜 / 优化基准</span>
+</div>
+<div id="prompt-lost-count" class="text-2xl font-black text-slate-700 mt-1" data-page-node-id="TIFOX1cAzCETzFtDNbdlAX">0 组</div>
+<p class="text-[10px] text-slate-500 mt-1" data-page-node-id="iiwh2NbEwb4KJrWDoECWVl">优化前冷启动基准，需分发 9 因子语料</p>
+</div>
+</div>
+</div>
+<!--  多周声量环比时序走势大盘 (SQLite 时序库驱动) -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4" data-page-node-id="FiNuHfloApbxH9VQ5NiE5J">
+<div class="flex items-center justify-between border-b border-slate-100 pb-3" data-page-node-id="gF2FmQjtsV6MeC5PQF6apm">
+<div class="flex items-center gap-2" data-page-node-id="5e8PEcJNGc45pr0Lkb5OJJ">
+<div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs" data-page-node-id="uF3EOA5EoNednmAK9urkmd">
+</div>
+<div data-page-node-id="ihytMhT8tAZyzESC9BnoNr">
+<h3 class="text-xs font-bold text-slate-800" data-page-node-id="YdpLKw3lElpCIENfsMQYGm">多周巡检历史时序走势与环比分析</h3>
+<p class="text-[11px] text-slate-500" data-page-node-id="54E3gdM0PuGizDSnCuDuIV">按周归档声量探测数据，展示 SOV 提及率与 Top 3 推荐率爬坡轨迹。</p>
+</div>
+</div>
+<button onclick="handleTriggerPatrolSingle(event)" id="btn-patrol-single" class="py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1" data-page-node-id="P4AamLh9pPv2pxmtkuVEKg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-600" data-page-node-id="PKUY0uKbEytOASwGCJPnJT"></i><span data-page-node-id="4h5h7E2RTNGwCFAY5xuBov">执行本周巡检归档</span>
+</button>
+</div>
+<div id="history-timeline-container" class="space-y-2 text-xs" data-page-node-id="XCxGtRB6CRATVhIQ1dewju">
+<div class="text-center py-6 text-slate-400" data-page-node-id="c16cMq4uvL7SHuaDRM0DXc">正在读取历史巡检时序库...</div>
+</div>
+</div>
+<!-- 告警推送记录 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-3" data-page-node-id="v3zhfcQ1xVi9M8RyiluPex">
+<div class="flex items-center gap-2 border-b border-slate-100 pb-3" data-page-node-id="LAyFdV9aHcMmLi9DiXTJM3">
+<div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs" data-page-node-id="PmkmDw4HZfIQbztKvVLGA3">
+</div>
+<div data-page-node-id="YneqAjzoX8oImhzhYHYx8d">
+<h3 class="text-xs font-bold text-slate-800" data-page-node-id="eNhZSoPHMZuGU3IPhQ3DGt">近期异动告警推送记录</h3>
+<p class="text-[11px] text-slate-500" data-page-node-id="05HfLVOwmn0LK6YOOISXzv">展示最近触发的声量异动与 Webhook 推送状态（全局）。</p>
+</div>
+</div>
+<div id="alert-history-container" class="text-xs text-slate-600" data-page-node-id="l8dCXLJnuJHVUGJCmYMmf3">
+<div class="text-center py-4 text-slate-400" data-page-node-id="yBc33rYvumD9uyNmofbPWA">正在加载告警记录...</div>
+</div>
+</div>
+<!-- 详细交付物卡片 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" data-page-node-id="mGeQIL4W049Xex8ufnDHL4">
+<div class="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700" data-page-node-id="PtY10TJdE4BC0CCX5K9Lq9"><span data-page-node-id="WMzfqhWO5kADgEhKrwMqcy">交付物：05_企业AI可见度与声量追踪周报.md</span>
+<button onclick="copyOutput('05_企业AI可见度与声量追踪周报.md')" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1" data-page-node-id="ca5cZfjuzeINJkpyE1wJVD"><i data-lucide="copy" class="w-3.5 h-3.5" data-page-node-id="ZuMiTk7S7q0UTgTBQfllRg"></i><span data-page-node-id="XixWDhjnAGTqEowvlI98Yt">复制全文</span>
+</button>
+</div>
+<div id="preview-step-5" class="p-6 markdown-body max-h-[600px] overflow-y-auto" data-page-node-id="OEMERhEwIB2lmbNuEWc1VB">
+<div class="text-center py-12 text-slate-400 text-sm" data-page-node-id="jYsUybDtoeWJ7WFlow7egi">点击右上角【执行实时声量监测】生成完整周报...</div>
+</div>
+</div>
+<!-- 竞品包抄策略卡 (生成后展示) -->
+<div id="defense-panel-card" class="hidden bg-amber-50/50 rounded-xl border border-amber-200 shadow-sm overflow-hidden" data-page-node-id="PAyOeTcf8d47M4YbE1Pjtg">
+<div class="px-6 py-3.5 bg-amber-100/60 border-b border-amber-200 flex items-center justify-between text-xs font-bold text-amber-900" data-page-node-id="nu8fzpQcLubzbMQXCIRsdV"><span class="flex items-center gap-1.5" data-page-node-id="9y9CRbHVM8yqV5idtGhQ52"><i data-lucide="shield-alert" class="w-4 h-4 text-amber-700" data-page-node-id="pt11tE1gpdHcMzzZqAZ8Q0"></i><span data-page-node-id="A0wlRMXllZwZ10jdUy06om">战略交付物：06_竞品权威信源反向包抄策略.md</span></span>
+<button onclick="copyOutput('06_竞品权威信源反向包抄策略.md')" class="text-amber-800 hover:text-amber-950 flex items-center gap-1" data-page-node-id="HFNm43HTYOTGbn9OHIIVae"><i data-lucide="copy" class="w-3.5 h-3.5" data-page-node-id="YNof1kTqEurRtlmLpMsHbw"></i><span data-page-node-id="0EBVc3BeHqCkTQyyiIV2LW">复制策略全文</span>
+</button>
+</div>
+<div id="preview-step-defense" class="p-6 markdown-body max-h-[500px] overflow-y-auto text-slate-700" data-page-node-id="zOwXbpTYFU8PSeyTQgYTAv">
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-200 mt-6" data-page-node-id="rKziiGtmYf8iojQIvU5sTD">
+<button onclick="prevStep()" id="btn-prev-step" class="py-2.5 px-5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition" data-page-node-id="dZRZHgIo8F0110Dw9v9Le3"><i data-lucide="chevron-left" class="w-4 h-4" data-page-node-id="n9ewpZpCBZkKJUbruR5M7x"></i><span data-page-node-id="3ZEOiw9Z3tKlibeR6A1ZBT">上一步</span>
+</button>
+<div class="flex items-center gap-3" data-page-node-id="qNVuTDvpJP90qY2s3OlvPz">
+<button onclick="nextStep()" id="btn-next-step" class="py-2.5 px-5 bg-[#7c5bf5] hover:bg-[#6846e3] text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow transition" data-page-node-id="8yQ5wXjwd6FsUHsT2gzzGl"><span data-page-node-id="avRlmYA4GM4BYcyX3yzq0F">下一步</span><i data-lucide="chevron-right" class="w-4 h-4" data-page-node-id="rnupl74WQvIm9HIhFT3hqQ"></i>
+</button>
+</div>
+</div>
+  </div>
 </div>
 
 <!-- 日常运维 周期复测与商业运营周报/月报 Vue3 组件岛根容器 -->
@@ -6396,7 +7158,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const root = document.getElementById('step0-app-root');
         if (root) {
           if (!window.__GEO_STEP0_MOUNTED__) {
-            window.__GEO_STEP0__.mount('#step0-app-root', { projectData: p, subStep: currentStep0SubStep });
+            window.__GEO_STEP0__.mount('#step0-app-root', { projectData: p, subStep: currentStep0SubStep, isDeveloper: isDeveloper });
             window.__GEO_STEP0_MOUNTED__ = true;
           } else {
             window.__GEO_STEP0__.refresh(p);
@@ -6430,7 +7192,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const root = document.getElementById('step1-app-root');
         if (root) {
           if (!window.__GEO_STEP1_MOUNTED__ || forceRemount) {
-            window.__GEO_STEP1__.mount('#step1-app-root', { projectData: p });
+            window.__GEO_STEP1__.mount('#step1-app-root', { projectData: p, isDeveloper: isDeveloper });
             window.__GEO_STEP1_MOUNTED__ = true;
           }
         }
@@ -6463,7 +7225,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const root = document.getElementById('step2-app-root');
         if (root) {
           if (!window.__GEO_STEP2_MOUNTED__ || forceRemount) {
-            window.__GEO_STEP2__.mount('#step2-app-root', { projectData: p });
+            window.__GEO_STEP2__.mount('#step2-app-root', { projectData: p, isDeveloper: isDeveloper });
             window.__GEO_STEP2_MOUNTED__ = true;
           }
         }
@@ -6492,7 +7254,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const root = document.getElementById('step3-app-root');
         if (root) {
           if (!window.__GEO_STEP3_MOUNTED__ || forceRemount) {
-            window.__GEO_STEP3__.mount('#step3-app-root', { projectData: p });
+            window.__GEO_STEP3__.mount('#step3-app-root', { projectData: p, isDeveloper: isDeveloper });
             window.__GEO_STEP3_MOUNTED__ = true;
           }
         }
@@ -6521,7 +7283,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const root = document.getElementById('step4-app-root');
         if (root) {
           if (!window.__GEO_STEP4_MOUNTED__ || forceRemount) {
-            window.__GEO_STEP4__.mount('#step4-app-root', { projectData: p });
+            window.__GEO_STEP4__.mount('#step4-app-root', { projectData: p, isDeveloper: isDeveloper });
             window.__GEO_STEP4_MOUNTED__ = true;
           }
         }
@@ -6550,7 +7312,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const root = document.getElementById('step5-app-root');
         if (root) {
           if (!window.__GEO_STEP5_MOUNTED__ || forceRemount) {
-            window.__GEO_STEP5__.mount('#step5-app-root', { projectData: p });
+            window.__GEO_STEP5__.mount('#step5-app-root', { projectData: p, isDeveloper: isDeveloper });
             window.__GEO_STEP5_MOUNTED__ = true;
           }
         }
@@ -6579,7 +7341,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const root = document.getElementById('step6-app-root');
         if (root) {
           if (!window.__GEO_STEP6_MOUNTED__ || forceRemount) {
-            window.__GEO_STEP6__.mount('#step6-app-root', { projectData: p });
+            window.__GEO_STEP6__.mount('#step6-app-root', { projectData: p, isDeveloper: isDeveloper });
             window.__GEO_STEP6_MOUNTED__ = true;
           }
         }
@@ -6608,7 +7370,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const root = document.getElementById('mon-recurring-app-root');
         if (root) {
           if (!window.__GEO_RECURRING_MOUNTED__ || forceRemount) {
-            window.__GEO_RECURRING__.mount('#mon-recurring-app-root', { projectData: p });
+            window.__GEO_RECURRING__.mount('#mon-recurring-app-root', { projectData: p, isDeveloper: isDeveloper });
             window.__GEO_RECURRING_MOUNTED__ = true;
           }
         }

@@ -126,7 +126,12 @@ export function useStep0(bridge) {
   const cursorPrompt = computed(() =>
     cursorPromptText(projectId.value, geoCdCmd.value, geoRepoRoot.value, guide.value),
   );
-  const isDeveloper = computed(() => (bridge.isDeveloper ? bridge.isDeveloper() : true));
+  const isDeveloper = computed(() => {
+    if (typeof bridge.isDeveloper === 'function') {
+      return bridge.isDeveloper();
+    }
+    return bridge.isDeveloper !== undefined ? !!bridge.isDeveloper : true;
+  });
 
   const scripts = computed(() =>
     guide.value && Array.isArray(guide.value.scripts) ? guide.value.scripts : [],
