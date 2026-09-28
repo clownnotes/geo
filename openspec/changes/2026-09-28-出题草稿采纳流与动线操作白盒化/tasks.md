@@ -1,8 +1,8 @@
 # Tasks: 出题草稿采纳流与动线操作白盒化
 
 ## 1. 资源管理器（左栏）跨阶段共用与状态透传升级
-- [ ] 1.1 拓宽四阶段侧栏容器宽度：在 `GEO/web/step0-src/components/studio/StudioFileTree.vue` 中将 `lg:w-60`（240px）拓宽为 `lg:w-72`（288px），保障所有阶段长文件名展示不被截断。
-- [ ] 1.2 新增防污染状态开关与主色紫二元徽章：
+- [x] 1.1 拓宽四阶段侧栏容器宽度：在 `GEO/web/step0-src/components/studio/StudioFileTree.vue` 中将 `lg:w-60`（240px）拓宽为 `lg:w-72`（288px），保障所有阶段长文件名展示不被截断。
+- [x] 1.2 新增防污染状态开关与主色紫二元徽章：
   - 在 `StudioFileTree.vue` 中新增 prop `showStatusBadge: { type: Boolean, default: false }`；
   - 仅在 `showStatusBadge === true` 时渲染徽章：草稿文件渲染灰色 `[草稿]`（`bg-slate-100 text-slate-400 border border-slate-200`），生效文件渲染高亮主色紫 `[已采纳 QA-V(N)]`（`bg-[#7c5bf5]/15 text-[#7c5bf5] border border-[#7c5bf5]/30`）；
   - 在 `Step0App.vue` 中引用 `<StudioFileTree>` 时显式传入 `:show-status-badge="true"`，确保阶段 1/2/3 零污染。

@@ -1,6 +1,6 @@
 <template>
-  <!-- [2026-09-23] [阶段零组件化] 左侧资源管理器子组件 -->
-  <aside class="w-full lg:w-60 shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
+  <!-- [2026-09-28] [出题草稿采纳流] 左侧资源管理器：四阶段统一拓宽至 lg:w-72 (288px)，杜绝文件名截断 -->
+  <aside class="w-full lg:w-72 shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
     <!-- 资源管理器顶栏 -->
     <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -85,15 +85,25 @@
               <span class="truncate text-[13px]">{{ fn }}</span>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
-              <!-- [2026-09-27] [血统溯源与采纳标注] 已采纳高亮徽章 (纯 Lucide 图标，零 Emoji) -->
-              <span
-                v-if="files[fn]?.isActive"
-                class="text-[10px] px-1.5 py-0.5 rounded font-mono font-medium bg-[#7c5bf5]/15 text-[#7c5bf5] border border-[#7c5bf5]/30 flex items-center gap-1 shrink-0"
-              >
-                <i data-lucide="check" class="w-3 h-3 text-[#7c5bf5]"></i>
-                <span>已采纳</span>
-                <span class="opacity-80">[{{ files[fn]?.versionTag || 'QA-V1' }}]</span>
-              </span>
+              <!-- [2026-09-28] [出题草稿采纳流] 仅在 showStatusBadge 为 true 时渲染二元状态徽章，防污染阶段一/二/三 -->
+              <template v-if="showStatusBadge">
+                <!-- 采纳生效底牌徽章 (系统主色紫) -->
+                <span
+                  v-if="files[fn]?.isActive"
+                  class="text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-[#7c5bf5]/15 text-[#7c5bf5] border border-[#7c5bf5]/30 flex items-center gap-1 shrink-0 shadow-2xs"
+                >
+                  <i data-lucide="check" class="w-3 h-3 text-[#7c5bf5]"></i>
+                  <span>已采纳</span>
+                  <span class="opacity-80">[{{ files[fn]?.versionTag || 'QA-V1' }}]</span>
+                </span>
+                <!-- 草稿未生效徽章 (中性灰) -->
+                <span
+                  v-else
+                  class="text-[10px] px-1.5 py-0.5 rounded font-mono text-slate-400 bg-slate-100 border border-slate-200 shrink-0"
+                >
+                  草稿
+                </span>
+              </template>
               <span
                 v-if="files[fn]?.isDirty"
                 class="w-2 h-2 rounded-full bg-amber-500 shrink-0"
@@ -119,6 +129,8 @@ const props = defineProps({
   allowNewFile: { type: Boolean, default: true },
   /** 是否允许刷新目录 */
   allowRefresh: { type: Boolean, default: true },
+  /** [2026-09-28] [出题草稿采纳流] 是否展示二元状态徽章（仅阶段零启用，防污染阶段一/二/三） */
+  showStatusBadge: { type: Boolean, default: false },
 });
 
 defineEmits(['toggleCategory', 'openFile', 'newFile', 'refreshFiles']);

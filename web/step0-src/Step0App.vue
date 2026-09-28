@@ -24,6 +24,7 @@
         :files="files"
         :active-category="activeCategory"
         :active-file-name="activeFileName"
+        :show-status-badge="true"
         @toggle-category="handleToggleCategory"
         @open-file="handleOpenFile"
         @new-file="handlePromptNewFile"
