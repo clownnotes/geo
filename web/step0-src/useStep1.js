@@ -6,6 +6,17 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { resolveContext, buildStage1Files, STAGE_1_META, buildCrawledMetricsMarkdown } from './stage1Config.js';
 
+export function getSlotKey(filename) {
+  if (!filename) return 'slot_default';
+  if (filename.startsWith('01_网络底座指标')) return 'slot_metrics';
+  if (filename.startsWith('01_商业诊断与转化初稿')) return 'slot_draft';
+  if (filename.startsWith('01_老板商业诊断报告_好看大屏')) return 'slot_report_screen';
+  if (filename.startsWith('01_老板商业诊断报告_文字版')) return 'slot_report_text';
+  if (filename.startsWith('01_工程师底座技术审计')) return 'slot_report_tech';
+  if (filename.startsWith('01_阶段零豆包实测问答素材')) return 'slot_stage0_qa';
+  return 'slot_' + filename.replace(/\.[^/.]+$/, '');
+}
+
 export function useStep1(projectData = {}) {
   const ctx = resolveContext(projectData);
   const clientId = projectData.client_id || projectData.id || 'default';
@@ -38,7 +49,8 @@ export function useStep1(projectData = {}) {
           initialFiles[fn].savedContent = content;
           initialFiles[fn].isDirty = false;
         }
-        // [2026-09-28] 恢复采纳状态、版本标签、生成时间戳与废纸篓软删除标记
+        // [2026-09-28] 恢复槽位、采纳状态、版本标签、生成时间戳与废纸篓软删除标记
+        if (sf.slotKey) initialFiles[fn].slotKey = sf.slotKey;
         if (sf.isActive !== undefined) initialFiles[fn].isActive = sf.isActive;
         if (sf.versionTag) initialFiles[fn].versionTag = sf.versionTag;
         if (sf.generatedAt) initialFiles[fn].generatedAt = sf.generatedAt;
@@ -48,6 +60,7 @@ export function useStep1(projectData = {}) {
         initialFiles[fn] = {
           name: fn,
           category: sf.category || 'materials',
+          slotKey: sf.slotKey || getSlotKey(fn),
           renderMode: fn.endsWith('.html') ? 'html' : 'markdown',
           content: sf.content || '',
           savedContent: sf.content || '',
@@ -117,6 +130,7 @@ export function useStep1(projectData = {}) {
               generatedAt: v.generatedAt,
               is_deleted: v.is_deleted,
               category: v.category,
+              slotKey: v.slotKey || getSlotKey(k),
             },
           ])
         ),
@@ -184,19 +198,24 @@ export function useStep1(projectData = {}) {
     }
   }
 
-  // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 设为客户采纳底牌
+  // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 设为客户采纳版本（工序槽位精准隔离）
   function handleAdoptFile(filename) {
     const file = files.value[filename];
     if (!file) return;
-    const cat = file.category;
-    // 将同分类下的其他文件取消采纳
+    const targetSlot = file.slotKey || getSlotKey(filename);
+    // 仅将同工序槽位 (slotKey) 的其他文件取消采纳，保留历史版本号，绝不误伤同分类下的其他独立报告
     Object.values(files.value).forEach((f) => {
-      if (f.category === cat && f.name !== filename) {
+      const fSlot = f.slotKey || getSlotKey(f.name);
+      if (fSlot === targetSlot && f.name !== filename) {
         f.isActive = false;
       }
     });
     file.isActive = true;
     file.is_deleted = false;
+    // 采纳时将 versionTag 中的 -Draft 后缀规整掉（如 V2-Draft -> V2）
+    if (file.versionTag && file.versionTag.includes('-Draft')) {
+      file.versionTag = file.versionTag.replace('-Draft', '');
+    }
     saveState();
     showStudioToast(`已将【${filename}】设为客户采纳生效版本！`);
   }
@@ -301,19 +320,65 @@ export function useStep1(projectData = {}) {
         });
         const data = await res.json();
         if (data.success) {
-          crawledMetrics.value = true;
           // [2026-09-28] [阶段一底座抓取动线视线引导优化] 根据后端真机探测指标实时重构并回填中栏
           const freshMarkdown = buildCrawledMetricsMarkdown(ctx, data.metrics || {});
           const nowStr = new Date().toLocaleString('zh-CN', { hour12: false });
-          if (files.value['01_网络底座指标_待对照.md']) {
-            files.value['01_网络底座指标_待对照.md'].content = freshMarkdown;
-            files.value['01_网络底座指标_待对照.md'].savedContent = freshMarkdown;
-            files.value['01_网络底座指标_待对照.md'].isDirty = false;
-            files.value['01_网络底座指标_待对照.md'].generatedAt = nowStr;
+          const baseFile = files.value['01_网络底座指标_待对照.md'];
+          // 若此前从未抓取过（crawledMetrics 为 false 且待对照文件未有生成时间戳），作为初次抓取填充基线底座
+          const isReCrawl = crawledMetrics.value || Boolean(baseFile?.generatedAt);
+
+          if (!isReCrawl && baseFile) {
+            crawledMetrics.value = true;
+            baseFile.content = freshMarkdown;
+            baseFile.savedContent = freshMarkdown;
+            baseFile.isDirty = false;
+            baseFile.generatedAt = nowStr;
+            baseFile.isActive = true;
+            baseFile.versionTag = 'V1';
+            baseFile.slotKey = 'slot_metrics';
+            handleSelectTab('01_网络底座指标_待对照.md');
+            saveState();
+            showStudioToast('已完成抓取：真实底座指标已就绪！请核对中栏数据，确认无误后点击下方【前往出具初稿】');
+          } else {
+            // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 重新抓取：扫描全量历史（含废纸篓）递增生成新版本候选草稿
+            crawledMetrics.value = true;
+            let maxVersion = 1;
+            Object.keys(files.value).forEach((fn) => {
+              const f = files.value[fn];
+              const fSlot = f.slotKey || getSlotKey(fn);
+              if (fSlot === 'slot_metrics' || fn.startsWith('01_网络底座指标')) {
+                const match = fn.match(/第(\d+)版/);
+                if (match) {
+                  const num = parseInt(match[1], 10);
+                  if (num > maxVersion) maxVersion = num;
+                }
+                const tagMatch = (f.versionTag || '').match(/V(\d+)/i);
+                if (tagMatch) {
+                  const num = parseInt(tagMatch[1], 10);
+                  if (num > maxVersion) maxVersion = num;
+                }
+              }
+            });
+            const nextVer = maxVersion + 1;
+            const newName = `01_网络底座指标_第${nextVer}版.md`;
+            files.value[newName] = {
+              name: newName,
+              category: 'materials',
+              dir: 'materials',
+              renderMode: 'markdown',
+              slotKey: 'slot_metrics',
+              content: freshMarkdown,
+              savedContent: freshMarkdown,
+              isDirty: false,
+              isActive: false, // 候选草稿，原底牌继续保持生效受保护
+              versionTag: `V${nextVer}-Draft`,
+              generatedAt: nowStr,
+              is_deleted: false,
+            };
+            handleSelectTab(newName);
+            saveState();
+            showStudioToast(`已完成重新抓取！已生成新候选版本【${newName}】，可核对后设为采纳`);
           }
-          handleSelectTab('01_网络底座指标_待对照.md');
-          saveState();
-          showStudioToast('已完成抓取：真实底座指标已就绪！请核对中栏数据，确认无误后点击下方【前往出具初稿】');
         } else {
           showStudioToast(`探测失败: ${data.message || '网络连接超时'}`, 'error');
         }

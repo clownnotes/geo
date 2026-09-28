@@ -29,6 +29,8 @@
         @open-file="handleOpenFile"
         @new-file="handlePromptNewFile"
         @refresh-files="handleRefreshFiles"
+        @delete-file="handleDeleteFile"
+        @restore-file="handleRestoreFile"
       />
 
       <!-- 中间：多 Tab 编辑打磨区 -->
@@ -474,6 +476,62 @@ function handleAdoptFile(fileName) {
 
   showToast(`已成功将【${targetFile.name}】设为客户采纳底牌（版本: ${versionTag}）！`, 'success');
 
+  nextTick(() => {
+    if (window.lucide) window.lucide.createIcons();
+  });
+}
+
+// [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 阶段零草稿软删除（已采纳底牌受保护不可删除）
+function handleDeleteFile(filename) {
+  const file = files.value[filename];
+  if (!file) return;
+  if (file.isActive) {
+    showToast('已采纳的生效底牌受系统保护，无法删除！如需删除请先采纳其他版本', 'warning');
+    return;
+  }
+  file.is_deleted = true;
+
+  // 平滑回退兜底：如果当前激活的文件是被删除文件
+  if (activeFileName.value === filename) {
+    const remainingTabs = openTabs.value.filter(t => t !== filename && !files.value[t]?.is_deleted);
+    if (remainingTabs.length > 0) {
+      handleOpenFile(remainingTabs[0]);
+    } else {
+      const catFiles = Object.values(files.value).filter(f => f.category === file.category && !f.is_deleted);
+      if (catFiles.length > 0) {
+        handleOpenFile(catFiles[0].name);
+      } else {
+        const anyAvailable = Object.values(files.value).find(f => !f.is_deleted);
+        if (anyAvailable) {
+          handleOpenFile(anyAvailable.name);
+        } else {
+          activeFileName.value = '';
+        }
+      }
+    }
+  }
+
+  // 从 openTabs 中移除被删除的文件
+  const tIdx = openTabs.value.indexOf(filename);
+  if (tIdx !== -1) {
+    openTabs.value.splice(tIdx, 1);
+  }
+
+  saveStep0FilesToStorage();
+  showToast(`已将草稿【${filename}】移入废纸篓，可在左侧底部展开恢复`, 'info');
+  nextTick(() => {
+    if (window.lucide) window.lucide.createIcons();
+  });
+}
+
+// [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 阶段零废纸篓一键原位恢复
+function handleRestoreFile(filename) {
+  const file = files.value[filename];
+  if (!file) return;
+  file.is_deleted = false;
+  handleOpenFile(filename);
+  saveStep0FilesToStorage();
+  showToast(`已成功恢复草稿【${filename}】并打开`, 'success');
   nextTick(() => {
     if (window.lucide) window.lucide.createIcons();
   });
@@ -933,7 +991,7 @@ function refresh(pData) {
   });
 }
 
-defineExpose({ setSubStep, refresh, handleAdoptFile });
+defineExpose({ setSubStep, refresh, handleAdoptFile, handleDeleteFile, handleRestoreFile });
 
 onMounted(() => {
   setupGlobalListeners();

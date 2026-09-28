@@ -256,8 +256,17 @@ export function buildStage1Files(ctx) {
   // [2026-09-27] [SSOT单一真相源] 文件对象的 dir 属性统一由 CATEGORY_DIR_MAP 动态注入，消除硬编码与死代码分支
   // [2026-09-28] [多版本生成采纳与草稿废纸篓] 初始骨干文件统一注入生效底牌标记、V1版本标签、生成时间戳与未删除状态
   const nowStr = new Date().toLocaleString('zh-CN', { hour12: false });
+  const SLOT_KEY_MAP = {
+    '01_网络底座指标_待对照.md': 'slot_metrics',
+    '01_阶段零豆包实测问答素材.md': 'slot_stage0_qa',
+    '01_商业诊断与转化初稿.md': 'slot_draft',
+    '01_老板商业诊断报告_好看大屏.html': 'slot_report_screen',
+    '01_老板商业诊断报告_文字版.md': 'slot_report_text',
+    '01_工程师底座技术审计.md': 'slot_report_tech',
+  };
   Object.keys(files).forEach((fn) => {
     files[fn].dir = CATEGORY_DIR_MAP[files[fn].category] || '交付文件';
+    files[fn].slotKey = SLOT_KEY_MAP[fn] || ('slot_' + fn.replace(/\.[^/.]+$/, ''));
     if (files[fn].isActive === undefined) files[fn].isActive = true;
     if (!files[fn].versionTag) files[fn].versionTag = 'V1';
     if (!files[fn].generatedAt) files[fn].generatedAt = nowStr;

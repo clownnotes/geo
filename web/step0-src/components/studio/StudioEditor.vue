@@ -197,12 +197,12 @@ const viewMode = ref('edit');
 const currentFile = computed(() => props.files[props.activeFileName] || null);
 const activeFile = currentFile;
 
-/** [2026-09-28] [采纳操作判定] 放宽为全阶段通用白名单或含版本号草稿 */
+/** [2026-09-28] [采纳操作判定] 严格依据白名单分类判定未采纳草稿是否可采纳 */
 const canAdoptCurrentFile = computed(() => {
   if (!currentFile.value) return false;
   if (currentFile.value.isActive) return false;
   const cat = currentFile.value.category;
-  return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat) || Boolean(currentFile.value.versionTag);
+  return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat);
 });
 
 const canPreview = computed(() => props.renderMode === 'markdown' || props.renderMode === 'html');
