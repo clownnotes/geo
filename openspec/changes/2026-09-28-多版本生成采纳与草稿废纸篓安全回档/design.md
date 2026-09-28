@@ -265,7 +265,7 @@ export function computeNextVersion(files = {}, slotKey) {
 
 | 文件类型 | `isActive` | 是否废纸篓 | 是否淘汰旧版 | 是否只读 (`isReadOnly`) | 顶栏徽章显示 (文字+主题色) | 保存文件按钮 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **客户生效底牌** (当前活跃版) | `true` | `false` | `false` | **可编辑 (`false`)** | [徽章: 客户生效底牌 `Vn`] | 展示（保存自身；若具备非空内容联动镜像主干） |
+| **客户生效底牌** (当前活跃版) | `true` | `false` | `false` | **可编辑 (`false`)** | [徽章: 客户生效底牌 `Vn`（阶段零对齐 AGENTS §3.5 显示为 `生效版本 QA-Vn`，严禁自造底牌报告）] | 展示（保存自身；若具备非空内容联动镜像主干） |
 | **最新候选工作草稿** (如重抓第2版) | `false` | `false` | `false` | **可编辑 (`false`)** | [徽章: 候选工作草稿 `V2-Draft`] | 展示（点击保存本地草稿，不触发镜像） |
 | **手动新建文件** (`newFile` / `isManual`) | `false` | `false` | `false` | **可编辑 (`false`)** | [徽章: 自定义工作草稿] | 展示（点击保存本地草稿，不可采纳，永不只读） |
 | **规范主干(自动镜像)** (已采纳新版后) | `false` | `false` | - | **只读 (`true` · 自动镜像)** | [徽章: 规范主干 · 自动镜像] | **隐藏** (仅程序自动单向镜像写入) |
@@ -273,13 +273,26 @@ export function computeNextVersion(files = {}, slotKey) {
 | **已淘汰历史版本** (同槽存在更新生效版) | `false` | `false` | `true` | **强制只读 (`true`)** | [徽章: 历史版本 · 只读归档] | **隐藏** (拦截 Cmd+S，防错版覆盖) |
 | **废纸篓归档文件** | `false` | `true` | - | **强制只读 (`true`)** | [徽章: 废纸篓归档 · 只读状态] | **隐藏** (提示一键恢复) |
 
-- **历史淘汰旧版判定 (`isHistoricalRetired` · 持久化标记位消除误判 · 彻底解决 🔴1)**：
+- **历史淘汰旧版判定 (`isHistoricalRetired` · 持久化标记优先 + 存量版本比对兜底 · 彻底解决 🔴1 & 🟡6)**：
   ```javascript
-  export function isHistoricalRetired(file, files) {
+  export function isHistoricalRetired(file, files = {}) {
     if (!file || !file.slotKey || file.isActive || file.isManual || file.slotKey === 'slot_manual') return false;
-    // 优先依据采纳动作退级时显式持久化的 isRetired 标记 (彻底解决 🔴1)
+    // 1. 优先依据采纳动作退级时显式持久化的 isRetired 标记 (彻底解决 🔴1)
     // 关键点：新抓取生成的候选草稿（如第2版）绝不带 isRetired，因此恒返回 false，完全自由编辑打磨！
-    return file.isRetired === true;
+    if (file.isRetired === true) return true;
+    
+    // 2. 存量老数据未持久化标记时的兜底推导 (解决 🟡6)：仅当同槽活跃版本的序号明确高于自身时才算淘汰
+    const activeBrother = Object.values(files).find(
+      (f) => f.slotKey === file.slotKey && f.isActive === true && f.name !== file.name && !f.isManual
+    );
+    if (activeBrother) {
+      const mSelf = (file.name || '').match(/第(\d+)版/);
+      const mActive = (activeBrother.name || '').match(/第(\d+)版/);
+      if (mSelf && mActive && parseInt(mSelf[1], 10) < parseInt(mActive[1], 10)) {
+        return true;
+      }
+    }
+    return false;
   }
   ```
 
@@ -371,7 +384,7 @@ export function computeSaveResult({ targetName, newContent, files, stage, nowIso
 }
 ```
 
-### 3. 统一采纳互斥纯函数 (`computeAdoptResult` · 解决 🔴1, 🔴4, 🟡4, 🟡5, 🟡6, 🟡7)
+### 3. 统一采纳互斥纯函数 (`computeAdoptResult` · 解决 🔴1, 🔴4, 🟡4, 🟡5, 🟡6, 🟡7, 🟢1)
 消除 Step0App 与 useStep1 重复实现的“采纳互斥”逻辑，由共享纯函数统一调度：
 
 ```javascript
@@ -385,14 +398,26 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
   
   const slotKey = target.slotKey || resolveSlotKey(candidateName, stage, target.isManual);
   
-  // 纯函数内部自证阶段槽位合法性守卫 (解决 🟡4)
+  // 1. 候选自身类型自证守卫：受限类型绝不可作为采纳候选，防自锁矛盾态 (彻底解决 🔴1)
+  if (
+    target.isCanonicalMirror ||
+    target.isProtectedArchive ||
+    target.isManual ||
+    slotKey === 'slot_manual' ||
+    slotKey === 'slot_misc'
+  ) {
+    console.warn(`[computeAdoptResult] 目标文件 [${candidateName}] 属于受限类型（规范镜像/归档母版/手建草稿/杂项草稿），禁止作为采纳候选！`);
+    return { files, success: false, reason: 'NOT_ADOPTABLE_TARGET' };
+  }
+  
+  // 2. 阶段合法性 Fail-Closed 关闸守卫 (彻底解决 🟡5)
   const validSlots = getSlotsByStage(stage);
-  if (validSlots.length > 0 && !validSlots.includes(slotKey)) {
-    console.warn(`[computeAdoptResult] 目标槽位 [${slotKey}] 不属于阶段 [${stage}]，拒绝跨阶段采纳！`);
+  if (!stage || validSlots.length === 0 || !validSlots.includes(slotKey)) {
+    console.warn(`[computeAdoptResult] 目标槽位 [${slotKey}] 在当前阶段 [${stage}] 下无效或未指定阶段，Fail-Closed 拒绝采纳！`);
     return { files, success: false, reason: 'STAGE_SLOT_MISMATCH' };
   }
   
-  // 内容有效性守卫：严禁采纳空内容文件，防止单向镜像击穿清空规范主干 (彻底解决 🔴1)
+  // 3. 内容有效性守卫：严禁采纳空内容文件，防止单向镜像击穿清空规范主干 (彻底解决 🔴1)
   const candidateValid = typeof target.content === 'string' && target.content.trim().length > 0;
   if (!candidateValid) {
     console.warn(`[computeAdoptResult] 候选版本 [${candidateName}] 内容为空或未就绪，拒绝采纳以保护规范主干！`);
@@ -403,10 +428,10 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
   const canonicalName = slotItem?.canonicalName;
   const canonicalFile = canonicalName ? files[canonicalName] : null;
   
-  // 1. 规整版本标签（剥离 -Draft）
+  // 4. 规整版本标签（剥离 -Draft）
   const adoptedVersionTag = normalizeVersionTag(target.versionTag, slotKey);
   
-  // 2. 首版留档保障：若当前生效的是规范骨干且首采纳新版本，留档 _第1版
+  // 5. 首版留档保障：若当前生效的是规范骨干且首采纳新版本，留档 _第1版
   const newFiles = { ...files };
   if (canonicalFile && canonicalFile.isActive && canonicalName !== candidateName) {
     const ext = canonicalName.split('.').pop() || 'md';
@@ -423,7 +448,7 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
     }
   }
   
-  // 3. 同 slotKey 其他文件全部退级并显式打上 isRetired 标记 (手建文件除外 · 彻底解决 🔴1)
+  // 6. 同 slotKey 其他文件全部退级并显式打上 isRetired 标记 (手建文件除外 · 彻底解决 🔴1)
   for (const fn of Object.keys(newFiles)) {
     if (newFiles[fn].slotKey === slotKey && !newFiles[fn].isManual && fn !== candidateName) {
       newFiles[fn] = {
@@ -434,7 +459,7 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
     }
   }
   
-  // 4. 候选草稿（或回滚的历史版本）升格为客户生效底牌 (解决 🟡7 支持回滚)
+  // 7. 候选草稿（或回滚的历史版本）升格为客户生效底牌 (解决 🟡7 支持回滚)
   newFiles[candidateName] = {
     ...target,
     name: candidateName,
@@ -444,7 +469,7 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
     updatedAt: nowIso,
   };
   
-  // 5. 单向镜像到规范主干 (受前面 candidateValid 守卫保护，绝对安全)
+  // 8. 单向镜像到规范主干 (受前面 candidateValid 守卫保护，且复位 isRetired · 解决 🟢1)
   if (canonicalFile && canonicalName !== candidateName) {
     newFiles[canonicalName] = {
       ...newFiles[canonicalName],
@@ -452,6 +477,7 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
       content: target.content,
       versionTag: adoptedVersionTag,
       isActive: false,
+      isRetired: false, // 镜像骨干复位淘汰标记，保持干净
       isCanonicalMirror: true,
       updatedAt: nowIso,
     };
@@ -469,10 +495,10 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
 }
 ```
 
-### 4. 一键恢复的确定性生命周期与单槽单一 Active (解决 🔴3 与 🟡2)
+### 4. 一键恢复的确定性生命周期与单槽单一 Active (解决 🔴2, 🔴3 与 🟢3/🟢5)
 从废纸篓点击【恢复】时的确定性状态收敛算法：
 ```javascript
-export function computeRestoreResult({ filename, files, stage }) {
+export function computeRestoreResult({ filename, files, stage, nowIso = new Date().toISOString() }) {
   const target = files[filename];
   if (!target) return { success: false, reason: 'FILE_NOT_FOUND', files };
   
@@ -484,14 +510,15 @@ export function computeRestoreResult({ filename, files, stage }) {
     ...target,
     name: filename,
     isDeleted: false,
+    updatedAt: nowIso,
   };
   delete restoredItem.is_deleted;
   
-  // 2. 手建文件恢复后严格保持草稿，不抢占工序活跃槽位 (解决 🔴3)
-  if (target.isManual || slotKey === 'slot_manual') {
+  // 2. 手建草稿与杂项草稿恢复后强制保持草稿，不抢占工序活跃槽位 (解决 🔴3 & 🟢3)
+  if (target.isManual || slotKey === 'slot_manual' || slotKey === 'slot_misc') {
     restoredItem.isActive = false;
     newFiles[filename] = restoredItem;
-    return { success: true, files: newFiles, restoredName: filename };
+    return { success: true, files: newFiles, restoredName: filename, updatedAt: nowIso };
   }
   
   // 3. 判定该槽位是否已有活跃生效版本
@@ -500,18 +527,20 @@ export function computeRestoreResult({ filename, files, stage }) {
   );
   
   if (!hasActive) {
+    // 升格为 active 时必须同步复位 isRetired，彻底杜绝 active + retired 矛盾态！(彻底解决 🔴2)
     restoredItem.isActive = true;
+    restoredItem.isRetired = false;
   } else {
     // 严格保持 isActive: false，绝不抢占 active，绝对守住单槽单一 active 不变量！
     restoredItem.isActive = false;
   }
   
   newFiles[filename] = restoredItem;
-  return { success: true, files: newFiles, restoredName: filename };
+  return { success: true, files: newFiles, restoredName: filename, updatedAt: nowIso };
 }
 ```
 
-### 5. 双重不可删除安全锁与死按钮根除 (解决 🔴3 与 🟡3/🟡7)
+### 5. 双重不可删除安全锁与死按钮根除 (解决 🔴3 与 🟡2/🟡3/🟡7)
 - **删除按钮在左栏树中的渲染判定 (`canDeleteFile`)**：
   ```javascript
   export function canDeleteFile(file, stage) {
@@ -522,11 +551,11 @@ export function computeRestoreResult({ filename, files, stage }) {
     if (file.isCanonicalMirror) return false;
     // ③ 首版留档母版受系统终身保护不可删 (不论 stage 是否传入 · 彻底解决 🟡3)
     if (file.isProtectedArchive) return false;
-    // ④ 本阶段规范骨干文件即使退级也受系统终身保护，禁止删除
-    const coreFiles = getCoreFilesByStage(stage);
-    if (coreFiles.includes(file.name)) return false;
-    // ⑤ 手建自定义文件只要不在废纸篓且非 active 即可删除 (解决 🔴3)
-    if (file.isManual || file.slotKey === 'slot_manual') {
+    // ④ 全局所有工序槽位的规范骨干文件名一律终身不可删 (不依赖外部 stage，彻底关闸 · 彻底解决 🟡2)
+    const allCanonicalNames = Object.values(CANONICAL_SLOT_DICT).map((item) => item.canonicalName);
+    if (allCanonicalNames.includes(file.name)) return false;
+    // ⑤ 手建草稿与杂项草稿只要不在废纸篓且非 active 即可删除 (解决 🔴3)
+    if (file.isManual || file.slotKey === 'slot_manual' || file.slotKey === 'slot_misc') {
       return !Boolean(file.isDeleted || file.is_deleted);
     }
     // ⑥ 已经在废纸篓中的不可重复点删除
@@ -608,10 +637,9 @@ const props = defineProps({
 用户升级后首次从本地存储恢复时，自动对存量文件执行数据规整与槽位 Active 强制收敛：
 
 ```javascript
-export function migrateAndNormalizeFiles(rawFiles = {}, stage) {
+export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date().toISOString()) {
   const validSlots = getSlotsByStage(stage);
   const normalized = {};
-  const nowIso = new Date().toISOString();
   
   // 第一轮：硬约束不变式回填与 slotKey 规整 (彻底解决 🔴2)
   for (const fn of Object.keys(rawFiles)) {
@@ -625,12 +653,22 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage) {
     item.isDeleted = rawDel === true || rawDel === 'true';
     delete item.is_deleted;
     
+    // 废纸篓中的文件绝对不可处于 active 状态 (解决 🟢2)
+    if (item.isDeleted) {
+      item.isActive = false;
+    }
+    
     // 2. 回填槽位 slotKey (手建草稿保留 slot_manual)
     if (!item.slotKey) {
       item.slotKey = resolveSlotKey(fn, stage, item.isManual);
     }
     
-    // 3. 初始 versionTag (优先从文件名反推版本号 · 解决 🟡6)
+    // 3. 识别并回填首版母版留档标记 (解决 🟡1)
+    if (fn.includes('_第1版')) {
+      item.isProtectedArchive = true;
+    }
+    
+    // 4. 初始 versionTag (优先从文件名反推版本号 · 解决 🟡6)
     if (!item.versionTag) {
       const slotItem = CANONICAL_SLOT_DICT[item.slotKey];
       const prefix = slotItem?.prefix || 'V';
@@ -638,8 +676,14 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage) {
       item.versionTag = mVer ? `${prefix}${mVer[1]}` : `${prefix}1`;
     }
     
-    // 4. 时间戳归一化为 ISO
-    if (!item.generatedAt) item.generatedAt = nowIso;
+    // 5. 时间戳归一化为 ISO (解决 🟡3)
+    if (!item.generatedAt) {
+      item.generatedAt = nowIso;
+    } else {
+      // 存量时间戳格式清洗与合法性校验
+      const parsed = Date.parse(item.generatedAt);
+      item.generatedAt = !isNaN(parsed) ? new Date(parsed).toISOString() : nowIso;
+    }
     
     normalized[fn] = item;
   }
@@ -653,7 +697,7 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage) {
     return 1;
   };
   
-  // 第二轮：工序槽位 Active 强制收敛归一化 (解决 🔴2 & 🟡2，消除历史脏数据，严格最高版本收敛)
+  // 第二轮：工序槽位 Active 强制收敛与存量 isRetired 回填 (解决 🔴2, 🟡1, 🟡2)
   for (const sk of validSlots) {
     // 过滤出该槽位下所有未删除且非手建的正式交付物
     const slotFiles = Object.values(normalized).filter(
@@ -662,6 +706,7 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage) {
     const activeList = slotFiles.filter((f) => f.isActive === true);
     const canonicalName = CANONICAL_SLOT_DICT[sk]?.canonicalName;
     
+    let chosen = null;
     if (activeList.length > 1) {
       // 存在多个 active 脏数据：按【规范骨干 > 最高版本 > 其余】显式排序选取唯一 active (解决 🟡2)
       activeList.sort((a, b) => {
@@ -671,15 +716,29 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage) {
         if (!isA && isB) return 1;
         return getVerNum(b) - getVerNum(a);
       });
-      const chosen = activeList[0];
+      chosen = activeList[0];
       for (const f of activeList) {
         if (f.name !== chosen.name) f.isActive = false;
       }
+    } else if (activeList.length === 1) {
+      chosen = activeList[0];
     } else if (activeList.length === 0 && slotFiles.length > 0) {
       // 槽位无任何 active：激活规范骨干（若无骨干则激活首个非镜像、非母版的候选草稿 · 解决 🟢2）
       const candidateList = slotFiles.filter((f) => !f.isCanonicalMirror && !f.isProtectedArchive);
-      const target = slotFiles.find((f) => f.name === canonicalName) || candidateList[0] || slotFiles[0];
-      target.isActive = true;
+      chosen = slotFiles.find((f) => f.name === canonicalName) || candidateList[0] || slotFiles[0];
+      chosen.isActive = true;
+    }
+    
+    // 为老数据同槽已被淘汰的历史旧版补充 isRetired: true (解决 🟡1)
+    if (chosen) {
+      for (const f of slotFiles) {
+        if (f.name !== chosen.name && !f.isActive) {
+          // 若比 active 版本低，或本身属于非规范骨干的已退级版本，回填 isRetired: true
+          if (getVerNum(f) < getVerNum(chosen) || f.name.includes('_第')) {
+            f.isRetired = true;
+          }
+        }
+      }
     }
   }
   
