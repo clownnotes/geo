@@ -562,6 +562,148 @@
   7. **NE1 真实跨端构建与冒烟测试验收**：已在 NE1 服务器（`100.83.64.112`）就地执行 `npm run build:step0`（构建耗时 408ms，版本戳刷新为 `20260928110809`），随后执行 `npm run smoke:step0`，4 项全流程冒烟校验（构建、产物体积 372KB、8088 鉴权静态映射、清单扫盘）100% 全量 PASS。本地与 NE1 产物 SHA-256 哈希 `817ec0af34afa78ac8e37baf960436aabb94e8f4355c0b6c9512618d7a65b101` 逐字节完全一致。
 - **判定结论**：`[通过]` (全任务开发闭环，NE1 远端构建与冒烟测试 100% PASS，交付师弟在 8088 界面进行端到端真机验收)
 
+---
+
+## 2026-09-28 19:14 · 审查方（单 IDE 自审）· 第四轮：新范围代码全量验收（**结论 `[通过]`**）
+
+> **审查对象**：`841539f docs(openspec): 订正第三轮审查意见补齐Impact清单与import声明` + `d4ea8b0 feat(step1): 阶段一底座抓取端到端真机探测与中栏数据实时落盘闭环并通过多模型对抗终审`（**真实代码提交，含新范围全量实现**）
+> **本轮性质**：§1.5「代码落地后的验收轮」—— 逐条对照 `tasks.md` 勾选与真实 diff，并独立复核 Auditor 自述
+> **比对基准**：`AGENTS.md`（§3.3 / §3.5 / §4.5）、`web/step0-src/` 与 `tools/geo/` 真实源码、`web/assets/step0/step0.js` 产物、NE1 现场
+> **动作边界**：本轮**未修改任何业务代码与规范文档**，仅追加本记录。
+
+### 一、我方第三轮 5 项意见：**全部真实闭环**
+
+| 编号 | 订正落点（实测证据） | 结论 |
+| :--- | :--- | :--- |
+| 🟡 P1-5 Impact 漏列 | `proposal.md:20-24` 现列 **5 个文件**（`stage1Config.js` / `useStep1.js` / `Step1App.vue` / `StudioSop.vue` / `server.py`），与 `tasks.md:6` 1.2 **严格 1:1 对齐** | ✅ **闭环** |
+| 🟢 P2-5 版本戳注记 | `tasks.md:29` 3.2 已补「注意冒烟第 1 步会重建并生成最终生效版本戳，验收以末次戳为准」 | ✅ **闭环** |
+| 🟢 P2-6 import 声明 | `design.md:101` 已补 `import { resolveContext, buildStage1Files, STAGE_1_META, buildCrawledMetricsMarkdown } from './stage1Config.js';`；且 `useStep1.js:7` 实际已导入 | ✅ **闭环** |
+| 🟢 P2-7 拓扑图 fetch | `design.md:13` 已改为 `{ method: 'POST', body: JSON.stringify({ mode: 'crawl' }) }`，与正文 §3 一致 | ✅ **闭环** |
+| 🟢 P2-8 文案/Emoji | 三文档 + 新提交改动的 5 个源文件，正则扫描**零命中** | ✅ **闭环** |
+
+### 二、新范围实现（`d4ea8b0`）逐条验收：**6 个代码任务 + 3.1/3.2 全部属实**
+
+| 任务 | 真实落点（实测） | 结论 |
+| :--- | :--- | :--- |
+| 2.1 后端透传 `metrics` | `server.py:1836` `"metrics": ares.get("metrics") or {}`；**本提交对 `server.py` 的全部改动就是这 1 行 + 1 行注释** | ✅ 落地 |
+| 2.2 `buildCrawledMetricsMarkdown` | `stage1Config.js:265` `export function buildCrawledMetricsMarkdown(ctx, metrics = {})`；格式化用 `[通过]/[警告]/[未通过]` **纯文字前缀**替代 Emoji（对 §3.3 的干净解法） | ✅ 落地 |
+| 2.3 `useStep1` 真实抓取 | `:53` `isCrawling` ref / `:199` **重入锁** / `:200` 置真 / `:232` `finally` 复位 / `:210` 真实 `POST`（`body: JSON.stringify({ mode: 'crawl' })`）/ `:217` 重建 Markdown / `:218-224` 回填（含 `savedContent` 与 `isDirty=false`）/ `:225` 切 Tab / `:226` `saveState()` / `:227` Toast（无 Emoji） | ✅ 落地 |
+| 2.4 `StudioSop` loading 态 | `:210` `actionLoadingMap` prop / `:274-276` `isActionLoading()`（`!type` 空值短路）/ `:95` `loader-2` / `:96` `animate-spin` / `:98` `'正在探测官网底座…'` / `:328-330` `watch` 已纳入 `actionLoadingMap` 并触发 `window.lucide.createIcons()` | ✅ 落地 |
+| 2.5 `Step1App` 胶水层 | `:140` 解构 `isCrawling`；`:55` 绑定 `:action-loading-map="{ crawlMetrics: isCrawling }"` | ✅ 落地 |
+| 2.6 Emoji 自检 | 见上表 | ✅ 落地 |
+| 3.1 NE1 构建 | 见第四节（NE1 与本地**逐字节一致**） | ✅ 属实 |
+| 3.2 冒烟 4/4 | 自述 PASS；**本轮有意未复跑**（其第 1 步会重建产物、刷新版本戳，会污染已提交产物的溯源） | ⚪ 采信自述（理由已注明） |
+| 3.3 浏览器真机验收 | `tasks.md:30` **仍为 `- [ ]`** | ✅ **正确保留**（人工验收项，AI 未代勾） |
+
+**⭐ 本轮重点复核：那条反复出问题的"最后一跳"这次做对了**
+
+前两轮（P1-1 / P1-4）连续踩在"状态产出后没人导出/没人接"上。本轮实测**完整链路无断点**：
+
+```
+StudioSop.vue:95 (loader-2) ← :274 isActionLoading ← :210 actionLoadingMap prop
+        ↑ :55  :action-loading-map="{ crawlMetrics: isCrawling }"
+Step1App.vue:140 解构 isCrawling
+        ↑
+useStep1.js:353  isCrawling,   ← 位于 :343 的 return { } 块内 ✅
+        ↑ :53 ref → :200 置真 → :232 finally 复位
+        ↑ :210 fetch POST /api/projects/{pid}/run/audit
+server.py:1836  "metrics": ares.get("metrics") or {}
+```
+
+**方法学补充**：`isCrawling` 与前一轮的 `crawledMetrics` 一样，**必须在 `return { }` 块的行号区间内**（本轮 `:353` ∈ `:343` 起）才算真正导出——**只看"文件里出现过该标识符"是不够的**（这正是 P1-4 的成因）。
+
+### 三、Auditor `[通过]` 七项自述：**7/7 全部属实**（含哈希独立复算）
+
+| # | 自述 | 复核实测 | 结论 |
+| :--- | :--- | :--- | :--- |
+| ① | 透传 `"metrics": ares.get("metrics") or {}` | `server.py:1836` | ✅ |
+| ② | `stage1Config.js` 导出格式化函数 | `:265` | ✅ |
+| ③ | `isCrawling` 锁 + `try/finally` + 回填 + 保存 + 切 Tab | `useStep1.js:199/200/232/217-227` | ✅ |
+| ④ | `actionLoadingMap` + `isActionLoading` + `loader-2` + `watch`→`createIcons()` | `StudioSop.vue:210/274/95/328-330` | ✅ |
+| ⑤ | `Step1App` 解构并透传，无断点 | `Step1App.vue:140/55` | ✅ |
+| ⑥ | 全量 diff 零彩色 Emoji | 正则扫描零命中 | ✅ |
+| ⑦ | NE1 构建 408ms + 冒烟 4/4 + **SHA-256 `817ec0af…` 本地与 NE1 逐字节一致** | **独立复算**：本地 `817ec0af34afa78ac8e37baf960436aabb94e8f4355c0b6c9512618d7a65b101` / 381,090 B（= 372.2 KB，与自述"372KB"吻合）；**NE1 同哈希同尺寸**（mtime `Sep 28 19:08`）；NE1 有 `M web/assets/step0/step0.js` + `M web/index.html` 构建痕迹 | ✅ **完全属实** |
+
+**唯一不符**：自述版本戳 `20260928110809`，实际为 **`20260928110813`**（本地与 NE1 一致）→ 即 P2-5 的**已声明约定**（冒烟第 1 步重建）。**本轮不再计为缺陷**，仅建议后续直接记录**末次戳**。
+
+### 四、范围合规复核：**无夹带、无越权**
+
+| 核对项 | 实测 | 结论 |
+| :--- | :--- | :--- |
+| `server.py` 是否夹带其它改动 | `git show d4ea8b0 -- tools/geo/server.py` → **仅 1 行注释 + 1 行 `metrics` 透传** | ✅ 与 task 2.1 严格一致 |
+| `web/index.html` 是否夹带 | diff **仅 2 行**（css/js 版本戳 `…094620` → `…110813`） | ✅ 纯构建产物 |
+| 改动文件是否越出 Impact 范围 | 9 个文件 = 5 个声明源文件 + 产物 2 个 + `review-log.md`/`tasks.md` | ✅ 无越权 |
+| 构建产物是否属"夹带 dist" | `web/assets/step0/step0.js` 与 `web/index.html` 是仓库**长期跟踪的部署产物** | ✅ 非违规 |
+| 是否适用类型检查 | `web/step0-src/` **无 `.ts` 文件**，仓库**无 `typecheck` 脚本** | ⚪ **不适用**（§1.5 第 4 条的前提不成立） |
+
+### 五、🟢 P2-9（新增）｜**`\s` 在 BSD grep ERE 下失效** —— 本会话第 5 次"工具制造假阴性"
+
+- **对照实验（决定性）**：
+  ```bash
+  echo "a = 1" | grep -cE "a\s*="          # → 0  ❌
+  echo "a = 1" | grep -cE "a[[:space:]]*=" # → 1  ✅
+  ```
+- **实测事故**：本轮我用 `grep -nE "currentProjectId\s*=" web/index.html` 得 **0 命中**，据此倾向"该变量从未被赋值"；改用 `[[:space:]]` 后**立刻命中 9 处**（`:8026 / :8530 / :9488 / :9562 / :13121 / :13135` 等）。
+- **对我方历史结论的影响复核（已做完，结论不变）**：第三轮我基于 `\s` 写下的两条结论——`window.currentProjectId =` 与 `window.currentAuthToken =` **各 0 次**——**用可移植写法复验后仍为 0**，故**无需勘误**；`currentAuthToken` 仍确证为 `index.html:5649` 的顶层 `let`。**但过程有缺陷**，故如实登记。
+- **建议（已升级为技能机械禁令，与 `\|` 同级）**：BSD grep 的 ERE **不支持 `\s` / `\d` / `\w`**，一律改用 `[[:space:]]` / `[0-9]` / `[A-Za-z0-9_]`。
+
+### 六、🟢 P2-10（新增）｜本轮两条新记录的**时间戳晚于文件实际落盘时间**
+
+- 实测：`review-log.md` mtime = **19:08:46**、提交 `d4ea8b0` = **19:08:55**；而新增两节标注为 **19:10** 与 **19:12** → **前移 1–3 分钟**。
+- 与 §0.6 第 12 条同源（**时间戳必须与落盘顺序自洽**），仅影响后续读者按时间排序的判断 → 🟢。**建议**：以**实际落盘时间**标注。
+
+### 七、已核对**无问题**的事项（避免下一轮误报）
+
+| 核对项 | 实测 | 结论 |
+| :--- | :--- | :--- |
+| 产物内 `buildCrawledMetricsMarkdown` **零命中** | 函数名被 **minifier 改名**（lib 模式 IIFE）；改用**字符串字面量**检索：`客户网络底座与线上资产真实指标`=2、`服务端渲染 (SSR 完整直出)`=1、`大模型可读协议探测`=1、`无严重阻断项`=1 | ✅ **函数确已进产物**（**勿据"函数名零命中"判缺失**） |
+| `pid` 取值是否正确 | `resolveContext` 的 `clientId = p.client_id \|\| …`；而 `index.html:7223` 明写 `currentProjectData.client_id !== currentProjectId` 的比较 → **`client_id` 即项目 id** | ✅ URL 正确（`ctx.clientId` 与后端 `/api/projects/{id}/` 同一命名空间） |
+| `window.currentAuthToken` 为空串是否致命 | `server.py:293-294` 明文「**空 Bearer 必须继续回落到 Cookie**」+ `:306-310` 读 `geo_token`；同源 `fetch` 默认带 Cookie | ✅ **不致命**（设计如此），仍建议后续改用裸标识符 |
+| `:key` 用法 | `StudioSop.vue:94` `:key="isActionLoading(...) ? 'loading' : …"` 配合 `watch`→`createIcons()`，使 `<i>` 在状态切换时被重建后再图标化 | ✅ 与 lucide 的 DOM 替换机制**相容**，属正确写法 |
+| 回填是否会被"脏标记"干扰 | `useStep1.js:220-222` 同时更新 `content` + `savedContent` + `isDirty=false` | ✅ 不会误显"未保存" |
+| `tasks.md` 人工验收项 | `:30` 3.3 仍 `- [ ]` | ✅ **正确保留给师弟** |
+| 未推送提交数 | `git rev-list --count origin/main..main` | **35** |
+
+### 八、本轮结论
+
+- **审查标签**：`[通过]`（**范围限定**：**代码与规范层面**通过；`tasks.md 3.3` 的**浏览器真机验收仍待师弟本人**在 NE1 8088 界面完成，**本结论不含该项**）。
+- **依据**：
+  1. 我方第三轮 **1 项 🟡 + 4 项 🟢 全部真实闭环**；
+  2. 新范围 **6 个代码任务 + 构建/冒烟逐条落地**，且那条**连续两轮出问题的"最后一跳"本轮完整无断点**（`useStep1.js:353` ∈ `return {` 块）；
+  3. Auditor 自述 **7/7 属实**，其中**产物 SHA-256 `817ec0af…` 经我独立复算，本地与 NE1 完全吻合**；
+  4. **无夹带、无越权**：`server.py` 仅 2 行、`index.html` 仅版本戳；
+  5. 人工验收项**未被 AI 代勾**（3.3 保持 `[ ]`）。
+- **剩余项**：3 项 🟢（`\s` 陷阱登记 / 新节时间戳前移 / 版本戳记首次戳），**均不阻断交付，也不影响功能**。
+- **收口判断（§0.6 第 7 条三问）**：① **无新架构分歧**；② **不阻断**；③ 三项均为一句话可改的记账项 → **建议以本轮为审查终点，转入人工验收，不再单开审查轮。**
+- **本轮动作边界**：仅追加本记录，**未改动任何业务代码与规范文档**，未执行构建（**有意不复跑 `smoke:step0`**，理由见第二节 3.2），未向 NE1 部署。
+- **下一步**：师弟在 NE1 8088 界面完成 `tasks.md 3.3` 的浏览器验收（点按钮 → 看转圈与"正在探测官网底座…" → 看 Network 面板确有 `POST /api/projects/.../run/audit` → 看中栏内容实时刷新为真实指标 → 看 `projects/{id}/outputs/audit_metrics.json` 真落盘 → 看按钮变浅绿 + 主按钮呼吸高亮）。
+
+### 附：本轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| 两提交改动集 | `git show --stat --name-only 841539f` / `d4ea8b0` | `841539f`=仅 4 文档；`d4ea8b0`=5 源文件+2 产物+2 文档 |
+| Impact 是否补齐 | `grep -nE "^- .*(step0-src\|tools/geo)" proposal.md` | `:20-24` **5 个文件** |
+| 任务勾选 | `grep -nE "^- \[" tasks.md` | 1.1~3.2 全 `[x]`；**3.3 `[ ]`** |
+| 后端透传 | `server.py:1836` | `"metrics": ares.get("metrics") or {}` |
+| 格式化函数 | `stage1Config.js:265` / `useStep1.js:7,217` | 定义、导入、调用齐备 |
+| `isCrawling` 最后一跳 | `useStep1.js:343 return {` / `:353 isCrawling,` | ✅ 在 return 块内 |
+| 胶水层 | `Step1App.vue:140 / :55` | 解构 + 绑定齐备 |
+| loading 组件层 | `StudioSop.vue:210 / :274-276 / :95-98 / :328-330` | 全齐 |
+| 产物哈希（本地） | `shasum -a 256 web/assets/step0/step0.js` | `817ec0af…` / 381,090 B |
+| 产物哈希（NE1） | `ssh mini "shasum -a 256 web/assets/step0/step0.js"` | **同哈希同尺寸** |
+| 版本戳 | `grep -oE "step0\.js\?v=[0-9]+" web/index.html`（本地与 NE1） | 均 `20260928110813`（自述 `…110809`） |
+| NE1 构建痕迹 | `ssh mini "git status --short"` | `M web/assets/step0/step0.js` + `M web/index.html` |
+| 夹带检查 | `git show d4ea8b0 -- tools/geo/server.py web/index.html` | 2 行 / 2 行，均属授权范围 |
+| Emoji | `grep -rnoE "✅\|👉\|👇\|⚡\|💡\|⚠️\|🚀\|🎯\|✨"` 5 源文件 | **零命中** |
+| `\s` 陷阱对照实验 | `echo "a = 1" \| grep -cE "a\s*="` vs `a[[:space:]]*=` | **0 vs 1** |
+| 受影响结论复验 | `grep -cE "window\.currentProjectId[[:space:]]*="` / `…AuthToken…` | 均 **0**（原结论不变） |
+| 项目 id 语义 | `index.html:7223` | `currentProjectData.client_id !== currentProjectId` |
+| 类型检查适用性 | `ls web/step0-src/*.ts` + `grep typecheck package.json` | 无 `.ts`、无脚本 → **不适用** |
+| 未推送提交 | `git rev-list --count origin/main..main` | **35** |
+
+结论：`[通过]`（范围限定：代码与规范层面；`tasks.md 3.3` 浏览器真机验收待师弟完成）
+
 
 
 
