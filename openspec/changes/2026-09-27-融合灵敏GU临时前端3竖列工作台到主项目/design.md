@@ -99,14 +99,14 @@
 ### Bridge 标准接口定义与参数透传约定
 ```javascript
 export const GeoStepXBridge = {
-  // 挂载组件岛到宿主 DOM（内部将 bridge 参数原样注入 Vue 组件 Props: { bridge }）
+  // [必需] 挂载组件岛到宿主 DOM（内部将 bridge 参数原样注入 Vue 组件 Props: { bridge }）
   // 宿主侧调用传参形状: mount(containerEl, { projectData, subStep })
   mount(el, bridge) {},
-  // 卸载组件岛并清理全局监听
+  // [通用约定] 卸载组件岛并清理全局监听（供内部重挂载与未来扩展，宿主当前不直接调用）
   unmount() {},
-  // 响应外部项目切换，更新响应式上下文
+  // [按需实现] 响应外部项目切换，更新响应式上下文（宿主仅阶段零实际调用 __GEO_STEP0__.refresh）
   refresh(projectData) {},
-  // （可选）切换阶段内部子步进
+  // [按需实现] 切换阶段内部子步进（宿主仅阶段零实际调用 __GEO_STEP0__.setSubStep）
   setSubStep(stepNum) {},
 };
 ```
@@ -133,9 +133,10 @@ export const GeoStepXBridge = {
      * 为 `useStep3.js`、`useStep4.js`、`useStep5.js` 补齐与 `useStep2.js:139` 统一的折叠态写入：`localStorage.setItem(STORAGE_KEY_HEADER, String(val))`，实现刷新后折叠态记忆；
    - 若本地无缓存，自动生成带有项目真实字段的基线模板文件。
 
-3. **项目切换刷新双保险机制（彻底杜绝上下文滞后，R6-4）**：
-   - **Bridge 侧全量补齐 `refresh(projectData)`（8/8 完整覆盖）**：实测临时前端基线中仅阶段 0 和阶段 5 实现了 `refresh`，组件侧缺乏 `defineExpose`（现状 2/8）。在 apply 阶段必须在 `main.js` 中为全部 Bridge（`GeoStep0`~`GeoStep6` 及 `GeoRecurringMonitorBridge`）统一实现 `refresh(opts)`，并在对应 8 个 Vue 组件根实例上通过 `defineExpose({ refresh })` 暴露方法；
-   - **宿主侧重置守卫标志位**：宿主 `index.html` 在 `enterWizard` 切换项目时，统一将所有 `window.__GEO_STEP0..6_MOUNTED__` 以及 `window.__GEO_RECURRING_MOUNTED__` 标志位重置为 `false`，并对当前已呈现的活跃视图执行带 `forceRemount=true` 的渲染调用；用户后续切换到其他阶段面板时，会因为守卫为 `false` 而自动以最新项目数据执行 `mount()`，彻底根除项目切换后的数据串流问题。
+3. **项目切换刷新与重挂载机制（彻底杜绝上下文滞后，R6-4 / R9-1 甲案）**：
+   - **阶段零响应式刷新与其余阶段重挂载分工**：
+     * **阶段零**：宿主实际调用 `window.__GEO_STEP0__.refresh(p)` 与 `setSubStep`，故 `GeoStep0Bridge` 及其内部 `Step0App.vue` 必须保持完整的 `refresh` 逻辑并暴露 `defineExpose({ refresh })`；
+     * **阶段 1~6 与周期复测**：宿主无 `refresh` 调用点，其上下文更新依赖宿主在 `enterWizard` 切换项目时，统一将所有 `window.__GEO_STEP0..6_MOUNTED__` 以及 `window.__GEO_RECURRING_MOUNTED__` 标志位重置为 `false`；当前活跃视图与后续切换点击的阶段面板因为守卫为 `false` 而自动以最新项目数据执行 `mount()` 重挂载，彻底根除项目切换后的数据串流问题。各 Bridge 保留既有接口签名，不强求对无调用方的阶段编写冗余存根。
 
 ---
 

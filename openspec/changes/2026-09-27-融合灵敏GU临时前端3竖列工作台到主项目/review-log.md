@@ -1583,4 +1583,285 @@ Entry module "main.js" is using named and default exports together.   ← 见下
 - **豁免项确认**：关于本变更过渡期间阶段 1~6 采用 `localStorage` 降级兜底方案，前置豁免 `AGENTS.md` §8.2。后续真实后端物理落盘已建档为显式遗留事项（Deferred）。
 - **签收确认**：待师弟输入 `/opsx-apply` 即可正式解锁业务代码编写与执行迁移！
 
+---
+
+## 审查记录 · 第九轮（复核第七/八轮订正 + 首次审计 proposal.md + Bridge 挂载机制实测）
+
+> **本轮触发**：第四次执行 `/ops-review`。
+> **开工前状态**：HEAD 已推进至 `7f2b154`「订正第七轮与第八轮审查意见，闭环通用渲染函数空守卫、跨阶段键名契约与构建断言」，工作区干净（`git status --porcelain` 为空）。改动量：`design.md` +64 / `tasks.md` +39 / `proposal.md` +14 / `review-log.md` +569。
+> **本轮任务定位**：① 逐条复核 R7-1~R7-5、R8-1~R8-8 共 **13 项**订正是否真实落地；② **首次全文审计 `proposal.md`**（前八轮均未审计）；③ 对订正中**新增的技术方案**做可执行性实测（`assetFileNames` 锁定产物名）；④ 深挖宿主 Bridge 挂载/刷新机制，验证 `design.md` §3.3 与 `tasks.md` 2.4 的一致性。
+
+---
+
+### 一、第七轮 / 第八轮问题复核结果：13 项**全部订正到位**
+
+| 编号 | 订正落点 | 复核结果 |
+| :--- | :--- | :--- |
+| **R7-1** | `design.md:81-87` §2.1 第 1 条 + `tasks.md:28` | ✅ 已补 `loadMarkdownToElem` 收敛式守卫（`const el = …; if (!el) return;`） |
+| **R7-2** | `design.md:44-45` + `:73`（注0 第 6 条）+ `tasks.md:25-26` | ✅ 已改为「阶段五/六移除旧 h2」+「阶段一~三旧 DOM 与旧 h2 **全部保留**在 `legacy-step1~3-container` 内，严禁删除」，自相矛盾消除 |
+| **R7-3 / R8-4** | `design.md:47-50` | ✅ 已改为实测值（`'01 现状诊断与体检'` `:7191` / `'02 站点底座与三件套'` `:7192` / `'03 普林斯顿 9 因子语料'` `:7193`），并加注「演进对照表业务名称 ≠ `VIEW_META.label` 字段」 |
+| **R7-4** | `design.md:94-97` | ✅ 已新增「老脚本可达性筛查结论表」：需补守卫 6 / 自带守卫 6 / 不可达或空 catch 静默 17 = **29**，与第七轮实测的 29 个函数**数量吻合** |
+| **R7-5** | `design.md:92` + `tasks.md:33` | ✅ 已改为首个 DOM 访问节点 `dist-channels-ledger-list` |
+| **R8-1** | `design.md:129-131` + `tasks.md:13` | ✅ 读取方对齐为 `geo_step4_qa_cards_${clientId}`，空 catch 改 `console.warn`；`tasks.md:52` 增验收项 |
+| **R8-2** | `design.md:132-133` + `tasks.md:14` | ✅ 已要求为 `useStep3/4/5.js` 补齐写入；**本轮实测该订正可实现**（见下「已实测通过」） |
+| **R8-3** | `design.md:126-128` | ✅ 已如实分述「聚合式单键（阶段 1/6）」与「分片式语义键（阶段 2~5）」，「统一采用」表述已撤 |
+| **R8-5** | `design.md:163-165` + `tasks.md:7` / `:49` | ✅ 已改为「仅真实命中才自增」+「未命中打印错误告警并 `process.exitCode = 1`」 |
+| **R8-6** | `tasks.md:15` | ✅ 已列「清理或注释 `useStep3.js:34` 中无写入方的 `geo_step2_site_info_` 历史死引用」；本轮复验宿主对该键引用数为 **0**，确属死引用 |
+| **R8-7** | `tasks.md:11` | ✅ 已列 `Step0App.vue` catch 修正任务 |
+| **R8-8** | `design.md:162` + `tasks.md:18` | ✅ 已列 `assetFileNames` 锁定方案；**本轮实测有效**（见下） |
+
+**复核结论：13/13 全部订正到位，未发现「声称已改而实际未改」的情况。**
+
+---
+
+### 二、本轮新增问题
+
+#### 🟡 R9-1｜`refresh` 8/8 补齐对其中 7 个 Bridge 属**死代码**：宿主唯一 `refresh` 调用点只针对 `__GEO_STEP0__`
+
+**实测宿主调用点统计**（临时前端 `index.html`）：
+
+| 方法 | 调用点 | 说明 |
+| :--- | :--- | :--- |
+| `mount(` | **8** | `:6402 / :6436 / :6469 / :6498 / :6527 / :6556 / :6585 / :6614`，逐阶段硬编码 |
+| `refresh(` | **1** | 仅 `:6405` → `window.__GEO_STEP0__.refresh(p);` |
+| `setSubStep(` | **2** | `:6372` / `:6406`，均作用于 `window.__GEO_STEP0__` |
+| `unmount(` | **0** | 宿主从不调用 |
+| `renderPanel(` | **0** | 宿主从不调用 |
+
+**宿主两套分支形态不同（实测源码）**：
+
+```javascript
+// 阶段零（:6399-6408）—— 有 refresh 分支，且守卫【不】接受 forceRemount
+if (!window.__GEO_STEP0_MOUNTED__) {
+  window.__GEO_STEP0__.mount('#step0-app-root', { projectData: p, subStep: currentStep0SubStep });
+  window.__GEO_STEP0_MOUNTED__ = true;
+} else {
+  window.__GEO_STEP0__.refresh(p);              // ← 全宿主唯一的 refresh 调用
+  window.__GEO_STEP0__.setSubStep(currentStep0SubStep);
+}
+
+// 阶段 1~6 与周期复测（:6435 / :6468 / :6497 / :6526 / :6555 / :6584 / :6613）—— 无 refresh 分支
+if (!window.__GEO_STEP1_MOUNTED__ || forceRemount) {
+  window.__GEO_STEP1__.mount('#step1-app-root', { projectData: p });
+  window.__GEO_STEP1_MOUNTED__ = true;
+}
+```
+
+**结论**：`tasks.md:17`（2.4）要求「为**全部 8 个** Bridge 统一实现 `refresh(opts)`，并确保各 `StepXApp.vue` 及 `RecurringMonitorStudio.vue` 均通过 `defineExpose({ refresh })` 暴露刷新入口」——但宿主**对这 7 个 Bridge 从不调用 `refresh`**（Step1~6 + Recurring），其上下文更新完全依赖「重置守卫 → `mount()` 重挂载」。
+
+更关键的是 **与 `tasks.md:46`（3.2）互相覆盖**：3.2 要求「重置所有 `__GEO_STEP0..6_MOUNTED__ = false` 及 `__GEO_RECURRING_MOUNTED__ = false`」。一旦所有守卫被置 `false`，阶段零下次进入时 `!__GEO_STEP0_MOUNTED__` 成立 → 走 `mount()` 分支 → **`else { refresh }` 分支永不可达**。
+
+**影响**：不致故障（补出来的 `refresh` 是空转，`mount` 路径本身可用），但会产生明确的无用工作量，并使文档「彻底根除项目切换后的数据串流问题」的因果链表述失焦（真正起作用的是守卫重置，而非 refresh）。
+
+**订正建议（二选一，需拍板）**：
+- **甲案（收窄）**：`tasks.md` 2.4 改为「为全部 Bridge 保留既有 `refresh` 签名；**仅阶段零**需补齐 `refresh` + `defineExpose`（因其为唯一被宿主调用的刷新路径），其余 7 个以 `mount()` 重挂载为准，不强制补 `defineExpose`」；
+- **乙案（补齐调用点）**：若确希望 7 个 Bridge 也走 refresh，则须在 `tasks.md` 3.2 中**增加宿主侧改造项**：把 7 个 `if (!MOUNTED || forceRemount) { mount() }` 改为带 `else { refresh(p) }` 分支（与阶段零同形），并同步取消对它们的守卫重置。
+
+---
+
+#### 🟡 R9-2｜`proposal.md:83`「8 个既有项目」与 `design.md:72`「4 个项目」**数字不一致**，且 proposal 的取值不准确
+
+| 文档 | 原文 | 实测 |
+| :--- | :--- | :--- |
+| `design.md:72` | 「绝不干扰既有 **4 个**项目的 `04_` 分发产物判定」 | ✅ **准确** —— 恰有 4 个项目含 `04_` 产物 |
+| `proposal.md:83` | 「100% 保护 **8 个**既有项目的进度基线」 | ❌ **不准确** —— 8 为 `projects/` 目录数（含 `_template`） |
+
+**实测明细**（`projects/` 下 8 个目录）：
+
+| 项目 | `04_` 产物数 | 产物名 |
+| :--- | :--- | :--- |
+| `demo_corp` | 1 | `04_多平台矩阵借壳分发包.md` |
+| `nextgeo` | 2 | `04_全网分发渠道执行与存活台账.md`、`04_多平台矩阵借壳分发包.md` |
+| `xuzhou_clownCoder_studio` | 1 | `04_多平台矩阵借壳分发包.md` |
+| `xuzhou_xuanyuan` | 2 | 同上两者 |
+| `1231231233123` / `nextgeo_ab_noprobe` / `nextgeo_ab_probed` | 0 | —— |
+| `_template` | 0 | **模板目录，非客户项目** |
+
+即：**目录 8 个 → 真实客户项目 7 个 → 实际受 `04_` 前缀碰撞影响者恰 4 个**。
+
+**订正建议**：`proposal.md:83` 的「8 个既有项目」改为「**4 个含 `04_` 分发产物的既有项目**」（与 design 口径统一，也与实测一致）；若确想表达全部项目，应写「7 个既有项目（另含 `_template` 模板目录）」。
+
+---
+
+#### 🟡 R9-3｜`tasks.md:46`（3.2）用泛化占位名 `renderStepXPanel`，且 `renderStep0ProbePanel()` **不接受** `forceRemount` 参数
+
+`tasks.md:46` 写：「…并对活跃面板调用 `renderStepXPanel(true)`」。
+
+**实测：宿主不存在名为 `renderStepXPanel` 的函数**，真实为 8 个具名函数，且签名不一致：
+
+| 函数 | 行 | 签名 |
+| :--- | :--- | :--- |
+| `renderStep0ProbePanel` | `:6383` | `()` —— **无 `forceRemount` 参数** |
+| `renderStep1DiagPanel` | `:6419` | `(forceRemount = false)` |
+| `renderStep2ScaffoldPanel` | `:6450` | `(forceRemount = false)` |
+| `renderStep3PrincetonPanel` | `:6479` | `(forceRemount = false)` |
+| `renderStep4QaCardPanel` | `:6508` | `(forceRemount = false)` |
+| `renderStep5DistributePanel` | `:6537` | `(forceRemount = false)` |
+| `renderStep6AcceptancePanel` | `:6566` | `(forceRemount = false)` |
+| `renderMonRecurringPanel` | `:6595` | `(forceRemount = false)` |
+
+**影响评估**：按 tasks 字面写 `renderStep0ProbePanel(true)`，该实参会被**静默忽略**（JS 允许多余实参）。但因 3.2 同时要求「重置所有 `__GEO_STEP0..6_MOUNTED__ = false`」，阶段零的 `!__GEO_STEP0_MOUNTED__` 仍成立 → **功能上依然会重挂载**，故**不构成功能缺陷**。
+
+**订正建议**：`tasks.md` 3.2 把 `renderStepXPanel(true)` 展开为真实函数名清单（或写明「`renderStep1DiagPanel` ~ `renderMonRecurringPanel` 这 7 个传 `true`；`renderStep0ProbePanel` 无该参数、靠守卫重置生效」），避免 apply 执行者自行猜测。
+
+---
+
+#### 🟢 R9-4｜`design.md` §2 的 Bridge 接口契约**过度声明**（`unmount` / `setSubStep` 实际无宿主消费）
+
+`design.md:28` 写：「每个 Bridge **必须实现**统一的生命周期方法：`mount` / `unmount` / `refresh` / `setSubStep`」。
+
+**实测宿主消费情况**：`unmount` 调用点 **0**、`setSubStep` 调用点 **2**（且**全部**作用于 `window.__GEO_STEP0__`）、`renderPanel` 调用点 **0**。
+
+即：`unmount` 无任何宿主消费方；`setSubStep` 仅阶段零需要（而 `GeoStep0Bridge` 恰好实现了它，故**无运行时缺口**）。
+
+**性质**：纯文档措辞问题 —— 会把「必须实现」误读为「8 个 Bridge 都要补 `setSubStep` / `unmount` 存根」。建议改为分级表述：「**`mount` / `unmount` 为通用约定**（`unmount` 供内部重挂载与未来扩展，宿主当前不直接调用）；**`refresh` / `setSubStep` 为按需实现**（`setSubStep` 仅阶段零由宿主调用）」。
+
+---
+
+### 三、本轮「已实测通过」的正向结论（可写入验收基线）
+
+#### ✅ R8-8 的订正方案**实测有效**：`assetFileNames` 确实能锁定 CSS 产物名
+
+在独立副本 `/tmp/bt9` 中：① 给 `vite.config.js` 的 `rollupOptions.output` 加入 `assetFileNames: 'geo-step0-island.[ext]'`；② **故意**把 `package.json` 的 `name` 改为 `geo-island-renamed`；③ 运行 `npm run build`：
+
+```
+vite v6.4.3 building for production...
+✓ 43 modules transformed.
+../assets/step0/geo-step0-island.css    1.66 kB │ gzip:   0.52 kB
+../assets/step0/step0.js              373.81 kB │ gzip: 128.10 kB
+✓ built in 1.11s
+[stamp-build] 已把 2 个产物引用刷新到版本 20260928022221
+```
+
+产物清单：`geo-step0-island.css`（1,663 B）+ `step0.js`（373,813 B）—— **CSS 名已不再随 `package.json.name` 漂移**，`design.md:162` / `tasks.md:18` 的方案可照此实施。
+
+> **附带提示（供 apply 参考）**：`assetFileNames` 传字符串会对**所有** asset 生效。当前该库仅产出 CSS 一个 asset，故安全；若未来引入字体/图片等额外 asset，固定名会互相覆盖，届时应改用函数形式（按 `assetInfo.name` 分支命名）。
+
+#### ✅ R8 遗留观察**销案**：`named and default exports together` 告警对本设计**无害**
+
+第八轮留下观察：`main.js` 同时使用具名导出与 `export default`，在 IIFE 下默认导出归属可能被改写。
+
+**本轮定性**：`main.js:273-282` 在**模块内部自行赋值**全局变量：
+
+```javascript
+if (typeof window !== 'undefined') {
+  window.__GEO_STEP0__ = GeoStep0Bridge;
+  // … 至
+  window.__GEO_RECURRING__ = GeoRecurringMonitorBridge;
+}
+```
+
+该赋值在 IIFE 求值时即执行，**与模块导出形态完全无关**。宿主读取的是 `window.__GEO_STEP0__`（8 个变量在宿主中出现次数：`__GEO_STEP0__` 为 6，其余各 2），从不依赖 `GeoStep0.default`。故 Vite 的告警**不构成缺陷**，`design.md:39` 注2 的类名 `GeoRecurringMonitorBridge` 亦与实现一致。
+
+#### ✅ `proposal.md` 三处具体断言**全部属实**（首次审计）
+
+| `proposal.md` 断言 | 实测 |
+| :--- | :--- |
+| `:82` 引用的 `tests/test_member_dashboard_and_perspective.py` | ✅ **存在**（17,148 B；`tests/` 下另有 3 个 perspective 相关测试） |
+| `:51` 声称校准 `localStorage` 的 `geo_active_step` 缓存 | ✅ 该键在**主工程与临时前端宿主中各出现 4 次**，非虚构 |
+| `:26` 的 `npm run build:step0` | ✅ 根 `package.json` 实有 `dev:step0` / `build:step0` / **`smoke:step0`** 三个脚本 |
+
+#### ✅ R8-2 的订正**可实现**：`isHeaderCollapsed` ref 在阶段 3/4/5 均已存在
+
+| 文件 | ref 定义 | 读取 | 导出 | 写入 |
+| :--- | :--- | :--- | :--- | :--- |
+| `useStep2.js` | —— | `:58` | —— | **`:139` `watch(isHeaderCollapsed, …)` ✓** |
+| `useStep3.js` | `:73` | `:101` | `:333` | **缺** |
+| `useStep4.js` | `:36` | `:76` | `:370` | **缺** |
+| `useStep5.js` | `:36` | `:75` | `:471` | **缺** |
+
+三者均已 `const isHeaderCollapsed = ref(false)` 且已 `return` 导出，故 `tasks.md:14` 要求的写入只需照抄 `useStep2.js:138-142` 的 `watch` 块即可。**建议 `tasks.md` 2.2 把表述从「补齐写入：`localStorage.setItem(...)`」细化为「补 `watch(isHeaderCollapsed, val => …)` 块，与 `useStep2.js:138-142` 同形」**，以免执行者找不到落笔位置。
+
+#### ✅ `web/scripts/` 与根 `scripts/` **不冲突**
+
+根 `scripts/` 已存在（含 `smoke_step0.sh` 等 Python/shell 工具），而 `tasks.md:7` 要在 `web/` 下新建 `scripts/`。两者路径不同，且 `stamp-build.mjs` 的 `INDEX = resolve(__dirname, '../index.html')` 在 `web/scripts/` 下正确指向 `web/index.html`；`npm --prefix web/step0-src run build` 的 `node ../scripts/stamp-build.mjs` 亦正确解析到 `web/scripts/`。**无路径冲突。**
+
+---
+
+### 附：第九轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| HEAD / 工作区 | `git log -1` / `git status --porcelain` | `7f2b154` / 干净 |
+| 订正提交改动量 | `git show --stat 7f2b154` | design +64 / tasks +39 / proposal +14 / review-log +569 |
+| 宿主 `refresh(` 调用点 | `grep -nE "\.refresh\(" index.html` | **1**（仅 `:6405` `__GEO_STEP0__`） |
+| 宿主 `mount(` 调用点 | `grep -nE "__GEO_[A-Z0-9_]+__\.mount\(" index.html` | **8**（逐阶段硬编码） |
+| 宿主 `unmount(` / `renderPanel(` | 同上 | **0** / **0** |
+| 宿主 `setSubStep(` 调用点 | `grep -nE "setSubStep" index.html` | **2**（`:6372` / `:6406`，均 Step0） |
+| 阶段零守卫形态 | `sed -n '6399,6408p' index.html` | `if (!__GEO_STEP0_MOUNTED__)` —— **无 `forceRemount`** |
+| 阶段 1~6/运营守卫形态 | `sed -n '6435p;6468p;6497p;6526p;6555p;6584p;6613p'` | 均为 `if (!__GEO_STEP{N}_MOUNTED__ \|\| forceRemount)` |
+| `renderStepXPanel` 是否存在 | `grep -nE "renderStep[0-9]?[A-Za-z]*Panel\(" index.html` | **不存在该名**；实为 8 个具名函数 |
+| `renderStep0ProbePanel` 签名 | `:6383` | `()` —— 无 `forceRemount` |
+| 其余 7 个渲染函数签名 | `:6419/6450/6479/6508/6537/6566/6595` | 均 `(forceRemount = false)` |
+| `projects/` 目录数 | `ls -d projects/*/ \| wc -l` | **8**（含 `_template`） |
+| 含 `04_` 产物的项目数 | 逐项目 `ls outputs \| grep -c "^04_"` | **4**（`demo_corp` / `nextgeo` / `xuzhou_clownCoder_studio` / `xuzhou_xuanyuan`） |
+| `04_多平台矩阵借壳分发包.md` | `find projects -name …` | 存在于上述 **4** 个项目 |
+| `assetFileNames` 订正实测 | `/tmp/bt9` 改名 + 构建 | CSS 仍为 `geo-step0-island.css`（1,663 B）✓ **有效** |
+| 构建产物哈希 | `shasum -a 256` | JS `09aacd2b…` / CSS `b549e7ca…`，与基线一致 |
+| `window.__GEO_*__` 赋值位置 | `main.js:273-282` | 模块内自行赋值 → 导出形态告警无害 |
+| 8 个全局变量在宿主出现次数 | `grep -oE "__GEO_[A-Z0-9_]+__" index.html \| sort \| uniq -c` | STEP0 **6**，其余各 **2**，RECURRING **2** |
+| proposal 测试文件断言 | `ls tests/test_member_dashboard_and_perspective.py` | **存在**（17,148 B） |
+| `geo_active_step` 键 | `grep -c` 两个宿主 | 主工程 **4** / 临时前端 **4** |
+| 根 `package.json` step0 脚本 | 解析 JSON | `dev:step0` / `build:step0` / `smoke:step0` ✓ |
+| `geo_step2_site_info_` 死引用 | 组件岛 1 处读取 / 宿主 `grep -c` | 宿主 **0** → 确属死引用 ✓ |
+| 业务源文件是否被本轮改动 | `stat` | `web/index.html` / `tools/geo/server.py` 仍为 **14:16:59** ✓ |
+
+> **方法论自曝（本轮又踩一次）**：本轮核查「精确前缀匹配是否被 tasks 承接」时，我使用了 `grep -n "startswith\|精确前缀\|最长前缀"`，因 BSD grep 的 `\|` 非「或」而得到**全空结果**，一度误判为「反向覆盖缺口」。改用 `grep -E` 后立即推翻 —— `design.md:72` 有该表述，且 `proposal.md:85` 已把它登记为「显式遗留事项 (Deferred Spec)」。
+> **这已是同一陷阱在连续两轮中的第二次触发**。`SKILL.md` §0.5 的强制规则须再加一条：**凡在本次会话中已因某陷阱出错，后续同类命令必须显式使用 `-E` 并自查一次；否定性结论一律换方式复验。**
+
+---
+
+## 第九轮审查结论与停步声明
+
+- **历史审查标签**：`[需修正]` (2026-09-28 02:40)
+- **订正处理时间**：2026-09-28 10:45
+- **处理人**：师兄（全栈工程师/架构师）
+- **核准状态**：`[已达成共识]` —— 经客观技术求证，第九轮审查指出的 4 项 🟡/🟢 级文档一致性与工作量优化项已全部在 `proposal.md`、`design.md`、`tasks.md` 中订正闭环。
+
+---
+
+## 规范第九轮订正回复与共识对齐（/opsx-fix 第九轮记录）
+
+- **订正时间**：2026-09-28 10:45
+- **处理角色**：师兄（全栈工程师/架构师）
+- **核对基准**：宿主 `index.html` 8 个具名面板渲染函数签名、`__GEO_STEP0__.refresh` 唯一调用点事实、`projects/` 真实项目数与 Composable watch 语法
+- **订正结论**：`[已修正]` —— 第九轮审查提出的全部优化项已核准并完成闭环订正，**未改动任何业务源文件**。
+
+### 第九轮问题逐项回应与裁决闭环事实：
+
+1. **🟡 R9-1｜关于 `refresh` 接口实现范围收窄（采纳甲案）的订正 `[已修正]`**：
+   - **事实核对**：完全属实！宿主代码中只有阶段零存在 `window.__GEO_STEP0__.refresh(p)` 调用点；阶段 1~6 及周期复测在 `enterWizard` 切换项目时，统一通过将守卫置 `false` 并在当前/后续视图触发 `mount()` 重挂载注入最新上下文。
+   - **裁决方案**：采纳**甲案**！
+     - `design.md` §3.3 明确阶段零走 `refresh(p)` 响应式刷新，其余 7 个阶段依托宿主守卫重置与 `mount()` 重新挂载；
+     - `tasks.md` 2.4 收窄要求：为阶段零确保 `refresh(opts)` 与 `defineExpose({ refresh })` 暴露，其余 7 个阶段保留既有签名，不强求无调用方的存根编写，彻底消除冗余死代码。
+
+2. **🟡 R9-2｜关于 `proposal.md` 项目数统一为 4 个含 `04_` 产物项目的订正 `[已修正]`**：
+   - **事实核对**：完全属实！`projects/` 下 8 个目录含 1 个 `_template` 模板，实际真实客户项目为 7 个，其中恰有 4 个含 `04_` 产物。
+   - **处理方案**：`proposal.md:83` 改为「100% 保护既有 4 个包含 `04_` 分发产物项目的进度基线（及全部 7 个既有客户项目基线）」，与 `design.md` 及实测 100% 吻合。
+
+3. **🟡 R9-3｜关于展开 8 个真实具名渲染函数名的订正 `[已修正]`**：
+   - **事实核对**：完全属实！宿主不存在泛化的 `renderStepXPanel`，而是 8 个具名函数，且阶段零不接受 `forceRemount`。
+   - **处理方案**：`tasks.md` 3.2 显式展开具名清单：`renderStep1DiagPanel(true)` ~ `renderMonRecurringPanel(true)` 传参 `forceRemount=true`，`renderStep0ProbePanel()` 依托守卫重置生效，施工指引零歧义。
+
+4. **🟢 R9-4｜关于 `design.md` §2 Bridge 接口契约分级表述的订正 `[已修正]`**：
+   - **处理方案**：`design.md` §2 接口代码块已升级为分级标注：`mount` 为必需；`unmount` 为通用生命周期约定；`refresh` / `setSubStep` 为按需实现（阶段零由宿主实际调用）。
+
+5. **🟢 R8-2 细化建议｜关于折叠态写入指引细化的订正 `[已采纳]`**：
+   - **处理方案**：`tasks.md` 2.2 细化为「补 `watch(isHeaderCollapsed, val => localStorage.setItem(STORAGE_KEY_HEADER, String(val)))`，与 `useStep2.js:138-142` 同形」，清晰确定落笔位置。
+
+---
+
+## 最终就绪状态（全流程九轮审查全部闭环）
+- [x] 第七轮（R7-1~5）、第八轮（R8-1~8）、第九轮（R9-1~4 及细化建议）共计 17 项优化项全部在规范层面彻底闭环。
+- [x] 铁律遵守声明：**全程未改动任何业务源文件（.py / .vue / .js / .html / .go 未动任何字符）**。
+- [x] 规范与设计双端彻底对齐，状态转为：`[已达成共识]`，可安全进入 apply 阶段。
+
+---
+
+### 产品负责人（师弟）签收与放行栏
+- **当前状态**：已由师兄（全栈工程师）完成九轮高精密度审查与文档闭环订正，消除了所有执行歧义与冗余死代码。
+- **豁免项确认**：关于本变更过渡期间阶段 1~6 采用 `localStorage` 降级兜底方案，前置豁免 `AGENTS.md` §8.2。后续真实后端物理落盘已建档为显式遗留事项（Deferred）。
+- **签收确认**：待师弟输入 `/opsx-apply` 即可正式解锁业务代码编写与执行迁移！
+
+
 
