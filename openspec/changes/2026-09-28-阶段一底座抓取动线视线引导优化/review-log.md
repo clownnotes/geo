@@ -364,5 +364,146 @@
 - **下一步行动**：
   规范全家桶（proposal/design/tasks）已同步更新落盘，AI 保持**严格立定停步**，未修改任何业务代码，等待进入后续开发阶段。
 
+---
+
+## 2026-09-28 18:45 · 审查方（单 IDE 自审）· 第三轮：代码验收 + 新范围规范审查
+
+> **审查对象**：`df0a3c0 feat(step1): 完成阶段一底座抓取动线视线引导优化并通过多模型对抗终审`（真实代码提交）+ `6927519 docs(openspec): 升级端到端网络底座真机探测与中栏数据实时落盘闭环规范`（新范围文档重写）
+> **本轮性质**：同时是 §1.5「代码落地后的验收轮」与「新范围的设计审查」
+> **比对基准**：`AGENTS.md`（§1 第 3 条停步铁律 / §3.3 / §3.5 / §4.5）、`web/step0-src/` 与 `tools/geo/` 真实源码、NE1 现场实测
+> **动作边界**：本轮**未修改任何业务代码与规范文档**，仅追加本记录。
+
+### 一、我方第二轮两项意见：**均已真实闭环**
+
+| 编号 | 复核落点（实测证据） | 结论 |
+| :--- | :--- | :--- |
+| 🔴 P0-3 `activeFile` 回归 | `stage1Config.js:282` 已恢复 `activeFile: '01_网络底座指标_待对照.md'`，且文档授权的 `completedLabel` **保留**（`action` 块完整） | ✅ **闭环** |
+| 🟡 P1-4 `return` 未导出 | `useStep1.js:52`（ref）/ `:88`（写入 `saveState`）/ `:199`（置 `true`）/ **`:321`（`return` 中导出）**；`Step1App.vue:54` 已绑定 `:action-completed-map="{ crawlMetrics: crawledMetrics }"` | ✅ **闭环**（端到端链路完整） |
+
+> **结论**：第二轮提出的"最后一跳"缺口已补齐，且**没有夹带**新的越权改动（`git show --stat df0a3c0` 的文件清单与文档授权范围一致）。
+
+### 二、Auditor `[通过]` 自述复核：**6 项完全属实，1 项记录与产物不符**
+
+| # | 自述内容 | 复核实测 | 结论 |
+| :--- | :--- | :--- | :--- |
+| ① | P0-3 已彻底修复 | 见上表（独立实测，非采信自述） | ✅ **属实** |
+| ② | P1-4 已于 `useStep1.js:321` 导出 | `grep -n crawledMetrics useStep1.js` → `:321`，**行号也对得上** | ✅ **属实** |
+| ③ | 防污染边界与空值安全 | `StudioSop.vue:257-259 isActionDone()`（`!type` 短路）、`:263-267 shouldHighlightProceed()`（`idx + 1 !== props.currentStep` 短路）、`:311` 已 `watch` `actionCompletedMap` | ✅ **属实** |
+| ④ | 全量改动源文件 0 个彩色 Emoji | 三份文档 + `df0a3c0` 改动的 5 个源文件，正则扫描**零命中** | ✅ **属实** |
+| ⑤ | 修复 `server.py` 403/404 缺 `Content-Length` | diff 实证：两处均新增 `Content-Length`，并改为先赋值 `body` 再 `write` | ✅ **属实**（修法正确） |
+| ⑥ | 已在 NE1 就地构建 + 冒烟 4/4 PASS | **强证据**：NE1 与本地 **6 个文件逐字节相同**（见下表）；NE1 现场有 `M web/assets/step0/step0.js` + `M web/index.html` 构建痕迹 | ✅ **构建机声明属实、产物溯源干净** |
+| ⑦ | 版本戳 `20260928094615` | 实际 `web/index.html` = **`20260928094620`**（本地与 NE1 两侧一致） | 🟢 **记录与最终产物不符** → 见 P2-5 |
+| ⑧ | Task 1.1~3.1 全部完成 | 现 `tasks.md` **全部 `[ ]`** | ⚠️ **该自述已失效**（`6927519` 已把任务表整体重写为新范围）——非错误，属范围变更 |
+
+**⑥ 的逐字节比对（本轮最有价值的一条实证）**：
+
+| 文件 | 本地 HEAD（干净树） | NE1 工作区 | 一致？ |
+| :--- | :--- | :--- | :--- |
+| `components/studio/StudioSop.vue` | `3c793776b95e…` | `3c793776b95e…` | ✅ |
+| `useStep1.js` | `b86d77f46794…` | `b86d77f46794…` | ✅ |
+| `stage1Config.js` | `c4b39108c96e…` | `c4b39108c96e…` | ✅ |
+| `Step1App.vue` | `ac2606b221ae…` | `ac2606b221ae…` | ✅ |
+| `assets/step0/step0.js` | `84e733a879bb…`（378,144 B） | `84e733a879bb…`（378,144 B / mtime 17:46） | ✅ |
+| `index.html` | `247fdcf54d4f…` | `247fdcf54d4f…` | ✅ |
+
+> **意义**：NE1 虽仍停在 `f1db08a`（落后 30+ 提交、65 个脏文件），但其**工作区内容与已提交源码逐字节一致**，故"提交的产物是当前源码的忠实构建"这一结论**成立**，`git` 指针滞后只是记账问题，**不影响产物可信度**。
+
+### 三、🟡 P1-5（新增）｜Impact 清单**漏列 `stage1Config.js` 与 `Step1App.vue`** —— **第一轮 P1-1 的累犯**
+
+- **实测（历史对比，可复算）**：
+  - `git show 8fe5e32:…/proposal.md` 的 Impact 段列 **4 个文件**：`stage1Config.js` / `useStep1.js` / **`Step1App.vue`** / `StudioSop.vue`（其中 `Step1App.vue` 正是**第一轮 P1-1 要求补进去的**）；
+  - `git show 6927519 -- …/proposal.md` 显示该段被整段替换为 **3 个文件**：`useStep1.js` / `StudioSop.vue` / `server.py` → **`stage1Config.js` 与 `Step1App.vue` 双双被删掉**。
+- **而新 `tasks.md` 明确要求改这两个文件**：
+  - `tasks.md:11` 2.2：在 `stage1Config.js` 实现 `buildCrawledMetricsMarkdown(ctx, metrics)`；
+  - `tasks.md:20-22` 2.5：在 `Step1App.vue` 解构 `isCrawling` 并绑定 `:action-loading-map="{ crawlMetrics: isCrawling }"`。
+- **后果（与第一轮 P1-1 同一失效模式，且同样不报错）**：
+  1. 不建 `buildCrawledMetricsMarkdown` → `design.md:124` 的调用在运行期抛 **`ReferenceError`**，抓取成功后整个回填链路中断；
+  2. 不绑 `:action-loading-map` → `actionLoadingMap` 恒为默认 `{}` → `isActionLoading()` 恒 `false` → **转圈图标与"正在探测官网底座…"永不出现（静默）**。
+- **订正建议**：`proposal.md` Impact 段补回两行 ——
+  - `GEO/web/step0-src/stage1Config.js`：新增 `buildCrawledMetricsMarkdown(ctx, metrics)` 客观指标 Markdown 组装函数；
+  - `GEO/web/step0-src/Step1App.vue`：解构 `isCrawling` 并透传 `:action-loading-map` 至 `<StudioSop>`。
+- **根因提示**：第一轮该问题已被订正，但 `6927519` **整段重写** proposal 时未回头核对 tasks 的文件清单，导致**已修好的项被重新引入**。建议：凡重写 `proposal.md`，必须与当轮 `tasks.md` 做一次"文件清单双向对撞"。
+
+### 四、🟢 P2-5（新增）｜Auditor 记录的版本戳与**最终提交产物**不一致
+
+- 记录值 `20260928094615`；实际 `web/index.html` = **`20260928094620`**（本地与 NE1 一致，差 5 秒）。
+- **根因已定位**：`scripts/smoke_step0.sh:12` 的第 **1/4** 步就是 `npm run build:step0` —— 因此"先构建、再跑冒烟"必然产生**第二个**版本戳，而提交的是后一个。
+- 与历史同类（此前曾出现 `?v=20260928085458` vs `…085500`）。**判定 🟢**（不影响功能，仅影响后续审计对账）。
+- **建议**：记录时以**最终提交的产物**为准，或显式注明"冒烟脚本会重建，以末次戳为准"。
+
+### 五、🟢 P2-6（新增）｜`design.md §3` 调用 `buildCrawledMetricsMarkdown` 但未说明 import
+
+- `design.md:124` 直接调用该函数；按 `tasks.md:11` 2.2 它落在 `stage1Config.js`；而 `useStep1.js:7` 已有 `import { resolveContext, buildStage1Files, STAGE_1_META } from './stage1Config.js';`。
+- **建议**：在 `tasks.md 2.2` 或 `design.md §3` 加一句"把 `buildCrawledMetricsMarkdown` 加入 `useStep1.js` 既有 import 列表"，避免 apply 漏写导致 `ReferenceError`（与 P1-5 同源）。
+
+### 六、🟢 P2-7（新增）｜`design.md` 拓扑图中 `fetch(url, { mode: 'crawl' })` 是**无效写法**（已实测证伪为不致命）
+
+- `design.md:13` 写 `fetch('/api/projects/' + pid + '/run/audit', { mode: 'crawl' })`。`mode` 虽是 `fetch` 的合法选项，但**只接受** `cors|no-cors|same-origin|navigate`，`'crawl'` 会被忽略 → 实际发出 **GET 且无 body**。
+- **已实测证伪其致命性**（不立案为 🔴）：
+  1. `server.py:1784` 的路由只按**路径**匹配（`"/run/" in path`），**不校验 HTTP 方法**；
+  2. `server.py:1800` `amode = str(body.get("mode") or "crawl")` → **空 body 时默认就是 `'crawl'`**。
+  → 即使照拓扑图写成 GET，后端仍会正确执行 crawl。故仅 🟢。
+- **建议**：`design.md:13` 改为伪码或与 §3（`:112-119`，已正确写成 `body: JSON.stringify({ mode: 'crawl' })`）对齐，避免误导实现者。
+
+### 七、🟢 P2-8（新增）｜18:40 记录的按钮文案与 design/代码不一致（`✓` 前缀）——**判定不构成 §3.3 违规**
+
+- 记录写「浅绿色"**✓** 已抓取真实指标 (点击重新抓取)"」；而 `design.md:93` 与 `stage1Config.js` 的 `completedLabel` 均为 `'已抓取真实指标 (点击重新抓取)'`（**无 `✓`**），完成态图标是 Lucide `check-circle`。
+- **判定**：`✓`（U+2713）**不属于** §3.3 所指的彩色 Emoji 家族（⚡️/💡/⚠️…），且项目**既有先例**（`StudioSop.vue:31` 步骤序号圈内即用 `✓`）→ **不构成违规**。仅登记"记录措辞与文档不一致"，**防下一轮误报**。
+
+### 八、已核对**无问题**的事项（避免下一轮误报）
+
+| 核对项 | 实测 | 结论 |
+| :--- | :--- | :--- |
+| `save_project_output` 是否真实存在 | **存在**：定义于 `tools/geo/utils.py:391`，`audit.py:30` 导入、`:966-968` 调用 | ✅ `design.md:22` 正确。**⚠️ 只在 `audit.py` 内搜 `^def` 会得 0 命中 → 典型假阳性陷阱**（本轮已踩到并当场纠正，**未立案**） |
+| `ctx.clientId` 是否真实 | `stage1Config.js:48` `return { …, clientId }` | ✅ 有效，`design.md:110` 的回落目标存在 |
+| `window.currentAuthToken` / `window.currentProjectId` | **恒为 `undefined`**：`web/index.html:5649/5650` 是**顶层 `let`**（`let` 不挂 `window`），`window.currentX =` 赋值 **0 次** | ✅ **不致命**：`server.py:293-294` 明文「**空 Bearer 必须继续回落到 Cookie**」，`:306-310` 读 `geo_token` Cookie，登录时 `Set-Cookie`（`:772` / `:814`）；同源 `fetch` 默认 `credentials:'same-origin'` 自动带 Cookie → 鉴权仍通过。**建议**（🟢 级）改为裸标识符 `currentAuthToken`，或在注释里写明"依赖同源 Cookie"，避免读者误判 |
+| `POST /api/projects/{id}/run/audit` 路由 | `server.py:1784` `"/run/" in path` + `:1797 if step == "audit"` | ✅ **真实**（路径由 `/run/{step}` 泛化拼装，故字面 grep `run/audit` **零命中属正常**，勿据此判"不存在"） |
+| `mode: "crawl"` 取值 | `server.py:1800-1802` 白名单含 `crawl` 且为默认值 | ✅ 真实 |
+| `inspect_website` / `load_probe_snapshot` / `save_audit_metrics` / `run_audit_crawl` | `audit.py` 各 **1 处** `def` | ✅ 全部真实 |
+| 报告文件名 | `audit.py:34-35` 常量（`01_企业AI可见度商业诊断报告.md` / `01_企业底座技术体检审计报告.md`） | ✅ 真实 |
+| `tasks.md 2.1` 是否确有必要 | 现响应仅含 `tech_score: (ares.get("metrics") or {}).get("tech_score")`，**未透传 `metrics` 本体**（`server.py:1831-1838`） | ✅ **任务成立且必要** |
+| `loader-2` 图标名 | `web/index.html` 有 **5+ 处**既有先例（均配 `animate-spin`） | ✅ 沿用既有惯例 |
+| 构建产物是否"夹带" | `web/assets/step0/step0.js` + `web/index.html` 本为**仓库长期跟踪的部署产物** | ✅ 非违规 |
+| `.openspec.yaml` | 存在（`schema: spec-driven`） | ✅ 未丢 |
+| 变更目录名 vs 文档新标题 | 目录 `2026-09-28-阶段一底座抓取动线视线引导优化`；三份文档标题已改为「阶段一官网底座真机探测与中栏数据实时落盘闭环」 | 🟢 范围扩容但目录名未改；`openspec/config.yaml` 仅要求"中文 + `YYYY-MM-DD-简短描述`" → **不违规**，建议在文档内注明"本变更已扩容" |
+| 未推送提交数 | `git rev-list --count origin/main..main` | **32** |
+
+### 九、本轮结论
+
+- **审查标签**：`[需修正]` —— **1 项 🟡**（Impact 漏列 `stage1Config.js` 与 `Step1App.vue`，系第一轮 P1-1 的**累犯**）+ **4 项 🟢**（版本戳对账 / import 提示 / 拓扑图无效 fetch 写法 / 记录措辞）。
+- **好消息（应如实肯定）**：
+  1. 我方第二轮两项意见**全部真实闭环**，且 `df0a3c0` **没有夹带越权改动**；
+  2. Auditor 的 `[通过]` **基本可采信** —— 6 项自述经独立实测**逐条属实**，尤其 NE1 构建声明有**逐字节哈希**支撑；
+  3. 新范围的**技术锚点全部真实**：路由、`mode` 取值、4 个 Python 函数、报告文件名、`ctx.clientId` 均实测存在（**无"文档自证"**）。
+- **最要紧的一条**：**P1-5**。它不影响已提交代码，但会在 apply 时让「loading 转圈 + 正在探测…」**静默不出现**、并让格式化函数**运行期 `ReferenceError`** —— 与第一轮 P1-1 是**同一个坑**，只是文档被整段重写时又掉了进去。
+- **收口判断（§0.6 第 7 条三问）**：① **无新架构分歧**（仅文件清单与措辞）；② **阻断**（P1-5 会让新范围的核心 UI 失效）；③ **一句话可改**（Impact 补两行）→ **建议：让对端一次改完 P1-5 + P2-6，直接进入 apply，不必再单开审查轮。**
+- **本轮动作边界**：仅追加本记录，**未改动任何业务代码与规范文档**，未执行构建（**有意不跑 `smoke:step0`** —— 其第 1/4 步会重建产物、刷新版本戳，从而污染已提交产物的溯源），未向 NE1 部署。
+- **下一步**：等待师弟裁决；新范围（真抓取 + loading 态）**尚未开工**，`tasks.md` 全部 `[ ]`。
+
+### 附：本轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| 两提交改动集 | `git show --stat --name-only df0a3c0` / `6927519` | `df0a3c0`=7 源文件+2 文档；`6927519`=仅 4 文档 |
+| P0-3 恢复 | `grep -nE "activeFile" web/step0-src/stage1Config.js` | `:282` 已恢复 |
+| P1-4 导出 | `grep -nE "crawledMetrics" web/step0-src/useStep1.js` | `:52 / :88 / :199 / :321` |
+| 胶水层绑定 | `Step1App.vue:54` | `:action-completed-map` 已绑 |
+| 防污染实现 | `StudioSop.vue:257-259 / :263-267 / :311` | 两道短路 + watch 齐备 |
+| Emoji | `grep -rnoE "✅\|👉\|👇\|⚡\|💡\|⚠️\|🚀\|🎯\|✨"` 三文档 + 5 源文件 | **零命中** |
+| 版本戳 | `grep -oE "step0\.js\?v=[0-9]+" web/index.html` | `20260928094620`（**≠ 记录的 …094615**） |
+| 产物 | `shasum -a 256 web/assets/step0/step0.js` | `84e733a8…` / 378,144 B |
+| NE1 逐字节比对 | `ssh mini "shasum -a 256 …"` | **6 文件全部一致** |
+| NE1 构建痕迹 | `ssh mini "git status --short"` | `M web/assets/step0/step0.js` + `M web/index.html` |
+| NE1 落后程度 | `ssh mini "git log --oneline -1"` | `f1db08a`（脏 65） |
+| 冒烟会重建 | `scripts/smoke_step0.sh:12` | `>> 1/4 build:step0` |
+| Impact 历史对比 | `git show 8fe5e32:…/proposal.md` vs `git show 6927519 -- …/proposal.md` | 4 文件 → 3 文件，**掉 2 个** |
+| `save_project_output` | `grep -rnE "save_project_output" tools/geo/` | 定义于 `utils.py:391`（**非缺失**） |
+| 鉴权回落 | `server.py:293-294 / :306-310 / :772` | 空 Bearer → Cookie 回落 + `Set-Cookie` |
+| 路由真实性 | `server.py:1784 / :1797` | `/run/{step}` 泛化路由，`step == "audit"` |
+| 响应是否含 metrics | `server.py:1831-1838` | **仅 `tech_score`，未透传 `metrics`** |
+| 未推送提交 | `git rev-list --count origin/main..main` | **32** |
+
+结论：`[需修正]`
+
 
 
