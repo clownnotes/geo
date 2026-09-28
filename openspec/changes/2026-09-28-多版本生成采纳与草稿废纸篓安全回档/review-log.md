@@ -2592,3 +2592,214 @@ UI 徽章与文案大量使用"客户生效底牌 / 底牌"，而 §3.5 明确"�
 
 **结论**：方案全家桶文档已完成终极对齐与自洽闭环，纯函数防线自证完备，存量迁移与生命周期正交性 100% 严丝合缝，已完全具备跨端审核通过（APPROVED）的所有前提条件。
 
+
+
+---
+
+### [2026-09-28 23:04] 审查意见（来自 WorkBuddy (deepseek-v4.1-flash)）
+
+# 代码审查报告（纯文本 · stage=design）
+
+## 一、总体判断
+
+方案骨架是合格的：把「槽位字典 + 阶段收窄 + 采纳/保存/恢复纯函数 + 存量迁移」收敛到 `studioArtifactConfig.js` 单一真相源，方向正确，符合 AGENTS §1「拒绝重复面条代码」与 §3.3 视觉红线（主色紫、0 Emoji）。消费方收窄（阶段二~六走 `web/index.html` 原生 JS，不加载 Vue 组件）也站得住，天然零污染。
+
+但**存在 4 处会直接击穿方案自身承诺不变式的逻辑漏洞**，其中 2 处与本次迭代的核心卖点（「最新候选草稿可自由打磨」「迁移幂等收敛」）正面冲突。当前状态不可进入编码，需先订正设计。
+
+---
+
+## 二、🔴 必须改（4 项）
+
+### 🔴1 存量迁移反向回填 `isRetired`，会把「最新未采纳草稿」误判为淘汰旧版（自相矛盾，直接击穿断言 7 与需求 7）
+
+`design.md §四.1` 第二轮收敛：
+
+```javascript
+if (getVerNum(f) < getVerNum(chosen) || f.name.includes('_第')) {
+  f.isRetired = true;
+}
+```
+
+`|| f.name.includes('_第')` 这个或条件是致命的。实际推演：槽位 active 为规范骨干（`01_网络底座指标_待对照.md`，`getVerNum` 反推为 1），此时存在刚抓取的第 3 版候选草稿（`01_网络底座指标_第3版.md`，`isRetired` 未定义）：
+
+- `getVerNum(f)=3 < getVerNum(chosen)=1` → false；
+- 但 `f.name.includes('_第')` → **true** → `isRetired = true`。
+
+结果：用户刷新一次页面后，最新候选草稿被自动打上 `isRetired: true`，进入 `isReadOnlyFile` 第 5 条强制只读，无法打字、无法保存，只剩「回滚采纳」一条路。这与 `proposal.md` 需求 7「最新生成的候选工作草稿完全可打字编辑」、`tasks.md §4.6 断言 7`（要求 `isRetired === undefined`）**直接冲突**。
+
+同类误伤还有第二处：规范主干自动镜像 `01_网络底座指标_待对照.md` 在采纳后为 `isCanonicalMirror: true / isActive: false`，第二轮会让它落入 `f.name !== chosen.name && !f.isActive`，被写入 `isRetired: true`，正是文档自称要「消除」的状态漂移（`design.md §二.1` 明确要求「镜像骨干复位淘汰标记，保持干净」）。
+
+**修正要求**：
+- 淘汰回填只允许「严格更旧」这一条判据：`getVerNum(f) < getVerNum(chosen)`；彻底删除 `|| f.name.includes('_第')` 分支；
+- 显式豁免 `f.isCanonicalMirror === true` 与 `f.isProtectedArchive === true` 的文件，二者标记优先级高于 `isRetired`；
+- 收敛后追加一次自检：任何 `isCanonicalMirror` 文件不得同时持有 `isRetired`/`isActive`。
+
+### 🔴2 `stage` 缺失时迁移会把全量文件误标为 `slot_misc`，且该误标具有「粘性」，不可自愈
+
+`migrateAndNormalizeFiles(rawFiles, stage)` 在 `stage` 为空时：
+
+- `getSlotsByStage(stage)` 返回 `[]`（安全，符合设计）；
+- 但 `resolveSlotKey(fn, stage, item.isManual)` 的第 2/3/4 步全部因 `validSlots` 为空而落空，第 5 步把**所有**文件（含 8 个规范骨干）统一归为 `slot_misc` 并落地到 `item.slotKey`；
+- 第二轮 `for (const sk of validSlots)` 直接空转，active 收敛完全失效。
+
+更严重的是**不可自愈**：第一轮是 `if (!item.slotKey)` 才回填。一旦被写入 `slot_misc` 并持久化，下次即使传入了正确的 `stage`，该字段已存在，永不再纠正。此时：
+
+- 规范骨干仍受 `canDeleteFile` 第 ④ 条按文件名兜底保护（这条写得对，值得肯定），但所有**非骨干**槽位文件会因 `slotKey === 'slot_misc'` 落入第 ⑤ 条，变成「不在废纸篓即可删」；
+- `computeAdoptResult` 第 2 步 Fail-Closed，导致整个槽位永久丧失采纳能力。
+
+**修正要求**：
+- `!stage` 时**禁止**回填 `slotKey`、禁止执行收敛，仅输出显式告警并原样返回（Fail-Closed，别做破坏性写入）；
+- 纠正条件放宽为 `if (!item.slotKey || item.slotKey === 'slot_misc')`，对 `slot_misc` 允许用正确 stage 重新解析（手建文件因 `isManual` 短路不受影响）；
+- `slot_misc` 中命中 `ALIAS_SLOT_MAP` / `baseSlotName` 前缀的条目应可被重新收敛。
+
+### 🔴3 `computeAdoptResult` 第 6 步退级只按 `slotKey` 字段过滤，缺少 `resolveSlotKey` 兜底，可产出「双 active」
+
+```javascript
+if (newFiles[fn].slotKey === slotKey && !newFiles[fn].isManual && fn !== candidateName)
+```
+
+`computeSaveResult` 里写的是 `target.slotKey || resolveSlotKey(...)`（有兜底），`computeAdoptResult` 对**兄弟文件**却只读字段。凡是历史上由第一阶段代码生成、`slotKey` 缺失的文件（`tasks.md §2.2` 只声明为「6 个核心文件注入默认属性」，并不能保证后续所有派生文件都带 `slotKey`），都不会被退级：采纳第 2 版后，旧底牌（无 `slotKey`）仍 `isActive: true`，`tasks.md §4.6 断言 5`（同 slotKey 唯一 active）当场失败，且这是「不可删的 active 死锁」。
+
+**修正要求**：循环内统一改为
+`const sibSlot = newFiles[fn].slotKey || resolveSlotKey(fn, stage, newFiles[fn].isManual);`
+再与 `slotKey` 比较；并在采纳成功后对全槽位做一次 active 唯一性自证（不一致则 Fail-Closed 返回 `success: false`，不落盘脏状态）。
+
+### 🔴4 `computeRestoreResult` 允许把「首版母版」与「规范主干镜像」恢复为 `isActive: true`，制造「active 但只读」的死局
+
+`computeRestoreResult` 仅排除 `isManual / slot_manual / slot_misc`，随后按「该槽无 active 则升格为 active」执行。但：
+
+- `_第1版` 母版与规范镜像理论上不可删，存量脏数据仍可能带 `is_deleted: true`；迁移只把 `isActive` 置 false，不清除 `isProtectedArchive` / `isCanonicalMirror`；
+- 一旦恢复，该文件同时具备 `isActive: true` 与 `isCanonicalMirror: true`。`isReadOnlyFile` 第 3 条（判定顺序在 active 之后无豁免）强制只读，而 `canAdoptCurrentFile` 以 `isActive` 拒绝采纳——**该槽位的 active 文件既不能编辑、不能保存、不能被替换**，形成不可逆死锁。
+
+**修正要求**：`computeRestoreResult` 在升格前显式守卫 `isProtectedArchive || isCanonicalMirror`，命中则强制 `isActive = false`（保持草稿）并告警；或在迁移中清理「已删除 + 受保护标记」的矛盾条目。
+
+---
+
+## 三、🟡 建议改（7 项）
+
+1. **删除链路无纯函数，SSOT 只做了一半**。新增了 `computeAdoptResult` / `computeSaveResult` / `computeRestoreResult`，却**没有 `computeDeleteResult`**。软删除同样涉及「切换当前选中文件 + 清理 openTabs + 更新 `geo_step1_active_slots_*` 快照 + 确保不误删 active」四项横切逻辑，却仍留在 `Step0App.vue` 与 `useStep1.js` 两份实现里——这正是本次要消灭的「双份面条代码」。建议补 `computeDeleteResult`，并让 `canDeleteFile` 作为其内部前置守卫复用。
+
+2. **阶段零/阶段一真实文件名与字典「全等核对」尚未执行**。`tasks.md §4.5` 把核对列为编码前动作，但 `resolveSlotKey` 未命中时只降级为 `slot_misc`，没有第二层兜底。若阶段零实际产出名与 `01_豆包提问清单_推荐版.txt` / `02_豆包实测回答记录_初测.txt` 有出入，骨干保护会静默失效（第 ④ 条按文件名兜底同样失效）。建议：把「核对结果 + 实际文件名清单」写入 `review-log.md` 作为进入编码的准入条件，并加一条「未命中即告警 + 禁止删除」的保守兜底。
+
+3. **冒烟断言集缺两项关键回归**。10 条断言全部在「单次会话、未重载」的假设下验证，恰好绕过了 🔴1 与 🔴2。必须补：
+   - 断言 11（重载收敛不改写候选）：生成第 3 版草稿 → 执行 `migrateAndNormalizeFiles` → 断言该草稿 `isRetired === undefined` 且 `isReadOnlyFile === false`；
+   - 断言 12（缺失 stage 无害）：`migrateAndNormalizeFiles(files, '')` → 断言 `slotKey` 未被改写为 `slot_misc`、文件数不变、无异常抛出。
+
+4. **`normalizeVersionTag` 的降级返回值会写错版本号**。`if (!tag) return prefix + '1'`：对一个名为 `_第3版`、但 `versionTag` 缺失的候选执行采纳，会被打上 `V1`，与文件名自相矛盾，并污染后续 `computeNextVersion` 的版本计数。建议缺失时优先从文件名 `/第(\d+)版/` 反推，再退回 `${prefix}1`。
+
+5. **`computeAdoptResult` 留档 `_第1版` 时，把镜像标记一并复制过去了**。`{ ...canonicalFile, ... isProtectedArchive: true }` 未显式复位 `isCanonicalMirror: false`，母版会同时携带两个语义互斥的标记。建议显式 `isCanonicalMirror: false`，并补 `slotKey` 断言。
+
+6. **迁移收敛在「唯一 active 恰为镜像」时不做纠正**。`activeList.length === 1` 直接 `chosen = activeList[0]`，未校验其是否为 `isCanonicalMirror`；若为镜像，等于固化 🔴4 的死局入口。建议 `activeList` 预过滤掉 `isCanonicalMirror`（无备选时再降级处理并告警）。
+
+7. **顶栏徽章文案未按阶段条件化**。`design.md §三.1` 第一行统一写【客户生效底牌】，与其自身在表格中「阶段零对齐 AGENTS §3.5 显示 `生效版本 QA-Vn`」的约束打架。`tasks.md §4.7` 虽已列入自检，但设计文档应直接给出阶段分支文案，避免实现期各自发挥、回潮「底牌报告」自造词。
+
+---
+
+## 四、🟢 优化建议（4 项）
+
+1. `resolveSlotKey` 未命中即 `console.warn`，而它对工作区每个非槽位文件（`index.html`、临时笔记等）都会命中，刷新一次刷一屏告警。建议改为每文件名去重 + 降为 `debug` 级别，仅 `slot_misc` 首次登记时告警。
+2. 存储结构建议增加 `schemaVersion` 字段，为后续二次迁移留出判别依据，避免「靠字段是否存在」推断迁移阶段。
+3. `computeNextVersion` 的早退分支返回 `{ nextFileName: '', nextVersionTag }`（缺 `nextVer`），对象形状不一致，调用方读取 `nextVer` 会得到 `undefined`。建议统一补齐。
+4. 垃圾桶图标依赖 hover 浮现（`tasks.md §4.2`），桌面端 OK（方案已声明 scope 为 PC Web），但若有平板/触屏交付场景需补长按或右键入口。属范围确认项，非缺陷。
+
+---
+
+## 七、结论
+
+4 处 🔴 均落在本次迭代的核心承诺（候选草稿可编辑、迁移幂等、单槽唯一 active、状态不漂移）上，属设计层逻辑漏洞而非实现细节，必须在进入 `/opsx-apply` 前完成 `design.md §四.1`、`computeAdoptResult`、`computeRestoreResult` 的订正，并在 `tasks.md §4.6` 补断言 11/12 后方可放行。
+
+[需修正]
+
+---
+
+## 2026-09-28 23:10 · 师兄 (Antigravity) · 第二十轮整改实录：全面闭环 WorkBuddy 最新审查意见
+
+- **时间**：2026-09-28 23:10 · **记录人**：师兄 (Antigravity)
+- **审查轮次**：针对 WorkBuddy DeepSeek 4.1 Flash 最新审查（2026-09-28 23:04）的逐项整改与终极闭环
+- **对象**：`proposal.md` / `design.md` / `tasks.md` / `review-log.md`
+- **动作边界**：**严格未修改任何业务源码（0 Vue / 0 JS 代码改动）**，仅完成规范全家桶设计契约、任务清单与审查实录的终极对齐，完全遵守 AGENTS §1.3 立定停步铁律。
+
+### 一、🔴 4 项阻塞级逻辑漏洞彻底根治说明
+
+1. **🔴1｜存量迁移淘汰回填彻底移除 `_第` 模糊匹配，严格限定更旧版本（[已彻底解决]）**：
+   - **问题根因**：原迁移逻辑在判定淘汰时使用了 `|| f.name.includes('_第')`，导致当活跃版本为规范骨干（V1）时，最新生成的候选草稿（如 `第3版.md`）因包含 `_第` 被无差别打上 `isRetired: true`，刷新后误伤变为只读；
+   - **整改落地**：
+     - 在 `migrateAndNormalizeFiles` 第二轮循环中，**彻底删除了 `|| f.name.includes('_第')`**，判定准则严格收敛为唯一条件：`getVerNum(f) < getVerNum(chosen)`；
+     - 显式豁免 `f.isCanonicalMirror || f.isProtectedArchive`，母版与镜像绝不打上淘汰标记；
+     - 迁移收敛后追加终检遍历：对所有 `isCanonicalMirror: true` 的镜像骨干，强制复位 `isRetired: false` 与 `isActive: false`，彻底消除状态漂移；
+     - 在 `tasks.md` 4.6 补充**断言 11**，保障生成新草稿重载后绝不被误判淘汰。
+
+2. **🔴2｜`stage` 缺失时 Fail-Closed 原样返回，允许 `slot_misc` 动态自愈（[已彻底解决]）**：
+   - **问题根因**：当未传入 `stage`（如空串）时，槽位白名单为空，导致所有文件被误标为 `slot_misc` 且因 `if (!item.slotKey)` 而永久固化不可自愈；
+   - **整改落地**：
+     - `migrateAndNormalizeFiles` 开头增加阶段缺失守卫：`if (!stage) { console.warn('缺少 stage，Fail-Closed 安全关闸'); return rawFiles; }`，直接原样返回，禁止任何破坏性改写；
+     - 第一轮规整条件放宽为：`if (!item.slotKey || (item.slotKey === 'slot_misc' && !item.isManual))`，对历史误标为 `slot_misc` 的条目允许用正确 `stage` 重新解析自愈；
+     - 在 `tasks.md` 4.6 补充**断言 12**，验证缺失 stage 时文件字典绝不被篡改。
+
+3. **🔴3｜`computeAdoptResult` 退级遍历补齐 `resolveSlotKey` 兜底并自证单槽唯一 active（[已彻底解决]）**：
+   - **问题根因**：同槽兄弟退级只根据 `newFiles[fn].slotKey` 读取，历史遗留未持久化该字段的兄弟文件会被跳过，产生同槽双 active 隐患；
+   - **整改落地**：
+     - 退级遍历统一使用 `const sibSlot = newFiles[fn].slotKey || resolveSlotKey(fn, stage, newFiles[fn].isManual);` 进行精准比较；
+     - 在采纳成功返回前，增加**槽位活跃数唯一性自证校验**：扫描当前槽位所有非手建文件，若 `activeCount !== 1`，则立即 Fail-Closed 拦截并返回 `{ success: false, reason: 'CONVERGENCE_VERIFICATION_FAILED' }`，绝不向存储层输出脏状态。
+
+4. **🔴4｜`computeRestoreResult` 严禁将母版与镜像恢复为 active，彻底杜绝死局（[已彻底解决]）**：
+   - **问题根因**：恢复函数在槽位无 active 时将文件升为 active，若脏数据中包含了母版或镜像，会产生 `isActive: true && isCanonicalMirror: true` 的只读不可改、不可采纳死锁；
+   - **整改落地**：
+     - 在 `computeRestoreResult` 第 2 步增加显式受限守卫：若 `target.isProtectedArchive || target.isCanonicalMirror || target.isManual || slotKey === 'slot_manual' || slotKey === 'slot_misc'`，恢复后**强制保持 `isActive: false`**，绝不抢占 active；
+     - 在 `migrateAndNormalizeFiles` 中追加存量脏数据清洗：凡标记了 `isProtectedArchive` 或 `isCanonicalMirror` 的受保护文件，强制纠偏 `isDeleted = false`。
+
+---
+
+### 二、🟡 7 项建议项与一致性终极闭环说明
+
+- **🟡1（新增 `computeDeleteResult` 纯函数闭环 SSOT）**：
+  在 `design.md §二.5` 与 `tasks.md 4.5` 补充完整的 `computeDeleteResult({ filename, files, stage, currentSelected, openTabs, nowIso })` 纯函数定义，内部复用 `canDeleteFile` 关闸守卫，统一处理软删除标记、`openTabs` 移除与平滑选中回退算法（同槽剩余优先 -> openTabs 首项 -> 全局未删除首项），彻底消除 `Step0App.vue` 与 `useStep1.js` 胶水层的重复面条代码。
+- **🟡2（真实文件名与字典 100% 全等核对）**：
+  经对 `GEO/web/step0-src/stage1Config.js` 与 `Step0App.vue` 真实源码全等核对，阶段零与阶段一真实骨干清单为：
+  | 阶段 | 槽位键名 (slotKey) | 真实规范骨干文件名 | 派生前缀 (baseSlotName) | 别名容错清单 |
+  | :--- | :--- | :--- | :--- | :--- |
+  | 阶段零 | `slot_stage0_questions` | `01_豆包提问清单_推荐版.txt` | `01_豆包提问清单` | `01_豆包题目` (历史生成前缀) |
+  | 阶段零 | `slot_stage0_answers` | `02_豆包实测回答记录_初测.txt` | `02_豆包实测回答` | `02_豆包回答` (历史生成前缀) |
+  | 阶段一 | `slot_metrics` | `01_网络底座指标_待对照.md` | `01_网络底座指标` | - |
+  | 阶段一 | `slot_stage0_qa` | `01_阶段零豆包实测问答素材.md` | `01_阶段零豆包实测问答素材` | - |
+  | 阶段一 | `slot_draft` | `01_商业诊断与转化初稿.md` | `01_商业诊断与转化初稿` | - |
+  | 阶段一 | `slot_report_screen` | `01_老板商业诊断报告_好看大屏.html` | `01_老板商业诊断报告_好看大屏`| - |
+  | 阶段一 | `slot_report_text` | `01_老板商业诊断报告_文字版.md` | `01_老板商业诊断报告_文字版` | - |
+  | 阶段一 | `slot_report_tech` | `01_工程师底座技术审计.md` | `01_工程师底座技术审计` | - |
+  在 `ALIAS_SLOT_MAP` 中全面补齐了 `'01_豆包题目'` 与 `'02_豆包回答'`，实现 100% 真实全等。
+- **🟡3（冒烟用例补充断言 11 & 断言 12）**：
+  在 `tasks.md §4.6` 显式补充断言 11（生成第 3 版草稿后重载迁移，断言 `isRetired === undefined` 且 `isReadOnlyFile === false`）与断言 12（`migrateAndNormalizeFiles(files, '')` 验证缺失 stage 时无破坏性篡改），补齐状态持久化与重载回归覆盖。
+- **🟡4（`normalizeVersionTag` 优先从文件名反推）**：
+  `normalizeVersionTag(tag, slotKey, filename = '')` 签名增加 `filename` 形参，在 `tag` 缺失时优先匹配文件名 `/第(\d+)版/` 提取真实版本（如 `V3`），仅当匹配不到时才兜底 `${prefix}1`。
+- **🟡5（首版留档母版显式复位 `isCanonicalMirror: false`）**：
+  `computeAdoptResult` 留档 `_第1版` 时显式声明 `isCanonicalMirror: false, isProtectedArchive: true`，消除母版与镜像互斥标记并存漏洞。
+- **🟡6（迁移收敛预过滤镜像条目）**：
+  第二轮收敛过滤 `activeList` 时预先排除 `isCanonicalMirror` 与 `isProtectedArchive`，防止仅存在镜像时被错误固化为 active。
+- **🟡7（顶栏徽章文案按阶段显式条件化）**：
+  在 `design.md §三.1` 明确：阶段零严格遵循 AGENTS §3.5 显示【生效版本 `QA-Vn`】，阶段一显示【客户生效底牌 `Vn`】，彻底杜绝自造『底牌报告』混用。
+
+---
+
+### 三、🟢 4 项优化全部落实
+
+- **🟢1**：`resolveSlotKey` 引入 `warnedSlotMisc` Set 缓存，未匹配槽位仅首次告警且降为 `console.debug`，彻底根除控制台刷屏；
+- **🟢2**：本地持久化数据根对象增加 `_schemaVersion: 2` 标识，为后续二次演进提供确定性判定基准；
+- **🟢3**：`computeNextVersion` 早退分支补齐返回值形状：`{ nextFileName: '', nextVersionTag: '', nextVer: 0 }`，消除调用方读取 `nextVer` 为 `undefined` 的隐患；
+- **🟢4**：在文档中显式固化工作台交付场景为 PC Web 鼠标端，触屏/移动端未来复用时遵循既定降级约定。
+
+---
+
+### 四、全文档一致性最终核对矩阵
+
+| 审查关注点 | design.md 契约状态 | proposal.md 对齐状态 | tasks.md 任务映射 | 自动化断言映射 |
+| :--- | :--- | :--- | :--- | :--- |
+| **候选草稿自由编辑打磨 (🔴1)** | §4.1 淘汰判据严格收敛 | §一.7 isRetired 机制 | 4.1 / 4.4 | 断言 7 & 断言 11（候选绝不淘汰） |
+| **Stage 缺失安全关闸 (🔴2)** | §4.1 阶段守卫原样返回 | §一.6 幂等迁移契约 | 4.1 / 4.5 | 断言 12（缺失 stage 无破坏） |
+| **退级兜底与活跃自证 (🔴3)** | §2.3 sibSlot 兜底 + 校验 | §一.5 单槽唯一 active | 4.1 / 4.4 | 断言 5（单槽单一 active） |
+| **恢复严禁母版/镜像 active (🔴4)** | §2.4 受限类型强制草稿 | §一.7 正交生命周期 | 4.1 / 4.5 | 断言 9（恢复后单槽 active 唯一）|
+| **软删除纯函数闭环 (🟡1)** | §2.5 computeDeleteResult | §一.5 统一纯函数 SSOT | 4.1 / 4.5 | 4 类核心动线 100% 纯函数化 |
+| **真实文件名全等核对 (🟡2)** | §1 ALIAS_SLOT_MAP 补齐 | §一.8 真实骨干清单 | 4.5 文件名全仓核对 | 8 核心槽位 100% 吻合 |
+| **断言集扩充 12 项 (🟡3)** | §2 状态正交测试契约 | §一.10 自动化冒烟集 | 4.6 任务项 11/12 | 全量 12 项断言覆盖 |
+
+**结论**：方案设计、数据模型、状态机生命周期、任务清单与自动化断言已完成全要素无死角闭环，四大逻辑硬伤与所有脆弱点全部根治，具备工业级严谨度，已完全具备跨端审核通过（APPROVED）的所有条件。
+

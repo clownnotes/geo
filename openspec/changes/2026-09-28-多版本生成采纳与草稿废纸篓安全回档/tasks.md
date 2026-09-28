@@ -82,6 +82,7 @@
   - 采纳统一调用 `computeAdoptResult`，由共享算法完成降级、升级、留档与非空单向镜像，同步更新活跃快照；
   - 保存文件统一调用 `computeSaveResult`，生效版本保存时自动单向同步镜像规范主干，同步更新活跃快照；
   - 恢复统一调用 `computeRestoreResult`，守住单槽单一 active 并同步快照；
+  - 删除统一调用 `computeDeleteResult`，前置 Fail-Closed 校验 `canDeleteFile`，安全处理 openTabs 移除与平滑选中回退（解决 🟡1）；
   - `Step0App.vue` 与 `Step1App.vue` 向子组件显式传入 `:stage` 与 `:valid-adopt-slots`，且 Step0App 显式传入 `:show-status-badge="true"`。
 - [ ] 4.6 跨端构建与全量自动化断言冒烟验证（NE1 服务器执行 · 解决 🔴1-🔴4, 🟡1, 🟡2, 🟡6, 🟡7）:
   - 严格在 NE1 服务器执行 `npm run build:step0` 与 `npm run smoke:step0`（确保 4/4 项全部 PASS）；
@@ -96,7 +97,9 @@
     - 断言 7（工作草稿打磨自由与手建隔离 · 🔴1 固化）：同槽存在 active 时，未采纳候选草稿（如第2版，`isRetired === undefined`）以及手建草稿（`isManual: true`）的 `:readonly` 严格为 `false`，完全可编辑打磨保存，且手建文件不参与工序版本计数；
     - 断言 8（规范骨干持久化标记与正交只读科学验证 · 🔴4 固化）：① 采纳第 2 版后，规范骨干打上 `isCanonicalMirror: true` 标记且强制只读；② 采纳第 3 版使第 2 版退级为历史旧版（`isRetired: true`）；③ 将退级后的第 2 版删入废纸篓，断言此时镜像骨干与首版母版依旧强制只读，状态绝不漂移；
     - 断言 9（恢复后单槽 active 严格唯一 · 🔴2 固化）：从废纸篓恢复任何文件后，同 slotKey 下 active 文件数始终严格为 1（无 active 恢复为 active，有 active 恢复为草稿）；
-    - 断言 10（存量旧数据迁移收敛、不变式与幂等性 · 🔴2 固化）：老数据迁移后，所有对象严格具备 `item.name === fn` 硬约束不变式；多 active 脏数据按最高版本严格收敛为 1 个；手建草稿不被篡改；连续多次迁移完全幂等。
+    - 断言 10（存量旧数据迁移收敛、不变式与幂等性 · 🔴2 固化）：老数据迁移后，所有对象严格具备 `item.name === fn` 硬约束不变式；多 active 脏数据按最高版本严格收敛为 1 个；手建草稿不被篡改；连续多次迁移完全幂等；
+    - 断言 11（重载收敛不改写候选 · 🔴1 固化）：生成第 3 版草稿 → 执行 `migrateAndNormalizeFiles` → 断言该草稿 `isRetired === undefined` 且 `isReadOnlyFile === false`，绝不因刷新被误判淘汰（解决 🔴1 & 🟡3）；
+    - 断言 12（缺失 stage 无害 Fail-Closed · 🔴2 固化）：`migrateAndNormalizeFiles(files, '')` → 断言 `slotKey` 未被破坏性改写为 `slot_misc`、文件对象不被篡改、无白屏异常（解决 🔴2 & 🟡3）。
 - [ ] 4.7 管理端文案与操作反馈合规自检（按 AGENTS §3.3 / §3.5 执行 · 解决 🟡4, 🟡8, 🟢5, 🟢6）:
   - 严格落实 AGENTS §3.5 阶段零禁混谈条款：阶段零 UI 徽章、提示与文案中只使用『提问清单』与『豆包实测回答』等标准文案，严禁出现『底牌报告』等自造词混用（解决 🟡4）；
   - 检查所有新增 UI 文案与徽章：严格 0 彩色 Emoji 表情；
