@@ -44,15 +44,17 @@
 
 > **迭代阶段说明**：第 1~3 节代码与冒烟已在上一轮完成并验证入库（commit `f2e1daf`）；第 4 节为本次 Grill-Me 迭代新需求，当前处于纯方案设计阶段（stage=design），本节任务全部保持 `[ ]` 未勾选，严格遵循立定停步铁律，未经 `/opsx-team-apply`（或 `/opsx-apply`）绝不提前编码。
 
-- [ ] 4.1 新建共享配置与算法模块 (`GEO/web/step0-src/config/studioArtifactConfig.js` · 解决 🔴1-🔴3, 🟡5-🟡7, 🟢1-🟢4):
-  - 集中定义 8 大核心工序槽位字典 `CANONICAL_SLOT_DICT` 与别名容错字典 `ALIAS_SLOT_MAP`，导出 `resolveSlotKey` 支持第三参数 `isManual`，手建文件隔离为 `slot_manual` 不走前缀匹配（解决 🔴3 & 🟡5）；
+- [ ] 4.1 新建共享配置与算法模块 (`GEO/web/step0-src/config/studioArtifactConfig.js` · 解决 🔴1-🔴4, 🟡2-🟡8, 🟢1-🟢3):
+  - 集中定义 8 大核心工序槽位字典 `CANONICAL_SLOT_DICT` 与别名容错字典 `ALIAS_SLOT_MAP`，导出 `resolveSlotKey` 未匹配项统一兜底常量 `slot_misc`（解决 🔴3 & 🟡8）；
+  - 导出 `safeStorageGet / safeStorageSet` 薄封装（带环境安全探测，保障纯函数与存储解耦 · 解决 🟢1）；
   - 导出按阶段收窄器 `getSlotsByStage` 与 `getCoreFilesByStage`（未传 stage 时安全降级为空集合并报警，坚决不抛错，彻底杜绝白屏崩溃 · 解决 🟡6, 🟡7）；
-  - 集中封装动态版本正则构造器 `buildSlotRegex`（带 `escapeRegExp` 字符转义）、版本提取防重名算法 `computeNextVersion`（过滤手建文件，防止笔记污染版本编号 · 解决 🔴3）；
-  - 导出双重锁删除判定 `canDeleteFile`、正交只读判定 `isReadOnlyFile`（结合 `isCanonicalMirror` / `isProtectedArchive` 持久化标记位判定，手建文件永远保持自由打磨，彻底杜绝状态漂移 · 解决 🔴3, 🔴4）；
-  - 导出采纳互斥纯函数 `computeAdoptResult`：实施**非空内容有效性守卫**（`typeof content === 'string' && content.trim().length > 0`），严禁采纳空内容草稿，保护主干不断链；未找到文件或空内容时安全返回 `{ success: false, reason }` 并报警，坚决移除 throw（彻底解决 🔴1 & 🟡6）；
-  - 导出活动文件保存纯函数 `computeSaveResult`：目标文件自身允许保存，规范主干镜像实施**非空内容守卫**（空内容安全拦截，保留规范主干原貌，杜绝清空洗白骨干 · 彻底解决 🔴1）；
-  - 导出恢复纯函数 `computeRestoreResult`：无 active 恢复为 active，有 active 保持草稿，手建文件恢复后保持草稿，统一写回 `isDeleted: false` 并确保 `name` 属性完整（解决 🔴2, 🔴3, 🟡2）；
-  - 导出存量数据迁移函数 `migrateAndNormalizeFiles`：第一行保障**硬约束不变式** `item.name = fn`（彻底解决 🔴2），统一驼峰 `isDeleted` 并解析字符串布尔，末尾对正式交付物按槽位严格执行单槽单一 active 归一收敛（保证幂等性 · 解决 🔴2, 🟢3）；
+  - 集中封装动态版本正则构造器 `buildSlotRegex`（带 `escapeRegExp` 字符转义）、版本提取防重名算法 `computeNextVersion`（过滤手建文件 · 解决 🔴3）；
+  - 导出双重锁删除判定 `canDeleteFile`（Fail-Closed 关闸保护：无论 stage 是否传入，规范镜像与母版留档终身不可删 · 解决 🟡3）；
+  - 导出正交只读判定 `isReadOnlyFile`（优先依据 `isRetired === true` 判定淘汰只读，新生成候选草稿不带 isRetired 绝对不只读；已淘汰历史版本只读但支持回滚采纳 · 解决 🔴1 & 🟡7）；
+  - 导出采纳互斥纯函数 `computeAdoptResult`：入口实施阶段合法性守卫（解决 🟡4），实施**非空内容有效性守卫**，被退级旧版写入 `isRetired: true`，采纳目标写入 `isRetired: false`，统一返回 `{ success: true, ... }`（彻底解决 🔴1, 🟡5, 🟡6）；
+  - 导出活动文件保存纯函数 `computeSaveResult`：入口自证只读守卫（解决 🟡4），规范主干镜像实施非空内容守卫，统一返回 `{ success: true, ... }`（彻底解决 🔴1 & 🟡5）；
+  - 导出恢复纯函数 `computeRestoreResult`：统一返回 `{ success: true, ... }`，无 active 恢复为 active，有 active 保持草稿，手建草稿保持草稿，写回 `isDeleted: false` 并确保 `name` 属性（解决 🔴2, 🔴3, 🟡5）；
+  - 导出存量数据迁移函数 `migrateAndNormalizeFiles`：第一行保障 `item.name = fn`（解决 🔴2），`versionTag` 缺失优先从文件名反推（解决 🟡6），末尾按【规范骨干 > 最高版本数值 > 其余】显式排序严格单槽收敛，零 active 激活跳过镜像与母版（保证幂等性 · 解决 🟡2, 🟢2）；
   - 供 Step0App、useStep1 与 StudioEditor 共同引用，彻底杜绝重复代码。
 - [ ] 4.2 改造左栏废纸篓抽屉交互与组件事件规范 (`GEO/web/step0-src/components/studio/StudioFileTree.vue` · 解决 🔴2, 🔴3, 🟡7, 🟡11):
   - 显式声明 `stage: { type: String, default: '' }` prop，未传时警告并降级，杜绝崩溃（解决 🟡7）；
@@ -65,14 +67,15 @@
   - 锁定组件标准事件契约：`@adoptFile(filename)`、`@saveFile({ filename, content })`、`@restoreFile(filename)`（解决 🟡11）；
   - 第一行（状态与操作工具栏）：左侧展示当前文件状态徽章（文字说明 + 主题色，无彩色 Emoji）、字数与时间戳（缺失时显示 `生成时间: 未知`）；右侧偏右对齐排布快捷功能按钮；
   - 恢复按钮严格遵循 AGENTS §3.3 视觉红线，采用系统主色紫 `var(--geo-primary, #7c5bf5)`，严禁使用红色；
-  - 采纳守卫 `canAdoptCurrentFile` 显式排除手建文件（`isManual`），手建草稿不可作为核心工序底牌被采纳（解决 🔴3）；
+  - 采纳守卫 `canAdoptCurrentFile` 显式排除手建文件（`isManual`），手建草稿不可作为核心工序底牌被采纳；允许已淘汰历史版本被点采纳实现版本回滚（解决 🔴3 & 🟡7）；
   - 第二行（Tab 标签栏）：独立一行平铺 `openTabs`，废纸篓文件标注 `[废纸篓]` 浅色标识，允许用户中栏只读预览查验（解决 🟡8）。
 - [ ] 4.4 实施正交只读与保存分流联动 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴1, 🔴3, 🔴4):
-  - 严格依据 `isReadOnlyFile(file, files, props.stage)` 判定只读：仅废纸篓文件、已淘汰历史旧版、以及具备 `isCanonicalMirror: true` 的规范主干自动镜像强制只读；
-  - 当前生效底牌、最新候选工作草稿与手建草稿均完全允许打字编辑，展示【保存文件】按钮（手建文件永不只读 · 解决 🔴3）；
+  - 严格依据 `isReadOnlyFile(file, files, props.stage)` 判定只读：仅废纸篓文件、已淘汰历史旧版（`isRetired: true`）、以及具备 `isCanonicalMirror: true` 的规范主干自动镜像强制只读；
+  - 当前生效底牌、最新候选工作草稿与手建草稿均完全允许打字编辑，展示【保存文件】按钮（手建文件永不只读 · 解决 🔴1 & 🔴3）；
   - 点击保存时根据当前文件状态分流派发 `@saveFile`（对生效底牌联动调用 `computeSaveResult`，受非空内容守卫保护；对普通草稿仅更新正文，不触发主干镜像 · 解决 🔴1）；
   - 在只读态下拦截 `Ctrl+S / Cmd+S` 保存快捷键并弹出对应原因提示。
-- [ ] 4.5 改造状态胶水层与全仓 SSOT 统一 (`Step0App.vue` & `useStep1.js` · 解决 🔴1-🔴3, 🟡9, 🟡10):
+- [ ] 4.5 改造状态胶水层与全仓 SSOT 统一 (`Step0App.vue` & `useStep1.js` · 解决 🔴1-🔴3, 🟡9, 🟡10, 🟢3):
+  - 编码前重跑全仓 grep 复核消费方，确认仅 Step0App 与 Step1App 加载 Studio 组件（解决 🟢3）；
   - 运行前全仓核对阶段零（2个）与阶段一（6个）真实生成文件名与 `CANONICAL_SLOT_DICT` 严格全等，且生成新草稿时直接使用 `slotItem.baseSlotName` 拼装文件名，消除重复拼装（解决 🟡10）；
   - 新写入代码（`handleDeleteFile`、`handleRestoreFile` 等）彻底统一写入 camelCase `isDeleted`，显式 `delete item.is_deleted`，彻底消除 snake_case 回潮（解决 🟡9）；
   - 初始化加载 localStorage 数据时统一接入 `migrateAndNormalizeFiles`，实现存量数据无感迁移与单槽 active 收敛；
@@ -88,12 +91,12 @@
     - 断言 2（废纸篓参与计数）：生成 `第2版` 删入废纸篓后，再次生成新文件确定递增为 `第3版`；
     - 断言 3（标签规整）：采纳后文件 `versionTag` 确定无 `-Draft` 后缀；
     - 断言 4（双重锁防误删与无死按钮）：规范骨干无论是否生效均不可删、无垃圾桶；首版留档 `_第1版` 同样不可删；
-    - 断言 5（单槽单一 active）：采纳后同 slotKey 其他文件 `isActive` 严格为 `false`；
+    - 断言 5（单槽单一 active）：采纳后同 slotKey 其他文件 `isActive` 严格为 `false`，并被打上 `isRetired: true`；
     - 断言 6（骨干单向自动镜像等价与内容守卫 · 🔴1 固化）：采纳有效新版或通过 `computeSaveResult` 编辑保存生效底牌后，规范骨干 content 100% 一致；空内容采纳被拦截，空内容保存严格不洗白规范骨干；
-    - 断言 7（工作草稿打磨自由与手建隔离 · 🔴3 固化）：候选草稿与手建草稿（`isManual: true`）`:readonly` 严格为 `false`，完全可编辑保存，且手建文件不参与工序版本计数与淘汰只读；
-    - 断言 8（规范骨干持久化标记与正交只读科学验证 · 🔴4 固化）：① 采纳第 2 版后，规范骨干打上 `isCanonicalMirror: true` 标记且强制只读；② 采纳第 3 版使第 2 版退级为历史旧版；③ 将退级后的第 2 版删入废纸篓，断言此时镜像骨干与首版母版依旧强制只读，状态绝不漂移；
+    - 断言 7（工作草稿打磨自由与手建隔离 · 🔴1 固化）：同槽存在 active 时，未采纳候选草稿（如第2版，`isRetired === undefined`）以及手建草稿（`isManual: true`）的 `:readonly` 严格为 `false`，完全可编辑打磨保存，且手建文件不参与工序版本计数；
+    - 断言 8（规范骨干持久化标记与正交只读科学验证 · 🔴4 固化）：① 采纳第 2 版后，规范骨干打上 `isCanonicalMirror: true` 标记且强制只读；② 采纳第 3 版使第 2 版退级为历史旧版（`isRetired: true`）；③ 将退级后的第 2 版删入废纸篓，断言此时镜像骨干与首版母版依旧强制只读，状态绝不漂移；
     - 断言 9（恢复后单槽 active 严格唯一 · 🔴2 固化）：从废纸篓恢复任何文件后，同 slotKey 下 active 文件数始终严格为 1（无 active 恢复为 active，有 active 恢复为草稿）；
-    - 断言 10（存量旧数据迁移收敛、不变式与幂等性 · 🔴2 固化）：老数据迁移后，所有对象严格具备 `item.name === fn` 硬约束不变式；多 active 脏数据严格收敛为 1 个；手建草稿不被篡改；连续多次迁移完全幂等。
+    - 断言 10（存量旧数据迁移收敛、不变式与幂等性 · 🔴2 固化）：老数据迁移后，所有对象严格具备 `item.name === fn` 硬约束不变式；多 active 脏数据按最高版本严格收敛为 1 个；手建草稿不被篡改；连续多次迁移完全幂等。
 - [ ] 4.7 管理端文案与操作反馈合规自检（按 AGENTS §3.3 / §3.5 执行 · 解决 🟡8, 🟢5, 🟢6）:
   - 检查所有新增 UI 文案与徽章：严格 0 彩色 Emoji 表情；
   - 检查操作颜色语义：恢复按钮使用系统主色紫，禁止使用危险红色；提示信息四色语义准确；

@@ -2253,3 +2253,188 @@ design 已声明本方案仅服务 PC 浏览器交付工作台，且消费方经
 
 **结论**：方案设计、任务清单、数据契约已达到工业级严密闭环，四大硬约束不变式确立，无任何逻辑盲区，完全具备执行跨端复审或获得最终批准的条件。
 
+
+
+---
+
+### [2026-09-28 22:54] 审查意见（来自 WorkBuddy (deepseek-v4.1-flash)）
+
+# 审查报告：多版本生成采纳与草稿废纸篓安全回档（stage=design）
+
+审查对象：proposal.md / design.md / tasks.md（无代码 Diff，纯方案审查）
+审查基准：AGENTS.md 全量规范（§1 流程铁律、§3.3 视觉红线、§3.5 文案规范、§4.5 NE1 编译口径）
+
+---
+
+## 一、总体判断
+
+方案在产品痛点到架构落地的映射上非常完整，SSOT 抽取（`studioArtifactConfig.js`）、纯函数化、状态正交（`isCanonicalMirror` / `isProtectedArchive` / `isManual` 三标记位）、存量迁移幂等、阶段收窄与安全降级、事件契约表、10 条断言，整体达到了可编码的严谨度，且明确拒绝双份面条代码，符合 AGENTS §1 与架构复用要求。
+
+但存在 **1 处会直接击穿核心需求的逻辑硬伤（🔴）**，以及若干设计内部自相矛盾与防线外置问题（🟡），必须订正后方可进入 apply。结论为 `[需修正]`。
+
+---
+
+## 二、🔴 必须改
+
+### 🔴1 「候选工作草稿」会被错误判定为只读，直接与设计目标、Capability 与断言 7 冲突
+
+这是本次审查最严重的问题，属于逻辑漏洞而非表述问题。
+
+design.md §二.1 的判定表明确要求：
+- 「最新候选工作草稿（如重抓第2版）」→ 是否淘汰旧版 = `false`、是否只读 = **可编辑（`false`）**；
+- 表格「已淘汰历史版本」的定义是「**同槽存在更新生效版**」。
+
+但给出的代码实现是：
+
+```javascript
+export function isHistoricalRetired(file, files) {
+  if (!file || !file.slotKey || file.isActive || file.isManual || file.slotKey === 'slot_manual') return false;
+  return Object.values(files).some(
+    (f) => f.slotKey === file.slotKey && f.isActive === true && f.name !== file.name && !f.isManual
+  );
+}
+```
+
+该谓词只判断「**同槽存在任意一个 active**」，并未判断「active 是否比本文件**更新**」。
+
+反推真实动线：重抓底座时，老底牌 `01_网络底座指标_待对照.md`（`slot_metrics`，`isActive: true`）**仍保持生效**，新生成的 `01_网络底座指标_第2版.md`（`isActive: false`）作为候选草稿。此时调用 `isHistoricalRetired(第2版)`：
+
+- 第2版 `isActive === false`、非手建、有 `slotKey` → 前置条件全部放行；
+- `some()` 命中旧底牌（同 `slotKey`、`isActive === true`、`name` 不同、非手建）→ **返回 `true`**；
+- 于是 `isReadOnlyFile(第2版)` 走到第 5 条 → **返回 `true`（强制只读）**。
+
+**后果（连锁击穿）：**
+
+1. 与判定表「候选工作草稿可编辑」**正面矛盾**；
+2. 与 Capability「正交只读与候选工作草稿打磨引擎」**矛盾**；
+3. 与 tasks.md 断言 7「候选草稿与手建草稿 `:readonly` 严格为 `false`，完全可编辑保存」**必然失败**；
+4. 该草稿一旦只读，`StudioEditor` 会隐藏【保存文件】并拦截 `Cmd+S`，proposal 痛点一「新生成草稿在采纳前可自由编辑打磨」**整个需求归零**；
+5. 更广地看，**任何一个非 active 的候选/兄弟草稿**只要同槽存在 active 就会被误锁，形成「只要不采纳就永远不能改」的死循环。
+
+**根因**：把「**非 active**」错误等同于「**已淘汰**」。二者本质不同——非 active 包含「更新但尚未采纳的候选」，只有「被采纳动作降级、且版本低于当前生效版」的才是淘汰。
+
+**订正方向（择一，建议第一种，确定性最强）**：
+- 方案 A：在 `computeAdoptResult` 第 3 步降级时显式写入 `isRetired: true`（排除被升格的候选本身），`isReadOnlyFile` / `isHistoricalRetired` 改判该持久标记位——这与设计已有的「用持久化标记位消除状态漂移」思路完全一致，属于自身方法论的自洽补全；
+- 方案 B：解析 `第N版` / `versionTag` 得到数值版本，当且仅当 `file.version < activeFile.version` 时才判为淘汰（注意补上无版本号时的兜底规则）。
+
+无论哪种，断言 7 必须补一条显式用例：「同槽存在 active 时，未采纳候选草稿 `readonly === false`」。
+
+---
+
+## 三、🟡 建议改
+
+### 🟡2 迁移收敛优先级「代码 ≠ 文字」
+design.md 与其代码注释均声称多 active 收敛优先级为「规范骨干 > **最高版本** > 其余」，但实现是 `activeList.find(canonical) || activeList[0]`——非骨干时取「首个」而非「最高版本」。由于 `activeList` 依赖对象键插入顺序，跨浏览器/跨序列化顺序可能选出不同 active，破坏「迁移幂等 + 确定性」承诺。建议按版本号显式比较后再选，与断言 10 对齐。
+
+### 🟡3 `stage` 缺省时双重锁失效（安全降级方向反了）
+`canDeleteFile(file, stage)` 的规范骨干保护依赖 `getCoreFilesByStage(stage)`。当 `stage` 未传（默认 `''`）时该集合为空，且函数**未校验 `isCanonicalMirror`**。此时一个已退级的规范主干镜像（`isActive: false`、非手建、非删除）将满足「可删」条件被误删，直接违反「规范骨干终身不可删」与「下游交付不断链」。安全降级应「失败关闸（fail-closed）」而非「失败开闸」：建议 `canDeleteFile`、`isReadOnlyFile` 内补 `isCanonicalMirror` 兜底判定，或在 `stage` 缺失时保持骨干保护不放行。
+
+### 🟡4 纯函数未自证不变量，防线被外置到 UI
+设计反复强调纯函数是 SSOT，但它们自身不校验关键不变量：
+- `computeSaveResult` 对「废纸篓 / 主干镜像 / 首版母版 / 已淘汰历史版」无只读校验，若组件层拦截被绕过（快捷键、并发、未来复用），纯函数会照常写入——与「只读由持久化标记联合判定、杜绝状态漂移」相悖；
+- `computeAdoptResult` 不校验候选 `slotKey ∈ 当前阶段有效槽位`（仅 `canAdoptCurrentFile` 校验），跨阶段文件被直接调用即会被采纳。
+建议在这两个纯函数入口各加一道 `isReadOnlyFile` / `validAdoptSlots.includes(slotKey)` 守卫，返回 `{ success:false, reason }`，做到 SSOT 自洽。
+
+### 🟡5 返回契约不一致
+`computeAdoptResult` 的失败分支返回 `{ success:false, reason }`，但**成功分支不含 `success` 字段**；`computeRestoreResult` 完全无 `success`/状态回执。调用方无法用统一模式判断结果，易回归「点了没反应」的伪死按钮问题（正是本设计要消灭的对象）。建议统一返回结构。
+
+### 🟡6 迁移回填 `versionTag` 会误标历史版本
+`migrateAndNormalizeFiles` 对缺失 `versionTag` 的文件一律回填 `${prefix}1`（如 `V1`）。但存量里可能存在 `..._第3版.md` 这类无 tag 的老文件，会被标成 `V1`，导致徽章显示与 `computeNextVersion` 的版本感知错乱。建议从文件名 `第(\d+)版` 反推版本号后再回填。
+
+### 🟡7「已淘汰历史版本」是否可被采纳，语义自相矛盾
+表格与 Capability 将历史旧版定义为「**强制只读**（历史版本·只读归档）」，但 §三.1 又规定对这类文件展示【设为客户采纳】，且 `canAdoptCurrentFile` 未排除只读态。结果是「只读归档件」却能触发采纳并回写镜像主干——这究竟是有意的「回滚」能力，还是漏判？两者不可兼得。建议二选一并写死在 Spec：要么禁止采纳只读件，要么明确「采纳旧版 = 回滚」并同步修订只读徽章语义。
+
+### 🟡8 `resolveSlotKey` 兜底与注释不符，且动态槽位泄漏文件名
+注释写「归为杂项草稿」，实际返回 `'slot_' + cleanName.replace(...)`（动态槽位），既不存在于 `CANONICAL_SLOT_DICT`，又使每个未匹配文件各自成槽，隐性影响 `isHistoricalRetired` 与版本计数语义。建议统一为一个显式常量 `slot_misc`（或 `slot_other`），避免 `slot_` 前缀被拼进槽位字典。
+
+---
+
+## 四、🟢 优化建议
+
+### 🟢1 跨端兼容性：本方案为 PC-Web 单目标，风险可控，但持久化层应抽象
+design.md 已定界「纯 Web 单目标」，且共享配置模块为 DOM-free 纯函数，符合复用要求。但版本迁移、快照均直接依赖 `localStorage` 与 `new Date()`；AGENTS 全篇强调多端（H5/小程序/uni-app）协同。若未来需在 H5 或小程序复用该工作台，`localStorage` 不可用将阻断移植。设计提到的 `safeStorageGet / safeStorageSet` 目前**只有名称、无定义**，建议在共享配置模块内落地该薄封装并注明可移植边界，同时保持纯函数零 `window/document` 依赖（现状符合，请保持）。
+
+### 🟢2 迁移可能制造「active + mirror」矛盾态
+当某槽仅有规范主干镜像（`isCanonicalMirror: true`、`isActive: false`）且无 active 时，收敛逻辑会把该镜像置为 `isActive: true`，产生「既生效又镜像」的语义冲突。建议收敛的兜底候选跳过镜像与母版。
+
+### 🟢3 tasks.md 任务完整性
+- §4.1 提及 `escapeRegExp`，design 用内联正则实现，命名建议统一；
+- 「`safeStorageGet/Set` 落地」「apply 前重跑全仓 grep 复核消费方」应在 tasks 中补为显式子项（当前仅散落于说明）。
+
+---
+
+## 五、合规性核对（通过项）
+
+- AGENTS §3.3 视觉红线：恢复按钮主色紫 `var(--geo-primary, #7c5bf5)`、禁用红色、0 Emoji —— 全篇合规。
+- AGENTS §1 阶段铁律：tasks 第 4 节全部保持 `[ ]`，明确「未经 apply 绝不提前编码」，人工验收留白不代勾 —— 合规。
+- AGENTS §4.5 编译口径：构建/冒烟均在 NE1 执行，纯函数支持注入 `now` 保障可复现 —— 合规。
+- 架构复用：共享配置替代 Step0/Step1 双份实现，事件契约表锁定命名，消费方收敛 —— 符合「拒绝补丁与面条代码」。
+- 跨端破坏面：`stage` / `validAdoptSlots` 均带安全默认值，仅 Stage0/Stage1 两个消费方，理论零外部破坏（但见 🟡3 的安全性反向问题）。
+
+---
+
+## 六、必须闭环项摘要（进入 apply 前）
+
+1. 修正 `isHistoricalRetired` / `isReadOnlyFile`，使「未采纳候选草稿」绝不只读（🔴1），并补断言 7 对应用例；
+2. 收敛逻辑实现「最高版本」比较（🟡2）；
+3. `canDeleteFile` 对镜像/母版补 fail-closed 兜底（🟡3）；
+4. 纯函数自证不变量 + 统一返回契约（🟡4、🟡5）；
+5. `versionTag` 回填按版本号推导（🟡6）；
+6. 明确「历史旧版能否被采纳」的语义并写死（🟡7）。
+
+以上第 1 项为阻断性缺陷，且会使 tasks.md 断言 7 直接不通过，**不可带病进入编码阶段**。
+
+[需修正]
+
+---
+
+## 2026-09-28 22:58 · 师兄 (Antigravity) · 第十八轮整改实录：全面闭环 WorkBuddy 最新审查意见
+
+- **时间**：2026-09-28 22:58 · **记录人**：师兄 (Antigravity)
+- **审查轮次**：针对 WorkBuddy DeepSeek 4.1 Flash 最新审查（2026-09-28 22:54）的逐项整改与闭环
+- **对象**：`proposal.md` / `design.md` / `tasks.md` / `review-log.md`
+- **动作边界**：**严格未修改任何业务源码（0 Vue / 0 JS 代码改动）**，仅完成规范全家桶设计契约、任务清单与审查实录的闭环修正，完全遵守 AGENTS §1.3 立定停步铁律。
+
+### 一、🔴 1 项阻塞级缺陷根治说明
+
+1. **🔴1｜候选工作草稿被错误判定为只读的根本原因与彻底解决（[已彻底解决]）**：
+   - **根因剖析**：原先 `isHistoricalRetired` 判定逻辑仅检测“同槽是否存在任意 active 兄弟”。在重新抓取底座指标派生 `第2版` 候选草稿时，旧底牌仍处于 active 状态，导致新生成的候选草稿直接被误判为“已淘汰历史旧版”而锁死只读，击穿了核心打磨需求；
+   - **解决方案（引入持久化淘汰标记 `isRetired`）**：
+     - 在 `computeAdoptResult` 的第 3 步（同槽其他文件退级）时，仅对被采纳动作主动降级淘汰的旧版显式打上 `isRetired: true`；
+     - 新抓取生成的候选工作草稿（如 `第2版`）绝不带 `isRetired`，因此 `isHistoricalRetired` 恒返回 `false`；
+     - `isReadOnlyFile` 对新生成的候选草稿与手建草稿放行，严格返回 `false`，完全可打字编辑并展示【保存文件】按钮；
+     - 在 `tasks.md` 4.6 补充显式断言 7 用例：同槽存在 active 时，未采纳候选草稿（`isRetired === undefined`）`:readonly` 严格为 `false`，可自由打字编辑保存。
+
+---
+
+### 二、🟡 7 项建议项与自洽性全面闭环说明
+
+- **🟡2（迁移收敛优先级按最高版本显式比较）**：在 `migrateAndNormalizeFiles` 中定义 `getVerNum` 提取数值版本，多 active 脏数据收敛时按【规范骨干 > 最高版本数值 > 其余】显式 `sort` 排序，选取首项为唯一 active，消除对象键插入顺序差异，实现 100% 确定性与幂等性。
+- **🟡3（canDeleteFile 关闸保护 Fail-Closed）**：在 `canDeleteFile` 开头直接校验 `if (file.isCanonicalMirror || file.isProtectedArchive) return false`，无论 `stage` 是否传入或为空，规范主干镜像与母版留档终身不可删，坚决防范误删漏洞。
+- **🟡4（纯函数自证不变量防线不外置）**：
+  - `computeSaveResult` 入口处执行 `if (isReadOnlyFile(target, files, stage)) return { files, success: false, reason: 'READ_ONLY_LOCKED' }`；
+  - `computeAdoptResult` 入口处执行 `const validSlots = getSlotsByStage(stage); if (validSlots.length > 0 && !validSlots.includes(slotKey)) return { files, success: false, reason: 'STAGE_SLOT_MISMATCH' }`。
+- **🟡5（统一纯函数返回契约）**：`computeAdoptResult`、`computeSaveResult`、`computeRestoreResult` 成功分支统一返回 `{ success: true, ... }`，失败分支统一返回 `{ success: false, reason, files }`，调用方具有统一的判定依据。
+- **🟡6（存量 versionTag 优先从文件名反推）**：`migrateAndNormalizeFiles` 对缺少 `versionTag` 的存量对象，优先匹配文件名 `第(\d+)版` 提取版本号（如 `V3`），提取不到时才兜底 `${prefix}1`，杜绝历史旧版被错标为 V1。
+- **🟡7（明确历史旧版支持回滚采纳）**：在 spec 中写死业务规则：已淘汰历史版本（`isRetired: true`）自身内容强制只读，但支持用户点击【设为客户采纳】执行版本回滚！回滚采纳后解除只读态（`isRetired: false`, `isActive: true`），并重新单向镜像到规范主干。
+- **🟡8（resolveSlotKey 统一兜底常量）**：未匹配到工序槽位的文件统一返回显式常量 `'slot_misc'`，杜绝动态拼接泄漏文件名。
+- **🟢1（safeStorageGet / safeStorageSet 落地）**：在 `studioArtifactConfig.js` 中完整定义跨端本地存储访问器，自带 `typeof localStorage !== 'undefined'` 探测与异常兜底。
+- **🟢2（零 active 兜底激活跳过镜像与母版）**：槽位无 active 时，兜底激活排除了 `isCanonicalMirror` 与 `isProtectedArchive` 的普通候选草稿，防止制造矛盾态。
+- **🟢3（编码前消费方全仓复核任务）**：在 tasks 4.5 显式补齐 apply 编码前重跑全仓 grep 复核消费方的核验任务。
+
+---
+
+### 三、全文档一致性最终核对矩阵
+
+| 审查关注点 | design.md 契约状态 | proposal.md 对齐状态 | tasks.md 任务映射 | 自动化断言映射 |
+| :--- | :--- | :--- | :--- | :--- |
+| **候选草稿自由编辑打磨** | §2 isRetired 持久化标记 | §一.7 isRetired 机制 | 4.1 / 4.4 | 断言 7（同槽有 active 仍可编辑） |
+| **最高版本收敛确定性** | §4 getVerNum 显式排序 | §一.6 最高版本收敛 | 4.1 / 4.5 | 断言 10（迁移收敛与幂等性） |
+| **Fail-Closed 关闸防误删** | §2 canDeleteFile 标记守卫 | §一.8 双重锁终身保护 | 4.1 / 4.2 | 断言 4（规范镜像母版不可删） |
+| **纯函数自证防线** | §2 入口自证只读与阶段合法 | §一.5 纯函数防线 | 4.1 / 4.4 / 4.5 | 跨阶段调用安全拦截 |
+| **统一 success 返回契约** | §2 各函数统一返回值 | §一.5 统一契约 | 4.1 / 4.5 | 消除伪死按钮 |
+| **历史旧版支持回滚采纳** | §2 采纳解除 isRetired | §一.7 支持回滚采纳 | 4.3 采纳守卫 | 回滚采纳后重新生效 |
+| **存储访问器落地与解耦** | §1 safeStorage 完整定义 | §一.5 纯函数零依赖 | 4.1 / 4.5 | 跨端环境安全 |
+
+**结论**：方案设计与任务清单已全面消除逻辑漏洞，所有审查意见 100% 落实闭环，已具备获得最终批准（APPROVED）并开工的完备条件。
+
