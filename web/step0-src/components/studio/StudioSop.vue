@@ -22,7 +22,8 @@
       >
         <!-- 步骤头部：序号 + 名称 + 状态标签 -->
         <div
-          class="flex items-center justify-between gap-2 p-3 cursor-pointer select-none"
+          class="flex items-center justify-between gap-2 p-3 select-none"
+          :class="expandAll ? 'cursor-default' : 'cursor-pointer'"
           @click="onGotoStep(idx + 1)"
         >
           <div class="flex items-center gap-2 min-w-0">
@@ -185,8 +186,9 @@ const props = defineProps({
 const emit = defineEmits([
   'proceed', 'gotoStep', 'extraAction', 'action', 'skip',
   'update:gate',
-  // 阶段零旧事件双向兼容
-  'switch-step', 'refresh-questions', 'proceed-to-next', 'finish-stage0'
+  // [2026-09-28] [出题草稿采纳流] 阶段零核心事件与动作事件，彻底清理废弃悬空的 proceed-to-next
+  'switch-step', 'refresh-questions', 'finish-stage0',
+  'save-file', 'adopt-current-file'
 ]);
 
 // 阶段零默认 SOP（当 stageMeta 为空时回退兜底）
@@ -243,6 +245,10 @@ function isProceedDisabled(step) {
 }
 
 function onGotoStep(num) {
+  // [2026-09-28] [线上P0热修] 平铺微动线模式下所有卡片已展开，禁止点击卡片头部意外派发 switch-step
+  // 杜绝：1) 点击卡片 2 触发 switch-step(2) 跨页跳往 0.2；
+  //       2) 点击卡片 3 触发 switch-step(3) 导致 subMetaMap[3] 抛出 TypeError
+  if (props.expandAll) return;
   emit('gotoStep', num);
   emit('switch-step', num);
 }
@@ -254,18 +260,16 @@ function onExtraAction(type) {
 
 function onActionClick(type) {
   emit('action', type);
-  // [2026-09-28] [动线层级重构] 显式支持 finishStage0 封版通关事件发射
-  if (type === 'finishStage0') {
-    emit('finish-stage0');
-  }
+  // [2026-09-28] [出题草稿采纳流] 显式派发封版、保存文件与采纳底牌事件
+  if (type === 'finishStage0') emit('finish-stage0');
+  if (type === 'saveCurrentFile') emit('save-file');
+  if (type === 'adoptCurrentFile') emit('adopt-current-file');
 }
 
 function onProceedClick(step, idx) {
   emit('proceed', step);
-  // 阶段零兼容双向触发
-  if (idx === 0) {
-    emit('proceed-to-next');
-  } else if (idx === 1 && steps.value.length <= 2) {
+  // [2026-09-28] 清理废弃悬空的 proceed-to-next 发射，仅保留两步以内的封版逻辑
+  if (idx === 1 && steps.value.length <= 2) {
     emit('finish-stage0');
   }
 }

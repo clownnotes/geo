@@ -8,10 +8,10 @@
   - 在 `Step0App.vue` 中引用 `<StudioFileTree>` 时显式传入 `:show-status-badge="true"`，确保阶段 1/2/3 零污染。
 
 ## 2. SOP 交付动线防误触与动作事件打通（【🔴 线上 P0 热修】优先排产）
-- [ ] 2.1 【🔴 现网 P0 热修】阻断平铺模式误触跨页跳页与崩溃，消除假可点手型：
+- [x] 2.1 【🔴 现网 P0 热修】阻断平铺模式误触跨页跳页与崩溃，消除假可点手型：
   - 在 `GEO/web/step0-src/components/studio/StudioSop.vue` 的 `onGotoStep` 头部增加防护 `if (props.expandAll) return;`，彻底阻断用户点击卡片 2 静默跳往 0.2 以及点击卡片 3 导致 `subMetaMap[3]` 抛出 `TypeError` 崩溃；
   - 在卡片头部将手型样式根据 `props.expandAll` 进行条件化处理：`:class="expandAll ? 'cursor-default' : 'cursor-pointer'"`，避免视觉承诺可点但行为不可点的落差。
-- [ ] 2.2 扩展动作分发并彻底清理悬空事件：
+- [x] 2.2 扩展动作分发并彻底清理悬空事件：
   - 在 `StudioSop.vue` 的 `onActionClick` 中支持派发 `save-file`（对应 `saveCurrentFile`）和 `adopt-current-file`（对应 `adoptCurrentFile`）；
   - 在 `defineEmits` 中声明 `save-file` 和 `adopt-current-file`，彻底清理废弃悬空的 `proceed-to-next` 声明及其在 `onProceedClick` 中的发射点。
 
