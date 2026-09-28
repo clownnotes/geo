@@ -1,165 +1,152 @@
-# Design: 阶段一底座抓取动线视线引导优化
+# Design: 阶段一官网底座真机探测与中栏数据实时落盘闭环
 
-## Architecture (架构设计与对象关系)
+## Architecture (时序架构与数据拓扑)
 
-### 1. 动线状态机模型 (Delivery Step State Machine)
-- **当前现状**：
-  动线状态仅维护 `currentStep: number`，每个步骤内部的 `action` 按钮仅执行派发事件，缺乏步骤内的“微状态（Micro State）”，导致动作执行后界面无状态留存。
-- **演进设计**：
-  为动线卡片注入步骤内动作就绪态 `stepActionStates: Record<string, boolean>`：
-  - `crawledMetrics: boolean`：标记“真抓网络底座指标”是否已完成抓取。
-  - 当 `crawledMetrics === true` 时，触发两项视图派生：
-    1. 动作按钮渲染为已就绪态（文案变更为“已抓取真实指标 (点击重新抓取)”，采用浅绿 `bg-emerald-50 text-emerald-700 border-emerald-200`，严格杜绝彩色 Emoji）。
-    2. 主推进按钮进入引导焦点态（添加 `animate-pulse` 柔和呼吸光晕，并在上方显示静态引导标签“指标已抓取就绪，请核对中栏并点击下方继续”，严格杜绝 `animate-bounce` 弹跳等低幼感动效）。
-
-### 2. 状态传递拓扑与防污染边界
 ```
-[useStep1] (生产: crawledMetrics 响应式状态与 saveState 持久化)
-    ↓
-[Step1App.vue] (胶水层: 解构出 crawledMetrics 并组装字典)
-    ↓ :action-completed-map="{ crawlMetrics: crawledMetrics }"
-[StudioSop.vue] (呈现层: 共享组件，防污染校验)
+[交付专家点击动线按钮]
+       │
+       ▼
+[StudioSop.vue] (按钮触发 loading 态，展示转圈图标与“正在探测官网底座…”)
+       │ emit('action', 'crawlMetrics')
+       ▼
+[useStep1.js] (handleAction 异步发起请求)
+       │ fetch('/api/projects/' + pid + '/run/audit', { mode: 'crawl' })
+       ▼
+[server.py / tools/geo/server.py] (路由调度 /run/audit)
+       │
+       ▼
+[tools/geo/audit.py] (run_audit_crawl 真机探测引擎)
+       ├── inspect_website() -> 真实 HTTP 请求探测官网、/robots.txt、/llms.txt、Schema、SSR、DNS
+       ├── load_probe_snapshot() -> 挂载阶段零豆包实测底牌（首推率与竞品数据）
+       ├── save_audit_metrics() -> 真实落盘 projects/{id}/outputs/audit_metrics.json
+       └── save_project_output() -> 真实落盘技术体检与商业诊断 Markdown 报告
+       │
+       ▼ 返回 JSON：{ success: true, metrics: { ... }, tech_score: 85 }
+[useStep1.js] (接收 metrics，生成客观排版 Markdown，写入 files['01_网络底座指标_待对照.md'].content)
+       │
+       ▼
+[StudioEditor.vue] (中栏编辑器即刻响应式渲染最新探测真数据！)
+       │
+       ▼
+[StudioSop.vue] (按钮转为浅绿已完成态，下方推进大按钮呼吸高亮引导进入下一步)
 ```
-- **防污染边界原则**：`StudioSop.vue` 被 4 个阶段（Step 0/1/2/3）共享。阶段 0/2/3 未传入 `actionCompletedMap`（取默认 `{}`），组件内部所有动作完成判断与高亮判断短路返回 `false`，确保其它阶段保持零侵入、零污染。
 
 ---
 
-## Interface (组件属性与接口设计)
+## Interface (组件属性与接口规范)
 
-### 1. `StudioSop.vue` 动线组件
-- **Props 扩展**：
-  ```ts
-  actionCompletedMap: {
+### 1. 后端路由强化 (`GEO/tools/geo/server.py`)
+- **路由路径**：`POST /api/projects/{id}/run/audit`
+- **请求载荷**：
+  ```json
+  { "mode": "crawl" }
+  ```
+- **响应载荷结构强化**（在现存响应基础上确保输出 `metrics` 详情字段）：
+  ```json
+  {
+    "success": true,
+    "step": "audit",
+    "mode": "crawl",
+    "message": "阶段 1 已执行完毕！",
+    "tech_score": 85,
+    "metrics": {
+      "url": "https://nextgeo.baicl.cc",
+      "is_online": true,
+      "status_code": 200,
+      "html_size_kb": 35.5,
+      "has_ssr": true,
+      "has_llms_txt": true,
+      "has_json_ld": true,
+      "clean_text_length": 2484,
+      "text_density_ratio": 6.8,
+      "robots_status": "已主动配置本土 AI 爬虫规则",
+      "warnings": [],
+      "tech_score": 85
+    }
+  }
+  ```
+
+### 2. 前端动线卡片组件 (`GEO/web/step0-src/components/studio/StudioSop.vue`)
+- **新增属性 Props**：
+  ```js
+  /** 动作执行中 loading 字典，如 { crawlMetrics: true } */
+  actionLoadingMap: {
     type: Object,
     default: () => ({}),
   }
   ```
-- **核心辅助函数防污染实现**：
-  ```js
-  // 动作是否已完成（安全校验空值与字典）
-  function isActionDone(type) {
-    if (!type || !props.actionCompletedMap) return false;
-    return !!props.actionCompletedMap[type];
-  }
-
-  // 是否高亮主推进按钮（必须同时满足：动作已完成 且 为当前进行中的步骤）
-  function shouldHighlightProceed(step, idx) {
-    if (!step?.action?.type) return false;
-    if (idx + 1 !== props.currentStep) return false;
-    return isActionDone(step.action.type);
-  }
-  ```
-- **模板视图渲染**：
-  - **动作按钮**（沿用组件既有已完成 emerald 语义，使用标准 Lucide 图标）：
-    ```html
-    <button
-      v-if="step.action"
-      type="button"
-      class="px-3 py-2 rounded-lg border text-[13px] font-bold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer"
-      :class="isActionDone(step.action.type)
-        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/60'
-        : 'bg-[#7c5bf5]/10 border-[#7c5bf5]/30 hover:bg-[#7c5bf5]/20 text-[#7c5bf5]'"
-      @click.stop="onActionClick(step.action.type)"
-    >
-      <i :data-lucide="isActionDone(step.action.type) ? 'check-circle' : (step.action.icon || 'activity')" class="w-4 h-4"></i>
-      <span>{{ isActionDone(step.action.type) ? (step.action.completedLabel || '已抓取真实指标 (点击重新抓取)') : step.action.label }}</span>
-    </button>
-    ```
-  - **主推进按钮上方静态辅助提示与呼吸高亮**（杜绝彩色 Emoji 与弹跳动效）：
-    ```html
-    <div
-      v-if="shouldHighlightProceed(step, idx)"
-      class="text-[11px] text-[#7c5bf5] font-semibold text-center py-0.5"
-    >
-      指标已抓取就绪，请核对中栏并点击下方继续
-    </div>
-
-    <button
-      v-if="!step.hideProceed"
-      type="button"
-      class="w-full py-2.5 rounded-lg text-white text-[14px] font-bold transition flex items-center justify-center gap-1.5 shadow cursor-pointer"
-      :class="[
-        isProceedDisabled(step) ? 'bg-slate-300 cursor-not-allowed text-slate-500 shadow-none' : 'bg-[#7c5bf5] hover:bg-[#6846e3]',
-        shouldHighlightProceed(step, idx) ? 'animate-pulse ring-2 ring-[#7c5bf5]/40 shadow-md' : ''
-      ]"
-      :disabled="isProceedDisabled(step)"
-      @click.stop="onProceedClick(step, idx)"
-    >
-      <span>{{ step.nextLabel || '前往下一步' }}</span>
-      <i data-lucide="arrow-right" class="w-4 h-4"></i>
-    </button>
-    ```
-
-### 2. `Step1App.vue` 胶水层连接
-- 解构 `crawledMetrics`：
-  ```js
-  const {
-    // ...既有解构项...
-    crawledMetrics,
-  } = useStep1();
-  ```
-- 绑定到 `<StudioSop>`：
+- **模板中动作按钮渲染逻辑**：
   ```html
-  <StudioSop
-    :stage-meta="stageMeta"
-    :current-step="currentStep"
-    :gate="gate"
-    :action-completed-map="{ crawlMetrics: crawledMetrics }"
-    @action="handleAction"
-    @proceed="handleProceed"
-    @skip="handleSkip"
-    @gotoStep="handleGotoStep"
-    @notes-save="handleNotesSave"
-  />
+  <button
+    v-if="step.action"
+    type="button"
+    :disabled="isActionLoading(step.action.type)"
+    class="px-3 py-2 rounded-lg border text-[13px] font-bold flex items-center justify-center gap-1.5 transition shadow-2xs"
+    :class="[
+      isActionLoading(step.action.type) ? 'bg-slate-100 border-slate-300 text-slate-400 cursor-wait' :
+      (isActionDone(step.action.type) ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/60' : 'bg-[#7c5bf5]/10 border-[#7c5bf5]/30 hover:bg-[#7c5bf5]/20 text-[#7c5bf5] cursor-pointer')
+    ]"
+    @click.stop="onActionClick(step.action.type)"
+  >
+    <i :data-lucide="isActionLoading(step.action.type) ? 'loader-2' : (isActionDone(step.action.type) ? 'check-circle' : (step.action.icon || 'activity'))"
+       :class="isActionLoading(step.action.type) ? 'w-4 h-4 animate-spin' : 'w-4 h-4'"></i>
+    <span>{{ isActionLoading(step.action.type) ? '正在探测官网底座…' : (isActionDone(step.action.type) ? (step.action.completedLabel || '已抓取真实指标 (点击重新抓取)') : step.action.label) }}</span>
+  </button>
   ```
 
-### 3. `stage1Config.js` 动作配置
-- 在第 1 步的 action 中补充 `completedLabel`：
+### 3. 阶段一状态管理 (`GEO/web/step0-src/useStep1.js`)
+- **状态声明**：
   ```js
-  action: {
-    label: '真抓网络底座指标',
-    completedLabel: '已抓取真实指标 (点击重新抓取)',
-    icon: 'activity',
-    type: 'crawlMetrics',
-  }
+  const isCrawling = ref(false);
   ```
-
-### 4. `useStep1.js` 状态流与真实持久化
-- 初始化响应式标记：
+- **真实异步动作执行与内容回填**：
   ```js
-  const crawledMetrics = ref(savedState?.crawledMetrics || false);
-  ```
-- 真实持久化逻辑（在 `saveState()` 中）：
-  ```js
-  function saveState() {
-    const stateToSave = {
-      currentStep: currentStep.value,
-      activeFileName: activeFileName.value,
-      openTabs: openTabs.value,
-      gate: gate.value,
-      notes: notes.value,
-      files: files.value,
-      crawledMetrics: crawledMetrics.value, // 新增持久化字段
-    };
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(stateToSave)); // storageKey 为 `geo_step1_state_${clientId}`
-    } catch (e) {
-      console.warn('Failed to save state to localStorage', e);
+  async function handleAction(actionType) {
+    if (actionType === 'crawlMetrics') {
+      if (isCrawling.value) return;
+      isCrawling.value = true;
+      try {
+        const token = typeof window !== 'undefined' ? window.currentAuthToken || '' : '';
+        const pid = typeof window !== 'undefined' ? window.currentProjectId || ctx.clientId : ctx.clientId;
+        
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/run/audit`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ mode: 'crawl' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          crawledMetrics.value = true;
+          // 根据后端真实 metrics 数据动态生成最新 Markdown 内容
+          const freshMarkdown = buildCrawledMetricsMarkdown(ctx, data.metrics || {});
+          if (files.value['01_网络底座指标_待对照.md']) {
+            files.value['01_网络底座指标_待对照.md'].content = freshMarkdown;
+            files.value['01_网络底座指标_待对照.md'].isDirty = false;
+          }
+          handleSelectTab('01_网络底座指标_待对照.md');
+          saveState();
+          showStudioToast('真实底座指标抓取完毕！已同步至中栏与磁盘文件，请核对并进入下一步出初稿');
+        } else {
+          showStudioToast(`探测失败: ${data.message || '网络连接超时'}`, 'error');
+        }
+      } catch (err) {
+        showStudioToast(`请求失败: ${err.message}`, 'error');
+      } finally {
+        isCrawling.value = false;
+      }
     }
-  }
-  ```
-- 在 `handleAction('crawlMetrics')` 中置为 `true` 并更新 Toast 引导（无 Emoji）：
-  ```js
-  if (actionType === 'crawlMetrics') {
-    crawledMetrics.value = true;
-    handleSelectTab('01_网络底座指标_待对照.md');
-    saveState();
-    showStudioToast('已完成抓取：真实底座指标已就绪！请核对中栏数据，确认无误后点击下方【前往出具初稿】');
   }
   ```
 
 ---
 
-## Database Schema / Data Structure (数据模型变更)
-- **本地存储持久化**：在 `useStep1.js` 的 `saveState()` 中新增 `crawledMetrics: boolean` 字段，写入真实存储键 `` `geo_step1_state_${clientId}` ``。
-- **无数据库表改动**：纯前端动线指引增强，不涉及后端数据库与 API 结构变更。
+## Data Structure & Storage (数据存储规范)
+
+1. **后端磁盘持久化文件**：
+   - 指标真源：`projects/{id}/outputs/audit_metrics.json`
+   - 技术体检报告：`projects/{id}/outputs/01_企业底座技术体检审计报告.md`
+2. **前端工作区持久化**：
+   - 随 `useStep1` 的 `saveState()` 统一持久化至本地存储键 `` `geo_step1_state_${clientId}` ``，保证刷新页面后真实抓取指标依然在位。
