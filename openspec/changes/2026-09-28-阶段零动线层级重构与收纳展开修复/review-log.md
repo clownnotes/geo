@@ -208,3 +208,104 @@
 - [x] 最高铁律守护：**本次规范订正期间，绝对零动业务代码**
 - [x] 最终结论：**`[已达成共识 · 规范就绪]`**
 
+---
+
+## 第二轮审查（复核轮）· 2026-09-28
+
+- **时间**：2026-09-28 14:55 · **审查人**：AI（单 IDE 自审，跨 IDE 通道未启用）
+- **对象**：提交 `65fa54c`（docs: 订正…规范文档全家桶，5 文件 +474 行）后的 proposal / design / tasks / review-log
+- **比对基准**：`AGENTS.md`、真实磁盘状态（`web/step0-src/**`、`stage1/2/3Config.js`）、NE1 只读现场
+- **结论**：`[需修正]`
+
+### 一、订正落地复核（编号 → 订正落点 → 复核结果）
+
+| 编号 | 订正落点 | 复核结果 |
+| :--- | :--- | :--- |
+| 🔴 P0-1 | design §2.1/§2.2 + proposal §What Changes #2 + tasks Task 2 | **部分落地** —— 方向正确（改条件渲染、不删模板），但判据选错，**引入新回归**，见 🔴 R2-1 |
+| 🔴 P0-2 | proposal Impact「验证服务」+ design §4 + tasks Task 5 | ✓ 已写实 8088 |
+| 🔴 P0-3 | proposal Impact「前端构建产物」+ design §4 + tasks Task 4 | ✓ 已补 `build:step0` + `smoke_step0.sh` |
+| 🔴 P0-4 | 提交 `65fa54c` | **半落地** —— 目录已纳入跟踪，但**仍未推送**（见 🟡 R2-4） |
+| 🔴 P0-5 | review-log 裁决表 + tasks Task 5 | ✗ **裁决不成立**，见 🟡 R2-3 |
+| 🟡 P1-1 | design §2.3 + proposal Impact + tasks Task 3 | ✓ 机制统一为 `stageMeta` 下发 |
+| 🟡 P1-2 | proposal §Why #2 | ✓ 定性已改为"无效空转的冗余死按钮" |
+| 🟡 P1-3 | proposal §Why #3 / design §3.1 / tasks Task 1 | ✓ 锚点改为"约 7041 行" |
+| 🟡 P1-4 | proposal §Why #3 + design §3.1 第 4 点 + tasks Task 1 验证 | ✓ 已补次生影响与图标验收项 |
+| 🟢 P2-1 | proposal §What Changes #4 | ✓ 「基线底牌」→「基线文件」 |
+| 🟢 P2-2 | proposal §What Changes #4 + design §3.3 + tasks Task 1 | ✓ `STEP0_SUB_LABELS` 收敛为 2 项 |
+| 🟢 P2-3 | — | ✗ **裁决表完全未提及**，见 🟡 R2-6 |
+
+### 二、🔴 订正自身引入的新问题
+
+#### 🔴 R2-1｜`v-if="!step.hideProceed && step.nextLabel"` 会让**阶段二、阶段三的主推进按钮全部消失**
+
+- **实测**：
+  - `grep -c nextLabel web/step0-src/stage1Config.js` → **3**（3 条 sopSteps 全有，291/300/314 行）
+  - `grep -c nextLabel web/step0-src/stage2Config.js` → **0**（sopSteps 共 **5** 条：step2-1…step2-5，**均无**）
+  - `grep -c nextLabel web/step0-src/stage3Config.js` → **0**（共 **3** 条：step2-1…step2-3，**均无**）
+  - `skipLabel` 仅 `stage1Config` 有（1 处），阶段二/三**无兜底按钮**。
+- **冲突点**：review-log 裁决表自述"阶段 1/2/3 共享逻辑与推进按钮**毫发无损**" —— 与实测不符。
+- **影响**：阶段二 5 步、阶段三 3 步的主推进按钮全部隐藏 → `handleProceed` 永不触发（`useStep2.js:226` / `useStep3.js:197`）→ 阶段二三无法前进。
+- **订正建议**：判据收窄为 `v-if="!step.hideProceed"`，**不要**用 `nextLabel` 是否存在做判据。
+
+#### 🔴 R2-2｜0.2 第 3 步的"保存并封版完成阶段零"按钮**永不渲染**，阶段零封版链路依然是断的
+
+- **实测**：`StudioSop.vue:52` 的展开容器 `v-if="idx + 1 === currentStep"` **包住了** `step.action` 按钮（`StudioSop.vue:77-85` 位于该 div 内，缩进层级已逐行核对）；而阶段零传的是 `:current-step="currentSubStep"`（`Step0App.vue:48`），`currentSubStep ∈ {1, 2}`。
+- **结论**：`STAGE0_SUB2_META.sopSteps[2].action`（idx = 2）需 `currentStep === 3` 才展开 → **永不成立**。design §2.3 第 103 行承诺的"封版落盘闭环"按现设计无法实现。
+- **附带语义问题**：0.1 页（currentStep=1）只有 idx=0 展开，微操作 2/3 仅渲染折叠标题行；0.2 页（currentStep=2）只有 idx=1 展开，且 idx=0 被误标"✓ 已完成"、idx=2 标"待执行"。这与 proposal §Capabilities「仅展示本页面内的 **3 个**微操作指引卡片」不符。表头 `StudioSop.vue:12` `第 {{ currentStep }} / {{ steps.length }} 步` 还会显示"第 1 / 3 步""第 2 / 3 步"，同样误导。
+- **订正建议**：给 `StudioSop` 增 `expandAll`（或 `activeAll`）prop，阶段零传 `true` 使 3 张微操作卡**同时展开**；`expandAll` 为真时表头改为"共 N 步"。
+
+### 三、🟡 未闭环 / 新引入
+
+#### 🟡 R2-3｜P0-5 的裁决不成立 —— AGENTS §4.1 约束的是**机器**，不是端口号
+
+- 裁决表写"已对照 AGENTS §4.1 确认测试真相源…明确以 8088 为统一验证端，消除口径分裂"。
+- **实测原文**：AGENTS §4.1「开发与审查阶段的所有代码与功能**一律仅在本地开发端（http://127.0.0.1:8088）测试与验证**」—— 约束的是**在哪台机器**执行，换端口不构成豁免。
+- **现状**：tasks Task 5 仍保留"或 `http://100.83.64.112:8088/`（NE1 服务器）"；Task 4 的 `npm run build:step0` **未写明执行机器**（按项目硬件铁律应在 NE1，与 §4.1 直接冲突）。review-log 亦无用户签署的豁免记录（裁决表为对端 AI 自署）。
+- **订正建议（推荐前案）**：① 在本变更显式豁免 §4.1，写明"编译与验证一律在 NE1 执行"，并留用户签署位 —— 与项目既有硬件铁律一致；② 或改回纯本地 8088。
+
+#### 🟡 R2-4｜P0-4 只完成一半：目录已提交，但 12 个提交未推送
+
+- `git show --stat 65fa54c` → 5 文件 +474 行，变更目录已一次性纳入跟踪 ✓
+- `git rev-list --count origin/main..main` → **12**；NE1 `git log -1` 仍为 `f1db08a`（不含三竖列合流）。
+- AGENTS §4.2 要求"开发端阶段性测试通过后…双推"；Task 5 要在 NE1 验证，不推则 NE1 拉不到三竖列代码。
+- **订正建议**：`git push origin main && git push github main`。
+
+#### 🟡 R2-5｜`sopTitle` 是死配置字段
+
+- design §2.3.1/§2.3.2 均定义 `sopTitle`（'0.1 准备题目动线' / '0.2 网页提问动线'）；实测 `StudioSop.vue` 中 `sopTitle` 消费点 = **0**（顶栏 `StudioSop.vue:10` 写死"交付动线"）。
+- 旧版 tasks 曾要求"更新顶栏展示"，订正后该条被删除，导致 proposal/design 与 tasks 不一致。
+- **订正建议**：删掉 `sopTitle` 字段，或在 `StudioSop` 顶栏消费它并补进 Task 2。
+
+#### 🟡 R2-6｜P2-3（同组件既存契约缺陷）在裁决表中被整体遗漏
+
+- 上一轮 P2-3 含 4 条：`Step2App.vue:189` 传非声明 prop `:sop-steps`（被当 fallthrough 丢弃 → 阶段二实际回退显示阶段零的 2 步文案）、`Step3App.vue:236` 阶段三用 `STAGE_2_META`、`StudioSop.vue:240-243` `onExtraAction` 忽略 type 恒发 `refresh-questions`、`StudioSop.vue:171` `isReady` 死 prop。
+- 裁决表只覆盖到 "P2-1 & P2-2"，P2-3 未登记。
+- **订正建议**：至少在 review-log 登记为"已知不改（不在本次范围）"，避免 apply 阶段重复排查或被顺手固化。
+
+### 附：本轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| stage1Config `nextLabel` | `grep -c nextLabel` | 3 |
+| stage2Config `nextLabel` | 同上 | **0**（5 条 sopSteps） |
+| stage3Config `nextLabel` | 同上 | **0**（3 条 sopSteps） |
+| stage2/3 `action` type 取值 | `grep -nE "action:"` + 上下文 | `init_master` / `reconstruct_material` / `check_conflict` / `deduplicate` / `derive_blog` / `lock_and_proceed` / `open_drawer` / `compile_site` / `open_pure_site` / `copy_nginx` —— **无 `finishStage0` 冲突** ✓ |
+| `step.action` 按钮嵌套 | `sed -n '50,56p;74,86p' StudioSop.vue` | 位于 `v-if="idx + 1 === currentStep"` 容器内 |
+| 阶段零 `current-step` 实参 | `Step0App.vue:48` | `:current-step="currentSubStep"`，取值 ∈ {1, 2} |
+| `sopTitle` 消费点 | `grep -c` × StudioSop / Step0App / stageConfigs | 0 / 0 / 0 |
+| `hideProceed` / `expandAll` 现状 | `grep -c` | 均 0（本次待新增） |
+| 变更目录跟踪状态 | `git show --stat 65fa54c` | 5 文件 +474，已纳入跟踪 ✓ |
+| 推送状态 | `git rev-list --count origin/main..main` | **12**（未推） |
+| NE1 仓库版本 | `ssh mini` `git log -1` | `f1db08a`（落后本地 12 个提交） |
+
+## 第二轮审查结论与停步声明
+
+- **最终标签**：`[需修正]` —— 12 项订正中 **10 项已忠实落地**；但 **P0-1 的订正自身引入新回归（R2-1）**，**R2-2 使本变更两大目标之一（阶段零封版）依然不可达**；另有 3 项未闭环（R2-3 / R2-4 / R2-6）。
+- **收口判断（skill §0.6 第 7 条三问）**：
+  1. 有无新的架构分歧？→ **无**（R2-1 / R2-2 均属判据与边界问题，非架构分歧）
+  2. 剩余问题是否阻断本次要修的症状？→ **阻断**（R2-1 会让阶段二三瘫痪；R2-2 让封版仍不可达）
+  3. 剩余问题是否一句话可改？→ **基本是**（R2-1 去掉 `&& step.nextLabel`；R2-2 增一个 `expandAll` prop）
+  → **判定：尚不可收口**，需对端再做一轮；但三项均属小改动，建议**一次改完直接进 apply**，不必再单独开审查轮。
+- **本轮动作边界**：仅追加本审查记录；**未改动任何业务源文件**（`web/index.html`、`web/step0-src/**` 未动一个字符），**未订正 `proposal.md` / `design.md` / `tasks.md`**；NE1 侧仅只读探测（`git log`）。
+- **下一步**：等待用户裁决，**不擅自进入 apply / archive**
+
