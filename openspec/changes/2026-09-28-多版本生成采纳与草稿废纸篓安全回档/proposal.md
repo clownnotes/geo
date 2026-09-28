@@ -53,5 +53,7 @@
 - `GEO/web/step0-src/Step0App.vue` 与 `GEO/web/step0-src/Step1App.vue`：
   - 胶水层连接 `<StudioFileTree>` 的 `@delete-file`、`@restore-file`、`@open-file` 事件；
   - 胶水层连接 `<StudioEditor>` 的 `@adopt-file` 与 `@restore-file` 事件。
+- 后端与磁盘 outputs 同步协议：
+  - 复用既有 `PUT /api/projects/:id` 持久化接口，采纳时自动将最新生效内容以规范骨干名双写回 `projects/{id}/outputs/`，无需新增后端路由。
 
 

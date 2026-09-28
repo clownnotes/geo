@@ -2,7 +2,7 @@
 
 ## 1. 准备与规范核对
 
-- [x] 1.1 核对 `AGENTS.md §3.3`（文案杜绝彩色 Emoji）、`§3.5`（克制视觉）、`§4.5`（本地零编译，打包构建必须在 NE1 服务器）。
+- [x] 1.1 核对 `AGENTS.md §3.3`（视觉设计规范与主色紫红线）、`§3.5`（管理端文案与操作反馈规范）、`§4.5`（本地零编译，打包构建必须在 NE1 服务器）。
 - [x] 1.2 确认修改涉及的核心文件：`StudioFileTree.vue`、`stage1Config.js`、`useStep1.js`、`Step1App.vue`、`StudioEditor.vue`、`Step0App.vue`。
 
 ## 2. 前端组件与业务逻辑编码
@@ -50,33 +50,36 @@
 
 > **迭代阶段说明**：第 1~3 节代码与冒烟已在上一轮完成并验证入库（commit `f2e1daf`，真机浏览器人工验收待补）；第 4 节为本次 Grill-Me 迭代新需求，当前处于纯方案设计阶段（stage=design），本节任务全部保持 `[ ]` 未勾选，严格遵循立定停步铁律，未经 `/opsx-team-apply`（或 `/opsx-apply`）绝不提前编码。
 
-- [ ] 4.1 改造左栏废纸篓抽屉交互 (`GEO/web/step0-src/components/studio/StudioFileTree.vue`)：
+- [ ] 4.1 改造左栏废纸篓抽屉交互 (`GEO/web/step0-src/components/studio/StudioFileTree.vue` · 解决 Y3)：
+  - 约束渲染条件为 `v-if="showStatusBadge && trashFiles.length > 0"`，杜绝污染阶段二/三；
   - 为废纸篓条目绑定整行点击事件 `@click="$emit('openFile', fn)"`，允许点击废纸篓文件直接在中栏打开；
   - 保留右侧【恢复】按钮 `@click.stop="$emit('restoreFile', fn)"`，防止冒泡。
-- [ ] 4.2 重构中栏编辑器顶栏为双行独立架构 (`GEO/web/step0-src/components/studio/StudioEditor.vue`)：
-  - 第一行（状态与操作工具栏）：左侧展示当前文件状态（若为废纸篓展示醒目的 `[废纸篓归档 · 只读状态]` 提示）；右侧偏右对齐排布快捷功能按钮；
+- [ ] 4.2 重构中栏编辑器顶栏为双行独立架构 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 Y1/Y3)：
+  - 第一行（状态与操作工具栏）：左侧展示当前文件状态（废纸篓状态展示 `[废纸篓归档 · 只读状态]`，非活跃历史版本展示 `[历史版本 · 只读归档]`）；右侧偏右对齐排布快捷功能按钮；
   - 若为废纸篓文件，右侧提供醒目的【一键恢复此文件】高亮按钮（派发 `@restoreFile` 事件，严格遵循 AGENTS §3.3 使用系统主色紫 `--geo-primary` / `bg-[#7c5bf5]`，严禁使用红色），直接隐藏【设为采纳】与【保存文件】；
-  - 若为正常文件，展示【客户生效底牌】/【设为客户采纳】、【源码/预览】、【全屏】、【一键复制】、【保存文件】；
-  - 限制 `canAdoptCurrentFile` 守卫严格校验 8 大核心槽位白名单，杂项不开放采纳；
+  - 若为历史非生效草稿，展示【设为客户采纳】、【源码/预览】、【全屏】、【一键复制】，**直接隐藏【保存文件】**；
+  - 若为正常生效底牌，展示【客户生效底牌】、【源码/预览】、【全屏】、【一键复制】、【保存文件】；
+  - **回归收紧 tasks 2.4**：升级 `canAdoptCurrentFile` 判定，严格按 8 大核心槽位白名单校验，禁止杂项文件采纳为底牌；
   - 第二行（Tab 标签栏）：独立一行平铺 `openTabs`，废纸篓文件在 Tab 标签上标注 `[废纸篓]` 浅色标识，彻底解决多文件拥挤问题。
-- [ ] 4.3 废纸篓文件只读编辑保护与快捷键守卫 (`GEO/web/step0-src/components/studio/StudioEditor.vue`)：
-  - 当 `currentFile?.is_deleted` 为 `true` 时，文本编辑区 `<textarea>` 自动置为 `:readonly="true"` 并应用只读浅色背景，防止误操作；
-  - 在编辑器容器/textarea 上拦截 `Ctrl+S / Cmd+S` 保存快捷键，只读态下提示“当前文件处于废纸篓只读状态，不可保存；请先点击【一键恢复】”。
-- [ ] 4.4 完善采纳剥离 `-Draft` 与双重删除安全锁 (`Step0App.vue` & `useStep1.js` · 解决 R1 & R4)：
-  - 采纳时统一按 `slotKey` 精确隔离互斥，并自动剥离 `-Draft` 标签（如 `QA-V2-Draft` -> `QA-V2`，`V2-Draft` -> `V2`）；
+- [ ] 4.3 废纸篓与历史版本双重只读保护与快捷键守卫 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 R2)：
+  - 当 `currentFile?.is_deleted || !currentFile?.isActive` 为 `true` 时，文本编辑区 `<textarea>` 自动置为 `:readonly="true"` 并应用只读浅色背景，防止误操作；
+  - 在编辑器容器/textarea 上拦截 `Ctrl+S / Cmd+S` 保存快捷键，只读态下提示“当前为历史非生效版本，禁止直接覆盖保存！如需以此为准修改，请先点击【设为客户采纳】或另存新版”。
+- [ ] 4.4 完善采纳剥离 `-Draft`、骨干镜像与双重删除安全锁 (`Step0App.vue` & `useStep1.js` · 解决 R1/R2/R4/Y4/Y5)：
+  - 阶段零规范骨干初始标签统一为 `QA-V1`，采纳时统一按 `slotKey` 精确隔离互斥，并自动剥离 `-Draft` 标签（如 `QA-V2-Draft` -> `QA-V2`，`V2-Draft` -> `V2`）；
+  - 采纳时将新内容同步镜像写入槽位对应的规范骨干文件对象（更新其 `content` 与 `versionTag`）；
   - 实施双重不可删除保护锁：① 正在生效的文件（`isActive === true`）禁止删除；② 属于 8 大核心主干的初始规范文件（在 `CANONICAL_CORE_FILES` 白名单中），即使处于退级态也受系统终身保护禁止删除；
   - 仅允许对派生出来的草稿版本（`第2版` 等）且 `isActive === false` 时执行删除移入废纸篓。
-- [ ] 4.5 写入阶段一生效槽位快照与主仓 outputs 双写同步 (`useStep1.js` · 解决 R1 & R3)：
-  - 采纳时同步写入 `geo_step1_active_slots_${clientId}` 快照（包含各 `slotKey` 当前激活的 `activeFileName` 与 `versionTag`）；
-  - 采纳时将最新生效内容同步覆盖写回主仓 `projects/{id}/outputs/` 对应规范主干文件名，彻底消除双头真相源。
-- [ ] 4.6 跨端构建与端到端自动化冒烟验证：
+- [ ] 4.5 写入阶段一生效槽位快照与主仓 outputs 双写同步 (`useStep1.js` · 解决 R1 & R3 · 解决 Y2)：
+  - 采纳时同步写入 `geo_step1_active_slots_${clientId}` 快照（记录各 `slotKey` 的 `canonicalFileName` 与 `adoptedDraftName`）；
+  - 采纳时复用 `PUT /api/projects/:id` 接口，将最新生效内容覆盖写回主仓 `projects/{id}/outputs/` 规范主干文件，彻底消除双头真相源。
+- [ ] 4.6 跨端构建与端到端自动化冒烟验证（NE1 服务器执行 · 解决 Y6）：
   - 严格在 NE1 服务器执行 `npm run build:step0` 与 `npm run smoke:step0`（确保 4/4 项全部 PASS）；
-  - 针对以下关键不变量进行回归自检：
-    ① 正则提取避免 `01_` 等前缀编号误读；
-    ② 废纸篓文件参与版本最大值计数；
-    ③ 采纳后 `-Draft` 已成功剥离；
-    ④ 规范骨干文件即使退级也受保护不可删除；
-    ⑤ 单 slotKey 永远有且仅有一个生效底牌。
+  - 针对以下 5 项关键不变量进行自动化断言验证：
+    - 断言 1：正则防误读：文件名 `01_网络底座指标_待对照.md` 的前缀 `01_` 不被误读为版本 1；
+    - 断言 2：废纸篓参与计数：生成 `第2版` 删入废纸篓后，再次生成新文件确定递增为 `第3版`；
+    - 断言 3：标签规整：采纳后文件 `versionTag` 确定无 `-Draft` 后缀；
+    - 断言 4：双重锁防误删：规范骨干文件无论 `isActive` 为何值均不可删除；
+    - 断言 5：单槽单一 active：采纳后同 slotKey 其他文件 `isActive` 严格为 `false`。
 - [ ] 4.7 浏览器真机验收（NE1 8088 端口 · 人工验收项，AI 不得代勾）：
   - 点击左栏底部的废纸篓文件，验证在中栏成功打开只读预览，第二行 Tab 出现 `[废纸篓]` 标识；
   - 验证第一行右侧偏右对齐展示【一键恢复此文件】等按钮，且编辑器不可打字输入、按 Cmd+S 会提示拦截；

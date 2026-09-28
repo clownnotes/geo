@@ -80,25 +80,70 @@
   ```
   - 当且仅当 `bootstrapNeeded === true` 时，该槽位的初始规范骨干文件才赋默认值 `isActive: true`；
   - 若槽位下已有任何文件为 `isActive === true`（说明用户此前已采纳了新版），则骨干文件**绝不强制复活为 true**，而是保持其实际退级状态（`isActive: false`），彻底消除歧义与同槽双 Active！
-- **双重不可删除保护锁 (Dual-Lock Delete Protection 解决 R1 骨干丢失风险)**：
+- **双重不可删除保护锁 (Dual-Lock Delete Protection 解决骨干丢失风险)**：
   为彻底防止采纳新版后旧主干退级为草稿导致规范文件名被误删丢失，删除机制实行双重锁定：
   1. **第一重锁（当前生效保护）**：任何文件的 `isActive === true`，属于正在生效版本，**禁止删除**；
   2. **第二重锁（初始规范骨干保护）**：属于 8 大核心主干的初始规范文件（`CANONICAL_CORE_FILES` 白名单），**即便其处于退级态（`isActive === false`），同样受系统终身保护，禁止删除**；
   3. **可删除范围**：仅允许对**派生出来的非生效草稿版本**（如 `_第2版.md`、`_第3版.md` 等，且 `isActive === false`）执行软删除移入废纸篓。
-- **下游消费契约与生效版本快照体系 (Downstream Consumption Contract 解决 R1 下游断链)**：
-  - **阶段零生效底牌快照**：`geo_step0_active_qa_${clientId}`（包含 `activeQaVersion`、`activeQuestionFile`、`activeAnswerFile`）；
-  - **阶段一生效槽位快照**：新增 `geo_step1_active_slots_${clientId}`，数据格式：
+
+- **非生效历史版本只读防覆盖机制 (Historical Read-Only Protection · 彻底根除 R2 陈旧覆盖)**：
+  为彻底防止用户在退级后的陈旧文件（如旧主干或其他历史草稿）上误按 `Cmd+S` 导致线上最新采纳版本被陈旧内容静默覆盖：
+  1. **只读保护门禁**：在编辑器中，不仅废纸篓文件处于只读，**任何处于 `isActive === false` 的历史非生效版本（包括退级的旧骨干与历史草稿）一律强制置为只读模式 (`:readonly="true"`)**；
+  2. **顶栏视觉标识**：中栏顶栏明确展示【历史版本 · 只读归档】中性灰徽章，**直接隐藏【保存文件】按钮**；
+  3. **快捷键安全拦截**：在非 active 状态下拦截 `Cmd+S / Ctrl+S`，弹出警告 Toast：“当前为历史归档版本，禁止直接覆盖保存！如需以此版本为准修改，请先点击【设为客户采纳】或另存为新版草稿”；
+  4. **只有当前处于 `isActive === true` 的唯一生效版本，才允许编辑打字并触发保存落盘**，从交互根源上 100% 杜绝错版覆盖。
+
+- **统一规范主干单一真相源与下游消费契约 (Downstream Consumption Contract · 彻底根除 R1 双真相源)**：
+  - **唯一实体真相源原则 (Single Canonical Truth)**：服务端磁盘 `projects/{id}/outputs/` 中**永远且仅存在规范主干文件名**（如 `outputs/01_网络底座指标_待对照.md`），绝不会在服务端生成物理形态的 `第2版.md`。
+  - **阶段一生效槽位快照 (`geo_step1_active_slots_${clientId}`) 规范结构**：
+    快照中所有槽位对应的 `canonicalFileName` 一律收敛为规范骨干名，同时记录其采纳来源草稿名以供前端溯源展示：
     ```json
     {
-      "slot_metrics": { "activeFileName": "01_网络底座指标_第2版.md", "versionTag": "V2", "updatedAt": "2026-09-28 22:00:00" },
-      "slot_stage0_qa": { "activeFileName": "01_阶段零豆包实测问答素材.md", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" },
-      "slot_draft": { "activeFileName": "01_商业诊断与转化初稿.md", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" },
-      "slot_report_screen": { "activeFileName": "01_老板商业诊断报告_好看大屏.html", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" },
-      "slot_report_text": { "activeFileName": "01_老板商业诊断报告_文字版.md", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" },
-      "slot_report_tech": { "activeFileName": "01_工程师底座技术审计.md", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" }
+      "slot_metrics": {
+        "canonicalFileName": "01_网络底座指标_待对照.md",
+        "adoptedDraftName": "01_网络底座指标_第2版.md",
+        "versionTag": "V2",
+        "updatedAt": "2026-09-28 22:00:00"
+      },
+      "slot_stage0_qa": {
+        "canonicalFileName": "01_阶段零豆包实测问答素材.md",
+        "adoptedDraftName": "01_阶段零豆包实测问答素材.md",
+        "versionTag": "V1",
+        "updatedAt": "2026-09-28 20:00:00"
+      },
+      "slot_draft": {
+        "canonicalFileName": "01_商业诊断与转化初稿.md",
+        "adoptedDraftName": "01_商业诊断与转化初稿.md",
+        "versionTag": "V1",
+        "updatedAt": "2026-09-28 20:00:00"
+      },
+      "slot_report_screen": {
+        "canonicalFileName": "01_老板商业诊断报告_好看大屏.html",
+        "adoptedDraftName": "01_老板商业诊断报告_好看大屏.html",
+        "versionTag": "V1",
+        "updatedAt": "2026-09-28 20:00:00"
+      },
+      "slot_report_text": {
+        "canonicalFileName": "01_老板商业诊断报告_文字版.md",
+        "adoptedDraftName": "01_老板商业诊断报告_文字版.md",
+        "versionTag": "V1",
+        "updatedAt": "2026-09-28 20:00:00"
+      },
+      "slot_report_tech": {
+        "canonicalFileName": "01_工程师底座技术审计.md",
+        "adoptedDraftName": "01_工程师底座技术审计.md",
+        "versionTag": "V1",
+        "updatedAt": "2026-09-28 20:00:00"
+      }
     }
     ```
-  - **消费方解析规则**：阶段一后续步骤（如初稿出具、最终多版本报告）及阶段二脚本在读取前置交付物时，统一通过 `slotKey` 解析器优先从快照读取当前 `activeFileName`，若快照未命中则安全回退到该槽位规范骨干文件名。采纳时自动同步刷新该快照，下游绝不断链！
+  - **下游消费契约**：下游所有工序（阶段一内部初稿/报告直出、阶段二交钥匙官网生成脚本、后台 Python 探测微服务）在取数时，**永远只认规范主干文件名**（如 `outputs/01_网络底座指标_待对照.md`）。
+  - **采纳镜像写回机制 (Adopt-Time Mirroring)**：
+    当交付专家点击【设为客户采纳】时：
+    1. 前端将选中的草稿标记为 `isActive = true`，版本号去掉 `-Draft`；
+    2. 系统将该草稿最新内容**同步镜像写入**规范骨干文件对象中（更新骨干的 `content` 与 `versionTag`）；
+    3. 调用项目保存接口 `PUT /api/projects/:id`，把最新内容覆盖写回服务端磁盘 `projects/{id}/outputs/` 对应的规范主干文件路径；
+    4. 下游服务端脚本读取规范主干文件，100% 能够获得最新采纳生效的内容，服务端文件永远不会 404，彻底实现前后端唯一真相源强一致！
 
 ---
 
@@ -155,9 +200,9 @@
   ```
 - **草稿文件删除按钮交互（UI 层防御）**：
   在文件列表中，仅当 `!files[fn]?.isActive` 时，hover 浮现 Lucide `trash-2` 图标，点击阻止冒泡并触发 `emit('deleteFile', fn)`；已采纳版本受到系统保护，不渲染删除按钮。
-- **底部废纸篓抽屉交互（查看与恢复）**：
+- **底部废纸篓抽屉交互（查看与恢复 · 解决 Y3 防污染约束）**：
   计算属性 `trashFiles = computed(() => Object.keys(props.files).filter(fn => props.files[fn].is_deleted))`。
-  若 `trashFiles.length > 0`，在左栏底部展示：
+  **仅当 `props.showStatusBadge && trashFiles.length > 0` 时**，才在左栏底部展示抽屉，彻底杜绝污染阶段二/三：
   - 头部折叠条：【已归档 / 废纸篓 (`trashFiles.length`)】；
   - 展开列表：展示被删草稿名，**支持整行点击触发 `emit('openFile', fn)`**，在中栏打开进行只读查验；右侧提供【恢复】按钮（使用已有先例的 Lucide `rotate-cw` 图标），点击触发 `emit('restoreFile', fn)`。
 
@@ -168,24 +213,28 @@
 - **顶栏解耦为双行独立架构**：
   为彻底解决单行同时承载多 Tab 标签与快捷操作按钮导致的拥挤与遮挡，中栏顶栏重构为双行排布：
   1. **第一行（状态与操作工具栏）**：
-     - **左侧状态区**：若当前文件处于废纸篓中（`currentFile.is_deleted`），显示醒目的【废纸篓归档 · 只读状态】中性灰徽章提示（`bg-slate-100 text-slate-600 border-slate-200`）；若为正常文件，展示文件属性、字数或生成时间。
+     - **左侧状态区**：
+       - 若当前文件处于废纸篓中（`currentFile.is_deleted`），显示醒目的【废纸篓归档 · 只读状态】中性灰徽章提示（`bg-slate-100 text-slate-600 border-slate-200`）；
+       - 若当前文件为非 active 的历史版本（`!currentFile.isActive`），显示【历史版本 · 只读归档】徽章，提示用户历史版本已受保护；
+       - 若为当前生效版本，展示文件属性、字数或生成时间。
      - **右侧操作区（偏右对齐）**：
        - 若为废纸篓文件：提供醒目的【一键恢复此文件】高亮按钮（触发 `@restore-file`，**严格遵循 AGENTS §3.3 视觉红线，采用系统主色紫 `bg-[#7c5bf5] text-white hover:bg-[#6c4be5]`，严禁使用红色**）；**直接隐藏**【设为客户采纳】与【保存文件】按钮；提供【源码/预览】切换、【全屏】、【一键复制】；
-       - 若为正常文件：按原逻辑展示【客户生效底牌】/【设为客户采纳】、【源码/预览】、【全屏】、【一键复制】与【保存文件】按钮。
+       - 若为历史非生效草稿：展示【设为客户采纳】、【源码/预览】、【全屏】、【一键复制】，**直接隐藏【保存文件】按钮**（彻底杜绝 R2 历史版本按 Cmd+S 覆盖线上主干）；
+       - 若为当前生效版本：展示【客户生效底牌】、【源码/预览】、【全屏】、【一键复制】与【保存文件】按钮。
   2. **第二行（文件 Tab 标签栏）**：
      - 独立一行专门承载 `openTabs` 各文件切换与关闭；
      - 若该 Tab 属于废纸篓文件（`files[fn]?.is_deleted`），在文件名后标注 `[废纸篓]` 浅灰/浅紫标识；
      - 点击 Tab 正常切换激活文件；点击 `×` 正常关闭标签页（文件依然安全留在废纸篓中）。
-- **废纸篓内容只读保护与快捷键拦截**：
-  - 当 `currentFile?.is_deleted` 为 `true` 时，源码编辑区域的 `<textarea>` 自动置为 `:readonly="true"`，背景调整为轻微只读灰底（`bg-slate-50/70`），防止误改已归档草稿；
-  - **快捷键安全守卫**：监听全局或文本框键盘事件，在废纸篓只读态下拦截 `Ctrl+S / Cmd+S`，提示“当前文件处于废纸篓只读状态，不可保存；如需修改请先点击【一键恢复】”，彻底杜绝键盘快捷键误覆盖；
-  - 交付人员查验内容确认需要后，点击第一行工具栏或左侧抽屉的【一键恢复】，即可将该文件解除只读，无缝转正为正常可编辑草稿。
-- **采纳守卫条件 (`StudioEditor.vue` · 解决 Y3 防杂项误采纳)**：
-  仅针对系统明确注册的核心工序槽位中的未采纳正常文件开放采纳动作，严格守住安全边界：
+- **废纸篓与历史版本双重只读保护与快捷键拦截 (解决 R2)**：
+  - 当 `currentFile?.is_deleted || !currentFile?.isActive` 为 `true` 时，源码编辑区域的 `<textarea>` 自动置为 `:readonly="true"`，背景调整为轻微只读灰底（`bg-slate-50/70`），防止误改已归档或已退级草稿；
+  - **快捷键安全守卫**：监听全局或文本框键盘事件，在非 active 状态下拦截 `Ctrl+S / Cmd+S`，提示“当前为历史非生效版本，禁止直接覆盖保存！如需以此版本为准修改，请先点击【设为客户采纳】或另存为新版草稿”，彻底杜绝键盘快捷键误覆盖；
+  - 交付人员查验内容确认需要后，点击第一行工具栏或左侧抽屉的【一键恢复】或【设为客户采纳】，即可将该文件解除只读，无缝转正为正常可编辑活动状态。
+- **采纳守卫条件 (`StudioEditor.vue` · 解决 Y1 回归收紧与 Y3 防杂项误采纳)**：
+  在 tasks 2.4 初步放宽分类的基础上，本次重构执行**安全性回归收紧**，仅针对系统明确注册的核心工序槽位中的未采纳正常文件开放采纳动作，严格守住安全边界：
   ```js
   const canAdoptCurrentFile = computed(() => {
     if (!currentFile.value || currentFile.value.isActive || currentFile.value.is_deleted) return false;
-    // 严格限制为系统已知工序槽位，派生杂项文件不开放采纳为核心底牌
+    // 严格限制为系统已知 8 大核心工序槽位，派生杂项文件不开放采纳为核心底牌
     const validSlots = [
       'slot_stage0_questions', 'slot_stage0_answers',
       'slot_metrics', 'slot_stage0_qa', 'slot_draft',
@@ -199,14 +248,14 @@
 - **生效底牌真相源体系 (SSOT)**：
   - **唯一真相源**：`files[fileName].isActive: true` 是全系统判断该文件是否为当前生效底牌的唯一真相源；
   - **下游快照派生**：`geo_step0_active_qa_${clientId}` 仅为下游阶段（阶段一初稿血统溯源）提供只读派生快照（含 `activeQaVersion`、`activeQuestionFile`、`activeAnswerFile`），每次采纳动作完成时由 `Step0App` 自动同步刷新，严禁双头决策。
-- **采纳逻辑 (`handleAdoptFile` · 解决 R4 对齐 slotKey 隔离并剥离 -Draft)**：
+- **采纳逻辑 (`handleAdoptFile` · 解决 R4 对齐 slotKey 隔离并剥离 -Draft · 解决 Y4/Y5)**：
   1. 获取目标文件，若不存在则提示错误；
-  2. **版本号规整与剥离草稿标记**：若为带 `-Draft` 的草稿版本（如 `QA-V2-Draft`），采纳时自动规整为正式版 `QA-V2`（`targetFile.versionTag = (targetFile.versionTag || 'QA-V1').replace(/-Draft$/i, '')`）；
-  3. **精确 slotKey 单底牌互斥**：以 `targetFile.slotKey` 为准（严禁按全 category 粗暴遍历），遍历相同 `slotKey` 的所有其他文件将 `isActive` 设为 `false`；目标文件设为 `isActive = true`；
-  4. **双底牌配对联动**：自动寻找对侧已生效的配对底牌，联动更新其版本号与 `pairFile` 引用；
+  2. **版本号规整与剥离草稿标记**：若为带 `-Draft` 的草稿版本（如 `QA-V2-Draft`），采纳时自动规整为正式版 `QA-V2`（`targetFile.versionTag = (targetFile.versionTag || 'QA-V1').replace(/-Draft$/i, '')`）；初始骨干统一使用 `QA-V1` 格式；
+  3. **精确 slotKey 单底牌互斥**：以 `targetFile.slotKey` 为准（严格按 slotKey 隔离，杜绝粗暴按 category 降级），遍历相同 `slotKey` 的所有其他文件将 `isActive` 设为 `false`；目标文件设为 `isActive = true`；
+  4. **对侧生效底牌关联引用**：自动读取对侧槽位已生效的底牌文件名，在元数据注释头中记录对侧生效文件的版本与文件名引用；
   5. 重新盖上规范化生效底牌头（标准溯源元数据头）；
   6. 持久化阶段零文件字典 `geo_step0_files_${clientId}`，并同步更新下游快照 `geo_step0_active_qa_${clientId}`；
-  7. 同步触发主仓 outputs 落盘（将生效内容同步写回主仓）；
+  7. 同步触发主仓 outputs 落盘（调用 `PUT /api/projects/:id`，将生效内容写入规范主干文件）；
   8. 派发 `geo-step0-file-adopted` 全局事件并 Toast 提示“已成功将【xxx】设为客户采纳底牌！”。
 - **草稿软删除 (`handleDeleteFile` · 实行双重保护锁)**：
   1. 逻辑层严格双重校验：
@@ -222,13 +271,17 @@
   `<StudioEditor @adopt-file="handleAdoptFile" @restore-file="handleRestoreFile" ... />`
 
 ### 4. 阶段一业务逻辑与状态管理 (`GEO/web/step0-src/useStep1.js`)
-- **采纳逻辑 (`handleAdoptFile` · 解决 R1 & R3 下游消费契约与落盘同步)**：
+- **采纳逻辑 (`handleAdoptFile` · 解决 R1 镜像写回 & R3 落盘接口规范 · 解决 Y2)**：
   1. 获取目标文件的 `slotKey`（查字典反向推导）；
   2. 遍历全量文件，将所有相同 `slotKey` 且 `name !== filename` 的旧生效版本设为 `isActive = false`；
   3. 将目标文件设为 `isActive: true`，且 `versionTag` 剥离 `-Draft` 规整为正式版（如 `V2-Draft` -> `V2`）；
-  4. **刷新阶段一生效槽位快照**：同步更新 `geo_step1_active_slots_${clientId}`，记录该 `slotKey` 当前激活的 `activeFileName` 与 `versionTag`；
-  5. **主仓 outputs 规范同步写回**：当用户采纳新版时，除了本地保存状态外，将当前生效版本的最新内容同步覆盖写入主仓 outputs 对应的规范主干文件路径，确保服务器端离线读取/流水线构建时始终获得最新生效内容，彻底消灭双头真相源；
-  6. 调用 `saveState()` 并 Toast 提示“已将【xxx】设为客户采纳生效版本！”；
+  4. **骨干镜像更新 (Canonical Mirroring)**：获取该槽位对应的规范骨干文件对象，将目标草稿的最新 `content` 同步镜像覆盖写入骨干对象，并将骨干的 `versionTag` 升级为对应版本号；
+  5. **刷新阶段一生效槽位快照**：同步更新 `geo_step1_active_slots_${clientId}`，记录 `canonicalFileName` 与 `adoptedDraftName`；
+  6. **主仓 outputs 规范同步写回 (API 契约)**：
+     - 复用系统已有工程持久化接口：`PUT /api/projects/:id`；
+     - Request Payload: `{ outputs: { [canonicalFileName]: currentActiveContent } }`；
+     - 成功返回 200，Toast 提示“已将【xxx】设为客户采纳生效版本！”；若后端失败则前端保留 localStorage 副本并弹出重试警告，消除双头真相源；
+  7. 调用 `saveState()` 本地持久化；
 - **重新抓取派生新版 (`handleAction('crawlMetrics')`)**：
   1. 扫描当前所有包含 `slot_metrics` 的文件（含废纸篓 `is_deleted: true`）；
   2. 提取并计算最大序号 `maxVersion = Math.max(...versions, 1)`；
