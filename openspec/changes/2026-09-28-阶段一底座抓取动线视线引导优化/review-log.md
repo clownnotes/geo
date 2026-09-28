@@ -771,7 +771,115 @@ grep --version            # → toybox 0.8.13
 
 ### 七、收口
 
-本勘误**不改变**第四轮 `[通过]` 结论，**不新增**待办，**不阻断** `tasks.md 3.3` 的人工验收。**下一步仍是**：师弟在 NE1 8088 完成浏览器验收（点按钮 → 看转圈与"正在探测官网底座…" → 看 Network 面板确有 `POST /api/projects/.../run/audit` → 看中栏实时刷新为真实指标 → 看 `projects/{id}/outputs/audit_metrics.json` 真落盘 → 看按钮变浅绿 + 主按钮呼吸高亮）。
+本勘误**不改变**第四轮 `[通过]` 结论，**不新增**待办，**不阻断** `tasks.md 3.3` 的人工验收。
+
+---
+
+## 2026-09-28 19:30 · 审查方（单 IDE 自审）· 第五轮：**本轮无新增可审对象** → 现状复核 + 收口判断
+
+> **依据 §0.6 第 8 条**：`git log -1` 与上一轮相同、工作区干净、三份规范文档 mtime **均早于**上一轮记录 → 判定「无新对象」，**不重做全量审查**，只做三件事：现状复核 / 收口判断 / 未提交检查。
+
+### 一、无新对象的判据
+
+| 核对项 | 命令 | 结果 |
+| :--- | :--- | :--- |
+| HEAD 是否推进 | `git log --oneline -3` | `ef0231b`（**与上一轮相同**，且是审查方自己的勘误提交） |
+| 工作区 | `git status --short` | **空** |
+| `proposal.md` mtime | `stat -f "%Sm"` | `19:01:29` |
+| `design.md` mtime | `stat -f "%Sm"` | `19:01:55` |
+| `tasks.md` mtime | `stat -f "%Sm"` | `19:08:32` |
+| 上一轮记录 mtime | `stat -f "%Sm"` | `19:20:42` → **三份文档全部早于它** |
+| 未推送提交 | `git rev-list --count origin/main..main` | **37** |
+
+**结论**：自第四轮（19:14）与勘误 E-1（19:20）以来，**没有任何新的可审对象产生**。
+
+### 二、现状复核（上一轮核心结论是否仍成立）
+
+只跑最小必要命令，不重复全量实测：
+
+| 上一轮结论 | 复核命令 | 结果 | 是否仍成立 |
+| :--- | :--- | :--- | :--- |
+| `useStep1.js` 的 `return {` 在 `:343`，两个状态量均在块内 | `grep -n "return {"` + `grep -nE "crawledMetrics,\|isCrawling,"` | `:343` / `:352 crawledMetrics,` / `:353 isCrawling,` | ✅ 成立 |
+| 第一轮 P0-3 的 `activeFile` 未再回归 | `grep -nE "activeFile" web/step0-src/stage1Config.js` | `:319` 在（另有 `:341` / `:351`） | ✅ 成立 |
+| `server.py` 的 `metrics` 透传（2 行改动） | `grep -nE '"metrics": ares' tools/geo/server.py` | `:1836` | ✅ 成立 |
+| 产物 SHA-256 与第四轮一致 | `shasum -a 256 web/assets/step0/step0.js` | `817ec0af…` / **381,090 B** | ✅ **逐字节一致** |
+| `tasks.md 3.3` 仍留给人工验收 | `grep -nE "^- \[" tasks.md` | 1.1~3.2 全 `[x]`；**3.3 `[ ]`** | ✅ 成立 |
+| 变更目录 5 个文件全部 git 跟踪 | `git ls-files <变更目录>` | **5**（含 `.openspec.yaml`） | ✅ 成立 |
+
+### 三、🔍 一处"看似异常"的行号差异 —— 已证伪，**不立案**（防误报）
+
+**现象**：第三轮记录写 `activeFile` 在 `stage1Config.js:282`，本轮实测在 **`:319`**（差 37 行）。若直接采信，会得出"记录与实现不符"甚至"文件被偷改"的结论。
+
+**实测追查**：
+
+```bash
+for r in f364c06 841539f df0a3c0 d4ea8b0 HEAD; do
+  echo -n "$r : "
+  git cat-file -p "$(git rev-parse $r:web/step0-src/stage1Config.js)" | grep -nE 'activeFile'
+done
+```
+
+| 版本 | `activeFile` 行号 | 说明 |
+| :--- | :--- | :--- |
+| `f364c06`（第三轮提交前） | **282** | 第三轮记录**当时正确** |
+| `841539f` | 282 | 未变 |
+| `d4ea8b0`（feat 提交，19:08:55） | **319** | 该提交给本文件 **+37 行** |
+| `HEAD`（`ef0231b`） | 319 | 未再变 |
+
+**根因（完全解释 +37）**：`d4ea8b0` 把新增的 `buildCrawledMetricsMarkdown`（37 行）**插在第 265 行处**，其下方所有行整体下移 37 行。实测印证：`grep -nE 'function buildCrawledMetricsMarkdown' web/step0-src/stage1Config.js` → **`:265`**，与第四轮记录的 `:265` **完全吻合**（第四轮在 `d4ea8b0` 之后执行，用的是位移后的正确行号）。
+
+**判定**：
+- 第三轮的 `:282` 是**当时准确的快照**，不是错误；
+- 第四轮引用的 `:265` 是**位移后的正确值**，不是笔误；
+- **故不立案、不勘误**。此条仅作为"行号会随提交位移，跨轮比对前必须先确认文件版本"的示例登记。
+
+> **⚠️ 顺带记录我自己的命令故障（同一家族，已回写技能）**：追查时第一遍我写的是
+> `for r in …; do echo -n "$r : "; git show "$r:web/…" 2>/dev/null | grep -nE 'activeFile'; done`
+> 得到**全部版本零命中**（连 HEAD 都空），差点据此认定"文件里根本没有 `activeFile`"。
+> **两个根因**：① `2>/dev/null` **吞掉了 git 的报错**，使"命令没跑成"与"真的零命中"同形；② **循环体内 `b=$(…)` 与循环变量 `$r` 互相污染**，git 实际收到的是 `b/step0-src/…`（报 `ambiguous argument`）。
+> 改用 `git cat-file -p "$(git rev-parse …)"` 逐条执行后**立刻 3 处命中**。**这是 §0.5 第 8 条"命令本身坏了，却输出得像'真的没有'"的又一次现场复现。**
+
+### 四、未提交检查（§0.6 第 10 条）
+
+`git status --short` = **空**。上一轮（勘误 E-1）的记录**已提交**（`ef0231b`），无"改了没提交"的残留。
+
+### 五、收口判断（§0.6 第 7 条三问）
+
+| 问题 | 判断 |
+| :--- | :--- |
+| ① 有没有**新的架构分歧**？ | **无** —— 本轮无新对象，方案层零变动 |
+| ② 剩余问题是否**阻断**本次要修的症状？ | **不阻断** —— 剩余仅 3 项 🟢（记账级） |
+| ③ 剩余问题是否**一句话可改**？ | **是**（`\s` 陷阱登记 / 新节时间戳 / 版本戳记首次戳） |
+
+**三问全满足 → 建议以本轮为审查终点，转入人工验收，不再单开审查轮。**
+
+### 六、附带：技能内"BSD grep"错误归因的全面清理
+
+勘误 E-1 只改了技能中**一处**归因，本轮把**其余 5 处**同类错误表述一并更正（`SKILL.md` 第 42 / 45 / 137 / 225 / 408 行），使全文口径统一为「**元凶是 PATH 上被遮蔽的 toybox**；BSD grep 本身支持 `\|` / `\s` / `\d` / `\w` / `\b`」。同时新增两条命令故障成因（`2>/dev/null` 吞报错、循环变量污染）。
+
+### 附：本轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| HEAD | `git log --oneline -1` | `ef0231b`（未推进） |
+| 工作区 | `git status --short` | 空 |
+| 三份文档 mtime | `stat -f "%Sm" -t …` | `19:01:29` / `19:01:55` / `19:08:32`（**均早于上轮 19:20:42**） |
+| 产物哈希 | `shasum -a 256 web/assets/step0/step0.js` | `817ec0af…` / 381,090 B |
+| return 块与导出 | `grep -n "return {"` / `grep -nE "crawledMetrics,\|isCrawling,"` | `:343` / `:352` / `:353` |
+| `activeFile` | `grep -nE "activeFile" web/step0-src/stage1Config.js` | `:319`（历史 `282`→`319`，**异常已证伪**） |
+| 格式化函数 | `grep -nE "function buildCrawledMetricsMarkdown" …` | `:265`（与第四轮吻合） |
+| `metrics` 透传 | `grep -nE '"metrics": ares' tools/geo/server.py` | `:1836` |
+| tasks 勾选 | `grep -nE "^- \[" tasks.md` | 3.3 `[ ]` |
+| 目录跟踪 | `git ls-files <变更目录>` | 5 个 |
+| 未推送 | `git rev-list --count origin/main..main` | **37** |
+
+结论：`[通过]`（**维持第四轮判定，范围不变**：代码与规范层面通过；`tasks.md 3.3` 浏览器真机验收仍待师弟完成）
+
+**本轮动作边界**：仅追加本审查记录 + 更正技能表述；**未改动任何业务源码**，**未订正 proposal/design/tasks**，**未勾选 `tasks.md 3.3`**。
+
+**待师弟裁决**：仅一项 —— 是否现在完成 `tasks.md 3.3` 的浏览器验收（完成后即可 `/ops-archive`）。
+
+**下一步**：等待师弟裁决，**不擅自进入 apply / archive**。**下一步仍是**：师弟在 NE1 8088 完成浏览器验收（点按钮 → 看转圈与"正在探测官网底座…" → 看 Network 面板确有 `POST /api/projects/.../run/audit` → 看中栏实时刷新为真实指标 → 看 `projects/{id}/outputs/audit_metrics.json` 真落盘 → 看按钮变浅绿 + 主按钮呼吸高亮）。
 
 
 
