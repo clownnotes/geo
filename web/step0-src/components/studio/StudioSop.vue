@@ -79,11 +79,14 @@
             <button
               v-if="step.action"
               type="button"
-              class="px-3 py-2 rounded-lg bg-[#7c5bf5]/10 border border-[#7c5bf5]/30 hover:bg-[#7c5bf5]/20 text-[#7c5bf5] text-[13px] font-bold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer"
+              class="px-3 py-2 rounded-lg border text-[13px] font-bold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer"
+              :class="isActionDone(step.action.type)
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/60'
+                : 'bg-[#7c5bf5]/10 border-[#7c5bf5]/30 hover:bg-[#7c5bf5]/20 text-[#7c5bf5]'"
               @click.stop="onActionClick(step.action.type)"
             >
-              <i :data-lucide="step.action.icon || 'activity'" class="w-4 h-4"></i>
-              <span>{{ step.action.label }}</span>
+              <i :data-lucide="isActionDone(step.action.type) ? 'check-circle' : (step.action.icon || 'activity')" class="w-4 h-4"></i>
+              <span>{{ isActionDone(step.action.type) ? (step.action.completedLabel || '已抓取真实指标 (点击重新抓取)') : step.action.label }}</span>
             </button>
 
             <!-- 附加动作（如重新出题） -->
@@ -123,12 +126,23 @@
               </button>
             </div>
 
+            <!-- [2026-09-28] 主推进按钮上方静态辅助提示 (杜绝彩色 Emoji) -->
+            <div
+              v-if="shouldHighlightProceed(step, idx)"
+              class="text-[11px] text-[#7c5bf5] font-semibold text-center py-0.5"
+            >
+              指标已抓取就绪，请核对中栏并点击下方继续
+            </div>
+
             <!-- 主推进按钮：下一步 / 完成阶段 (仅在未显式声明 hideProceed 时渲染) -->
             <button
               v-if="!step.hideProceed"
               type="button"
               class="w-full py-2.5 rounded-lg text-white text-[14px] font-bold transition flex items-center justify-center gap-1.5 shadow cursor-pointer"
-              :class="isProceedDisabled(step) ? 'bg-slate-300 cursor-not-allowed text-slate-500 shadow-none' : 'bg-[#7c5bf5] hover:bg-[#6846e3]'"
+              :class="[
+                isProceedDisabled(step) ? 'bg-slate-300 cursor-not-allowed text-slate-500 shadow-none' : 'bg-[#7c5bf5] hover:bg-[#6846e3]',
+                shouldHighlightProceed(step, idx) ? 'animate-pulse ring-2 ring-[#7c5bf5]/40 shadow-md' : ''
+              ]"
               :disabled="isProceedDisabled(step)"
               @click.stop="onProceedClick(step, idx)"
             >
@@ -181,6 +195,8 @@ const props = defineProps({
   isReady: { type: Boolean, default: false },
   /** 门禁单选值 (confirmed / suspended) */
   gate: { type: String, default: 'confirmed' },
+  /** [2026-09-28] [阶段一底座抓取动线视线引导优化] 动作完成态映射字典，如 { crawlMetrics: true } */
+  actionCompletedMap: { type: Object, default: () => ({}) },
 });
 
 const emit = defineEmits([
@@ -237,6 +253,19 @@ function stepClass(idx) {
   return 'border-slate-200 bg-slate-50/60';
 }
 
+// [2026-09-28] [阶段一底座抓取动线视线引导优化] 检查动作是否已完成，做空值与空字典安全短路
+function isActionDone(type) {
+  if (!type || !props.actionCompletedMap) return false;
+  return !!props.actionCompletedMap[type];
+}
+
+// [2026-09-28] [阶段一底座抓取动线视线引导优化] 是否高亮推进按钮（防污染：严格限定当前步骤且动作已完成）
+function shouldHighlightProceed(step, idx) {
+  if (!step?.action?.type) return false;
+  if (idx + 1 !== props.currentStep) return false;
+  return isActionDone(step.action.type);
+}
+
 function isProceedDisabled(step) {
   if (step.gate && step.gate.type === 'patience_confirm') {
     return selectedGate.value === 'suspended';
@@ -279,9 +308,9 @@ function onSkipClick(step, idx) {
   emit('proceed', step);
 }
 
-watch([() => props.currentStep, () => props.stageMeta, () => props.expandAll], () => {
+watch([() => props.currentStep, () => props.stageMeta, () => props.expandAll, () => props.actionCompletedMap], () => {
   nextTick(() => {
     if (window.lucide) window.lucide.createIcons();
   });
-});
+}, { deep: true });
 </script>

@@ -48,6 +48,8 @@ export function useStep1(projectData = {}) {
   const openTabs = ref(savedState?.openTabs || ['01_网络底座指标_待对照.md', '01_阶段零豆包实测问答素材.md']);
   const currentStep = ref(savedState?.currentStep || 1); // 1: 对照, 2: 润色初稿, 3: 出具报告
   const selectedGate = ref(savedState?.selectedGate || 'confirmed');
+  // [2026-09-28] [阶段一底座抓取动线视线引导优化] 增加底座抓取完成态响应式状态，消除断层感
+  const crawledMetrics = ref(savedState?.crawledMetrics || false);
   const mckinseyVisible = ref(false);
   const fullscreenVisible = ref(false);
 
@@ -83,6 +85,7 @@ export function useStep1(projectData = {}) {
         openTabs: openTabs.value,
         selectedGate: selectedGate.value,
         notes: notes.value,
+        crawledMetrics: crawledMetrics.value, // [2026-09-28] 持久化底座抓取完成态
         files: Object.fromEntries(
           Object.entries(files.value).map(([k, v]) => [k, { content: v.content, isDirty: v.isDirty }])
         ),
@@ -192,8 +195,11 @@ export function useStep1(projectData = {}) {
 
   function handleAction(actionType) {
     if (actionType === 'crawlMetrics') {
+      // [2026-09-28] [阶段一底座抓取动线视线引导优化] 标记抓取完成并持久化，更新提示引导操作者点击下方主按钮
+      crawledMetrics.value = true;
       handleSelectTab('01_网络底座指标_待对照.md');
-      showStudioToast('网络底座指标抓取完毕，请与客户对照核实');
+      saveState();
+      showStudioToast('已完成抓取：真实底座指标已就绪！请核对中栏数据，确认无误后点击下方【前往出具初稿】');
     } else if (actionType === 'generateDraft') {
       handleSelectTab('01_商业诊断与转化初稿.md');
       saveState();
@@ -312,6 +318,7 @@ export function useStep1(projectData = {}) {
     openTabs,
     currentStep,
     selectedGate,
+    crawledMetrics, // [2026-09-28] 暴露底座指标抓取完成状态
     currentRenderMode,
     isHeaderCollapsed,
     mckinseyVisible,

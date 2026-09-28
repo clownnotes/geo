@@ -46,10 +46,12 @@
       />
 
       <!-- 右栏：SOP 交付流水线 (步骤 1: 抓底座+门禁 -> 步骤 2: 出初稿润色 -> 步骤 3: 最终多版本报告) -->
+      <!-- [2026-09-28] [阶段一底座抓取动线视线引导优化] 绑定 action-completed-map 完成状态映射 -->
       <StudioSop
         :stage-meta="STAGE_1_META"
         :current-step="currentStep"
         :gate="selectedGate"
+        :action-completed-map="{ crawlMetrics: crawledMetrics }"
         @update:gate="handleGateChange"
         @proceed="handleProceed"
         @skip="handleSkip"
@@ -133,6 +135,7 @@ const {
   openTabs,
   currentStep,
   selectedGate,
+  crawledMetrics, // [2026-09-28] 解构底座抓取状态用于动线绑定
   currentRenderMode,
   isHeaderCollapsed,
   mckinseyVisible,

@@ -280,7 +280,13 @@ export const STAGE_1_META = {
       desc: '抓取客户线上真实底座指标（0 幻觉）。交付专家可直接在中间微调数据，并与客户对照确认。',
       category: 'materials',
       activeFile: '01_网络底座指标_待对照.md',
-      action: { label: '真抓网络底座指标', icon: 'activity', type: 'crawlMetrics' },
+      // [2026-09-28] [阶段一底座抓取动线视线引导优化] 增加完成态文案，消除抓取后的认知断层
+      action: {
+        label: '真抓网络底座指标',
+        completedLabel: '已抓取真实指标 (点击重新抓取)',
+        icon: 'activity',
+        type: 'crawlMetrics',
+      },
       gate: {
         type: 'patience_confirm',
         options: [
