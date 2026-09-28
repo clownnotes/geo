@@ -2,18 +2,19 @@
 
 ## Architecture (面向对象模型与架构设计)
 
-### 1. 面向对象三问
+#### 1. 面向对象三问
 - **【对象是什么】**：交付流水线文件项（`FileItem`）与废纸篓管理对象。
 - **【属性有哪些】**：
-  - `name`: 文件名（唯一键，如 `01_网络底座指标_待对照.md` 或 `01_网络底座指标_V2.md`）；
+  - `name`: 文件名（唯一键，如 `01_网络底座指标_待对照.md` 或 `01_网络底座指标_候选试算.md`）；
   - `category`: 分类（如 `materials` / `drafts` / `reports`）；
+  - `slotKey`: **交付物工序槽位键**（用于多版本退级互斥，如 `slot_metrics`、`slot_draft`、`slot_report_screen` 等，默认派生自文件名业务主干）；
   - `content`: 文件文本内容；
-  - `isActive`: **布尔值，是否为当前工序已采纳生效底牌**（`true` 时受系统保护，不可删除）；
-  - `versionTag`: 版本标签（如 `V1`、`V2` 或 `QA-V1`）；
-  - `generatedAt`: 生成时间戳（格式化文本，如 `2026-09-28 19:28`）；
+  - `isActive`: **布尔值，是否为当前工序已采纳生效版本**（`true` 时受系统保护，不可删除）；
+  - `versionTag`: 版本标签（如 `V1`、`V2` 或 `V2-Draft`）；
+  - `generatedAt`: 生成时间戳（格式化文本，如 `2026-09-28 20:01:25`）；
   - `is_deleted`: **布尔值，是否已移入废纸篓归档**（`true` 时从主树隐藏，移入底部废纸篓）。
 - **【行为是什么】**：
-  - `adopt(file)`：将候选草稿标记为生效底牌，原同类生效文件退级为普通草稿；
+  - `adopt(file)`：将候选草稿标记为生效版本，同工序槽位（`slotKey`）的旧生效版本退级为普通草稿；
   - `delete(file)`：仅允许对未采纳草稿执行软删除，置 `is_deleted = true`，移入废纸篓；
   - `restore(file)`：从废纸篓一键原位回档，置 `is_deleted = false`；
   - `refreshVersion(file)`：重新生成时更新内容并打上最新时间戳与版本号。
@@ -26,10 +27,10 @@
 [新生成 / 初始文件]
        │
        ▼
-   ┌─────────┐   点击【采纳生效底牌】    ┌────────────────┐
-   │  草稿态 │ ─────────────────────▶ │   已采纳底牌   │
+   ┌─────────┐   点击【设为客户采纳】    ┌────────────────┐
+   │  草稿态 │ ─────────────────────▶ │   已采纳版本   │
    │  (可删) │ ◀───────────────────── │  (受保护禁止删) │
-   └─────────┘     同类新版本采纳后     └────────────────┘
+   └─────────┘   同工序槽位新版本采纳   └────────────────┘
        │           自动退回普通草稿
        │
        │ 点击【删除】
@@ -71,7 +72,7 @@
   ]);
   ```
 - **草稿文件删除按钮交互**：
-  在文件列表中，仅当 `!files[fn]?.isActive` 时，hover 浮现 Lucide `trash-2` 图标，点击阻止冒泡并触发 `emit('deleteFile', fn)`；已采纳文件受到保护，不渲染删除按钮。
+  在文件列表中，仅当 `!files[fn]?.isActive` 时，hover 浮现 Lucide `trash-2` 图标，点击阻止冒泡并触发 `emit('deleteFile', fn)`；已采纳版本受到系统保护，不渲染删除按钮。
 - **底部废纸篓抽屉交互**：
   计算属性 `trashFiles = computed(() => Object.keys(props.files).filter(fn => props.files[fn].is_deleted))`。
   若 `trashFiles.length > 0`，在左栏底部展示：
@@ -86,29 +87,33 @@
     if (!currentFile.value) return false;
     if (currentFile.value.isActive) return false;
     const cat = currentFile.value.category;
-    // 阶段零：questions/answers；阶段一：materials/drafts/reports；或只要定义了 versionTag 均支持采纳
-    return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat) || !!currentFile.value.versionTag;
+    // 阶段零：questions/answers；阶段一：materials/drafts/reports；或显式声明了 versionTag 均支持采纳
+    return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat) || Boolean(currentFile.value.versionTag);
   });
   ```
-- **采纳按钮文案与事件**：
-  按钮文案沿用既有标准【设为客户采纳】（配 Lucide `star` 图标），点击派发 `emit('adopt-file', activeFileName)` 与 `emit('adoptFile', activeFileName)`。
+- **采纳按钮文案与事件（规整无自造词，使用标准文案）**：
+  按钮文案沿用既有标准【设为客户采纳】（配 Lucide `star` 图标），统一派发 `@adopt-file` 事件。
 - **胶水层串联 (`Step1App.vue`)**：
   - `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" ... />`
-  - `<StudioEditor @adopt-file="handleAdoptFile" @adoptFile="handleAdoptFile" ... />`
+  - `<StudioEditor @adopt-file="handleAdoptFile" ... />`
 
 ### 3. 阶段一业务逻辑 (`GEO/web/step0-src/useStep1.js`)
 - **采纳逻辑 (`handleAdoptFile`)**：
-  将目标文件设为 `isActive: true`，将同一分类或同一前缀的旧生效底牌置为 `isActive: false`，调用 `saveState()` 并 Toast 提示“已成功将该版本设为生效底牌！”；
+  将目标文件设为 `isActive: true`，将同交付物工序槽位（或同一分类互斥版本）的旧生效版本置为 `isActive: false`，调用 `saveState()` 并 Toast 提示“已将【xxx】设为客户采纳生效版本！”；
 - **软删除逻辑 (`handleDeleteFile`)**：
-  严格校验 `if (files.value[filename]?.isActive) return;` 杜绝误删底牌。设置 `files.value[filename].is_deleted = true`。若当前打开的文件是被删文件，自动平滑切换至当前分类下首个有效文件，调用 `saveState()` 并提示“已移入废纸篓，可在左栏底部随时恢复”；
+  严格校验 `if (files.value[filename]?.isActive) return;` 杜绝误删生效版本。设置 `files.value[filename].is_deleted = true`。若当前打开的文件是被删文件，三级平滑降级切换：① 剩余未删除 openTabs 首项；② 全局未删除文件首项；③ 空态。调用 `saveState()` 并提示“已将草稿移入废纸篓，可在左侧底部展开恢复”；
 - **恢复逻辑 (`handleRestoreFile`)**：
-  设置 `files.value[filename].is_deleted = false`，调用 `saveState()` 并自动选中该文件。
+  设置 `files.value[filename].is_deleted = false`，调用 `saveState()` 并自动打开选中该文件。
 
 ---
 
-## Data Structure & Storage (持久化规范)
+## Data Structure & Storage (持久化与存量兼容规范)
 
 - 本地存储键：`` `geo_step1_state_${clientId}` ``
+- **存量历史数据安全兜底机制 (Migration Fallback)**：
+  从本地存储恢复时，若历史文件未记录 `isActive`、`versionTag`、`is_deleted`，严格遵循：
+  1. 初始核心骨干文件：保持 `buildStage1Files` 的默认安全保护值（`isActive: true`, `is_deleted: false`），绝不降级为可删草稿；
+  2. 动态恢复的派生草稿文件：未指定则 `isActive: false`，`is_deleted: false`。
 - 存储字典结构：
   ```json
   {
@@ -118,7 +123,7 @@
         "content": "...",
         "isActive": true,
         "versionTag": "V1",
-        "generatedAt": "2026-09-28 19:28",
+        "generatedAt": "2026-09-28 20:01:25",
         "is_deleted": false
       },
       "01_网络底座指标_候选试算.md": {
@@ -126,7 +131,7 @@
         "content": "...",
         "isActive": false,
         "versionTag": "V2-Draft",
-        "generatedAt": "2026-09-28 19:35",
+        "generatedAt": "2026-09-28 20:10:00",
         "is_deleted": true
       }
     },
