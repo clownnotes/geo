@@ -107,39 +107,40 @@
   ```
 - **草稿文件删除按钮交互（UI 层防御）**：
   在文件列表中，仅当 `!files[fn]?.isActive` 时，hover 浮现 Lucide `trash-2` 图标，点击阻止冒泡并触发 `emit('deleteFile', fn)`；已采纳版本受到系统保护，不渲染删除按钮。
-- **底部废纸篓抽屉交互**：
+- **底部废纸篓抽屉交互（查看与恢复）**：
   计算属性 `trashFiles = computed(() => Object.keys(props.files).filter(fn => props.files[fn].is_deleted))`。
   若 `trashFiles.length > 0`，在左栏底部展示：
   - 头部折叠条：【已归档 / 废纸篓 (`trashFiles.length`)】；
-  - 展开列表：展示被删草稿名，右侧提供【恢复】按钮（使用已有先例的 Lucide `rotate-cw` 图标），点击触发 `emit('restoreFile', fn)`。
+  - 展开列表：展示被删草稿名，**支持整行点击触发 `emit('openFile', fn)`**，在中栏打开进行只读查验；右侧提供【恢复】按钮（使用已有先例的 Lucide `rotate-cw` 图标），点击触发 `emit('restoreFile', fn)`。
 
-### 2. 中栏编辑器采纳判定与胶水层 (`StudioEditor.vue` & `Step1App.vue`)
-- **采纳守卫条件 (`StudioEditor.vue:191-196`)**：
-  仅针对白名单分类中的未采纳文件开放采纳动作，严格守住安全边界：
+### 2. 中栏编辑器双行架构与只读预览 (`StudioEditor.vue` & 胶水层)
+- **顶栏解耦为双行独立架构**：
+  为彻底解决单行同时承载多 Tab 标签与快捷操作按钮导致的拥挤与遮挡，中栏顶栏重构为双行排布：
+  1. **第一行（状态与操作工具栏）**：
+     - **左侧状态区**：若当前文件处于废纸篓中（`currentFile.is_deleted`），显示醒目的【废纸篓归档 · 只读状态】灰色徽章提示；若为正常文件，展示文件属性、字数或生成时间。
+     - **右侧操作区（偏右对齐）**：
+       - 若为废纸篓文件：提供醒目的【一键恢复此文件】高亮按钮（触发 `@restore-file`）、【源码/预览】切换、【全屏】、【一键复制】；禁用并隐藏【设为客户采纳】与【保存文件】按钮；
+       - 若为正常文件：按原逻辑展示【客户生效底牌】/【设为客户采纳】、【源码/预览】、【全屏】、【一键复制】与【保存文件】按钮。
+  2. **第二行（文件 Tab 标签栏）**：
+     - 独立一行专门承载 `openTabs` 各文件切换与关闭；
+     - 若该 Tab 属于废纸篓文件（`files[fn]?.is_deleted`），在文件名后标注 `[废纸篓]` 专属浅色标识；
+     - 点击 Tab 正常切换激活文件；点击 `×` 正常关闭标签页。
+- **废纸篓内容只读保护**：
+  - 当 `currentFile?.is_deleted` 为 `true` 时，源码编辑区域的 `<textarea>` 自动置为 `:readonly="true"`，背景调整为轻微只读灰底，防止误改已归档草稿；
+  - 交付人员查验内容确认需要后，点击第一行工具栏或左侧抽屉的【一键恢复】，即可将该文件解除只读，无缝转正为正常可编辑草稿。
+- **采纳守卫条件 (`StudioEditor.vue`)**：
+  仅针对白名单分类中的未采纳正常文件开放采纳动作，严格守住安全边界：
   ```js
   const canAdoptCurrentFile = computed(() => {
-    if (!currentFile.value || currentFile.value.isActive) return false;
+    if (!currentFile.value || currentFile.value.isActive || currentFile.value.is_deleted) return false;
     const cat = currentFile.value.category;
     // 阶段零：questions/answers；阶段一：materials/drafts/reports
     return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat);
   });
   ```
-- **采纳按钮文案与事件（规整无自造词，使用标准文案）**：
-  按钮文案沿用既有标准【设为客户采纳】（配 Lucide `star` 图标），统一派发 `@adopt-file` 事件。
-- **胶水层串联 (`Step1App.vue`)**：
-  - `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" ... />`
-  - `<StudioEditor @adopt-file="handleAdoptFile" ... />`
-
-### 3. 阶段零业务胶水层 (`GEO/web/step0-src/Step0App.vue`)
-- **草稿软删除 (`handleDeleteFile`)**：
-  1. 逻辑层校验 `if (files.value[filename]?.isActive) return;` 保护生效底牌；
-  2. 置 `files.value[filename].is_deleted = true`；
-  3. 平滑回退兜底：若当前打开文件是被删文件，先切到剩余未删除 Tab；若无则切到同分类首个未删除文件；若分类全空，切到下一个有效分类或置空态，并从 `openTabs` 清除；
-  4. 调用 `saveStep0FilesToStorage()` 持久化；Toast 提示“已将草稿移入废纸篓”。
-- **废纸篓恢复 (`handleRestoreFile`)**：
-  置 `files.value[filename].is_deleted = false`；调用 `saveStep0FilesToStorage()`；自动定位打开该文件。
-- **模板绑定**：
-  `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" ... />`
+- **胶水层串联 (`Step0App.vue` & `Step1App.vue`)**：
+  - `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" @open-file="handleOpenFile" ... />`
+  - `<StudioEditor @adopt-file="handleAdoptFile" @restore-file="handleRestoreFile" ... />`
 
 ### 4. 阶段一业务逻辑 (`GEO/web/step0-src/useStep1.js`)
 - **采纳逻辑 (`handleAdoptFile`)**：
