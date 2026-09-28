@@ -49,7 +49,7 @@
 ## Interface (组件属性与事件定义)
 
 ### 1. 资源管理器树组件 (`GEO/web/step0-src/components/studio/StudioFileTree.vue`)
-- **Props 属性声明**：
+- **Props 属性声明（防污染边界设计）**：
   ```js
   const props = defineProps({
     categories: { type: Array, required: true },
@@ -58,8 +58,8 @@
     activeFileName: { type: String, default: '' },
     allowNewFile: { type: Boolean, default: true },
     allowRefresh: { type: Boolean, default: true },
-    /** 是否展示生效/草稿状态徽章与删除能力（阶段零与阶段一全面启用） */
-    showStatusBadge: { type: Boolean, default: true },
+    /** 是否展示生效/草稿状态徽章与删除能力（保持默认 false 防污染阶段二/三；在 Step0App 与 Step1App 中显式传 :show-status-badge="true"） */
+    showStatusBadge: { type: Boolean, default: false },
   });
   ```
 - **Emits 事件声明**：
@@ -71,18 +71,38 @@
   ]);
   ```
 - **草稿文件删除按钮交互**：
-  在文件列表中，若 `!files[fn]?.isActive`，hover 时在右侧展示 Lucide `trash-2` 图标，点击阻止冒泡并触发 `emit('deleteFile', fn)`。
+  在文件列表中，仅当 `!files[fn]?.isActive` 时，hover 浮现 Lucide `trash-2` 图标，点击阻止冒泡并触发 `emit('deleteFile', fn)`；已采纳文件受到保护，不渲染删除按钮。
 - **底部废纸篓抽屉交互**：
   计算属性 `trashFiles = computed(() => Object.keys(props.files).filter(fn => props.files[fn].is_deleted))`。
   若 `trashFiles.length > 0`，在左栏底部展示：
   - 头部折叠条：【已归档 / 废纸篓 (`trashFiles.length`)】；
-  - 展开列表：展示文件名，右侧提供【恢复】按钮（Lucide `rotate-ccw` 图标），点击触发 `emit('restoreFile', fn)`。
+  - 展开列表：展示被删草稿名，右侧提供【恢复】按钮（使用项目既有先例的 Lucide `rotate-cw` 图标），点击触发 `emit('restoreFile', fn)`。
 
-### 2. 中栏状态栏与采纳动作 (`GEO/web/step0-src/useStep1.js` & `StudioEditor.vue`)
-- **时间戳与版本渲染**：
-  中栏顶部展示：`[当前版本: V1]` · `[生成时间: 2026-09-28 19:28]`。
-- **采纳底牌动作**：
-  若当前选中的文件是未采纳草稿（`!activeFile.value.isActive`），编辑器顶栏右侧展示【采纳该版本为生效底牌】按钮，点击调用 `handleAdoptFile(activeFileName.value)`。
+### 2. 中栏编辑器采纳判定与胶水层 (`StudioEditor.vue` & `Step1App.vue`)
+- **放宽采纳守卫条件 (`StudioEditor.vue:191-196`)**：
+  将原本仅限阶段零的 `questions/answers` 扩展为全阶段兼容白名单：
+  ```js
+  const canAdoptCurrentFile = computed(() => {
+    if (!currentFile.value) return false;
+    if (currentFile.value.isActive) return false;
+    const cat = currentFile.value.category;
+    // 阶段零：questions/answers；阶段一：materials/drafts/reports；或只要定义了 versionTag 均支持采纳
+    return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat) || !!currentFile.value.versionTag;
+  });
+  ```
+- **采纳按钮文案与事件**：
+  按钮文案沿用既有标准【设为客户采纳】（配 Lucide `star` 图标），点击派发 `emit('adopt-file', activeFileName)` 与 `emit('adoptFile', activeFileName)`。
+- **胶水层串联 (`Step1App.vue`)**：
+  - `<StudioFileTree :show-status-badge="true" @delete-file="handleDeleteFile" @restore-file="handleRestoreFile" ... />`
+  - `<StudioEditor @adopt-file="handleAdoptFile" @adoptFile="handleAdoptFile" ... />`
+
+### 3. 阶段一业务逻辑 (`GEO/web/step0-src/useStep1.js`)
+- **采纳逻辑 (`handleAdoptFile`)**：
+  将目标文件设为 `isActive: true`，将同一分类或同一前缀的旧生效底牌置为 `isActive: false`，调用 `saveState()` 并 Toast 提示“已成功将该版本设为生效底牌！”；
+- **软删除逻辑 (`handleDeleteFile`)**：
+  严格校验 `if (files.value[filename]?.isActive) return;` 杜绝误删底牌。设置 `files.value[filename].is_deleted = true`。若当前打开的文件是被删文件，自动平滑切换至当前分类下首个有效文件，调用 `saveState()` 并提示“已移入废纸篓，可在左栏底部随时恢复”；
+- **恢复逻辑 (`handleRestoreFile`)**：
+  设置 `files.value[filename].is_deleted = false`，调用 `saveState()` 并自动选中该文件。
 
 ---
 

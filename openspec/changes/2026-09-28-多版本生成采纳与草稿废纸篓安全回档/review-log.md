@@ -152,3 +152,51 @@
   1. **P0-1 的甲/乙方案**（扩展分类白名单 / 改判定依据）—— **唯一的 🔴，必须先定**；
   2. P1-2 的默认值策略（保持 `false` + 仅阶段一显式传 `true`，还是改默认值）。
 - **下一步**：等待师弟裁决，**不擅自进入 apply**。
+
+---
+
+## 2026-09-28 19:55 · 师兄 (Antigravity) · 第一轮订正反馈与共识达成
+
+- **针对阶段**：审查意见订正与技术对齐
+- **结论标签**：`[已达成共识]`
+- **动作边界**：本轮**严格未修改任何业务源码**，仅订正 `openspec/changes/2026-09-28-多版本生成采纳与草稿废纸篓安全回档/` 下的规范文件并执行 git 纳管。
+
+### 一、逐条核实与规范订正实录
+
+#### 1. 🔴 P0-1｜【一键采纳】分类守卫狭隘导致阶段一必然静默失效
+- **求证结论**：**完全属实，排查极其敏锐，全盘接纳**。`StudioEditor.vue:191-196` 确实硬编码了仅限 `questions/answers` 分类，导致阶段一的 `materials/drafts/reports` 文件全部被拦截，且 `Step1App.vue` 确实未监听 `@adopt-file`。
+- **订正动作**：
+  - `design.md §2` 与 `tasks.md 2.4` 明确将 `canAdoptCurrentFile` 判定放宽为全阶段通用兼容：包含 `materials/drafts/reports` 或只要包含 `versionTag` 属性即放行；
+  - `Step1App.vue` 胶水层明确补齐 `<StudioEditor @adopt-file="handleAdoptFile" @adoptFile="handleAdoptFile" ... />` 绑定；
+  - `tasks.md 3.3` 补齐真机验收项：“观察点击中栏【设为客户采纳】，该文件成功获得紫色已采纳徽章，原底牌自动退回为普通草稿，且已采纳后删除垃圾桶图标立即消失（受保护）”。
+
+#### 2. 🟡 P1-1｜`proposal.md` 的 Impact 清单漏列 `StudioEditor.vue`
+- **求证结论**：**完全属实，全盘接纳**。
+- **订正动作**：
+  - `proposal.md` 的 Impact 清单已完整补齐 `GEO/web/step0-src/components/studio/StudioEditor.vue`；
+  - 连同其余 4 个文件（`StudioFileTree.vue`、`stage1Config.js`、`useStep1.js`、`Step1App.vue`），共 5 个文件与 `tasks.md 1.2` 严格 1:1 双向对撞对齐。
+
+#### 3. 🟡 P1-2｜`showStatusBadge` 默认值与防污染边界
+- **求证结论**：**完全属实，全盘接纳**。原代码设为 `default: false` 是为了避免阶段二、三意外渲染徽章。
+- **订正动作**：
+  - 接纳建议，`design.md §1` 与 `tasks.md 2.1` 明确保持 `showStatusBadge` 默认值为 `false`；
+  - 仅在 `Step0App.vue` 与 `Step1App.vue` 显式传参 `:show-status-badge="true"`，做到零副作用、零污染。
+
+#### 4. 🟡 P1-3｜`tasks.md 3.3` 验收项未覆盖采纳核心动作
+- **求证结论**：**完全属实，全盘接纳**。
+- **订正动作**：
+  - `tasks.md 3.3` 已明确新增第 4 条真机验收项，确保采纳后徽章更新与旧底牌退回草稿得到人工检验。
+
+#### 5. 🟢 P2 项处理
+- **P2-1 文案消歧**：`design.md §2` 明确统一沿用既有标准文案【设为客户采纳】（配 Lucide `star` 图标）；
+- **P2-2 图标先例**：废纸篓内的恢复按钮图标由全仓 0 先例的 `rotate-ccw` 纠正为项目多处先例的 Lucide `rotate-cw` 图标；
+- **P2-3 确认来源**：补记师弟在 Grill 探讨时的确切原话（“推荐的时间戳是需要的，另外这六步中总有一些文件后面会感觉用不到的… 没有被标记的可以删除”）；
+- **P2-4 命名约定**：确认 `is_deleted` snake_case 忠实沿用项目既有约定，非缺陷。
+
+---
+
+### 二、共识与就绪状态确认
+
+所有 1 项 🔴 P0、3 项 🟡 P1、4 项 🟢 P2 均已全量订正闭环，OpenSpec 规范体系（proposal / design / tasks / review-log）已达到最高严谨交付标准。
+当前状态：`[已达成共识]`，AI 保持**严格立定停步**，未修改任何业务代码，等待师弟发出开工编码指令。
+

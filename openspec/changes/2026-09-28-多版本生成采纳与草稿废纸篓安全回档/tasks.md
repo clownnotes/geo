@@ -10,7 +10,8 @@
 - [ ] 2.1 改造左栏资源管理器组件 `GEO/web/step0-src/components/studio/StudioFileTree.vue`：
   - 完善草稿（未采纳）文件的删除触发按钮（Lucide `trash-2` 图标，hover 时浮现），派发 `deleteFile` 事件；
   - 保护已采纳文件，不展示删除按钮；
-  - 底部新增【已归档 / 废纸篓】折叠抽屉，汇总展示所有 `is_deleted` 文件并提供【恢复】按钮（Lucide `rotate-ccw` 图标），派发 `restoreFile` 事件。
+  - 保持 `showStatusBadge` 默认值为 `false`，杜绝污染阶段二/三；
+  - 底部新增【已归档 / 废纸篓】折叠抽屉，汇总展示所有 `is_deleted` 文件并提供【恢复】按钮（使用已有先例的 Lucide `rotate-cw` 图标），派发 `restoreFile` 事件。
 - [ ] 2.2 扩展阶段一配置字典 `GEO/web/step0-src/stage1Config.js`：
   - 为初始生成的 6 个核心文件注入默认属性：`isActive: true`、`versionTag: 'V1'`、`is_deleted: false` 以及格式化生成时间戳。
 - [ ] 2.3 升级阶段一业务逻辑 `GEO/web/step0-src/useStep1.js`：
@@ -20,8 +21,10 @@
   - 重新抓取时注入最新生成时间戳；
   - 在 `return` 对象中导出新方法供外部调用。
 - [ ] 2.4 改造胶水层与中栏组件 (`Step1App.vue` & `StudioEditor.vue`)：
-  - `Step1App.vue` 绑定 `<StudioFileTree>` 的 `delete-file` 与 `restore-file` 事件；
-  - 中栏编辑器展示文件生成时间戳与版本号，针对草稿文件展示【采纳该版本为生效底牌】动作按钮。
+  - 改造 `StudioEditor.vue:191-196`：放宽 `canAdoptCurrentFile` 白名单判定，兼容阶段一各分类；
+  - `Step1App.vue` 显式为 `<StudioFileTree>` 传入 `:show-status-badge="true"`，并绑定 `@delete-file="handleDeleteFile"` 与 `@restore-file="handleRestoreFile"`；
+  - `Step1App.vue` 补齐 `<StudioEditor>` 的 `@adopt-file="handleAdoptFile"` 绑定；
+  - 中栏编辑器展示文件生成时间戳与版本号，针对草稿文件展示【设为客户采纳】动作按钮。
 - [ ] 2.5 文案与代码 Emoji 规整自检：检索改动文件，确保不引入任何彩色 Emoji 表情。
 
 ## 3. 构建与端到端真机验收
@@ -32,5 +35,6 @@
   - 观察草稿文件 hover 出现删除垃圾桶图标，点击成功移入废纸篓；
   - 观察已采纳文件受到强制保护，不出现删除按钮；
   - 观察左栏底部的【已归档 / 废纸篓】抽屉展开展示被删文件，点击【恢复】一键原位复原；
+  - 观察点击中栏【设为客户采纳】，该文件成功获得紫色已采纳徽章，原底牌自动退回为普通草稿；
   - 观察中栏顶部清晰展示生成时间戳与版本信息；
   - 观察刷新页面后，采纳标记、时间戳与废纸篓状态 100% 保持。

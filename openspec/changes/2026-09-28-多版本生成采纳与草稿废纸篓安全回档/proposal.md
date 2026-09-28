@@ -36,4 +36,9 @@
   - 增加 `handleDeleteFile` 软删除与 `handleRestoreFile` 恢复方法；
   - 重新抓取时生成带版本和生成时间戳的最新指标，自动持久化至本地；
 - `GEO/web/step0-src/Step1App.vue`：
-  - 胶水层连接 `StudioFileTree` 的删除与恢复事件，中栏支持采纳动作交互。
+  - 胶水层连接 `StudioFileTree` 的 `delete-file` 与 `restore-file` 事件，连接 `<StudioEditor>` 的 `adopt-file` 采纳事件；
+  - 为 `<StudioFileTree>` 显式绑定 `:show-status-badge="true"`，在阶段一开启采纳状态与废纸篓能力；
+- `GEO/web/step0-src/components/studio/StudioEditor.vue`：
+  - 放宽 `canAdoptCurrentFile` 判定守卫（支持阶段一的 materials/drafts/reports 分类或带 versionTag 的文件），点击派发 `adoptFile` 事件；
+  - 顶部与底部状态栏透出文件生成时间戳与版本号。
+
