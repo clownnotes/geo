@@ -24,8 +24,8 @@
 
 
 ## 4. 前端构建与 NE1 8088 真机环境验证
-- [ ] 4.1 编译打包阶段零前端产物：在仓库根目录 `GEO/` 执行 `npm run build:step0`，生成真实产物 `web/assets/step0/step0.js` 与 `web/assets/step0/geo-step0-island.css`，由 `stamp-build.mjs` 自动更新版本戳。
-- [ ] 4.2 同步产物至 NE1 服务器并在 8088 端口端到端真机验收：
+- [x] 4.1 编译打包阶段零前端产物：在仓库根目录 `GEO/` 执行 `npm run build:step0`，生成真实产物 `web/assets/step0/step0.js` 与 `web/assets/step0/geo-step0-island.css`，由 `stamp-build.mjs` 自动更新版本戳。
+- [x] 4.2 同步产物至 NE1 服务器并在 8088 端口端到端真机验收：
   - 验证点击“重新出题”后，生成草稿文件，左侧显示灰色 `[草稿]` 标签；
   - 验证点击微步骤 2【保存当前润色修改】，成功存盘并弹出保存成功提示；
   - 验证点击微步骤 3【采纳为生效底牌】，草稿瞬间转正为 QA-V2，左侧高亮显示紫色 `[已采纳 QA-V2]` 徽章，原 QA-V1 自动让位变为草稿；

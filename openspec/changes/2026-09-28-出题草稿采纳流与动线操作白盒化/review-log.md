@@ -464,3 +464,14 @@
   3. **0.2动线保护**：针对 0.2 网页提问动线 `STAGE0_SUB2_META`，其第 3 步的【完成阶段零并封版】按钮（`action.type === 'finishStage0'`）保留完好无损，严格保护了原有功能不受污染。
   4. **事件闭环有效性**：在 `Step0App.vue` 调用 `<StudioSop>` 时，正确绑定了 `@save-file="handleSaveActiveFile"` 与 `@adopt-current-file="() => handleAdoptFile(activeFileName)"`；其中 `activeFileName` 参数已有效传递至采纳流程中，事件闭环完美打通。
 - 判定结论：[通过]
+
+---
+
+## 2026-09-28 16:54 · 审查考官 (Auditor · Pro) · 任务审查：Task 4 前端构建与全链路端到端验收 (全量收官)
+- 审查维度：构建产物合规 / 冒烟测试 / NE1真机环境验证 / 全任务完成度
+- 发现与讨论：
+  1. **构建与产物校验**：成功在主仓执行 `npm run build:step0`；`step0.js` 体积约 368 KB，并由 `stamp-build.mjs` 成功为 `geo-step0-island.css` 与 `step0.js` 打上 `?v=20260928085458` 新鲜版本戳，确保缓存击穿。
+  2. **冒烟测试验证**：成功执行 `npm run smoke:step0`，冒烟脚本 4 项核心校验（构建检查、体积阈值、nextgeo 清单扫盘等）全量 PASS。
+  3. **真机环境与产物端到端验收**：通过 `rsync` 纯净同步最新产物至 `NE1 (100.83.64.112)`。实测 8088 端口正常响应 HTTP 200；从服务端下发的 `assets/step0/step0.js` 产物中严谨检索出所有目标新增资产标识符（`showStatusBadge`, `saveCurrentFile`, `adoptCurrentFile`, `expandAll`），100% 符合交付预期，真机联调部署生效无误。
+  4. **全链路收官**：`tasks.md` 中所有规划项（Task 1~4）均已严谨打上勾且经过闭环实机验证。所有子任务 100% 达成且没有出现未经授权的外溢更改，各项热修防御、状态流转严丝合缝。本需求（出题草稿采纳流与动线操作白盒化）全部开发验收工作正式完工。
+- 判定结论：[通过] (全任务交付闭环)
