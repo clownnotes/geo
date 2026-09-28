@@ -4,7 +4,7 @@
  * [2026-09-27] 支持联动顶栏折叠/展开「概览卡片」
  */
 import { ref, computed, onUnmounted } from 'vue';
-import { resolveContext, buildStage1Files, STAGE_1_META } from './stage1Config.js';
+import { resolveContext, buildStage1Files, STAGE_1_META, buildCrawledMetricsMarkdown } from './stage1Config.js';
 
 export function useStep1(projectData = {}) {
   const ctx = resolveContext(projectData);
@@ -50,6 +50,7 @@ export function useStep1(projectData = {}) {
   const selectedGate = ref(savedState?.selectedGate || 'confirmed');
   // [2026-09-28] [阶段一底座抓取动线视线引导优化] 增加底座抓取完成态响应式状态，消除断层感
   const crawledMetrics = ref(savedState?.crawledMetrics || false);
+  const isCrawling = ref(false); // [2026-09-28] 真机底座指标网络探测 loading 状态
   const mckinseyVisible = ref(false);
   const fullscreenVisible = ref(false);
 
@@ -193,13 +194,43 @@ export function useStep1(projectData = {}) {
     }
   }
 
-  function handleAction(actionType) {
+  async function handleAction(actionType) {
     if (actionType === 'crawlMetrics') {
-      // [2026-09-28] [阶段一底座抓取动线视线引导优化] 标记抓取完成并持久化，更新提示引导操作者点击下方主按钮
-      crawledMetrics.value = true;
-      handleSelectTab('01_网络底座指标_待对照.md');
-      saveState();
-      showStudioToast('已完成抓取：真实底座指标已就绪！请核对中栏数据，确认无误后点击下方【前往出具初稿】');
+      if (isCrawling.value) return;
+      isCrawling.value = true;
+      try {
+        const token = typeof window !== 'undefined' ? window.currentAuthToken || '' : '';
+        const pid = typeof window !== 'undefined' ? window.currentProjectId || ctx.clientId : ctx.clientId;
+
+        const res = await fetch(`/api/projects/${encodeURIComponent(pid)}/run/audit`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ mode: 'crawl' }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          crawledMetrics.value = true;
+          // [2026-09-28] [阶段一底座抓取动线视线引导优化] 根据后端真机探测指标实时重构并回填中栏
+          const freshMarkdown = buildCrawledMetricsMarkdown(ctx, data.metrics || {});
+          if (files.value['01_网络底座指标_待对照.md']) {
+            files.value['01_网络底座指标_待对照.md'].content = freshMarkdown;
+            files.value['01_网络底座指标_待对照.md'].savedContent = freshMarkdown;
+            files.value['01_网络底座指标_待对照.md'].isDirty = false;
+          }
+          handleSelectTab('01_网络底座指标_待对照.md');
+          saveState();
+          showStudioToast('已完成抓取：真实底座指标已就绪！请核对中栏数据，确认无误后点击下方【前往出具初稿】');
+        } else {
+          showStudioToast(`探测失败: ${data.message || '网络连接超时'}`, 'error');
+        }
+      } catch (err) {
+        showStudioToast(`请求失败: ${err.message}`, 'error');
+      } finally {
+        isCrawling.value = false;
+      }
     } else if (actionType === 'generateDraft') {
       handleSelectTab('01_商业诊断与转化初稿.md');
       saveState();
@@ -319,6 +350,7 @@ export function useStep1(projectData = {}) {
     currentStep,
     selectedGate,
     crawledMetrics, // [2026-09-28] 暴露底座指标抓取完成状态
+    isCrawling,     // [2026-09-28] 暴露底座指标真机探测 loading 状态
     currentRenderMode,
     isHeaderCollapsed,
     mckinseyVisible,

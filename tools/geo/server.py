@@ -1825,6 +1825,7 @@ core_values:
                     except ValueError as ve:
                         self.send_json({"success": False, "message": str(ve)}, status=400)
                         return
+                    # [2026-09-28] [阶段一底座抓取动线视线引导优化] 在 run/audit 接口响应中透传结构化 metrics 数据
                     self.send_json({
                         "success": True,
                         "step": step,
@@ -1832,6 +1833,7 @@ core_values:
                         "message": ares.get("message") or "阶段 1 已执行完毕！",
                         "llm_status": ares.get("llm_status"),
                         "tech_score": (ares.get("metrics") or {}).get("tech_score"),
+                        "metrics": ares.get("metrics") or {},
                     })
                     return
                 elif step == "scaffold":

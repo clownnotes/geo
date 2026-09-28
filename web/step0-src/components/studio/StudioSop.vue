@@ -79,14 +79,23 @@
             <button
               v-if="step.action"
               type="button"
-              class="px-3 py-2 rounded-lg border text-[13px] font-bold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer"
-              :class="isActionDone(step.action.type)
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/60'
-                : 'bg-[#7c5bf5]/10 border-[#7c5bf5]/30 hover:bg-[#7c5bf5]/20 text-[#7c5bf5]'"
+              :disabled="isActionLoading(step.action.type)"
+              class="px-3 py-2 rounded-lg border text-[13px] font-bold flex items-center justify-center gap-1.5 transition shadow-2xs"
+              :class="[
+                isActionLoading(step.action.type)
+                  ? 'bg-slate-100 border-slate-300 text-slate-400 cursor-wait'
+                  : (isActionDone(step.action.type)
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/60 cursor-pointer'
+                    : 'bg-[#7c5bf5]/10 border-[#7c5bf5]/30 hover:bg-[#7c5bf5]/20 text-[#7c5bf5] cursor-pointer')
+              ]"
               @click.stop="onActionClick(step.action.type)"
             >
-              <i :data-lucide="isActionDone(step.action.type) ? 'check-circle' : (step.action.icon || 'activity')" class="w-4 h-4"></i>
-              <span>{{ isActionDone(step.action.type) ? (step.action.completedLabel || '已抓取真实指标 (点击重新抓取)') : step.action.label }}</span>
+              <i
+                :key="isActionLoading(step.action.type) ? 'loading' : (isActionDone(step.action.type) ? 'done' : 'idle')"
+                :data-lucide="isActionLoading(step.action.type) ? 'loader-2' : (isActionDone(step.action.type) ? 'check-circle' : (step.action.icon || 'activity'))"
+                :class="isActionLoading(step.action.type) ? 'w-4 h-4 animate-spin' : 'w-4 h-4'"
+              ></i>
+              <span>{{ isActionLoading(step.action.type) ? '正在探测官网底座…' : (isActionDone(step.action.type) ? (step.action.completedLabel || '已抓取真实指标 (点击重新抓取)') : step.action.label) }}</span>
             </button>
 
             <!-- 附加动作（如重新出题） -->
@@ -197,6 +206,8 @@ const props = defineProps({
   gate: { type: String, default: 'confirmed' },
   /** [2026-09-28] [阶段一底座抓取动线视线引导优化] 动作完成态映射字典，如 { crawlMetrics: true } */
   actionCompletedMap: { type: Object, default: () => ({}) },
+  /** [2026-09-28] [阶段一底座抓取动线视线引导优化] 动作加载态映射字典，如 { crawlMetrics: true } */
+  actionLoadingMap: { type: Object, default: () => ({}) },
 });
 
 const emit = defineEmits([
@@ -259,6 +270,12 @@ function isActionDone(type) {
   return !!props.actionCompletedMap[type];
 }
 
+// [2026-09-28] [阶段一底座抓取动线视线引导优化] 检查动作是否处于 loading 中
+function isActionLoading(type) {
+  if (!type || !props.actionLoadingMap) return false;
+  return !!props.actionLoadingMap[type];
+}
+
 // [2026-09-28] [阶段一底座抓取动线视线引导优化] 是否高亮推进按钮（防污染：严格限定当前步骤且动作已完成）
 function shouldHighlightProceed(step, idx) {
   if (!step?.action?.type) return false;
@@ -308,7 +325,7 @@ function onSkipClick(step, idx) {
   emit('proceed', step);
 }
 
-watch([() => props.currentStep, () => props.stageMeta, () => props.expandAll, () => props.actionCompletedMap], () => {
+watch([() => props.currentStep, () => props.stageMeta, () => props.expandAll, () => props.actionCompletedMap, () => props.actionLoadingMap], () => {
   nextTick(() => {
     if (window.lucide) window.lucide.createIcons();
   });
