@@ -17,7 +17,9 @@
 - **磁盘实体文件自动化落盘（Outputs Persistence）**：抓取结果与体检报告真实写入服务器硬盘，刷新页面依然保持。
 
 ## Impact (受影响的部分)
+- `GEO/web/step0-src/stage1Config.js`：新增 `buildCrawledMetricsMarkdown(ctx, metrics)` 客观指标 Markdown 组装函数；
 - `GEO/web/step0-src/useStep1.js`：改造 `handleAction('crawlMetrics')`，接入后端 `POST /api/projects/{id}/run/audit` 接口，增加 loading 状态管理与中栏内容动态刷新；
+- `GEO/web/step0-src/Step1App.vue`：解构 `isCrawling` 并透传 `:action-loading-map` 至 `<StudioSop>`；
 - `GEO/web/step0-src/components/studio/StudioSop.vue`：动作按钮支持 loading 加载中文案与转圈图标；
 - `GEO/tools/geo/server.py`：确保 `/api/projects/{id}/run/audit` 接口在响应中返回详细的 `metrics` 字典与格式化报告摘要；
 - 前后端协同严格遵循企业级规范，严禁引入任何彩色 Emoji 表情符号。

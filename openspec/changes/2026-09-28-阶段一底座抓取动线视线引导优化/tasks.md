@@ -10,6 +10,7 @@
 - [ ] 2.1 强化 `GEO/tools/geo/server.py`：在 `/api/projects/{id}/run/audit` 响应中透传 `metrics: ares.get('metrics')`，确保前端能直接获取结构化抓取结果。
 - [ ] 2.2 扩展 `GEO/web/step0-src/stage1Config.js`：实现 `buildCrawledMetricsMarkdown(ctx, metrics)` 格式化函数，将真抓数据（连通状态、/llms.txt、/robots.txt、Schema、SSR、技术底座分）格式化为专业企业级 Markdown 文本。
 - [ ] 2.3 改造 `GEO/web/step0-src/useStep1.js`：
+  - 头部补充 import 导入 `buildCrawledMetricsMarkdown`，防运行时 ReferenceError；
   - 新增 `isCrawling` 响应式状态并对外导出；
   - 改造 `handleAction('crawlMetrics')`，真正通过 `fetch` 调用 `/api/projects/{id}/run/audit`；
   - 抓取成功后将返回的真实 metrics 格式化并覆盖更新至 `files['01_网络底座指标_待对照.md'].content`；
@@ -25,7 +26,7 @@
 ## 3. 构建与端到端真机验收
 
 - [ ] 3.1 跨端构建（严格遵守 `AGENTS.md §4.5`）：在 NE1 服务器执行仓库根构建命令 `npm run build:step0`，产物写入 `web/assets/step0/` 并由 `stamp-build.mjs` 打版本戳。
-- [ ] 3.2 运行端到端冒烟测试（`npm run smoke:step0`），确保 4/4 项全部 PASS。
+- [ ] 3.2 运行端到端冒烟测试（`npm run smoke:step0`），确保 4/4 项全部 PASS（注意冒烟第 1 步会重建并生成最终生效版本戳，验收以末次戳为准）。
 - [ ] 3.3 浏览器真机验证（NE1 开发环境 8088 端口 · 人工浏览器验收项，AI 不得代勾）：
   - 点击“真抓网络底座指标”；
   - 观察按钮出现转圈动画与“正在探测官网底座…”；

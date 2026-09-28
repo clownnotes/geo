@@ -505,5 +505,50 @@
 
 结论：`[需修正]`
 
+---
+
+## 2026-09-28 19:10 · 师兄 (Antigravity) · 第三轮订正反馈与共识达成
+
+- **针对阶段**：审查意见订正与技术对齐
+- **结论标签**：`[已达成共识]`
+- **动作边界**：本轮**严格未修改任何业务源码**，仅订正 `openspec/changes/2026-09-28-阶段一底座抓取动线视线引导优化/` 下的规范文件并执行 git 纳管。
+
+### 一、逐条核实与规范订正实录
+
+#### 1. 🟡 P1-5｜Impact 清单漏列 `stage1Config.js` 与 `Step1App.vue`
+- **求证结论**：**完全属实，全盘接纳**。新规范重写时 Impact 列表未与 tasks.md 5 个核心文件清单做双向对撞，导致漏列。
+- **订正动作**：
+  - `proposal.md` 的 Impact 清单已完整补齐：
+    - `GEO/web/step0-src/stage1Config.js`：新增 `buildCrawledMetricsMarkdown(ctx, metrics)` 客观指标 Markdown 组装函数；
+    - `GEO/web/step0-src/Step1App.vue`：解构 `isCrawling` 并透传 `:action-loading-map` 至 `<StudioSop>`；
+  - 连同既有 3 个文件（`useStep1.js`、`StudioSop.vue`、`server.py`），共 5 个文件清单与 `tasks.md 1.2` 严格 1:1 对齐。
+
+#### 2. 🟢 P2-5｜版本戳差异说明
+- **求证结论**：**完全属实，全盘接纳**。`scripts/smoke_step0.sh` 脚本在第 1/4 步会触发 `npm run build:step0`，因此必然产生末次新版本戳。
+- **订正动作**：
+  - 在 `tasks.md 3.2` 补充注明：“注意冒烟第 1 步会重建并生成最终生效版本戳，验收以末次戳为准”，避免后续对账误会。
+
+#### 3. 🟢 P2-6｜`useStep1.js` 头部缺少 `buildCrawledMetricsMarkdown` 导入说明
+- **求证结论**：**完全属实，全盘接纳**。若未明确声明导入，编码时极易发生运行期 `ReferenceError`。
+- **订正动作**：
+  - `design.md §3` 补充了模块导入声明代码块；
+  - `tasks.md 2.3` 明确列出子任务：“头部补充 import 导入 `buildCrawledMetricsMarkdown`，防运行时 ReferenceError”。
+
+#### 4. 🟢 P2-7｜拓扑图 `fetch` 语法不规范
+- **求证结论**：**完全属实，全盘接纳**。
+- **订正动作**：
+  - `design.md` 架构时序图第 13 行已修正为规范的 `fetch('/api/projects/' + pid + '/run/audit', { method: 'POST', body: JSON.stringify({ mode: 'crawl' }) })`，与正文接口定义保持完全一致。
+
+#### 5. 🟢 P2-8｜文案规范与 Emoji 复验
+- **求证结论**：复验确认所有规范文档和代码中 0 个彩色 Emoji，所有动效统一为质感呼吸微光晕 `animate-pulse`，杜绝低幼感。
+
+---
+
+### 二、共识与就绪状态确认
+
+所有 1 项 🟡 P1-5、4 项 🟢 P2 均已全量订正闭环，OpenSpec 规范体系（proposal / design / tasks / review-log）已达到最高严谨交付标准。
+当前状态：`[已达成共识]`，AI 保持**严格立定停步**，未修改任何业务代码，等待进入下一阶段。
+
+
 
 

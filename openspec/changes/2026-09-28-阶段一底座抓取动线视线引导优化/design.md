@@ -10,7 +10,7 @@
        │ emit('action', 'crawlMetrics')
        ▼
 [useStep1.js] (handleAction 异步发起请求)
-       │ fetch('/api/projects/' + pid + '/run/audit', { mode: 'crawl' })
+       │ fetch('/api/projects/' + pid + '/run/audit', { method: 'POST', body: JSON.stringify({ mode: 'crawl' }) })
        ▼
 [server.py / tools/geo/server.py] (路由调度 /run/audit)
        │
@@ -95,6 +95,11 @@
   ```
 
 ### 3. 阶段一状态管理 (`GEO/web/step0-src/useStep1.js`)
+- **模块导入**：
+  在 `useStep1.js` 头部将 `buildCrawledMetricsMarkdown` 补入从 `./stage1Config.js` 的既有 import 列表中：
+  ```js
+  import { resolveContext, buildStage1Files, STAGE_1_META, buildCrawledMetricsMarkdown } from './stage1Config.js';
+  ```
 - **状态声明**：
   ```js
   const isCrawling = ref(false);
