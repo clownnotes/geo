@@ -60,7 +60,7 @@ const STAGE0_SUB1_META = {
 > **保持 0.2 动线独立稳定**：0.2 网页提问动线 `STAGE0_SUB2_META` 及其第 3 步的【完成阶段零并封版】按钮（`action.type === 'finishStage0'`）保持现状不动，禁止改动其数据结构或逻辑。
 
 ### 2.2 事件派发机制与接口契约
-在 `StudioSop.vue` 的 `onActionClick` 中扩展分发，同时清理已废弃悬空的 `proceed-to-next` 声明：
+在 `StudioSop.vue` 的 `onActionClick` 中扩展分发，同时彻底清理已废弃悬空的 `proceed-to-next` 声明与发射点：
 ```javascript
 // defineEmits 清理掉 proceed-to-next，新增动作事件
 const emit = defineEmits([
@@ -75,6 +75,14 @@ function onActionClick(type) {
   if (type === 'finishStage0') emit('finish-stage0');
   if (type === 'saveCurrentFile') emit('save-file');
   if (type === 'adoptCurrentFile') emit('adopt-current-file');
+}
+
+// 清理 onProceedClick 中废弃的 proceed-to-next 发射
+function onProceedClick(step, idx) {
+  emit('proceed', step);
+  if (idx === 1 && steps.value.length <= 2) {
+    emit('finish-stage0');
+  }
 }
 ```
 在 `Step0App.vue` 中绑定：
@@ -93,7 +101,15 @@ function onActionClick(type) {
 ```
 
 ### 2.3 彻底阻断平铺模式下的误触跳页与崩溃
-在 `StudioSop.vue` 的 `onGotoStep` 中增加防护：
+在 `StudioSop.vue` 的 `onGotoStep` 中增加防护，并将卡片头部的鼠标指针样式根据 `expandAll` 条件化：
+```html
+<!-- 模板：卡片头部根据 expandAll 条件化手型指针 -->
+<div
+  class="flex items-center justify-between gap-2 p-3 select-none"
+  :class="expandAll ? 'cursor-default' : 'cursor-pointer'"
+  @click="onGotoStep(idx + 1)"
+>
+```
 ```javascript
 function onGotoStep(num) {
   // [2026-09-28] 平铺微动线模式下所有卡片已展开，禁止点击卡片头部意外派发 switch-step
@@ -142,7 +158,8 @@ function onGotoStep(num) {
 
 ---
 
-## 4. 规范对齐与豁免说明
+## 4. 规范对齐与出处澄清
 
-1. **文案「采纳为生效底牌」**：虽然白皮书 §3.5 要求文案偏向「提问清单与豆包答案」，但本产品交互中“底牌/基线”已深入业务且由产品经理（师弟）明确选定用于区分“打磨草稿”与“正式生效基线”，故此签署文案豁免，与既有系统语义统一；
-2. **验证机器口径**：遵循 2026-09-28 师弟最新全局铁律第 0.11 条（“本地笔记本绝对零编译，编译验证一律去 NE1 服务器”），所有验证以 NE1 服务器（8088 端口）为唯一真相源。
+1. **文案「采纳为生效底牌」**：虽然白皮书 §3.5 倾向于纯粹的「提问清单与豆包答案」，但在阶段零实际交付中，“底牌/基线”已深入业务认知并由师弟选定，用于区分“打磨草稿”与“正式生效基线”，故此签署文案豁免，与代码（`Step0App.vue` 19 处）保持 SSOT 一致；
+2. **验证机器口径与出处澄清**：遵循师弟于系统全局规则中确立的最高铁律（见系统全局提示词 `<RULE[user_global]>` 第 0.11 条：“本地笔记本绝对零编译，编译验证一律去 NE1 服务器”）。尽管仓库本地 `AGENTS.md` 尚遗留历史 §4.1/§5.4「本地端验证」字样，但全局协作规则为最高优先级。所有开发产物与真机验证以 NE1 服务器（8088 端口）为唯一真相源。
+
