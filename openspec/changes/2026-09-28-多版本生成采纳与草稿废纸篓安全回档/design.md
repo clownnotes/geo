@@ -26,17 +26,17 @@
 ### 2. 工序槽位映射与版本命名规则 (SlotKey & Naming Rules)
 
 #### (1) 工序槽位映射字典 (slotKey)
-为杜绝“同分类互斥导致其他交付物断链”的致命隐患，系统按**交付物工序槽位**独立隔离，并在字典中显式固化派生主干名前缀 `baseSlotName`：
-| 槽位键 (`slotKey`) | 初始核心文件名 | 派生主干名前缀 (`baseSlotName`) | 派生草稿统一命名规则 | 所属分类 | 阶段适用 |
+为杜绝“同分类互斥导致其他交付物断链”的致命隐患，系统按**交付物工序槽位**独立隔离，并在字典中显式固化派生主干名前缀 `baseSlotName`（严格与 `stage1Config.js` 和阶段零真实配置对齐，共 8 大核心槽位）：
+| 槽位键 (`slotKey`) | 初始核心文件名 (规范骨干名) | 派生主干名前缀 (`baseSlotName`) | 派生草稿统一命名规则 | 所属分类 | 阶段适用 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| `slot_stage0_questions` | `01_豆包提问清单_推荐版.txt` | `01_豆包提问清单` | `01_豆包提问清单_第${N}版.txt` | `questions` | 阶段零 |
+| `slot_stage0_answers` | `02_豆包实测回答记录_初测.txt` | `02_豆包实测回答` | `02_豆包实测回答_第${N}版.txt` | `answers` | 阶段零 |
 | `slot_metrics` | `01_网络底座指标_待对照.md` | `01_网络底座指标` | `01_网络底座指标_第${N}版.md` | `materials` | 阶段一 |
+| `slot_stage0_qa` | `01_阶段零豆包实测问答素材.md` | `01_阶段零豆包实测问答素材` | `01_阶段零豆包实测问答素材_第${N}版.md` | `materials` | 阶段一 |
 | `slot_draft` | `01_商业诊断与转化初稿.md` | `01_商业诊断与转化初稿` | `01_商业诊断与转化初稿_第${N}版.md` | `drafts` | 阶段一 |
 | `slot_report_screen` | `01_老板商业诊断报告_好看大屏.html` | `01_老板商业诊断报告_好看大屏` | `01_老板商业诊断报告_好看大屏_第${N}版.html` | `reports` | 阶段一 |
 | `slot_report_text` | `01_老板商业诊断报告_文字版.md` | `01_老板商业诊断报告_文字版` | `01_老板商业诊断报告_文字版_第${N}版.md` | `reports` | 阶段一 |
-| `slot_report_tech` | `01_技术开发底牌_工单版.md` | `01_技术开发底牌_工单版` | `01_技术开发底牌_工单版_第${N}版.md` | `reports` | 阶段一 |
-| `slot_report_sales` | `01_售前避坑手册_团队共享版.md` | `01_售前避坑手册_团队共享版` | `01_售前避坑手册_团队共享版_第${N}版.md` | `reports` | 阶段一 |
-| `slot_stage0_questions` | `01_豆包提问清单_推荐版.txt` | `01_豆包题目` | `01_豆包题目_第${N}版.txt` | `questions` | 阶段零 |
-| `slot_stage0_answers` | `02_豆包实测回答记录_初测.txt` | `02_豆包回答` | `02_豆包回答_第${N}版.txt` | `answers` | 阶段零 |
+| `slot_report_tech` | `01_工程师底座技术审计.md` | `01_工程师底座技术审计` | `01_工程师底座技术审计_第${N}版.md` | `reports` | 阶段一 |
 
 #### (2) 版本号递增与防重名防覆盖算法 (Anti-Collision Counter)
 重新生成时，扫描当前工作区内的**全量文件（包含 `is_deleted: true` 在废纸篓中的文件）**：
@@ -52,9 +52,9 @@
    - 阶段一~六：`versionTag: 'V${maxVersion + 1}-Draft'`。
 > **防冲突保障**：即便用户抓取生成了 `第2版` 并丢入废纸篓，下次抓取依然自动递增生成 `第3版`，绝对不会发生同名覆盖或废纸篓唯一键丢失！
 
-#### (3) versionTag 状态流转规则
+#### (3) versionTag 状态流转与格式规整规则
 - **生成态**：草稿文件创建时，带有 `-Draft` 标记（如阶段零 `QA-V2-Draft`，阶段一 `V2-Draft`），`isActive: false`；
-- **采纳态**：交付专家点击【设为客户采纳】时，新文件升格为 `isActive: true`，且其 `versionTag` 自动规整剥离 `-Draft` 后缀（如 `QA-V2-Draft` -> `QA-V2`，`V2-Draft` -> `V2`）；
+- **采纳态**：交付专家点击【设为客户采纳】时，新文件升格为 `isActive: true`，且其 `versionTag` 自动规整剥离 `-Draft` 后缀（如 `QA-V2-Draft` -> `QA-V2`，`V2-Draft` -> `V2`），消除“已采纳”与“草稿”同时存在的自相矛盾；
 - **退级态**：原同 `slotKey` 生效版本退回为草稿（`isActive: false`），保持其原有版本号（如 `V1` 或 `QA-V1`）。
 
 #### (4) slotKey 确定性双向映射与派生算法 (Deterministic Slot Resolution)
@@ -66,12 +66,39 @@
 
 ---
 
-### 3. 同 slotKey 单一生效不变量与收敛策略 (Single-Active Invariant)
+### 3. 同 slotKey 单一生效不变量与双重删除安全锁 (Single-Active & Dual-Lock)
+
 - **核心不变量**：任何时刻，同一个 `slotKey` 下有且仅有最多 1 个文件处于 `isActive: true` 状态。
-- **冲突自愈收敛规则**：
-  - 在初始化或从本地存储反序列化时：若该 `slotKey` 下已有任何文件标记为 `isActive: true`，初始骨干文件绝不强制重置为 `true`，而是保持其真实状态；
-  - 仅当该 `slotKey` 下**全量文件均无任何 active 文件（首次全新初始化）**时，初始骨干文件才赋默认值 `isActive: true`；
-  - 采纳新版本时，原子化遍历同 `slotKey` 的所有其他文件将 `isActive` 置为 `false`，确保不变量始终成立。
+- **唯一确定性初始判定谓词 (Deterministic Bootstrap Predicate)**：
+  从存储加载或初始化时，判断槽位是否需要赋予默认 active：
+  ```javascript
+  // 判据仅基于当前同槽位下是否存在活跃文件（严格布尔求值）
+  const hasActiveInSlot = Object.values(files).some(
+    f => f.slotKey === slotKey && Boolean(f.isActive) === true
+  );
+  const bootstrapNeeded = !hasActiveInSlot;
+  ```
+  - 当且仅当 `bootstrapNeeded === true` 时，该槽位的初始规范骨干文件才赋默认值 `isActive: true`；
+  - 若槽位下已有任何文件为 `isActive === true`（说明用户此前已采纳了新版），则骨干文件**绝不强制复活为 true**，而是保持其实际退级状态（`isActive: false`），彻底消除歧义与同槽双 Active！
+- **双重不可删除保护锁 (Dual-Lock Delete Protection 解决 R1 骨干丢失风险)**：
+  为彻底防止采纳新版后旧主干退级为草稿导致规范文件名被误删丢失，删除机制实行双重锁定：
+  1. **第一重锁（当前生效保护）**：任何文件的 `isActive === true`，属于正在生效版本，**禁止删除**；
+  2. **第二重锁（初始规范骨干保护）**：属于 8 大核心主干的初始规范文件（`CANONICAL_CORE_FILES` 白名单），**即便其处于退级态（`isActive === false`），同样受系统终身保护，禁止删除**；
+  3. **可删除范围**：仅允许对**派生出来的非生效草稿版本**（如 `_第2版.md`、`_第3版.md` 等，且 `isActive === false`）执行软删除移入废纸篓。
+- **下游消费契约与生效版本快照体系 (Downstream Consumption Contract 解决 R1 下游断链)**：
+  - **阶段零生效底牌快照**：`geo_step0_active_qa_${clientId}`（包含 `activeQaVersion`、`activeQuestionFile`、`activeAnswerFile`）；
+  - **阶段一生效槽位快照**：新增 `geo_step1_active_slots_${clientId}`，数据格式：
+    ```json
+    {
+      "slot_metrics": { "activeFileName": "01_网络底座指标_第2版.md", "versionTag": "V2", "updatedAt": "2026-09-28 22:00:00" },
+      "slot_stage0_qa": { "activeFileName": "01_阶段零豆包实测问答素材.md", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" },
+      "slot_draft": { "activeFileName": "01_商业诊断与转化初稿.md", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" },
+      "slot_report_screen": { "activeFileName": "01_老板商业诊断报告_好看大屏.html", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" },
+      "slot_report_text": { "activeFileName": "01_老板商业诊断报告_文字版.md", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" },
+      "slot_report_tech": { "activeFileName": "01_工程师底座技术审计.md", "versionTag": "V1", "updatedAt": "2026-09-28 20:00:00" }
+    }
+    ```
+  - **消费方解析规则**：阶段一后续步骤（如初稿出具、最终多版本报告）及阶段二脚本在读取前置交付物时，统一通过 `slotKey` 解析器优先从快照读取当前 `activeFileName`，若快照未命中则安全回退到该槽位规范骨干文件名。采纳时自动同步刷新该快照，下游绝不断链！
 
 ---
 
@@ -153,14 +180,18 @@
   - 当 `currentFile?.is_deleted` 为 `true` 时，源码编辑区域的 `<textarea>` 自动置为 `:readonly="true"`，背景调整为轻微只读灰底（`bg-slate-50/70`），防止误改已归档草稿；
   - **快捷键安全守卫**：监听全局或文本框键盘事件，在废纸篓只读态下拦截 `Ctrl+S / Cmd+S`，提示“当前文件处于废纸篓只读状态，不可保存；如需修改请先点击【一键恢复】”，彻底杜绝键盘快捷键误覆盖；
   - 交付人员查验内容确认需要后，点击第一行工具栏或左侧抽屉的【一键恢复】，即可将该文件解除只读，无缝转正为正常可编辑草稿。
-- **采纳守卫条件 (`StudioEditor.vue`)**：
-  仅针对白名单分类中的未采纳正常文件开放采纳动作，严格守住安全边界：
+- **采纳守卫条件 (`StudioEditor.vue` · 解决 Y3 防杂项误采纳)**：
+  仅针对系统明确注册的核心工序槽位中的未采纳正常文件开放采纳动作，严格守住安全边界：
   ```js
   const canAdoptCurrentFile = computed(() => {
     if (!currentFile.value || currentFile.value.isActive || currentFile.value.is_deleted) return false;
-    const cat = currentFile.value.category;
-    // 阶段零：questions/answers；阶段一：materials/drafts/reports
-    return ['questions', 'answers', 'materials', 'drafts', 'reports'].includes(cat);
+    // 严格限制为系统已知工序槽位，派生杂项文件不开放采纳为核心底牌
+    const validSlots = [
+      'slot_stage0_questions', 'slot_stage0_answers',
+      'slot_metrics', 'slot_stage0_qa', 'slot_draft',
+      'slot_report_screen', 'slot_report_text', 'slot_report_tech',
+    ];
+    return validSlots.includes(currentFile.value.slotKey);
   });
   ```
 
@@ -168,18 +199,21 @@
 - **生效底牌真相源体系 (SSOT)**：
   - **唯一真相源**：`files[fileName].isActive: true` 是全系统判断该文件是否为当前生效底牌的唯一真相源；
   - **下游快照派生**：`geo_step0_active_qa_${clientId}` 仅为下游阶段（阶段一初稿血统溯源）提供只读派生快照（含 `activeQaVersion`、`activeQuestionFile`、`activeAnswerFile`），每次采纳动作完成时由 `Step0App` 自动同步刷新，严禁双头决策。
-- **采纳逻辑 (`handleAdoptFile`)**：
+- **采纳逻辑 (`handleAdoptFile` · 解决 R4 对齐 slotKey 隔离并剥离 -Draft)**：
   1. 获取目标文件，若不存在则提示错误；
-  2. 提取或递增版本号：若已有 `versionTag` 则沿用；若为新草稿，提取当前最大 QA 版本号生成 `QA-V${maxVer + 1}`；
-  3. **单底牌互斥**：遍历同 `category`（`questions` 或 `answers`），将所有其他文件的 `isActive` 设为 `false`；目标文件设为 `isActive = true`；
+  2. **版本号规整与剥离草稿标记**：若为带 `-Draft` 的草稿版本（如 `QA-V2-Draft`），采纳时自动规整为正式版 `QA-V2`（`targetFile.versionTag = (targetFile.versionTag || 'QA-V1').replace(/-Draft$/i, '')`）；
+  3. **精确 slotKey 单底牌互斥**：以 `targetFile.slotKey` 为准（严禁按全 category 粗暴遍历），遍历相同 `slotKey` 的所有其他文件将 `isActive` 设为 `false`；目标文件设为 `isActive = true`；
   4. **双底牌配对联动**：自动寻找对侧已生效的配对底牌，联动更新其版本号与 `pairFile` 引用；
   5. 重新盖上规范化生效底牌头（标准溯源元数据头）；
   6. 持久化阶段零文件字典 `geo_step0_files_${clientId}`，并同步更新下游快照 `geo_step0_active_qa_${clientId}`；
-  7. 派发 `geo-step0-file-adopted` 全局事件并 Toast 提示“已成功将【xxx】设为客户采纳底牌！”。
-- **草稿软删除 (`handleDeleteFile`)**：
-  1. 逻辑层校验 `if (files.value[filename]?.isActive)`，若命中弹出警告 Toast：“已采纳的生效底牌受系统保护，无法删除！如需删除请先采纳其他版本”，杜绝误删底牌；
+  7. 同步触发主仓 outputs 落盘（将生效内容同步写回主仓）；
+  8. 派发 `geo-step0-file-adopted` 全局事件并 Toast 提示“已成功将【xxx】设为客户采纳底牌！”。
+- **草稿软删除 (`handleDeleteFile` · 实行双重保护锁)**：
+  1. 逻辑层严格双重校验：
+     - ① 若当前 `files.value[filename]?.isActive === true`，拦截并弹出警告 Toast：“已采纳的生效底牌受系统保护，无法删除！如需删除请先采纳其他版本”；
+     - ② 若当前文件属于初始规范骨干白名单（如 `01_豆包提问清单_推荐版.txt`），拦截并提示：“初始核心规范文件为系统基础骨干，终身受系统保护，不可删除！”；
   2. 置 `files.value[filename].is_deleted = true`；
-  3. 平滑回退兜底：若当前打开文件是被删文件，先切到剩余未删除 Tab；若无则切到同分类首个未删除文件；若分类全空，切到下一个有效分类或置空态，并从 `openTabs` 清除；
+  3. 平滑回退兜底：若当前打开文件是被删文件，先切到同 slotKey 或剩余未删除 Tab；若无则切到同分类首个未删除文件；若分类全空，切到下一个有效分类或置空态，并从 `openTabs` 清除；
   4. 调用 `saveStep0FilesToStorage()` 持久化；Toast 提示“已将草稿移入废纸篓”。
 - **废纸篓恢复 (`handleRestoreFile`)**：
   置 `files.value[filename].is_deleted = false`；调用 `saveStep0FilesToStorage()`；自动定位打开该文件。
@@ -188,19 +222,26 @@
   `<StudioEditor @adopt-file="handleAdoptFile" @restore-file="handleRestoreFile" ... />`
 
 ### 4. 阶段一业务逻辑与状态管理 (`GEO/web/step0-src/useStep1.js`)
-- **采纳逻辑 (`handleAdoptFile`)**：
+- **采纳逻辑 (`handleAdoptFile` · 解决 R1 & R3 下游消费契约与落盘同步)**：
   1. 获取目标文件的 `slotKey`（查字典反向推导）；
   2. 遍历全量文件，将所有相同 `slotKey` 且 `name !== filename` 的旧生效版本设为 `isActive = false`；
   3. 将目标文件设为 `isActive: true`，且 `versionTag` 剥离 `-Draft` 规整为正式版（如 `V2-Draft` -> `V2`）；
-  4. 调用 `saveState()` 并 Toast 提示“已将【xxx】设为客户采纳生效版本！”；
+  4. **刷新阶段一生效槽位快照**：同步更新 `geo_step1_active_slots_${clientId}`，记录该 `slotKey` 当前激活的 `activeFileName` 与 `versionTag`；
+  5. **主仓 outputs 规范同步写回**：当用户采纳新版时，除了本地保存状态外，将当前生效版本的最新内容同步覆盖写入主仓 outputs 对应的规范主干文件路径，确保服务器端离线读取/流水线构建时始终获得最新生效内容，彻底消灭双头真相源；
+  6. 调用 `saveState()` 并 Toast 提示“已将【xxx】设为客户采纳生效版本！”；
 - **重新抓取派生新版 (`handleAction('crawlMetrics')`)**：
   1. 扫描当前所有包含 `slot_metrics` 的文件（含废纸篓 `is_deleted: true`）；
   2. 提取并计算最大序号 `maxVersion = Math.max(...versions, 1)`；
   3. 查字典获取 `baseSlotName = '01_网络底座指标'`，动态生成新文件 `01_网络底座指标_第${maxVersion + 1}版.md`；
   4. 注入属性：`slotKey: 'slot_metrics'`、`category: 'materials'`、`isActive: false`（草稿态，原底牌保持受保护）、`versionTag: 'V${maxVersion + 1}-Draft'`、格式化最新生成时间戳；
   5. 自动在中栏打开新草稿；原有底牌完好保留，等待交付专家核对后手动采纳。
-- **软删除逻辑 (`handleDeleteFile`)**：
-  逻辑层严格校验 `if (files.value[filename]?.isActive)`，若命中弹出警告 Toast：“已采纳的底牌文件受系统保护，无法删除！如需删除请先采纳其他版本”。设置 `files.value[filename].is_deleted = true`。若当前打开文件是被删文件，三级平滑降级切换：① 剩余未删除 openTabs 首项；② 全局未删除文件首项；③ 空态。调用 `saveState()` 并提示“已将草稿移入废纸篓，可在左侧底部展开恢复”；
+- **软删除逻辑 (`handleDeleteFile` · 实行双重保护锁)**：
+  1. 逻辑层严格双重校验：
+     - 若 `files.value[filename]?.isActive === true`，提示：“已采纳的底牌文件受系统保护，无法删除！如需删除请先采纳其他版本”；
+     - 若 `filename` 属于 6 大阶段一规范骨干文件（在 `CANONICAL_CORE_FILES` 中），提示：“初始核心规范文件为系统基础骨干，不可删除！”；
+  2. 设置 `files.value[filename].is_deleted = true`；
+  3. 平滑回退兜底：① 剩余未删除 openTabs 首项；② 全局未删除文件首项；③ 空态；
+  4. 调用 `saveState()` 并提示“已将草稿移入废纸篓，可在左侧底部展开恢复”；
 - **恢复逻辑 (`handleRestoreFile`)**：
   设置 `files.value[filename].is_deleted = false`，调用 `saveState()` 并自动打开选中该文件。
 
@@ -210,18 +251,29 @@
 
 - **本地存储键划分**：
   - 阶段零文件存储键：`` `geo_step0_files_${clientId}` ``（存储阶段零全部题单与回答文件字典，以及采纳底牌键 `geo_step0_active_qa_${clientId}`）；
-  - 阶段一状态存储键：`` `geo_step1_state_${clientId}` ``（存储阶段一当前步骤、激活Tab、打开的Tabs列表、工序槽位文件字典、门禁状态与备注）。
-- **存量历史数据安全兜底机制 (Migration Fallback · 彻底防御断链与双 Active)**：
+  - 阶段一状态存储键：`` `geo_step1_state_${clientId}` ``（存储阶段一当前步骤、激活Tab、打开的Tabs列表、工序槽位文件字典、门禁状态与备注）；
+  - 阶段一生效槽位快照键：`` `geo_step1_active_slots_${clientId}` ``（映射各 slotKey 对应的当前生效文件名与版本）。
+- **两层持久化与主仓落盘机制 (Client Working Copy + Backend Sync · 解决 R3 双头决策)**：
+  1. **前端工作副本层 (localStorage)**：交付人员在前端的高频输入、草稿切换、废纸篓移动、多版本派生均实时保存至本地存储，保障页面刷新零丢失、离线瞬时响应；
+  2. **主仓落盘同步层 (Backend outputs Sync)**：
+     - 当用户点击【保存文件】或按 Cmd+S（非废纸篓只读态）时，触发 API 将当前编辑文件保存回后端 `projects/{id}/outputs/`；
+     - 当用户点击【设为客户采纳】时，系统自动将当前生效的文件内容同步覆盖写入服务端 `projects/{id}/outputs/` 的对应规范主干文件名（如 `outputs/01_网络底座指标_待对照.md`），保证无论前端选了第几版，磁盘上的规范主干文件与下游 Python 探测微服务、CLI 编译输出始终保持 100% 同步！
+- **存量历史数据安全兜底机制 (Migration Fallback · 彻底防御断链与双 Active · 解决 R2 & R5)**：
   从本地存储恢复时，若历史文件未记录 `isActive`、`slotKey`、`versionTag`、`is_deleted`，严格遵循：
   1. **全阶段核心骨干文件白名单安全初始化（覆盖 8 个初始主干）**：
-     - **白名单文件**：
-       - 阶段零：`01_豆包提问清单_推荐版.txt` (`slot_stage0_questions`), `02_豆包实测回答记录_初测.txt` (`slot_stage0_answers`);
-       - 阶段一：`01_网络底座指标_待对照.md`, `01_阶段零豆包实测问答素材.md`, `01_商业诊断与转化初稿.md`, `01_老板商业诊断报告_好看大屏.html`, `01_老板商业诊断报告_文字版.md`, `01_工程师底座技术审计.md`。
-     - **单一生效收敛规则（最高优先级）**：
-       - 仅当某 `slotKey` 下**全量文件均无任何 isActive 字段（即全新初始化旧数据）**时，初始骨干文件才赋默认值 `isActive: true`, `is_deleted: false`, 对应 `slotKey`, 对应 `versionTag`；
-       - 若本地存储中已有任何同 `slotKey` 文件标注为 `isActive: true`（说明用户此前已采纳了新版），则骨干文件**绝不强制复活为 true**，而是保持其退级后的真实状态（`isActive: false`），彻底根除同槽双 Active 的致命漏洞！
-     - **删除保护的真正判定点**：
-       - 系统的删除防护**严格动态绑定 `file.isActive === true`**：只要该文件处于已采纳生效态，就受到系统强制保护禁止删除；一旦用户采纳了新版本使其退级为草稿，该旧版本方可按需软删除移入废纸篓，逻辑完全闭环。
+     - **白名单文件清单 (`CANONICAL_CORE_FILES`)**：
+       - 阶段零（2个）：`01_豆包提问清单_推荐版.txt` (`slot_stage0_questions`), `02_豆包实测回答记录_初测.txt` (`slot_stage0_answers`);
+       - 阶段一（6个）：`01_网络底座指标_待对照.md` (`slot_metrics`), `01_阶段零豆包实测问答素材.md` (`slot_stage0_qa`), `01_商业诊断与转化初稿.md` (`slot_draft`), `01_老板商业诊断报告_好看大屏.html` (`slot_report_screen`), `01_老板商业诊断报告_文字版.md` (`slot_report_text`), `01_工程师底座技术审计.md` (`slot_report_tech`)。
+     - **唯一确定性初始判定谓词 (Deterministic Bootstrap Predicate · 解决 R5)**：
+       ```javascript
+       const isSlotActive = (f) => f.slotKey === slotKey && Boolean(f.isActive) === true;
+       const bootstrapNeeded = !Object.values(files).some(isSlotActive);
+       ```
+       - 当且仅当某 `slotKey` 下全量文件均无任何处于 `isActive === true` 的文件时，该槽位的初始骨干文件才赋默认值 `isActive: true`, `is_deleted: false`, 对应 `slotKey`, 对应 `versionTag: 'V1'`；
+       - 若本地存储中已有任何同 `slotKey` 文件为 `isActive: true`（说明用户此前已采纳了新版），则骨干文件**绝不强制复活为 true**，而是保持其退级后的真实状态（`isActive: false`），彻底根除同槽双 Active 的致命漏洞！
+     - **双重删除保护锁 (解决 R1 骨干丢失隐患)**：
+       - 骨干文件即使退级为 `isActive: false`，因其名在 `CANONICAL_CORE_FILES` 白名单中，依然终身不可删除；
+       - 只有非白名单的派生新版（如 `第2版.md`）且 `isActive === false`，才允许删除移入废纸篓。
   2. **动态派生文件**：未指定则 `isActive: false`，`is_deleted: false`，`versionTag: 'V1'`。
 - **openTabs 增删与多状态生命周期闭环**：
   - **软删除时**：将被删文件从 `openTabs` 中安全移除，激活文件平滑回退至剩余有效文件；
@@ -252,7 +304,6 @@
       }
     },
     "activeFileName": "01_网络底座指标_待对照.md",
-    "// 状态说明": "下例展示交付专家正在只读查验废纸篓中【第2版】草稿时的状态（故第2版临时进入 openTabs 以只读模式渲染；若未打开查验，openTabs 中严禁包含 is_deleted 为 true 的文件）",
     "openTabs": ["01_网络底座指标_待对照.md", "01_网络底座指标_第2版.md"]
   }
   ```
