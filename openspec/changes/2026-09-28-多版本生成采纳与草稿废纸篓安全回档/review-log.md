@@ -1782,3 +1782,156 @@ SSOT 方向正确（新增 `studioArtifactConfig.js` 集中槽位字典、双重
 
 ---
 
+
+
+---
+
+### [2026-09-28 22:42] 审查意见（来自 WorkBuddy (deepseek-v4.1-flash)）
+
+# 代码审查报告：多版本生成采纳与草稿废纸篓安全回档（stage=design）
+
+**审查范围**：proposal.md / design.md / tasks.md（无代码 Diff，纯设计审查）
+**流程合规**：当前处于 design 阶段，tasks 第 4 节全部保持 `[ ]`，无擅自编码与归档，`/opsx-review` 停步铁律执行正确，构建任务明确落在 NE1（符合 AGENTS §4.5）。此项合规性通过。
+
+---
+
+## 一、总体判断
+
+方案的槽位字典、阶段收窄、正交只读、双重锁、单向镜像的方向正确，SSOT 收敛意识清晰，且用表格 + 伪码把只读矩阵讲透了，属于可落地的架构。但**设计存在若干"注释/表格语义与代码实现不一致"的硬伤，以及 SSOT 覆盖不完整、存量数据迁移缺失**，若直接进入 apply 会出现主流程被误锁、老用户数据不可编辑、双份面条代码残留等问题。**不建议直接通过**。
+
+---
+
+## 二、🔴 必须改（不修则破坏主流程或违背核心目标）
+
+**🔴1. `isReadOnlyFile` 的规范主干判定缺少"已有更新 active"条件，与表格语义自相矛盾**
+- 设计 §2.1 表格明确将"规范主干(自动镜像)"定义为**"已采纳新版后"**才只读；代码注释也写"且当前槽位已有更新的活跃采纳版"。
+- 但实现为：
+  ```js
+  if (coreFiles.includes(file.name) && !file.isActive) return true;
+  ```
+  **只要是非 active 的规范骨干一律只读**，完全没有校验"同槽位是否已存在更新的 active 版"。
+- 后果：阶段零骨干若未注入 `isActive`（tasks 2.6 只补了删除/恢复，未补 `isActive:true`）、或存量旧数据无 `isActive` 字段时，`!undefined === true` → **骨干被强制只读，专家无法打字打磨**，直接踩中本方案要解决的 🔴1 死角反面。
+- 修正：改为 `if (coreFiles.includes(file.name) && isHistoricalRetired(file, files))`，或显式判断同槽位存在 `isActive===true` 的其他文件。
+
+**🔴2. `StudioEditor.vue` 未声明 `stage` prop，却依赖 `stage` 调用 `isReadOnlyFile(file, files, stage)`**
+- 设计 §3.3 的 props 清单只有 `openTabs / activeFileName / files / renderMode / validAdoptSlots`，**没有 `stage`**。
+- 而只读判定、`canDeleteFile`、`getCoreFilesByStage(stage)` 均强依赖 `stage`；缺失即 `undefined`。
+- 叠加 `getCoreFilesByStage` 的兜底 `!stage || item.stage === stage` → **stage 缺失时返回全量 8 槽**，组件内一切文件都被当成"核心骨干"，跨阶段误保护/误只读。
+- 修正：StudioEditor 增加必传 `stage` prop，并将 `getCoreFilesByStage` 的 `!stage` 兜底删除（stage 必传或抛错）。
+
+**🔴3. SSOT 未覆盖"采纳互斥"逻辑，违背本方案核心目标（proposal 痛点四）**
+- proposal 痛点四与 Capabilities 明确要求消除"版本提取、**采纳互斥**在阶段零与阶段一双份实现"。
+- 但 design §1 共享模块只导出了 `getSlotsByStage / getCoreFilesByStage / buildSlotRegex / canDeleteFile / isReadOnlyFile`（任务还列了 `computeNextVersion / normalizeVersionTag`），**没有任何统一的"采纳"纯函数**（旧底牌退级 + `-Draft` 归一 + 首版留档 + 镜像主干的组合动作）。
+- 结果：`handleAdoptFile` 仍将在 Step0App 与 useStep1 各写一份，**"采纳互斥双份实现"这一被点名的痛点未真正解决**，SSOT 目标只完成一半。
+- 修正：共享模块补 `computeAdoptResult(candidate, files, slotKey)`（返回"旧 active 降级 + 新 active 升级 + 首版留档 + 镜像目标"的确定性状态），两阶段共同引用。
+
+**🔴4. 存量 localStorage 数据迁移方案缺失**
+- 一期（commit `f2e1daf`）实际写入的是 snake_case `is_deleted`、以及仅有部分文件具备 `isActive/versionTag`，且**大部分文件没有持久化的 `slotKey`**。
+- design §4.2 只做了"反序列化时兼容旧键"的**读取**兼容，**未定义写入归一（究竟写 `isDeleted` 还是 `is_deleted`）、未定义 `slotKey` 回填时机、未定义 `isActive` 默认值**。
+- 后果：老用户升级后，文件既可能因 🔴1 被误锁，也可能因无 `slotKey` 无法采纳、反推槽位落空，形成升级即故障。
+- 修正：新增"加载时迁移"契约：首次加载对存量文件执行一次反向槽位推导并回填 `slotKey`；统一 camelCase；对无 `isActive` 的骨干显式置为当前底牌；并补充迁移断言。
+
+---
+
+## 三、🟡 建议改（逻辑漏洞 / 兼容性 / 一致性）
+
+**🟡1. `isHistoricalRetired`、`computeNextVersion`、`normalizeVersionTag` 被引用/列入导出，但 design 从未给出契约。**
+- `isReadOnlyFile` 调用了 `isHistoricalRetired(file, files)`，tasks 4.1 要求导出 `computeNextVersion / normalizeVersionTag`，但 §1/§2 均无实现。
+- 尤其 `isHistoricalRetired` 若写成 `f.slotKey === file.slotKey && f.isActive`，当文件 `slotKey` 为 `undefined` 时会与其它 `undefined` 文件**误判同槽**，导致新建文件被错误只读。必须加 `file.slotKey &&` 守卫（并给 `slotKey` 生成时机——"反向推导何时运行"——下定义）。
+
+**🟡2. `canAdoptCurrentFile` 字段兼容不一致。** 仅判 `currentFile.value.isDeleted`，未兼容 `is_deleted`；与全局"双键兼容"策略冲突，废纸篓文件在旧数据下可能仍显示【设为采纳】。
+
+**🟡3. 阶段零多版本动线缺失。** `getSlotsByStage('step0')` 产出 2 个可采纳槽，且 step0 骨干被列入只读保护，但 tasks **未定义 step0 的骨干 `isActive` 注入、版本生成与采纳落地**。结果是 step0 要么采纳按钮无效（无 `slotKey`），要么骨干被锁死（见 🔴1），能力名存实亡。
+
+**🟡4. `handleRestoreFileAction(filename, files, slotKey)` 契约不完整。** 未定义调用方如何取得 `slotKey`（应由反推映射得到）、未调用 `saveState()` 持久化、且原地 mutate `files` 与 Vue 响应式更新的衔接未说明，容易出现"恢复后刷新又变回废纸篓"。
+
+**🟡5. 规范主干镜像文件自身可被【设为客户采纳】。** 镜像骨干文件通常也带 `slotKey`，会命中 `validAdoptSlots.includes(slotKey) && !isActive`，用户可在镜像文件上点采纳，使主干重新变 active，破坏"主干始终镜像 active"不变量；同时只读提示语"如需以此为准请点击【设为客户采纳】"在镜像文件上会形成误导闭环。需显式禁用对 `canonicalName` 文件的采纳或定义其明确语义。
+
+**🟡6. `getCoreFilesByStage` 的 `!stage` 兜底是"防跨阶段污染"模块内建的反向漏洞。** 该回退返回全量 8 槽，与 proposal 强调的"阶段严格收窄"直接冲突，建议移除。
+
+**🟡7. 首版留档 `_第1版` 允许被删除，与设计目标自相矛盾。** §2.2 声明"确保首版内容 100% 完整留存"，但 `canDeleteFile` 对该文件（非 active、非规范骨干名、非废纸篓）返回 `true`，可被垃圾桶删除。需明确其是否纳入保护。
+
+**🟡8. 镜像写入缺少"自镜像/空目标"守卫。** 阶段零或首次 `V1` 场景下 active 文件本身即 canonical 对象，"保存并联动镜像主干"会写回自身；若 canonical 对象缺失也需短路，否则产生空引用或无效快照。
+
+---
+
+## 四、🟢 优化建议
+
+- 🟢1. 文案不统一：§三.1 写"生成时间: 未知"，§四.2 写"未知生成时间"，建议统一。
+- 🟢2. proposal "8 大核心工序槽位"易被误读为阶段零也占 8 槽，建议注明分布（step0=2，step1=6），避免跨端协作者误判。
+- 🟢3. Impact 清单漏列 `Step1App.vue` 需新增 `:valid-adopt-slots` / `stage` 绑定，以及 `stage1Config.js` 由共享模块派生的改动，建议补齐。
+- 🟢4. tasks 4.6 的 9 条断言建议补第 10 条："存量旧数据（snake_case、无 slotKey）升级后仍可编辑与采纳"。
+- 🟢5. `handleRestoreFileAction`（纯函数）与 App 层 `handleRestoreFile`（副作用）命名层级易混，建议共享模块统一前缀（如 `compute*` / `can*` / `is*`）。
+
+---
+
+## 五、跨端兼容性结论
+
+design 已声明本方案仅服务 PC 浏览器交付工作台，且消费方经全仓 grep 收敛于 Step0App / Step1App，阶段二至六为原生 JS 不加载 Vue 组件。**从设计边界看，App-Plus / 微信小程序 / 其它端零影响，无破坏现有业务的风险面**。
+但需注意：该"零污染"结论建立在"grep 结果准确"这一假设上；本次审查未运行任何检索工具，建议在 apply 前由执行方**复核 `StudioEditor/StudioFileTree` 的全仓引用清单**，避免遗漏隐藏消费者（尤其构建产物或旧版页面残留引用），再锁定"天然隔离"这一前提。
+
+---
+
+## 六、结论
+
+方案骨架正确、方向可落地，但存在 4 项 🔴（骨干误只读、缺 `stage` prop、SSOT 未覆盖采纳互斥、存量迁移缺失）与 8 项 🟡，**均属设计层可直接订正项，建议回到 design 订正后在 `review-log.md` 记录共识，再进入编码**。
+
+[需修正]
+
+---
+
+### [2026-09-28 22:44] 方案修正回复（Round 15 · 彻底根除骨干误只读、补齐 stage prop、采纳互斥纯函数与存量数据无感迁移）
+
+本轮针对 WorkBuddy (DeepSeek 4.1 Flash) 第 8 轮审查报告指出的 4 项 🔴 阻断硬伤（🔴1~🔴4）及 8 项 🟡 建议项进行了最彻底的收敛与纯函数重构，文档（`design.md`、`proposal.md`、`tasks.md`）已全面闭环对齐：
+
+#### 一、🔴 核心阻断硬伤整改（🔴1 ~ 🔴4 全部彻底闭环）
+
+1. **🔴1. 骨干只读判定补齐 `hasActiveOther` 守卫，杜绝初始与老数据误只读（[已修正]）**：
+   - 彻底修复 `isReadOnlyFile` 实现：
+     ```javascript
+     if (coreFiles.includes(file.name) && !file.isActive) {
+       const hasActiveOther = Object.values(files).some(
+         (f) => f.slotKey === file.slotKey && f.isActive === true && f.name !== file.name
+       );
+       if (hasActiveOther) return true; // 仅当同槽位确实已有更新的活跃生效版时，骨干才作为镜像只读
+     }
+     ```
+   - 确保初始状态、存量数据无 `isActive` 时，骨干自身绝不被误判为只读，交付专家 100% 能够正常打字打磨！
+
+2. **🔴2. `StudioEditor.vue` 显式声明必传 `stage` prop，移除兜底杜绝跨阶段污染（[已修正]）**：
+   - `StudioEditor.vue` 与 `StudioFileTree.vue` 显式声明 `stage: { type: String, required: true }`；
+   - `getCoreFilesByStage(stage)` 彻底移除 `!stage` 兜底，未传 stage 明确抛出错误，阶段零只识别阶段零的 2 个骨干，阶段一只识别阶段一的 6 个骨干，杜绝反向漏洞。
+
+3. **🔴3. 导出统一采纳互斥纯函数 `computeAdoptResult`，彻底消除双份面条代码（[已修正]）**：
+   - 在 `studioArtifactConfig.js` 中集中导出纯函数 `computeAdoptResult({ candidateName, files, stage })`：
+     - 统一处理目标文件版本号规整（剥离 `-Draft`）；
+     - 自动检测并克隆留档首版母版（`_第1版`）；
+     - 原子化将同槽位其他文件全部置为 `isActive: false`，候选文件置为 `isActive: true`；
+     - 自动单向镜像覆盖写入同槽位规范骨干文件（带自镜像短路守卫）；
+     - 返回全新状态字典与快照元数据；
+   - `Step0App.vue` 与 `useStep1.js` 统一调用该纯函数，彻底消灭重复逻辑。
+
+4. **🔴4. 制定存量数据无感迁移契约 `migrateAndNormalizeFiles`（[已修正]）**：
+   - 在 `studioArtifactConfig.js` 中导出数据迁移纯函数：
+     - 将一期历史数据中的 snake_case `is_deleted` 自动归一化为 camelCase `isDeleted`；
+     - 自动反向推导槽位并回填 `slotKey`；
+     - 对存量无 `isActive` 字段的骨干文件，若同槽无活跃文件则自动赋 `isActive: true`，赋默认版本号；
+     - 时间戳统一归一化为 ISO 字符串；
+   - 在 Step0App 与 useStep1 挂载读取本地存储时首先执行迁移归一，确保老用户升级零故障，并在 tasks 4.6 补充断言 10。
+
+---
+
+#### 二、🟡 建议项整改说明（🟡1 ~ 🟡8 全部闭环）
+
+- **🟡1（契约补齐）**：`isHistoricalRetired`、`computeNextVersion`、`normalizeVersionTag` 均在 design §1/§2 给出完整代码契约，并在 `isHistoricalRetired` 中增加 `file.slotKey &&` 守卫，杜绝 `undefined` 误判；
+- **🟡2（采纳守卫兼容）**：`canAdoptCurrentFile` 判定增加 `!(file.isDeleted || file.is_deleted)` 双键兼容；
+- **🟡3（阶段零多版本完整闭环）**：阶段零骨干纳入 `migrateAndNormalizeFiles` 注入 `isActive: true`，规范骨干可编辑，采纳新草稿时退级镜像；
+- **🟡4（恢复纯函数化）**：导出纯函数 `computeRestoreResult({ filename, files, stage })`，确定性返回恢复字典；
+- **🟡5（禁止采纳规范主干自身）**：`canAdoptCurrentFile` 增加 `!coreFiles.includes(file.name)`，杜绝规范主干被点采纳造成循环混淆；
+- **🟡6（移除全量兜底）**：`getCoreFilesByStage` 移除 `!stage` 兜底，严格按 `item.stage === stage` 返回；
+- **🟡7（首版母版终身保护）**：首版留档 `_第1版` 打上 `isProtectedArchive: true` 标记，`canDeleteFile` 判定中禁止删除；
+- **🟡8（自镜像短路守卫）**：当活动文件本身即规范骨干时，短路跳过镜像写回，杜绝无效赋值；
+- **🟢1 ~ 🟢5**：文案统一为“生成时间: 未知”；proposal 明确 8 槽分布（step0=2, step1=6）；tasks 4.6 包含 10 项全量自动化断言。
+
+---
+
