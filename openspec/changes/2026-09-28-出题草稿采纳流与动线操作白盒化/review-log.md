@@ -197,3 +197,111 @@
 
 结论：`[已达成共识]`
 
+---
+
+## 2026-09-28 16:32 · 审查方（单 IDE 自审）· 第三轮复核：订正落地核对
+
+> **复核对象**：`3d5e28e docs(openspec): 固化阶段零动线归档并订正出题草稿采纳流规范`（10 文件，+248/−8）
+> **复核方式**：逐条比对第一轮 9 项意见的订正落点，并回到真实代码、已构建产物与 NE1 现场二次求证。
+> **动作边界**：本轮**未修改任何业务代码与规范文档**，未执行构建、未向 NE1 部署；仅追加本记录。
+
+### 一、第一轮 9 项意见的订正落地逐条核对
+
+| 编号 | 第一轮意见 | 订正落点（实测） | 复核结论 |
+| :--- | :--- | :--- | :--- |
+| 🔴 P0-1 | Task 4.1 构建命令与产物名双错 | `tasks.md:4.1` 已改为「在仓库根目录 `GEO/` 执行 `npm run build:step0`，生成 `web/assets/step0/step0.js` 与 `web/assets/step0/geo-step0-island.css`」；`proposal.md` Impact 段同步 | ✅ **已闭环**。与根 `package.json:12`（`npm --prefix web/step0-src run build`）及 `web/assets/step0/` 实存两文件一致 |
+| 🔴 P0-2 | 草稿徽章误加于四阶段共用组件 | `design.md` §3.1/§3.2 新增 `showStatusBadge`（`default: false`），规定仅 `Step0App.vue` 传 `true`；`tasks.md:1.2`、`proposal.md` 同步 | ✅ **已闭环**。实测 `StudioFileTree.vue:113-122` 现有 6 个 prop 确无该 prop；`files[fn]?.versionTag` 已在 `:95` 被读取，设计取值路径成立 |
+| 🟡 P1-1 | 文案「生效底牌」与 §3.5 冲突 | `design.md` §4.1 签署文案豁免 | ⚠️ **部分闭环**。豁免已自签，但依据「由产品经理（师弟）明确选定」为对端自述，仓库内无书面出处；师弟口头确认一句即可 |
+| 🟡 P1-2 | 验证机器口径（NE1 vs 本地） | `design.md` §4.2 引用「师弟 2026-09-28 最新全局铁律第 **0.11 条**」 | ❌ **未闭环，且引用不实**。`AGENTS.md` 仅 §1–§8，**无 0.11 条、全文无「零编译」字样**；全仓 grep `0\.11` 仅命中本变更自身 `design.md:148` 与 `review-log.md:183` 两处自引 |
+| 🟡 P1-3 | 徽章配色偏离主色紫 | `design.md` §3.2 + `tasks.md:1.2` 恢复 `bg-[#7c5bf5]/15 text-[#7c5bf5] border-[#7c5bf5]/30` | ✅ **已闭环** |
+| 🟡 P1-4 | 0.2 动线未声明保持现状 | `design.md` §2.1 加注、`tasks.md:3.1` 明写 | ✅ **已闭环**。实测 `Step0App.vue:170` 封版按钮 `action.type='finishStage0'` 仍在 |
+| 🟡 P1-5 | 未闭环项未登记 + git 未固化 | git 侧：`3d5e28e` 已将归档 5 文件纳入跟踪（`git ls-files` 确认）；承接项侧：**未建** | ⚠️ **半闭环**。git 固化已完成；但「承接项」一节未建（本轮由审查方代为登记，见第四节） |
+| 🟢 P2-2 | `proceed-to-next` 悬空 emit | `design.md` §2.2 + `tasks.md:2.2` 写了「清理声明」 | ⚠️ **半闭环**。只清 `defineEmits` 声明，**发射点未清**（见 P1-6） |
+
+### 二、本轮新增发现
+
+#### 🔴 P0-3｜R3-1 崩溃路径**已在线上运行**，本变更 Task 2.1 实为热修
+- **实测链路（全部可复现）**：
+  - `Step0App.vue:50` 已出货 `:expand-all="true"`；
+  - `StudioSop.vue:245-248` `onGotoStep` 至今**无任何防护**；
+  - `StudioSop.vue:26` 卡片头部 `@click="onGotoStep(idx + 1)"` 无条件渲染；
+  - 线上产物 `web/assets/step0/step0.js`（376,436 B，与 NE1 同尺寸）grep 到 `switch-step` 派发 **1 处**，而 grep `expandAll)return` **零命中** → 防护**未进产物**；
+  - 点卡片 3 头部 → `onGotoStep(3)` → `emit('switch-step',3)` → `Step0App.vue:246 goToSubStep(3)` → `:218 setSubStep(3)` → 守卫 `n<=3` 放行 → `:222 subMetaMap[3].category` → **`subMetaMap` 仅键 1/2 → TypeError**；
+  - 点卡片 2 头部 → `setSubStep(2)` → **静默跳往 0.2**。
+- **判定升级**：第三轮曾按「本变更范围内的缺陷」记为 R3-1；复核确认它**不是未来风险，而是当前 NE1 8088 上一点即发的线上缺陷**。故本变更 Task 2.1 属**热修**，优先级应高于其余任务。
+- **订正建议**：维持 `design.md` §2.3 的 `if (props.expandAll) return;` 方案；同时在 `proposal.md` 的 Why 第 4 条把严重度写实（现仅写「误点卡片 2 跳 0.2」，未写卡片 3 的 TypeError 崩溃），并按「热修优先」排产。
+
+#### 🟡 P1-6｜`tasks.md:3.1` 未登记第 3 步 `name`/`desc` 的改写
+- `design.md` §2.1 把 `STAGE0_SUB1_META` 第 3 步由 `name: '3. 保存文件并采纳'` 改为 `'3. 采纳为生效底牌'`，`desc` 亦整段重写（现值见 `Step0App.vue:141-146`）。
+- `tasks.md:3.1` 只写「为第 3 步增加【采纳为生效底牌】实体按钮」，未提 `name`/`desc` 改写 → 照 tasks 施工会产出与 design 不一致的文案。
+- **订正建议**：`tasks.md:3.1` 补一句「同步改写第 3 步 `name` 为『3. 采纳为生效底牌』、`desc` 与 design §2.1 保持一致」。
+
+#### 🟢 P2-3｜`expandAll` 下卡片头部仍显 `cursor-pointer`，修完会成「假可点」
+- `StudioSop.vue:25` 头部 class 固定含 `cursor-pointer select-none`，无 `expandAll` 条件。
+- 加 `if (props.expandAll) return;` 后头部点击无任何效果，但鼠标仍变手型 → 视觉承诺与行为不符。
+- **订正建议**：一并把 `cursor-pointer` 条件化（如 `:class="expandAll ? 'cursor-default' : 'cursor-pointer'"`）。
+
+#### 🟢 P2-4｜`design.md` §2.2 绑定块漏列 `:is-ready="isReady"`
+- 实测 `Step0App.vue:51` 现有 `:is-ready="isReady"`，design §2.2 的 `<StudioSop>` 片段未含该行。执行者若照抄整块替换，会静默删掉该绑定（`isReady` 目前为死 prop，无功能影响）。
+- **订正建议**：design 片段补上该行，或注明「片段仅示新增绑定，勿整体替换」。
+
+#### 🟢 P2-5｜归档 `tasks.md` Task 5 仍为 `[x]`
+- `archive/2026-09-28-阶段零动线层级重构与收纳展开修复/tasks.md:36` 仍为 `- [x] Task 5: 真机端口 8088 端到端全链路验收`，而该验收实际未完成（本轮 P0-3 即其未验出的缺陷）。
+- 归档已冻结，本轮**不覆写**；仅登记，建议师弟裁定是否补一条勘误说明。
+
+### 三、Git 与现场状态复核（较第三轮的变化）
+
+| 项 | 第三轮实测 | 本轮实测 | 变化 |
+| :--- | :--- | :--- | :--- |
+| 本地 HEAD | `148307a` | `3d5e28e` | +2 提交 |
+| 本地领先 `origin/main` | 15 | **17** | 持续增长，§4.2 双推仍未执行 |
+| 归档副本是否入 git | 5 个 ` D` + 1 `??`（未跟踪） | `git ls-files` 5 文件全部命中 | ✅ 已固化 |
+| 本地工作区 | — | `git status --short` 空 | ✅ 干净 |
+| NE1 HEAD | `f1db08a` | `f1db08a` | 未动 |
+| NE1 脏文件数 | 12 | **58** | ⚠️ 绕过 git 拷入的文件继续增多 |
+| NE1 8088 服务 | — | `curl 127.0.0.1:8088` → **200** | 存活 |
+| NE1 产物 | — | `step0.js` **376,436 B**（与本地同尺寸） | 由本地构建后拷入，非 git 同步 |
+| 本变更业务代码 | 未开工 | `git diff --stat b360c77 -- web/` 为空 | 仍未开工（tasks 全 `[ ]`，符合预期） |
+
+### 四、承接项登记（审查方代为登记，防止随归档沉没）
+
+1. **`sopTitle` 死字段**：`StudioSop.vue` 消费点 **0** 处；`Step0App.vue` 2 处（`STAGE0_SUB1_META` / `STAGE0_SUB2_META`）已随产物出货。属既存冗余，建议后续变更顺手清理。
+2. **P2-3 既存契约缺陷**（四个阶段共用面，均早于本变更存在）：
+   - `Step2App.vue:189` 传入未声明的 `:sop-steps`（被当作 fallthrough 丢弃）→ 阶段 2 实际回落到 `DEFAULT_STAGE0_STEPS` 兜底文案；
+   - `Step3App.vue:236` 传入 `STAGE_2_META`（阶段 3 复用了阶段 2 的元数据）；
+   - `StudioSop.vue:250-253` `onExtraAction(type)` 忽略入参，恒发 `refresh-questions`；
+   - `StudioSop.vue` `isReady` prop 全仓零消费。
+3. **归档勘误**：归档 `tasks.md:36` Task 5 的 `[x]` 与实际未验收不符（见 P2-5）。
+4. **协议冲突待师弟裁决**：`AGENTS.md` §4.1（开发/审查阶段一律仅在本地 `127.0.0.1:8088` 验证）+ §5.4（开发者本地测试跑本地 `:8088`）与用户最高硬件铁律（本机绝对零编译、编译与验证一律去 NE1）**连续两个变更未闭环**。建议二选一：要么订正 §4.1/§5.4 措辞并补写「NE1 编译中心」条款（使 design §4.2 的引用有处可依），要么明确「本地跑 8088、仅编译上 NE1」的分工边界。
+
+### 五、本轮结论
+
+- **审查标签**：`[需修正]` —— 第一轮 9 项中 **4 项已闭环**（P0-1 / P0-2 / P1-3 / P1-4）、**4 项半闭环或未闭环**（P1-1 / P1-2 / P1-5 / P2-2）；本轮新增 **1 项 🔴 + 1 项 🟡 + 3 项 🟢**。
+- **两条最重要**：① P1-2 引用的「0.11 条」在仓库内**查无出处**，须换成可核验出处或补写条款；② P0-3 表明崩溃缺陷**已在线上**（NE1 8088），建议按热修优先合入。
+- **下一步**：等待师兄/师弟裁决。
+
+### 附：本轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| 订正提交内容 | `git show --stat 3d5e28e` | 10 文件，+248/−8 |
+| 归档 5 文件入 git | `git ls-files archive/2026-09-28-阶段零动线层级重构与收纳展开修复/` | 5 命中 |
+| AGENTS 条款编号 | `grep -nE "^#+ \|0\.11\|零编译" AGENTS.md` | 仅 §1–§8，无 0.11 |
+| 「0.11」全仓出处 | `grep -rnE "0\.11" --include=*.md .` | 仅本变更 `design.md:148` + `review-log.md:183` 自引 |
+| `onGotoStep` 有无防护 | `StudioSop.vue:245-248` | 无 `expandAll` 防护 |
+| `expandAll` 是否出货 | `Step0App.vue:50` | `:expand-all="true"` ✓ |
+| 产物是否含崩溃路径 | `grep -c switch-step web/assets/step0/step0.js` | 1 处 |
+| 产物是否有防护 | `grep -oE "expandAll\)return" web/assets/step0/step0.js` | 0 命中 |
+| `subMetaMap` 键集合 | `Step0App.vue:103-120` | 仅 1 / 2 |
+| 崩溃点 | `Step0App.vue:222` | `subMetaMap[n].category` 无 `?.` |
+| `handleSaveActiveFile` | `Step0App.vue:818` | 存在 ✓ |
+| `activeFileName` | `Step0App.vue:95` | `ref('')` ✓ |
+| `currentStageMeta` | `Step0App.vue:176` | 存在 ✓ |
+| `@save-file` 现绑定方 | `Step0App.vue:42` | 在 `<StudioEditor>` 上（非 StudioFileTree） |
+| `StudioFileTree` props | `StudioFileTree.vue:113-122` | 6 个，无 `showStatusBadge` |
+| `files[fn].versionTag` | `StudioFileTree.vue:95` | 已读取 ✓ |
+| 归档 Task 5 勾选 | `archive/…/tasks.md:36` | 仍 `[x]` |
+| NE1 现场 | `ssh mini` | `f1db08a` / 58 脏 / 8088=200 / 376,436 B |
+
+结论：`[需修正]`
+
