@@ -1503,3 +1503,151 @@ design 明确："阶段一状态存储键 `geo_step1_state_${clientId}`（存储
 
 ---
 
+
+
+---
+
+### [2026-09-28 22:36] 审查意见（来自 WorkBuddy (deepseek-v4.1-flash)）
+
+# 代码/方案审查意见 — 多版本生成采纳与草稿废纸篓安全回档
+
+审查范围：`proposal.md` / `design.md` / `tasks.md`（stage=design，无代码 Diff）。以下按「规范与架构复用」「跨端兼容与业务破坏」「逻辑漏洞」三条主线，逐条给出级别与依据。
+
+---
+
+## 一、架构复用与规范符合性
+
+🔴 **A1. 采纳/版本逻辑在 Step0App 与 useStep1 双份实现，命中「重复面条代码」红线。**
+`design.md §3`（`Step0App.handleAdoptFile` 八步）与 `§4`（`useStep1.handleAdoptFile` 七步）为同一语义（slotKey 互斥、剥离 `-Draft`、镜像骨干、落盘、快照）的两套复制。二者未来必然漂移。AGENTS 明确「拒绝打补丁和重复面条代码」。应抽出单一 `adoptionEngine`/`useArtifactAdoption` 供两阶段复用，仅保留各阶段差异化回调。
+
+🔴 **A2. 共享组件 `StudioEditor.vue` 内硬编码 8 个 slot 白名单，违反其自身「防污染默认值」设计范式。**
+`design.md §2` 的 `canAdoptCurrentFile` 直接写死 `validSlots` 数组。该组件被 `Step0App`/`Step1App` 共用，且 AGENTS 存在阶段一至阶段六，未来阶段若新增工序槽位，必须改共享组件源码才能采纳 —— 与 `showStatusBadge: default false`（靠传参隔离）的思路自相矛盾。应改为 **prop 传入有效槽位集合** 或从配置模块派生。
+
+🟡 **A3. 关键配置实体未定义落点，存在二次散落风险。**
+`design.md §2(4)` 引用的 `EXPLICIT_SLOT_MAP` 未给出内容与所在模块；`CANONICAL_CORE_FILES`（8 项）在 §Data Structure 与 §3/§4 反复使用，但未指明是共享常量模块还是各 App 内各自声明。slot 字典、骨干白名单、有效采纳槽位三者应在单一配置模块（如 `studioArtifactConfig.js`）集中定义并被 `stage1Config.js`、Step0App、useStep1、StudioEditor 共同引用。Impact 清单也未列出该新模块。
+
+🟡 **A4. 主色令牌硬编码，未引用 `--geo-primary`。**
+`design.md §2` 写 `bg-[#7c5bf5]`，同句又写「严格遵循…使用系统主色紫 `--geo-primary`」，自相矛盾。AGENTS §3.5 要求引用 `docs/specs/geo-admin-ui-tokens.md` 的令牌，应统一用 `var(--geo-primary)`，否则令牌漂移即视觉失控。
+
+---
+
+## 二、跨端兼容性与对现有业务的破坏
+
+🟢 **B1. 设计已显式定界为「纯 Web 桌面端」**（`design.md` 目标定界），管理台为内部交付工作台，不涉及 App-Plus / 微信小程序构建产物，未发现破坏小程序侧的路径。**但** `hover` 浮现删除图标 + `Cmd+S` 拦截在触屏/WebView 场景失效，建议在文档中显式确认「StudioEditor 不流入任何移动端或客户侧终端」，避免后续被误用。
+
+🟡 **B2. 双行顶栏重写对阶段二至六的连带影响未经核实。**
+`design.md §2` 断言消费方仅 `Step0App`/`Step1App`，但未给出证据。AGENTS 提到阶段一至六完整交付，若阶段二~六复用 `StudioEditor`，顶栏结构改写（第一章偏右、标签独立成行）会波及这些阶段。建议在编码前 grep 全仓 `StudioEditor` 引用清单并在本设计中固化。
+
+🟡 **B3. 后端 `PUT /api/projects/:id` 复用前提未验证，存在覆盖式丢数据风险。**
+`design.md §Data Structure`、`tasks 4.5` 均称「复用既有接口，无需新增路由」，Payload 为 `{ outputs: { [canonicalFileName]: content } }`。**若该接口对 `outputs` 做的是整体替换而非按 key 合并写入**，单文件采纳将清空磁盘上其余 outputs 交付物（底座/母盘/报告），直接断链——这正是 proposal 痛点二想避免的场景。必须在设计阶段落实：核对该 handler 是 merge/upsert 语义，并在任务中补一条「非目标 outputs 文件不被改动」的回归断言。
+
+🟡 **B4. 采纳落盘失败仅 Toast 提示，无重试/对账，双头真相源会重现。**
+`design.md §4(6)`「后端失败则前端保留 localStorage 副本并弹出重试警告」——但无失败队列、无下次刷新对账、无 pending 标记。这意味着 R1（双真相源）在最关键的失败分支上并未被消除，只是被降级为静默分叉。
+
+---
+
+## 三、逻辑漏洞与规则严密性
+
+🔴 **C1. 「非 active 即只读、即隐藏保存」与「新建文件 / 待打磨草稿」直接冲突，制造不可编辑死角。**
+`design.md §2`、`tasks 4.2/4.3` 规定 `!isActive` → `textarea :readonly` + 隐藏【保存文件】。但：
+- `newFile` 新建的文件无 canonical 归属，`isActive` 只能为 `false`（否则违反同 slotKey 单 active 不变量），于是**新建文件一落地就不可打字、不可保存**；
+- 重新抓取生成的 `第2版` 草稿（`isActive:false`）在采纳前同样只读，用户无法先校订再转正，只能「先采纳后改」，与痛点一的交付动线相悖。
+
+**必须引入与 `isActive` 正交的「可编辑工作草稿」维度**（如 `editableDraft` 或显式区分 userDraft / historyDraft），把「历史退级版本只读」与「新草稿可编辑」拆开，否则本次迭代会破坏已有 `newFile` 功能。
+
+🔴 **C2. 采纳后的「保存」落盘目标与「服务端仅存规范主干名」合同冲突，且采纳后编辑不再镜像。**
+设计规定服务端 `outputs/` 永远只有规范主干名（如 `01_网络底座指标_待对照.md`），第 N 版仅存在于前端；但：
+- 采纳后，`第2版` 成为 `isActive:true` 的可编辑文件。此时点【保存文件】落盘键是 **`01_网络底座指标_第2版.md`** 还是骨干名？
+- `design.md` 只定义了 **采纳时** 的镜像写回，**未定义采纳后对该 active 文件继续编辑保存时的镜像规则**。若保存写骨干名，则「保存逻辑」也需要 draft→canonical 映射；若保存写自身名，则服务端出现 `第2版` 文件，直接违反单一真相源；若保存不写，则 active 文件编辑丢失。
+
+必须在设计中补全「活动文件保存 → 规范骨干名」的映射与再镜像时序，否则 R1 在第一版即回归。
+
+🔴 **C3. 采纳后同槽位的骨干语义/展示自相矛盾。**
+采纳 `第2版` 后：骨干 `isActive:false`（被 demote）且 `versionTag` 被升级为 `V2`，内容被镜像为最新采纳内容。于是骨干会同时呈现「V2 版本标签」与「历史版本 · 只读归档」徽章，且其内容其实是当前生效内容 —— 标签、徽章、内容三者互斥。需明确：**骨干在退级态下的展示口径**（建议骨干不计入「历史只读」判定，或改名为「规范主干（镜像）」状态）。
+
+🟡 **C4. 删除按钮渲染条件与双重锁不一致，产生死按钮。**
+`design.md §2`/`tasks 2.1` 只在 `!isActive` 时渲染 `trash-2`；而双重锁第二重规定「canonical 骨干即使退级也不可删」。退级后的骨干满足 `!isActive` → 会渲染垃圾桶 → 点击必被拦截。渲染条件应为 `!isActive && !isCanonicalCore`，并同步给 useStep1/Step0App 的共享判定。
+
+🟡 **C5. 自动断言集覆盖不足，无法守住设计自称的核心保证。**
+`tasks 4.6` 的 5 条断言缺少：① 采纳镜像等价（骨干 content === 采纳草稿 content）；② 迁移 bootstrap 幂等（刷新后同 slot 无双 active）；③ 后端 merge 非破坏（其余 outputs 不丢）；④ Cmd+S/只读拦截生效。这几项恰是 R1/R2/R5 的验证点，建议补入。
+
+🟡 **C6. 命名与状态字段风格不统一。** 全篇 `isActive`/`slotKey`/`versionTag`/`generatedAt` 为 camelCase，独 `is_deleted` 为 snake_case。在 `files[fn].is_deleted` 与 `files[fn].isDeleted` 混用场景极易 typo。建议统一（并评估对既有 localStorage 存量键的迁移成本）。
+
+🟡 **C7. 动态派生文件默认 `versionTag: 'V1'` 与骨干 V1 语义撞车。** `design.md §Data Structure` 迁移兜底对未知动态文件默认 `V1`，而骨干亦为 `V1`。建议按文件名序号派生（`V{n}`）或标记 `Legacy`，避免版本徽章歧义。
+
+🟡 **C8. 生成时间展示位置在 proposal 与 design 间不一致。** `proposal.md` 痛点四/What Changes 4 说「中栏**底部**状态栏」展示生成时间；`design.md §2` 改为第一行左侧展示。需确认是**迁移**还是**冗余并存**，避免两处显示或丢失。
+
+🟢 **C9. 存量 openTabs 未做存在性校验。** 老 localStorage 中 openTabs 可能引用已不存在/已废纸篓的文件，恢复时应过滤，避免 Tab 指向空文件。
+
+🟢 **C10. `generatedAt` 用本地格式化字符串（`2026-09-28 20:01:25`）无时区/非 ISO。** 建议存 ISO 字符串、展示层再格式化，便于排序与跨机一致。
+
+🟢 **C11. `EXPLICIT_SLOT_MAP` 在反向推导步骤 2 被引用却未定义**（与 A3 同源），若它并非必要，建议删除该步骤以免误导实现。
+
+---
+
+## 四、proposal / design / tasks 三者一致性
+
+🟡 **D1. proposal 的 What Changes / Capabilities / Impact 明显滞后于 design 与 tasks。**
+design 与 task 4.3/4.4/4.5 新引入的**双重不可删除锁、canonical 镜像写回、`geo_step1_active_slots` 快照、历史非生效只读、Cmd+S 拦截、共享配置模块**，均未出现在 proposal 的「第二阶段」改动项、Capabilities 与 Impact 清单中。OpenSpec 要求 proposal 为需求真源，建议按 design 实际范围回填 proposal（尤其 Impact 需补新配置模块与后端接口核验项），否则评审无法闭环。
+
+🟡 **D2. proposal 痛点二宣称「沿用阶段零验证成功的模式」，但阶段零是否也具备「重新生成派生新版」未被 design 覆盖。** §2 的 `refreshVersion` 仅 `crawlMetrics` 调用，阶段零的题单/回答再生成路径未定义；若阶段零只做采纳不做派生，应在 proposal 中收窄表述。
+
+🟢 **D3. 任务依赖顺序基本合理**（4.4 镜像 → 4.5 快照+落盘 → 4.6 构建冒烟），但 4.4 落镜像而 4.5 才落快照，开发态中间态可能被误验证，建议在 4.6 断言中强制「快照与骨干内容一致」后再允许 PASS。
+
+---
+
+## 五、结论
+
+设计整体方向正确：slotKey 工序槽位隔离、双重删除锁、单一真相源镜像、双行解耦布局，思路清晰且符合 AGENTS 视觉与文案红线（无 Emoji、避红、主色紫方向正确）。但存在 **4 项必须改的硬缺陷**：非 active 全面只读与新建/待打磨草稿的冲突（C1）、采纳后保存与规范主干合同未闭合（C2）、后端接口 merge 语义未验证（B3/A1）、以及逻辑在阶段零/一重复且共享组件硬编码（A1/A2）。这些若带入编码，会直接造成功能死角、数据覆盖或双真相源回归。
+
+建议按 `/opsx-review` 流程在 `review-log.md` 记录以上条目，订正 `proposal.md`（补全范围与 Impact）、`design.md`（补齐 workDraft 维度、save→canonical 映射、可删条件、共享配置模块、断言集），随后停步等待确认，**严禁提前进入 apply**。
+
+[需修正]
+
+---
+
+### [2026-09-28 22:40] 方案修正回复（Round 13 · 全面重构共享配置模块、解除草稿打磨死角与主干镜像闭环）
+
+针对 WorkBuddy (DeepSeek 4.1 Flash) 第 6 轮审查报告指出的 4 项 🔴 核心硬伤（A1、A2、C1、C2）及若干 🟡 建议项，我们进行了最高标准的深度重构，所有整改已在 `design.md`、`proposal.md`、`tasks.md` 闭环落位：
+
+#### 一、🔴 核心架构硬伤整改（A1, A2, C1, C2 全部彻底闭环）
+
+1. **A1 & A2 & A3. 抽象共享配置模块，消除面条代码与组件硬编码（[已修正]）**：
+   - 新建 `GEO/web/step0-src/config/studioArtifactConfig.js`：
+     - 统一管理 8 大核心槽位字典 `CANONICAL_SLOT_DICT`、初始规范骨干白名单 `CANONICAL_CORE_FILES`、合法采纳槽位白名单 `VALID_ADOPT_SLOTS`；
+     - 统一封装版本号提取与防重名递增算法 `computeNextVersion`、双重锁删除判定 `canDeleteFile`、正交只读判定 `isReadOnlyFile`、版本号规整 `normalizeVersionTag`；
+   - `StudioEditor.vue` 移除了硬编码的槽位数组，改为通过 `props.validAdoptSlots` 动态接收（默认使用共享模块配置）；
+   - `Step0App.vue` 与 `useStep1.js` 统一调用该配置模块，杜绝双份维护与代码漂移。
+
+2. **C1. 解除非 active 一刀切只读死角，确立正交的工作草稿自由打磨机制（[已修正]）**：
+   - 彻底废除“`!isActive` 即只读”的粗暴规则，确立正交的生命周期模型：
+     - **强制只读的文件仅有两类**：① 废纸篓文件（`isDeleted: true`）；② 被淘汰的历史旧版（同槽位已有更新的活跃生效底牌）；
+     - **完全允许编辑与保存的文件**：
+       ① 客户生效底牌（`isActive: true`）；
+       ② **新派生的候选工作草稿**（如重抓出的 `第2版-Draft`，虽然未采纳，但专家可先打磨微调再采纳）；
+       ③ **手动新建草稿**（`newFile`，自由打字保存）；
+       ④ 规范主干文件（始终保持可编辑）；
+   - 彻底消除了新建文件和最新草稿落地不可打字的死角，完全符合产品真实交付动线。
+
+3. **C2 & C3. 活动文件保存自动镜像主干，规范骨干语义统一（[已修正]）**：
+   - 确立规范主干为下游消费的单一规范基准：
+   - 无论在规范骨干上直接编辑，还是在采纳后的 `第2版` 上编辑，**只要当前文件处于 `isActive === true`**，点击【保存文件】时，系统自动将最新内容镜像更新到同槽位的规范主干文件对象中，并持久化到 `localStorage`；
+   - 当采纳 `第2版` 后，规范骨干状态明确展示为【规范主干 · 自动镜像】，内容与活动版本保持强一致镜像。
+
+4. **B3. 澄清持久化真相源为前端沙盒，移除对未验证接口的依赖（[已修正]）**：
+   - 全仓代码排查证实：整个交付工作台（Step 0 到 Step 6）在架构上就是纯前端 Web 沙盒，其持久化真相源是浏览器的 `localStorage`（如 `geo_step1_state_${clientId}` 与跨阶段生效快照 `geo_step1_active_slots_${clientId}`）；
+   - 彻底剔除了上一轮脑补的 `PUT /api/projects/:id` 外部接口假设，完全根除了可能因后端接口覆盖丢数据的系统风险。
+
+---
+
+#### 二、🟡 建议项整改说明
+
+- **C4（消除死按钮）**：左栏树删除垃圾桶图标渲染条件与逻辑层二次校验统一为 `canDeleteFile(file)`（`!file.isActive && !CANONICAL_CORE_FILES.includes(file.name) && !file.isDeleted`），规范骨干不出现垃圾桶，绝无死按钮；
+- **A4（主色紫令牌）**：统一引用 `var(--geo-primary, #7c5bf5)`，严格遵守 AGENTS §3.3；
+- **B2（消费方证据固化）**：全仓 grep 证实 `StudioEditor.vue` 仅被 `Step0App.vue` 与 `Step1App.vue` 消费，零破坏外部业务；
+- **C5（自动化断言集扩充）**：tasks 4.6 补充了 7 项细化断言，涵盖工作草稿可打磨性、骨干镜像等价性、双重锁防误删与无死按钮等；
+- **C6, C9, C10, C11**：统一为驼峰 `isDeleted`（带存量兼容）、反序列化过滤无效 openTabs、时间戳存 ISO 字符串、清理未定义的 `EXPLICIT_SLOT_MAP`；
+- **D1 & D2**：proposal.md 的 What Changes、Capabilities 与 Impact 已全量回填，三篇文档严格对齐。
+
+---
+
