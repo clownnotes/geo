@@ -165,6 +165,17 @@
   ```
 
 ### 3. 阶段零业务胶水与状态管理 (`GEO/web/step0-src/Step0App.vue`)
+- **生效底牌真相源体系 (SSOT)**：
+  - **唯一真相源**：`files[fileName].isActive: true` 是全系统判断该文件是否为当前生效底牌的唯一真相源；
+  - **下游快照派生**：`geo_step0_active_qa_${clientId}` 仅为下游阶段（阶段一初稿血统溯源）提供只读派生快照（含 `activeQaVersion`、`activeQuestionFile`、`activeAnswerFile`），每次采纳动作完成时由 `Step0App` 自动同步刷新，严禁双头决策。
+- **采纳逻辑 (`handleAdoptFile`)**：
+  1. 获取目标文件，若不存在则提示错误；
+  2. 提取或递增版本号：若已有 `versionTag` 则沿用；若为新草稿，提取当前最大 QA 版本号生成 `QA-V${maxVer + 1}`；
+  3. **单底牌互斥**：遍历同 `category`（`questions` 或 `answers`），将所有其他文件的 `isActive` 设为 `false`；目标文件设为 `isActive = true`；
+  4. **双底牌配对联动**：自动寻找对侧已生效的配对底牌，联动更新其版本号与 `pairFile` 引用；
+  5. 重新盖上规范化生效底牌头（标准溯源元数据头）；
+  6. 持久化阶段零文件字典 `geo_step0_files_${clientId}`，并同步更新下游快照 `geo_step0_active_qa_${clientId}`；
+  7. 派发 `geo-step0-file-adopted` 全局事件并 Toast 提示“已成功将【xxx】设为客户采纳底牌！”。
 - **草稿软删除 (`handleDeleteFile`)**：
   1. 逻辑层校验 `if (files.value[filename]?.isActive)`，若命中弹出警告 Toast：“已采纳的生效底牌受系统保护，无法删除！如需删除请先采纳其他版本”，杜绝误删底牌；
   2. 置 `files.value[filename].is_deleted = true`；
@@ -200,16 +211,18 @@
 - **本地存储键划分**：
   - 阶段零文件存储键：`` `geo_step0_files_${clientId}` ``（存储阶段零全部题单与回答文件字典，以及采纳底牌键 `geo_step0_active_qa_${clientId}`）；
   - 阶段一状态存储键：`` `geo_step1_state_${clientId}` ``（存储阶段一当前步骤、激活Tab、打开的Tabs列表、工序槽位文件字典、门禁状态与备注）。
-- **存量历史数据安全兜底机制 (Migration Fallback · 彻底防御断链)**：
+- **存量历史数据安全兜底机制 (Migration Fallback · 彻底防御断链与双 Active)**：
   从本地存储恢复时，若历史文件未记录 `isActive`、`slotKey`、`versionTag`、`is_deleted`，严格遵循：
-  1. **全阶段核心骨干文件白名单判别（覆盖 8 个初始主干）**：
-     - **阶段零骨干**：
-       - `01_豆包提问清单_推荐版.txt`：强制回填 `isActive: true`, `is_deleted: false`, `slotKey: 'slot_stage0_questions'`, `versionTag: 'QA-V1'`；
-       - `02_豆包实测回答记录_初测.txt`：强制回填 `isActive: true`, `is_deleted: false`, `slotKey: 'slot_stage0_answers'`, `versionTag: 'QA-V1'`；
-     - **阶段一骨干**（`buildStage1Files` 的 6 个固定文件名）：
-       - 强制回填安全默认值（`isActive: true`, `is_deleted: false`, 对应 `slotKey`, `versionTag: 'V1'`）；
-     - **安全底线**：上述 8 个骨干核心文件强制受系统保护，**绝对禁止降级为可删草稿**，确保历史底牌稳固如山！
-  2. **动态派生文件**：未指定则 `isActive: false`，`is_deleted: false`，`versionTag: 'V2-Draft'`。
+  1. **全阶段核心骨干文件白名单安全初始化（覆盖 8 个初始主干）**：
+     - **白名单文件**：
+       - 阶段零：`01_豆包提问清单_推荐版.txt` (`slot_stage0_questions`), `02_豆包实测回答记录_初测.txt` (`slot_stage0_answers`);
+       - 阶段一：`01_网络底座指标_待对照.md`, `01_阶段零豆包实测问答素材.md`, `01_商业诊断与转化初稿.md`, `01_老板商业诊断报告_好看大屏.html`, `01_老板商业诊断报告_文字版.md`, `01_工程师底座技术审计.md`。
+     - **单一生效收敛规则（最高优先级）**：
+       - 仅当某 `slotKey` 下**全量文件均无任何 isActive 字段（即全新初始化旧数据）**时，初始骨干文件才赋默认值 `isActive: true`, `is_deleted: false`, 对应 `slotKey`, 对应 `versionTag`；
+       - 若本地存储中已有任何同 `slotKey` 文件标注为 `isActive: true`（说明用户此前已采纳了新版），则骨干文件**绝不强制复活为 true**，而是保持其退级后的真实状态（`isActive: false`），彻底根除同槽双 Active 的致命漏洞！
+     - **删除保护的真正判定点**：
+       - 系统的删除防护**严格动态绑定 `file.isActive === true`**：只要该文件处于已采纳生效态，就受到系统强制保护禁止删除；一旦用户采纳了新版本使其退级为草稿，该旧版本方可按需软删除移入废纸篓，逻辑完全闭环。
+  2. **动态派生文件**：未指定则 `isActive: false`，`is_deleted: false`，`versionTag: 'V1'`。
 - **openTabs 增删与多状态生命周期闭环**：
   - **软删除时**：将被删文件从 `openTabs` 中安全移除，激活文件平滑回退至剩余有效文件；
   - **废纸篓查看时**：将废纸篓条目追加进 `openTabs`，激活并以只读方式在中栏渲染，Tab 显示 `[废纸篓]` 标识；

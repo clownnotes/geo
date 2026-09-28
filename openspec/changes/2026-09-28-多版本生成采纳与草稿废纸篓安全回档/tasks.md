@@ -48,7 +48,7 @@
 
 ## 4. 废纸篓只读查验与顶栏双行解耦改造 (Grill-Me 迭代增量)
 
-> **迭代阶段说明**：第 1~3 节已在上一轮 apply 阶段真实完成并验证入库（commit `f2e1daf`）；第 4 节为本次 Grill-Me 迭代新需求，当前处于纯方案设计阶段（stage=design），本节任务全部保持 `[ ]` 未勾选，严格遵循立定停步铁律，未经 `/opsx-team-apply` 绝不提前编码。
+> **迭代阶段说明**：第 1~3 节代码与冒烟已在上一轮完成并验证入库（commit `f2e1daf`，真机浏览器人工验收待补）；第 4 节为本次 Grill-Me 迭代新需求，当前处于纯方案设计阶段（stage=design），本节任务全部保持 `[ ]` 未勾选，严格遵循立定停步铁律，未经 `/opsx-team-apply`（或 `/opsx-apply`）绝不提前编码。
 
 - [ ] 4.1 改造左栏废纸篓抽屉交互 (`GEO/web/step0-src/components/studio/StudioFileTree.vue`)：
   - 为废纸篓条目绑定整行点击事件 `@click="$emit('openFile', fn)"`，允许点击废纸篓文件直接在中栏打开；
