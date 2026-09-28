@@ -14,7 +14,7 @@
 
 ---
 
-### 2026-09-28 17:15 - 师兄 (Antigravity) 针对 Grill 深度盘问对齐
+## 2026-09-28 17:15 · 师兄 (Antigravity) · Grill 需求对齐与架构推演
 - **探讨阶段**：Grill 需求对齐与架构推演
 - **结论标签**：`[已达成共识]`
 - **背景与分歧梳理**：
@@ -142,3 +142,59 @@
 | NE1 现场 | `ssh mini` | `f1db08a` / 脏 **62** |
 
 结论：`[需修正]`
+
+---
+
+## 2026-09-28 17:23 · 师兄 (Antigravity) · 第一轮订正反馈与共识达成
+
+- **针对阶段**：审查意见订正与技术对齐
+- **结论标签**：`[已达成共识]`
+- **动作边界**：本轮**严格未修改任何业务源码**，仅订正 `openspec/changes/2026-09-28-阶段一底座抓取动线视线引导优化/` 下的规范文件并执行 git 纳管。
+
+### 一、逐条核实与规范订正实录
+
+#### 1. 🔴 P0-1｜彩色 Emoji 违规与弹跳动效
+- **求证结论**：**完全属实，全盘接纳**。
+- **订正动作**：
+  - `proposal.md`、`design.md`、`tasks.md` 中所有彩色 Emoji（✅、👉、👇 等）已**全部清除**；
+  - 引导文案去除 `animate-bounce` 弹跳，保留克制的 `animate-pulse`（柔和微光晕呼吸），杜绝低幼感；
+  - Toast 升级为结构化文字前缀「已完成抓取：真实底座指标已就绪！请核对中栏数据，确认无误后点击下方【前往出具初稿】」；
+  - 图标统一采用标准 Lucide 图标（`check-circle`）。
+
+#### 2. 🔴 P0-2｜持久化键名不存在
+- **求证结论**：**完全属实，全盘接纳**。代码真实键为 `web/step0-src/useStep1.js:12` 中的 `` `geo_step1_state_${clientId}` ``。
+- **订正动作**：
+  - `design.md` 和 `tasks.md` 中彻底删除了不存在的 `nextgeo_step1_state_v1`；
+  - 明确规范：在 `useStep1.js` 的 `saveState()` 中新增持久化字段 `crawledMetrics`，随 `stateToSave` 统一持久化至真实键 `` `geo_step1_state_${clientId}` ``。
+
+#### 3. 🟡 P1-1｜`Step1App.vue` 胶水层连接缺口
+- **求证结论**：**完全属实，排查极其敏锐，全盘接纳**。若胶水层不连，新增 prop 恒为空对象。
+- **订正动作**：
+  - `proposal.md` 的 Impact 清单补充了 `GEO/web/step0-src/Step1App.vue`；
+  - `design.md` 明确绘制了「`useStep1` -> `Step1App.vue` -> `StudioSop.vue`」的状态拓扑与绑定代码；
+  - `tasks.md` 补增任务 2.4「在 `Step1App.vue` 中解构 `crawledMetrics` 并绑定 `:action-completed-map="{ crawlMetrics: crawledMetrics }"`」。
+
+#### 4. 🟡 P1-2｜构建脚本不存在与规范出处
+- **求证结论**：**完全属实，全盘接纳**。
+- **订正动作**：
+  - 彻底清理虚构的 `sync_dev_mini.sh`；
+  - `tasks.md` 3.1 明确订正为：在 **NE1 服务器**执行仓库根 `npm run build:step0`（= `npm --prefix web/step0-src run build`，严格遵守 `AGENTS.md §4.5`）。
+
+#### 5. 🟡 P1-3｜共享组件防污染边界与空值安全
+- **求证结论**：**完全属实，全盘接纳**。`StudioSop.vue` 为 4 阶段共享，必须杜绝状态和样式溢出。
+- **订正动作**：
+  - `design.md` 补充了 `isActionDone(type)`（`!type` 短路返回 `false`）与 `shouldHighlightProceed(step, idx)`（严格限定 `idx + 1 === props.currentStep` 且动作已完成）；
+  - 明确防污染边界：阶段 0/2/3 不传入 `actionCompletedMap`（取默认 `{}`），逻辑完全短路，保持零侵入、零污染。
+
+#### 6. 🟢 P2 项处理
+- **P2-1 归档遗留**：认同真机验收诚实记录原则，归档目录保持冻结，后续真机验收以新记录/新变更承接。
+- **P2-2 Git 纳管**：已执行 `git add` 将新变更目录固化进暂存区，避免多端操作丢文件。
+- **P2-3 格式统一**：`tasks.md` 已补统一一级标题，`review-log.md` 全部统一为 `## 时间 · 作者 · 阶段` 格式。
+
+---
+
+### 二、共识与就绪状态确认
+
+所有 2 项 🔴 P0、3 项 🟡 P1、3 项 🟢 P2 均已逐项闭环订正，规范文件质量已达交付标准。
+当前状态：`[已达成共识]`，AI 保持**严格立定停步**，未修改任何业务代码。
+
