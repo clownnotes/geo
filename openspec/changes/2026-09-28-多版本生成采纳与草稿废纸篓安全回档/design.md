@@ -26,24 +26,27 @@
 ### 2. 工序槽位映射与版本命名规则 (SlotKey & Naming Rules)
 
 #### (1) 工序槽位映射字典 (slotKey)
-为杜绝“同分类互斥导致其他交付物断链”的致命隐患，系统按**交付物工序槽位**独立隔离：
-| 槽位键 (`slotKey`) | 初始核心文件名 | 派生草稿统一命名规则 | 所属分类 |
-| :--- | :--- | :--- | :--- |
-| `slot_metrics` | `01_网络底座指标_待对照.md` | `01_网络底座指标_第${N}版.md` | `materials` |
-| `slot_draft` | `01_商业诊断与转化初稿.md` | `01_商业诊断与转化初稿_第${N}版.md` | `drafts` |
-| `slot_report_screen` | `01_老板商业诊断报告_好看大屏.html` | `01_老板商业诊断报告_好看大屏_第${N}版.html` | `reports` |
-| `slot_report_text` | `01_老板商业诊断报告_文字版.md` | `01_老板商业诊断报告_文字版_第${N}版.md` | `reports` |
-| `slot_report_tech` | `01_技术开发底牌_工单版.md` | `01_技术开发底牌_工单版_第${N}版.md` | `reports` |
-| `slot_report_sales` | `01_售前避坑手册_团队共享版.md` | `01_售前避坑手册_团队共享版_第${N}版.md` | `reports` |
-| `slot_stage0_questions` | `01_豆包提问清单_推荐版.txt` | `01_豆包题目_第${N}版.txt` | `questions` |
-| `slot_stage0_answers` | `02_豆包实测回答记录_初测.txt` | `02_豆包回答_第${N}版.txt` | `answers` |
+为杜绝“同分类互斥导致其他交付物断链”的致命隐患，系统按**交付物工序槽位**独立隔离，并在字典中显式固化派生主干名前缀 `baseSlotName`：
+| 槽位键 (`slotKey`) | 初始核心文件名 | 派生主干名前缀 (`baseSlotName`) | 派生草稿统一命名规则 | 所属分类 |
+| :--- | :--- | :--- | :--- | :--- |
+| `slot_metrics` | `01_网络底座指标_待对照.md` | `01_网络底座指标` | `01_网络底座指标_第${N}版.md` | `materials` |
+| `slot_draft` | `01_商业诊断与转化初稿.md` | `01_商业诊断与转化初稿` | `01_商业诊断与转化初稿_第${N}版.md` | `drafts` |
+| `slot_report_screen` | `01_老板商业诊断报告_好看大屏.html` | `01_老板商业诊断报告_好看大屏` | `01_老板商业诊断报告_好看大屏_第${N}版.html` | `reports` |
+| `slot_report_text` | `01_老板商业诊断报告_文字版.md` | `01_老板商业诊断报告_文字版` | `01_老板商业诊断报告_文字版_第${N}版.md` | `reports` |
+| `slot_report_tech` | `01_技术开发底牌_工单版.md` | `01_技术开发底牌_工单版` | `01_技术开发底牌_工单版_第${N}版.md` | `reports` |
+| `slot_report_sales` | `01_售前避坑手册_团队共享版.md` | `01_售前避坑手册_团队共享版` | `01_售前避坑手册_团队共享版_第${N}版.md` | `reports` |
+| `slot_stage0_questions` | `01_豆包提问清单_推荐版.txt` | `01_豆包题目` | `01_豆包题目_第${N}版.txt` | `questions` |
+| `slot_stage0_answers` | `02_豆包实测回答记录_初测.txt` | `02_豆包回答` | `02_豆包回答_第${N}版.txt` | `answers` |
 
 #### (2) 版本号递增与防重名防覆盖算法 (Anti-Collision Counter)
 重新生成时，扫描当前工作区内的**全量文件（包含 `is_deleted: true` 在废纸篓中的文件）**：
 1. 找出所有属于该 `slotKey` 的文件；
-2. 提取文件名或 `versionTag` 中的版本序号数字；
-3. 计算 `maxVersion = Math.max(...versions, 1)`；
-4. 新文件统一命名为：`${baseSlotName}_第${maxVersion + 1}版.${ext}`；
+2. **严格受控提取版本序号**：
+   - 文件名提取：严格执行 `/第(\d+)版/` 正则捕获组；
+   - 标签提取：严格执行 `/V(\d+)(?:-Draft)?/i` 或 `/QA-V(\d+)/i` 正则捕获组；
+   - **安全铁律**：严禁对文件名使用松散的 `\d+` 全词提取，杜绝将 `01_`、`02_` 等前缀编号误读为版本序号！
+3. 计算最大序号：`maxVersion = Math.max(...versions, 1)`；
+4. 查字典获取对应 `slotKey` 的 `baseSlotName`，新文件严格统一命名为：`${baseSlotName}_第${maxVersion + 1}版.${ext}`；
 5. 新版本号初始为：`versionTag: 'V${maxVersion + 1}-Draft'`。
 > **防冲突保障**：即便用户抓取生成了 `第2版` 并丢入废纸篓，下次抓取依然自动递增生成 `第3版`，绝对不会发生同名覆盖或废纸篓唯一键丢失！
 
@@ -163,11 +166,24 @@
 
 ## Data Structure & Storage (持久化与存量兼容规范)
 
-- 本地存储键：`` `geo_step1_state_${clientId}` ``
-- **存量历史数据安全兜底机制 (Migration Fallback)**：
+- **本地存储键划分**：
+  - 阶段零文件存储键：`` `geo_step0_files_${clientId}` ``（存储阶段零全部题单与回答文件字典，以及采纳底牌键 `geo_step0_active_qa_${clientId}`）；
+  - 阶段一状态存储键：`` `geo_step1_state_${clientId}` ``（存储阶段一当前步骤、激活Tab、打开的Tabs列表、工序槽位文件字典、门禁状态与备注）。
+- **存量历史数据安全兜底机制 (Migration Fallback · 彻底防御断链)**：
   从本地存储恢复时，若历史文件未记录 `isActive`、`slotKey`、`versionTag`、`is_deleted`，严格遵循：
-  1. **初始核心骨干文件白名单判别**（`buildStage1Files` 的 6 个固定文件名）：强制回填安全默认值（`isActive: true`, `is_deleted: false`, 对应 `slotKey`, `versionTag: 'V1'`），绝不降级为可删草稿；
+  1. **全阶段核心骨干文件白名单判别（覆盖 8 个初始主干）**：
+     - **阶段零骨干**：
+       - `01_豆包提问清单_推荐版.txt`：强制回填 `isActive: true`, `is_deleted: false`, `slotKey: 'slot_stage0_questions'`, `versionTag: 'QA-V1'`；
+       - `02_豆包实测回答记录_初测.txt`：强制回填 `isActive: true`, `is_deleted: false`, `slotKey: 'slot_stage0_answers'`, `versionTag: 'QA-V1'`；
+     - **阶段一骨干**（`buildStage1Files` 的 6 个固定文件名）：
+       - 强制回填安全默认值（`isActive: true`, `is_deleted: false`, 对应 `slotKey`, `versionTag: 'V1'`）；
+     - **安全底线**：上述 8 个骨干核心文件强制受系统保护，**绝对禁止降级为可删草稿**，确保历史底牌稳固如山！
   2. **动态派生文件**：未指定则 `isActive: false`，`is_deleted: false`，`versionTag: 'V2-Draft'`。
+- **openTabs 增删与多状态生命周期闭环**：
+  - **软删除时**：将被删文件从 `openTabs` 中安全移除，激活文件平滑回退至剩余有效文件；
+  - **废纸篓查看时**：将废纸篓条目追加进 `openTabs`，激活并以只读方式在中栏渲染，Tab 显示 `[废纸篓]` 标识；
+  - **关闭废纸篓 Tab 时**：从 `openTabs` 移除，文件依然安全保存在底部废纸篓抽屉中；
+  - **一键恢复时**：置 `is_deleted = false`，Tab 标签上的 `[废纸篓]` 移除，文本框自动解除 `:readonly`，无缝转为可正常打字保存的活动草稿。
 - 存储字典结构：
   ```json
   {
@@ -191,7 +207,8 @@
         "is_deleted": true
       }
     },
-    "activeFileName": "01_网络底座指标_待对照.md"
+    "activeFileName": "01_网络底座指标_待对照.md",
+    "openTabs": ["01_网络底座指标_待对照.md", "01_网络底座指标_第2版.md"]
   }
   ```
 - 刷新页面后，文件采纳状态、工序槽位、版本号、生成时间戳与废纸篓软删除标记完全保持。

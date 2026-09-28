@@ -35,11 +35,19 @@
 
 ## Impact (受影响的部分)
 - `GEO/web/step0-src/components/studio/StudioFileTree.vue`：
-  - 废纸篓抽屉中的条目支持点击整行派发 `openFile`，在中栏打开废纸篓文件进行只读查看；
+  - 资源管理器文件树：草稿删除按钮，废纸篓折叠抽屉，废纸篓条目支持整行点击派发 `openFile` 在中栏只读查看与【恢复】回档；
 - `GEO/web/step0-src/components/studio/StudioEditor.vue`：
   - 顶栏拆解为两行独立布局：第一行状态与操作工具栏（偏右对齐），第二行 Tab 标签栏；
   - 废纸篓文件在 Tab 标签栏带有醒目 `[废纸篓]` 标识；
   - 废纸篓文件在中栏以只读预览渲染，禁止编辑保存，顶部工具栏提供【一键恢复】按钮，派发 `restoreFile` 事件；
+- `GEO/web/step0-src/stage1Config.js`：
+  - 初始文件注入 `isActive: true`、`versionTag: 'V1'`、工序槽位 `slotKey` 与初始生成时间戳；
+- `GEO/web/step0-src/useStep1.js`：
+  - 实现工序槽位隔离采纳 `handleAdoptFile`；
+  - 实现软删除 `handleDeleteFile` 与废纸篓回档 `handleRestoreFile`；
+  - 重新抓取时扫描全量历史（含废纸篓）自动递增生成新版本候选草稿（如 `第2版.md`）；
 - `GEO/web/step0-src/Step0App.vue` 与 `GEO/web/step0-src/Step1App.vue`：
-  - 胶水层连接 `<StudioEditor>` 的 `@restore-file="handleRestoreFile"` 事件。
+  - 胶水层连接 `<StudioFileTree>` 的 `@delete-file`、`@restore-file`、`@open-file` 事件；
+  - 胶水层连接 `<StudioEditor>` 的 `@adopt-file` 与 `@restore-file` 事件。
+
 
