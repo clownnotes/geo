@@ -30,9 +30,9 @@
   - 实现 `handleDeleteFile(filename)` 与 `handleRestoreFile(filename)`；
   - 在 `<StudioFileTree>` 上绑定 `@delete-file="handleDeleteFile"` 与 `@restore-file="handleRestoreFile"`；
   - 联动持久化 `localStorage` 中的阶段零文件草稿与废纸篓状态，杜绝点击垃圾桶无反应。
-- [ ] 2.7 完善阶段一底座重新抓取多版本生成逻辑 (`GEO/web/step0-src/useStep1.js`)：
-  - 在 `handleAction('crawlMetrics')` 中，若已有底座指标文件，重新抓取时生成递增新版草稿（如 `01_网络底座指标_第2版.md` 或 `01_网络底座指标_第N版.md`），设置 `isActive: false`、`versionTag: 'V2-Draft'`、`is_deleted: false`，带最新生成时间戳并自动在中栏打开；
-  - 保留原有已采纳的底座指标原版不受破坏；交付专家核对满意后手动点击【设为客户采纳】才升格为生效版本，同工序槽位原版本退为草稿；不满意则可直接点垃圾桶删入废纸篓。
+- [ ] 2.7 完善阶段一底座重新抓取多版本生成与工序槽位隔离 (`GEO/web/step0-src/useStep1.js`)：
+  - 扫描全量历史（包含废纸篓 `is_deleted: true`）计算 `slot_metrics` 最大版本序号，生成递增新版草稿 `01_网络底座指标_第${maxVersion + 1}版.md`，设置 `slotKey: 'slot_metrics'`、`isActive: false`、`versionTag: 'V${maxVersion + 1}-Draft'`、最新生成时间戳，自动在中栏打开；
+  - 采纳逻辑升级：仅将同 `slotKey` 旧版本退回草稿，新版本 `versionTag` 规整为正式版（去掉 `-Draft`），绝不误伤同分类下的其他独立报告；不满意则随时点垃圾桶删入废纸篓。
 
 ## 3. 构建与端到端真机验收
 
