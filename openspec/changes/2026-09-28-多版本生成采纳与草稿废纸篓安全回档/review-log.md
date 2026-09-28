@@ -1651,3 +1651,134 @@ design 与 task 4.3/4.4/4.5 新引入的**双重不可删除锁、canonical 镜�
 
 ---
 
+
+
+---
+
+### [2026-09-28 22:40] 审查意见（来自 WorkBuddy (deepseek-v4.1-flash)）
+
+# 方案设计与代码审查报告（stage=design · 纯文本审阅）
+
+审查对象：proposal.md / design.md / tasks.md
+审查立场：严格 Reviewer，对照 AGENTS.md 与 SSOT 复用原则。
+
+---
+
+## 一、总体判断
+
+SSOT 方向正确（新增 `studioArtifactConfig.js` 集中槽位字典、双重锁与正交只读判定），跨端风险已被主动定界（PC Web 单目标、消费方仅 Step0App/Step1App），阶段隔离守规。但**方案内部存在两处硬性逻辑冲突（只读判定 vs 只读判定表；跨阶段槽位污染）**，以及一处口径矛盾（恢复语义 vs 单槽单一 active），必须在进入编码前收敛，否则实现必然二义、返工。
+
+---
+
+## 二、🔴 必须改（阻断编码）
+
+**🔴1. `isReadOnlyFile` 算法与 §2.1 只读判定表自相矛盾，规范主干会被误判为“历史淘汰只读”**
+- design §2.1 表格声明「规范主干(自动镜像)」`isActive=false`、**可编辑(false)**、展示【保存文件】、保存联动镜像；
+- 但 §2.1 算法为 `if (!file.isActive && isHistoricalRetired(file, files)) return true;`，而 `isHistoricalRetired` 定义为“同槽位存在更新生效版”；
+- 采纳 V2 后，规范骨干恰好 `isActive=false` 且同槽位存在 active 的 V2 → **必然被判为 `isReadOnly===true`**，与表格“可编辑”正面冲突；徽章也会从「规范主干·自动镜像」漂移为「历史版本·只读归档」。
+
+**连带漏洞**：若坚持表格口径让骨干可编辑，则按 §2.2「当且仅当 `isActive===true` 才镜像」，用户直接编辑骨干（非 active）保存时**不会镜像到任何地方**，骨干与生效版本永久分叉，直接违背“骨干 100% 镜像”契约。
+
+**修正要求**：二选一并写入 design——(a) 规范主干在存在更新 active 时强制只读，仅由程序镜像写入，删除表格中“可编辑/保存联动镜像”表述；或 (b) 在 `isHistoricalRetired` 中显式排除 `CANONICAL_CORE_FILES`，并为骨干定义独立的正交判定分支。建议采纳 (a)，语义最干净。
+
+**🔴2. `validAdoptSlots` 未按 stage 收窄，存在跨阶段槽位污染**
+- design 只提供**扁平 8 槽** `VALID_ADOPT_SLOTS` 并作为 `StudioEditor` 默认值，**未提供 `getSlotsByStage(stage)` 之类的收窄器**；
+- 后果：Step0App 会把 stage1 的 6 个槽位也视为合法采纳目标，Step1App 反之——阶段零草稿可被采纳进阶段一槽位；
+- `canDeleteFile` 以全量 `CANONICAL_CORE_FILES`（8 名）做“终身不可删”，阶段零会把阶段一骨干名纳入保护；
+- tasks 4.3 仅要求“通过 prop 接收，杜绝硬编码”，**未规定各 App 需按本阶段过滤** → 要么过度放开，要么在两端各写一份过滤逻辑，**恰好复刻了本方案要消灭的“重复面条代码”**。
+
+**修正要求**：共享配置必须导出 `getSlotsByStage(stage)` / `getCoreFilesByStage(stage)`；`StudioEditor` 不再以全量 8 槽作默认（默认空数组或 `[]` + 断言），由 Step0App/Step1App 显式传入本阶段子集。
+
+**🔴3. “一键恢复”语义与“单槽单一 active”断言冲突**
+- proposal「废纸篓…一键原位恢复…恢复后原位转正」；
+- tasks 4.6 断言 5「采纳后同 slotKey 其他文件 `isActive` 严格为 `false`」；
+- 若“转正”=置 active，则与单槽互斥及断言 5 冲突；若恢复仅取消 `isDeleted` 而保持 `isActive=false`，被淘汰旧版恢复后立即落入“历史只读”，用户观感是“恢复了却仍只读”，与“转正”文案不符；
+- design/tasks **均未定义恢复后的 `isActive` 与只读归属**。
+
+**修正要求**：在 design 中定死恢复语义，建议：恢复=取消 `isDeleted`；若该槽位当前无 active 则设为 active，否则保持草稿（受正交只读规则约束）；同步订正 proposal 与 tasks 文案。
+
+---
+
+## 三、🟡 建议改（进入编码前补充）
+
+- **🟡A. prefix 字段与正则双轨**：字典已定义 `prefix:'QA-V'/'V'`，§1.3 却按 stage 硬编码 `/^QA-V(\d+)/i`、`/^V(\d+)/i`。应统一为 `buildSlotRegex(slot)` 基于 `item.prefix` 动态构造；并明确算法如何由 `slotKey` 取到 `stage/prefix`。
+- **🟡B. 采纳镜像与保存镜像口径不一致**：§2.2 仅写“保存时 `isActive` 才镜像”，tasks 4.5 追加“采纳时也镜像”，design 未收录，属文档缺口；且快照 `geo_step1_active_slots_${clientId}` 仅采纳时刷新，**保存活动文件内容后快照 `updatedAt/content` 不更新**，口径漂移。
+- **🟡C. 阶段零双骨干镜像未定义**：stage0 有 questions+answers 两份骨干及 `activeQaVersion` 快照，镜像契约仅以 stage1 的 `01_网络底座指标` 举例，未定义采纳/保存新问答版本时两份骨干如何同步镜像。
+- **🟡D. 旧骨干内容是否留档未定义**：采纳 V2 后规范骨干对象内容被 V2 镜像覆盖，原 V1（原 active 骨干）内容是否会落为 `第1版` 留档未说明，存在数据丢失风险，与“多版本留存”初衷相悖。
+- **🟡E. stage1Config 仍是潜在重复真源**：tasks 2.2/Impact 称“对齐 6 大阶段一核心槽位字典”，应明确 `stage1Config` 从 `CANONICAL_SLOT_DICT` **派生**（`filter(stage==='step1')`），而非再手写一份 6 槽字典。
+- **🟡F. 设计文档徽章使用 🟢⚪🟣 Emoji，触碰 AGENTS §3.3 红线映射风险**：这些徽章直接落到 StudioEditor 顶栏 UI。design 应以文字标签 + 色板令牌（`--geo-primary` 等）描述，**显式禁止实现为 Emoji**，避免递归违规。
+- **🟡G. Step0App 是否传 `:show-status-badge="true"` 未明确**：drawer 受 `showStatusBadge && trashFiles.length>0` 门控，若 Step0App 未置 true，阶段零废纸篓功能不可见（死功能）。tasks 2.6 未提及。
+- **🟡H. `openTabs` 反序列化的“未处于查验态”是未定义状态位**：design §4.2 未定义“查验态”数据结构与生命周期。建议改述为“运行时打开仅存内存；反序列化时一律剔除废纸篓 tab”，或显式定义该字段。
+- **🟡I. 判定函数签名不一致**：`canDeleteFile(file)` 与 `isReadOnlyFile(file, files)` 上下文不对称，若未来删除规则需感知“槽位是否已有 active”易漏。建议统一传入 `files`。
+
+---
+
+## 四、🟢 优化建议
+
+- 🟢1. `maxVer = Math.max(...versions, 1)` 建议对 `versions` 做 `filter(Number.isFinite)` 兜底，防止正则/标签混入非数值。
+- 🟢2. 建议在共享配置内导出单一 `buildSlotRegex(slot)`，同时供**版本提取**与**防重名**复用，杜绝两处正则漂移。
+- 🟢3. tasks 4.6 增加断言：**规范骨干在存在更新 active 时 `isReadOnly===true`**，把 🔴1 的修复行为固化为回归用例。
+- 🟢4. tasks 4.6 增加断言：**任何恢复操作后，同 slot 内 active 数量仍严格为 1**（锁定 🔴3 语义）。
+- 🟢5. 时间戳 `generatedAt` 缺失时的兜底展示（如“未知生成时间”）建议在 design 中补一句，避免 UI 出现 `Invalid Date`。
+
+---
+
+## 五、合规与风险确认（通过项）
+
+- **阶段隔离合规**：tasks 第 4 节全 `[ ]`、3.3 留白不代勾，未擅自进入 apply/archive，符合 AGENTS §1.3 单步停步铁律。
+- **视觉令牌合规**：恢复按钮引用 `var(--geo-primary, #7c5bf5)`，符合 §3.3 与 `geo-admin-ui-tokens.md`，未使用红色。
+- **跨端风险**：design 已定界 PC Web（NE1:8088），组件消费方已全仓核实仅 Step0App/Step1App，阶段二至六走原生 JS 不加载该组件，**未见破坏现有业务**。
+- **构建口径合规**：`npm run build:step0` / `npm run smoke:step0` 在 NE1 执行，符合 §4.5（本地零编译）。
+- **回归断言覆盖**：tasks 4.6 的 7 条断言方向正确（正则防误读、废纸篓计数、标签规整、双锁、单 active、骨干镜像、草稿可编辑），唯缺 🔴1/🔴3 对应断言。
+
+---
+
+## 六、结论
+
+方案架构方向（SSOT + 双重锁 + 正交只读 + 双行解耦）成立，但 🔴1（只读判定与判定表互相矛盾并导致骨干分叉）、🔴2（跨阶段槽位污染且反致面条代码）、🔴3（恢复语义与单槽互斥冲突）属必须收敛的硬缺陷，涉及 design 核心算法与 tasks 验收断言，不可带病进入编码。
+
+[需修正]
+
+---
+
+### [2026-09-28 22:42] 方案修正回复（Round 14 · 彻底收敛规范主干只读镜像、按阶段槽位收窄与恢复单槽唯一Active）
+
+针对 WorkBuddy (DeepSeek 4.1 Flash) 第 7 轮审查报告指出的 3 项 🔴 阻断硬伤（🔴1、🔴2、🔴3）及 🟡A~🟡I 建议项，进行了彻底收敛修正，文档（`design.md`、`proposal.md`、`tasks.md`）已全面对齐更新：
+
+#### 一、🔴 必须改阻断项彻底整改（🔴1 ~ 🔴3 闭环落位）
+
+1. **🔴1. 规范主干在同槽存在更新 active 时强制只读，彻底消除分叉（[已修正]）**：
+   - **采纳建议方案 (a)**：在判定表与 `isReadOnlyFile` 中明确：当同槽位已采纳新版本（如 `第2版` 成为 active）时，规范骨干（如 `01_网络底座指标_待对照.md`）作为镜像载体**强制置为只读模式 (`isReadOnly === true`)**，顶栏徽章显示为【规范主干 · 自动镜像】，隐藏【保存文件】按钮；
+   - 规范骨干的内容**仅由程序在活动生效版本保存时单向镜像写入**，用户不可在退级态下直接修改骨干，从根本上杜绝了骨干与 active 版本的内容双向篡改与分叉，判定表、算法逻辑 100% 严丝合缝；
+   - 在 tasks 4.6 补充断言 8：`规范骨干在存在更新 active 时 isReadOnlyFile === true`。
+
+2. **🔴2. 共享配置提供按阶段收窄器，彻底根除跨阶段槽位污染（[已修正]）**：
+   - 在 `studioArtifactConfig.js` 中新增并导出 `getSlotsByStage(stage)` 与 `getCoreFilesByStage(stage)`；
+   - `StudioEditor.vue` 的 `validAdoptSlots` 默认值设为空数组 `[]`，由 `Step0App.vue` 显式传入 `getSlotsByStage('step0')`，`Step1App.vue` 显式传入 `getSlotsByStage('step1')`，彻底杜绝跨阶段采纳污染；
+   - `canDeleteFile(file, stage)` 严格限定仅保护本阶段规范骨干，杜绝误伤或过度保护。
+
+3. **🔴3. 严格定义一键恢复的确定性生命周期，守住单槽单一 Active（[已修正]）**：
+   - 彻底澄清恢复语义：
+     - **移出废纸篓**：`file.isDeleted = false`；
+     - **确定性 Active 归属**：
+       - 若该槽位当前**无任何 active**（例如原 active 文件被误删后恢复），顺理成章恢复为 `isActive: true`；
+       - 若该槽位当前**已有其他 active**，则**严格保持 `isActive: false`**，绝不抢占 active！
+     - 恢复后的只读属性自动求值：若为未采纳的新草稿，恢复后即为可编辑工作草稿；若为被淘汰旧版，恢复后作为历史旧版存留，徽章为【历史版本 · 只读归档】，右侧提供【设为客户采纳】；
+   - 在 tasks 4.6 补充断言 9：`任何恢复操作后，同 slotKey 内 active 数量仍严格为 1`。
+
+---
+
+#### 二、🟡 建议项整改说明（🟡A ~ 🟡I 全部闭环）
+
+- **🟡A（动态版本正则）**：在共享配置中导出 `buildSlotRegex(slotKey)`，统一基于 `CANONICAL_SLOT_DICT[slotKey].prefix` 动态组装版本正则，不再硬编码 stage；
+- **🟡B（快照与镜像一致性）**：活动文件无论在采纳还是保存时，均同步刷新同槽位骨干镜像与快照 `geo_step1_active_slots_${clientId}` 的 `updatedAt` 时间戳；
+- **🟡C（阶段零双骨干镜像）**：questions 与 answers 各自独立镜像到 `01_豆包提问清单_推荐版.txt` 与 `02_豆包实测回答记录_初测.txt`，互不干扰；
+- **🟡D（旧骨干内容留档）**：初次采纳新版本时系统自动将原骨干内容另存为 `_第1版` 留档，确保首版内容永久在仓；
+- **🟡E（stage1Config 派生）**：`stage1Config.js` 的文件字典 slotKey 映射直接基于 `CANONICAL_SLOT_DICT` 过滤派生；
+- **🟡F（设计文档杜绝彩色 Emoji 徽章）**：design.md 表格已彻底移除 🟢⚪🟣 等所有彩色 Emoji，严格采用文字标签（如 `[徽章: 客户生效底牌]`）；
+- **🟡G（Step0App 显式传参）**：tasks 4.5 显式要求 `Step0App.vue` 传入 `:show-status-badge="true"`，保证废纸篓抽屉正常启用；
+- **🟡H（openTabs 过滤）**：页面反序列化时一律剔除 `isDeleted: true` 的废纸篓 tab，查验仅作为运行时内存状态；
+- **🟡I（函数签名统一）**：`canDeleteFile(file, stage)` 与 `isReadOnlyFile(file, files, stage)` 签名规范化。
+
+---
+
