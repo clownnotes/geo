@@ -1015,3 +1015,572 @@ enterWizard()                     web/index.html:9260
 - **豁免项确认**：关于本变更过渡期间阶段 1~6 采用 `localStorage` 降级兜底方案，前置豁免 `AGENTS.md` §8.2。后续真实后端物理落盘已建档为显式遗留事项（Deferred）。
 - **签收确认**：待师弟输入 `/opsx-apply` 即可正式解锁业务代码编写与执行迁移！
 
+---
+
+## 审查记录 · 第七轮（复核第六轮订正 + 乙案守卫清单可达性穷举）
+
+- **时间**：2026-09-27 22:05 · **审查人**：AI（单 IDE 自审，跨 IDE 通道未启用）
+- **对象**：订正后的 `proposal.md` / `design.md` / `tasks.md`（HEAD `9df2d00`）
+- **比对基准**：`AGENTS.md`、主工程 `web/index.html`、**临时前端 `/Volumes/联想120/临时前端/邻里GEO 的临时前端`（目标态）**、`web/step0-src/*`
+- **本轮方法**：对第六轮 R6-2 采纳的**乙案守卫清单做可达性穷举** —— 把被替换区间（主工程 `:1186 ~ :1943`，758 行）内的 **610 个 `id`** 与目标态做差集（得 **606 个已消失**），再反向匹配目标态 JS 中的全部引用形态（`getElementById(字面量)` / `querySelector('#id')` / HTML 属性 / 字符串实参），逐函数判定「是否可达 + 是否自带守卫 + `catch` 类型」。
+- **结论**：`[需修正]` —— 第六轮 11 项中 **9 项已闭环**，R6-2 为**部分闭环**（乙案裁决正确但守卫清单不完整），R6-6 为**过度泛化**；本轮新发现 **2 项 🔴 + 2 项 🟡 + 1 项 🟢**。
+
+### 一、上一轮问题复核结果
+
+| 编号 | 复核方式 | 结果 |
+| :--- | :--- | :--- |
+| 🔴 R6-1 | `design.md` §4 已加【CSS 外链必须引入铁律】；`tasks.md` 3.2 首条 + 4.3 已加验收 | ✓ 闭环 |
+| 🔴 R6-2 | 乙案裁决已写入 `design.md` §2.1 + `tasks.md` 3.2 / 4.5 | ⚠️ **部分闭环** —— 守卫清单漏了 1 条必报错路径（见 R7-1） |
+| 🔴 R6-3 | `design.md` 注0.2 已补 `'mon-recurring'` 注册；`tasks.md` 3.2 已加子项 | ✓ 闭环 |
+| 🔴 R6-4 | `design.md` §3.3 已改为「现状 2/8，须补齐 8/8」；`tasks.md` 2.4 已含 `RecurringMonitorStudio.vue`；3.2 已改为 `__GEO_STEP0..6_MOUNTED__` + `__GEO_RECURRING_MOUNTED__` | ✓ 闭环 |
+| 🟡 R6-5 | `design.md` 注0.2 / `tasks.md` 3.2 已列 01~03 label 订正 | ✓ 闭环（但旧值表述有误，见 R7-3） |
+| 🟡 R6-6 | 已统一改为「移除旧 `<h2>`」 | ⚠️ **过度泛化** —— 范围写成"各阶段"，与目标态相反（见 R7-2） |
+| 🟡 R6-7 | 已明确以主工程语义为准、排除 `step-0-probe`，并登记纠偏临时前端 `[0-9]` | ✓ 闭环 |
+| 🟡 R6-8 | 已统一改为「新建 `legacy-step1~3-container`」 | ✓ 闭环 |
+| 🟢 R6-9 | 已写入 `design.md` 注0.4 / `tasks.md` 3.2 | ✓ 闭环 |
+| 🟢 R6-10 | 已写入 `design.md` 注0.4 / `tasks.md` 3.2 | ✓ 闭环 |
+| 🟢 R6-11 | 已更正为「4 个项目（共 6 份产物）」并设立签署栏 | ✓ 闭环 |
+
+---
+
+### 🔴 R7-1｜乙案守卫清单**漏了 `loadMarkdownToElem`** —— 「控制台 0 报错」仍必然失败
+
+**乙案原文（`design.md` §2.1 / `tasks.md` 3.2）**：只列出 5 个函数 —— `loadProjectRoiEvaluation`、`loadProjectBenchmarkEvaluation`、`loadMonitorDashboardMetrics`、`loadAcceptanceData`、`loadDistributionLedger`。
+
+**实测反驳（穷举可达性后，仍有 1 条无条件触发的报错路径不在清单内）**：
+
+```javascript
+// 目标态 temp:13441 —— 通用 Markdown 预览函数，函数体无任何空节点守卫
+async function loadMarkdownToElem(filename, elemId) {
+  try {
+    ...
+    if (data.success && data.content) {
+      document.getElementById(elemId).innerHTML = marked.parse(data.content);   // ← elemId 节点不存在即抛 TypeError
+    }
+  } catch (e) {
+    console.error('加载文档失败:', filename, e);                                  // ← 必然打印
+  }
+}
+
+// 目标态 temp:10717 —— loadStepPreviews() 内【无条件】调用（不在 isDeveloper() 分支内）
+loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5');
+```
+
+| 核对项 | 命令 | 结果 |
+| :--- | :--- | :--- |
+| `id="preview-step-5"` 主工程 | `grep -c` | **1**（位于 `panel-step-5-acceptance`，即被替换区间 `:1922`） |
+| `id="preview-step-5"` 目标态 | `grep -c` | **0** |
+| `loadMarkdownToElem` 是否自带守卫 | `grep 'getElementById(elemId)'` | **无守卫**，`temp:13448` |
+| 其 `catch` 类型 | `temp:13449` | **`console.error('加载文档失败:', filename, e)`** |
+| 是否无条件可达 | `loadStepPreviews()` 调用链 | ✓ `enterWizard():9260 → loadStepPreviews():10717 → loadMarkdownToElem():10741` |
+| 第二个触发点 | `submitManualProbeIngest()` | `temp:11087` 同样调用（按钮 `mp-btn-ingest` 在目标态存在） |
+
+**结论**：乙案把守卫全部加在「数据加载函数」上，**漏掉了「通用文档渲染函数」**。每次进入任意项目向导，都会先触发 `loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5')` → `getElementById` 返回 `null` → `null.innerHTML` 抛 `TypeError` → 被 catch → **`console.error('加载文档失败:', ...)` 必打印**。
+
+**这直接推翻** `proposal.md` 第 6 行「零报错」、第 24 行「彻底保证控制台 0 报错」、`design.md` §2.1「彻底保证零报错」与 `tasks.md` 4.5「控制台零报错」四处承诺。
+
+**订正建议（推荐最小改动方案）**：乙案清单**增加第 6 条**，或（更优）直接在 `loadMarkdownToElem` 内部做一次收敛式守卫，可同时覆盖未来任何节点删除：
+
+```javascript
+const el = document.getElementById(elemId);
+if (!el) return;                       // 节点不存在时静默跳过，不发请求/不渲染
+el.innerHTML = marked.parse(data.content);
+```
+
+同时在 `tasks.md` 3.2 登记第 6 个守卫点 `loadMarkdownToElem`（含 `preview-step-5` 这一唯一受影响目标）。
+
+---
+
+### 🔴 R7-2｜「移除**各阶段**宿主面板内原有旧 `<h2>`（面板内仅保留 Vue 根节点容器）」与目标态**相反**，且与本任务另一子项**自相矛盾**
+
+**文档原文**
+- `design.md` 注0.1：「**各阶段**宿主面板内原有的旧 `<h2>` **整体移除**……宿主面板内**仅保留** Vue 根节点容器」
+- `tasks.md` 3.2：「移除**各阶段**宿主面板内原有的旧 `<h2>`（……面板内**仅保留** Vue 根节点容器，杜绝重复渲染双标题，R6-6）」
+
+**实测：目标态并非「各阶段移除」，而是「阶段一~三保留、阶段五~六随整体替换消失」**
+
+| 面板 | 主工程 `<h2>` | 目标态（临时前端）`<h2>` | 老 DOM 归属 |
+| :--- | :--- | :--- | :--- |
+| `panel-step-1-diag` | `:723`、`:764`、`:823`（3 个） | `:733`、`:774`、`:833`（**3 个，全在**） | 包进 `legacy-step1-container`（`:721`，`class="hidden"`） |
+| `panel-step-2-scaffold` | `:938`（1 个） | `:954`（**在**） | 包进 `legacy-step2-container`（`:901`） |
+| `panel-step-3-princeton` | `:1064`（1 个） | `:1086`（**在**） | 包进 `legacy-step3-container`（`:1033`） |
+| `panel-step-4-distribute` | `:1190`「阶段四：草稿 → 网页里改定稿 → 再发布」 | **无**（面板被整体替换） | 整体删除 |
+| `panel-step-5-acceptance` | `:1606`「阶段五：首轮监测与验收」 | **无**（面板被整体替换） | 整体删除 |
+
+**目标态 `panel-step-1-diag` 的真实结构**（`temp:716-721`）：
+```html
+<div id="panel-step-1-diag" class="workspace-panel space-y-6">
+  <div id="step1-app-root"></div>                                   <!-- 组件岛 -->
+  <!-- 原版平铺视图（隐藏留档兜底，确保所有既有 DOM、ID 与回调完好无损） -->
+  <div id="legacy-step1-container" class="hidden space-y-6"> ...全部老 DOM（含 3 个 h2）... </div>
+</div>
+```
+注意目标态源码自己的注释：「**确保所有既有 DOM、ID 与回调完好无损**」。
+
+**两处致命后果**
+
+1. **与同任务另一子项正面冲突**：`tasks.md` 3.2 下一条写「阶段 1~3 **新建** `legacy-step1~3-container` 隐藏兜底容器**包裹老 DOM**」，而上一条写「面板内**仅保留** Vue 根节点容器」。两条子任务不能同时成立 —— 按上一条执行，会把下一条要求新建的容器连同老 DOM 一起删掉。
+2. **会再造 3 条 `console.error`**：`preview-step-1-boss`（目标态 `:822`）、`preview-step-1-tech`（`:880`）、`preview-step-3`（`:1195`）三个节点**正位于 legacy 容器内**。若按字面删掉 legacy 容器与老 DOM，则 `loadStepPreviews()` 中这三条 `loadMarkdownToElem(...)` 调用也会因 `getElementById` 返回 `null` 而抛错 → 在 R7-1 之外**再加 3 条控制台报错**。
+
+**订正建议**：
+1. `design.md` 注0.1 与 `tasks.md` 3.2 把「**各阶段**」收敛为「**阶段五（`#panel-step-4-distribute`）与阶段六（`#panel-step-5-acceptance`）**」，并注明「阶段一~三的旧 `<h2>` 与老 DOM **一并保留在 `legacy-step1~3-container` 隐藏兜底容器内，不得删除**」；
+2. 删去「面板内仅保留 Vue 根节点容器」这一全局性表述，改为「阶段五/六面板内仅保留 `<div id="stepX-app-root">`」；
+3. `proposal.md` 演进对照表 01/02/03 行的「由组件岛 StageHeader 统一规范渲染」建议补一句「宿主旧标题保留于隐藏兜底容器内」—— 实测 7 个 `StepXApp.vue` **均已引入 `StageHeader`**，可见层标题确实由组件岛渲染，但宿主 `<h2>` 并未被移除。
+
+---
+
+### 🟡 R7-3｜`design.md` 注0.2 的「主工程原为」旧值有 **2 处与实测不符**
+
+| 文档写法 | 实测主工程实际值 | 文档所写旧值在主工程出现次数 |
+| :--- | :--- | :--- |
+| `'step-1-diag'` 主工程原为 `'01 商业诊断与转化建议书'` | **`'01 现状诊断与体检'`**（`:7191`） | **0 次** |
+| `'step-2-scaffold'` 主工程原为 `'02 普林斯顿 9 因子素材博文库'` | **`'02 站点底座与三件套'`**（`:7192`） | **0 次** |
+| `'step-3-princeton'` 主工程原为 `'03 普林斯顿 9 因子语料'` | `'03 普林斯顿 9 因子语料'`（`:7193`） | 2 次 ✓ 正确 |
+
+两个错误值疑似从 `proposal.md` 演进对照表的「业务名称」列误抄而来（该列与 `VIEW_META.label` 本就不是同一字段）。
+
+**影响**：apply 时若以文档给出的「旧值」做定位或替换校验，会**匹配不到目标行**；也可能被误判为「主工程 label 已被改过」。
+
+**订正建议**：`design.md` 注0.2 将两处旧值改为实测值 `'01 现状诊断与体检'` 与 `'02 站点底座与三件套'`；并在注中补一句「**注意：演进对照表『业务名称』列 ≠ `VIEW_META.label` 字段，勿混用**」。
+
+---
+
+### 🟡 R7-4｜乙案守卫清单的**可达性筛查结论未登记**，其余 24 个引用悬空 id 的函数缺少处置说明
+
+本轮穷举结果：被替换区间内 **606 个 id 在目标态消失**，其中被目标态 JS 引用的悬空 id 分布在 **29 个函数**中（乙案只覆盖 5 个）。逐函数判定如下：
+
+| 分类 | 函数 | 处置 |
+| :--- | :--- | :--- |
+| **必报错（未覆盖）** | `loadMarkdownToElem`（经 `preview-step-5`） | ❌ 见 R7-1，**必须补** |
+| 乙案已覆盖 | `loadProjectRoiEvaluation`、`loadProjectBenchmarkEvaluation`、`loadMonitorDashboardMetrics`、`loadAcceptanceData`、`loadDistributionLedger` | ✓ |
+| 自带守卫，无需处理 | `loadProjectHistoryChart`（`if (!box) return`）、`loadAlertHistory`（同）、`applyDistributeRunStatusBar`（`if (!textEl \|\| !btn) return`）、`applyChannelPackStatuses`（`setPill`/`setCardBadge` 内 `if (!el) return`）、`loadFidelityScoresForCards`（`updateBadge` 内 `if (!el \|\| !fid) return`）、`onDistCanPublishChange`（`const on = !!(can && can.checked)` + `if (!btn) return`） | 无需处理 |
+| 无守卫但**不可达**（入口按钮已随老 DOM 删除 / 0 处调用） | `loadDefensePreview`（`loadStepPreviews` 可达但 **`catch(e){}` 空捕获** → 静默失效，不报错）、`buildToutiaoPack`、`buildWechatPack`、`buildDeepseekPack`、`buildKimiBaiduPack`、`handleVerifyAllDistUrls`、`onDistPublishAccountChange`、`scrollToPackCard`、`handleTriggerPatrolSingle`、`loadRewriteBrief`、`fetchAnswerContent`、`aiGenerateAnswer`、`saveAnswerFinal`、`renderRewriteStatus`、`renderRewriteBrief`、`ensureCanPublishOrConfirm`、`copyToutiaoRichHtml`、`copyZhihuRichHtml`、`loadStepPreviews`、`submitManualProbeIngest` | 建议登记为「已筛查，不可达/静默」，**不必逐个加守卫** |
+
+**订正建议**：在 `design.md` §2.1 末尾补一张「老脚本可达性筛查结论表」（上述分类），并明确「**本表即守卫范围的判定依据，凡『自带守卫』与『不可达』两类均无需改动**」。这样既避免 apply 阶段重复排查，也避免未来有人「顺手给 24 个函数都加守卫」造成无谓改动。
+
+**附带提醒**：`loadDefensePreview`（`loadStepPreviews` 直接可达）虽因空 `catch` 不报错，但其承担的「06 竞品权威信源反向包抄策略」预览在目标态**静默失效**。若该能力已由阶段六组件岛接管，建议在文档中显式说明；若未接管，则属功能缺口。
+
+---
+
+### 🟢 R7-5｜乙案守卫示例节点的选取建议改为「该函数首个 DOM 访问节点」
+
+| 函数 | 文档建议的守卫节点 | 实测该函数**首个** DOM 访问节点 | 是否一致 |
+| :--- | :--- | :--- | :--- |
+| `loadProjectRoiEvaluation` | `roi-total-val` | `roi-total-val`（`temp:12877`） | ✓ |
+| `loadProjectBenchmarkEvaluation` | `bm-industry-name` | `bm-industry-name`（`temp:11719`） | ✓ |
+| `loadMonitorDashboardMetrics` | `metric-sov` | `metric-sov`（`temp:10760`） | ✓ |
+| `loadAcceptanceData` | `acceptance-status-badge` | `acceptance-status-badge`（`temp:12979`） | ✓ |
+| `loadDistributionLedger` | `toutiao-pack-status` | **`dist-channels-ledger-list`（`temp:12530`）** | ✗ 不一致 |
+
+`loadDistributionLedger` 的守卫节点选的是另一个函数族（`toutiao-pack-status` 属 `applyChannelPackStatuses` 的渲染目标），当前因两者**同时消失**故功能等价；但若未来只恢复其中之一，该守卫会失效。
+
+**订正建议**：`design.md` §2.1 该条改为 `if (!document.getElementById('dist-channels-ledger-list')) return;`，并把整节表述统一为「**守卫节点一律取该函数体内首个 `getElementById` 目标**」。
+
+---
+
+### 附：第七轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| 被替换区间 | `panel-step-4-distribute` 起 ~ `panel-ops-publish` 前 | 主工程 `:1186 ~ :1943`（**758 行**） |
+| 区间内 id 总数 / 目标态已消失 | 正则提取 + 集合差 | **610 / 606** |
+| 引用悬空 id 的函数总数 | 穷举 4 种引用形态 | **29 个**（乙案仅覆盖 5 个） |
+| `preview-step-5` | `grep -c 'id="preview-step-5"'` | 主工程 **1** / 目标态 **0** |
+| `loadMarkdownToElem` 守卫与 catch | `temp:13441-13452` | **无守卫** + `console.error('加载文档失败:', …)` |
+| `loadStepPreviews` 是否无条件调用 | `temp:10741` | ✓ 无条件（不在 `isDeveloper()` 分支内） |
+| 阶段一~三 `<h2>` 在目标态 | 逐面板 `<h2>` 提取 | **全部保留**（3 + 1 + 1 个） |
+| `legacy-step1~3-container` | `grep -n 'legacy-step'` | 目标态 `:721 / :901 / :1033`，均 `class="hidden"` |
+| `preview-step-1-boss/tech`、`preview-step-3` 归属 | 行区间比对 | 均位于 `legacy-step1/3-container` **内** |
+| 7 个 StepXApp 是否用 StageHeader | `grep -rn 'StageHeader' step0-src/` | **7/7 全部引入** ✓ |
+| design 注0.2 旧值真实性 | `grep -c` | `'01 商业诊断与转化建议书'` = **0**；`'02 普林斯顿 9 因子素材博文库'` = **0** |
+| git 状态 | `git status --porcelain` / `git log -1` | **0**（干净）/ `9df2d00` |
+| 业务源文件是否被本轮审查改动 | `stat web/index.html tools/geo/server.py` | 仍为 **14:16:59**，全程未动 ✓ |
+
+---
+
+## 第七轮审查结论与停步声明
+
+- **最终标签**：`[需修正]`
+- **依据**：`AGENTS.md` §1.3「完成后必须立即停步等待用户或对端 IDE 确认」；`tasks.md` 4.5「控制台零报错」在当前目标态下**仍必然失败**（R7-1）；`tasks.md` 3.2 内部两条子项**自相矛盾**（R7-2）
+- **本轮动作边界**：仅追加本审查记录，**未改动任何业务源文件**（`web/index.html` / `web/step0-src/*` / `tools/geo/*.py` 未动一个字符），**未订正 `proposal.md` / `design.md` / `tasks.md`**
+- **待用户裁决事项**
+  1. **R7-1 的处置口径**：采用推荐的最小改动（在 `loadMarkdownToElem` 内部收敛式守卫），还是仅把 `preview-step-5` 加入乙案清单第 6 条？
+  2. **R7-2 的 h2 范围**：确认「阶段一~三 老 DOM 与 `<h2>` 一律保留在 `legacy-step1~3-container` 内、不得移除」这一口径（现文档写的是"各阶段整体移除"，与目标态相反）
+  3. **R7-4**：是否将「老脚本可达性筛查结论表」正式写入 `design.md` §2.1（避免 apply 阶段重复排查 24 个函数）
+  4. **`loadDefensePreview` 的能力归属**：阶段六组件岛是否已接管「竞品权威信源反向包抄策略」预览？若未接管属功能缺口，需登记
+- **下一步**：等待用户裁决与 `/opsx-fix` 订正，**不擅自进入 apply 阶段**
+
+---
+
+## 审查记录 · 第八轮（鉴权链 / 构建流水线 / 持久化键契约 三个新角度实测）
+
+> **本轮触发**：第三次执行 `/ops-review`。
+> **开工前状态确认（重要）**：`git log -1` = `9df2d00`（第六轮订正提交）；`proposal.md` / `design.md` / `tasks.md` 的 mtime 分别为 `21:58:26` / `21:59:38` / `21:59:51`，**全部早于第七轮审查时刻（22:05）**。
+> **结论：R7-1 ~ R7-5 五条意见全部处于「已提出、未订正」状态**，本轮不重复其结论。
+> 本轮改从**三个前七轮完全未触及的角度**做实测：① 组件岛鉴权/凭证传递链；② 构建与发布流水线实跑；③ localStorage 持久化键契约。
+> **同时执行一项自我纠正**：第七轮期间由本工具产生的两条「疑似重大缺陷」假设（跨阶段键名串味、组件岛静默 401），本轮以源码级证据**证伪并销案**，详见「三、本轮已排查并排除的疑似问题」。
+
+---
+
+### 一、上一轮（第七轮）问题复核结果
+
+| 编号 | 第七轮结论 | 本轮复核 | 依据 |
+| :--- | :--- | :--- | :--- |
+| **R7-1** | 乙案守卫清单漏 `loadMarkdownToElem`，`preview-step-5` 必然报错 | **未订正** | `design.md` §2.1 仍只列 5 个函数；`temp:13441` 仍无守卫 |
+| **R7-2** | 「各阶段移除旧 `<h2>`」与目标态相反且自相矛盾 | **未订正** | `design.md:42`（注0.1）与 `:70`（注0 第 6 条）并存；`tasks.md:22` 与 `:23` 并存 |
+| **R7-3** | `design.md` 注0.2「主工程原为」2 处失实 | **未订正，且本轮补全为 3 条全部核验** | 见下方 R8-4 |
+| **R7-4** | 未登记「老脚本可达性筛查结论表」 | **未订正** | `design.md` §2.1 无该表 |
+| **R7-5** | `loadDistributionLedger` 守卫节点非其首个 DOM 访问 | **未订正** | `design.md:80` 仍为 `toutiao-pack-status` |
+
+> 复核方式：`git log -1`、三份文档 mtime、逐条比对文档当前文本。**本轮未对上述五条做任何代改。**
+
+---
+
+### 二、本轮新增问题
+
+#### 🔴 R8-1｜阶段四答题卡「写读键名不一致」，阶段五永远读不到阶段四的卡片
+
+| 角色 | 文件:行 | 键名 |
+| :--- | :--- | :--- |
+| **写入方** | `step0-src/useStep4.js:28` + `:278` | `geo_step4_qa_cards_${clientId}` |
+| **读取方** | `step0-src/stage5Config.js:170` | `geo_step4_cards_${clientId}` |
+
+两个键名**不同**。全组件岛检索 `geo_step4_qa_cards_` 仅 1 处（即 `useStep4.js:28` 的定义）；检索 `geo_step4_cards_` 仅 1 处（即 `stage5Config.js:170` 的读取）；临时前端宿主 `index.html` 对**两者均无引用**。
+
+**后果**：阶段五 `stage5Config.js` 的 `qaCards` 恒为 `[]`，且该读取被 `catch (_) {}` 空捕获，**无任何报错或告警**，属静默功能缺失。
+
+**订正建议**：`stage5Config.js:170` 改为 `'geo_step4_qa_cards_' + clientId`（与写入方对齐）；同时把该读取的 `catch (_) {}` 改为至少 `console.warn`，避免同类断裂再次静默。
+
+---
+
+#### 🟡 R8-2｜`header_collapsed` 在阶段 3/4/5「只读不写」，折叠状态永不持久化
+
+| 文件 | 常量定义 | 读取 | 写入 |
+| :--- | :--- | :--- | :--- |
+| `useStep2.js` | `:26` | `:58` | **`:139` ✓** |
+| `useStep3.js` | `:28` | `:100` | **无 ✗** |
+| `useStep4.js` | `:31` | `:75` | **无 ✗** |
+| `useStep5.js` | `:32` | `:74` | **无 ✗** |
+
+宿主 `index.html` 全文 `header_collapsed` 出现 **0 次**，即无外部写入方。故阶段 3/4/5 每次读取恒为 `null`，**顶栏折叠状态刷新页面后必然复位**。
+
+**性质**：阶段 2 与阶段 3/4/5 实现不一致 —— 同一份「标准 Composable」在 4 个阶段中出现 1 个写、3 个不写的分裂。
+
+**订正建议**：为 `useStep3/4/5.js` 补齐与 `useStep2.js:139` 同形的写入（`localStorage.setItem(STORAGE_KEY_HEADER, String(val))`），或在文档中明确「3/4/5 不持久化折叠态」为有意设计。
+
+---
+
+#### 🟡 R8-3｜`design.md` §3.2 的键名规范「统一采用」失实（7 个阶段文件中仅 2 个符合）
+
+`design.md:109` 写：
+
+> 本地状态键名统一采用客户端命名空间隔离：`geo_step{N}_state_{clientId}`
+
+**实测**：全组件岛匹配 `geo_step{N}_state_` 模式者**仅 2 处** —— `useStep1.js:12`（`geo_step1_state_${clientId}`）与 `useStep6.js:51`（`geo_step6_state_${projectContext.value.clientId}`）。
+
+阶段 2~5 的 **27 个 `STORAGE_KEY_*` 常量全部采用 `geo_step{N}_{语义描述}_{clientId}` 形式**（如 `geo_step2_step_index_`、`geo_step4_qa_cards_`、`geo_step5_active_topic_`），`geo_step2_state_` / `geo_step3_state_` / `geo_step4_state_` / `geo_step5_state_` **四个键在代码中均不存在**。
+
+**订正建议**：§3.2 第 2 条改为如实描述：「键名采用 `geo_step{N}_{语义描述}_{clientId}` 命名空间隔离；其中阶段 1 与阶段 6 使用聚合式 `geo_step{N}_state_{clientId}` 单键，阶段 2~5 使用分片式多键」，并附一张实际键名清单（可直接由组件岛源码生成）。这既是文档准确性要求，也是 apply 阶段避免「按文档去找 `geo_step2_state_` 而找不到」的施工前提。
+
+---
+
+#### 🟡 R8-4｜`design.md` 注0.2「主工程原为」三条中 2 条失实、1 条属实（R7-3 的完整核验）
+
+| `design.md:45-47` 声称「主工程原为」 | 主工程实际出现次数 | 主工程真实值（`web/index.html`） | 判定 |
+| :--- | :--- | :--- | :--- |
+| `'01 商业诊断与转化建议书'` | **0** | `'01 现状诊断与体检'`（`:7191`，侧边栏 `:598` 同） | ❌ **失实** |
+| `'02 普林斯顿 9 因子素材博文库'` | **0** | `'02 站点底座与三件套'`（`:7192`，侧边栏 `:600` 同） | ❌ **失实** |
+| `'03 普林斯顿 9 因子语料'` | **2** | `'03 普林斯顿 9 因子语料'`（`:7193` + 侧边栏 `:602`） | ✅ **属实** |
+
+**订正建议**：把前两条的「主工程原为」改为上表实测值（或直接删去「原为」括注，只保留「改为」目标值），第三条保留。该项虽不影响施工正确性（目标值本身是对的），但会误导后续审查者按错误基线做比对。
+
+---
+
+#### 🟡 R8-5｜`stamp-build.mjs` 在目标引用缺失时「假成功」，且该缺陷将随 `tasks.md` 1.1 原样搬入主工程
+
+源码级确认（`scripts/stamp-build.mjs:36-42`）：
+
+```javascript
+if (html.includes(`./${asset}?v=`)) {
+  html = html.replace(reWith, `$1?v=${stamp}`);
+  changed++;            // ← 无论 replace 是否真正命中，一律自增
+} else {
+  html = html.replace(reWithout, `$1?v=${stamp}`);
+  changed++;            // ← 同上：目标不存在时 replace 为 no-op，changed 仍然自增
+}
+```
+
+`changed++` 位于**两个分支的公共路径上**，与 `replace()` 的实际替换结果无关。因此当 `web/index.html` 中**根本没有**该产物引用时（正是主工程当前对 CSS 的真实状态），脚本仍会打印：
+
+```
+[stamp-build] 已把 2 个产物引用刷新到版本 20260928020748
+```
+
+实测（沙盒模拟主工程现状：删去 CSS `<link>` 后运行）——输出「已把 2 个产物引用刷新」，而 `CSS link 是否被凭空创建: False`。
+
+**为何重要**：`tasks.md` 1.1 的任务是「在 `web/` 下新建 `scripts/` 目录并放置 `stamp-build.mjs`」，即**原样搬运**。若不同时修掉这个假成功信号，那么 R6-1（CSS 外链缺失）在 apply 后会**继续被"成功"提示掩盖** —— 构建日志显示一切正常，实际 CSS 从未被引用，`tasks.md` 4.3「中列 Markdown 样式渲染正常」将无法通过。
+
+**订正建议**：
+1. 把 `changed++` 移入「确实发生了替换」的判定内（例如比较替换前后的字符串，或检查正则 `test()` 后再 `replace()`）；
+2. 对 `targets` 中**完全未出现**的引用，改为**显式告警并 `process.exitCode = 1`**，让构建失败可见；
+3. 在 `tasks.md` 3.1/3.2 中把「CSS `<link>` 必须存在」写成**可由脚本断言的检查项**，而非仅靠人工核对。
+
+---
+
+#### 🟢 R8-6｜`geo_step2_site_info_` 为无写入方的「死回落键」
+
+`useStep3.js:34`：
+
+```javascript
+const savedInfo = localStorage.getItem(STORAGE_KEY_SITE) || localStorage.getItem('geo_step2_site_info_' + clientId);
+```
+
+`geo_step2_site_info_` 全组件岛**仅此 1 处引用（读取）**，宿主亦无写入。`useStep2.js` 中不存在名为 `SITE` 的常量（其 8 个常量见 R8-2 表）。
+
+**性质**：无害（`||` 回落，前项恒可用），但属**遗留死引用**。建议删除，或补注释说明其历史用途，避免后续维护者误判为「阶段 2 应写入站点信息」而多做工。
+
+---
+
+#### 🟢 R8-7｜`Step0App.vue` 三处直写后端：`catch (_) {}` 静默吞错 + 无条件成功提示
+
+`Step0App.vue:263` / `:645` / `:776` 三处 `fetch(PUT /api/projects/${pId})` 均以 `catch (_) {}` 收尾，且**紧随其后无条件弹出成功提示**：
+
+| 行 | catch | 紧随的成功提示 |
+| :--- | :--- | :--- |
+| `:263` | `catch (_) {}` | `showToast('豆包真实回答已存入底牌 […]，阶段零顺利通关！', 'success')` |
+| `:645` | `catch (err) { … return false }` | 该处**有**错误分支（相对完善） |
+| `:776` | `catch (_) {}` | `showToast('文件【${f.name}】已成功保存！', 'success')` |
+
+即 `:263` 与 `:776` 在**网络失败/后端 500 时仍提示"成功"**。属既有代码血统带入，非本轮变更引入，但随组件岛一并进入主工程。
+
+**订正建议**：至少改为 `catch (e) { showToast('保存失败：' + e.message, 'error'); return; }`，与 `:645` 处的处理口径保持一致。
+
+---
+
+#### 🟢 R8-8｜CSS 产物名隐式耦合 `package.json` 的 `name` 字段（约束未登记）
+
+实测：把 `step0-src/package.json` 的 `name` 由 `geo-step0-island` 改为 `geo-island-renamed` 后重新构建，产物文件名随之变为 `geo-island-renamed.css`（内容 sha256 不变）。
+
+而 `geo-step0-island.css` 这一字面量被**四处硬编码**：`tasks.md:18/20`、`design.md:129/135-137`、`stamp-build.mjs:25`、宿主 `<link>`。
+
+**性质**：潜在脆弱点。任何人调整 `package.json` 的 `name` 都会静默改变产物文件名，导致宿主 `<link>` 404（且被 R8-5 的假成功信号掩盖）。
+
+**订正建议**：在 `vite.config.js` 中显式固定 CSS 产物名（`build.lib.cssFileName` 或 `rollupOptions.output.assetFileNames`），使产物名不再随 `name` 漂移；或在 `package.json` 旁加注释锁定该约束。
+
+---
+
+### 三、本轮已排查并排除的疑似问题（重要：防止后续轮次重复立案）
+
+> 本节记录**经源码级证据证伪**的假设。写下它们的目的，是让后续审查**不必再重复排查**这三条路径。
+
+#### ✅ 排除一：组件岛鉴权链「静默 401」——不成立
+
+曾怀疑：`Step0App.vue` 三处 `PUT` 未携带 `Authorization` 头，在鉴权开启时会 401 且被 `catch(_){}` 吞掉。
+
+**证伪证据**：
+1. `server.py:289-311` 的 `get_auth_token()` 在 `Authorization` 头缺失时**回落到 Cookie**：`for c in cookies.split(";"): if "geo_token=" in c: return ...`；
+2. 服务端**确实下发该 Cookie**：`server.py:772` / `:814` / `:3253` 均为 `Set-Cookie: geo_token=…; Path=/; HttpOnly; SameSite=Lax`；
+3. `web/login.html:245` 明确注释：「刷新页面，此时带上服务端种植的 Cookie: geo_token，总门放行下发工作台」；
+4. `web/index.html:12104` 载明宿主自身约定：「只靠同源 Cookie（登录 / auth/status 已下发 geo_token），**禁止把凭证拼进 URL**」。
+
+同源 `fetch` 默认 `credentials: 'same-origin'`，会**自动携带**该 Cookie。故三处 `PUT` 走 Cookie 鉴权路径**可以正常通过**，且与宿主既有约定一致。
+
+> **附带结论**：`step0-src/api.js`（`authHeaders(token)`，11 个 wrapper）**并非死代码** —— 由 `useStep0.js:2`（`import * as api from './api.js'`）引入并全程使用；其 `token` 取自 `useStep0.js:62/90/252` 的 `localStorage.getItem('geo_token')`，与 Cookie 路径**互为备份**，设计合理。
+> **仅 R8-7 的 `catch (_) {}` + 假成功提示**成立，其严重度按「既有代码血统」定为 🟢。
+
+#### ✅ 排除二：localStorage「跨阶段键名串味」——不成立
+
+曾怀疑：`useStep2/3/4/5.js` 均定义同名常量 `STORAGE_KEY_STEP`，可能互相覆盖。
+
+**证伪证据**（逐文件作用域解析，非全局合并）：
+
+| 文件 | `STORAGE_KEY_STEP` 实际绑定值 |
+| :--- | :--- |
+| `useStep2.js:23` | `'geo_step2_step_index_' + clientId` |
+| `useStep3.js:25` | `'geo_step3_step_index_' + clientId` |
+| `useStep4.js:27` | `'geo_step4_step_index_' + clientId` |
+| `useStep5.js:26` | `'geo_step5_step_index_' + clientId` |
+
+**同名变量、各自绑定正确阶段号的值**，属正常写法，无串味。此外 `useStep2.js` 的 8 个常量经逐条配对确认**全部读写齐备**（STEP `:52/:127`、TAB `:114/:133`、NOTES `:55/:160`、HEADER `:58/:139`、MASTER_VER `:61/:269`、FILES `:91/:146`、EXTRA_ARTICLES `:77/:356`、CONFLICT `:64/:303`）。
+
+> **注意**：本条排除**不覆盖** R8-1 与 R8-2 —— 那两条是**同一文件内写读键名不一致 / 只读不写**，与「跨文件同名常量」是不同的故障模式。
+
+#### ✅ 排除三：构建流水线不可复现 —— 不成立，构建**确定性良好**
+
+在 `/tmp/buildtest`（`step0-src` + `scripts` + `index.html` + `assets` 的独立副本，**未触碰真实工程**）实跑 `npm run build`：
+
+```
+vite v6.4.3 building for production...
+✓ 43 modules transformed.
+Entry module "main.js" is using named and default exports together.   ← 见下方说明
+../assets/step0/geo-step0-island.css    1.66 kB │ gzip:   0.52 kB
+../assets/step0/step0.js              373.81 kB │ gzip: 128.10 kB
+✓ built in 1.11s
+[stamp-build] 已把 2 个产物引用刷新到版本 20260928020729
+```
+
+产物与现网基线**逐字节一致**：
+
+| 产物 | 沙盒新构建 sha256 | 现网基线 sha256 | 一致 |
+| :--- | :--- | :--- | :--- |
+| `geo-step0-island.css`（1,663 B） | `b549e7ca98614eadd3067942ede0d2a17925fb50b28c101b4324236f7105415c` | 同 | ✅ |
+| `step0.js`（373,813 B） | `09aacd2b920de419cb1619c7b90e8dc5a65b09f2c252d7eca7c79b5aeaf0cab0` | 同 | ✅ |
+
+**结论**：`tasks.md` 1.1 / 1.2 的前置假设成立，构建**可复现、确定性良好**，R6-1 所依赖的 CSS 产物**确实会被生成**（问题不在"能不能生成"，而在"宿主有没有引用"，见 R8-5）。
+
+> **遗留观察（本轮未立案，供参考）**：构建告警 `Entry module "main.js" is using named and default exports together` —— `main.js` 同时使用具名导出（8 个 Bridge）与 `export default {...}`。在 `formats: ['iife']` + `output.exports` 默认策略下，该默认导出在产物中的归属可能被改写。因 `main.js` 的两处导出形态**同时存在**，若宿主依赖的是默认导出对象，存在取到非预期值的风险。**建议 apply 阶段顺手确认宿主实际取用的是哪一种导出形态**（`window.__GEO_STEP0__` 究竟来自具名导出还是 default 对象），本轮不单独立案。
+
+#### ✅ 排除四：主工程产物已被更新 —— 不成立，合流确未发生
+
+| 项 | 主工程现状 | 基线（临时前端） | 判定 |
+| :--- | :--- | :--- | :--- |
+| `web/assets/step0/` 内容 | **仅 `step0.js`，无 CSS** | `step0.js` + `geo-step0-island.css` | 未合流 |
+| `step0.js` 大小 / sha256 | 104,422 B / `604be8a8…fd1b64` | 373,813 B / `09aacd2b…af0cab0` | **完全不同**（旧版） |
+| `web/index.html` 中 `geo-step0-island` | **0 次** | 有 `<link>` | 未合流 |
+| `web/index.html:12` | `<script src="./assets/step0/step0.js"></script>`（**无 `?v=`**） | 带 `?v=20260927124324` | 未合流 |
+| `web/scripts/` | **不存在** | 存在 `stamp-build.mjs` | 未合流（对应 `tasks.md` 1.1 未做） |
+
+**独立复核结论**：主工程业务源文件 `web/index.html`、`tools/geo/server.py`、`tools/geo/perspective.py` 的 mtime **仍为 `2026-09-27 14:16:59`**，全程未被任何一轮审查改动；`git status --porcelain` 仅有 `M review-log.md`（本审查记录自身）。
+
+#### ✅ 排除五：`tasks.md` 4.6 与后端 5 步进度模型冲突 —— 已在文档中登记为已知预期
+
+后端进度计算仍为 5 步子串匹配，两处同源：
+
+- `tools/geo/server.py:5400-5405`：`if any("04_" in f for f in outputs): steps_done += 1`
+- `tools/geo/perspective.py:35-39`：同上
+
+而 `design.md:69` 规定阶段四产物前缀为 `04a_qacard_`。本轮实测：**`04a_qacard_` 在 `tools/geo/` 与 `web/index.html` 中均出现 0 次**（尚未落地）。同时验证 `design.md:69` 的安全性论证为**真**：`"04_" in "04a_qacard_…"` 确为 `False`，不会误判既有 `04_` 分发产物。
+
+前端已升位为 01~06 共 6 个交付阶段，后端仍为 5 步 —— 但 `tasks.md:45` 4.6 已明确登记：
+
+> 确认已知预期行为：验证阶段四完成答题卡本地操作后，顶栏进度条与"共 5 步"文案保持不变（符合当前仅前端合流、后端 5 步进度解耦的已知预期，**不误判为 Bug**）
+
+**判定**：文档已登记，措辞与代码现状一致，**本轮不立案**。仅提示 apply 阶段执行 4.6 时，应把「两处进度计算同源（`server.py` + `perspective.py`）」一并记入验收记录，避免日后只改一处造成前后端不一致。
+
+---
+
+### 附：第八轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| 阶段四键名写读比对 | `useStep4.js:28/:278` vs `stage5Config.js:170` | `geo_step4_qa_cards_` vs `geo_step4_cards_` —— **不一致** |
+| `geo_step4_qa_cards_` 全岛引用数 | `grep -rn`（ripgrep） | **1**（仅定义行） |
+| `geo_step4_cards_` 全岛引用数 | `grep -rn` | **1**（仅读取行） |
+| 宿主是否写卡片键 | `grep -n geo_step4_cards_ index.html`（临时前端） | **0** |
+| `header_collapsed` 写入方 | 4 个 `useStepN.js` 逐文件常量配对 | 仅 `useStep2.js:139` 有写；3/4/5 **无写** |
+| 宿主是否写折叠键 | `grep -n header_collapsed index.html` | **0** |
+| `geo_step{N}_state_` 模式匹配 | ripgrep `geo_step[0-9]_state_` | **2**（`useStep1.js:12`、`useStep6.js:51`） |
+| 阶段 2~5 常量总数 | 逐文件 `STORAGE_KEY_*` 定义 | **27 个**，全为 `geo_step{N}_{语义}_{clientId}` |
+| 注0.2 三条「主工程原为」 | `grep -c` 于 `web/index.html` | `01 商业诊断与转化建议书`=**0**、`02 普林斯顿 9 因子素材博文库`=**0**、`03 普林斯顿 9 因子语料`=**2** |
+| 主工程真实 01/02/03 标签 | `web/index.html:7191-7193` | `01 现状诊断与体检` / `02 站点底座与三件套` / `03 普林斯顿 9 因子语料` |
+| `stamp-build.mjs` 自增位置 | `scripts/stamp-build.mjs:36-42` | `changed++` 在 if/else **两分支公共路径**，与 `replace()` 是否命中无关 |
+| `stamp-build.mjs` 缺失目标实测 | 沙盒删 CSS link 后运行 | 打印「已把 2 个产物引用刷新…」；`CSS link 是否被凭空创建: False` |
+| 构建可复现性 | `/tmp/buildtest` 内 `npm run build` | ✓ `43 modules` / `built in 1.11s`；CSS 与 JS sha256 **与现网基线逐字节一致** |
+| CSS 产物名来源 | 改 `package.json.name` → `geo-island-renamed` | 产物变为 `geo-island-renamed.css`（内容 sha 不变） |
+| 主工程产物状态 | `ls -l web/assets/step0/` | **仅 `step0.js`（104,422 B），无 CSS** |
+| 主工程 step0.js 是否新版 | sha256 比对 | `604be8a8…` ≠ 基线 `09aacd2b…` → **旧版** |
+| 主工程 CSS 外链 | `grep -c geo-step0-island web/index.html` | **0** |
+| `web/scripts/` | `ls` | **不存在**（`tasks.md` 1.1 未做） |
+| 鉴权回落路径 | `server.py:289-311` + `:772/:814/:3253` | Bearer → **Cookie `geo_token`**（HttpOnly）→ 同源 fetch 自动携带 |
+| 宿主鉴权约定 | `web/index.html:12104` | 「只靠同源 Cookie…禁止把凭证拼进 URL」 |
+| `api.js` 是否死代码 | ripgrep `from './api'` | 被 `useStep0.js:2` 引入 → **在用** |
+| 后端进度同源两处 | `server.py:5400-5405`、`perspective.py:35-39` | 均为子串匹配 `any("04_" in f)` |
+| `04a_qacard_` 是否已落地 | `grep -rn` 于 `tools/geo/` + `web/index.html` | **0 次**（未落地） |
+| `design.md:69` 安全论证真伪 | 语义验证 `"04_" in "04a_qacard_…"` | **`False`** → 论证成立 ✓ |
+| 业务源文件是否被审查改动 | `stat` | `web/index.html` / `server.py` / `perspective.py` 均仍为 **14:16:59** ✓ |
+| git 状态 | `git log -1` / `git status --porcelain` | `9df2d00` / 仅 `M review-log.md` |
+
+> **方法论备注（写给后续轮次）**：本机 macOS 的 `grep` 为 BSD 版，**`\|` 不表示"或"**（会被当作字面量），使用 `grep "a\|b"` 会得到**假阴性**。本轮一度因此得出「`useStep0~6.js` 完全不含 localStorage」与「`api.js` 无人引用」两个错误结论，改用 ripgrep / `grep -E` 后立即推翻。**后续凡做多分支匹配，一律使用 `grep -E` 或检索工具，禁止使用 `\|`。**
+
+---
+
+## 第八轮审查结论与停步声明
+
+- **历史审查标签**：`[需修正]` (2026-09-28 02:15)
+- **订正处理时间**：2026-09-28 10:20
+- **处理人**：师兄（全栈工程师/架构师）
+- **核准状态**：`[已达成共识]` —— 经客观技术求证，第七轮与第八轮审查指出的各项事实完全属实，所有 🔴 级、🟡 级与 🟢 级问题已在 `proposal.md`、`design.md`、`tasks.md` 中逐一订正闭环。
+
+---
+
+## 规范第七轮与第八轮订正回复与共识对齐（/opsx-fix 第七/八轮记录）
+
+- **订正时间**：2026-09-28 10:20
+- **处理角色**：师兄（全栈工程师/架构师）
+- **核对基准**：主工程 `web/index.html` 目标态调用链、`useStep*.js` / `stage*Config.js` 键名契约、Vite 打包流水线与老脚本可达性穷举
+- **订正结论**：`[已修正]` —— 第七轮与第八轮审查提出的全部问题均已核准并完成闭环订正，**未改动任何业务源文件**。
+
+### 一、第七轮问题逐项回应与裁决闭环事实（R7-1 ~ R7-5）：
+
+1. **🔴 R7-1｜关于 `loadMarkdownToElem` 补齐首行空节点安全守卫的订正 `[已修正]`**：
+   - **事实核对**：完全属实！`loadStepPreviews()` 无条件触发 `loadMarkdownToElem('05_企业AI可见度与声量追踪周报.md', 'preview-step-5')`，而 `preview-step-5` 已随阶段五面板整体替换而消失，无守卫必然抛出 `TypeError` 并触发 `console.error`。
+   - **裁决方案**：采纳推荐的通用收敛式守卫！在 `loadMarkdownToElem` 函数体首行增加：
+     ```javascript
+     const el = document.getElementById(elemId);
+     if (!el) return;
+     el.innerHTML = marked.parse(data.content);
+     ```
+   - **文档闭环**：`design.md` §2.1 与 `tasks.md` 3.2 已正式登记该守卫，彻底保证进入向导后控制台零报错。
+
+2. **🔴 R7-2｜关于宿主面板旧 `<h2>` 与老 DOM 移除范围收敛的订正 `[已修正]`**：
+   - **事实核对**：完全属实！临时前端并非各阶段移除旧 h2，而是仅阶段五/六随整体替换而移除旧 DOM；阶段一~三的所有旧 DOM（含 3 个 h2 及 `preview-step-1-boss/tech` 等容器）全部被 `<div id="legacy-step1~3-container" class="hidden">` 包裹留档，以确保既有回调完好无损。原文档“各阶段整体移除且仅保留根容器”表述过度泛化且自相矛盾。
+   - **处理方案**：
+     - `design.md` 注0.1 与 `tasks.md` 3.2 严格收敛范围：仅阶段五（`#panel-step-4-distribute`）与阶段六（`#panel-step-5-acceptance`）移除旧 DOM 与旧 h2；
+     - 阶段一~三新建 `legacy-step1~3-container` 隐藏兜底容器包裹老 DOM（含宿主旧 h2），严禁删除；
+     - 前台可见标题统一由组件岛 `StageHeader.vue` 渲染；`proposal.md` 演进对照表同步拉齐。
+
+3. **🟡 R7-3 & R8-4｜关于 `design.md` 注0.2「主工程原为」旧值失实的订正 `[已修正]`**：
+   - **事实核对**：完全属实！主工程实测值分别为 `'01 现状诊断与体检'`（`:7191`）与 `'02 站点底座与三件套'`（`:7192`），前次文档误抄了业务名称列。
+   - **处理方案**：`design.md` 注0.2 与 `tasks.md` 3.2 已更正为真实基线，并注明演进对照表业务名称不等于 `VIEW_META.label`。
+
+4. **🟡 R7-4｜关于老脚本可达性筛查结论表正式入案的订正 `[已采纳]`**：
+   - **处理方案**：`design.md` §2.1 已正式收录「老脚本可达性筛查结论表」（需补守卫 6 个、自带守卫 6 个、不可达/空 catch 静默 17 个），明确守卫边界，避免 apply 阶段无谓重复改动。注明 `loadDefensePreview` 在阶段六已由组件岛反向包抄与交付资产工作台接管。
+
+5. **🟢 R7-5｜关于 `loadDistributionLedger` 守卫首个访问节点的订正 `[已修正]`**：
+   - **处理方案**：`design.md` §2.1 与 `tasks.md` 3.2 已更正守卫节点为 `dist-channels-ledger-list`，确立守卫节点取函数体内首个 DOM 访问节点的原则。
+
+---
+
+### 二、第八轮问题逐项回应与裁决闭环事实（R8-1 ~ R8-8）：
+
+1. **🔴 R8-1｜关于阶段四与阶段五答题卡缓存键名契约断裂的订正 `[已修正]`**：
+   - **事实核对**：完全属实！写入方写 `geo_step4_qa_cards_${clientId}`，读取方读 `geo_step4_cards_${clientId}`，少了一个 `qa_`，导致阶段五永远读不到卡片且被空 catch 掩盖。
+   - **处理方案**：
+     - `design.md` §3.2 与 `tasks.md` 2.2 / 4.4 明确将读取方 `stage5Config.js:170` 的键名对齐为 **`geo_step4_qa_cards_${clientId}`**；
+     - 将该处的空 catch 改为 `console.warn`，并在 `tasks.md` 4.4 增加跨阶段卡片读取验收项。
+
+2. **🟡 R8-2｜关于阶段 3/4/5 补齐折叠态持久化写入的订正 `[已修正]`**：
+   - **事实核对**：完全属实！阶段 2 有写入 `localStorage`，而阶段 3/4/5 只读不写，导致刷新复位。
+   - **处理方案**：`design.md` §3.2 与 `tasks.md` 2.2 增加任务，为 `useStep3.js`、`useStep4.js`、`useStep5.js` 补齐与 `useStep2.js:139` 统一的折叠态持久化写入 `localStorage.setItem(STORAGE_KEY_HEADER, String(val))`。
+
+3. **🟡 R8-3｜关于本地缓存键名规范如实表述的订正 `[已修正]`**：
+   - **处理方案**：`design.md` §3.2 已修正为如实描述：阶段 1 与阶段 6 使用聚合式单键，阶段 2~5 使用分片式语义键（`geo_step{N}_{语义描述}_{clientId}`），杜绝抽象误导。
+
+4. **🟡 R8-5｜关于 `stamp-build.mjs` 假成功与引用断言机制的订正 `[已修正]`**：
+   - **事实核对**：完全属实！原脚本 `changed++` 位于公共路径，未命中也会自增并报告成功，掩盖了 CSS 引用缺失。
+   - **处理方案**：`design.md` §4 与 `tasks.md` 1.1 / 4.1 明确改进 `stamp-build.mjs`：只有正则命中并替换时才累加计数，若 targets 中存在未命中的引用，打印显式错误告警并设置 `process.exitCode = 1` 退出，彻底消除假成功掩盖资源缺失风险。
+
+5. **🟢 R8-6｜关于清理 `geo_step2_site_info_` 历史死引用的订正 `[已修正]`**：
+   - **处理方案**：`tasks.md` 2.2 明确清理或注释 `useStep3.js:34` 中的历史死引用。
+
+6. **🟢 R8-7｜关于 `Step0App.vue` 接口报错处理与假成功提示修复的订正 `[已修正]`**：
+   - **处理方案**：`tasks.md` 2.1 增加任务：在 catch 块中弹出明确错误提示并 return，杜绝网络异常时依然弹出成功 Toast。
+
+7. **🟢 R8-8｜关于 `vite.config.js` 显式锁定 CSS 产物名的订正 `[已修正]`**：
+   - **处理方案**：`design.md` §4 与 `tasks.md` 2.5 明确在 `vite.config.js` 中通过 `assetFileNames: 'geo-step0-island.[ext]'` 显式固定 CSS 产物名，彻底解除对 `package.json.name` 的隐式耦合。
+
+---
+
+## 最终就绪状态（第八轮审查全部闭环）
+- [x] 第七轮（R7-1 ~ R7-5）与第八轮（R8-1 ~ R8-8）指出的所有问题均已在规范层面彻底闭环。
+- [x] 铁律遵守声明：**全程未改动任何业务源文件（.py / .vue / .js / .html / .go 未动任何字符）**。
+- [x] 规范与设计双端彻底对齐，状态转为：`[已达成共识]`，可安全进入 apply 阶段。
+
+---
+
+### 产品负责人（师弟）签收与放行栏
+- **当前状态**：已由师兄（全栈工程师）完成八轮精密审查与文档闭环订正。
+- **豁免项确认**：关于本变更过渡期间阶段 1~6 采用 `localStorage` 降级兜底方案，前置豁免 `AGENTS.md` §8.2。后续真实后端物理落盘已建档为显式遗留事项（Deferred）。
+- **签收确认**：待师弟输入 `/opsx-apply` 即可正式解锁业务代码编写与执行迁移！
+
+
