@@ -16,17 +16,19 @@
 4. **生成时间戳与版本感知**：清晰透出版本标签与时间戳。
 
 ### 第二阶段（本次 Grill-Me 迭代增量 · 待设计与编码）
-5. **共享配置与采纳互斥纯函数 (`studioArtifactConfig.js`)**：
-   - 集中定义 8 大核心工序槽位字典（阶段零 2 槽，阶段一 6 槽）与规范骨干清单，导出 `getSlotsByStage` 与 `getCoreFilesByStage`，彻底杜绝跨阶段污染；
-   - 导出 `computeAdoptResult` 纯函数，统一调度采纳升降级、版本标签剥离 `-Draft`、首版骨干留档（`_第1版`）与规范主干自动单向镜像，根除双份面条代码。
+5. **共享配置与采纳/保存互斥纯函数 (`studioArtifactConfig.js`)**：
+   - 集中定义 8 大核心工序槽位字典（阶段零 2 槽，阶段一 6 槽）与规范骨干清单，导出 `getSlotsByStage` 与 `getCoreFilesByStage`（未传 stage 安全降级为空集合并记日志，彻底杜绝白屏与跨阶段污染）；
+   - 导出 `computeAdoptResult` 纯函数，统一调度采纳升降级、版本标签剥离 `-Draft`、首版骨干留档（`_第1版`）与规范主干自动单向镜像，根除双份面条代码；
+   - 导出 `computeSaveResult` 纯函数，仅当保存当前 active 且非主干自身的生效版本时单向镜像写入规范主干，保存未采纳候选草稿不污染主干，彻底保障下游消费一致性。
 6. **存量数据无感迁移与归一化 (`migrateAndNormalizeFiles`)**：
-   - 升级首次加载时自动回填 `slotKey`，统一驼峰 `isDeleted`，为初始骨干补齐默认 `isActive`，确保老用户无感升级零故障。
+   - 升级首次加载时自动回填 `slotKey`，统一驼峰 `isDeleted`，为初始骨干补齐默认 `isActive`；
+   - 执行单槽 active 严格归一收敛（优先级：规范骨干 > 最高版本 > 其余），确保历史脏数据零故障、迁移完全幂等。
 7. **正交的只读与工作草稿打磨机制**：
-   - 仅废纸篓文件、已淘汰历史旧版、以及同槽已有更新 active 时的规范主干自动镜像强制只读；
-   - 当前生效底牌、最新生成的候选工作草稿、手动新建文件均完全可打字编辑并点击【保存文件】保存本地修改。
+   - 仅废纸篓文件、已淘汰历史旧版、以及同槽已有更新 active 时的规范主干自动镜像强制只读（由持久化标记与状态联合判定，杜绝状态漂移）；
+   - 当前生效底牌、最新生成的候选工作草稿、手动新建文件均完全可打字编辑并点击【保存文件】保存本地修改（手动新建文件作为自由草稿打磨，不参与核心槽位采纳，防止破坏交付工序）。
 8. **双重不可删除安全锁与死按钮杜绝**：
    - ① 当前生效文件不可删；② 本阶段规范骨干即便退级也终身不可删；③ 首版留档母版不可删；
-   - 仅非生效的派生草稿允许删除，左栏树精确按此条件渲染垃圾桶，无死按钮。
+   - 仅非生效的派生草稿允许删除，左栏树精确按此条件渲染垃圾桶，无死按钮；字典支持别名容错，未匹配槽位安全告警。
 9. **废纸篓草稿中栏只读查看与确定性移回**：
    - 废纸篓条目整行点击在中栏打开只读查验，顶部醒目提示废纸篓状态，右侧提供【一键恢复】按钮（使用主色紫 `var(--geo-primary, #7c5bf5)`）；
    - 恢复时移出废纸篓：若当前槽位无 active 则恢复为 active，若已有 active 则严格保持草稿，绝对守住单槽单一 active 不变量。
@@ -36,28 +38,28 @@
 
 ## Capabilities (对外能力)
 - **核心工序槽位与防重名引擎 (Slot & Anti-Collision Engine)**：标准化 8 大核心交付物工序槽位（阶段零 2 槽 + 阶段一 6 槽），按阶段严格隔离收窄，多版本递增生成零重名覆盖。
-- **主干单向自动镜像与首版留档 (Mirroring & Archive Safety)**：规范骨干终身不可删，首版自动另存为母版留档，活动文件保存自动镜像主干，保障下游消费稳固。
+- **主干单向自动镜像与首版留档 (Mirroring & Archive Safety)**：规范骨干终身不可删，首版自动另存为母版留档，活动文件保存（`computeSaveResult`）自动镜像主干，保障下游消费稳固。
 - **正交只读与候选工作草稿打磨引擎 (Orthogonal Work-Draft & ReadOnly Engine)**：新建与最新草稿自由打磨，淘汰版本与废纸篓安全只读。
 - **阶段内废纸篓只读查验与确定性回档 (Trash Read-Only Preview & Deterministic Rollback)**：中栏预览被删草稿，一键移回工作区，单槽唯一 active 不变量恒成立。
 - **编辑器双行解耦布局 (Two-Row Decoupled Header)**：操作栏与标签栏彻底分行，视觉清爽零拥挤。
 
 ## Impact (受影响的部分)
 - `GEO/web/step0-src/config/studioArtifactConfig.js`（新增）：
-  - 集中管理 8 大核心工序槽位字典、规范骨干白名单、阶段收窄器、采纳纯函数 `computeAdoptResult`、存量迁移 `migrateAndNormalizeFiles`、双重锁判定与正交只读判定；
+  - 集中管理 8 大核心工序槽位字典、规范骨干白名单、阶段收窄器、采纳纯函数 `computeAdoptResult`、保存镜像纯函数 `computeSaveResult`、恢复纯函数 `computeRestoreResult`、存量迁移 `migrateAndNormalizeFiles`、双重锁判定与正交只读判定；
 - `GEO/web/step0-src/components/studio/StudioFileTree.vue`：
   - 显式声明 `stage` prop，草稿删除垃圾桶仅对本阶段可删除草稿渲染（消灭死按钮）；
   - 废纸篓抽屉受 `props.showStatusBadge && trashFiles.length > 0` 严格门控，防污染阶段二至六；
   - 废纸篓条目支持整行点击中栏只读查验与一键恢复；
 - `GEO/web/step0-src/components/studio/StudioEditor.vue`：
-  - 显式声明 `stage` prop（必传）与 `validAdoptSlots` prop（默认空数组）；
+  - 显式声明 `stage` prop 与 `validAdoptSlots` prop（默认空数组）；
   - 顶栏重构为双行排布，操作按钮与 Tab 标签分行独立展示；
   - 正交只读判定，规范主干镜像禁止自身被点采纳，拦截只读态 Cmd+S 保存快捷键；
   - 恢复按钮严格遵循 AGENTS §3.3 视觉红线，统一引用系统主色紫；
 - `GEO/web/step0-src/stage1Config.js`：
   - 槽位字典直接由 `studioArtifactConfig.js` 派生，杜绝手工复制；
 - `GEO/web/step0-src/useStep1.js` 与 `GEO/web/step0-src/Step0App.vue`：
-  - 初始化统一执行 `migrateAndNormalizeFiles` 存量数据规整；
-  - 统一调用 `computeAdoptResult` 与 `computeRestoreResult`，彻底消灭双份面条代码；
+  - 初始化统一执行 `migrateAndNormalizeFiles` 存量数据规整与 active 收敛；
+  - 统一调用 `computeAdoptResult`、`computeSaveResult` 与 `computeRestoreResult`，彻底消灭双份面条代码；
   - 显式向子组件传入 `:stage` 与 `:valid-adopt-slots`；
 - 消费方范围核实：
-  - 全仓排查确认仅 `Step0App.vue` 与 `Step1App.vue` 使用 `StudioEditor` / `StudioFileTree`，零破坏外部业务。
+  - 全仓排查确认仅 `Step0App.vue` 与 `Step1App.vue` 使用 `StudioEditor` / `StudioFileTree`，阶段缺失时安全降级不崩溃，零破坏外部业务。

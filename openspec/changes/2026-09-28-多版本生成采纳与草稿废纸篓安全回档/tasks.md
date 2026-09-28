@@ -44,51 +44,61 @@
 
 > **迭代阶段说明**：第 1~3 节代码与冒烟已在上一轮完成并验证入库（commit `f2e1daf`）；第 4 节为本次 Grill-Me 迭代新需求，当前处于纯方案设计阶段（stage=design），本节任务全部保持 `[ ]` 未勾选，严格遵循立定停步铁律，未经 `/opsx-team-apply`（或 `/opsx-apply`）绝不提前编码。
 
-- [ ] 4.1 新建共享配置与算法模块 (`GEO/web/step0-src/config/studioArtifactConfig.js` · 解决 🔴1-🔴4, A1-A3):
-  - 集中定义 8 大核心工序槽位字典 `CANONICAL_SLOT_DICT`（阶段零 2 槽 + 阶段一 6 槽）；
-  - 导出按阶段收窄器 `getSlotsByStage` 与 `getCoreFilesByStage`（严格无全量兜底，彻底杜绝跨阶段污染）；
-  - 集中封装动态版本正则构造器 `buildSlotRegex`、版本提取防重名算法 `computeNextVersion`、双重锁删除判定 `canDeleteFile`、正交只读判定 `isReadOnlyFile`（带 `file.slotKey &&` 守卫与存在更新 active 判定）、版本号规整 `normalizeVersionTag`；
-  - 导出采纳互斥纯函数 `computeAdoptResult`（处理旧底牌退级、新底牌升级、首版母版 `_第1版` 留档、单向主干镜像）；
-  - 导出恢复纯函数 `computeRestoreResult`（无 active 恢复为 active，有 active 保持草稿，绝对守住单槽单一 active 不变量）；
-  - 导出存量数据迁移函数 `migrateAndNormalizeFiles`（回填 `slotKey`、统一驼峰 `isDeleted`、补齐骨干默认 `isActive` 与 ISO 时间戳）；
+- [ ] 4.1 新建共享配置与算法模块 (`GEO/web/step0-src/config/studioArtifactConfig.js` · 解决 🔴1-🔴5, 🟡1-🟡3, 🟢1-🟢4):
+  - 集中定义 8 大核心工序槽位字典 `CANONICAL_SLOT_DICT`（阶段零 2 槽 + 阶段一 6 槽）与别名容错表 `ALIAS_SLOT_MAP`，未匹配到槽位时显式 `console.warn` 并安全降级（解决 🔴3）；
+  - 导出按阶段收窄器 `getSlotsByStage` 与 `getCoreFilesByStage`（未传 stage 时安全降级为空集合并记日志，坚决不抛错，彻底杜绝白屏崩溃 · 解决 🔴5）；
+  - 集中封装动态版本正则构造器 `buildSlotRegex`（带 `escapeRegExp` 字符转义 · 解决 🟢1）、版本提取防重名算法 `computeNextVersion`、双重锁删除判定 `canDeleteFile`、正交只读判定 `isReadOnlyFile`（结合 `isCanonicalMirror` / `isProtectedArchive` 持久化标记位判定，彻底杜绝因草稿入废纸篓导致主干状态漂移 · 解决 🔴4）；
+  - 导出采纳互斥纯函数 `computeAdoptResult`（处理旧底牌退级、新底牌升级、首版母版 `_第1版` 留档、单向主干镜像带 `?? ''` 兜底防清空 · 解决 🟡1）；
+  - 导出活动文件保存纯函数 `computeSaveResult`（仅对当前 active 且非自身即主干的生效底牌执行单向镜像规范骨干；保存普通候选草稿严格不镜像主干 · 解决 🔴1）；
+  - 导出恢复纯函数 `computeRestoreResult`（无 active 恢复为 active，有 active 保持草稿，统一写回 `isDeleted: false`，杜绝 snake_case 回潮 · 解决 🟡2）；
+  - 导出存量数据迁移函数 `migrateAndNormalizeFiles`（回填 `slotKey`、统一驼峰 `isDeleted` 并显式解析字符串布尔值、为骨干补齐默认 `isActive`，并在迁移末尾按 `slotKey` 严格执行单槽单一 active 归一收敛 · 解决 🔴2, 🟢3）；
   - 供 Step0App、useStep1 与 StudioEditor 共同引用，彻底杜绝重复代码。
-- [ ] 4.2 改造左栏废纸篓抽屉交互与删除死按钮消除 (`GEO/web/step0-src/components/studio/StudioFileTree.vue` · 解决 🔴2, Y3, C4):
-  - 显式声明 `stage: { type: String, required: true }` prop；
+- [ ] 4.2 改造左栏废纸篓抽屉交互与删除死按钮消除 (`GEO/web/step0-src/components/studio/StudioFileTree.vue` · 解决 🔴2, 🔴3, 🔴5):
+  - 显式声明 `stage: { type: String, default: 'step1' }` prop，并做安全非空断言，杜绝未传值时组件崩溃；
   - 抽屉受 `v-if="showStatusBadge && trashFiles.length > 0"` 严格约束，彻底杜绝污染阶段二至六；
   - 草稿删除垃圾桶图标仅在 `canDeleteFile(files[fn], props.stage)` 为 `true` 时 hover 渲染，根除死按钮；
   - 废纸篓条目绑定整行点击事件 `@click="$emit('openFile', fn)"`，并在右侧保留【恢复】按钮 `@click.stop="$emit('restoreFile', fn)"`。
-- [ ] 4.3 重构中栏编辑器顶栏为双行独立架构 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴2, A4):
-  - 显式声明 `stage: { type: String, required: true }` 与 `validAdoptSlots: { type: Array, default: () => [] }` props，彻底收窄槽位；
+- [ ] 4.3 重构中栏编辑器顶栏为双行独立架构 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴4, 🔴5, 🟡8):
+  - 显式声明 `stage: { type: String, default: 'step1' }` 与 `validAdoptSlots: { type: Array, default: () => [] }` props，未传 stage 时安全降级不白屏；
   - 第一行（状态与操作工具栏）：左侧展示当前文件状态徽章（文字说明 + 主题色，无彩色 Emoji）、字数与时间戳（缺失时显示 `生成时间: 未知`）；右侧偏右对齐排布快捷功能按钮；
   - 恢复按钮严格遵循 AGENTS §3.3 视觉红线，采用系统主色紫 `var(--geo-primary, #7c5bf5)`，严禁使用红色；
   - 采纳守卫 `canAdoptCurrentFile` 兼容 `isDeleted` 与 `is_deleted`，并显式禁止规范主干自身被点采纳；
   - 第二行（Tab 标签栏）：独立一行平铺 `openTabs`，废纸篓文件标注 `[废纸篓]` 浅色标识，解决多文件拥挤。
-- [ ] 4.4 实施正交只读与候选工作草稿自由编辑打磨机制 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴1, C1):
-  - 严格依据 `isReadOnlyFile(file, files, props.stage)` 判定只读：仅废纸篓文件、已淘汰历史旧版、以及同槽位已有更新 active 时的规范主干自动镜像强制只读；
-  - 当前生效底牌、最新候选工作草稿与新建文件均完全允许打字编辑，并展示【保存文件】按钮；
+- [ ] 4.4 实施正交只读与候选工作草稿自由打磨/保存联动 (`GEO/web/step0-src/components/studio/StudioEditor.vue` · 解决 🔴1, 🔴4):
+  - 严格依据 `isReadOnlyFile(file, files, props.stage)` 判定只读：仅废纸篓文件、已淘汰历史旧版、以及具备 `isCanonicalMirror: true` 的规范主干自动镜像强制只读；
+  - 当前生效底牌、最新候选工作草稿与新建文件均完全允许打字编辑，并展示【保存文件】按钮（手动新建文件作为自由草稿，仅打磨不作为工序骨干采纳）；
+  - 点击保存时根据当前文件状态派发对应保存事件（对生效底牌联动调用 `computeSaveResult` 镜像主干，对普通草稿仅更新正文不镜像主干）；
   - 在只读态下拦截 `Ctrl+S / Cmd+S` 保存快捷键并弹出对应原因提示。
-- [ ] 4.5 改造状态胶水层与接入共享纯函数 (`Step0App.vue` & `useStep1.js` · 解决 🔴1-🔴4, C2, C3):
-  - 初始化加载 localStorage 数据时统一接入 `migrateAndNormalizeFiles`，实现存量数据无感迁移；
-  - 采纳统一调用 `computeAdoptResult`，由共享算法完成降级、升级、留档与主干单向镜像，同步更新快照；
-  - 恢复统一调用 `computeRestoreResult`，守住单槽单一 active；
+- [ ] 4.5 改造状态胶水层与接入共享纯函数 (`Step0App.vue` & `useStep1.js` · 解决 🔴1, 🔴2, 🔴3, 🟡5, 🟡9):
+  - 运行前全仓核对阶段零（2个）与阶段一（6个）真实生成文件名与 `CANONICAL_SLOT_DICT` 严格全等，不一致处配置别名容错，杜绝保护静默失效（解决 🔴3）；
+  - 初始化加载 localStorage 数据时统一接入 `migrateAndNormalizeFiles`，实现存量数据无感迁移与单槽 active 收敛；
+  - 采纳统一调用 `computeAdoptResult`，由共享算法完成降级、升级、留档与主干单向镜像，同步更新活跃快照；
+  - 保存文件统一调用 `computeSaveResult`，生效版本保存时自动单向同步镜像规范主干，同步更新活跃快照；
+  - 恢复统一调用 `computeRestoreResult`，守住单槽单一 active 并同步快照；
   - 规范骨干退级后徽章明确显示为【规范主干 · 自动镜像】，隐藏保存按钮，仅由程序单向镜像写入；
   - `Step0App.vue` 与 `Step1App.vue` 向子组件显式传入 `:stage` 与 `:valid-adopt-slots`，且 Step0App 显式传入 `:show-status-badge="true"`。
-- [ ] 4.6 跨端构建与全量自动化断言冒烟验证（NE1 服务器执行 · 解决 🔴1, 🔴3, C5）:
+- [ ] 4.6 跨端构建与全量自动化断言冒烟验证（NE1 服务器执行 · 解决 🔴1-🔴4, 🟡1, 🟡2, 🟡6, 🟡7）:
   - 严格在 NE1 服务器执行 `npm run build:step0` 与 `npm run smoke:step0`（确保 4/4 项全部 PASS）；
+  - 测试装载方式采用独立 node 脚本直接 import `studioArtifactConfig.js` 纯函数，支持注入确定性 `now` 时间戳参数（保证冒烟可复现 · 解决 🟡6, 🟡7）；
   - 针对以下 10 项关键断言进行全量回归自检：
     - 断言 1（正则防误读）：文件名 `01_网络底座指标_待对照.md` 的前缀 `01_` 不被误读为版本 1；
     - 断言 2（废纸篓参与计数）：生成 `第2版` 删入废纸篓后，再次生成新文件确定递增为 `第3版`；
     - 断言 3（标签规整）：采纳后文件 `versionTag` 确定无 `-Draft` 后缀；
     - 断言 4（双重锁防误删与无死按钮）：规范骨干无论是否生效均不可删、无垃圾桶；首版留档 `_第1版` 同样不可删；
     - 断言 5（单槽单一 active）：采纳后同 slotKey 其他文件 `isActive` 严格为 `false`；
-    - 断言 6（骨干单向自动镜像等价）：采纳新版或编辑保存生效文件后，规范骨干 content 与生效版本 content 100% 一致；
+    - 断言 6（骨干单向自动镜像等价 · 🔴1 固化）：采纳新版或通过 `computeSaveResult` 编辑保存生效底牌后，规范骨干 content 与生效版本 content 100% 一致；保存未采纳草稿严格不镜像规范骨干；
     - 断言 7（工作草稿打磨自由）：新抓取派生的候选草稿与新建文件 `:readonly` 严格为 `false`，完全可编辑保存；
-    - 断言 8（规范骨干存在更新 active 时强制只读 · 🔴1 固化）：同槽采纳第 2 版后，规范骨干 `isReadOnlyFile === true`，徽章为镜像主干；未采纳新版时骨干可编辑；
-    - 断言 9（恢复后单槽 active 严格唯一 · 🔴3 固化）：从废纸篓恢复任何文件后，同 slotKey 下 active 文件数始终严格为 1；
-    - 断言 10（存量旧数据无感迁移 · 🔴4 固化）：带 snake_case `is_deleted` 与无 `slotKey` 的老数据载入后，自动补齐 `slotKey`，骨干具备 `isActive: true`，且完全可正常编辑与采纳。
-- [ ] 4.7 浏览器真机验收（NE1 8088 端口 · 人工验收项，AI 不得代勾）：
+    - 断言 8（规范骨干持久化标记与正交只读 · 🔴4 固化）：同槽采纳第 2 版后，规范骨干打上 `isCanonicalMirror: true` 标记且强制只读；即便第 2 版删入废纸篓，镜像骨干与首版母版依旧强制只读，状态绝不漂移；
+    - 断言 9（恢复后单槽 active 严格唯一 · 🔴2 固化）：从废纸篓恢复任何文件后，同 slotKey 下 active 文件数始终严格为 1（无 active 恢复为 active，有 active 恢复为草稿）；
+    - 断言 10（存量旧数据迁移收敛与幂等性 · 🔴2, 🔴3 固化）：带多 active 脏数据、带 snake_case `is_deleted` 与无 `slotKey` 的老数据载入后，自动补齐 `slotKey`，单槽 active 严格收敛为 1 个，且连续迁移多次结果完全幂等一致。
+- [ ] 4.7 管理端文案与操作反馈合规自检（按 AGENTS §3.3 / §3.5 执行 · 解决 🟡8, 🟢5, 🟢6）:
+  - 检查所有新增 UI 文案与徽章：严格 0 彩色 Emoji 表情；
+  - 检查操作颜色语义：恢复按钮使用系统主色紫，禁止使用危险红色；提示信息四色语义准确；
+  - 核查文案符合 V-W-W-H 简洁易懂标准（五年级小学生可懂）。
+- [ ] 4.8 浏览器真机验收（NE1 8088 端口 · 人工验收留白项，AI 不得代勾）：
   - 验证废纸篓文件在中栏成功打开只读预览，第二行 Tab 出现 `[废纸篓]` 标识；
   - 验证第一行右侧展示紫色【一键恢复此文件】按钮，且编辑器不可打字、Cmd+S 会提示拦截；
   - 验证新抓取的 `第2版` 草稿可以正常打字编辑、修改并点击【保存文件】保存；
   - 验证点击【设为客户采纳】后，规范骨干自动同步最新内容，状态显示为自动镜像且只读不可直接覆盖保存；
   - 验证阶段零与阶段一均只展示各自阶段槽位，无跨阶段污染，双行顶栏展示清爽。
+
