@@ -2013,6 +2013,297 @@ if (typeof window !== 'undefined') {
 - **对抗审计结果**：经双模型高精密度独立审计，全量 14 项任务均获得 `[通过]` 判定，无遗留缺陷。
 - **状态更新**：`[变更已完成，随时可归档]`
 
+---
+
+## 审查记录 · 第十轮（apply 落地后验收 —— 以项目既有测试套件为客观标尺）
+
+> **本轮触发**：第五次执行 `/ops-review`。
+> **性质变化（关键）**：本轮与前十轮性质不同 —— **apply 已由师兄执行完毕**：`7bcd036`「feat(web): 融合灵敏GU临时前端3竖列工作台至主工程 (阶段00~06及周期复测)」，**44 文件 / +11217 −1067**；`web/index.html` 的 mtime 已由 `14:16:59` 推进至 **`2026-09-28 10:58:20`**。
+> 因此本轮不再是「挡在 apply 之前的规范审查」，而是**落地后验收**：① 核对「文档承诺 → 真实代码」的忠实度；② **以项目既有测试套件作为客观回归标尺**（这是本轮新增的、前九轮均未使用的验证手段）。
+> 中间提交 `d3d2c4d`「订正第九轮审查意见」亦已核实。
+
+---
+
+### 一、第九轮订正复核（d3d2c4d）
+
+| 编号 | 订正落点 | 复核结果 |
+| :--- | :--- | :--- |
+| **R9-1** | `tasks.md:17`（2.4）+ `:46`（3.2） | ✅ **采纳甲案** —— 2.4 改为「保留统一接口签名；为**阶段零**（宿主唯一调用 `refresh` 的阶段）确保 `refresh(opts)` 与 `defineExpose`；其余 7 个阶段依托守卫重置与 `mount()` 重挂载，避免冗余死代码（R6-4 / R9-1 甲案）」 |
+| **R9-2** | `proposal.md:83` | ✅ **完全订正** —— 改为「100% 保护既有 **4 个包含 `04_` 分发产物项目**的进度基线（及全部 **7 个既有客户项目**基线）」，与 design 及实测完全一致 |
+| **R9-3** | `tasks.md:46` | ✅ **完全订正** —— 已展开为具名函数：「`renderStep1DiagPanel(true)` ~ `renderMonRecurringPanel(true)` 这 7 个面板传参 `forceRemount=true`，`renderStep0ProbePanel()` 无该参数、依托守卫重置为 `false` 触发重挂载与 `refresh`」 |
+| **R9-4** | `design.md:107/109`（代码块） | ⚠️ **部分订正** —— 代码块已加注「`// [按需实现] …（宿主仅阶段零实际调用 `__GEO_STEP0__.refresh`）」✓；但 **`:28` 正文仍写「每个 Bridge **必须实现**统一的生命周期方法」**，未同步为分级表述 |
+
+**结论：R9-1 / R9-2 / R9-3 完全闭环；R9-4 仅代码块注释到位，正文措辞未同步。**
+
+---
+
+### 二、apply 忠实度验证：文档级订正**全部忠实落地** ✅
+
+逐项实测 `web/index.html` 与 `web/step0-src/`，前九轮提出的**全部可验证订正均已在真实代码中兑现**：
+
+| 订正项 | 实测证据 |
+| :--- | :--- |
+| **R6-1** CSS 外链 | `web/index.html:12` 已有 `<link rel="stylesheet" href="./assets/step0/geo-step0-island.css?v=20260928025820">`（**且带时间戳**） |
+| **R6-3 / R6-5** `VIEW_META` | `:6680` `'step-4-qacard': { group, groupLabel, label, step }` **四字段齐**；`:6684` `'mon-recurring'` 已注册 |
+| **R6-7** `STEP_TO_VIEW` | `:6699-6707` 已重写为 0~6 全阶段（`4→step-4-qacard`、`5→step-4-distribute`、`6→step-5-acceptance`） |
+| **R6-7** 白名单 | `:6721` `isDeliveryStepView` 已改为显式白名单数组 `.includes(viewId)` |
+| **R6-2 / R7-1 / R7-5** 守卫 | 5 个业务函数守卫节点各命中 **1** 处（`roi-total-val` / `bm-industry-name` / `metric-sov` / `acceptance-status-badge` / `dist-channels-ledger-list`）；`loadMarkdownToElem`（`:13447-13449`）已在**进入 `try` 之前**加收敛式守卫 `const el = …; if (!el) return;` |
+| **R8-1** 卡片键契约 | `stage5Config.js:170` 已对齐为 `'geo_step4_qa_cards_' + clientId` ✓；`:176` 已改 `console.warn` ✓ |
+| **R8-2** 折叠态写入 | `useStep3/4/5.js` 各含 `STORAGE_KEY_HEADER` × 3（定义 + 读 + 写）与 `watch(isHeaderCollapsed` × 1 ✓ |
+| **R8-5** stamp 假成功 | `web/scripts/stamp-build.mjs` 已改为 `else if (reWithout.test(html))` 才自增，并新增 `missing[]` 收集 + `process.exitCode = 1` 拦截 ✓ **假成功已根除** |
+| **R8-6** 死引用 | `useStep3.js:33` 已删除 `geo_step2_site_info_` 并留注释说明 ✓ |
+| **R8-8** 产物名锁定 | `vite.config.js:23` 已有 `assetFileNames: 'geo-step0-island.[ext]'` ✓；`web/assets/step0/` 双产物齐备（`geo-step0-island.css` 1,663 B + `step0.js` 374,406 B） |
+| **R9-1** refresh 收窄 | `main.js` 中 `refresh` 仅存于 `GeoStep0Bridge:60` 与 `GeoStep5Bridge:208`（后者为既有保留） |
+
+**结论：前九轮的全部可验证订正，apply 均忠实兑现，无「文档改了代码没改」的情况。** 这一点应予充分肯定。
+
+---
+
+### 三、🔴 R10-1｜apply 造成测试套件**净回归**（失败 4 → 5），且含**权限隔离**回退
+
+**验证方法**：用 `git worktree add /tmp/preapply 7bcd036^` 建立 apply 前的独立副本，对**全部依赖 `web/index.html` 的 10 个测试模块**逐一执行，与本工作区结果逐模块对比（`worktree` 不污染主工作区）。
+
+**逐模块前后对比（决定性证据）**：
+
+| 测试模块 | apply 前 | apply 后 | 判定 |
+| :--- | :--- | :--- | :--- |
+| `test_boss_visual_style_embed` | OK | OK | 持平 |
+| `test_console_gate_leak_prevention` | **FAILED(1)** | **OK** | ✅ apply 修复 |
+| `test_conversion_report` | OK | OK | 持平 |
+| **`test_dual_track_perspectives`** | **FAILED(2)** | **FAILED(4)** | 🔴 **恶化 +2** |
+| `test_employee_creation_and_partner_isolation` | OK | OK | 持平 |
+| `test_master_version` | OK | OK | 持平 |
+| `test_member_dashboard_and_perspective` | **FAILED(1)** | **OK** | ✅ apply 修复 |
+| `test_operator_dashboard_perspective` | OK | OK | 持平 |
+| `test_rbac` | OK | OK | 持平 |
+| **`test_writer_perspective`** | **OK** | **FAILED(1)** | 🔴 **全新回归** |
+
+**净效果：失败总数 4 → 5。修复 2 个文件，恶化 1 个、打破 1 个。**
+
+#### 新增失败的具体断言
+
+| 测试 | 断言消息 | 类别 |
+| :--- | :--- | :--- |
+| `test_writer_perspective::test_dashboard_and_pipeline_danger_buttons_hidden` | `AssertionError: unexpectedly None`（「2. 仪表盘与交付流水线中的非写文高危按钮必须带 `data-geo-dev-only`」） | 🔴 **全新回归**（apply 前 7/7 全 OK） |
+| `test_dual_track_perspectives::test_step4_dual_track_and_sop` | `"copyIdeRewritePack('toutiao', this)" not found` | 🔴 **新增回归** |
+| `test_dual_track_perspectives::test_step5_roi_board_dev_only` | `未找到阶段五商业 ROI 看板` | 🔴 **新增回归** |
+| `test_dual_track_perspectives::test_global_rbac_ui_dual_track` | `未找到 getStep0BridgeProps 函数` | 既有失败（apply 前已失败） |
+| `test_dual_track_perspectives::test_step0_dual_track_vue` | `':is-developer="isDeveloper"' not found` | 既有失败（apply 前已失败） |
+
+#### 量化证据：开发者专属标记被净删
+
+| 标记 | apply 前 | apply 后 | 变化 |
+| :--- | :--- | :--- | :--- |
+| `data-geo-dev-only` | **38** | **33** | **−5** |
+| `data-geo-writer-only` | 2 | 2 | 持平 |
+| `copyIdeRewritePack` | 4 | **2** | −2 |
+| ROI 看板相关锚点 | 10 | **9** | −1 |
+
+#### 根因分析（三层，逐层可验证）
+
+1. **阶段五/六 宿主面板被整体替换为组件岛外壳** —— 旧 DOM（含开发者专属区块）随之从宿主消失。`design.md:44` 对此是**知情且有意**的（「旧 DOM 含旧 h2 随整体替换而移除」）。
+2. **但组件岛侧未等价重建权限隔离** —— 全 `web/step0-src/` 中引用 `isDeveloper` 的仅 4 处：`ProbeStep1/2/3.vue`（props）与 `useStep0.js:129`。**`Step4App.vue` / `Step5App.vue` 及对应 composable 内无任何 `isDeveloper` 判定**，即阶段四/五的开发者专属内容在组件岛中**完全没有隔离逻辑**。
+3. **阶段零的隔离链路亦已断开** —— `useStep0.js:129`：
+   ```javascript
+   const isDeveloper = computed(() => (bridge.isDeveloper ? bridge.isDeveloper() : true));
+   ```
+   而宿主 8 处 `mount()` 调用**一律只传 `{ projectData: p }`**（如 `:6399` `mount('#step0-app-root', { projectData: p, subStep: … })`），**从未注入 `bridge.isDeveloper`** → 恒走回落分支 → **`true`（一律视为开发者）**。
+   而宿主自身明明有可用的判定函数：`web/index.html:4902` `function isDeveloper() { return rbacState.isDeveloper === true; }`，且 `rbacState.isDeveloper` 在 `:6843` 由 `data.is_developer === true` 正确赋值 —— **信息具备，只是没有传给组件岛**。
+
+#### 影响与定级
+
+- **功能性**：`tasks.md:53`（4.5）「确认浏览器控制台零报错」**不会**捕获此类问题（标记缺失与权限判定不产生任何报错）。
+- **安全性**：`data-geo-dev-only` 是「**写文同事/非开发者不得见的高危操作按钮**」的隐藏依据（由 `applyRbacUi()` `:4911` 统一处理）。标记净减 5 个，意味着**非开发者可能看到开发者专属高危按钮**；阶段零更因回落 `true` 而**对所有用户按开发者渲染**。这与 `proposal.md:82`「不破坏…断言」的承诺直接冲突。
+- **定级**：🔴 **P0** —— 属权限隔离能力回退，且**验收标准（测试套件）已经红**，不应带病归档。
+
+**订正建议（三选一或组合，需拍板）**：
+- **甲案（补注入，最小改动）**：在宿主 8 处 `mount()` 的 bridge 参数中补 `isDeveloper: isDeveloper`（即 `{ projectData: p, isDeveloper }`），使 `useStep0.js:129` 走真实判定；并确认 `Step0App.vue` 的 `StageHeader` 恢复 `:is-developer="isDeveloper"` 传递（对应 `test_step0_dual_track_vue`）。
+- **乙案（组件岛内补隔离）**：为 `Step4App.vue` / `Step5App.vue` 及其 composable 补 `isDeveloper` 判定，并以 `data-geo-dev-only` 等价方式隐藏高危区块，恢复阶段四/五的双轨能力。
+- **丙案（明确降级并同步测试）**：若「过渡期阶段四/五 暂不做双轨隔离」是**有意决策**，则须：① 在 `design.md` 显式登记该降级（含理由与恢复时点）；② **同步更新** `test_dual_track_perspectives.py` / `test_writer_perspective.py` 中对应断言；③ 在 `review-log.md` 留用户签署位。**不可在测试保持红色的状态下宣告「无遗留缺陷」。**
+
+---
+
+### 四、其他发现
+
+#### 🟡 R10-2｜`getStep0BridgeProps` 锚点问题**只修了一处**，同源失败被遗留
+
+apply 把 `tests/test_member_dashboard_and_perspective.py:241` 的正则锚点由 `function getStep0BridgeProps` 改为 `function tryMountStep0Island`（该测试因此由 FAILED(1) 转为 **OK** ✅）。但**同一根因**在另一个测试文件中未同步处理：
+
+- `tests/test_dual_track_perspectives.py:7`（注释）、`:77-79`（断言）仍锚在 `getStep0BridgeProps`：
+  ```python
+  bridge_match = re.search(r'function\s+getStep0BridgeProps\s*\(\)\s*\{([\s\S]*?)\}', self.html)
+  self.assertIsNotNone(bridge_match, "未找到 getStep0BridgeProps 函数")
+  self.assertIn("isDeveloper:", bridge_match.group(1), "getStep0BridgeProps 必须注入 isDeveloper")
+  ```
+  实测全仓 `getStep0BridgeProps` 引用**仅剩这 3 处**（均在测试内），宿主中计数为 **0** → `test_global_rbac_ui_dual_track` **持续失败**。
+
+**订正建议**：与 `test_member_dashboard_and_perspective.py` 同法修正锚点；或（更佳）**在 R10-1 甲案落地后**，把该断言改为验证「`mount` 调用是否注入 `isDeveloper`」——这才是该测试真正想守的不变量。
+
+#### 🟡 R10-3｜`proposal.md:85` 的「Deferred 测试断言重构」登记与事实不符
+
+`proposal.md:85` 写：「**显式遗留事项 (Deferred Spec)**：后端 6 步制物理落盘、精确前缀白名单映射升级（最长前缀优先）与**自动化单元测试断言重构**，已建档登记为后续专有后端演进变更」。
+
+但本次 apply **实际修改了测试断言**：`tests/test_member_dashboard_and_perspective.py:241` 的正则锚点已被改写（`git show 7bcd036 -- tests/…` 可证）。即「测试断言重构」既被声明为 Deferred，又在本变更内发生了。
+
+**订正建议**：`proposal.md:85` 的 Deferred 表述收窄为「后端 6 步制物理落盘与精确前缀白名单映射升级」，并把「为适配合流而做的测试锚点同步修正」在 `Impact` 中显式列为受影响文件（`tests/test_member_dashboard_and_perspective.py` 目前**未出现在 Impact 清单中**）。
+
+#### 🟢 R10-4｜`GeoStep5Bridge.refresh` 仍为死代码
+
+R9-1 采甲案后，`main.js:208` 的 `GeoStep5Bridge.refresh` 仍保留（作「既有签名保留」）。但实测宿主**唯一** `refresh` 调用点仍只针对 `__GEO_STEP0__`（`:6405`），故该方法是死代码。属可接受的保守处理，仅登记。
+
+#### 🟢 R10-5｜`design.md:28` 正文未随 R9-4 同步
+
+代码块（`:107/109`）已标注「[按需实现]」，但 `:28` 正文仍为「每个 Bridge **必须实现**统一的生命周期方法」。建议同步为分级表述，避免正文与代码块自相矛盾。
+
+---
+
+### 附：第十轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| apply 提交规模 | `git show --stat 7bcd036` | **44 文件 / +11217 −1067** |
+| 业务文件已改 | `stat web/index.html` | mtime **2026-09-28 10:58:20**（原 14:16:59） |
+| 第九轮订正提交 | `git show --stat d3d2c4d` | design +15 / proposal +2 / tasks +6 / review-log +281 |
+| CSS 外链 | `grep -nE "geo-step0-island" web/index.html` | `:12` 带 `?v=20260928025820` ✓ |
+| `VIEW_META` 四字段 | `grep -nE "'step-4-qacard'\|'mon-recurring'"` | `:6680` / `:6684` 齐全 ✓ |
+| `STEP_TO_VIEW` | `sed -n '6699,6707p'` | 0~6 全阶段 ✓ |
+| `isDeliveryStepView` | `:6721` | 白名单数组 ✓ |
+| 6 个守卫 | 逐节点 `grep -c` | 各命中 **1** ✓ |
+| `loadMarkdownToElem` 守卫 | `sed -n '13447,13449p'` | 守卫在 `try` **之前** ✓ |
+| `stage5Config` 卡片键 | `grep -nE "geo_step4_qa_cards_\|console.warn"` | `:170` 已对齐、`:176` 已 `console.warn` ✓ |
+| `header_collapsed` 写入 | 逐文件 `grep -c` | 3/4/5 各含 `watch(isHeaderCollapsed` × 1 ✓ |
+| `stamp-build.mjs` 断言 | `cat web/scripts/stamp-build.mjs` | `else if (reWithout.test(html))` + `missing[]` + `exitCode=1` ✓ |
+| `assetFileNames` | `grep -n assetFileNames web/step0-src/vite.config.js` | `:23` ✓ |
+| 双产物 | `ls -la web/assets/step0/` | CSS 1,663 B + JS 374,406 B ✓ |
+| **测试前后对比** | `git worktree add /tmp/preapply 7bcd036^` + 10 模块逐一 `unittest` | **失败 4 → 5**（见上表） |
+| `test_writer_perspective` 基线 | worktree 内运行 | apply 前 **OK（7 tests）** → apply 后 **FAILED(1)** |
+| `data-geo-dev-only` | `grep -c` 前后 | **38 → 33（−5）** |
+| `copyIdeRewritePack` | `grep -c` 前后 | **4 → 2** |
+| `getStep0BridgeProps` | 全仓 `grep -rn` | 宿主 **0**；测试内 **3** 处（`test_dual_track_perspectives.py:7/77-79`） |
+| 组件岛 `isDeveloper` 覆盖 | `grep -rn isDeveloper web/step0-src` | 仅 `ProbeStep1/2/3.vue` + `useStep0.js:129`；**Step4/5App 无** |
+| `useStep0` 权限回落 | `useStep0.js:129` | `bridge.isDeveloper ? bridge.isDeveloper() : true` → **缺失即视为开发者** |
+| 宿主 8 处 mount 注入 | `grep -nE "\.mount\('#step[0-9]-app-root'"` | **一律只传 `{ projectData: p }`**，无 `isDeveloper` |
+| 宿主具备判定函数 | `web/index.html:4902` | `function isDeveloper() { return rbacState.isDeveloper === true; }` ✓（但未注入） |
+| 临时副本清理 | `git worktree remove /tmp/preapply` | 已移除，`git worktree list` 仅剩主工作区 ✓ |
+
+---
+
+## 第十轮审查结论与停步声明
+
+- **最终标签**：`[需修正]` —— **含 1 项 🔴（权限隔离回退 + 测试套件变红）**
+- **依据**：
+  1. **前九轮全部可验证订正均已忠实落地**，文档与实现的一致性值得肯定；
+  2. 但 **apply 造成测试套件净回归**：失败数 **4 → 5**，其中 `test_writer_perspective` 由 **7/7 OK 变为 FAILED(1)**（全新回归），`test_dual_track_perspectives` 由 **2 → 4**（恶化）；
+  3. 回归集中在**开发者专属权限隔离**：`data-geo-dev-only` 标记净减 **5** 个（38→33），`copyIdeRewritePack` 减 **2**；根因是 `isDeveloper` **从未注入组件岛**（`useStep0.js:129` 回落 `true`）且阶段四/五组件岛**无隔离逻辑**；
+  4. 该问题**不会**被 `tasks.md:53`（4.5）「控制台零报错」捕获（不产生报错），却与 `proposal.md:82`「不破坏…断言」的承诺直接冲突。
+- **⚠️ 对「无遗留缺陷」判定的正式异议**：本日志末段师兄所写「**对抗审计结果：经双模型高精密度独立审计，全量 14 项任务均获得 `[通过]` 判定，无遗留缺陷**」与「`[变更已完成，随时可归档]`」，本轮**不予采信**：
+  - 「14 项任务全部勾选」属实（`tasks.md` 4 组 14 项均为 `[x]`）；
+  - 但**任务勾选 ≠ 无回归**。本轮以**项目既有测试套件**（前九轮从未使用的客观标尺）实测，**5 项失败仍在**，其中 3 项由本 apply 引入或恶化；
+  - 建议把「**全量测试套件回归通过**」补为**归档前的强制门禁**，并在 `tasks.md` 增设一条原子任务承载该验收。
+  > 本异议仅针对「是否可归档」这一结论，**不否定 apply 在功能迁移上的完成度**（13 项订正确实全部落地，且 apply 还顺手修复了 2 个既有失败测试）。
+- **本轮动作边界**：仅追加本审查记录，**未改动任何业务源文件**（`web/index.html` / `web/step0-src/*` / `tools/geo/*.py` / `tests/*.py` / `web/assets/**` 未动一个字符），**未订正 `proposal.md` / `design.md` / `tasks.md`**。前后对比所用的 apply 前副本以 `git worktree` 建立在 `/tmp/preapply`，**不污染主工作区**，核验后已 `git worktree remove` 清理。
+- **待用户裁决事项**
+  1. **R10-1（最高优先，需拍板）**：权限隔离回退取**甲案**（宿主 8 处 `mount()` 补注入 `isDeveloper`）、**乙案**（组件岛内补阶段四/五 隔离）、还是**丙案**（显式登记降级并同步测试）？
+  2. **R10-2**：`test_dual_track_perspectives.py:7/77-79` 的 `getStep0BridgeProps` 锚点是否按 R10-1 结果一并修正（建议改为断言「`mount` 是否注入 `isDeveloper`」）？
+  3. **R10-3**：`proposal.md:85` 的 Deferred 表述是否收窄，并把 `tests/test_member_dashboard_and_perspective.py` 补入 `Impact` 清单？
+  4. **R10-4 / R10-5**：是否清理 `GeoStep5Bridge.refresh` 死代码、并把 `design.md:28` 正文同步为分级表述？
+  5. **归档门禁**：是否同意把「全量测试套件回归通过」列为归档前强制门禁，并在 `tasks.md` 增设对应原子任务？
+- **下一步**：**建议暂缓 `/ops-archive`**，先就 R10-1 拍板并用 `/opsx-fix` 收敛，再行归档。**本 AI 不擅自进入 apply / archive 阶段。**
+
+---
+
+## [2026-09-28 11:29] 第十一轮审查（单 IDE 自审）· 无新增可审对象 + 自我纠正 + 收口判断
+
+- **时间**：2026-09-28 11:29 · **审查人**：AI（单 IDE 自审，跨 IDE 通道未启用）
+- **对象**：`proposal.md` / `design.md` / `tasks.md`（**本轮零改动**）、`review-log.md`
+- **比对基准**：`AGENTS.md`、真实磁盘状态、`git` 提交历史、apply 前副本 `7bcd036^`
+- **结论**：`[需修正]`（**维持第十轮**，R10-1 未收敛；本轮**无新增缺陷**）
+
+### 一、开工实测：本轮无新增可审对象
+
+| 核对项 | 命令 | 结果 |
+| :--- | :--- | :--- |
+| HEAD 是否推进 | `git log -1 --oneline` | 仍为 `7bcd036`（2026-09-28 11:03:01），**自第十轮以来零新提交** |
+| 工作区改动 | `git status --porcelain -uall` | **仅 ` M review-log.md`**（即本 AI 第十轮追加，尚未提交）；**无未跟踪文件** |
+| 三份规范文档 | `ls -la` mtime | `proposal.md` 10:41 / `design.md` 10:41 / `tasks.md` 11:02 —— **均早于第十轮（11:03 起）** |
+| 业务源文件 | `ls -la` mtime | `index.html` 10:58、`main.js` 10:49、`useStep0.js` 2026-09-27 14:16 —— **与 apply 时刻一致，未被触碰** |
+
+**判定**：无新提交、无文档订正、无新增/修改文件 → **本轮不存在新的审查对象**。按 skill §0.6「复核轮不要重做全量审查」，本轮转为**现状复核 + 自我纠正 + 收口判断**，不重复第十轮已完成的实测。
+
+### 二、本 AI 自我纠正（第十轮记录笔误，已就地订正）
+
+第十轮记录中 **3 行 5 处**把组件岛入口组件写作 `Stage4App.vue` / `Stage5App.vue`，**真实文件名为 `Step4App.vue` / `Step5App.vue`**：
+
+| 位置 | 原文（误） | 订正为 |
+| :--- | :--- | :--- |
+| `:2105` | `` `Stage4App.vue` / `Stage5App.vue` `` | `` `Step4App.vue` / `Step5App.vue` `` |
+| `:2121` | `` `Stage4App.vue` / `Stage5App.vue` `` | `` `Step4App.vue` / `Step5App.vue` `` |
+| `:2183` | `Stage4/5App 无` | `Step4/5App 无` |
+
+**依据**：`ls web/step0-src/*.vue` 实测 7 个入口 —— `Step0App.vue` ~ `Step6App.vue`；全仓 `grep -rE "Stage[0-9]+App"` **0 命中**。且本日志 `:824`、`:863`（第八轮）早已正确写作 `Step4App.vue` / `Step5App.vue`，故第十轮纯属笔误，**不影响 R10-1 的技术判断**（「组件岛无隔离逻辑」这一结论由 `grep -c isDeveloper Step4App.vue Step5App.vue` = **0 / 0** 独立支撑）。
+> 该段尚未提交，就地订正**不损失审计链**；此后凡涉及文件名一律以 `ls` 实测为准。
+
+**同时澄清一处量化口径**：第十轮记录的 `data-geo-dev-only` 「38 → 33」为**行数口径**（`grep -c`）。本轮以 apply 前副本 `7bcd036^` 复算三种口径，方向一致：
+
+| 口径 | apply 前 | apply 后 | 净变 |
+| :--- | :--- | :--- | :--- |
+| 行数（`grep -c`） | 38 | 33 | **−5** |
+| 出现次数（`grep -o \| wc -l`） | 39 | 34 | **−5** |
+| 排除注释行后 | 36 | 31 | **−5** |
+
+`copyIdeRewritePack` 三口径一致：**4 → 2（−2）**。故第十轮「权限标记净减」的量化证据**成立**。
+
+### 三、R10-1 现状复核：**仍未被处理**
+
+| 核对项 | 命令 | 结果 |
+| :--- | :--- | :--- |
+| 组件岛回落点 | `sed -n '129p' web/step0-src/useStep0.js` | `const isDeveloper = computed(() => (bridge.isDeveloper ? bridge.isDeveloper() : true));` —— **原文未变** |
+| 宿主注入 | `grep -nE "__GEO_[A-Z0-9]+__\.mount\(" web/index.html` | 8 处（`:6399`~`:6611`），**仍一律只传 `{ projectData: p }`**（阶段零另带 `subStep`），**无 `isDeveloper`** |
+| 组件岛隔离覆盖 | `grep -rln isDeveloper web/step0-src --include=*.vue --include=*.js` | 仅 `components/ProbeStep1.vue`、`ProbeStep2.vue`、`ProbeStep3.vue`、`useStep0.js` —— 共 4 个文件 |
+| 阶段四/五 | `grep -c isDeveloper Step4App.vue Step5App.vue` | **0 / 0** → 确认无隔离逻辑 |
+
+因源码零改动（mtime 与 git 均无变化），第十轮实测的 **5 项测试失败（4→5 净回归）原样成立**；本轮**不再重复跑测试套件**（避免冗余验证）。
+
+### 四、收口判断（依 skill §0.6 第 7 条三问）
+
+| 问 | 答 |
+| :--- | :--- |
+| ① 有没有**新的架构分歧**？ | **无**。R10-1 是「宿主已有 `isDeveloper` 信息、但未接通组件岛」的**接线缺陷**；甲/乙/丙三案均为局部补丁，不触及架构取舍。 |
+| ② 剩余问题是否**阻断本次要修的症状**？ | **是**。5 项失败含 1 项全新回归（`test_writer_perspective`），且与 `proposal.md:82`「不破坏…断言」承诺直接冲突 → **不得归档**。 |
+| ③ 剩余问题是否**一句话可改**？ | **接近但不完全**。甲案表面是「8 处 `mount()` 补一个字段」，但连带需确认：`Step0App.vue` 的 `StageHeader` 是否接收 `:is-developer`（对应 `test_step0_dual_track_vue`）、以及 `tests/test_dual_track_perspectives.py:7/77-79` 的 `getStep0BridgeProps` 锚点替换口径（R10-2）。 |
+
+**结论**：**审查轮次建议就此收口，不再开第十二轮**。理由：连续两轮（第十、十一轮）无新增架构分歧，且本轮已无新对象；剩余工作性质是「**用户拍板 → 实施 → 跑测试**」，属 `/opsx-fix` 与 apply 的职责，继续开审查轮边际收益为零。
+
+### 五、⚠️ 本轮新发现 · 未提交风险（P1）
+
+- **第十轮记录（197 行）尚未提交**：`git status` 显示 ` M review-log.md`。
+- **风险**：依项目既有教训（多 IDE 同开防覆盖铁律 —— 2026-09-27 已发生「另一侧 IDE 覆盖 `index.html` / `main.js` 并删除两个新建文件」的实例），**未提交的改动随时可能被其他 IDE 覆盖或删除**；新建文件被删后 git 无法找回。
+- **建议**：本轮结束时**背靠背执行** `git add <review-log.md> && git commit`（**仅提交这一个文件**，不夹带业务源文件）。本 AI 已在本次会话内执行。
+
+### 附：第十一轮实测证据索引
+
+| 核对项 | 命令 / 路径 | 结果 |
+| :--- | :--- | :--- |
+| HEAD 未推进 | `git log -4 --format="%h \| %ad \| %s"` | `7bcd036` @ 11:03:01 为最新 |
+| 工作区仅 review-log | `git status --porcelain -uall` | 1 行，仅 review-log |
+| 真实组件岛入口 | `ls web/step0-src/*.vue` | `Step0App.vue` ~ `Step6App.vue`（7 个） |
+| 笔误订正后校验 | `grep -noE "Stage[0-9]+(/[0-9]+)?App" review-log.md` | **0 命中** ✓ |
+| 隔离标记三口径 | apply 前副本 `7bcd036^` vs 现工作区 | 行 38→33 / 次数 39→34 / 去注释 36→31 |
+| 注入缺失 | `grep -nE "__GEO_[A-Z0-9]+__\.mount\(" web/index.html` | 8 处均无 `isDeveloper` |
+
+## 第十一轮审查结论与停步声明
+
+- **最终标签**：`[需修正]`（**维持第十轮**；本轮无新增缺陷，但 R10-1 未收敛）
+- **依据**：`AGENTS.md` 阶段隔离条款 —— 审查只出结论、不动实现；方案取舍须用户拍板。
+- **本轮动作边界**：① 追加本审查记录；② **就地订正本 AI 第十轮记录的 3 行 5 处文件名笔误**（该段尚未提交，不损失审计链）；③ 未改动任何业务源文件，**未订正 `proposal.md` / `design.md` / `tasks.md`**。临时副本以 `git worktree add /tmp/preapply10 7bcd036^` 建立，核验后已 `git worktree remove` 清理。
+- **待用户裁决事项**（与第十轮一致，未变）：
+  1. **R10-1（最高优先）**：甲案 / 乙案 / 丙案？
+  2. **R10-2**：`tests/test_dual_track_perspectives.py:7/77-79` 锚点是否按 R10-1 结果一并修正？
+  3. **R10-3**：`proposal.md:85` Deferred 表述收窄 + `Impact` 补录？
+  4. **R10-4 / R10-5**：清理 `GeoStep5Bridge.refresh` 死代码 + 同步 `design.md:28`？
+  5. **归档门禁**：是否把「全量测试套件回归通过」列为归档前强制门禁？
+- **下一步**：**审查轮次收口**。建议就 R10-1 拍板后转 `/opsx-fix` 收敛，再评估归档。**本 AI 不擅自进入 apply / archive 阶段。**
+
 
 
 
