@@ -2,6 +2,11 @@
 # 阶段零 Vue3 组件岛一键冒烟（改 step0 后必须通过才可宣称完成）
 set -eo pipefail
 
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
@@ -9,7 +14,7 @@ echo "=================================================="
 echo "  [GEO 阶段零冒烟] smoke:step0"
 echo "=================================================="
 
-echo ">> 1/4 build:step0"
+echo ">> 1/5 build:step0"
 BUILD_LOG="$(mktemp)"
 if ! npm run build:step0 >"$BUILD_LOG" 2>&1; then
   echo "FAIL: npm run build:step0"
@@ -20,7 +25,7 @@ fi
 rm -f "$BUILD_LOG"
 echo "   OK build"
 
-echo ">> 2/4 产物体积"
+echo ">> 2/5 产物体积"
 BUNDLE_FILE="$REPO_ROOT/web/assets/step0/step0.js"
 if [ ! -f "$BUNDLE_FILE" ]; then
   echo "FAIL: 缺少 $BUNDLE_FILE"
@@ -33,7 +38,7 @@ if [ "$FILE_SIZE" -lt 50000 ]; then
 fi
 echo "   OK web/assets/step0/step0.js ($((FILE_SIZE / 1024)) KB)"
 
-echo ">> 3/4 /assets 路由（8088 可选）"
+echo ">> 3/5 /assets 路由（8088 可选）"
 if curl -s --connect-timeout 1 "http://127.0.0.1:8088/" > /dev/null 2>&1; then
   # [2026-09-22] [安全鉴权冒烟对齐] 对照 2026-09-19 纯内部物理隔离：从 data/sessions.json 读取本地活跃 token 注入请求头
   AUTH_HEADER=()
@@ -68,12 +73,12 @@ fi
 SCRIPT_COUNT=$(find "$OUT_DIR" -maxdepth 1 -name "probe_script_*.json" 2>/dev/null | wc -l | tr -d ' ')
 echo "   OK nextgeo 清单份数: $SCRIPT_COUNT"
 
-echo ">> 5/5 studio artifacts 12 项核心断言自检"
+echo ">> 5/5 studio artifacts 核心断言自检"
 if ! node "$REPO_ROOT/tests/smoke_studio_artifacts.mjs"; then
   echo "FAIL: smoke_studio_artifacts.mjs"
   exit 1
 fi
-echo "   OK 12 项断言全部 PASS"
+echo "   OK 32 项自动化断言全部 PASS"
 
 echo "=================================================="
 echo "  smoke:step0 PASS"

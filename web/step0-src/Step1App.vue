@@ -33,12 +33,13 @@
         @refresh-files="handleRefreshFiles"
         @delete-file="handleDeleteFile"
         @restore-file="handleRestoreFile"
+        @rename-file="handleRenameFile"
       />
 
       <!-- 中间：多 Tab 在线打磨区 (Markdown源码 / HTML 视觉大屏实时预览) -->
       <StudioEditor
         :stage="'step1'"
-        :valid-adopt-slots="['slot_metrics', 'slot_stage0_qa', 'slot_draft', 'slot_report_screen', 'slot_report_text', 'slot_report_tech']"
+        :valid-adopt-slots="getSlotsByStage('step1')"
         :open-tabs="openTabs"
         :active-file-name="activeFileName"
         :files="files"
@@ -49,9 +50,7 @@
         @copy-content="handleCopyContent"
         @save-file="handleSaveActiveFile"
         @adopt-file="handleAdoptFile"
-        @adoptFile="handleAdoptFile"
         @restore-file="handleRestoreFile"
-        @restoreFile="handleRestoreFile"
         @fullscreen="fullscreenVisible = true"
       />
 
@@ -132,6 +131,7 @@ import StudioEditor from './components/studio/StudioEditor.vue';
 import StudioSop from './components/studio/StudioSop.vue';
 import MckinseyDrawer from './components/MckinseyDrawer.vue';
 import { useStep1 } from './useStep1.js';
+import { getSlotsByStage } from './config/studioArtifactConfig.js';
 
 const props = defineProps({
   bridge: { type: Object, default: () => ({}) },
@@ -170,5 +170,6 @@ const {
   handleAdoptFile,
   handleDeleteFile,
   handleRestoreFile,
+  handleRenameFile,
 } = useStep1(props.bridge?.projectData || {});
 </script>

@@ -7,6 +7,8 @@ GEO 通用工具库 (tools/geo/utils.py)
 
 import os
 import re
+import time
+import json
 
 # 基础目录定位
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -259,12 +261,14 @@ def update_project_profile(project_id: str, patch: dict) -> dict:
     with open(yaml_path, "r", encoding="utf-8") as f:
         content = f.read()
 
+    # [2026-09-30] [修复建档覆盖与门禁漂移] 丰富标量键清单，确保 probe_status、delivery_notes、品牌主体等永不被丢弃
     scalar_keys = (
         "client_name",
         "brand_name",
         "company_name",
         "industry",
         "official_url",
+        "site",
         "slogan",
         "company_profile",
         "wechat",
@@ -272,10 +276,38 @@ def update_project_profile(project_id: str, patch: dict) -> dict:
         "probe_baseline_id",
         "probe_baseline_at",
         "business_one_liner",
+        "delivery_notes",
+        "stage0_notes",
+        "founder",
+        "founder_title",
+        "telephone",
+        "phone",
+        "category",
+        "target_audience",
+        "scope",
+        "city_name",
+        "partner_id",
+        "creator_user_id",
+        "creator_name",
+        "status",
+        "credit_code",
+        "tax_id",
+        "logo",
+        "avatar",
+        "nameplate",
     )
     for key in scalar_keys:
         if key in patch:
-            content = _upsert_yaml_scalar(content, key, patch.get(key) or "")
+            val = patch.get(key)
+            if val is None:
+                content = _upsert_yaml_scalar(content, key, "")
+            elif isinstance(val, (dict, list)):
+                # 复杂对象/列表走专门通道，严禁通过标量通道序列化以免破坏结构
+                continue
+            else:
+                content = _upsert_yaml_scalar(content, key, str(val))
+
+    content = _upsert_yaml_scalar(content, "updated_at", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     if "site_pending" in patch:
         content = _upsert_yaml_scalar(
@@ -331,6 +363,12 @@ def update_project_profile(project_id: str, patch: dict) -> dict:
             content = _replace_yaml_string_list(content, "core_values", values)
         if has_diff:
             content = _replace_yaml_string_list(content, "differences", values)
+
+    # [2026-09-30] [配置完整性保护] 支持模型清单与成员用户列表持久化，统一写入 YAML 列表
+    if "models" in patch:
+        content = _replace_yaml_string_list(content, "models", _normalize_profile_list(patch.get("models")))
+    if "member_user_ids" in patch:
+        content = _replace_yaml_string_list(content, "member_user_ids", _normalize_profile_list(patch.get("member_user_ids")))
 
     with open(yaml_path, "w", encoding="utf-8") as f:
         f.write(content)

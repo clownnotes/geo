@@ -6,6 +6,7 @@ import Step3App from './Step3App.vue';
 import Step4App from './Step4App.vue';
 import Step5App from './Step5App.vue';
 import Step6App from './Step6App.vue';
+import Step7App from './Step7App.vue';
 import RecurringMonitorStudio from './components/daily/RecurringMonitorStudio.vue';
 
 let currentApp0 = null;
@@ -28,6 +29,9 @@ let currentRootInstance5 = null;
 
 let currentApp6 = null;
 let currentRootInstance6 = null;
+
+let currentApp7 = null;
+let currentRootInstance7 = null;
 
 let currentAppRecurring = null;
 let currentRootInstanceRecurring = null;
@@ -244,6 +248,32 @@ export const GeoStep6Bridge = {
   },
 };
 
+export const GeoStep7Bridge = {
+  mount(el, bridge) {
+    if (currentApp7) {
+      currentApp7.unmount();
+      currentApp7 = null;
+      currentRootInstance7 = null;
+    }
+    const container = typeof el === 'string' ? document.querySelector(el) : el;
+    if (!container) {
+      console.warn('[GEO_STEP7] 挂载节点不存在:', el);
+      return null;
+    }
+    currentApp7 = createApp(Step7App, { bridge: bridge || {} });
+    currentRootInstance7 = currentApp7.mount(container);
+    return currentRootInstance7;
+  },
+
+  unmount() {
+    if (currentApp7) {
+      currentApp7.unmount();
+      currentApp7 = null;
+      currentRootInstance7 = null;
+    }
+  },
+};
+
 export const GeoRecurringMonitorBridge = {
   mount(el, bridge) {
     if (currentAppRecurring) {
@@ -278,6 +308,7 @@ if (typeof window !== 'undefined') {
   window.__GEO_STEP4__ = GeoStep4Bridge;
   window.__GEO_STEP5__ = GeoStep5Bridge;
   window.__GEO_STEP6__ = GeoStep6Bridge;
+  window.__GEO_STEP7__ = GeoStep7Bridge;
   window.__GEO_RECURRING__ = GeoRecurringMonitorBridge;
 }
 
@@ -289,5 +320,6 @@ export default {
   step4: GeoStep4Bridge,
   step5: GeoStep5Bridge,
   step6: GeoStep6Bridge,
+  step7: GeoStep7Bridge,
   recurring: GeoRecurringMonitorBridge,
 };

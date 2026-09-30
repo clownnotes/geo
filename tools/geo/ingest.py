@@ -386,6 +386,7 @@ def ingest_project_materials(
         "source_id": source_id,
         "crawled_url": target_url if crawled_ok else None,
         "crawled_words": crawled_words,
+        "content": clean_md if (target_url and crawled_ok) else (raw_text or focus_text or ""),
         "saved_facts_file": "ledger/facts.jsonl",
         "raw_files": [{"name": e.get("path"), "size": e.get("chars")} for e in evidence_list],
         "evidence_count": len(evidence_list),

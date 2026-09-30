@@ -6,14 +6,19 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { resolveContext, buildStage1Files, STAGE_1_META, buildCrawledMetricsMarkdown } from './stage1Config.js';
 import {
-  CANONICAL_SLOT_DICT,
   resolveSlotKey,
   computeNextVersion,
+  computeBranchVersion,
   computeSaveResult,
   computeAdoptResult,
   computeRestoreResult,
   computeDeleteResult,
   migrateAndNormalizeFiles,
+  formatReason,
+  activateTabInStack,
+  isMasterFile,
+  isDuplicateDisplayName,
+  generateSnowflakeId,
 } from './config/studioArtifactConfig.js';
 
 export function getSlotKey(filename) {
@@ -64,6 +69,8 @@ export function useStep1(projectData = {}) {
         if (sf.isCanonicalMirror !== undefined) mergedFiles[fn].isCanonicalMirror = sf.isCanonicalMirror;
         if (sf.isProtectedArchive !== undefined) mergedFiles[fn].isProtectedArchive = sf.isProtectedArchive;
         if (sf.isManual !== undefined) mergedFiles[fn].isManual = sf.isManual;
+        if (sf.displayName) mergedFiles[fn].displayName = sf.displayName;
+        if (sf.id) mergedFiles[fn].id = sf.id;
       } else if (sf && typeof sf === 'object') {
         // 动态派生的草稿文件（如新版本候选试算草稿），恢复至工作区
         mergedFiles[fn] = {
@@ -79,6 +86,8 @@ export function useStep1(projectData = {}) {
           isCanonicalMirror: sf.isCanonicalMirror || false,
           isProtectedArchive: sf.isProtectedArchive || false,
           isManual: sf.isManual || false,
+          displayName: sf.displayName || '',
+          id: sf.id || '',
           versionTag: sf.versionTag || 'V2-Draft',
           generatedAt: sf.generatedAt || '',
           isDeleted: sf.isDeleted !== undefined ? sf.isDeleted : Boolean(sf.is_deleted),
@@ -148,6 +157,8 @@ export function useStep1(projectData = {}) {
               generatedAt: v.generatedAt,
               isDeleted: Boolean(v.isDeleted),
               category: v.category,
+              displayName: v.displayName || '',
+              id: v.id || '',
               slotKey: v.slotKey || resolveSlotKey(k, 'step1', v.isManual),
             },
           ])
@@ -169,14 +180,22 @@ export function useStep1(projectData = {}) {
     return 'code';
   });
 
-  // Tab 切换与关闭
+  // [2026-09-29] [智能Tab栈] 新激活Tab首置到最左侧(索引0)，超量6个自动关闭最右侧干净Tab
   function handleSelectTab(fn) {
+    if (!fn) return;
+    const { newOpenTabs, warningDirty } = activateTabInStack(
+      openTabs.value,
+      fn,
+      files.value,
+      6
+    );
+    openTabs.value = newOpenTabs;
     activeFileName.value = fn;
-    if (!openTabs.value.includes(fn)) {
-      openTabs.value.push(fn);
-    }
     const cat = files.value[fn]?.category;
     if (cat) activeCategory.value = cat;
+    if (warningDirty) {
+      showStudioToast('已有 6 个修改未保存的标签页，请先保存部分文件', 'warning');
+    }
     saveState();
   }
 
@@ -223,7 +242,7 @@ export function useStep1(projectData = {}) {
       if (res.reason === 'READ_ONLY_LOCKED') {
         showStudioToast('该文件为只读状态，无法保存！', 'warning');
       } else {
-        showStudioToast(`保存失败: ${res.reason}`, 'error');
+        showStudioToast(`保存失败: ${formatReason(res.reason)}`, 'error');
       }
       return;
     }
@@ -243,7 +262,7 @@ export function useStep1(projectData = {}) {
       if (res.reason === 'EMPTY_CONTENT') {
         showStudioToast('候选版本内容为空，拒绝采纳！', 'warning');
       } else {
-        showStudioToast(`采纳失败: ${res.reason}`, 'error');
+        showStudioToast(`采纳失败: ${formatReason(res.reason)}`, 'error');
       }
       return;
     }
@@ -265,7 +284,7 @@ export function useStep1(projectData = {}) {
       if (res.reason === 'FILE_PROTECTED_CANNOT_DELETE') {
         showStudioToast('已采纳底牌或核心规范骨干受系统保护，无法删除！', 'warning');
       } else {
-        showStudioToast(`删除失败: ${res.reason}`, 'error');
+        showStudioToast(`删除失败: ${formatReason(res.reason)}`, 'error');
       }
       return;
     }
@@ -288,7 +307,7 @@ export function useStep1(projectData = {}) {
       stage: 'step1',
     });
     if (!res.success) {
-      showStudioToast(`恢复失败: ${res.reason}`, 'error');
+      showStudioToast(`恢复失败: ${formatReason(res.reason)}`, 'error');
       return;
     }
     files.value = res.files;
@@ -377,9 +396,8 @@ export function useStep1(projectData = {}) {
           } else {
             // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 重新抓取：扫描全量历史（含废纸篓）递增生成新版本候选草稿
             crawledMetrics.value = true;
-            const { nextVer } = computeNextVersion(files.value, 'slot_metrics');
-            const slotItem = CANONICAL_SLOT_DICT['slot_metrics'];
-            const newName = `${slotItem.baseSlotName}_第${nextVer}版${slotItem.ext}`;
+            const { nextVer, nextFileName, nextVersionTag } = computeNextVersion(files.value, 'slot_metrics');
+            const newName = nextFileName;
             files.value[newName] = {
               name: newName,
               category: 'materials',
@@ -390,7 +408,7 @@ export function useStep1(projectData = {}) {
               savedContent: freshMarkdown,
               isDirty: false,
               isActive: false, // 候选草稿，原底牌继续保持生效受保护
-              versionTag: `V${nextVer}-Draft`,
+              versionTag: nextVersionTag,
               generatedAt: nowStr,
               isDeleted: false,
             };
@@ -408,26 +426,184 @@ export function useStep1(projectData = {}) {
       }
     } else if (actionType === 'generateDraft') {
       const nowStr = new Date().toLocaleString('zh-CN', { hour12: false });
-      if (files.value['01_商业诊断与转化初稿.md']) {
-        files.value['01_商业诊断与转化初稿.md'].generatedAt = nowStr;
+      // [2026-09-29] [初稿成套版本生成] 提取版本号（优先匹配阶段零生效版本，如 QA-V3 -> 3，若无则从底座指标提取）
+      const mQa = (ctx.activeQaVersion || '').match(/(\d+)/);
+      const metricsFile = Object.values(files.value).find(f => f.slotKey === 'slot_metrics' && f.isActive);
+      const mMetrics = (metricsFile?.versionTag || '').match(/(\d+)/);
+      const verNum = mQa ? parseInt(mQa[1], 10) : (mMetrics ? parseInt(mMetrics[1], 10) : 1);
+      const masterDraftName = verNum <= 1 ? '01_商业诊断与转化初稿.md' : `01_商业诊断与转化初稿_第${verNum}版.md`;
+
+      const existingMaster = files.value[masterDraftName];
+      // [2026-09-29] [解决 🟡2] 显式基于 isGenerated 判定是否此前已出具过主版本，避免模板自带 generatedAt 误触发分支生成
+      const hasGeneratedBefore = Boolean(existingMaster?.isGenerated);
+
+      // [2026-09-29] [初稿派生分支] 若该主版本初稿此前已出具过，再次点击表示对当前稿件不满意，自动派生 V1.1/Vx.1 微调分支
+      if (hasGeneratedBefore && existingMaster) {
+        const { nextFileName, nextVersionTag, majorNum, nextBranch } = computeBranchVersion(
+          files.value,
+          masterDraftName,
+          'slot_draft'
+        );
+        const baseContent = existingMaster.content || '';
+        const bloodStamp = `> [溯源血统]：本报告基于阶段零生效底牌【${ctx.activeQaVersion || `QA-V${verNum}`}】出具微调分支 (版本: V${majorNum}.${nextBranch})\n\n`;
+        const branchContent = baseContent.includes('[溯源血统]')
+          ? baseContent.replace(/> \[溯源血统\][^\n]+\n\n?/, bloodStamp)
+          : bloodStamp + baseContent;
+
+        files.value[nextFileName] = {
+          name: nextFileName,
+          category: 'drafts',
+          dir: '过程草稿',
+          renderMode: 'markdown',
+          slotKey: 'slot_draft',
+          content: branchContent,
+          savedContent: branchContent,
+          isDirty: false,
+          isActive: false, // 灵感分支不抢占主版本采纳状态，保持主干干净
+          isRetired: false,
+          isBranchDraft: true, // 核心分支标记
+          isGenerated: true,
+          versionTag: nextVersionTag,
+          generatedAt: nowStr,
+          isDeleted: false,
+        };
+
+        handleSelectTab(nextFileName);
+        saveState();
+        showStudioToast(`已在 V${majorNum} 基础上派生微调分支【${nextFileName}】！可对比打磨或复制到外部大模型`);
+      } else {
+        // 首次出具该套主版本初稿（不论是初版 V1 还是新版 Vn，统一通过 computeAdoptResult 收敛执行采纳）
+        const targetDraftName = verNum <= 1 ? '01_商业诊断与转化初稿.md' : `01_商业诊断与转化初稿_第${verNum}版.md`;
+        let targetDraft = files.value[targetDraftName];
+        if (!targetDraft) {
+          const baseContent = files.value['01_商业诊断与转化初稿.md']?.content || '';
+          // 注入新版血统章
+          const bloodStamp = `> [溯源血统]：本报告基于阶段零生效底牌【${ctx.activeQaVersion || `QA-V${verNum}`}】直出 (版本: V${verNum})\n\n`;
+          const stampedContent = baseContent.includes('[溯源血统]')
+            ? baseContent.replace(/> \[溯源血统\][^\n]+\n\n?/, bloodStamp)
+            : bloodStamp + baseContent;
+
+          files.value[targetDraftName] = {
+            name: targetDraftName,
+            category: 'drafts',
+            dir: '过程草稿',
+            renderMode: 'markdown',
+            slotKey: 'slot_draft',
+            content: stampedContent,
+            savedContent: stampedContent,
+            isDirty: false,
+            isActive: false, // 先作为候选草稿，随后交由 computeAdoptResult 严格执行采纳流转
+            isRetired: false,
+            isGenerated: true,
+            versionTag: `V${verNum}`,
+            generatedAt: nowStr,
+            isDeleted: false,
+          };
+        } else {
+          targetDraft.generatedAt = nowStr;
+          targetDraft.isGenerated = true;
+          targetDraft.versionTag = `V${verNum}`;
+        }
+
+        // [2026-09-29] [SSOT纯函数收口] 统一接入 computeAdoptResult，彻底消除手写退级与镜像，自证单槽 active 唯一
+        const adoptRes = computeAdoptResult({
+          candidateName: targetDraftName,
+          files: files.value,
+          stage: 'step1',
+        });
+        if (adoptRes.success) {
+          files.value = adoptRes.files;
+          files.value[targetDraftName].isGenerated = true;
+        } else {
+          console.warn('[generateDraft] computeAdoptResult 采纳流转失败:', adoptRes.reason);
+        }
+        handleSelectTab(targetDraftName);
+
+        saveState();
+        showStudioToast(`商业诊断与转化初稿 (V${verNum}) 已就绪！可复制去外部润色`);
       }
-      handleSelectTab('01_商业诊断与转化初稿.md');
-      saveState();
-      showStudioToast('商业诊断与转化初稿已生成！可复制去外部润色');
     } else if (actionType === 'generateFinalReports') {
       const nowStr = new Date().toLocaleString('zh-CN', { hour12: false });
-      if (files.value['01_老板商业诊断报告_好看大屏.html']) {
-        files.value['01_老板商业诊断报告_好看大屏.html'].generatedAt = nowStr;
+      const currentDraft = Object.values(files.value).find(f => f.slotKey === 'slot_draft' && f.isActive);
+      const mDraft = (currentDraft?.versionTag || '').match(/(\d+)/);
+      const verNum = mDraft ? parseInt(mDraft[1], 10) : 1;
+
+      const screenName = verNum <= 1 ? '01_老板商业诊断报告_好看大屏.html' : `01_老板商业诊断报告_好看大屏_第${verNum}版.html`;
+      const textName = verNum <= 1 ? '01_老板商业诊断报告_文字版.md' : `01_老板商业诊断报告_文字版_第${verNum}版.md`;
+
+      const baseScreenContent = files.value['01_老板商业诊断报告_好看大屏.html']?.content || '';
+      if (!files.value[screenName]) {
+        files.value[screenName] = {
+          name: screenName,
+          category: 'reports',
+          dir: '最终交付报告',
+          renderMode: 'html',
+          slotKey: 'slot_report_screen',
+          content: baseScreenContent,
+          savedContent: baseScreenContent,
+          isDirty: false,
+          isActive: false, // 先作为候选草稿
+          isRetired: false,
+          versionTag: `V${verNum}`,
+          generatedAt: nowStr,
+          isDeleted: false,
+        };
+      } else {
+        files.value[screenName].generatedAt = nowStr;
+        files.value[screenName].versionTag = `V${verNum}`;
       }
-      if (files.value['01_老板商业诊断报告_文字版.md']) {
-        files.value['01_老板商业诊断报告_文字版.md'].generatedAt = nowStr;
+
+      const baseTextContent = files.value['01_老板商业诊断报告_文字版.md']?.content || '';
+      if (!files.value[textName]) {
+        files.value[textName] = {
+          name: textName,
+          category: 'reports',
+          dir: '最终交付报告',
+          renderMode: 'markdown',
+          slotKey: 'slot_report_text',
+          content: baseTextContent,
+          savedContent: baseTextContent,
+          isDirty: false,
+          isActive: false, // 先作为候选草稿
+          isRetired: false,
+          versionTag: `V${verNum}`,
+          generatedAt: nowStr,
+          isDeleted: false,
+        };
+      } else {
+        files.value[textName].generatedAt = nowStr;
+        files.value[textName].versionTag = `V${verNum}`;
       }
-      handleSelectTab('01_老板商业诊断报告_好看大屏.html');
-      if (!openTabs.value.includes('01_老板商业诊断报告_文字版.md')) {
-        openTabs.value.push('01_老板商业诊断报告_文字版.md');
+
+      // [2026-09-29] [SSOT纯函数收口] 统一调用 computeAdoptResult 纯函数执行采纳流转与主干镜像，彻底消除手写 isActive
+      const resScreen = computeAdoptResult({
+        candidateName: screenName,
+        files: files.value,
+        stage: 'step1',
+      });
+      if (resScreen.success) {
+        files.value = resScreen.files;
+      } else {
+        console.warn('[generateFinalReports] screen 采纳流转失败:', resScreen.reason);
       }
+
+      const resText = computeAdoptResult({
+        candidateName: textName,
+        files: files.value,
+        stage: 'step1',
+      });
+      if (resText.success) {
+        files.value = resText.files;
+      } else {
+        console.warn('[generateFinalReports] text 采纳流转失败:', resText.reason);
+      }
+
+      // [2026-09-29] [解决 🟡7] 统一走 handleSelectTab (接入 activateTabInStack) 保障 6 个 Tab 上限
+      handleSelectTab(textName);
+      handleSelectTab(screenName);
+
       saveState();
-      showStudioToast('多版本商业诊断报告已就绪！');
+      showStudioToast(`多版本商业诊断报告 (V${verNum}) 已就绪！`);
     } else if (actionType === 'openFullscreen') {
       fullscreenVisible.value = true;
     } else if (actionType === 'copyClientLink') {
@@ -526,6 +702,28 @@ export function useStep1(projectData = {}) {
     }
   }
 
+  // [2026-09-30 修复🔴5] 阶段一主文件右键重命名、雪花ID锚点绑定与本地持久化
+  function handleRenameFile({ fn, newDisplayName }) {
+    const target = files.value[fn];
+    if (!target) return;
+    if (!isMasterFile(target)) {
+      showStudioToast('参考件由系统自管编号，仅主文件支持修改名称！', 'warning');
+      return;
+    }
+    const trimmed = (newDisplayName || '').trim();
+    if (!trimmed) return;
+    if (isDuplicateDisplayName(files.value, fn, trimmed)) {
+      showStudioToast('名称已存在，不能重复！', 'warning');
+      return;
+    }
+    target.displayName = trimmed;
+    if (!target.id) {
+      target.id = generateSnowflakeId();
+    }
+    saveState();
+    showStudioToast(`主文件已成功改名为【${trimmed}】`, 'success');
+  }
+
   return {
     STAGE_1_META,
     files,
@@ -559,5 +757,6 @@ export function useStep1(projectData = {}) {
     handleAdoptFile,
     handleDeleteFile,
     handleRestoreFile,
+    handleRenameFile,
   };
 }

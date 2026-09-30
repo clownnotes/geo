@@ -3,42 +3,18 @@
        第一行：状态与操作工具栏 (徽章/字数/时间/恢复/采纳/视图/全屏/复制/保存)
        第二行：独立 Tab 标签栏 (支持废纸篓预览标识与平滑切换) -->
   <section class="flex-1 min-w-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden relative">
-    <!-- 顶部轻量浮动通知 (防原生 alert 红线) -->
-    <transition name="fade">
-      <div
-        v-if="noticeMessage"
-        class="absolute top-3 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 bg-slate-900/95 text-white text-[12px] font-medium rounded-lg shadow-lg flex items-center gap-2 border border-slate-700/80 pointer-events-none"
-      >
-        <i data-lucide="info" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
-        <span>{{ noticeMessage }}</span>
-      </div>
-    </transition>
-
-    <!-- ===== 第一行：状态与操作工具栏 ===== -->
-    <div class="bg-slate-50 border-b border-slate-200 px-3 py-2 flex items-center justify-between gap-3 select-none flex-wrap">
-      <!-- 左侧：状态与元数据区 -->
-      <div class="flex items-center gap-2.5 min-w-0">
-        <!-- 状态徽章 (严格对齐 AGENTS §3.3 / §3.5，0 Emoji，阶段条件化) -->
-        <span
-          v-if="currentFile"
-          class="text-[11px] px-2.5 py-0.5 rounded-full font-mono font-bold flex items-center gap-1.5 shrink-0 shadow-2xs border"
-          :class="badgeClass"
-        >
-          <i :data-lucide="badgeIcon" class="w-3 h-3"></i>
-          <span>{{ badgeText }}</span>
-        </span>
-
-        <!-- 字数与时间戳 -->
-        <span class="text-[12px] text-slate-500 shrink-0 font-mono">
-          {{ (currentFile?.content || '').length }} 字符
-        </span>
-        <span class="text-[12px] text-slate-400 truncate hidden sm:inline">
-          生成时间: {{ currentFile?.generatedAt || '未知' }}
-        </span>
-      </div>
-
-      <!-- 右侧：快捷功能按钮组 (偏右对齐排布) -->
-      <div class="flex items-center gap-2 shrink-0">
+    <!-- [2026-09-29] 引入抽象后的通用双行工作台头部组件 (StudioHeader) -->
+    <StudioHeader
+      :files="files"
+      :open-tabs="openTabs"
+      :active-file-name="activeFileName"
+      :stage="stage"
+      :notice-message="noticeMessage"
+      :is-read-only="isReadOnly"
+      @select-tab="$emit('selectTab', $event)"
+      @close-tab="$emit('closeTab', $event)"
+    >
+      <template #actions>
         <!-- 废纸篓文件专属：一键恢复按钮 (遵循 AGENTS §3.3 视觉红线，采用主色紫，严禁红色) -->
         <button
           v-if="isTrashFile"
@@ -62,6 +38,16 @@
           <i data-lucide="star" class="w-3.5 h-3.5 text-amber-600"></i>
           <span>设为客户采纳</span>
         </button>
+
+        <!-- [2026-09-30 师弟立规 · 参考比对件] 参考件不可冲毁主文件，透出比对挑词提示 -->
+        <span
+          v-else-if="isReferenceFile"
+          class="text-[12px] px-2.5 py-1.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-md font-medium flex items-center gap-1 shadow-2xs select-none"
+          title="参考候选件仅供比对查阅，请挑词吸收至左侧主文件"
+        >
+          <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span>参考比对件</span>
+        </span>
 
         <!-- 视图切换：仅 Markdown 与 HTML 支持预览态 -->
         <div v-if="canPreview" class="flex items-center bg-white border border-slate-200 rounded-md overflow-hidden shadow-2xs">
@@ -116,42 +102,8 @@
           <i data-lucide="save" class="w-3.5 h-3.5"></i>
           <span>保存文件</span>
         </button>
-      </div>
-    </div>
-
-    <!-- ===== 第二行：文件 Tab 标签栏 ===== -->
-    <div class="bg-slate-100/90 border-b border-slate-200 flex items-center px-2 pt-1.5 gap-1.5 overflow-x-auto select-none scrollbar-none">
-      <div
-        v-for="fn in openTabs"
-        :key="fn"
-        class="flex items-center gap-2 px-3 py-1.5 rounded-t-lg text-[13px] font-medium cursor-pointer transition border border-b-0 shrink-0"
-        :class="fn === activeFileName ? 'bg-white text-[#7c5bf5] border-slate-200 font-bold -mb-[1px]' : 'bg-slate-200/60 hover:bg-slate-200 text-slate-600 border-transparent'"
-        @click="$emit('selectTab', fn)"
-      >
-        <span class="truncate max-w-[160px]">{{ fn }}</span>
-        <!-- 废纸篓标识 -->
-        <span
-          v-if="files[fn]?.isDeleted || files[fn]?.is_deleted"
-          class="text-[10px] px-1 py-0.2 rounded bg-slate-200 text-slate-500 font-normal shrink-0"
-        >
-          [废纸篓]
-        </span>
-        <!-- 未保存改动圆点 -->
-        <span
-          v-if="files[fn]?.isDirty"
-          class="w-2 h-2 rounded-full bg-amber-500 shrink-0"
-          title="有未保存修改"
-        ></span>
-        <!-- 关闭标签 -->
-        <span
-          class="text-slate-400 hover:text-slate-700 hover:bg-slate-300/60 rounded p-0.5 text-xs transition"
-          title="关闭标签"
-          @click.stop="$emit('closeTab', fn)"
-        >
-          ×
-        </span>
-      </div>
-    </div>
+      </template>
+    </StudioHeader>
 
     <!-- ===== 主体区域：源码编辑 / Markdown 预览 / HTML 实时预览 ===== -->
     <!-- 1. 源码编辑态：行号 + 文本区域 (支持只读拦截与快捷键守卫) -->
@@ -238,6 +190,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted } from 'vue';
+import StudioHeader from './StudioHeader.vue';
 import {
   isReadOnlyFile,
   getActiveBadgeText,
@@ -314,20 +267,28 @@ const badgeIcon = computed(() => {
   return 'file-text';
 });
 
+// [2026-09-30 师弟立规 · 识别参考候选件]
+const isReferenceFile = computed(() => {
+  const f = currentFile.value;
+  if (!f) return false;
+  return Boolean(f.versionTag?.startsWith('参考') || f.name?.includes('参考'));
+});
+
 /**
  * 采纳守卫：仅允许合格的候选草稿或已淘汰历史旧版回滚 (解决 P0-3 & P1-7)
  */
 const canAdoptCurrentFile = computed(() => {
   if (!currentFile.value) return false;
-  if (currentFile.value.isActive) return false;
+  if (currentFile.value.isMaster || currentFile.value.isActive) return false;
+  // [2026-09-30 师弟立规 · 严禁一键整篇覆盖主文件] 主文件神圣不可冲毁，参考件仅供查阅比对挑词，严禁采纳覆盖主文件
+  if (isReferenceFile.value) return false;
   // 手建自定义草稿与杂项草稿不可作为核心工序底牌被采纳
   if (currentFile.value.isManual || currentFile.value.slotKey === 'slot_manual' || currentFile.value.slotKey === 'slot_misc') {
     return false;
   }
   // 废纸篓文件禁止采纳
   if (currentFile.value.isDeleted || currentFile.value.is_deleted) return false;
-  // 首版留档母版禁止采纳
-  if (currentFile.value.isProtectedArchive) return false;
+  // [2026-09-29] 允许首版母版留档 (isProtectedArchive) 点击采纳，支持一键回滚生效
   // 规范骨干镜像禁止直接采纳自身
   if (currentFile.value.isCanonicalMirror) return false;
   const coreFiles = getCoreFilesByStage(props.stage);

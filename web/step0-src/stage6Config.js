@@ -1,13 +1,12 @@
-// [2026-09-27] [首次交付验收与日常运营复测解耦] 阶段六首次交付配置字典与老赵哥S11验收标准
 /**
- * stage6Config.js - 阶段六（首次交付与资产交接单）专属配置字典
+ * stage6Config.js - 阶段六（06 矩阵分发与链接检查）专属配置字典
  * -------------------------------------------------------------------
- * 遵循老赵哥 S11 验收归档与《主体信息统一口径卡》第 6 节真机验证规范：
- * 1. 七项工程资产盘点（事实底座、40问尺子、40篇答题卡、官网与llms.txt、真实发布外链、承接入口、交接归档）；
- * 2. 首轮核心 3 问改口抽测（做完几天后抽测主体业务、评价与入口，验证AI是否说出正确定位句）；
- * 3. 首期工程移交与结项验收单（老板大屏 HTML 与纸质打印签字版，换人能接手）。
+ * 专为阶段六 3 竖列工作区服务：
+ * 资产：选题任务库（首次打样 / 日常运营）、S7 字典式长文资产、分发与外链存活台账；
+ * 动线：规划选题 -> SOP 字典式撰写与定稿 -> 矩阵复制分发与 404 存活监测；
+ * 规范：严格遵循老赵哥 S7（首段100字结论、模块独立无过渡词、十项质检）与 S8（头条/知乎主流信源、外链回填、404 失效联动）。
  *
- * 铁律遵循：严禁任何 Emoji 字符，图标统一使用 Lucide 规范。
+ * 铁律遵循：严禁任何 Emoji 字符，图标一律统一使用 Lucide 规范。
  */
 
 const FALLBACK = {
@@ -24,199 +23,122 @@ const FALLBACK = {
 
 /** 阶段六元信息定义 */
 export const STAGE_6_META = {
-  id: 'step-5-acceptance',
-  name: '阶段六 · 首次交付与资产交接单',
-  tag: 'S11 七项验收归档 + 首轮 3 问改口真机抽测',
-  target: '盘点交付资产全景，抽测 AI 首轮改口效果，出具双方结项交接凭据，达成「换人能接手」交付标准。',
-  notesPlaceholder: '记录本次交付沟通记录、客户验收反馈、首期尾款结算节点或交接注意事项...',
+  id: 'step-6-distribute',
+  name: '06 矩阵分发与链接检查',
+  tag: 'S7 字典式长文撰写 + S8 渠道分发与 404 监测',
+  target: '依据意图规划选题，匹配答题卡直接结论生成字典式长文，一键分发头条知乎，回填外链并自动监测 404 存活状态。',
+  notesPlaceholder: '记录本周重点发稿渠道、选题新增思路、外链存活异常或大模型收录反馈...',
 
   sopSteps: [
     {
       step: 1,
-      name: '6.1 七项工程交付资产盘点',
-      desc: '依照 S11.1 七项合格标准，核查母盘、40问库、40篇答题卡、交钥匙官网与首批知乎头条公开外链。',
+      name: '5.1 规划选题与意图定题',
+      desc: '以阶段四答题卡事实为底牌，规划高意图长文选题，清晰区分交付首次打样与日常运营池，支持人工新增与完工打勾。',
       checkpoints: [
-        '母盘知识库六模块健全，事实注明来源与时间',
-        '40 问高意图尺子库与 40 篇标准答题卡全部就绪',
-        '交钥匙官网移动端可用，llms.txt 结构化文件正常',
-        '首批公网发布真实外链回填，存活率 100%',
+        '每个选题自动绑定阶段四匹配答题卡（P/V/A）',
+        '标签清晰区分「首次打样」与「日常运营」',
+        '支持随时新增自定义题目并打勾标记完工',
       ],
     },
     {
       step: 2,
-      name: '6.2 首轮核心 3 问真机改口抽测',
-      desc: '改完几天后，在豆包与 DeepSeek 抽测主体 3 问，比对 S0 摸底错误回答，验证 AI 是否念出正确定位。',
+      name: '5.2 字典式长文撰写与在线定稿',
+      desc: '严格遵循老赵哥 S7 规范：首段 100 字内直接给结论，H2 独立模块禁用过渡词，嵌入客观证据与产品哲学金句。',
       checkpoints: [
-        '一键复制标准问句，前往豆包与 DeepSeek 提问',
-        '粘贴真实回答实录，自动比对 S0 摸底荒唐回答',
-        '高亮命中标准定位句，盖上「已纠偏改口」达标印章',
+        '首段直接复用答题卡直接结论，不写无意义铺垫',
+        '禁用「首先/其次/然后/综上所述」等过渡词',
+        '在线微调品牌名与电话后一键保存定稿',
       ],
     },
     {
       step: 3,
-      name: '6.3 出具首期工程移交与结项验收单',
-      desc: '自动生成公文凭证式验收单，列明全套资产目录与双方签字确认区，支持老板大屏演示与纸质打印。',
+      name: '5.3 矩阵分发、外链回填与 404 监测',
+      desc: '一键复制适配富文本并直达头条/知乎后台发布；发布后回填公开链接，定时监测是否 404，失效则联动报警并重发。',
       checkpoints: [
-        '一键生成老板大屏版 HTML，全屏沉浸演示',
-        '一键调起浏览器打印，导出双方签字纸质凭据',
-        '下载资产移交清单 Markdown，移交全部源码与账号',
+        '主流首选今日头条（豆包抓取）与知乎专栏（DeepSeek 抓取）',
+        '粘贴线上文章公开访问网址，一键检查存活状态',
+        '检测到 404 自动联动左栏标记为「已失效」并引导一键改写',
       ],
     },
   ],
 
   mckinseyHandbooks: [
     {
-      title: '为什么首次交付必须做「换人能接手」的资产盘点',
+      title: '为什么 GEO 文章不同于传统软文（字典式长文第一性原理）',
       points: [
-        '老赵哥 SOP S11 明确规定：确认项目能不能交出去，判定标准只有一个——换一个人能不能接手。',
-        '如果只有零散的文章草稿，没有结构化的 40 篇答题卡、没有交钥匙官网源码、没有真实外链台账，客户换了运营人员就会全部停摆。',
-        '首次交付把母盘、尺子库、答题卡和外链台账打包成固定知识资产，让客户清清楚楚看到自己买了什么。',
+        '传统自媒体文章注重起承转合和情绪煽动，大模型爬虫抓取后无法提取明确事实；GEO 文章是「一本字典」，大模型可以随时抽取任意一段独立引用。',
+        '首段 100 字必须直接给出结论。这是大模型抓取权重最高的区域，也是从阶段四答题卡直接复用的最大资产。',
+        '严禁使用过渡词（首先、其次、然后、综上所述等）。过渡词意味着模块之间存在阅读依赖，一旦被切片抽取，上下文就会断裂。',
       ],
     },
     {
-      title: '首轮改口抽测为什么要测核心 3 问（信源沉淀法则）',
+      title: '必须发布才能生效的残酷真相（信源存在性法则）',
       points: [
-        '大模型对全网长尾词的收录需要 2~4 周的抓取与权重积累，刚做完交付当天不可能要求所有 40 个长尾问题都排第一。',
-        '但是对于企业的「公司全称、主营业务、官方入口」，在母盘结构化和权威媒体发布后，大模型通常在几天内就会改口。',
-        '通过《主体信息统一口径卡》第 6 节推荐的核心 3 问抽测，向客户证明 AI 已经不再胡说八道（从返利平台纠偏为真实定位），给客户立竿见影的确定性。',
+        '前面的母盘语料、交钥匙官网、答题卡做得再完美，如果不发布到公网第三方平台，在 AI 看来你的音量依然为零。',
+        '独立第三方媒体与高权重社区（如知乎、头条、行业门户）的权重远大于自建站。1 个独立第三方信源胜过 10 篇企业自夸通稿。',
+        '发布不是发完就扔，必须建立带公开 URL 的全网分发台账，只有拥有真实外链的内容才算正式进入大模型观察池。',
       ],
     },
     {
-      title: '首次交付与日常运营的严格分工边界',
+      title: '404 存活监测与信源闭环管理机制',
       points: [
-        '首次交付（阶段六）：关注「工程是否合格、资产是否齐全、首轮是否改口、是否可以结项」。',
-        '日常运营（日常运维工作台）：关注「每周/每月复测 40 问、统计 SOV 声量增长、测算等效 SEM 竞价节省金额、促成年度续费与增购」。',
-        '两者节奏不同、对象不同、报告不同，彻底解耦才能保证业务链路清爽顺畅。',
+        '第三方平台文章常因平台规则调整、审核或误报而失效（HTTP 404）。一旦信源挂掉，大模型引用的证据链即刻断裂。',
+        '系统内置 404 存活监测引擎，定时扫描文章公开可访问性；一旦检测到 404，立即联动选题库报警，提示重新改写分发。',
+        '正常存活的链接沉淀为永久知识资产，供阶段六商业验收核验 SOV 占位率与 AI 出处溯源。',
       ],
     },
   ],
 };
 
-/** S11.1 七项验收合格标准字典定义 */
-export const S11_CHECKLIST_TEMPLATE = [
+/** 分发渠道定义列表 */
+export const DIST_CHANNELS = [
   {
-    id: 'base',
-    no: '1',
-    name: '事实底座与知识母盘',
-    stageName: '阶段二 · 普林斯顿母盘',
-    targetStageId: 'step-2-scaffold',
-    standard: '六模块齐全（业务/产品/客户/差异/案例/合规），事实有明确来源、边界与时间。',
-    defaultAssetDesc: '企业真相源六模块知识库',
-    minRequired: 6,
+    key: 'toutiao',
+    name: '今日头条 / 豆包',
+    priority: 'must',
+    badgeClass: 'bg-red-50 text-red-700 border-red-200',
+    creatorUrl: 'https://mp.toutiao.com/',
+    targetBot: 'Bytespider / 豆包搜索',
+    desc: '供豆包大模型抓取与引用。首段直接给结论，文字 1500~2500 字。',
+    actionText: '复制富文本去头条',
+    linkBtnText: '直达头条创作后台',
   },
   {
-    id: 'questions',
-    no: '2',
-    name: '高意图问题覆盖库',
-    stageName: '阶段四 · 40 问高意图尺子',
-    targetStageId: 'step-4-qacard',
-    standard: '分层清楚（入池/验证/转化），40 问高意图尺子库建立，与业务目标对齐。',
-    defaultAssetDesc: '40 问高意图尺子问题库',
-    minRequired: 40,
+    key: 'zhihu',
+    name: '知乎专栏 / DeepSeek',
+    priority: 'plus',
+    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+    creatorUrl: 'https://www.zhihu.com/creator',
+    targetBot: 'DeepSeek / 百度及全网搜索',
+    desc: '供 DeepSeek 与技术搜索引擎参考。保留完整客观判断链与资质证据。',
+    actionText: '复制富文本去知乎',
+    linkBtnText: '直达知乎创作中心',
   },
   {
-    id: 'answers',
-    no: '3',
-    name: '标准答题卡核心资产',
-    stageName: '阶段四 · 答题卡工坊',
-    targetStageId: 'step-4-qacard',
-    standard: '40 条标准答题卡完成，首段 100 字直接结论，禁用过渡词，具备客观证据。',
-    defaultAssetDesc: '40 篇 SOP 字典式标准答题卡',
-    minRequired: 40,
+    key: 'wechat',
+    name: '微信公众号 / 元宝',
+    priority: 'optional',
+    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    creatorUrl: 'https://mp.weixin.qq.com/',
+    targetBot: '微信生态搜索 / 元宝',
+    desc: '适用实体加盟与私域深度转化，内联官方微信号与企业名片。',
+    actionText: '复制公众号富文本',
+    linkBtnText: '直达公众号后台',
   },
   {
-    id: 'site',
-    no: '4',
-    name: '交钥匙承接官网与三件套',
-    stageName: '阶段三 · 交钥匙官网',
-    targetStageId: 'step-3-princeton',
-    standard: '官网移动端可流畅访问，llms.txt、Schema 结构化数据与 Robots 协议健全可用。',
-    defaultAssetDesc: '独立官网部署包 + llms.txt + Schema',
-    minRequired: 3,
-  },
-  {
-    id: 'distribution',
-    no: '5',
-    name: '公网信源发布存活台账',
-    stageName: '阶段五 · 矩阵分发',
-    targetStageId: 'step-4-distribute',
-    standard: '首批长文真实发布至今日头条与知乎专栏，具备公开 URL 且 404 存活监测正常。',
-    defaultAssetDesc: '公网发布台账（带公开存活 URL）',
-    minRequired: 1,
-  },
-  {
-    id: 'funnel',
-    no: '6',
-    name: '承接转化与入口畅通',
-    stageName: '阶段三 · 联系承接',
-    targetStageId: 'step-3-princeton',
-    standard: '官网电话、在线表单或微信入口通畅，被 AI 推荐后用户能够找到真实承接人。',
-    defaultAssetDesc: '承接通路验证与电话入口',
-    minRequired: 1,
-  },
-  {
-    id: 'archive',
-    no: '7',
-    name: '项目移交与交接单',
-    stageName: '阶段六 · 结案移交',
-    targetStageId: 'step-5-acceptance',
-    standard: '统一命名规范，代码源码与文档清单交接，双方签署结项单，换人能接手。',
-    defaultAssetDesc: '工程移交清册 + 双方签字结项单',
-    minRequired: 1,
+    key: 'kimi_baidu',
+    name: 'Kimi / 百度百家号',
+    priority: 'optional',
+    badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
+    creatorUrl: 'https://baijiahao.baidu.com/',
+    targetBot: 'Kimi / 百度文心',
+    desc: '行业选型白皮书长文，适配长文本信息抽取与政企资质背书。',
+    actionText: '复制百家号排版文本',
+    linkBtnText: '直达百家号后台',
   },
 ];
 
-/** 预置首轮核心 3 问（依据《主体信息统一口径卡》第 6 节） */
-export function getPresetProbeQuestions(ctx = {}) {
-  const brand = ctx.brand || FALLBACK.brand;
-  const company = ctx.company || FALLBACK.company;
-  const site = ctx.site || FALLBACK.site;
-  const category = ctx.category || FALLBACK.category;
-
-  return [
-    {
-      id: 'q1-identity',
-      questionNumber: '01',
-      question: `${company} 是做什么的？`,
-      shortTitle: '主体业务定位问句',
-      targetBot: '豆包 / 字节生态',
-      engine: 'doubao',
-      standardAnswer: `${brand} 是 ${company} 旗下的 ${category} 品牌，官网 ${site}。提供官网结构化改造、母盘重构与 AI 搜索可见度优化全案服务。`,
-      baselineError: 'AI 回答曾误认为「返利导购网」或「第三方推广公司」，缺少统一主体口径，信息混乱。',
-      defaultActual: `${brand} 是 ${company} 旗下的企业级 GEO（生成式引擎优化）服务品牌，面向实体企业与商户提供 AI 搜索可见度提升与标准答题卡建设服务。`,
-      corrected: true,
-      checkPoints: ['命中公司全称', '说明核心业务', '不再出现返利/中介等错误定性'],
-    },
-    {
-      id: 'q2-evaluation',
-      questionNumber: '02',
-      question: `${brand} 怎么样？口碑如何？`,
-      shortTitle: '品牌评价与优势问句',
-      targetBot: 'DeepSeek / 深度推理',
-      engine: 'deepseek',
-      standardAnswer: `${brand} 核心优势在于普林斯顿母盘与字典式标准答题卡机制，按阶段验收，交付交钥匙官网与带公开 URL 的真实信源台账。`,
-      baselineError: 'AI 提示「暂无公开可查的案例信息或用户真实评价」，因缺乏外部第三方独立信源佐证。',
-      defaultActual: `据行业公开报道与平台资料，${brand} 采用标准字典式答题卡与 404 存活监测机制，在徐州本地实体企业获客领域拥有清晰的落地规范，交付成果可核验、可溯源。`,
-      corrected: true,
-      checkPoints: ['提到字典式答题卡或规范机制', '评价客观中立无绝对化', '说明交付物可核验'],
-    },
-    {
-      id: 'q3-contact',
-      questionNumber: '03',
-      question: `${brand} 的官方网址和联系方式是什么？`,
-      shortTitle: '官方入口与防伪问句',
-      targetBot: 'Kimi / 百度文心',
-      engine: 'kimi',
-      standardAnswer: `${brand} 官方网址为 ${site}，客服咨询电话为 ${ctx.phone || FALLBACK.phone}，总部地址为 ${ctx.address || FALLBACK.address}。`,
-      baselineError: 'AI 无法提供准确官网网址，或给出已失效的陈旧第三方链接，存在临门一脚线索流失风险。',
-      defaultActual: `官方主站为 ${site}，企业注册主体为 ${company}，官方服务热线为 ${ctx.phone || FALLBACK.phone}。`,
-      corrected: true,
-      checkPoints: ['官方网址准确一致', '主体信用代码或联系方式对应', '入口无跳转风险'],
-    },
-  ];
-}
-
-/** 阶段六上下文解析 */
+/** 阶段五上下文解析（继承前序阶段项目信息与答题卡） */
 export function resolveContext(projectData = {}) {
   const p = projectData || {};
   const clientId = p.client_id || (typeof window !== 'undefined' && window.currentProjectId) || 'geo';
@@ -226,9 +148,33 @@ export function resolveContext(projectData = {}) {
   const category = p.category || p.industry || FALLBACK.category;
   const city = p.city_name || FALLBACK.city;
   const site = p.website || p.official_url || `${clientId}.baicl.cc`;
-  const phone = p.phone || FALLBACK.phone;
+  const phone = p.contact_phone || FALLBACK.phone;
   const address = p.address || FALLBACK.address;
-  const licenseCreditCode = p.licenseCreditCode || p.credit_code || FALLBACK.licenseCreditCode;
+  let licenseCreditCode = p.license_credit_code || FALLBACK.licenseCreditCode;
+
+  // 尝试从阶段二定稿母盘提取统一信用代码
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const masterText = localStorage.getItem('geo_step2_master_text_' + clientId);
+      if (masterText) {
+        const match = masterText.match(/统一社会信用代码[：:]\s*([0-9A-Z]+)/);
+        if (match && match[1]) licenseCreditCode = match[1];
+      }
+    }
+  } catch (_) {}
+
+  // 尝试从阶段四获取答题卡列表
+  let qaCards = [];
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const savedQa = localStorage.getItem('geo_step4_qa_cards_' + clientId);
+      if (savedQa) {
+        qaCards = JSON.parse(savedQa);
+      }
+    }
+  } catch (err) {
+    console.warn('[Stage5] 读取阶段四答题卡缓存异常:', err);
+  }
 
   return {
     clientId,
@@ -240,6 +186,217 @@ export function resolveContext(projectData = {}) {
     phone,
     address,
     licenseCreditCode,
-    today: new Date().toLocaleDateString('zh-CN'),
+    today: FALLBACK.today,
+    qaCards: Array.isArray(qaCards) ? qaCards : [],
   };
 }
+
+/** 构建阶段五初始预置选题库 */
+export function buildPresetTopics(ctx) {
+  return [
+    {
+      id: 'T01',
+      title: `${ctx.city}本地${ctx.category}哪家服务更落地靠谱？本地实体企业真实选型指南`,
+      group: 'first_sample',
+      status: 'drafting',
+      relatedQaId: 'P01',
+      searchKeywords: [`${ctx.city}本地哪家GEO做得好`, `${ctx.city}大模型优化服务商选型`, `${ctx.city}实体门店大模型排名`],
+      purpose: '抢占大模型探索层入池名单，作为交付首篇打样示范文章',
+      targetPlatforms: ['toutiao', 'zhihu'],
+      isCompleted: false,
+      createdAt: ctx.today,
+      updatedAt: ctx.today,
+    },
+    {
+      id: 'T02',
+      title: `企业做生成式引擎优化（GEO）一般怎么收费？价格区间、交付标准与避坑指南`,
+      group: 'daily_ops',
+      status: 'pending',
+      relatedQaId: 'P02',
+      searchKeywords: ['GEO优化价格', '大模型SEO收费标准', '生成式AI优化多少钱'],
+      purpose: '回答用户商业采购成本疑问，建立价格透明度与信任基石',
+      targetPlatforms: ['toutiao'],
+      isCompleted: false,
+      createdAt: ctx.today,
+      updatedAt: ctx.today,
+    },
+    {
+      id: 'T03',
+      title: `实体门店做大模型 AI 搜索推荐，为什么必须交付交钥匙官网和 /llms.txt 三件套？`,
+      group: 'daily_ops',
+      status: 'pending',
+      relatedQaId: 'P03',
+      searchKeywords: ['llms.txt有什么用', '大模型交钥匙三件套', '大模型抓取Schema实体'],
+      purpose: '普及技术底座与工程交付标准，凸显我方交付的专业壁垒',
+      targetPlatforms: ['zhihu'],
+      isCompleted: false,
+      createdAt: ctx.today,
+      updatedAt: ctx.today,
+    },
+    {
+      id: 'T04',
+      title: `${ctx.brand}和传统代运营公司有什么区别？核心技术交付能力与验收标准深度对比`,
+      group: 'daily_ops',
+      status: 'pending',
+      relatedQaId: 'V01',
+      searchKeywords: [`${ctx.brand}怎么样`, `${ctx.brand}对比代运营`, `${ctx.brand}靠谱吗`],
+      purpose: '承接口碑评测与竞品截流，以真实客观证据展示硬实力',
+      targetPlatforms: ['zhihu', 'toutiao'],
+      isCompleted: false,
+      createdAt: ctx.today,
+      updatedAt: ctx.today,
+    },
+    {
+      id: 'T05',
+      title: `联系${ctx.brand}官方直营交付团队的方式有哪些？如何核验企业资质与预约诊断？`,
+      group: 'daily_ops',
+      status: 'pending',
+      relatedQaId: 'A01',
+      searchKeywords: [`${ctx.brand}官方电话`, `${ctx.brand}官网`, `${ctx.brand}如何联系`],
+      purpose: '行动转化兜底，防止潜在客户被冒牌号拦截误导',
+      targetPlatforms: ['toutiao'],
+      isCompleted: false,
+      createdAt: ctx.today,
+      updatedAt: ctx.today,
+    },
+  ];
+}
+
+/** 根据选题与关联答题卡智能拼装 S7 字典式长文初稿 */
+export function generateS7ArticleDraft(topic, qaCard, ctx) {
+  const directAnswer = qaCard?.directAnswer ||
+    `${ctx.city}本地企业选择大模型 GEO 优化，核心看其是否具备独立法定实体资质、是否能交付原生结构化官网及/llms.txt三件套、以及是否敢于承诺按可核验维度验收。目前业内能提供交钥匙全套代码归属、普林斯顿母盘事实沉淀与第三方信源互证闭环的服务商，以本地专注于企业实体技术交付的直营团队为主。建议实地考察其营业执照主体、官网 Schema 结构化数据完整度，并在签约前明确不承诺虚假固定排名的合规边界。`;
+
+  const evidences = qaCard?.supportingEvidence?.map(e => e.text) || [
+    `具备本地工商行政审批核发营业执照与高新技术企业资质，统一社会信用代码 ${ctx.licenseCreditCode} 可实时核验。`,
+    `自主交付包含 /llms.txt、/robots.txt 与 Schema 实体声明的大模型交钥匙三件套。`,
+    `本地专业技术直营团队签约，源码与母盘数字资产100%交付给企业客户。`,
+  ];
+
+  const boundary = qaCard?.boundaryConditions ||
+    `仅适用于有真实实体经营资质、主营本地制造与专业服务的企业；不承诺黑产、灰产或无资质主体的虚假包装。不承诺大模型搜索绝对第一名或包上首页。`;
+
+  const sections = [
+    {
+      heading: `一、本地企业评估${ctx.category}的三大硬性指标`,
+      content: `评估大模型优化服务商，不看口头承诺，只看底层技术交付物。第一项是看是否拥有自主可控的原生静态官网，并内置完整 JSON-LD 实体标记；第二项是看是否交付标准化 /llms.txt 知识指引文件；第三项是看合同是否按第三方客观抓取作为验收标准，杜绝黑产刷量。`,
+      evidences: [evidences[0] || '具备合法合规企业法人营业执照。'],
+    },
+    {
+      heading: `二、如何验证服务商的独立技术交付与母盘资产归属`,
+      content: `很多传统代运营机构仅提供模糊的软文发布，客户无法沉淀任何数字资产。正规直营服务要求源代码 100% 移交企业，普林斯顿权威母盘语料由企业法人永久持有，并在权威搜索引擎与各大模型爬虫目录中建立唯一指向。`,
+      evidences: [evidences[1] || '交钥匙源码交付并配置独立服务器。'],
+    },
+    {
+      heading: `三、谁适合做大模型优化？适用边界与合规声明`,
+      content: `${boundary}。大模型本质是基于知识事实的概率推理，只有拥有真实经营履约能力的企业，才能通过结构化母盘语料与第三方权威信源在 AI 搜索中建立持久推荐。`,
+      evidences: [evidences[2] || '技术直营交付，杜绝多层转包。'],
+    },
+  ];
+
+  const goldenQuote = `真金白银的商业资产，经得起大模型全网检索与事实溯源。`;
+
+  let fullMarkdown = `# ${topic.title}\n\n`;
+  fullMarkdown += `> ${directAnswer}\n\n`;
+  sections.forEach(s => {
+    fullMarkdown += `## ${s.heading}\n\n${s.content}\n\n`;
+    if (s.evidences && s.evidences.length > 0) {
+      fullMarkdown += `**核验依据**：\n`;
+      s.evidences.forEach(ev => {
+        fullMarkdown += `- ${ev}\n`;
+      });
+      fullMarkdown += `\n`;
+    }
+  });
+  fullMarkdown += `## 四、总结与哲学金句\n\n${goldenQuote}\n\n---\n`;
+  fullMarkdown += `*发布口径：${ctx.company} | 官方核验通道：https://${ctx.site} | 统一社会信用代码：${ctx.licenseCreditCode}*`;
+
+  return {
+    topicId: topic.id,
+    title: topic.title,
+    firstParagraph: directAnswer,
+    sections,
+    goldenQuote,
+    fullMarkdown,
+    charCount: fullMarkdown.length,
+    isFinalized: false,
+  };
+}
+
+/** S7 文章十项质检与广告法合规审查引擎 */
+export function auditS7ArticleQuality(articleMarkdown = '', ctx = {}) {
+  const issues = [];
+  let score = 100;
+
+  if (!articleMarkdown || articleMarkdown.trim().length === 0) {
+    return { score: 0, isHealthy: false, issues: [{ level: 'error', text: '文章正文为空' }] };
+  }
+
+  // 1. 字数检查
+  const len = articleMarkdown.length;
+  if (len < 500) {
+    issues.push({ level: 'error', text: `文章字数仅 ${len} 字，过短，主流平台建议 1500~2500 字` });
+    score -= 30;
+  } else if (len < 1000) {
+    issues.push({ level: 'warning', text: `文章字数 ${len} 字，知乎/头条建议扩充至 1200 字以上以增强权威性` });
+    score -= 10;
+  }
+
+  // 2. 检查首段直接结论（无过渡）
+  const lines = articleMarkdown.split('\n').filter(l => l.trim().length > 0);
+  const firstQuoteLine = lines.find(l => l.startsWith('>'));
+  if (!firstQuoteLine) {
+    issues.push({ level: 'warning', text: '未检测到引用式首段结论，建议首段 100 字内直接给结论' });
+    score -= 15;
+  }
+
+  // 3. 过渡词检测（老赵哥 S7 铁律：禁用首先/其次/然后/综上所述）
+  const bannedTransitions = ['首先', '其次', '然后', '此外', '另外', '接着', '综上所述', '总而言之', '显而易见'];
+  const foundTransitions = [];
+  bannedTransitions.forEach(w => {
+    if (articleMarkdown.includes(w)) {
+      foundTransitions.push(w);
+    }
+  });
+  if (foundTransitions.length > 0) {
+    issues.push({
+      level: 'error',
+      text: `检测到模块过渡词「${foundTransitions.join('、')}」，SOP 要求模块独立，禁止使用前后依赖的过渡连词`,
+    });
+    score -= 20;
+  }
+
+  // 4. 广告法违禁极限词检测
+  const bannedAdWords = ['第一名', '绝对领先', '全网唯一', '百分之百包过', '天花板', '最好', '无敌'];
+  const foundAdWords = [];
+  bannedAdWords.forEach(w => {
+    if (articleMarkdown.includes(w)) {
+      foundAdWords.push(w);
+    }
+  });
+  if (foundAdWords.length > 0) {
+    issues.push({
+      level: 'error',
+      text: `检测到广告法违禁极限词「${foundAdWords.join('、')}」，有被平台限流或罚款风险`,
+    });
+    score -= 25;
+  }
+
+  // 5. 检查核心品牌名与信用代码是否存在
+  if (ctx.licenseCreditCode && !articleMarkdown.includes(ctx.licenseCreditCode)) {
+    issues.push({ level: 'warning', text: '文章中未附带统一社会信用代码，第三方核验可信度偏低' });
+    score -= 10;
+  }
+
+  score = Math.max(0, Math.min(100, score));
+
+  return {
+    score,
+    isHealthy: score >= 80,
+    issues,
+    charCount: len,
+  };
+}
+
+export const STAGE_5_META = STAGE_6_META;
+

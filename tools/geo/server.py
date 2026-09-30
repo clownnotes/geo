@@ -2970,80 +2970,26 @@ core_values:
                 bak_file = config_file + ".bak"
                 shutil.copyfile(config_file, bak_file)
 
-                # 读取旧配置以合并
-                old_cfg = load_project_config(project_id)
-                e = self._yaml_escape
+                # [2026-09-30] [修复建档覆盖与门禁漂移] 废弃原硬编码10个字段的破坏性重写，统一复用 update_project_profile
+                # 完整保留 probe_status、brand_name、company_name、nameplate 等全量建档字段
+                safe = update_project_profile(project_id, body or {})
+                if not isinstance(safe, dict):
+                    safe = {}
 
-                # 允许更新的字段
-                client_name = body.get("client_name", old_cfg.get("client_name", project_id))
-                official_url = body.get("official_url", old_cfg.get("official_url", ""))
-                industry = body.get("industry", old_cfg.get("industry", "待定"))
-                one_liner = body.get("business_one_liner", old_cfg.get("business_one_liner", ""))
-                company_profile = body.get("company_profile", old_cfg.get("company_profile", one_liner))
-                partner_id = body.get("partner_id", old_cfg.get("partner_id", ""))
-                kw_list = body.get("keywords", old_cfg.get("keywords", []))
-                comp_list = body.get("competitors", old_cfg.get("competitors", []))
-                cv_list = body.get("core_values", old_cfg.get("core_values", []))
-                member_user_ids = body.get("member_user_ids", old_cfg.get("member_user_ids", []))
-                models_list = body.get("models", old_cfg.get("models", ["deepseek", "doubao"]))
-                sf_id = str(old_cfg.get("id") or body.get("id") or new_id())
-                creator_user_id = str(old_cfg.get("creator_user_id") or "")
-                creator_name = str(old_cfg.get("creator_name") or "")
-
-                if isinstance(kw_list, str):
-                    kw_list = [k.strip() for k in kw_list.split("\n") if k.strip()]
-                if isinstance(comp_list, str):
-                    comp_list = [c.strip() for c in comp_list.split("\n") if c.strip()]
-                if isinstance(cv_list, str):
-                    cv_list = [v.strip() for v in cv_list.split("\n") if v.strip()]
-
-                yaml_content = f"""id: "{sf_id}"
-client_id: "{e(project_id)}"
-client_name: "{e(client_name)}"
-official_url: "{e(official_url)}"
-industry: "{e(industry)}"
-business_one_liner: "{e(one_liner)}"
-company_profile: "{e(company_profile)}"
-site_pending: false
-
-creator_user_id: "{e(creator_user_id)}"
-creator_name: "{e(creator_name)}"
-member_user_ids: {json.dumps(member_user_ids, ensure_ascii=False)}
-
-core_values:
-"""
-                for cv in (cv_list or []):
-                    yaml_content += f"  - \"{e(cv)}\"\n"
-
-                yaml_content += "\nkeywords:\n"
-                for kw in (kw_list or []):
-                    yaml_content += f"  - \"{e(kw)}\"\n"
-
-                yaml_content += "\ncompetitors:\n"
-                for comp in (comp_list or []):
-                    yaml_content += f"  - \"{e(comp)}\"\n"
-
-                yaml_content += "\nmodels:\n"
-                for m in (models_list or ["deepseek", "doubao"]):
-                    yaml_content += f"  - \"{e(m)}\"\n"
-
-                yaml_content += f'\npartner_id: "{e(partner_id)}"\n'
-                yaml_content += f'updated_at: "{time.strftime("%Y-%m-%d %H:%M:%S")}"\n'
-
-                with open(config_file, "w", encoding="utf-8") as f:
-                    f.write(yaml_content)
+                # [2026-09-30] [契约向后兼容 · 解决 🔴4] 保留旧调用方依赖的 project_slug、id、updated_at 等同名字段
+                resp_data = dict(safe)
+                resp_data["project_slug"] = project_id
+                resp_data["id"] = safe.get("id") or safe.get("client_id") or project_id
+                resp_data["client_name"] = safe.get("client_name") or safe.get("brand_name") or project_id
+                resp_data["official_url"] = safe.get("official_url") or ""
+                resp_data["updated_at"] = safe.get("updated_at") or time.strftime("%Y-%m-%d %H:%M:%S")
 
                 self.send_json({
                     "code": 0,
                     "msg": "项目配置更新成功",
                     "success": True,
-                    "data": {
-                        "id": sf_id,
-                        "project_slug": project_id,
-                        "client_name": client_name,
-                        "official_url": official_url,
-                        "updated_at": time.strftime("%Y-%m-%d %H:%M:%S")
-                    }
+                    "data": resp_data,
+                    "project": resp_data
                 })
                 return
             except Exception as e:

@@ -143,6 +143,10 @@
               指标已抓取就绪，请核对中栏并点击下方继续
             </div>
 
+            <!-- 步骤专属扩展插槽 (供阶段三消歧指示灯、客观瑕疵排查器等优雅注入) -->
+            <slot :name="`step-${idx + 1}`" :step="step" :index="idx"></slot>
+            <slot name="step-extra" :step="step" :index="idx"></slot>
+
             <!-- 主推进按钮：下一步 / 完成阶段 (仅在未显式声明 hideProceed 时渲染) -->
             <button
               v-if="!step.hideProceed"
@@ -196,6 +200,8 @@ import { ref, computed, nextTick, watch } from 'vue';
 const props = defineProps({
   /** 当前阶段配置（来自 stageConfigs 或外部传入） */
   stageMeta: { type: Object, default: () => null },
+  /** [2026-09-29] [阶段二动线错位纠偏] 兼容支持 sopSteps 数组直接传入 */
+  sopSteps: { type: Array, default: () => null },
   /** 当前步骤序号，1 起 */
   currentStep: { type: Number, default: 1 },
   /** [2026-09-28] 是否平铺展开所有三级微操作卡片（阶段零专用） */
@@ -246,6 +252,10 @@ watch(selectedGate, (v) => {
 });
 
 const steps = computed(() => {
+  // [2026-09-29] [阶段二动线错位纠偏] 优先读取直接传入的 sopSteps
+  if (Array.isArray(props.sopSteps) && props.sopSteps.length > 0) {
+    return props.sopSteps;
+  }
   if (props.stageMeta) {
     if (Array.isArray(props.stageMeta.sopSteps) && props.stageMeta.sopSteps.length > 0) {
       return props.stageMeta.sopSteps;

@@ -23,7 +23,7 @@
    - **代码/功能/Bug/测试缺陷**：使用专属快捷指令 **`/opsx-fix`**（或 `/opsx-apply`），直接定位源码与测试脚本进行修复，通过自动化回归后在 `review-log.md` 标记 `[已修正]`，然后**立即停步**等待复审，严禁擅自归档。
 5. **任务跟踪**：
    - 使用 `./opsx status` 查看当前进度。
-6. **WorkBuddy 独立自动化审查 (混元3免费通道)**：
+6. **WorkBuddy 独立自动化审查 (DeepSeek 4.1 Flash 极速通道)**：
    - 终端随时执行 `./opsx review-wb --stage [design|code]` 或聊天触发 `/opsx-review-workbuddy`，调用独立 Reviewer 进行严苛对抗审查并将意见自动记入 `review-log.md`。
 
 ---

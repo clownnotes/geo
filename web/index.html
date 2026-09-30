@@ -9,8 +9,8 @@
 <link rel="stylesheet" href="./geo-admin.css" data-page-node-id="ViWIdWDrG8ouxEF13VH9iq">
 <!-- Tailwind CSS & Lucide Icons & Marked.js --><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <!-- 阶段零 Vue3 组件岛产物 -->
-<link rel="stylesheet" href="./assets/step0/geo-step0-island.css?v=20260928134112">
-<script src="./assets/step0/step0.js?v=20260928134112"></script>
+<link rel="stylesheet" href="./assets/step0/geo-step0-island.css?v=20260930021338">
+<script src="./assets/step0/step0.js?v=20260930021338"></script>
 <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -598,15 +598,17 @@
 </div>
 <button type="button" id="nav-step-1-diag" onclick="switchView('step-1-diag')" class="sidebar-nav-item" data-page-node-id="e3YBgspHWhivGRIePlAEpY"><span class="truncate" data-page-node-id="QgjptDKd3ts8MlPBnC7hjf">01 诊断现状并出具报告</span>
 </button>
-<button type="button" id="nav-step-2-scaffold" onclick="switchView('step-2-scaffold')" class="sidebar-nav-item" data-page-node-id="6QGixhotEcciQwgl3lPuVB"><span class="truncate" data-page-node-id="IyPdfSb3VBRFNT46LyspfX">02 普林斯顿母盘与素材库</span>
+<button type="button" id="nav-step-2-scaffold" onclick="switchView('step-2-scaffold')" class="sidebar-nav-item" data-page-node-id="6QGixhotEcciQwgl3lPuVB"><span class="truncate" data-page-node-id="IyPdfSb3VBRFNT46LyspfX">02 客户素材资产管理库</span>
 </button>
-<button type="button" id="nav-step-3-princeton" onclick="switchView('step-3-princeton')" class="sidebar-nav-item" data-page-node-id="vl4ZnI8rm5D8NKDz3aELPJ"><span class="truncate" data-page-node-id="oov41sM2Jsykh2ACC2iWwP">03 交钥匙官网与三件套</span>
+<button type="button" id="nav-step-3-master" onclick="switchView('step-3-master')" class="sidebar-nav-item" data-page-node-id="navStep3Master"><span class="truncate">03 企业母盘与统一口径卡</span>
 </button>
-<button type="button" id="nav-step-4-qacard" onclick="switchView('step-4-qacard')" class="sidebar-nav-item" data-page-node-id="navStep4QaCard"><span class="truncate">04 GEO 答题卡与向量问答库</span>
+<button type="button" id="nav-step-4-website" onclick="switchView('step-4-website')" class="sidebar-nav-item" data-page-node-id="vl4ZnI8rm5D8NKDz3aELPJ"><span class="truncate" data-page-node-id="oov41sM2Jsykh2ACC2iWwP">04 交付官网与三件套</span>
 </button>
-<button type="button" id="nav-step-4-distribute" onclick="switchView('step-4-distribute')" class="sidebar-nav-item" data-page-node-id="GuFMqNwG1v8xxin2RRErYl"><span class="truncate" data-page-node-id="j1DTdvGmUHke8hy1qGUdV7">05 矩阵分发与链接检查</span>
+<button type="button" id="nav-step-5-qacard" onclick="switchView('step-5-qacard')" class="sidebar-nav-item" data-page-node-id="navStep4QaCard"><span class="truncate">05 GEO 答题卡与向量问答库</span>
 </button>
-<button type="button" id="nav-step-5-acceptance" onclick="switchView('step-5-acceptance')" class="sidebar-nav-item" data-page-node-id="gHrAtnWjE8OiibKWeDccdO"><span class="truncate" data-page-node-id="baEPHm6JWPPVw6yWaO0QDD">06 首次交付与资产交接单</span>
+<button type="button" id="nav-step-6-distribute" onclick="switchView('step-6-distribute')" class="sidebar-nav-item" data-page-node-id="GuFMqNwG1v8xxin2RRErYl"><span class="truncate" data-page-node-id="j1DTdvGmUHke8hy1qGUdV7">06 矩阵分发与链接检查</span>
+</button>
+<button type="button" id="nav-step-7-acceptance" onclick="switchView('step-7-acceptance')" class="sidebar-nav-item" data-page-node-id="gHrAtnWjE8OiibKWeDccdO"><span class="truncate" data-page-node-id="baEPHm6JWPPVw6yWaO0QDD">07 首次交付与资产交接单</span>
 </button>
 </div>
 </div>
@@ -1025,10 +1027,17 @@
 </div>
   </div>
 </div>
-<div id="panel-step-3-princeton" class="workspace-panel hidden space-y-6" data-page-node-id="Qo1ubvq0Z98K5THKhBoSom">
-  <!-- 阶段三 Vue3 3竖列组件岛根节点 -->
+<!-- 阶段三 Vue3 企业母盘与统一口径卡专属工作台组件岛 -->
+<div id="panel-step-3-master" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep3Master">
   <div id="step3-app-root"></div>
+</div>
 
+<!-- 阶段四 Vue3 交钥匙官网与大模型三件套组件岛根节点 -->
+<div id="panel-step-4-website" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep4Website">
+  <div id="step4-app-root"></div>
+</div>
+
+<div id="panel-step-3-princeton" class="workspace-panel hidden space-y-6" data-page-node-id="Qo1ubvq0Z98K5THKhBoSom">
   <!-- 原版平铺视图（隐藏留档兜底，确保所有既有 DOM、ID 与回调完好无损） -->
   <div id="legacy-step3-container" class="hidden space-y-6">
 <!-- 使用说明折叠抽屉（对齐阶段二交互） -->
@@ -1206,14 +1215,18 @@
 </div>
   </div>
 </div>
-<!-- 阶段四 GEO 答题卡与向量问答库 Vue3 3竖列组件岛根容器 -->
+<!-- 阶段五 GEO 答题卡与向量问答库 Vue3 3竖列组件岛根容器 -->
+<div id="panel-step-5-qacard" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep5QaCard">
+  <div id="step5-app-root"></div>
+</div>
 <div id="panel-step-4-qacard" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep4QaCard">
-  <div id="step4-app-root"></div>
 </div>
 
-<!-- 阶段五 GEO 文章选题撰写与矩阵分发 Vue3 3竖列组件岛根容器 -->
+<!-- 阶段六 GEO 文章选题撰写与矩阵分发 Vue3 3竖列组件岛根容器 -->
+<div id="panel-step-6-distribute" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep6Distribute">
+  <div id="step6-app-root"></div>
+</div>
 <div id="panel-step-4-distribute" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep5Distribute">
-  <div id="step5-app-root"></div>
 
   <!-- 原版平铺视图（隐藏留档兜底，确保所有既有 DOM、ID 与回调完好无损） -->
   <div id="legacy-step4-distribute-container" class="hidden space-y-6">
@@ -1635,8 +1648,12 @@
   </div>
 </div>
 
+<!-- 阶段七 GEO 首次交付与资产交接单 Vue3 3竖列组件岛根容器 -->
+<div id="panel-step-7-acceptance" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep7Acceptance">
+  <div id="step7-app-root"></div>
+</div>
+
 <div id="panel-step-5-acceptance" class="workspace-panel hidden space-y-6" data-page-node-id="panelStep6Acceptance">
-  <div id="step6-app-root"></div>
 
   <!-- 原版平铺视图（隐藏留档兜底，确保所有既有 DOM、ID 与回调完好无损） -->
   <div id="legacy-step5-acceptance-container" class="hidden space-y-6">
@@ -7245,8 +7262,8 @@ GitHub 开源仓库：https://github.com/company/repo
       if (window.lucide) lucide.createIcons();
     }
 
-    // [2026-09-27] [阶段三交钥匙官网与三件套升级3竖列] 挂载与刷新阶段三 3 竖列工作台
-    async function renderStep3PrincetonPanel(forceRemount = false) {
+    // [2026-09-30] [阶段三母盘专属工作台] 挂载与刷新阶段三企业母盘与统一口径卡工作台
+    async function renderStep3MasterPanel(forceRemount = false) {
       if (!currentProjectId) return;
 
       if (!currentProjectData || currentProjectData.client_id !== currentProjectId) {
@@ -7274,8 +7291,8 @@ GitHub 开源仓库：https://github.com/company/repo
       if (window.lucide) lucide.createIcons();
     }
 
-    // [2026-09-27] [阶段四GEO答题卡与向量问答库升级3竖列] 挂载与刷新阶段四 3 竖列工作台
-    async function renderStep4QaCardPanel(forceRemount = false) {
+    // [2026-09-30] [阶段四交钥匙官网与三件套升级3竖列] 挂载与刷新阶段四 3 竖列工作台
+    async function renderStep4WebsitePanel(forceRemount = false) {
       if (!currentProjectId) return;
 
       if (!currentProjectData || currentProjectData.client_id !== currentProjectId) {
@@ -7303,8 +7320,8 @@ GitHub 开源仓库：https://github.com/company/repo
       if (window.lucide) lucide.createIcons();
     }
 
-    // [2026-09-27] [阶段五GEO文章选题撰写与矩阵分发升级3竖列] 挂载与刷新阶段五 3 竖列工作台
-    async function renderStep5DistributePanel(forceRemount = false) {
+    // [2026-09-30] [阶段五GEO答题卡与向量问答库升级3竖列] 挂载与刷新阶段五 3 竖列工作台
+    async function renderStep5QaCardPanel(forceRemount = false) {
       if (!currentProjectId) return;
 
       if (!currentProjectData || currentProjectData.client_id !== currentProjectId) {
@@ -7332,8 +7349,8 @@ GitHub 开源仓库：https://github.com/company/repo
       if (window.lucide) lucide.createIcons();
     }
 
-    // [2026-09-27] [首次交付验收与日常运营复测解耦] 挂载与刷新阶段六首次交付与资产交接单工作台
-    async function renderStep6AcceptancePanel(forceRemount = false) {
+    // [2026-09-30] [阶段六GEO文章选题撰写与矩阵分发升级3竖列] 挂载与刷新阶段六 3 竖列工作台
+    async function renderStep6DistributePanel(forceRemount = false) {
       if (!currentProjectId) return;
 
       if (!currentProjectData || currentProjectData.client_id !== currentProjectId) {
@@ -7354,6 +7371,35 @@ GitHub 开源仓库：https://github.com/company/repo
           if (!window.__GEO_STEP6_MOUNTED__ || forceRemount) {
             window.__GEO_STEP6__.mount('#step6-app-root', { projectData: p, isDeveloper: isDeveloper });
             window.__GEO_STEP6_MOUNTED__ = true;
+          }
+        }
+      }
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // [2026-09-30] [阶段七首次交付与资产交接单升级3竖列] 挂载与刷新阶段七 3 竖列工作台
+    async function renderStep7AcceptancePanel(forceRemount = false) {
+      if (!currentProjectId) return;
+
+      if (!currentProjectData || currentProjectData.client_id !== currentProjectId) {
+        try {
+          const res = await fetch(`/api/projects/${currentProjectId}`, {
+            headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+          });
+          const data = await res.json();
+          if (data.success) currentProjectData = data.project;
+        } catch (_) {}
+      }
+
+      const p = currentProjectData || {};
+
+      if (window.__GEO_STEP7__) {
+        const root = document.getElementById('step7-app-root');
+        if (root) {
+          if (!window.__GEO_STEP7_MOUNTED__ || forceRemount) {
+            window.__GEO_STEP7__.mount('#step7-app-root', { projectData: p, isDeveloper: isDeveloper });
+            window.__GEO_STEP7_MOUNTED__ = true;
           }
         }
       }
@@ -7448,11 +7494,17 @@ GitHub 开源仓库：https://github.com/company/repo
       keywords: { group: 'daily', groupLabel: '日常运维', label: '选题长问清单' },
       'step-0-probe': { group: 'delivery', groupLabel: '首次交付', label: '00 去豆包提问查现状', step: 0 },
       'step-1-diag': { group: 'delivery', groupLabel: '首次交付', label: '01 诊断现状并出具报告', step: 1 },
-      'step-2-scaffold': { group: 'delivery', groupLabel: '首次交付', label: '02 普林斯顿母盘与素材库', step: 2 },
-      'step-3-princeton': { group: 'delivery', groupLabel: '首次交付', label: '03 交钥匙官网与三件套', step: 3 },
-      'step-4-qacard': { group: 'delivery', groupLabel: '首次交付', label: '04 GEO 答题卡与向量问答库', step: 4 },
-      'step-4-distribute': { group: 'delivery', groupLabel: '首次交付', label: '05 矩阵分发与链接检查', step: 5 },
-      'step-5-acceptance': { group: 'delivery', groupLabel: '首次交付', label: '06 首次交付与资产交接单', step: 6 },
+      'step-2-scaffold': { group: 'delivery', groupLabel: '首次交付', label: '02 客户素材资产管理库', step: 2 },
+      'step-3-master': { group: 'delivery', groupLabel: '首次交付', label: '03 企业母盘与统一口径卡', step: 3 },
+      'step-4-website': { group: 'delivery', groupLabel: '首次交付', label: '04 交付官网与三件套', step: 4 },
+      'step-5-qacard': { group: 'delivery', groupLabel: '首次交付', label: '05 GEO 答题卡与向量问答库', step: 5 },
+      'step-6-distribute': { group: 'delivery', groupLabel: '首次交付', label: '06 矩阵分发与链接检查', step: 6 },
+      'step-7-acceptance': { group: 'delivery', groupLabel: '首次交付', label: '07 首次交付与资产交接单', step: 7 },
+      // 历史 viewId 兼容映射
+      'step-3-princeton': { group: 'delivery', groupLabel: '首次交付', label: '04 交付官网与三件套', step: 4 },
+      'step-4-qacard': { group: 'delivery', groupLabel: '首次交付', label: '05 GEO 答题卡与向量问答库', step: 5 },
+      'step-4-distribute': { group: 'delivery', groupLabel: '首次交付', label: '06 矩阵分发与链接检查', step: 6 },
+      'step-5-acceptance': { group: 'delivery', groupLabel: '首次交付', label: '07 首次交付与资产交接单', step: 7 },
       'ops-publish': { group: 'publish', groupLabel: '发帖运维', label: '维护期发帖流程' },
       'mon-recurring': { group: 'daily', groupLabel: '日常运维', label: '周期复测与商业运营月报' },
       'mon-weekly': { group: 'biz', groupLabel: '经营监管', label: '权威度与 SOV 周报' },
@@ -7473,10 +7525,11 @@ GitHub 开源仓库：https://github.com/company/repo
       0: 'step-0-probe',
       1: 'step-1-diag',
       2: 'step-2-scaffold',
-      3: 'step-3-princeton',
-      4: 'step-4-qacard',
-      5: 'step-4-distribute',
-      6: 'step-5-acceptance',
+      3: 'step-3-master',
+      4: 'step-4-website',
+      5: 'step-5-qacard',
+      6: 'step-6-distribute',
+      7: 'step-7-acceptance',
     };
 
     function defaultWizardViewForProject(p) {
@@ -7486,12 +7539,43 @@ GitHub 开源仓库：https://github.com/company/repo
     }
 
     function isProbeUnready(p) {
+      if (!p) return false;
+      // [2026-09-30 修复R3] 显式兜底空值与未定义为 unprobed，杜绝全新项目误判就绪
       const st = String((p && p.probe_status) || 'unprobed').trim() || 'unprobed';
+      if (st === 'baseline_ready' || st === 'awaiting_retest') return false;
+
+      // [2026-09-30 师弟立规 · 裁决12] 以主文件事实为唯一真相源：只要回答主文件存在且真实内容达标（>=50字），即判定为已就绪！
+      const pid = p.client_id || p.id || (typeof currentProjectId !== 'undefined' ? currentProjectId : '');
+      if (pid && typeof localStorage !== 'undefined') {
+        try {
+          const rawFiles = localStorage.getItem(`geo_step0_files_${pid}`);
+          if (rawFiles) {
+            const files = JSON.parse(rawFiles);
+            const ansFile = Object.values(files || {}).find(f => (f.category === 'answers' || f.name?.includes('回答')) && !f.isDeleted && !f.is_deleted);
+            if (ansFile && typeof ansFile.content === 'string' && ansFile.content.trim().length >= 50) {
+              return false;
+            }
+          }
+        } catch (e) {}
+      }
+
       return st === 'unprobed';
     }
 
     function isDeliveryStepView(viewId) {
-      return ['step-1-diag', 'step-2-scaffold', 'step-3-princeton', 'step-4-qacard', 'step-4-distribute', 'step-5-acceptance'].includes(viewId);
+      return [
+        'step-1-diag',
+        'step-2-scaffold',
+        'step-3-master',
+        'step-4-website',
+        'step-5-qacard',
+        'step-6-distribute',
+        'step-7-acceptance',
+        'step-3-princeton',
+        'step-4-qacard',
+        'step-4-distribute',
+        'step-5-acceptance',
+      ].includes(viewId);
     }
 
     function updatePipelineGateUI() {
@@ -7518,6 +7602,14 @@ GitHub 开源仓库：https://github.com/company/repo
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
+    // [2026-09-30] [解决 🔴3 · 历史 viewId 别名正规化] 彻底消灭别名面板错位与挂载点缺失空白
+    const LEGACY_VIEW_REDIRECT_MAP = {
+      'step-3-princeton': 'step-4-website',
+      'step-4-qacard': 'step-5-qacard',
+      'step-4-distribute': 'step-6-distribute',
+      'step-5-acceptance': 'step-7-acceptance',
+    };
+
     // 路由解析：优先从 URL Hash 中获取项目、步骤与选项卡，其次回退至 localStorage
     function parseCurrentRoute() {
       const raw = window.location.hash.replace(/^#/, '');
@@ -7527,6 +7619,7 @@ GitHub 开源仓库：https://github.com/company/repo
         const projectId = params.get('project');
         if (projectId) {
           let view = params.get('view');
+          if (LEGACY_VIEW_REDIRECT_MAP[view]) view = LEGACY_VIEW_REDIRECT_MAP[view];
           const step = parseInt(params.get('step') || '', 10);
           const tab = params.get('tab') || 'site.html';
           const sub = parseInt(params.get('sub') || '1', 10);
@@ -7543,7 +7636,8 @@ GitHub 开源仓库：https://github.com/company/repo
       const activeView = localStorage.getItem('geo_active_view');
       const savedProject = localStorage.getItem('geo_active_project');
       if (activeView === 'wizard' && savedProject) {
-        const savedView = localStorage.getItem('geo_active_view_id') || STEP_TO_VIEW[parseInt(localStorage.getItem('geo_active_step') || '1', 10)] || 'overview';
+        let savedView = localStorage.getItem('geo_active_view_id') || STEP_TO_VIEW[parseInt(localStorage.getItem('geo_active_step') || '1', 10)] || 'overview';
+        if (LEGACY_VIEW_REDIRECT_MAP[savedView]) savedView = LEGACY_VIEW_REDIRECT_MAP[savedView];
         const step = (VIEW_META[savedView] && VIEW_META[savedView].step) || parseInt(localStorage.getItem('geo_active_step') || '1', 10);
         const tab = localStorage.getItem('geo_active_scaffold_tab') || 'site.html';
         return { view: 'wizard', projectId: savedProject, step, tab, viewId: savedView };
@@ -9217,6 +9311,24 @@ GitHub 开源仓库：https://github.com/company/repo
           if (nameEl) nameEl.innerText = profileDisplayName(p);
           if (urlEl) urlEl.innerText = p.official_url || '—';
           fillOverviewProfilePanel(p);
+
+          // [2026-09-30] [建档唯一真相源联动] 派发全局事件通知各阶段 Vue 组件，重置挂载锁
+          window.__GEO_STEP0_MOUNTED__ = false;
+          window.__GEO_STEP1_MOUNTED__ = false;
+          window.__GEO_STEP2_MOUNTED__ = false;
+          window.__GEO_STEP3_MOUNTED__ = false;
+          window.__GEO_STEP4_MOUNTED__ = false;
+          window.__GEO_STEP5_MOUNTED__ = false;
+          window.__GEO_STEP6_MOUNTED__ = false;
+          window.__GEO_STEP7_MOUNTED__ = false;
+          window.dispatchEvent(new CustomEvent('geo:project-updated', { detail: p }));
+
+          // 若当前就在阶段二，直接强制重新渲染，确保立刻刷新最新建档数据
+          if (typeof currentViewId === 'string' && currentViewId === 'step-2-scaffold') {
+            if (typeof renderStep2ScaffoldPanel === 'function') {
+              renderStep2ScaffoldPanel(true);
+            }
+          }
         }
         if (typeof loadProjectsList === 'function') {
           try { await loadProjectsList(); } catch (e) {}
@@ -9516,13 +9628,8 @@ GitHub 开源仓库：https://github.com/company/repo
           if (sideUser && userLabel) sideUser.innerText = userLabel.innerText || '管理员';
           await refreshSidebarProjectSelect();
           let targetView = explicitView || defaultWizardViewForProject(currentProjectData);
-          if (explicitView && isDeliveryStepView(explicitView) && isProbeUnready(currentProjectData)) {
-            if (!confirm('还没做完「去豆包提问查现状」。后面步骤可能几乎是空的。建议先查清现状；仍要进入？')) {
-              targetView = 'step-0-probe';
-            }
-          }
+          // [2026-09-30 师弟立规 · 裁决12] 彻底废除切页弹窗拦截与强行回退，00~07 全域自由平滑穿梭
 
-          // 重置所有组件岛挂载标志位（彻底杜绝项目切换数据滞后与串流，R6-4 / R9-1）
           window.__GEO_STEP0_MOUNTED__ = false;
           window.__GEO_STEP1_MOUNTED__ = false;
           window.__GEO_STEP2_MOUNTED__ = false;
@@ -9530,6 +9637,7 @@ GitHub 开源仓库：https://github.com/company/repo
           window.__GEO_STEP4_MOUNTED__ = false;
           window.__GEO_STEP5_MOUNTED__ = false;
           window.__GEO_STEP6_MOUNTED__ = false;
+          window.__GEO_STEP7_MOUNTED__ = false;
           window.__GEO_RECURRING_MOUNTED__ = false;
 
           switchView(targetView, true, { skipProbeWarn: true });
@@ -9539,10 +9647,11 @@ GitHub 开源仓库：https://github.com/company/repo
           if (targetView === 'step-0-probe') renderStep0ProbePanel();
           if (targetView === 'step-1-diag') renderStep1DiagPanel(true);
           if (targetView === 'step-2-scaffold') renderStep2ScaffoldPanel(true);
-          if (targetView === 'step-3-princeton') renderStep3PrincetonPanel(true);
-          if (targetView === 'step-4-qacard') renderStep4QaCardPanel(true);
-          if (targetView === 'step-4-distribute') renderStep5DistributePanel(true);
-          if (targetView === 'step-5-acceptance') renderStep6AcceptancePanel(true);
+          if (targetView === 'step-3-master') renderStep3MasterPanel(true);
+          if (targetView === 'step-4-website' || targetView === 'step-3-princeton') renderStep4WebsitePanel(true);
+          if (targetView === 'step-5-qacard' || targetView === 'step-4-qacard') renderStep5QaCardPanel(true);
+          if (targetView === 'step-6-distribute' || targetView === 'step-4-distribute') renderStep6DistributePanel(true);
+          if (targetView === 'step-7-acceptance' || targetView === 'step-5-acceptance') renderStep7AcceptancePanel(true);
           if (targetView === 'mon-recurring') renderMonRecurringPanel(true);
           updatePipelineGateUI();
         }
@@ -10155,22 +10264,25 @@ function backToDashboard() {
         switchScaffoldTab(currentScaffoldTab || 'site.html');
         renderStep2ScaffoldPanel();
       }
-      if (viewId === 'step-3-princeton') {
+      if (viewId === 'step-3-master') {
+        renderStep3MasterPanel();
+      }
+      if (viewId === 'step-4-website' || viewId === 'step-3-princeton') {
         restoreStep3GuideState();
-        renderStep3PrincetonPanel();
+        renderStep4WebsitePanel();
         refreshLlmStatus(false);
         loadRawMaterialsEditor();
         loadCorpusStatus();
         handleCorpusDiff();
       }
-      if (viewId === 'step-4-qacard') {
-        renderStep4QaCardPanel();
+      if (viewId === 'step-5-qacard' || viewId === 'step-4-qacard') {
+        renderStep5QaCardPanel();
       }
-      if (viewId === 'step-4-distribute') {
-        renderStep5DistributePanel();
+      if (viewId === 'step-6-distribute' || viewId === 'step-4-distribute') {
+        renderStep6DistributePanel();
       }
-      if (viewId === 'step-5-acceptance') {
-        renderStep6AcceptancePanel();
+      if (viewId === 'step-7-acceptance' || viewId === 'step-5-acceptance') {
+        renderStep7AcceptancePanel();
       }
       if (viewId === 'mon-recurring') {
         renderMonRecurringPanel();
@@ -10190,12 +10302,11 @@ function backToDashboard() {
     }
 
     function switchView(viewId, pushHash = true, opts = {}) {
-      if (!VIEW_META[viewId]) viewId = 'overview';
-      if (isDeliveryStepView(viewId) && !opts.skipProbeWarn && isProbeUnready(currentProjectData)) {
-        if (!confirm('还没做完「去豆包提问查现状」。后面步骤可能几乎是空的。建议先查清现状；仍要进入？')) {
-          viewId = 'step-0-probe';
-        }
+      if (LEGACY_VIEW_REDIRECT_MAP[viewId]) {
+        viewId = LEGACY_VIEW_REDIRECT_MAP[viewId];
       }
+      if (!VIEW_META[viewId]) viewId = 'overview';
+      // [2026-09-30 师弟立规 · 裁决12] 彻底废除切页 confirm 拦截与强行回退，全工序自由平滑切换
       currentViewId = viewId;
       const meta = VIEW_META[viewId];
       if (typeof meta.step === 'number') {

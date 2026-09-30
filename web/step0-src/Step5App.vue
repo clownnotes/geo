@@ -1,5 +1,5 @@
 <template>
-  <!-- [2026-09-27] [阶段五 3 竖列工作区] GEO 文章选题撰写与矩阵分发专属工作台 -->
+  <!-- [2026-09-30] [00~07 全流水线顺延] 阶段五 3 竖列工作区：GEO 核心答题卡与向量问答库专属工作台 -->
   <div class="space-y-4">
     <!-- 1. 顶部阶段概览看板 -->
     <StageHeader
@@ -16,52 +16,64 @@
       @open-mckinsey="mckinseyVisible = true"
     />
 
-    <!-- 2. 主区域：IDE 3 竖列专业工作台 (左选题任务库 + 中S7文章定稿 + 右分发与404监测) -->
+    <!-- 2. 主区域：IDE 3 竖列专业工作台 (左意图资产树 + 中四要素精修区 + 右 SOP 与向量仿真) -->
     <div class="flex gap-4 items-stretch flex-col lg:flex-row h-[780px] min-h-[660px]">
-      <!-- 左栏：选题任务库 (300px) -->
-      <TopicLibrary
-        :topics="filteredTopics"
-        :active-topic-id="activeTopicId"
+      <!-- 左栏：答题卡三层意图资产树 (280px) -->
+      <QaCardTree
+        :cards="filteredCards"
+        :active-card-id="activeCardId"
+        :layers="QA_LAYERS"
+        :stats="layerStats"
         :search-keyword="searchKeyword"
-        :active-group-tab="activeGroupTab"
-        :stats="topicStats"
-        @select-topic="handleSelectTopic"
-        @create-topic="handleCreateTopic"
-        @toggle-complete="handleToggleComplete"
-        @delete-topic="handleDeleteTopic"
+        :active-filter-layer="activeFilterLayer"
+        @select-card="handleSelectCard"
+        @create-card="handleCreateCard"
         @update:search-keyword="searchKeyword = $event"
-        @select-group-tab="activeGroupTab = $event"
+        @select-filter-layer="activeFilterLayer = $event"
       />
 
-      <!-- 中间：S7 字典式文章撰写与在线定稿编辑器 -->
-      <ArticleStudio
-        :topic="activeTopic"
-        :article="currentArticle"
+      <!-- 中间：四要素答题卡精修工作台 -->
+      <QaCardEditor
+        :card="activeCard"
+        :layers="QA_LAYERS"
         :audit-result="currentAuditResult"
-        @generate-draft="handleGenerateDraft"
-        @save-final="handleSaveArticleFinal"
-        @update-markdown="handleUpdateArticleMarkdown"
+        @toggle-approve="handleToggleApprove"
+        @delete-card="handleDeleteCard"
+        @add-variant="handleAddVariant"
+        @remove-variant="handleRemoveVariant"
+        @add-evidence="handleAddEvidence"
+        @remove-evidence="handleRemoveEvidence"
+        @add-redline="handleAddRedLine"
+        @remove-redline="handleRemoveRedLine"
       />
 
-      <!-- 右栏：矩阵分发与 404 存活监测仪 (340px) -->
-      <DistributionMonitor
-        :channels="DIST_CHANNELS"
-        :channel-data-map="channelDataMap"
-        :overall-stats="overallDistStats"
-        :is-checking-urls="isCheckingUrls"
-        :active-topic="activeTopic"
-        @copy-richtext="handleCopyRichText"
-        @save-channel-url="handleSaveChannelUrl"
-        @check-url-alive="handleCheckUrlAlive"
-        @check-all-urls="handleCheckAllUrls"
-        @regenerate-topic="handleRegenerateDeadTopic"
+      <!-- 右栏：SOP 动线与向量仿真测试仪 (320px) -->
+      <QaVectorSimulator
+        :current-step="currentStep"
+        :sop-steps="STAGE_5_META.sopSteps"
+        :retrieval-query="retrievalQuery"
+        :retrieval-results="retrievalResults"
+        :latency="retrievalLatency"
+        :is-retrieving="isRetrieving"
+        @set-step="handleSetSubStep"
+        @update:retrieval-query="retrievalQuery = $event"
+        @simulate-retrieval="handleSimulateRetrieval"
+        @select-card="handleSelectCard"
+        @open-export="exportDrawerOpen = true"
+        @reset-preset="handleResetToPreset"
       />
     </div>
 
-    <!-- 3. 麦肯锡交付手册抽屉 -->
+    <!-- 3. 辅助抽屉与弹窗组件 -->
+    <QaExportModal
+      :visible="exportDrawerOpen"
+      :content="pureCorpusContent"
+      @close="exportDrawerOpen = false"
+    />
+
     <MckinseyDrawer
       :visible="mckinseyVisible"
-      title="老赵哥 GEO 字典式长文与信源发布作战手册"
+      title="老赵哥 GEO 答题卡认知与麦肯锡交付手册"
       :handbooks="STAGE_5_META.mckinseyHandbooks"
       @close="mckinseyVisible = false"
     />
@@ -81,9 +93,10 @@
 import { onMounted, nextTick, watch } from 'vue';
 import StageHeader from './components/StageHeader.vue';
 import MckinseyDrawer from './components/MckinseyDrawer.vue';
-import TopicLibrary from './components/distribute/TopicLibrary.vue';
-import ArticleStudio from './components/distribute/ArticleStudio.vue';
-import DistributionMonitor from './components/distribute/DistributionMonitor.vue';
+import QaCardTree from './components/qacard/QaCardTree.vue';
+import QaCardEditor from './components/qacard/QaCardEditor.vue';
+import QaVectorSimulator from './components/qacard/QaVectorSimulator.vue';
+import QaExportModal from './components/qacard/QaExportModal.vue';
 import { useStep5 } from './useStep5.js';
 
 const props = defineProps({
@@ -92,37 +105,39 @@ const props = defineProps({
 
 const {
   STAGE_5_META,
-  DIST_CHANNELS,
+  QA_LAYERS,
   currentStep,
   isHeaderCollapsed,
   mckinseyVisible,
   notes,
-  topics,
-  activeTopicId,
-  activeTopic,
+  exportDrawerOpen,
+  cards,
+  activeCardId,
+  activeCard,
   searchKeyword,
-  activeGroupTab,
-  filteredTopics,
-  topicStats,
-  currentArticle,
+  activeFilterLayer,
+  layerStats,
+  filteredCards,
+  retrievalQuery,
+  retrievalResults,
+  retrievalLatency,
+  isRetrieving,
   currentAuditResult,
-  channelDataMap,
-  overallDistStats,
-  isCheckingUrls,
   toastMessage,
   toastVisible,
-  handleSelectTopic,
-  handleCreateTopic,
-  handleDeleteTopic,
-  handleToggleComplete,
-  handleGenerateDraft,
-  handleUpdateArticleMarkdown,
-  handleSaveArticleFinal,
-  handleCopyRichText,
-  handleSaveChannelUrl,
-  handleCheckUrlAlive,
-  handleCheckAllUrls,
-  handleRegenerateDeadTopic,
+  pureCorpusContent,
+  handleSelectCard,
+  handleCreateCard,
+  handleDeleteCard,
+  handleAddVariant,
+  handleRemoveVariant,
+  handleAddEvidence,
+  handleRemoveEvidence,
+  handleAddRedLine,
+  handleRemoveRedLine,
+  handleToggleApprove,
+  handleSimulateRetrieval,
+  handleResetToPreset,
   handleSaveNotes,
   handleSetSubStep,
 } = useStep5(props.bridge?.projectData || {});
@@ -140,7 +155,7 @@ onMounted(() => {
 });
 
 watch(
-  [activeTopicId, currentStep, isCheckingUrls, activeGroupTab],
+  [activeCardId, currentStep, retrievalResults],
   () => {
     refreshIcons();
   },

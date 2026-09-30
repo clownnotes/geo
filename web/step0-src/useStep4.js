@@ -1,96 +1,119 @@
 /**
- * useStep4.js - 阶段四（GEO 核心答题卡与向量问答库）专属业务逻辑驱动
- * -------------------------------------------------------------------
- * 专为阶段四 3 竖列工作区服务：
- * 管理：三层意图答题卡 CRUD、四要素表单编辑、实时正面表述质检、
- * 向量检索仿真模拟、AI 纯净语料导出与持久化。
+ * useStep4.js - 阶段四（04 交付官网与三件套）专属业务逻辑驱动
+ * -----------------------------------------------------------------
+ * 专为阶段四 3 竖列工作台服务：
+ * 管理：企业底牌响应式状态、5 大交付物编译产物、本地持久化、多端视口切换、动线闭环。
  *
  * 铁律遵循：严禁 Emoji 表情，所有提示走友好文字或 Lucide 图标。
  */
 
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import {
   resolveContext,
-  buildPresetQaCards,
+  getDefaultSiteInfo,
+  buildStage3Files,
   STAGE_4_META,
-  QA_LAYERS,
-  simulateVectorRetrieval,
-  auditQaCardQuality,
-  exportPureCorpusMarkdown,
 } from './stage4Config.js';
+import {
+  isMasterFile,
+  isDuplicateDisplayName,
+  generateSnowflakeId,
+} from './config/studioArtifactConfig.js';
 
 export function useStep4(projectData = {}) {
   const ctx = resolveContext(projectData);
   const clientId = ctx.clientId;
 
-  // 1. 本地存储持久化 Key 定义
-  const STORAGE_KEY_STEP = 'geo_step4_step_index_' + clientId;
-  const STORAGE_KEY_CARDS = 'geo_step4_qa_cards_' + clientId;
-  const STORAGE_KEY_ACTIVE_ID = 'geo_step4_active_card_id_' + clientId;
-  const STORAGE_KEY_NOTES = 'geo_step4_notes_' + clientId;
-  const STORAGE_KEY_HEADER = 'geo_step4_header_collapsed_' + clientId;
-  const STORAGE_KEY_SIM_QUERY = 'geo_step4_sim_query_' + clientId;
+  // 1. 企业底牌对象持久化
+  const siteInfo = ref(getDefaultSiteInfo(ctx));
+  const STORAGE_KEY_SITE = 'geo_step3_site_info_' + clientId;
+  const STORAGE_KEY_STEP = 'geo_step3_step_index_' + clientId;
+  const STORAGE_KEY_TAB = 'geo_step3_active_tab_' + clientId;
+  const STORAGE_KEY_NOTES = 'geo_step3_notes_' + clientId;
+  const STORAGE_KEY_HEADER = 'geo_step3_header_collapsed_' + clientId;
+  const STORAGE_KEY_FILES = 'geo_step3_files_override_' + clientId;
 
-  // 2. 核心状态机
+  try {
+    if (typeof localStorage !== 'undefined') {
+      // 优先读 step3 站点底牌信息（已清理历史无写入方的 geo_step2_site_info_ 死引用，R8-6）
+      const savedInfo = localStorage.getItem(STORAGE_KEY_SITE);
+      if (savedInfo) {
+        const parsed = JSON.parse(savedInfo);
+        if (parsed && typeof parsed === 'object') {
+          siteInfo.value = Object.assign(getDefaultSiteInfo(ctx), parsed);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[useStep3] 读取本地底牌数据异常:', err);
+  }
+
+  // 2. 5 大交付物文件字典
+  const files = ref(buildStage3Files(ctx, siteInfo.value));
+
+  // 恢复之前微调保存的文件内容（若有）
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const savedFiles = localStorage.getItem(STORAGE_KEY_FILES);
+      if (savedFiles) {
+        const parsed = JSON.parse(savedFiles);
+        if (parsed && typeof parsed === 'object') {
+          Object.keys(parsed).forEach(fn => {
+            if (files.value[fn]) {
+              const val = parsed[fn];
+              if (val && typeof val === 'object') {
+                if (typeof val.content === 'string') files.value[fn].content = val.content;
+                if (val.displayName) files.value[fn].displayName = val.displayName;
+                if (val.id) files.value[fn].id = val.id;
+              } else if (typeof val === 'string') {
+                files.value[fn].content = val;
+              }
+            }
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[useStep2] 恢复持久化文件内容异常:', err);
+  }
+
+  // 3. Tab 与视图状态
+  const openTabs = ref(['index.html', 'llms.txt', 'schema.jsonld']);
+  const activeFileName = ref('index.html');
+  const activeCategory = ref('sites');
   const currentStep = ref(1);
   const isHeaderCollapsed = ref(false);
   const mckinseyVisible = ref(false);
+  const fullscreenVisible = ref(false);
+  const drawerOpen = ref(false);
+  const isCompiling = ref(false);
   const notes = ref('');
-  const exportDrawerOpen = ref(false);
 
-  // 答题卡集合与选中项
-  const cards = ref([]);
-  const activeCardId = ref('');
-  const searchKeyword = ref('');
-  const activeFilterLayer = ref('all'); // 'all' | 'pool' | 'verify' | 'convert'
+  // 视口与预览模式：'desktop' | 'mobile'
+  const viewportMode = ref('desktop');
+  // 'preview' | 'code'
+  const dualViewMode = ref('preview');
 
-  // 向量检索仿真测试器状态
-  const retrievalQuery = ref('');
-  const retrievalResults = ref([]);
-  const retrievalLatency = ref(0);
-  const isRetrieving = ref(false);
-
-  // 质检抽屉或提示
-  const currentAuditResult = ref(null);
-  const toastMessage = ref('');
-  const toastVisible = ref(false);
-
-  const showToast = (msg) => {
-    toastMessage.value = msg;
-    toastVisible.value = true;
-    setTimeout(() => {
-      toastVisible.value = false;
-    }, 2800);
-  };
-
-  // 读取本地持久化数据
+  // 初始化持久化恢复
   try {
     if (typeof localStorage !== 'undefined') {
       const savedStep = localStorage.getItem(STORAGE_KEY_STEP);
-      if (savedStep) currentStep.value = parseInt(savedStep, 10) || 1;
+      if (savedStep) currentStep.value = Math.min(Math.max(parseInt(savedStep, 10) || 1, 1), 3);
+
+      const savedTab = localStorage.getItem(STORAGE_KEY_TAB);
+      if (savedTab && files.value[savedTab]) {
+        activeFileName.value = savedTab;
+        activeCategory.value = files.value[savedTab].category;
+      }
 
       const savedNotes = localStorage.getItem(STORAGE_KEY_NOTES);
       if (savedNotes) notes.value = savedNotes;
 
-      const savedHeader = localStorage.getItem(STORAGE_KEY_HEADER);
-      if (savedHeader) isHeaderCollapsed.value = savedHeader === 'true';
-
-      const savedSimQuery = localStorage.getItem(STORAGE_KEY_SIM_QUERY);
-      if (savedSimQuery) retrievalQuery.value = savedSimQuery;
-
-      const savedCardsRaw = localStorage.getItem(STORAGE_KEY_CARDS);
-      if (savedCardsRaw) {
-        const parsed = JSON.parse(savedCardsRaw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          cards.value = parsed;
-        }
-      }
-
-      const savedActiveId = localStorage.getItem(STORAGE_KEY_ACTIVE_ID);
-      if (savedActiveId) activeCardId.value = savedActiveId;
+      const savedH = localStorage.getItem(STORAGE_KEY_HEADER);
+      if (savedH !== null) isHeaderCollapsed.value = savedH === 'true';
     }
   } catch (err) {
-    console.warn('[useStep4] 读取持久化状态失败:', err);
+    console.warn('[useStep3] 读取界面持久化状态异常:', err);
   }
 
   watch(isHeaderCollapsed, (val) => {
@@ -99,314 +122,288 @@ export function useStep4(projectData = {}) {
     } catch (e) {}
   });
 
-  // 若无持久化数据，加载内置预置答题卡库
-  if (cards.value.length === 0) {
-    cards.value = buildPresetQaCards(ctx);
+  const activeFile = computed(() => files.value[activeFileName.value] || null);
+
+  const currentRenderMode = computed(() => {
+    if (!activeFile.value) return 'code';
+    if (activeFileName.value === 'index.html') {
+      return dualViewMode.value === 'preview' ? 'html' : 'code';
+    }
+    return activeFile.value.renderMode || 'code';
+  });
+
+  // 4. 操作与事件
+  function handleSelectTab(fn) {
+    if (!files.value[fn]) return;
+    activeFileName.value = fn;
+    activeCategory.value = files.value[fn].category;
+    if (!openTabs.value.includes(fn)) {
+      openTabs.value.push(fn);
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY_TAB, fn);
+    } catch (_) {}
   }
 
-  // 确保有合法的选中卡片
-  if (!activeCardId.value || !cards.value.some(c => c.id === activeCardId.value)) {
-    activeCardId.value = cards.value[0]?.id || '';
+  function handleCloseTab(fn) {
+    const idx = openTabs.value.indexOf(fn);
+    if (idx === -1) return;
+    openTabs.value.splice(idx, 1);
+    if (activeFileName.value === fn) {
+      if (openTabs.value.length > 0) {
+        handleSelectTab(openTabs.value[Math.max(0, idx - 1)]);
+      } else {
+        activeFileName.value = '';
+      }
+    }
   }
 
-  // 3. 计算属性
-  const activeCard = computed(() => {
-    return cards.value.find(c => c.id === activeCardId.value) || cards.value[0] || null;
-  });
+  function handleToggleCategory(catId) {
+    activeCategory.value = activeCategory.value === catId ? '' : catId;
+  }
 
-  // 意图分类统计
-  const layerStats = computed(() => {
-    const stats = {
-      total: cards.value.length,
-      pool: 0,
-      verify: 0,
-      convert: 0,
-      approved: 0,
-      variantsCount: 0,
-    };
-    cards.value.forEach(c => {
-      if (c.layer === 'pool') stats.pool++;
-      else if (c.layer === 'verify') stats.verify++;
-      else if (c.layer === 'convert') stats.convert++;
-      if (c.isApproved) stats.approved++;
-      stats.variantsCount += (c.variants?.length || 0);
-    });
-    return stats;
-  });
+  function handleOpenFile(fn) {
+    handleSelectTab(fn);
+  }
 
-  // 过滤后的答题卡列表
-  const filteredCards = computed(() => {
-    return cards.value.filter(card => {
-      const matchLayer = activeFilterLayer.value === 'all' || card.layer === activeFilterLayer.value;
-      if (!matchLayer) return false;
+  function handleUpdateContent(newVal) {
+    if (!activeFile.value) return;
+    activeFile.value.content = newVal;
+    activeFile.value.isDirty = true;
+  }
 
-      if (!searchKeyword.value.trim()) return true;
-      const kw = searchKeyword.value.trim().toLowerCase();
-      const matchTitle = (card.title || '').toLowerCase().includes(kw);
-      const matchAnswer = (card.directAnswer || '').toLowerCase().includes(kw);
-      const matchVariants = (card.variants || []).some(v => v.toLowerCase().includes(kw));
-      const matchId = (card.id || '').toLowerCase().includes(kw);
+  function handleSaveActiveFile() {
+    if (!activeFile.value) return;
+    activeFile.value.isDirty = false;
+    persistFilesOverride();
+    showToast(`文件 [${activeFileName.value}] 已保存至本地！`);
+  }
 
-      return matchTitle || matchAnswer || matchVariants || matchId;
-    });
-  });
-
-  // 4. 业务操作方法
-
-  // 切换选中的答题卡
-  const handleSelectCard = (id) => {
-    activeCardId.value = id;
+  function persistFilesOverride() {
     try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_ACTIVE_ID, id);
-      }
-    } catch (_) {}
-    runAuditForActive();
-  };
+      const overrides = {};
+      Object.keys(files.value).forEach(k => {
+        const item = files.value[k];
+        overrides[k] = {
+          content: item.content,
+          displayName: item.displayName || '',
+          id: item.id || '',
+        };
+      });
+      localStorage.setItem(STORAGE_KEY_FILES, JSON.stringify(overrides));
+    } catch (e) {
+      console.warn('[useStep4] 持久化文件覆盖内容失败:', e);
+    }
+  }
 
-  // 新建答题卡
-  const handleCreateCard = (layer = 'pool') => {
-    const prefix = QA_LAYERS[layer]?.prefix || 'P';
-    const sameLayerCount = cards.value.filter(c => c.layer === layer).length + 1;
-    const newId = `${prefix}${String(sameLayerCount).padStart(2, '0')}`;
-
-    const newCard = {
-      id: newId,
-      layer,
-      title: layer === 'pool'
-        ? `${ctx.city}本地${ctx.category}怎么选？`
-        : layer === 'verify'
-        ? `${ctx.brand}有哪些权威背书与资质？`
-        : `如何预约${ctx.brand}上门技术对接？`,
-      variants: ['用户常见搜索问法1', '用户常见搜索问法2'],
-      directAnswer: `第一句给出唯一标准结论（建议150~300字）。依据普林斯顿权威母盘事实，明确回答用户的核心疑问。`,
-      supportingEvidence: [
-        { text: `主体全称${ctx.company}，具备正规实体工商资质`, sourceType: 'public' },
-      ],
-      boundaryConditions: '说明适用场景与不适用的业务范围。',
-      redLines: ['严禁夸大宣传', '严禁承诺不符合客观事实的效果'],
-      isApproved: false,
-      completenessScore: 75,
-      updatedAt: ctx.today,
-    };
-
-    cards.value.unshift(newCard);
-    handleSelectCard(newId);
-    persistCards();
-    showToast(`已创建新答题卡 [${newId}]`);
-  };
-
-  // 删除答题卡
-  const handleDeleteCard = (id) => {
-    if (cards.value.length <= 1) {
-      showToast('至少保留一张答题卡作为基础资产');
+  // [2026-09-30 修复🔴5] 阶段四主文件右键重命名、雪花ID锚点绑定与本地持久化
+  function handleRenameFile({ fn, newDisplayName }) {
+    const target = files.value[fn];
+    if (!target) return;
+    if (!isMasterFile(target)) {
+      showToast('参考件由系统自管编号，仅主文件支持修改名称！', 'warning');
       return;
     }
-    cards.value = cards.value.filter(c => c.id !== id);
-    if (activeCardId.value === id) {
-      activeCardId.value = cards.value[0]?.id || '';
-    }
-    persistCards();
-    showToast(`已删除答题卡 [${id}]`);
-  };
-
-  // 问法变体管理
-  const handleAddVariant = (text) => {
-    if (!text || !text.trim() || !activeCard.value) return;
-    const clean = text.trim();
-    if (!activeCard.value.variants) activeCard.value.variants = [];
-    if (activeCard.value.variants.includes(clean)) {
-      showToast('该问法已存在');
+    const trimmed = (newDisplayName || '').trim();
+    if (!trimmed) return;
+    if (isDuplicateDisplayName(files.value, fn, trimmed)) {
+      showToast('名称已存在，不能重复！', 'warning');
       return;
     }
-    activeCard.value.variants.push(clean);
-    persistCards();
-  };
-
-  const handleRemoveVariant = (index) => {
-    if (!activeCard.value || !activeCard.value.variants) return;
-    activeCard.value.variants.splice(index, 1);
-    persistCards();
-  };
-
-  // 证据管理
-  const handleAddEvidence = () => {
-    if (!activeCard.value) return;
-    if (!activeCard.value.supportingEvidence) activeCard.value.supportingEvidence = [];
-    activeCard.value.supportingEvidence.push({
-      text: '补充新的可核验事实依据或数据来源',
-      sourceType: 'public',
-      url: `https://${ctx.site}`,
-    });
-    persistCards();
-  };
-
-  const handleRemoveEvidence = (index) => {
-    if (!activeCard.value || !activeCard.value.supportingEvidence) return;
-    activeCard.value.supportingEvidence.splice(index, 1);
-    persistCards();
-  };
-
-  // 红线管理
-  const handleAddRedLine = () => {
-    if (!activeCard.value) return;
-    if (!activeCard.value.redLines) activeCard.value.redLines = [];
-    activeCard.value.redLines.push('补充一条禁止对外承诺或容易违规的合规红线');
-    persistCards();
-  };
-
-  const handleRemoveRedLine = (index) => {
-    if (!activeCard.value || !activeCard.value.redLines) return;
-    activeCard.value.redLines.splice(index, 1);
-    persistCards();
-  };
-
-  // 针对当前卡片执行质检
-  const runAuditForActive = () => {
-    if (!activeCard.value) return;
-    const res = auditQaCardQuality(activeCard.value);
-    activeCard.value.completenessScore = res.score;
-    currentAuditResult.value = res;
-  };
-
-  // 审核标记切换
-  const handleToggleApprove = () => {
-    if (!activeCard.value) return;
-    activeCard.value.isApproved = !activeCard.value.isApproved;
-    persistCards();
-    showToast(activeCard.value.isApproved ? '当前答题卡已标记为通过审核' : '已取消审核通过状态');
-  };
-
-  // 持久化保存
-  const persistCards = () => {
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_CARDS, JSON.stringify(cards.value));
-      }
-    } catch (err) {
-      console.warn('[useStep4] 持久化答题卡失败:', err);
+    target.displayName = trimmed;
+    if (!target.id) {
+      target.id = generateSnowflakeId();
     }
-  };
+    persistFilesOverride();
+    showToast(`主文件已成功改名为【${trimmed}】`, 'success');
+  }
 
-  // 向量检索仿真测试
-  const handleSimulateRetrieval = (customQuery) => {
-    const q = (typeof customQuery === 'string' ? customQuery : retrievalQuery.value) || '';
-    if (!q.trim()) {
-      showToast('请输入拟定的文章标题或提问句进行检索仿真');
-      return;
-    }
-    retrievalQuery.value = q;
+  function handleSaveNotes(val) {
+    notes.value = val;
     try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_SIM_QUERY, q);
-      }
+      localStorage.setItem(STORAGE_KEY_NOTES, val);
+      showToast('阶段二备忘录已保存！');
     } catch (_) {}
+  }
 
-    isRetrieving.value = true;
-    const start = Date.now();
-
-    // 纯前端快速仿真 (加 120ms 模拟网络/向量召回微延时让用户感知)
-    setTimeout(() => {
-      retrievalResults.value = simulateVectorRetrieval(q, cards.value);
-      retrievalLatency.value = Date.now() - start;
-      isRetrieving.value = false;
-      if (retrievalResults.value.length === 0) {
-        showToast('未找到高相关答题卡，建议为该主题新建答题卡');
-      }
-    }, 120);
-  };
-
-  // 重置为预置答题卡
-  const handleResetToPreset = () => {
-    if (confirm('确定要将答题卡重置为官方预置推荐版本吗？现有修改将被覆盖。')) {
-      cards.value = buildPresetQaCards(ctx);
-      activeCardId.value = cards.value[0]?.id || '';
-      persistCards();
-      showToast('已重置为官方预置答题卡库');
-    }
-  };
-
-  // 导出纯净版 AI 语料
-  const pureCorpusContent = computed(() => {
-    return exportPureCorpusMarkdown(cards.value, ctx);
-  });
-
-  // 保存工作区手记
-  const handleSaveNotes = (text) => {
-    notes.value = text;
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_NOTES, text);
-      }
-      showToast('阶段手记已保存');
-    } catch (_) {}
-  };
-
-  // 切换动线步骤
-  const handleSetSubStep = (stepNum) => {
+  function handleGotoStep(stepNum) {
     currentStep.value = stepNum;
     try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_STEP, String(stepNum));
-      }
+      localStorage.setItem(STORAGE_KEY_STEP, String(stepNum));
     } catch (_) {}
-  };
+  }
 
-  // 监听当前卡片变化，实时更新质检评分
-  watch(
-    () => [
-      activeCard.value?.title,
-      activeCard.value?.directAnswer,
-      activeCard.value?.supportingEvidence?.length,
-      activeCard.value?.boundaryConditions,
-      activeCard.value?.redLines?.length,
-    ],
-    () => {
-      runAuditForActive();
-      persistCards();
-    },
-    { deep: true }
-  );
+  function handleProceed() {
+    if (currentStep.value < 3) {
+      handleGotoStep(currentStep.value + 1);
+    }
+  }
+
+  function handleSkip() {
+    handleProceed();
+  }
+
+  // 一键重新编译交钥匙整站
+  function handleCompile() {
+    isCompiling.value = true;
+    setTimeout(() => {
+      // 重新生成 5 大交付物
+      files.value = buildStage3Files(ctx, siteInfo.value);
+      persistFilesOverride();
+      // 持久化底牌
+      try {
+        localStorage.setItem(STORAGE_KEY_SITE, JSON.stringify(siteInfo.value));
+      } catch (_) {}
+
+      isCompiling.value = false;
+      showToast('交钥匙极速官网与大模型三件套编译完成！');
+
+      // 动线前进到步骤 2 或 3
+      if (currentStep.value === 1) {
+        handleGotoStep(2);
+      } else if (currentStep.value === 2) {
+        handleGotoStep(3);
+      }
+    }, 450);
+  }
+
+  // 动作路由
+  function handleAction(type) {
+    if (type === 'open_drawer') {
+      drawerOpen.value = true;
+    } else if (type === 'compile_site') {
+      handleCompile();
+    } else if (type === 'open_pure_site') {
+      handleOpenPureSite();
+    } else if (type === 'copy_nginx') {
+      handleCopyNginx();
+    }
+  }
+
+  // 独立新窗口打开纯净官网
+  function handleOpenPureSite() {
+    const html = files.value['index.html']?.content || '';
+    if (!html) {
+      showToast('暂无生成的官网内容，请先点击编译！', 'error');
+      return;
+    }
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  }
+
+  // 复制 VPS Nginx 配置
+  function handleCopyNginx() {
+    const conf = files.value['nginx.conf']?.content || '';
+    copyTextToClipboard(conf, 'VPS Nginx 反代配置已复制到剪贴板！');
+  }
+
+  // 复制当前激活文件内容
+  function handleCopyContent() {
+    if (!activeFile.value) return;
+    copyTextToClipboard(activeFile.value.content, `[${activeFileName.value}] 内容已复制到剪贴板！`);
+  }
+
+  // 导出源码包
+  function handleExportZip() {
+    // 纯前端下载 index.html
+    const html = files.value['index.html']?.content || '';
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${siteInfo.value.brandName}_交钥匙官网_index.html`;
+    a.click();
+    showToast('交钥匙官网单页已开始下载！');
+  }
+
+  // 重置底牌至默认
+  function handleResetSiteInfo() {
+    siteInfo.value = getDefaultSiteInfo(ctx);
+    files.value = buildStage3Files(ctx, siteInfo.value);
+    persistFilesOverride();
+    try {
+      localStorage.removeItem(STORAGE_KEY_SITE);
+    } catch (_) {}
+    showToast('已重置为智能预填默认底牌！');
+  }
+
+  function copyTextToClipboard(text, successMsg) {
+    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(successMsg);
+      }).catch(() => {
+        fallbackCopy(text, successMsg);
+      });
+    } else {
+      fallbackCopy(text, successMsg);
+    }
+  }
+
+  function fallbackCopy(text, successMsg) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast(successMsg);
+    } catch (e) {
+      showToast('复制失败，请手动选取代码复制', 'error');
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+
+  function showToast(msg, type = 'success') {
+    if (typeof window !== 'undefined' && window.showToast) {
+      window.showToast(msg, type);
+    } else {
+      console.log(`[Toast ${type}]:`, msg);
+    }
+  }
 
   return {
     ctx,
-    STAGE_4_META,
-    QA_LAYERS,
+    STAGE_3_META,
+    STAGE_2_META: STAGE_3_META,
+    siteInfo,
+    files,
+    activeCategory,
+    activeFileName,
+    activeFile,
+    openTabs,
     currentStep,
     isHeaderCollapsed,
     mckinseyVisible,
+    fullscreenVisible,
+    drawerOpen,
+    isCompiling,
     notes,
-    exportDrawerOpen,
-    cards,
-    activeCardId,
-    activeCard,
-    searchKeyword,
-    activeFilterLayer,
-    layerStats,
-    filteredCards,
-    retrievalQuery,
-    retrievalResults,
-    retrievalLatency,
-    isRetrieving,
-    currentAuditResult,
-    toastMessage,
-    toastVisible,
-    pureCorpusContent,
-    showToast,
-    handleSelectCard,
-    handleCreateCard,
-    handleDeleteCard,
-    handleAddVariant,
-    handleRemoveVariant,
-    handleAddEvidence,
-    handleRemoveEvidence,
-    handleAddRedLine,
-    handleRemoveRedLine,
-    handleRunAudit: runAuditForActive,
-    handleToggleApprove,
-    handleSimulateRetrieval,
-    handleResetToPreset,
+    viewportMode,
+    dualViewMode,
+    currentRenderMode,
+    handleSelectTab,
+    handleCloseTab,
+    handleToggleCategory,
+    handleOpenFile,
+    handleUpdateContent,
+    handleSaveActiveFile,
     handleSaveNotes,
-    handleSetSubStep,
+    handleGotoStep,
+    handleProceed,
+    handleSkip,
+    handleAction,
+    handleCompile,
+    handleOpenPureSite,
+    handleCopyNginx,
+    handleCopyContent,
+    handleExportZip,
+    handleResetSiteInfo,
+    handleRenameFile,
   };
 }
+
+export const useStep3 = useStep4;
+

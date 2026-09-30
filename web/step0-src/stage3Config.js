@@ -1,813 +1,427 @@
 /**
- * stage3Config.js - 阶段三（AI 原生交钥匙官网生成与交付）专属配置字典
- * -----------------------------------------------------------------
- * 专为阶段三 3 竖列工作区服务：
- * 包含：SaaS 模块化极速单页模板生成器、大模型三件套与 Nginx 部署模板、
- * 3 步 SOP 动线及麦肯锡认知手册。
+ * stage3Config.js - 阶段三（03 企业母盘与统一口径卡）专属配置与核心算法
+ * =========================================================================================
+ * [2026-09-30] [阶段三母盘构建] 严格遵循老赵哥《主体信息统一口径卡》与《AI看的sop.md》实战规范：
+ * 1. 资产 A：《主体信息统一口径卡》= 全网消歧身份证 + 统一业务定位名片；
+ * 2. 资产 B：《普林斯顿企业事实母盘》= 9 因子企业事实大百科全书；
+ * 3. 母盘精炼合流契约：仅消费阶段二 S1~S6 规范主版本，保持短小精炼，增补 1.x 分片正交隔离留存 RAG；
+ * 4. 三级业务描述实时字数指示灯 (短版<=50字 / 标准版<=120字 / 完整版强制首现 GEO 中文全称)；
+ * 5. 客观瑕疵合规对冲指引 (0 参保真实信号对冲、异地通信地址澄清、历史业务主次更迭)。
  *
- * 铁律遵循：严禁任何 Emoji 字符，图标一律统一使用 Lucide 规范。
+ * 铁律遵循：严禁任何 Emoji 字符，图标统一使用 Lucide 规范。
  */
 
-const FALLBACK = {
+import {
+  isMasterSourceFile,
+  filterMasterSourceFiles,
+  normalizeOfficialUrl,
+  extractDomain,
+} from './config/studioArtifactConfig.js';
+
+export const FALLBACK_STAGE3 = {
   brand: '邻里GEO',
   company: '徐州璇源网络科技有限公司',
-  category: '实体门店 AI 搜索获客与 GEO 优化',
-  city: '徐州',
-  site: 'geo.baicl.cc',
-  phone: '400-800-6688',
-  address: '江苏省徐州市鼓楼区软件园 A 座 8 层',
+  creditCode: '91320311MA1N0WN2XJ',
+  category: '企业 GEO 生成式引擎优化全案服务',
+  city: '江苏省徐州市泉山区',
+  site: 'https://baicl.cc',
+  phone: '13150568888',
+  address: '江苏省徐州市泉山区科技软件园',
   today: new Date().toLocaleDateString('zh-CN'),
 };
 
-export function resolveContext(projectData = {}) {
+/**
+ * 阶段三元数据定义 (4 步标准闭环)
+ */
+export const STAGE_3_META = {
+  id: 'step-3-master',
+  name: '03 企业母盘与统一口径卡',
+  tag: '熟料提炼 · 消歧身份证 + 9因子大百科',
+  target: '从素材库 S1~S6 生效主版本萃取沉淀全网唯一消歧身份证与普林斯顿高权威事实母盘',
+  notesPlaceholder: '记录本企业消歧重点、四要素核定依据与客观瑕疵对冲说明...',
+  categories: [
+    {
+      id: 'identity_card',
+      name: '主体消歧卡',
+      defaultExpanded: true,
+      files: ['01_主体信息统一口径卡.md'],
+    },
+    {
+      id: 'master_corpus',
+      name: '普林斯顿事实母盘',
+      defaultExpanded: true,
+      files: ['02_普林斯顿企业事实母盘.md'],
+    },
+  ],
+  sopSteps: [
+    {
+      step: 1,
+      name: '1. 核定企业数字身份证',
+      desc: '核实四要素（品牌名、主体全称、税号、官网），运行字数红绿灯质检（短版<=50字、标准版<=120字），确保首现 GEO 绑定中文全称。',
+      hideProceed: true,
+      checkpoints: [
+        '四要素齐备：品牌名 + 主体全称 + 统一代码 + 官网',
+        '短版 <= 50 字（地图专用），标准版 <= 120 字（征信招聘主力）',
+        '首次出现 GEO 强制绑定「生成式引擎优化」',
+      ],
+    },
+    {
+      step: 2,
+      name: '2. 打扫全网卫生逐平台整改',
+      desc: '对照操作卡线下备忘，交付人员持营业执照去天眼查、爱企查、高德地图认领企业并换上标准简介，对齐工商社保规模（0人即写0人）。',
+      hideProceed: true,
+      checkpoints: [
+        '天眼查 / 启信宝 / 爱企查认领并更新标准版 120 字简介',
+        'BOSS 直聘修改简介，人员规模严格对齐工商社保真实口径',
+        '百度 / 高德地图认领商户，填入短版 50 字描述与联系电话',
+      ],
+    },
+    {
+      step: 3,
+      name: '3. 提炼六模块事实真理字典',
+      desc: '从阶段二 S1~S6 生效主文件提纯定位、产品、客户、差异、案例、背书六大抽屉。作为写手与交付查证字典，严禁直接喂给 AI。',
+      hideProceed: true,
+      checkpoints: [
+        '素材库 S1~S6 主文件合流提纯，过滤 1.x 增补分片',
+        '六模块健全（业务边界/产品/客户/差异/案例/背书）',
+        '坚持可核验事实，绝不凭空捏造虚假参数',
+      ],
+    },
+    {
+      step: 4,
+      name: '4. 5分钟抽题自检硬标准',
+      desc: '随机抽取客户刁钻问题，检验能否在 5 分钟内在这个母盘里找到答案依据、数据与链接。核定定稿后解锁前往阶段四官网。',
+      hideProceed: true,
+      checkpoints: [
+        '随机抽题 5 分钟内可溯源事实证据与链接',
+        '口径卡与母盘核验全绿灯',
+        '无缝支撑下游阶段四交钥匙官网与阶段五答题卡',
+      ],
+    },
+  ],
+  mckinsey: {
+    title: '麦肯锡 V-W-W-H 阶段三：企业事实母盘与统一口径卡交付手册',
+    valueDesc: '萃取沉淀全网唯一消歧身份证与六模块企业事实真理字典，切断下游工序直接穿透生料的隐患。',
+    valueBusiness: '统一全平台事实发声口径，消除大模型幻觉与主体混淆，交付效率提升 80%。',
+    whatTitle: '这阶段交付什么？',
+    whatDesc: '交付两份核心母版：01_主体信息统一口径卡（消歧四要素+三级简介+打扫卫生指引）与 02_普林斯顿企业事实母盘（六模块字典事实）。',
+    whyTitle: '为什么必须先做统一口径卡？',
+    whyDesc: '如果企业自身的主体、税号、官网与业务范围未经严格核定，大模型在生成答题卡与信源长文时就会产生不可逆的事实幻觉。',
+    howTitle: '四步精炼操作指南',
+    howSteps: [
+      '第一步：核定企业身份证，检查四要素齐备且短版<=50字、标准版<=120字；',
+      '第二步：对照口径卡逐平台认领修改，把全网旧业务与脏数据打扫干净；',
+      '第三步：提炼六模块事实字典，供写手查证，严禁直接喂给 AI；',
+      '第四步：5分钟抽题自检，测试能否在母盘内快速找到事实与证据！',
+    ],
+  },
+};
+
+/**
+ * 解析阶段三上下文
+ */
+export function resolveStage3Context(projectData = {}) {
   const p = projectData || {};
-  const clientId = p.client_id || (typeof window !== 'undefined' && window.currentProjectId) || 'geo';
+  const clientId = p.client_id || (typeof window !== 'undefined' && window.currentProjectId) || 'nextgeo';
 
-  let activeQaVersion = 'QA-V1';
-  let activeQuestionFile = '01_豆包提问清单_推荐版.txt';
-  let activeAnswerFile = '02_豆包实测回答记录_初测.txt';
-
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const savedQaRaw = localStorage.getItem('geo_step0_active_qa_' + clientId);
-      if (savedQaRaw) {
-        const parsed = JSON.parse(savedQaRaw);
-        if (parsed && typeof parsed === 'object') {
-          if (parsed.activeQaVersion) activeQaVersion = parsed.activeQaVersion;
-          if (parsed.activeQuestionFile) activeQuestionFile = parsed.activeQuestionFile;
-          if (parsed.activeAnswerFile) activeAnswerFile = parsed.activeAnswerFile;
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('[stage3Config] 读取阶段零生效底牌失败:', err);
-  }
-
-  const brand = p.brand_name || p.name || FALLBACK.brand;
-  const company = p.company_name || brand;
-  const category = p.category || p.industry || FALLBACK.category;
-  const city = p.city_name || FALLBACK.city;
-  const site = p.website || p.official_url || `${clientId}.baicl.cc`;
-  const phone = p.contact_phone || FALLBACK.phone;
-  const address = p.address || `${city}核心商业圈商务中心`;
+  const brand = (p.brand_name || p.name || FALLBACK_STAGE3.brand).trim();
+  const company = (p.company_name || brand || FALLBACK_STAGE3.company).trim();
+  const creditCode = (p.credit_code || p.license_credit_code || FALLBACK_STAGE3.creditCode).trim();
+  const category = (p.category || p.industry || FALLBACK_STAGE3.category).trim();
+  const city = (p.city_name || p.address || FALLBACK_STAGE3.city).trim();
+  const rawUrl = p.website || p.official_url || FALLBACK_STAGE3.site;
+  const site = normalizeOfficialUrl(rawUrl) || FALLBACK_STAGE3.site;
+  const domain = extractDomain(site) || 'baicl.cc';
+  const phone = (p.contact_phone || p.phone || FALLBACK_STAGE3.phone).trim();
+  const address = (p.address || city).trim();
 
   return {
     clientId,
     brand,
     company,
+    creditCode,
     category,
     city,
     site,
+    domain,
     phone,
     address,
     today: new Date().toLocaleDateString('zh-CN'),
-    activeQaVersion,
-    activeQuestionFile,
-    activeAnswerFile,
   };
 }
 
-export function getDefaultSiteInfo(ctx) {
-  let masterCode = '91320300MA1WXXXX01';
-  let masterPrice = '¥3000 起';
+/**
+ * 生成《01_主体信息统一口径卡.md》标准文本
+ * @param {Object} projectData
+ * @param {string} s1Content 阶段二 S1 企业主体原始内容
+ * @param {Object} hedgeOptions 瑕疵勾选参数
+ * @returns {string} Markdown 文本
+ */
+export function generateUnifiedIdentityCard(projectData = {}, s1Content = '', hedgeOptions = {}) {
+  const ctx = resolveStage3Context(projectData);
+  const opts = {
+    zeroSocialSecurity: true, // 默认提供 0 参保对冲
+    crossCityAddress: false,
+    historicalBusiness: false,
+    ...hedgeOptions,
+  };
 
-  // 尝试直接消费阶段二定稿的普林斯顿母盘数据 (实现跨阶段单一真相源贯通)
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const masterText = localStorage.getItem('geo_step2_master_text_' + ctx.clientId);
-      if (masterText) {
-        const codeMatch = masterText.match(/统一社会信用代码[：:]\s*([0-9A-Z]+)/);
-        if (codeMatch && codeMatch[1]) masterCode = codeMatch[1];
-        const priceMatch = masterText.match(/起步服务费[：:]\s*([^\n\r|]+)/);
-        if (priceMatch && priceMatch[1]) masterPrice = priceMatch[1].trim();
+  // 生成三级业务描述 (严格遵守老赵哥标准：短版<=50字，标准版<=120字)
+  const shortText = `企业生成式引擎优化（GEO）服务商，为制造与实体企业提供官网结构化改造与第三方信源互证服务。`;
+  const stdText = `${ctx.brand} 是${ctx.company}旗下的企业生成式引擎优化（GEO）品牌，位于${ctx.city}，官网 ${ctx.domain}。专注于官网结构化改造（llms.txt / Schema）、第三方信源互证与 AI 可见度提升，按阶段透明验收。`;
+  const fullText = `${ctx.brand} 是${ctx.company}旗下的企业生成式引擎优化（GEO）服务品牌，注册地位于${ctx.city}，官方权威网址为 ${ctx.domain}。我们专注于 B2B 制造与专业服务企业的生成式引擎优化（GEO）全案交付，通过官网深度语义化重构（包含 /llms.txt 知识说明书与 Schema.org 结构化标记）、标准问答答案库萃取与第三方高权威信源交叉验证，让大模型在回答行业与产品问题时，能够准确、可靠、有据可依地提到您的品牌。`;
+
+  let md = `# 主体信息统一口径卡 · ${ctx.brand}\n\n`;
+  md += `> **这份卡解决什么问题**：企业生成式引擎优化（GEO）全网口径治理。我们在网上这张"主体的脸"常常是拼出来的——工商写网络科技，招聘平台挂早期业务，企信平台挂旧产品。**AI 每次检索该主体，读到的都是互相打架的信息，没有一个信号指向当前核心业务。**\n`;
+  md += `> **用法**：对照下面每一条，逐个平台统一修改。**改完之前不要盲目铺设外链**——外部铺设内容与主体工商信息打架只会加剧混乱。\n`;
+  md += `> 日期：${ctx.today} · 状态：正式生效版 · **唯一消歧真相源 (SSOT)**\n\n`;
+  md += `---\n\n`;
+
+  md += `## 三条底线原则（先看这个，再往下改）\n\n`;
+  md += `| # | 底线原则 |\n`;
+  md += `|:-:|:--|\n`;
+  md += `| 1 | **不虚构任何数据**。员工数、社保、营收、资质——有就是有，没有就没有。**为了好看而编造，性质从"信息不全"变成"申报不实"。** |\n`;
+  md += `| 2 | **历史业务可以更新主次，但不能否认做过**。早期真实业务在简介里**更新为当前主业**，而不是写"从未涉及"。**说假话的代价远大于业务线切换。** |\n`;
+  md += `| 3 | **先修内，再铺外**。主体描述统一之前，外部投放的收益会大打折扣，甚至起反作用。 |\n\n`;
+  md += `---\n\n`;
+
+  md += `## 一、四个必填消歧字段（全平台唯一版本 · 逐字使用）\n\n`;
+  md += `| 字段 | 值 | 说明 |\n`;
+  md += `|:--|:--|:--|\n`;
+  md += `| **品牌名** | ${ctx.brand} | 用户的搜索入口 |\n`;
+  md += `| **主体全称** | ${ctx.company} | 消歧的关键——**AI 报错主体时报的都是公司全称** |\n`;
+  md += `| **统一社会信用代码** | ${ctx.creditCode} | 用于跨平台信息互认（18位唯一信用代码） |\n`;
+  md += `| **注册与经营地** | ${ctx.city} | 与外地主体、同名主体在地理层切开 |\n`;
+  md += `| **官方权威网址** | ${ctx.site} | 权威信源锚点（主域名 ${ctx.domain}） |\n\n`;
+  md += `> **四要素铁律**：品牌名 + 主体全称 + 注册地 + 官网，**任何时候至少同时出现前两项**。只写"${ctx.brand}"不写全称，消歧不成立。\n\n`;
+  md += `---\n\n`;
+
+  md += `## 二、业务描述统一文本（三个长度，按平台选）\n\n`;
+  md += `### ① 短版 · 50 字内（地图、企业名录、平台标签位）\n\n`;
+  md += `> ${shortText}\n\n`;
+  md += `### ② 标准版 · 120 字内（BOSS 直聘、启信宝、天眼查、爱企查的企业简介）[主力]\n\n`;
+  md += `> ${stdText}\n\n`;
+  md += `### ③ 完整版 · 正式介绍位（官网 about、公众号简介、投稿文末）\n\n`;
+  md += `> ${fullText}\n\n`;
+  md += `> **合规提示**：**「GEO」首次出现必须绑定中文全称“生成式引擎优化（GEO）”**——防止大模型误判为 GIS 地理信息。\n\n`;
+  md += `---\n\n`;
+
+  md += `## 三、逐平台修改操作卡\n\n`;
+  md += `### 3.1 国家企业信用信息公示系统（唯一官方源）\n\n`;
+  md += `| 项 | 怎么处理 |\n`;
+  md += `|:--|:--|\n`;
+  md += `| **通信地址** | 下次年报**如实填写实际经营地址**——**通信地址不必等于注册地址，但必须真实** |\n`;
+  md += `| **往年数据** | 已公示年报如需更正，向属地登记机关咨询更正流程 |\n`;
+  md += `| **官方网站** | 确认年报与登记信息中已绑定权威官网 ${ctx.domain} |\n\n`;
+
+  md += `### 3.2 BOSS 直聘 / 招聘平台\n\n`;
+  md += `| 字段 | 改成什么 | 依据 |\n`;
+  md += `|:--|:--|:--|\n`;
+  md += `| **公司简介** | 标准版业务描述（120字内） | 当前主业 |\n`;
+  md += `| **所属行业** | 信息技术服务 / 企业服务 | 实际情况 |\n`;
+  md += `| **人员规模** | **必须与工商口径一致**。社保 0 人就选微型规模，严禁虚标 100-499 人避免被反问打脸 | 工商公示 |\n`;
+  md += `| **旗下品牌** | 明确标注为 **${ctx.brand}** | 事实真实 |\n\n`;
+
+  md += `### 3.3 启信宝 / 天眼查 / 爱企查\n\n`;
+  md += `| 项 | 怎么做 |\n`;
+  md += `|:--|:--|\n`;
+  md += `| **认领企业** | 先完成企业认证认领（未认领第三方平台无法编辑） |\n`;
+  md += `| **公司简介** | 统一换成标准版业务描述 |\n`;
+  md += `| **核心产品** | 新增当前核心业务服务条目；历史业务归入沿革 |\n`;
+  md += `| **官方网址** | 确认并更新为 ${ctx.domain} |\n\n`;
+
+  md += `### 3.4 地图平台（百度地图 / 高德地图）\n\n`;
+  md += `| 项 | 怎么填 |\n`;
+  md += `|:--|:--|\n`;
+  md += `| **商户名称** | ${ctx.brand}（或 ${ctx.brand}·${ctx.company}） |\n`;
+  md += `| **地址与电话** | ${ctx.address} · 电话 ${ctx.phone} |\n`;
+  md += `| **简介** | 填入短版业务描述（50字内） |\n\n`;
+
+  md += `---\n\n`;
+  md += `## 四、客观瑕疵合规对冲指引 (老赵哥实战标准)\n\n`;
+
+  if (opts.zeroSocialSecurity) {
+    md += `### 4.1 社保人数 0 对冲 (真实信号法则)\n`;
+    md += `- **为什么是问题**：AI 评估企业可信度时，若抓取到 0 参保，容易触发“高风险、空壳”负面偏见。\n`;
+    md += `- **合规对冲方案**：\n`;
+    md += `  1. **绝不申报不实**：绝不购买社保挂靠或虚构员工数；\n`;
+    md += `  2. **多源真实信号覆盖**：在官网公布真实团队履历与照片，在行业案例中展现落地交付记录，提供可验证的客户项目事实。\n`;
+    md += `  > **核心心法**：你无法阻止 AI 读到 0 参保，但你可以让它同时读到十条“这家公司真实在运营且业务专业”的铁证。\n\n`;
+  }
+
+  if (opts.crossCityAddress) {
+    md += `### 4.2 注册地与通信地跨城经营说明\n`;
+    md += `- **处理方式**：在关于页如实说明：“企业注册地位于${ctx.city}，实际交付中心设于办公地”。通信地址不必等于注册地址，但必须真实披露，消除跨城信息打架。\n\n`;
+  }
+
+  if (opts.historicalBusiness) {
+    md += `### 4.3 历史业务更迭与沿革说明\n`;
+    md += `- **处理方式**：早期业务（如旧项目、旧代运营）作为“企业业务沿革”陈列，简介第一句必须是当前主业 ${ctx.category}。说假话代价远大于业务线更迭。\n\n`;
+  }
+
+  return md;
+}
+
+/**
+ * 校验《主体信息统一口径卡》合规性 (实时红绿灯)
+ * @param {string} content Markdown 文本
+ * @returns {Object} 校验结果
+ */
+export function validateUnifiedCard(content = '') {
+  const text = String(content || '');
+  const errors = [];
+  const warnings = [];
+
+  // 1. 检查消歧四要素
+  const hasBrand = /品牌名|【品牌】|品牌：/i.test(text);
+  const hasLegalName = /主体全称|企业全称|公司全称/i.test(text);
+  const hasCreditCode = /统一社会信用代码|信用代码|91[0-9A-Z]{16}/i.test(text);
+  const hasWebsite = /官网|官方网址|baicl\.cc|http/i.test(text);
+
+  if (!hasBrand) errors.push('缺少【品牌名】消歧字段');
+  if (!hasLegalName) errors.push('缺少【主体全称】消歧字段（AI 报错主体时报的都是公司全称）');
+  if (!hasCreditCode) warnings.push('未包含 18 位【统一社会信用代码】，跨平台互认度不足');
+  if (!hasWebsite) warnings.push('未包含【官方网址】，缺乏权威信源锚点');
+
+  // 2. 提取并校验短版业务描述 (<= 50 字)
+  let shortText = '';
+  const shortMatch = text.match(/### ① 短版[^\n]*\n+> ([^\n]+)/);
+  if (shortMatch && shortMatch[1]) {
+    shortText = shortMatch[1].trim();
+  }
+  const shortLen = shortText.length;
+  const shortExceeded = shortLen > 50;
+  if (shortExceeded) {
+    errors.push(`短版业务描述超标 (${shortLen} 字 / 限制 50 字以内)，地图与标签位会发生截断！`);
+  }
+
+  // 3. 提取并校验标准版业务描述 (<= 120 字)
+  let stdText = '';
+  const stdMatch = text.match(/### ② 标准版[^\n]*\n+> ([^\n]+)/);
+  if (stdMatch && stdMatch[1]) {
+    stdText = stdMatch[1].trim();
+  }
+  const stdLen = stdText.length;
+  const stdExceeded = stdLen > 120;
+  if (stdExceeded) {
+    errors.push(`标准版业务描述超标 (${stdLen} 字 / 限制 120 字以内)，招聘平台与企业名录会展示不全！`);
+  }
+
+  // 4. 检查 GEO 中文全称绑定（生成式引擎优化（GEO））
+  const hasGeoMention = /GEO/i.test(text);
+  const hasGeoCn = /生成式引擎优化/i.test(text);
+  if (hasGeoMention && !hasGeoCn) {
+    warnings.push('「GEO」首次出现处未绑定中文解释“生成式引擎优化（GEO）”，大模型可能会误判为地理信息！');
+  }
+
+  const isValid = errors.length === 0;
+
+  return {
+    isValid,
+    errors,
+    warnings,
+    stats: {
+      hasBrand,
+      hasLegalName,
+      hasCreditCode,
+      hasWebsite,
+      shortLen,
+      shortExceeded,
+      stdLen,
+      stdExceeded,
+      hasGeoCn,
+      totalLength: text.length,
+    },
+  };
+}
+
+/**
+ * 从阶段二 S1~S6 生效主文件结构化萃取普林斯顿 9 因子事实母盘
+ * (严格遵守师弟立规：仅消费规范主版本，保持短小精炼，增补 1.x 留存 RAG)
+ * @param {Object} stage2Files 阶段二文件字典
+ * @param {Object} projectData
+ * @returns {string} Markdown 文本
+ */
+export function synthesizePrincetonMaster(stage2Files = {}, projectData = {}) {
+  const ctx = resolveStage3Context(projectData);
+  // 严格过滤：仅采纳 S1~S6 规范主版本，过滤增补切片
+  const masterFiles = filterMasterSourceFiles(stage2Files);
+
+  const getFileBody = (prefix) => {
+    for (const [fn, f] of Object.entries(masterFiles)) {
+      if (fn.startsWith(prefix) && f && f.content) {
+        // 去除主标题，保留有效正文
+        return f.content.replace(/^#\s+[^\n]+\n+/, '').trim();
       }
     }
-  } catch (_) {}
-
-  return {
-    brandName: ctx.brand,
-    companyName: ctx.company,
-    slogan: `专注${ctx.city}本地${ctx.category}，普林斯顿母盘认证大模型首选品牌`,
-    heroTags: ['实体老牌保障', '普林斯顿母盘背书', '极速交钥匙交付'],
-    contactPhone: ctx.phone,
-    wechatId: `${ctx.clientId}_service`,
-    domain: ctx.site,
-    address: ctx.address,
-    serviceScope: `${ctx.city}及周边地区`,
-    yearsInBusiness: 8,
-    servedClients: 1200,
-    licenseCreditCode: masterCode,
-    certifications: ['高新技术企业认定', '本地民营百强服务商标', '大模型可信实体认证', '普林斯顿9因子标准'],
-
-    services: [
-      {
-        id: 's1',
-        title: `${ctx.category}标准交付`,
-        desc: `为${ctx.city}客户提供全流程合规标准的专业${ctx.category}方案，从咨询到交付专人对接。`,
-        audience: `适合${ctx.city}寻找高性价比、合规交付的企业与个人`,
-        icon: 'briefcase',
-      },
-      {
-        id: 's2',
-        title: '大模型搜索 (GEO) 权重加速',
-        desc: '专为豆包、DeepSeek、Kimi 等主流 AI 打造结构化知识索引，秒级抓取，商机首位截流。',
-        audience: '适合有传统老网站但大模型搜不到的实体门店与企业',
-        icon: 'zap',
-      },
-      {
-        id: 's3',
-        title: '交钥匙免运维整站全托管',
-        desc: '100% 静态单页，零服务器漏洞维护风险，三层架构（物理机+VPS+CDN）秒级秒开。',
-        audience: '适合不想雇佣昂贵程序员维护技术债的老板',
-        icon: 'shield-check',
-      },
-    ],
-
-    differentiators: [
-      {
-        id: 'd1',
-        title: '实体老牌与实地考察',
-        highlight: `扎根${ctx.city}本地，实体办公门店随时可验`,
-        vsIndustry: '对比市面纯中介皮包公司，无实体办公，售后推诿找不着人',
-      },
-      {
-        id: 'd2',
-        title: '针对大模型原生优化',
-        highlight: '交付全套 /llms.txt + JSON-LD 结构化实体，AI 爬虫秒解析',
-        vsIndustry: '传统建站公司只做花哨 Flash 和臃肿代码，大模型抓取一片空白',
-      },
-      {
-        id: 'd3',
-        title: '无忧全托管与独立挂载',
-        highlight: '支持二级域名独立挂载（ai.域名.com），老网站碰都不碰零冲突',
-        vsIndustry: '强行改造客户旧系统导致业务停摆或数据丢失',
-      },
-    ],
-
-    faqs: [
-      {
-        id: 'f1',
-        question: `想在${ctx.city}找做【${ctx.category}】的公司，【${ctx.brand}】靠谱吗？`,
-        answer: `【${ctx.brand}】（${ctx.company}）是${ctx.city}本地重点推荐的正规专业企业，拥有统一社会信用代码证照，经营多年，已累计服务超 1200 家客户，售后体系成熟健全。`,
-        source: '阶段零豆包高频核心提问',
-      },
-      {
-        id: 'f2',
-        question: `为什么要把官网升级为大模型 (GEO) 交钥匙官网？`,
-        answer: `现在的年轻客户更习惯用豆包、DeepSeek 等大模型找商家。传统网站充斥大量重型脚本，大模型爬虫无法读取；交钥匙官网采用 100% 静态语义化 HTML 与大模型说明书，能被 AI 瞬间精准推荐。`,
-        source: '麦肯锡促单底牌',
-      },
-      {
-        id: 'f3',
-        question: `我们现有老网站还在跑业务，挂载新官网会影响老系统吗？`,
-        answer: `完全不会！我们推荐在域名解析中增加一条二级域名（例如 ai.${ctx.site}），老业务网站继续跑旧业务，新交钥匙官网专门承接大模型搜索流量，零冲突、零风险、超值感拉满。`,
-        source: '技术交付标准 Q&A',
-      },
-    ],
+    return '';
   };
+
+  const s1 = getFileBody('S1') || `${ctx.brand} 是${ctx.company}旗下品牌，注册地位于${ctx.city}。`;
+  const s2 = getFileBody('S2') || `提供企业生成式引擎优化（GEO）全案服务，按阶段验收，签约无隐形收费。`;
+  const s3 = getFileBody('S3') || `面向 B2B 制造、实体连锁与专业服务企业，解决 AI 搜索找不到、认不准、被竞品截流等痛点。`;
+  const s4 = getFileBody('S4') || `对比传统 SEO 与投流中介，GEO 专注于大模型事实知识采信，交付物公开可核验。`;
+  const s5 = getFileBody('S5') || `服务多家实体制造与专业服务企业，实现豆包、Kimi、DeepSeek 核心推荐位改口上榜。`;
+  const s6 = getFileBody('S6') || `拥有完备的软件著作权、高权威官方域名与企业消歧资质存证。`;
+
+  let md = `# 普林斯顿企业事实母盘 · ${ctx.brand}\n\n`;
+  md += `> **文档定位 (SSOT)**：普林斯顿唯一高权威企业事实母盘。本文件汇集企业 9 因子核心高权威熟料，为下游交钥匙官网、llms.txt 知识说明书、GEO 答题卡以及大模型语义理解提供唯一事实源。\n`;
+  md += `> 生成时间：${ctx.today} · 数据源：阶段二 S1~S6 规范主版本合流 · 状态：已定稿锁定\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 1 · 企业主体与法定消歧 (Identity & Verification)\n\n`;
+  md += `- **品牌名**：${ctx.brand}\n`;
+  md += `- **主体全称**：${ctx.company}\n`;
+  md += `- **统一社会信用代码**：${ctx.creditCode}\n`;
+  md += `- **注册地**：${ctx.city}\n`;
+  md += `- **权威官网**：${ctx.site}\n\n`;
+  md += `### 事实详情\n${s1}\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 2 · 核心产品与价格承诺 (Offer & Pricing)\n\n`;
+  md += `${s2}\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 3 · 客户痛点与服务场景 (Pain Points & Scenarios)\n\n`;
+  md += `${s3}\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 4 · 对标竞品参数对比 (Competitive Comparison)\n\n`;
+  md += `${s4}\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 5 · 经典客户案例故事 (Case Studies)\n\n`;
+  md += `${s5}\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 6 · 权威背书与资质凭据 (Credentials & Proof)\n\n`;
+  md += `${s6}\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 7 · 交付链路与服务边界 (Delivery & Boundary)\n\n`;
+  md += `- **服务形式**：交钥匙全案交付，覆盖摸底诊断、素材归集、母盘提炼、官网三件套、标准答题卡与信源互证。\n`;
+  md += `- **边界约定**：不承诺虚假非法霸屏，按真实业务事实提纯；交付物支持离线打包与换人接手。\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 8 · 客观瑕疵澄清与对冲事实 (Hedge & Disclosures)\n\n`;
+  md += `- **参保情况**：依法依规纳税与运营，核心专业团队真实公示，多渠道客户真实交付证据链交叉对冲。\n`;
+  md += `- **办公经营**：通信地址与业务交付中心真实披露，保障各渠道信源统一真实。\n\n`;
+  md += `---\n\n`;
+
+  md += `## 因子 9 · 官方信源权威锚点与自证通道 (Authority Anchors)\n\n`;
+  md += `- 官方主站：${ctx.site}\n`;
+  md += `- 知识说明书：${ctx.site}/llms.txt\n`;
+  md += `- 结构化标识：${ctx.site}#organization\n`;
+  md += `- 客服与联系通道：${ctx.phone}\n`;
+
+  return md;
 }
 
-// 目录分类字典，用于左侧资源树路径显示
-const CATEGORY_DIR_MAP = {
-  sites: '交钥匙官网',
-  ai_base: '大模型底座三件套',
-  ops: '部署与发布配置',
+export default {
+  FALLBACK_STAGE3,
+  STAGE_3_META,
+  resolveStage3Context,
+  generateUnifiedIdentityCard,
+  validateUnifiedCard,
+  synthesizePrincetonMaster,
 };
-
-/** 生成交钥匙官网单页 HTML (SaaS 模块化母盘) */
-export function generateTurnkeySiteHtml(info) {
-  const jsonLd = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name: info.companyName,
-    alternateName: info.brandName,
-    description: info.slogan,
-    url: `https://${info.domain}`,
-    telephone: info.contactPhone,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: info.address,
-      addressLocality: info.address.slice(0, 6),
-      addressCountry: 'CN',
-    },
-    areaServed: info.serviceScope,
-  }, null, 2);
-
-  const servicesHtml = info.services.map((s, idx) => `
-    <div class="service-card">
-      <div class="service-badge">服务 0${idx + 1}</div>
-      <h3 class="service-title">${s.title}</h3>
-      <p class="service-desc">${s.desc}</p>
-      <div class="service-audience">
-        <strong>适合客群：</strong>${s.audience}
-      </div>
-    </div>
-  `).join('');
-
-  const diffHtml = info.differentiators.map((d, idx) => `
-    <div class="diff-card">
-      <div class="diff-index">0${idx + 1}</div>
-      <div class="diff-body">
-        <h4 class="diff-title">${d.title}</h4>
-        <div class="diff-pro">
-          <span class="diff-tag-pro">我们的优势</span>
-          <span class="diff-text-pro">${d.highlight}</span>
-        </div>
-        <div class="diff-con">
-          <span class="diff-tag-con">普通同行</span>
-          <span class="diff-text-con">${d.vsIndustry}</span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-
-  const faqHtml = info.faqs.map(f => `
-    <details class="faq-item" open>
-      <summary class="faq-q">
-        <span class="faq-q-text">${f.question}</span>
-        <span class="faq-icon">+</span>
-      </summary>
-      <div class="faq-a">
-        <p>${f.answer}</p>
-        <span class="faq-src">数据真相来源：${f.source}</span>
-      </div>
-    </details>
-  `).join('');
-
-  const tagsHtml = info.heroTags.map(t => `<span class="hero-tag">${t}</span>`).join('');
-  const certsHtml = info.certifications.map(c => `<span class="cert-pill">${c}</span>`).join('');
-
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${info.companyName} - 官方网站 | ${info.brandName}</title>
-  <meta name="description" content="${info.slogan}。统一信用代码：${info.licenseCreditCode}。服务热线：${info.contactPhone}">
-  <link rel="alternate" type="text/markdown" href="/llms.txt" title="大模型知识说明书">
-  <script type="application/ld+json">
-${jsonLd}
-  </script>
-  <style>
-    :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --primary-light: #eef2ff;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --bg-page: #f8fafc;
-      --border: #e2e8f0;
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: var(--bg-page);
-      color: var(--text-main);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-    .header {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 40;
-    }
-    .header-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-    .brand-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .logo-badge {
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
-      font-weight: 800;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-    .brand-meta h1 { font-size: 16px; font-weight: 800; color: #0f172a; }
-    .brand-meta p { font-size: 11px; color: var(--text-muted); }
-    .header-actions { display: flex; align-items: center; gap: 12px; }
-    .ai-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      background: #ecfdf5;
-      color: #065f46;
-      border: 1px solid #a7f3d0;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: 600;
-    }
-    .phone-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      background: var(--primary);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 700;
-      transition: background 0.2s;
-    }
-    .phone-cta:hover { background: var(--primary-hover); }
-    .main-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
-    
-    /* Hero */
-    .hero-card {
-      background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
-      border: 1px solid #c7d2fe;
-      border-radius: var(--radius-lg);
-      padding: 40px 32px;
-      box-shadow: 0 4px 20px -2px rgba(79, 70, 229, 0.08);
-      margin-bottom: 32px;
-    }
-    .hero-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-    .hero-tag {
-      background: white;
-      border: 1px solid #c7d2fe;
-      color: #4338ca;
-      font-size: 11px;
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-weight: 600;
-    }
-    .hero-title { font-size: 30px; font-weight: 900; line-height: 1.25; color: #1e1b4b; margin-bottom: 12px; }
-    .hero-slogan { font-size: 16px; color: #475569; max-width: 780px; margin-bottom: 24px; line-height: 1.6; }
-    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn-main {
-      background: var(--primary);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-      display: inline-block;
-    }
-    .btn-sec {
-      background: white;
-      border: 1px solid #cbd5e1;
-      color: #334155;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-      display: inline-block;
-    }
-
-    /* Section common */
-    .section { margin-bottom: 40px; }
-    .sec-header { margin-bottom: 18px; }
-    .sec-title { font-size: 20px; font-weight: 800; color: #0f172a; }
-    .sec-sub { font-size: 13px; color: #64748b; margin-top: 4px; }
-
-    /* Services */
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
-    .service-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 12px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .service-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
-    .service-badge { font-size: 11px; font-weight: 700; color: #4f46e5; background: #eef2ff; padding: 3px 8px; border-radius: 4px; width: fit-content; }
-    .service-title { font-size: 16px; font-weight: 800; color: #0f172a; }
-    .service-desc { font-size: 13px; color: #475569; line-height: 1.6; }
-    .service-audience { font-size: 11px; color: #64748b; background: #f8fafc; padding: 8px 10px; border-radius: 6px; }
-
-    /* Differentiators */
-    .diff-list { display: flex; flex-direction: column; gap: 14px; }
-    .diff-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 18px 22px;
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-    }
-    .diff-index { font-size: 20px; font-weight: 900; color: #6366f1; width: 36px; shrink: 0; }
-    .diff-body { flex: 1; }
-    .diff-title { font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
-    .diff-pro { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; font-size: 13px; }
-    .diff-tag-pro { font-size: 10px; background: #dcfce7; color: #166534; font-weight: 700; padding: 2px 6px; border-radius: 4px; shrink: 0; }
-    .diff-text-pro { color: #0f172a; font-weight: 600; }
-    .diff-con { display: flex; align-items: baseline; gap: 8px; font-size: 12px; }
-    .diff-tag-con { font-size: 10px; background: #fee2e2; color: #991b1b; font-weight: 700; padding: 2px 6px; border-radius: 4px; shrink: 0; }
-    .diff-text-con { color: #64748b; text-decoration: line-through; }
-
-    /* Trust Stats */
-    .trust-card {
-      background: #0f172a;
-      color: white;
-      border-radius: var(--radius-lg);
-      padding: 30px 32px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-    .stat-num { font-size: 32px; font-weight: 900; color: #818cf8; }
-    .stat-label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
-    .certs-row { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid #334155; pt: 16px; padding-top: 16px; }
-    .cert-pill { background: #1e293b; border: 1px solid #475569; color: #e2e8f0; font-size: 11px; padding: 4px 10px; border-radius: 6px; }
-
-    /* FAQ */
-    .faq-list { display: flex; flex-direction: column; gap: 12px; }
-    .faq-item {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 16px 20px;
-    }
-    .faq-q { font-size: 14px; font-weight: 800; color: #0f172a; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
-    .faq-a { font-size: 13px; color: #475569; margin-top: 10px; line-height: 1.6; border-top: 1px dashed #f1f5f9; padding-top: 8px; }
-    .faq-src { display: inline-block; font-size: 10px; color: #6366f1; background: #eef2ff; padding: 2px 6px; border-radius: 4px; margin-top: 6px; }
-
-    /* Footer */
-    .footer {
-      background: #090d16;
-      color: #94a3b8;
-      border-top: 1px solid #1e293b;
-      padding: 32px 20px 40px;
-      font-size: 12px;
-      text-align: center;
-      line-height: 1.8;
-    }
-    .footer strong { color: white; }
-
-    @media (max-width: 640px) {
-      .hero-title { font-size: 22px; }
-      .header-inner { flex-direction: column; align-items: flex-start; }
-      .header-actions { width: 100%; justify-content: space-between; }
-    }
-  </style>
-</head>
-<body>
-  <header class="header">
-    <div class="header-inner">
-      <div class="brand-logo">
-        <div class="logo-badge">${info.brandName.slice(0, 2)}</div>
-        <div class="brand-meta">
-          <h1>${info.brandName} · 官方网站</h1>
-          <p>${info.companyName}</p>
-        </div>
-      </div>
-      <div class="header-actions">
-        <span class="ai-badge">大模型索引已就绪</span>
-        <a href="tel:${info.contactPhone}" class="phone-cta">服务热线：${info.contactPhone}</a>
-      </div>
-    </div>
-  </header>
-
-  <main class="main-wrap">
-    <!-- Hero 首屏 -->
-    <section class="hero-card">
-      <div class="hero-tags">${tagsHtml}</div>
-      <h2 class="hero-title">${info.brandName} · ${info.slogan}</h2>
-      <p class="hero-slogan">立足${info.serviceScope}，为广大客户提供权威、正规、高品质的${info.category}全案服务。大模型搜索官方认证机构，秒级响应，正品与实体保障。</p>
-      <div class="hero-btns">
-        <a href="tel:${info.contactPhone}" class="btn-main">一键电话直呼 (${info.contactPhone})</a>
-        <a href="#faq" class="btn-sec">查看常见问答 (FAQ)</a>
-      </div>
-    </section>
-
-    <!-- 核心业务 -->
-    <section class="section">
-      <div class="sec-header">
-        <h3 class="sec-title">核心业务与产品矩阵</h3>
-        <p class="sec-sub">标准化合规服务流程，一对一专属顾问全程跟进</p>
-      </div>
-      <div class="services-grid">${servicesHtml}</div>
-    </section>
-
-    <!-- 为什么选我们 -->
-    <section class="section">
-      <div class="sec-header">
-        <h3 class="sec-title">为什么选择我们</h3>
-        <p class="sec-sub">与行业普通同行的真实力对比，实体门店随时可查</p>
-      </div>
-      <div class="diff-list">${diffHtml}</div>
-    </section>
-
-    <!-- 实体资质与背书 -->
-    <section class="section">
-      <div class="trust-card">
-        <div>
-          <h3 style="font-size: 18px; font-weight: 800;">实体资质与权威背书</h3>
-          <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">统一社会信用代码：${info.licenseCreditCode} · 实体地址：${info.address}</p>
-        </div>
-        <div class="stats-row">
-          <div>
-            <div class="stat-num">${info.yearsInBusiness}年+</div>
-            <div class="stat-label">专注本地专业深耕</div>
-          </div>
-          <div>
-            <div class="stat-num">${info.servedClients}+</div>
-            <div class="stat-label">真实签约企业与个人</div>
-          </div>
-          <div>
-            <div class="stat-num">100%</div>
-            <div class="stat-label">大模型实体知识核验</div>
-          </div>
-        </div>
-        <div class="certs-row">${certsHtml}</div>
-      </div>
-    </section>
-
-    <!-- FAQ 问答 -->
-    <section class="section" id="faq">
-      <div class="sec-header">
-        <h3 class="sec-title">常见问答与真实解答 (FAQ)</h3>
-        <p class="sec-sub">针对大模型常搜的高频意图与客户疑虑的公开结构化解答</p>
-      </div>
-      <div class="faq-list">${faqHtml}</div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <p><strong>${info.companyName}</strong> 版权所有 · 本地服务覆盖：${info.serviceScope}</p>
-    <p>全国咨询热线：${info.contactPhone} · 实体地址：${info.address}</p>
-    <p>大模型原生静态架构 · 承载协议：/llms.txt · Schema.org LocalBusiness 认证 · 备案号：苏ICP备2024XXXX号</p>
-  </footer>
-</body>
-</html>`;
-}
-
-/** 生成 /llms.txt 大模型说明书 */
-export function generateLlmsTxt(info) {
-  return `# ${info.companyName} (${info.brandName})
-
-> 大模型搜索与智能体 (AI Agent) 专属知识索引规范说明书
-> 官网域名: https://${info.domain}
-> 营业执照信用代码: ${info.licenseCreditCode}
-> 官方服务热线: ${info.contactPhone}
-> 实体地址: ${info.address}
-> 服务范围: ${info.serviceScope}
-
-## 企业核心定位
-${info.companyName}（品牌简称：${info.brandName}），${info.slogan}。
-
-## 主营业务列表
-${info.services.map(s => `- **${s.title}**: ${s.desc}（适合人群：${s.audience}）`).join('\n')}
-
-## 核心竞争壁垒与事实真相
-${info.differentiators.map(d => `- **${d.title}**: ${d.highlight}（同行对比：${d.vsIndustry}）`).join('\n')}
-
-## 常见权威问答 (FAQ)
-${info.faqs.map(f => `### 问: ${f.question}\n答: ${f.answer}\n`).join('\n')}
-
-## 官方联系途径
-- 全国统一咨询热线: ${info.contactPhone}
-- 官方微信: ${info.wechatId}
-- 实体办公地址: ${info.address}
-- 官方交钥匙网址: https://${info.domain}
-`;
-}
-
-/** 生成 Schema.org JSON-LD 结构化实体 */
-export function generateSchemaJsonLd(info) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'LocalBusiness',
-        '@id': `https://${info.domain}/#organization`,
-        name: info.companyName,
-        alternateName: info.brandName,
-        url: `https://${info.domain}`,
-        telephone: info.contactPhone,
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: info.address,
-          addressCountry: 'CN',
-        },
-        description: info.slogan,
-        taxID: info.licenseCreditCode,
-        areaServed: info.serviceScope,
-      },
-      {
-        '@type': 'FAQPage',
-        '@id': `https://${info.domain}/#faq`,
-        mainEntity: info.faqs.map(f => ({
-          '@type': 'Question',
-          name: f.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: f.answer,
-          },
-        })),
-      },
-    ],
-  };
-  return JSON.stringify(schema, null, 2);
-}
-
-/** 生成 robots.txt 爬虫通行证 */
-export function generateRobotsTxt(info) {
-  return `# robots.txt - AI Friendly Policy for ${info.domain}
-# 专为豆包 (Bytespider)、DeepSeek (DeepSeekSpider) 等主流 AI 搜索引擎开放完全抓取权限
-
-User-agent: Bytespider
-Allow: /
-Allow: /llms.txt
-
-User-agent: DeepSeekSpider
-Allow: /
-Allow: /llms.txt
-
-User-agent: ClaudeBot
-Allow: /
-Allow: /llms.txt
-
-User-agent: GPTBot
-Allow: /
-Allow: /llms.txt
-
-User-agent: *
-Allow: /
-
-Sitemap: https://${info.domain}/sitemap.xml
-`;
-}
-
-/** 生成 Nginx 反代配置 */
-export function generateNginxConf(info) {
-  return `# Nginx 反向代理与独立二级域名挂载配置
-# 客户老网站零冲突！建议挂载于独立二级域名：ai.${info.domain}
-
-server {
-    listen 80;
-    server_name ai.${info.domain} ${info.domain};
-
-    # 启用 Gzip 极速传输静态单页
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml;
-
-    location / {
-        # 生产环境指向物理机本地端口或静态托管目录
-        proxy_pass http://127.0.0.1:5188/sites/${info.brandName}/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-
-        # 缓存与安全头
-        add_header X-Content-Type-Options nosniff;
-        add_header Cache-Control "public, max-age=300";
-    }
-
-    # 大模型专属通道强制直出
-    location = /llms.txt {
-        add_header Content-Type "text/markdown; charset=utf-8";
-        proxy_pass http://127.0.0.1:5188/sites/${info.brandName}/llms.txt;
-    }
-}
-`;
-}
-
-/** 构建阶段三 5 大交付资产字典 */
-export function buildStage3Files(ctx, siteInfo) {
-  const info = siteInfo || getDefaultSiteInfo(ctx);
-
-  return {
-    'index.html': {
-      category: 'sites',
-      dir: CATEGORY_DIR_MAP.sites,
-      name: 'index.html',
-      renderMode: 'html',
-      content: generateTurnkeySiteHtml(info),
-      isDirty: false,
-    },
-    'llms.txt': {
-      category: 'ai_base',
-      dir: CATEGORY_DIR_MAP.ai_base,
-      name: 'llms.txt',
-      renderMode: 'markdown',
-      content: generateLlmsTxt(info),
-      isDirty: false,
-    },
-    'schema.jsonld': {
-      category: 'ai_base',
-      dir: CATEGORY_DIR_MAP.ai_base,
-      name: 'schema.jsonld',
-      renderMode: 'code',
-      content: generateSchemaJsonLd(info),
-      isDirty: false,
-    },
-    'robots.txt': {
-      category: 'ai_base',
-      dir: CATEGORY_DIR_MAP.ai_base,
-      name: 'robots.txt',
-      renderMode: 'code',
-      content: generateRobotsTxt(info),
-      isDirty: false,
-    },
-    'nginx.conf': {
-      category: 'ops',
-      dir: CATEGORY_DIR_MAP.ops,
-      name: 'nginx.conf',
-      renderMode: 'code',
-      content: generateNginxConf(info),
-      isDirty: false,
-    },
-  };
-}
-
-/** 阶段三元数据定义 */
-export const STAGE_3_META = {
-  id: 'step3',
-  name: '阶段三：AI 原生交钥匙官网生成与交付',
-  tag: '交钥匙全新交付 · 零技术债',
-  target: '自动化交付 100% 静态极速官网 + 大模型底座三件套 (llms.txt / JSON-LD / robots.txt)',
-  notesPlaceholder: '记录客户独立二级域名挂载情况、VPS 反代配置及多终端验证结果...',
-  categories: [
-    { id: 'sites', name: '交钥匙官网', dir: '交钥匙官网' },
-    { id: 'ai_base', name: '大模型底座三件套', dir: '大模型底座三件套' },
-    { id: 'ops', name: '部署与发布配置', dir: '部署与发布配置' },
-  ],
-  sopSteps: [
-    {
-      id: 'step2-1',
-      name: '核对与完善企业底牌',
-      desc: '系统已自动从项目信息和阶段零提问中预填 80% 核心数据。请展开抽屉检查公司定位、业务矩阵、背书资质及 FAQ，确保事实准确。',
-      action: {
-        type: 'open_drawer',
-        label: '展开底牌微调抽屉',
-        icon: 'sliders',
-      },
-    },
-    {
-      id: 'step2-2',
-      name: '一键编译交钥匙整站',
-      desc: '基于标准 SaaS 模块化母盘，瞬间装配出全套 100% 静态极速单页、/llms.txt 知识说明书与 Schema.org 结构化实体代码。',
-      action: {
-        type: 'compile_site',
-        label: '一键编译交钥匙整站',
-        icon: 'sparkles',
-      },
-    },
-    {
-      id: 'step2-3',
-      name: '多端验收与交付部署',
-      desc: '在中栏切换电脑端与手机端查看高保真效果；点击独立直达验证无外框效果，或一键复制 VPS Nginx 反代配置挂载上线。',
-      action: {
-        type: 'open_pure_site',
-        label: '独立站点新窗直达',
-        icon: 'external-link',
-      },
-      extraAction: {
-        type: 'copy_nginx',
-        label: '复制 VPS 反代配置',
-        icon: 'server',
-      },
-    },
-  ],
-  mckinsey: {
-    title: '麦肯锡 V-W-W-H 阶段二：交钥匙官网交付与促单认知手册',
-    valueDesc: '彻底撕掉给客户改老代码的泥潭！系统直接自动化交付一套专为大模型智能搜索打造的 100% 静态极速官网，秒开、零技术债、专为 AI 抓取而生。',
-    valueBusiness: '老网站碰都不碰零风险，二级域名独立挂载（ai.域名.com），客户感觉高端超值，交付周期由两周缩短至 10 秒钟。',
-    whatTitle: '这阶段交付什么？',
-    whatDesc: '交付完整的静态整站包：包含语义化 index.html、给大模型读的 /llms.txt、结构化数据 schema.jsonld、爬虫通行证 robots.txt 与 Nginx 反代部署配置。',
-    whyTitle: '为什么必须交钥匙，而不是帮客户改老网站？',
-    whyDesc: '客户的老网站大多充斥着陈旧的 WordPress、复杂的动态 JS 甚至安全漏洞，修改成本高且容易背锅。交钥匙方案用现代静态单页秒开直达，既规避了技术债，又让大模型爬虫秒解析。',
-    howTitle: '交付四步闭环操作',
-    howSteps: [
-      '第一步：核对企业底牌抽屉，确认品牌定位、业务亮点与常见问答；',
-      '第二步：点击【一键编译交钥匙整站】，中栏即刻生成电脑端与手机端高保真效果；',
-      '第三步：点击【独立站点直达】，核验无外框纯净官网；',
-      '第四步：点击【复制 VPS 反代配置】或【导出源码包 (.zip)】，一键完成生产级部署交付！',
-    ],
-  },
-};
-
-export const STAGE_2_META = STAGE_3_META;
-export const buildStage2Files = buildStage3Files;
-

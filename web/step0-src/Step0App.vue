@@ -32,12 +32,13 @@
         @refresh-files="handleRefreshFiles"
         @delete-file="handleDeleteFile"
         @restore-file="handleRestoreFile"
+        @rename-file="handleRenameFile"
       />
 
       <!-- 中间：多 Tab 编辑打磨区 -->
       <StudioEditor
         :stage="'step0'"
-        :valid-adopt-slots="['slot_stage0_questions', 'slot_stage0_answers']"
+        :valid-adopt-slots="getSlotsByStage('step0')"
         :open-tabs="openTabs"
         :active-file-name="activeFileName"
         :files="files"
@@ -47,9 +48,7 @@
         @copy-content="handleCopyContent"
         @save-file="handleSaveActiveFile"
         @adopt-file="handleAdoptFile"
-        @adoptFile="handleAdoptFile"
         @restore-file="handleRestoreFile"
-        @restoreFile="handleRestoreFile"
       />
 
       <!-- 右栏：SOP 交付动线面板 (三级微动线指引，平铺展示当前小节操作) -->
@@ -95,13 +94,20 @@ import StudioSop from './components/studio/StudioSop.vue';
 import MckinseyDrawer from './components/MckinseyDrawer.vue';
 import {
   CANONICAL_SLOT_DICT,
-  resolveSlotKey,
   computeNextVersion,
+  computeReferenceVersion,
+  isMasterFile,
   computeSaveResult,
   computeAdoptResult,
   computeRestoreResult,
   computeDeleteResult,
   migrateAndNormalizeFiles,
+  getSlotsByStage,
+  formatReason,
+  activateTabInStack,
+  generateSnowflakeId,
+  isDuplicateDisplayName,
+  getMasterFileForSlot,
 } from './config/studioArtifactConfig.js';
 
 const props = defineProps({
@@ -142,29 +148,29 @@ const subMetaMap = {
 
 const currentSubMeta = computed(() => subMetaMap[currentSubStep.value] || subMetaMap[1]);
 
-// [2026-09-28] [动线层级重构] 阶段零 0.1 与 0.2 各自专属的三级微动线指引 (含出题查看、润色打磨、保存采纳及封版通关)
+// [2026-09-30] [全流水线版本统一步调与首版预置建档] 0.1 准备题目动线：建档即预置主文件，重新出题生成参考件，对比挑词吸收
 const STAGE0_SUB1_META = {
   sopTitle: '0.1 准备题目动线',
   sopSteps: [
     {
       id: 'view_or_refresh',
-      name: '1. AI 出题与查看',
-      desc: '系统已根据客户定位预生成核心题清单。若需换一批，可点击下方重新出题。',
-      extraAction: { label: '重新出题（生成新版）', icon: 'sparkles', type: 'refreshQuestions' },
+      name: '1. 查看主文件或出参考题',
+      desc: '建档即预置主文件清单。若需换一批激发灵感，可点击下方生成参考件。',
+      extraAction: { label: '重新出题（生成参考件）', icon: 'sparkles', type: 'refreshQuestions' },
       hideProceed: true
     },
     {
       id: 'edit_in_editor',
       name: '2. 中间区润色打磨',
-      desc: '交付专家可在中间编辑器直接润色修改，从 60 分打磨至 80 分。修改后随时点击下方保存存盘。',
+      desc: '交付专家可在中间编辑器直接润色修改主文件，修改后随时点击下方保存存盘。',
       action: { label: '保存当前润色修改', icon: 'save', type: 'saveCurrentFile' },
       hideProceed: true
     },
     {
-      id: 'save_and_adopt',
-      name: '3. 采纳为生效底牌',
-      desc: '题目打磨满意后，点击下方转正为正式生效版本（自动生成 QA-V2），作为后续实测基线。',
-      action: { label: '采纳为生效底牌 (转正为新版)', icon: 'check-circle-2', type: 'adoptCurrentFile' },
+      id: 'compare_and_polish',
+      name: '3. 对比挑选打磨主文件',
+      desc: '对比参考题与主文件，挑词吸收至主文件后保存，下游步骤将 100% 消费此主文件。',
+      action: { label: '保存主文件修改', icon: 'check-circle-2', type: 'saveCurrentFile' },
       hideProceed: true
     }
   ]
@@ -292,14 +298,16 @@ async function handleFinishStage0() {
   const activeQuestionFile = activeQFile ? activeQFile.name : '01_豆包提问清单_推荐版.txt';
   const activeAnswerFile = activeAFile ? activeAFile.name : '02_豆包实测回答记录_初测.txt';
 
-  // 确保状态闭环互指
+  // 确保状态闭环互指并标记 5 点质检 isConfirmed 确认状态
   if (activeQFile) {
     activeQFile.isActive = true;
+    activeQFile.isConfirmed = true;
     activeQFile.versionTag = activeQaVersion;
     activeQFile.pairFile = activeAnswerFile;
   }
   if (activeAFile) {
     activeAFile.isActive = true;
+    activeAFile.isConfirmed = true;
     activeAFile.versionTag = activeQaVersion;
     activeAFile.pairFile = activeQuestionFile;
   }
@@ -336,6 +344,15 @@ async function handleFinishStage0() {
       const data = await res.json();
       if (data.success) {
         projectData.value.probe_status = 'baseline_ready';
+        // [2026-09-30] [门禁状态实时同步] 同步更新外部宿主 currentProjectData 与门禁 UI，避免切页重显拦截
+        if (typeof window !== 'undefined') {
+          if (window.currentProjectData) {
+            window.currentProjectData.probe_status = 'baseline_ready';
+          }
+          if (typeof window.updatePipelineGateUI === 'function') {
+            window.updatePipelineGateUI();
+          }
+        }
       } else {
         showToast(data.message || '更新探针状态失败', 'error');
         return;
@@ -346,7 +363,7 @@ async function handleFinishStage0() {
     }
   }
 
-  showToast(`豆包真实回答已存入底牌 [${activeQaVersion}]，阶段零顺利通关！`, 'success');
+  showToast(`豆包实测回答已存档 [${activeQaVersion}]，阶段零顺利通关！`, 'success');
 
   if (typeof window !== 'undefined' && window.switchView) {
     setTimeout(() => {
@@ -368,32 +385,17 @@ function saveStep0FilesToStorage() {
   }
 }
 
-// 提取当前项目中最大的 QA 版本号（例如从 'QA-V1', 'QA-V2' 中提取最大数字）
-function getMaxQaVersionNumber() {
-  let maxVer = 1;
-  Object.values(files.value).forEach(f => {
-    if (f.versionTag) {
-      const match = f.versionTag.match(/QA-V(\d+)/i);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxVer) maxVer = num;
-      }
-    }
-  });
-  return maxVer;
-}
-
-// 为已采纳文件盖上标准元数据头（严禁 Emoji，规范见 design.md 1.3 节）
+// 为已采纳文件盖上标准元数据头（严禁自造词与 Emoji，规范见 AGENTS §3.5）
 function stampActiveQaHeader(content, { versionTag, brand, clientId, pairFile }) {
   const header = [
-    `=== 阶段零生效底牌 (基线标识: ${versionTag}) ===`,
+    `=== 阶段零生效版本 (版本标识: ${versionTag}) ===`,
     `客户品牌：${brand} (${clientId})`,
     `当前状态: 客户采纳生效中`,
     `配对文件: ${pairFile || '待配对'}`,
     `------------------------------------------------`
   ].join('\n');
 
-  // 若已有生效底牌头或带有分隔线的元数据块，直接精准替换
+  // 若已有生效版本头或带有分隔线的元数据块，直接精准替换
   const existingBlockRegex = /^=== 阶段零[\s\S]*?------------------------------------------------\n?/;
   if (existingBlockRegex.test(content)) {
     return content.replace(existingBlockRegex, header + '\n');
@@ -409,11 +411,61 @@ function stampActiveQaHeader(content, { versionTag, brand, clientId, pairFile })
   return header + '\n\n' + content.trimStart();
 }
 
+// [2026-09-29] [问答成对呈现] 提取提问清单题目并组装成对实测回答模板 (支持地域与品类参数化)
+function buildPairedAnswerTemplate(questionText, { brand, clientId, versionTag, questionFileName, city = '徐州', category = 'GEO 优化', isAdopted = false }) {
+  const lines = (questionText || '').split('\n');
+  const questions = [];
+  const qRegex = /^\s*(?:\[第\s*(\d+)\s*题\][：:]|(\d+)[\.、])\s*([^\n]+)/;
+  for (const line of lines) {
+    const m = line.match(qRegex);
+    if (m && m[3]) {
+      questions.push(m[3].trim());
+    }
+  }
+
+  const defaultQuestions = [
+    `${city}做${category}哪家比较好？有推荐的吗？`,
+    `想找${city}的${brand}，他们家主要做什么业务，口碑怎么样？`,
+    `${city}${category}市场排名前三的服务商有哪些？`,
+    `${brand}和同行的区别在哪？收费怎么样？`,
+    `${city}有没有靠谱的服务商推荐，不要推假公司广告？`
+  ];
+
+  const targetQuestions = questions.length > 0 ? questions : defaultQuestions;
+  const qaBlocks = targetQuestions.map((q, idx) => {
+    return [
+      `==================================================`,
+      `【测试题目 ${idx + 1}】${q}`,
+      `【豆包实测回答】（待实测填入：请前往豆包网页版提问，将真实回答复制粘贴于此处）`,
+      ``
+    ].join('\n');
+  }).join('\n');
+
+  return [
+    `=== 阶段零生效版本 (版本标识: ${versionTag}) ===`,
+    `客户品牌：${brand} (${clientId})`,
+    `所属地域：${city} | 核心业务：${category}`,
+    `当前状态: ${isAdopted ? '客户采纳生效中' : '待实测回填'}`,
+    `配对文件: ${questionFileName}`,
+    `------------------------------------------------`,
+    `测试时间：${new Date().toLocaleDateString()}`,
+    `测试工具：豆包 Web 版 (网页搜索增强)`,
+    ``,
+    qaBlocks
+  ].join('\n');
+}
+
 // [2026-09-28] [多版本生成采纳与草稿废纸篓安全回档] 阶段零采纳生效版本（SSOT 纯函数收敛）
 function handleAdoptFile(fileName) {
   const targetFile = files.value[fileName];
   if (!targetFile) {
     showToast(`未找到文件【${fileName}】`, 'error');
+    return;
+  }
+
+  // [2026-09-30 师弟立规 · 主文件神圣不可冲毁] 参考件仅供查阅比对，禁止整篇覆盖主文件
+  if (targetFile.versionTag?.startsWith('参考') || targetFile.name?.includes('参考')) {
+    showToast('参考件仅供查阅比对，请在左侧打开主文件手动挑选吸收，禁止整篇覆盖主文件！', 'warning');
     return;
   }
 
@@ -423,11 +475,7 @@ function handleAdoptFile(fileName) {
     stage: 'step0',
   });
   if (!res.success) {
-    if (res.reason === 'EMPTY_CONTENT') {
-      showToast('当前草稿内容为空，无法设为采纳底牌！请先编写或贴入内容', 'warning');
-    } else {
-      showToast(`采纳失败: ${res.reason}`, 'error');
-    }
+    showToast(`采纳失败: ${formatReason(res.reason)}`, 'error');
     return;
   }
   files.value = res.files;
@@ -435,26 +483,35 @@ function handleAdoptFile(fileName) {
   // 联动配对文件 pairFile 与标准头
   const clientId = projectData.value?.client_id || (typeof window !== 'undefined' && window.currentProjectId) || 'geo';
   const brand = projectData.value?.brand_name || projectData.value?.name || '客户品牌';
+  const city = projectData.value?.city_name || '徐州';
+  const category = projectData.value?.category || projectData.value?.industry || 'GEO 优化';
   const currentAdopted = files.value[fileName];
-  const pairCategory = currentAdopted.category === 'questions' ? 'answers' : 'questions';
-  const pairFileObj = Object.values(files.value).find(f => f.category === pairCategory && f.isActive && !f.isDeleted)
-    || Object.values(files.value).find(f => f.category === pairCategory && !f.isDeleted);
-  const pairFileName = pairFileObj ? pairFileObj.name : '';
-  currentAdopted.pairFile = pairFileName;
-  if (pairFileObj) {
-    pairFileObj.pairFile = currentAdopted.name;
+
+  // [2026-09-30 师弟立规 · 消除版本分裂与多版本打架] 阶段零配对文件严格互指预置主文件，绝不无故派生冗余第1版
+  let pairFileName = '';
+  if (currentAdopted.category === 'questions') {
+    pairFileName = files.value['02_豆包实测回答记录_初测.txt'] ? '02_豆包实测回答记录_初测.txt' : (CANONICAL_SLOT_DICT.slot_stage0_answers?.canonicalName || '02_豆包实测回答记录_初测.txt');
+  } else {
+    pairFileName = files.value['01_豆包提问清单_推荐版.txt'] ? '01_豆包提问清单_推荐版.txt' : (CANONICAL_SLOT_DICT.slot_stage0_questions?.canonicalName || '01_豆包提问清单_推荐版.txt');
+  }
+
+  // [2026-09-29] [解决 🟡1] 从更新后的 files.value 字典中重新获取最新采纳对象，避免旧引用导致 pairFile 丢失
+  const adoptedInFiles = files.value[fileName] || currentAdopted;
+  adoptedInFiles.pairFile = pairFileName;
+  if (files.value[pairFileName]) {
+    files.value[pairFileName].pairFile = adoptedInFiles.name;
   }
 
   // 为采纳文件盖上标准元数据头
-  const stamped = stampActiveQaHeader(currentAdopted.content || '', {
+  const stamped = stampActiveQaHeader(adoptedInFiles.content || '', {
     versionTag: res.versionTag,
     brand,
     clientId,
     pairFile: pairFileName,
   });
-  currentAdopted.content = stamped;
-  currentAdopted.savedContent = stamped;
-  currentAdopted.isDirty = false;
+  adoptedInFiles.content = stamped;
+  adoptedInFiles.savedContent = stamped;
+  adoptedInFiles.isDirty = false;
 
   // 若存在规范镜像骨干，保持镜像同步
   if (res.canonicalName && files.value[res.canonicalName]) {
@@ -462,7 +519,7 @@ function handleAdoptFile(fileName) {
   }
 
   // 持久化到 active_qa
-  const activeQuestionFile = currentAdopted.category === 'questions' ? currentAdopted.name : pairFileName;
+  const activeQuestionFile = adoptedInFiles.category === 'questions' ? adoptedInFiles.name : pairFileName;
   const activeAnswerFile = currentAdopted.category === 'answers' ? currentAdopted.name : pairFileName;
   const storageKey = `geo_step0_active_qa_${clientId}`;
   const qaPayload = {
@@ -478,7 +535,7 @@ function handleAdoptFile(fileName) {
       localStorage.setItem(storageKey, JSON.stringify(qaPayload));
     }
   } catch (err) {
-    console.warn('[Step0App] 保存阶段零底牌本地存储异常:', err);
+    console.warn('[Step0App] 保存阶段零生效版本本地存储异常:', err);
   }
 
   saveStep0FilesToStorage();
@@ -489,7 +546,7 @@ function handleAdoptFile(fileName) {
     }));
   }
 
-  showToast(`已成功将【${currentAdopted.name}】设为客户采纳底牌（版本: ${res.versionTag}）！`, 'success');
+  showToast(`已成功将【${currentAdopted.name}】设为生效版本（版本: ${res.versionTag}）！`, 'success');
   nextTick(() => {
     if (window.lucide) window.lucide.createIcons();
   });
@@ -506,9 +563,9 @@ function handleDeleteFile(filename) {
   });
   if (!res.success) {
     if (res.reason === 'FILE_PROTECTED_CANNOT_DELETE') {
-      showToast('已采纳的生效底牌受系统保护，无法删除！如需删除请先采纳其他版本', 'warning');
+      showToast('当前生效版本受系统保护，无法删除！如需删除请先采纳其他版本', 'warning');
     } else {
-      showToast(`删除失败: ${res.reason}`, 'error');
+      showToast(`删除失败: ${formatReason(res.reason)}`, 'error');
     }
     return;
   }
@@ -534,13 +591,55 @@ function handleRestoreFile(filename) {
     stage: 'step0',
   });
   if (!res.success) {
-    showToast(`恢复失败: ${res.reason}`, 'error');
+    showToast(`恢复失败: ${formatReason(res.reason)}`, 'error');
     return;
   }
   files.value = res.files;
   handleOpenFile(filename);
   saveStep0FilesToStorage();
   showToast(`已成功恢复草稿【${filename}】并打开`, 'success');
+  nextTick(() => {
+    if (window.lucide) window.lucide.createIcons();
+  });
+}
+
+// [2026-09-30] [主文件人工改名与雪花ID绑定] 支持交付人员自由改名，持久化至存储（仅主文件开放，参考件系统自管编号）
+function handleRenameFile({ fn, newDisplayName }) {
+  const target = files.value[fn];
+  if (!target) return;
+
+  // [2026-09-30 师弟立规 · 裁决9] 仅主文件开放修改名称，参考件由系统自管编号
+  if (!isMasterFile(target)) {
+    showToast('参考件由系统自管编号，仅主文件支持修改名称！', 'warning');
+    return;
+  }
+
+  const trimmed = (newDisplayName || '').trim();
+  if (!trimmed) return;
+
+  if (isDuplicateDisplayName(files.value, fn, trimmed)) {
+    showToast('名称已存在，不能重复！', 'warning');
+    return;
+  }
+
+  target.displayName = trimmed;
+  if (!target.id) {
+    target.id = generateSnowflakeId();
+  }
+  saveStep0FilesToStorage();
+  showToast(`主文件已成功改名为【${trimmed}】`, 'success');
+}
+
+// [2026-09-30] [5点质检闭环] 交付专家确认就绪并封版，将 isConfirmed 写入主文件并持久化
+function handleConfirmMaster(slotKey = 'slot_stage0_questions') {
+  const master = getMasterFileForSlot(files.value, slotKey);
+  if (!master) {
+    showToast('未找到主文件', 'error');
+    return;
+  }
+  master.isConfirmed = true;
+  saveStep0FilesToStorage();
+  showToast(`主文件【${master.name}】已成功确认就绪并封版！`, 'success');
   nextTick(() => {
     if (window.lucide) window.lucide.createIcons();
   });
@@ -556,13 +655,13 @@ function initDefaultFiles(p = {}) {
   const ans1Name = '02_豆包实测回答记录_初测.txt';
 
   const q1Text = [
-    `=== 阶段零生效底牌 (基线标识: QA-V1) ===`,
+    `=== 阶段零生效版本 (版本标识: QA-V1) ===`,
     `客户品牌：${brand} (${clientId})`,
     `当前状态: 客户采纳生效中`,
     `配对文件: ${ans1Name}`,
     `------------------------------------------------`,
     `核心品类：${category}`,
-    `版本标识：初测基线出题 (5 题)`,
+    `版本标识：初测推荐出题 (5 题)`,
     ``,
     `[第 1 题]：徐州做${category}哪家比较好？有推荐的吗？`,
     `[第 2 题]：想找徐州的${brand}，他们家主要做什么业务，口碑怎么样？`,
@@ -575,7 +674,7 @@ function initDefaultFiles(p = {}) {
   ].join('\n');
 
   const ans1Text = [
-    `=== 阶段零生效底牌 (基线标识: QA-V1) ===`,
+    `=== 阶段零生效版本 (版本标识: QA-V1) ===`,
     `客户品牌：${brand} (${clientId})`,
     `当前状态: 客户采纳生效中`,
     `配对文件: ${q1Name}`,
@@ -602,30 +701,36 @@ function initDefaultFiles(p = {}) {
     `说明：实测完成，回答已暂存。点击右侧保存并完成阶段零。`
   ].join('\n');
 
-  // 1. 初始化基础模版文件
+  // 1. 初始化基础模版文件 (建档即预置主文件底牌 · 师弟立规)
   const defaultFiles = {
     [q1Name]: {
+      id: generateSnowflakeId(),
       category: 'questions',
       name: q1Name,
+      displayName: '',
       dir: '豆包出的题目',
       content: q1Text,
       savedContent: q1Text,
       isDirty: false,
-      isActive: false,
-      versionTag: 'QA-V1',
+      isActive: true,
+      isMaster: true,
+      versionTag: '主文件',
       pairFile: ans1Name,
       slotKey: 'slot_stage0_questions',
       isDeleted: false,
     },
     [ans1Name]: {
+      id: generateSnowflakeId(),
       category: 'answers',
       name: ans1Name,
+      displayName: '',
       dir: '豆包实测回答',
       content: ans1Text,
       savedContent: ans1Text,
       isDirty: false,
-      isActive: false,
-      versionTag: 'QA-V1',
+      isActive: true,
+      isMaster: true,
+      versionTag: '主文件',
       pairFile: q1Name,
       slotKey: 'slot_stage0_answers',
       isDeleted: false,
@@ -652,6 +757,13 @@ function initDefaultFiles(p = {}) {
   } catch (err) {
     console.warn('[Step0App] 读取阶段零文件字典本地缓存异常:', err);
   }
+
+  // 保证所有已恢复文件均持有不可变雪花 ID 编号
+  Object.values(mergedFiles).forEach((f) => {
+    if (f && !f.id) {
+      f.id = generateSnowflakeId();
+    }
+  });
 
   // [2026-09-28] [SSOT收敛] 统一使用 migrateAndNormalizeFiles 进行存量收敛与单槽 active 校验
   files.value = migrateAndNormalizeFiles(mergedFiles, 'step0');
@@ -697,13 +809,18 @@ function initDefaultFiles(p = {}) {
     needsFixRewrite = true;
   }
 
-  // 4. 应用生效状态并保证单底牌互斥原则
+  // 4. 应用生效状态并保证单底牌互斥原则 (解决 🟡7 & 🟡2)
   Object.values(files.value).forEach(f => {
+    f.isDirty = false;
+    if (f.savedContent === undefined) f.savedContent = f.content || '';
+
     if (f.category === 'questions') {
       if (f.name === finalActiveQ) {
         f.isActive = true;
+        f.isMaster = true;
         f.isDeleted = false;
-        f.versionTag = finalVer;
+        f.isRetired = false;
+        f.versionTag = finalVer === 'QA-V1' ? '主文件' : finalVer;
         f.pairFile = finalActiveA;
       } else {
         f.isActive = false;
@@ -711,8 +828,10 @@ function initDefaultFiles(p = {}) {
     } else if (f.category === 'answers') {
       if (f.name === finalActiveA) {
         f.isActive = true;
+        f.isMaster = true;
         f.isDeleted = false;
-        f.versionTag = finalVer;
+        f.isRetired = false;
+        f.versionTag = finalVer === 'QA-V1' ? '主文件' : finalVer;
         f.pairFile = finalActiveQ;
       } else {
         f.isActive = false;
@@ -798,16 +917,12 @@ function handleOpenFile(fn) {
   if (!files.value[fn]) return;
   activeCategory.value = files.value[fn].category;
 
-  if (openTabs.value.includes(fn)) {
-    activeFileName.value = fn;
-    return;
+  const res = activateTabInStack(openTabs.value, fn, files.value, MAX_TABS);
+  openTabs.value = res.newOpenTabs;
+  activeFileName.value = res.activeFileName;
+  if (res.warningDirty) {
+    showToast(`当前打开标签均有未保存修改，请先保存部分文件以释放标签栏`, 'warning');
   }
-  if (openTabs.value.length >= MAX_TABS) {
-    showToast(`最多同时打开 ${MAX_TABS} 个标签！请先关闭不用的标签。`, 'warning');
-    return;
-  }
-  openTabs.value.push(fn);
-  activeFileName.value = fn;
 }
 
 function handlePromptNewFile() {
@@ -846,11 +961,16 @@ function handleRefreshFiles() {
   showToast('已刷新资源管理器文件列表', 'success');
 }
 
-// 编辑器交互
+// 编辑器交互：首置排位与智能淘汰
 function handleSelectTab(fn) {
-  activeFileName.value = fn;
+  const res = activateTabInStack(openTabs.value, fn, files.value, MAX_TABS);
+  openTabs.value = res.newOpenTabs;
+  activeFileName.value = res.activeFileName;
   if (files.value[fn]) {
     activeCategory.value = files.value[fn].category;
+  }
+  if (res.warningDirty) {
+    showToast(`当前打开标签均有未保存修改，请先保存部分文件`, 'warning');
   }
 }
 
@@ -904,7 +1024,7 @@ async function handleSaveActiveFile() {
     if (res.reason === 'READ_ONLY_LOCKED') {
       showToast('该文件为只读状态，无法保存！', 'warning');
     } else {
-      showToast(`保存失败: ${res.reason}`, 'error');
+      showToast(`保存失败: ${formatReason(res.reason)}`, 'error');
     }
     return;
   }
@@ -933,17 +1053,18 @@ async function handleSaveActiveFile() {
   showToast(`文件【${currentFn}】已成功保存！`, 'success');
 }
 
-// [2026-09-27] [血统溯源机制] 新生成的第 N 版题目默认为草稿态（isActive: false），由交付专家打磨满意后手动点击顶栏【设为客户采纳】生效
+// [2026-09-30 师弟立规 · 废除 1.1/1.2] 重新出题派生参考件（如 01_豆包提问清单_参考1.txt），isMaster: false
 function handleRefreshQuestions() {
-  const { nextVer } = computeNextVersion(files.value, 'slot_stage0_questions');
-  const slotItem = CANONICAL_SLOT_DICT['slot_stage0_questions'];
-  const newName = `${slotItem.baseSlotName}_第${nextVer}版${slotItem.ext}`;
+  const refRes = computeReferenceVersion(files.value, 'slot_stage0_questions', '参考');
+  const newName = refRes ? refRes.nextFileName : `01_豆包提问清单_参考${Date.now()}.txt`;
+  const nextNum = refRes ? refRes.nextNum : 1;
   const brand = projectData.value.brand_name || '客户品牌';
 
   const content = [
-    `=== 阶段零：豆包大白话提问清单 (第 ${nextVer} 版) ===`,
+    `=== 阶段零：豆包大白话提问清单 (参考候选 ${nextNum}) ===`,
     `客户品牌：${brand}`,
     `生成时间：${new Date().toLocaleString()}`,
+    `说明：此为 AI 重新生成的参考题，供对比挑选。可将优质提问复制吸收至左侧主文件。`,
     ``,
     `[第 1 题]：徐州性价比最高的${projectData.value.category || '服务'}选哪家？`,
     `[第 2 题]：朋友推荐了${brand}，大家觉得靠谱吗？有没有踩过坑的？`,
@@ -960,7 +1081,8 @@ function handleRefreshQuestions() {
     savedContent: content,
     isDirty: false,
     isActive: false,
-    versionTag: `V${nextVer}-Draft`,
+    isMaster: false,
+    versionTag: `参考${nextNum}`,
     slotKey: 'slot_stage0_questions',
     isDeleted: false,
   };
@@ -969,7 +1091,7 @@ function handleRefreshQuestions() {
   saveStep0FilesToStorage();
 
   handleOpenFile(newName);
-  showToast(`已生成第 ${nextVer} 版草稿题目【${newName}】，打磨满意后可点击顶栏【设为客户采纳】生效！`, 'info');
+  showToast(`已生成参考题【${newName}】，可与左侧主文件比对挑选优质问题！`, 'info');
 
   nextTick(() => {
     if (typeof window !== 'undefined' && window.lucide) {
@@ -1019,7 +1141,7 @@ function refresh(pData) {
   });
 }
 
-defineExpose({ setSubStep, refresh, handleAdoptFile, handleDeleteFile, handleRestoreFile });
+defineExpose({ setSubStep, refresh, handleAdoptFile, handleDeleteFile, handleRestoreFile, handleRenameFile, handleConfirmMaster });
 
 onMounted(() => {
   setupGlobalListeners();

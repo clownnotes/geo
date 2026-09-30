@@ -75,6 +75,66 @@ export const CANONICAL_SLOT_DICT = {
     stage: 'step1',
     prefix: 'V',
   },
+
+  // --- 阶段二（6个核心素材主文件） ---
+  slot_stage2_s1: {
+    canonicalName: 'S1_企业主体与法定边界.md',
+    baseSlotName: 'S1_企业主体与法定边界',
+    category: 'source_identity',
+    stage: 'step2',
+    prefix: 'S1.',
+  },
+  slot_stage2_s2: {
+    canonicalName: 'S2_核心产品与价格承诺.md',
+    baseSlotName: 'S2_核心产品与价格承诺',
+    category: 'source_products',
+    stage: 'step2',
+    prefix: 'S2.',
+  },
+  slot_stage2_s3: {
+    canonicalName: 'S3_目标客户与典型场景.md',
+    baseSlotName: 'S3_目标客户与典型场景',
+    category: 'source_scenarios',
+    stage: 'step2',
+    prefix: 'S3.',
+  },
+  slot_stage2_s4: {
+    canonicalName: 'S4_对标竞品参数对比表_优搜网络.md',
+    baseSlotName: 'S4_对标竞品参数对比表',
+    category: 'source_competitors',
+    stage: 'step2',
+    prefix: 'S4.',
+  },
+  slot_stage2_s5: {
+    canonicalName: 'S5_经典案例故事_本地实体GEO突围.md',
+    baseSlotName: 'S5_经典案例故事',
+    category: 'source_cases',
+    stage: 'step2',
+    prefix: 'S5.',
+  },
+  slot_stage2_s6: {
+    canonicalName: 'S6_权威背书与资质凭据.md',
+    baseSlotName: 'S6_权威背书与资质凭据',
+    category: 'source_credentials',
+    stage: 'step2',
+    prefix: 'S6.',
+  },
+
+  // --- 阶段三（母盘与统一口径卡） ---
+  slot_stage3_identity_card: {
+    canonicalName: '01_主体信息统一口径卡.md',
+    baseSlotName: '01_主体信息统一口径卡',
+    category: 'identity_card',
+    stage: 'step3',
+    prefix: 'V',
+  },
+  slot_stage3_master: {
+    canonicalName: '02_普林斯顿企业事实母盘.md',
+    baseSlotName: '02_普林斯顿企业事实母盘',
+    category: 'master_corpus',
+    stage: 'step3',
+    prefix: 'V',
+  },
 };
 
 /**
@@ -99,6 +159,30 @@ export const ALIAS_SLOT_MAP = {
   '01_老板商业诊断报告_文字版': 'slot_report_text',
   '01_工程师底座技术审计.md': 'slot_report_tech',
   '01_工程师底座技术审计': 'slot_report_tech',
+  // 阶段二映射与前缀容错
+  'S1_企业主体与法定边界.md': 'slot_stage2_s1',
+  'S1_企业主体与法定边界': 'slot_stage2_s1',
+  'S1_': 'slot_stage2_s1',
+  'S2_核心产品与价格承诺.md': 'slot_stage2_s2',
+  'S2_核心产品与价格承诺': 'slot_stage2_s2',
+  'S2_': 'slot_stage2_s2',
+  'S3_目标客户与典型场景.md': 'slot_stage2_s3',
+  'S3_目标客户与典型场景': 'slot_stage2_s3',
+  'S3_': 'slot_stage2_s3',
+  'S4_对标竞品参数对比表_优搜网络.md': 'slot_stage2_s4',
+  'S4_对标竞品参数对比表': 'slot_stage2_s4',
+  'S4_': 'slot_stage2_s4',
+  'S5_经典案例故事_本地实体GEO突围.md': 'slot_stage2_s5',
+  'S5_经典案例故事': 'slot_stage2_s5',
+  'S5_': 'slot_stage2_s5',
+  'S6_权威背书与资质凭据.md': 'slot_stage2_s6',
+  'S6_权威背书与资质凭据': 'slot_stage2_s6',
+  'S6_': 'slot_stage2_s6',
+  // 阶段三映射与前缀容错
+  '01_主体信息统一口径卡.md': 'slot_stage3_identity_card',
+  '01_主体信息统一口径卡': 'slot_stage3_identity_card',
+  '02_普林斯顿企业事实母盘.md': 'slot_stage3_master',
+  '02_普林斯顿企业事实母盘': 'slot_stage3_master',
 };
 
 /**
@@ -150,15 +234,42 @@ export function buildSlotRegex(slotKey) {
  * @param {string} [filename='']
  * @returns {string}
  */
-export function normalizeVersionTag(tag, slotKey, filename = '') {
+export function normalizeVersionTag(tag = '', slotKey, filename = '') {
+  // [2026-09-30] [解决 🟡1] 参考候选件（含 _参考 或 参考）直接保留原样标签，绝不篡改为 QA-V1
+  if ((tag && tag.includes('参考')) || (filename && filename.includes('_参考'))) {
+    return tag || '参考';
+  }
+
   const item = CANONICAL_SLOT_DICT[slotKey];
   const prefix = item?.prefix || 'V';
-  if (!tag) {
-    const m = (filename || '').match(/第(\d+)版/);
-    if (m) return `${prefix}${m[1]}`;
-    return `${prefix}1`;
+
+  // 1. 优先从文件名中提取标准版本号（文件名是绝对真实凭据）
+  if (filename) {
+    const mChunk = filename.match(/_增补_1\.(\d+)/);
+    if (mChunk && mChunk[1]) {
+      return `${prefix}${mChunk[1]}`;
+    }
+    const mVer = filename.match(/_第(\d+(?:\.\d+)?)版/);
+    if (mVer && mVer[1]) {
+      return `${prefix}${mVer[1]}`;
+    }
   }
-  return tag.replace(/-Draft$/i, '');
+
+  // 2. 从 tag 中安全提取：先剥离已有 prefix 与 Draft 标记，杜绝前缀二次拼接膨胀
+  let cleanTag = (tag || '').replace(/-Draft$/i, '').trim();
+  if (!cleanTag) return `${prefix}1`;
+
+  if (cleanTag.startsWith(prefix)) {
+    cleanTag = cleanTag.slice(prefix.length);
+  } else if (/^S\d+\./i.test(cleanTag)) {
+    cleanTag = cleanTag.replace(/^S\d+\./i, '');
+  } else if (/^V/i.test(cleanTag)) {
+    cleanTag = cleanTag.replace(/^V/i, '');
+  }
+
+  const mNum = cleanTag.match(/^(\d+(?:\.\d+)?)/);
+  const num = mNum ? mNum[1] : '1';
+  return `${prefix}${num}`;
 }
 
 /**
@@ -182,10 +293,22 @@ export function resolveSlotKey(filename, stage, isManual = false) {
     if (CANONICAL_SLOT_DICT[sk]?.canonicalName === cleanName) return sk;
   }
 
-  // 3. 别名容错表精确命中
+  // 3. 别名容错表匹配 (精确命中 或 剥离版本后缀后命中 或 别名前缀匹配)
   if (ALIAS_SLOT_MAP[cleanName]) {
     const mappedSlot = ALIAS_SLOT_MAP[cleanName];
     if (validSlots.includes(mappedSlot)) return mappedSlot;
+  }
+  const cleanBase = cleanName.replace(/_第\d+版.*$/, '').replace(/\.[^.]+$/, '');
+  if (ALIAS_SLOT_MAP[cleanBase]) {
+    const mappedSlot = ALIAS_SLOT_MAP[cleanBase];
+    if (validSlots.includes(mappedSlot)) return mappedSlot;
+  }
+  const sortedAliases = Object.keys(ALIAS_SLOT_MAP).sort((a, b) => b.length - a.length);
+  for (const aliasKey of sortedAliases) {
+    if (cleanName.startsWith(aliasKey)) {
+      const mappedSlot = ALIAS_SLOT_MAP[aliasKey];
+      if (validSlots.includes(mappedSlot)) return mappedSlot;
+    }
   }
 
   // 4. 长前缀优先匹配 (按 baseSlotName 长度降序)
@@ -229,6 +352,84 @@ export function safeStorageSet(key, value) {
   }
 }
 
+// [2026-09-30] [主文件雪花ID与去V1纯净改名] 生成雪花 ID、隐藏技术扩展名、计算用户纯净展示名称
+let lastTimestamp = -1;
+let snowflakeSequence = 0;
+
+/**
+ * 生成雪花 ID (Snowflake ID) 唯一编号
+ * 符合 4.11 绝对禁止自增 ID 铁律，纯数字唯一标识
+ */
+export function generateSnowflakeId() {
+  let timestamp = Date.now();
+  if (timestamp === lastTimestamp) {
+    snowflakeSequence = (snowflakeSequence + 1) & 4095;
+    if (snowflakeSequence === 0) {
+      while (timestamp <= lastTimestamp) {
+        timestamp = Date.now();
+      }
+    }
+  } else {
+    snowflakeSequence = 0;
+  }
+  lastTimestamp = timestamp;
+  const epoch = 1767225600000n; // 2026-01-01 起始纪元
+  const tsDiff = BigInt(Math.max(0, timestamp - Number(epoch)));
+  const workerId = 1n;
+  const seqBig = BigInt(snowflakeSequence);
+  const snowflake = (tsDiff << 22n) | (workerId << 12n) | seqBig;
+  return snowflake.toString();
+}
+
+/**
+ * 剥离技术扩展名 (.txt, .md, .json 等)
+ * 界面彻底隐藏后缀，交付人员只看到纯净主名称
+ */
+export function stripExtension(fn) {
+  if (!fn) return '';
+  // [2026-09-30 修复R1] 仅剥离白名单技术扩展名，严禁截断 1.1 / V2.0 等小数点业务版本号
+  return fn.replace(/\.(txt|md|markdown|json|html|htm|css|js|yaml|yml)$/i, '');
+}
+
+/**
+ * 格式化文件名展示：剥离冗余的数字序号前缀 (如 01_、02_)，并将 第N版 转为极简 VN 短标
+ * 示例：01_豆包实测提问清单_第1版.txt → 豆包实测提问清单_V1.txt
+ */
+export function formatDisplayName(fn) {
+  if (!fn) return '';
+  return fn
+    .replace(/^(?:\d+|S\d+)_/g, '')
+    .replace(/_第(\d+(?:\.\d+)?)版/g, '_V$1')
+    .replace(/_增补_1\.(\d+)/g, '_增补_V1.$1');
+}
+
+/**
+ * 格式化纯净展示标题 (不含扩展名)
+ * 优先读取用户人工修改的 displayName，其次使用原生名称清洗并隐藏后缀
+ */
+export function formatDisplayTitle(fn, fileObj = null) {
+  if (!fn) return '';
+  if (fileObj && fileObj.displayName) {
+    return stripExtension(fileObj.displayName);
+  }
+  return stripExtension(formatDisplayName(fn));
+}
+
+/**
+ * 校验文件名在工作区是否重名 (忽略已删除文件，对比去除扩展名后的纯净标题)
+ * 供 StudioFileTree 与各阶段 App 共享使用，确保单一定义 (SSOT)
+ */
+export function isDuplicateDisplayName(files = {}, currentFn = '', newName = '') {
+  const trimmed = (newName || '').trim().toLowerCase();
+  if (!trimmed) return false;
+  return Object.keys(files || {}).some((fn) => {
+    if (fn === currentFn) return false;
+    if (files[fn]?.isDeleted || files[fn]?.is_deleted) return false;
+    const title = formatDisplayTitle(fn, files[fn]).toLowerCase();
+    return title === trimmed;
+  });
+}
+
 /**
  * 版本号受控提取与防重名防覆盖算法
  * 重新生成时，扫描工作区全量文件（包含 isDeleted: true 在废纸篓中的文件）
@@ -261,10 +462,131 @@ export function computeNextVersion(files = {}, slotKey) {
 }
 
 /**
+ * 分支灵感草稿版本生成算法 (如 V3 → V3.1)
+ * [2026-09-29] 允许在现有主版本基础上派生临时灵感分支，便于挑词合入主版本后清理
+ * @param {Object} files
+ * @param {string} baseFilename
+ * @param {string} slotKey
+ */
+export function computeBranchVersion(files = {}, baseFilename, slotKey) {
+  const item = CANONICAL_SLOT_DICT[slotKey];
+  if (!item || !baseFilename) return { nextFileName: '', nextVersionTag: '', majorNum: '1', nextBranch: 1 };
+
+  const baseFile = files[baseFilename];
+  let majorNum = '1';
+  if (baseFile?.versionTag) {
+    const mTag = baseFile.versionTag.match(/(\d+)/);
+    if (mTag) majorNum = mTag[1];
+  } else {
+    const mName = baseFilename.match(/第(\d+)版/);
+    if (mName) majorNum = mName[1];
+  }
+
+  const slotFiles = Object.values(files).filter((f) => f.slotKey === slotKey && !f.isManual);
+  const branchNums = [];
+  const branchRegex = new RegExp(`第${majorNum}\\.(\\d+)版`);
+  const tagBranchRegex = new RegExp(`${item.prefix}${majorNum}\\.(\\d+)`);
+
+  for (const f of slotFiles) {
+    const mb1 = (f.name || '').match(branchRegex);
+    if (mb1 && mb1[1]) branchNums.push(parseInt(mb1[1], 10));
+    const mb2 = (f.versionTag || '').match(tagBranchRegex);
+    if (mb2 && mb2[1]) branchNums.push(parseInt(mb2[1], 10));
+  }
+
+  const nextBranch = branchNums.length > 0 ? Math.max(...branchNums) + 1 : 1;
+  const ext = (item.canonicalName.split('.').pop()) || 'md';
+  const nextFileName = `${item.baseSlotName}_第${majorNum}.${nextBranch}版.${ext}`;
+  const nextVersionTag = `${item.prefix}${majorNum}.${nextBranch}-Draft`;
+
+  return { nextFileName, nextVersionTag, majorNum, nextBranch };
+}
+
+/**
+ * 阶段二增量分片版本计算函数 (S1~S6)
+ * [2026-09-30] 师弟定规：每个分类只有 1 个主文件，盖板内确认切片时，单调递增派生 1.1, 1.2 独立增补卡片
+ * @param {Object} files
+ * @param {string} targetSlotKey (如 'slot_stage2_s2')
+ * @returns {{ nextFileName: string, nextVersionTag: string, nextBranch: number, category: string, slotKey: string }}
+ */
+export function computeStage2ChunkVersion(files = {}, targetSlotKey) {
+  const item = CANONICAL_SLOT_DICT[targetSlotKey];
+  if (!item) return null;
+
+  const slotFiles = Object.values(files).filter(
+    (f) => (f.slotKey === targetSlotKey || resolveSlotKey(f.name, 'step2', f.isManual) === targetSlotKey)
+  );
+
+  const branchNums = [];
+  const branchRegex = /_增补_1\.(\d+)/;
+  for (const f of slotFiles) {
+    // [2026-09-30] 核心守卫 (解决 🔴2): 排除主文件，主文件不是增量分片，绝不误计入分支
+    if (isMasterSourceFile(f.name)) continue;
+
+    const m = (f.name || '').match(branchRegex);
+    if (m && m[1]) branchNums.push(parseInt(m[1], 10));
+
+    // tag 精准匹配：剥离 item.prefix 后提取纯数字分支号
+    if (f.versionTag && f.versionTag.startsWith(item.prefix)) {
+      const tagBranch = f.versionTag.slice(item.prefix.length).replace(/-Draft$/i, '');
+      const parsed = parseInt(tagBranch, 10);
+      if (Number.isFinite(parsed)) branchNums.push(parsed);
+    }
+  }
+
+  const validBranches = branchNums.filter(Number.isFinite);
+  const maxBranch = validBranches.length > 0 ? Math.max(...validBranches) : 0;
+  const nextBranch = maxBranch + 1;
+
+  const ext = (item.canonicalName.split('.').pop()) || 'md';
+  const nextFileName = `${item.baseSlotName}_增补_1.${nextBranch}.${ext}`;
+  const nextVersionTag = `${item.prefix}${nextBranch}`;
+
+  return {
+    nextFileName,
+    nextVersionTag,
+    nextBranch,
+    category: item.category,
+    slotKey: targetSlotKey,
+  };
+}
+
+/**
+ * 识别是否为 S 素材库的主版本标准文件 (S1, S2, S3, S4_xxx, 排除 S1.1, S1.2 等草稿分支)
+ * [2026-09-29] 人机两分契约：系统组装母盘与外部喂 AI 时，只读取消费 S 主版本
+ * @param {string} filename
+ * @returns {boolean}
+ */
+export function isMasterSourceFile(filename = '') {
+  if (!filename) return false;
+  const base = filename.replace(/\.[^.]+$/, '');
+  // [2026-09-30] 人机两分核心契约：增补切片 (含 _增补_ 或 .x 编号) 绝对属于 1.x 人机增量，不得视为主文件
+  if (/_增补_/i.test(base) || /\d+\.\d+/.test(base)) return false;
+  return /^S\d+(_|$)/i.test(base);
+}
+
+/**
+ * 过滤出仅供 AI/母盘消费的素材库主版本标准文件 (人机两分契约)
+ * @param {Object} files
+ * @returns {Object}
+ */
+export function filterMasterSourceFiles(files = {}) {
+  const result = {};
+  for (const [fn, file] of Object.entries(files)) {
+    if (file && !file.isDeleted && !file.is_deleted && isMasterSourceFile(fn)) {
+      result[fn] = file;
+    }
+  }
+  return result;
+}
+
+/**
  * 历史淘汰旧版判定 (持久化标记优先 + 存量版本比对兜底)
  */
 export function isHistoricalRetired(file, files = {}) {
   if (!file || !file.slotKey || file.isActive || file.isManual || file.slotKey === 'slot_manual') return false;
+  // [2026-09-29] 灵感分支草稿（如 V1.1, S1.1）可自由打磨，绝不误判为历史淘汰
+  if (file.isBranchDraft) return false;
   // 1. 优先依据采纳动作退级时显式持久化的 isRetired 标记
   if (file.isRetired === true) return true;
 
@@ -273,10 +595,18 @@ export function isHistoricalRetired(file, files = {}) {
     (f) => f.slotKey === file.slotKey && f.isActive === true && f.name !== file.name && !f.isManual
   );
   if (activeBrother) {
-    const mSelf = (file.name || '').match(/第(\d+)版/);
-    const mActive = (activeBrother.name || '').match(/第(\d+)版/);
-    if (mSelf && mActive && parseInt(mSelf[1], 10) < parseInt(mActive[1], 10)) {
-      return true;
+    const mSelf = (file.name || '').match(/第(\d+(?:\.\d+)?)版/);
+    const mActive = (activeBrother.name || '').match(/第(\d+(?:\.\d+)?)版/);
+    if (mSelf && mActive) {
+      const parts1 = String(mSelf[1]).split('.').map((n) => parseInt(n, 10) || 0);
+      const parts2 = String(mActive[1]).split('.').map((n) => parseInt(n, 10) || 0);
+      const maxLen = Math.max(parts1.length, parts2.length);
+      for (let i = 0; i < maxLen; i++) {
+        const p1 = parts1[i] || 0;
+        const p2 = parts2[i] || 0;
+        if (p1 < p2) return true;
+        if (p1 > p2) return false;
+      }
     }
   }
   return false;
@@ -284,50 +614,220 @@ export function isHistoricalRetired(file, files = {}) {
 
 /**
  * 只读判定函数
+ * [2026-09-30 师弟立规 · 裁决11] 彻底解绑非主文件的生硬只读限制！
+ * 全系统除移入废纸篓 (isDeleted === true) 的文件强制只读外，
+ * 所有主文件、参考候选件、历史归档件、草稿全域开放自由输入编辑打磨与存盘！
  */
 export function isReadOnlyFile(file, files = {}, stage = '') {
   if (!file) return false;
   // 1. 废纸篓必定只读
   if (Boolean(file.isDeleted || file.is_deleted)) return true;
 
-  // 2. 首版母版留档文件：终身强制只读
-  if (file.isProtectedArchive) return true;
+  // 2. [2026-09-30 裁决11] 其他所有主文件、参考件、历史母版、草稿全域可自由编辑打磨
+  return false;
+}
 
-  // 3. 规范主干镜像载体：若带有 isCanonicalMirror 标记，终身保持强制只读
-  if (file.isCanonicalMirror) return true;
+/**
+ * 判定文件是否为主文件 (Master File)
+ * [2026-09-30 师弟立规] 主文件只能修改保存，物理锁定禁止删除！
+ * [2026-09-30 修复🔴4] 严密排除镜像、留档、已淘汰版本及参考件，保证单槽唯一真相源
+ */
+export function isMasterFile(file) {
+  if (!file) return false;
+  // 显式排除参考件、废纸篓、骨干镜像、留档与已淘汰版本
+  if (file.isReference === true || file.isDeleted === true || file.is_deleted === true) return false;
+  if (file.isCanonicalMirror === true || file.isProtectedArchive === true || file.isRetired === true) return false;
+  const vTag = String(file.versionTag || '');
+  if (vTag.startsWith('参考') || (file.name && file.name.includes('_参考'))) return false;
 
-  // 4. 手建自定义文件：只要不在废纸篓，永远保持自由编辑打磨
-  if (file.isManual || file.slotKey === 'slot_manual') return false;
+  // 1. 显式打标为 Master
+  if (file.isMaster === true) return true;
+  if (file.isMaster === false) return false;
 
-  // 5. 属于某槽位的更旧被淘汰历史版本 (具备 isRetired: true)：强制只读
-  if (!file.isActive && isHistoricalRetired(file, files)) {
+  // 2. 活跃生效且非手工无归属草稿
+  if (file.isActive === true && !file.isManual) return true;
+
+  // 3. 初始预置规范槽位骨干文件（在未被标记为非 active / 未被退役时生效）
+  const allCanonicalNames = Object.values(CANONICAL_SLOT_DICT).map((item) => item.canonicalName);
+  if (allCanonicalNames.includes(file.name) && file.isActive !== false) {
     return true;
   }
-
-  // 6. 当前生效底牌、最新候选工作草稿 (未采纳)、新建文件：完全可编辑打磨保存！
   return false;
+}
+
+/**
+ * 重新生成文件的命名与版本计算纯函数
+ * [2026-09-30 师弟立规] 废除 1.1/1.2，生成参考件时按主题命名，同名多次生成后缀加数字 1, 2, 3...
+ * @param {Object} files
+ * @param {string} slotKey
+ * @param {string} topic 主题标识 (默认 '参考')
+ */
+export function computeReferenceVersion(files = {}, slotKey, topic = '参考') {
+  const item = CANONICAL_SLOT_DICT[slotKey];
+  if (!item) return null;
+
+  const slotFiles = Object.values(files).filter(
+    (f) => (f.slotKey === slotKey || resolveSlotKey(f.name, item.stage, f.isManual) === slotKey)
+  );
+
+  const nums = [];
+  const refRegex = new RegExp(`_${topic}(\\d+)`);
+  for (const f of slotFiles) {
+    if (f.isMaster) continue;
+    const m = (f.name || '').match(refRegex);
+    if (m && m[1]) nums.push(parseInt(m[1], 10));
+  }
+
+  const nextNum = nums.length > 0 ? Math.max(...nums) + 1 : 1;
+  const ext = (item.canonicalName.split('.').pop()) || 'txt';
+  const nextFileName = `${item.baseSlotName}_${topic}${nextNum}.${ext}`;
+  const nextVersionTag = `${topic}${nextNum}`;
+
+  return { nextFileName, nextVersionTag, nextNum, item };
+}
+
+/**
+ * 获取某个槽位的主文件
+ * [2026-09-30 修复🔴4] 优先级收敛，确保单槽 Master 解析确定且唯一
+ */
+export function getMasterFileForSlot(files = {}, slotKey) {
+  if (!slotKey) return null;
+  const list = Object.values(files);
+  // 1. 优先寻找明确打标 isMaster === true 的生效文件
+  const explicitMaster = list.find((f) => f.slotKey === slotKey && f.isMaster === true && !f.isDeleted);
+  if (explicitMaster) return explicitMaster;
+
+  // 2. 寻找该槽位当前唯一的活跃生效主版本（排除镜像与归档）
+  const activeMaster = list.find(
+    (f) => f.slotKey === slotKey && f.isActive === true && !f.isCanonicalMirror && !f.isProtectedArchive && !f.isDeleted
+  );
+  if (activeMaster) return activeMaster;
+
+  // 3. 寻找匹配 canonicalName 且满足 isMasterFile 的初始文件
+  const item = CANONICAL_SLOT_DICT[slotKey];
+  if (item && files[item.canonicalName] && isMasterFile(files[item.canonicalName])) {
+    return files[item.canonicalName];
+  }
+  return null;
+}
+
+/**
+ * 空模板哨兵常量列表 (SSOT 唯一真相源 · 解决 🔴2)
+ * 用于统一判定文件是否脱离了初始占位提示
+ */
+export const TEMPLATE_SENTINEL_SNIPPETS = [
+  '说明：复制上方题目',
+  '说明：实测完成，回答已暂存',
+  '待实测填入：请前往豆包网页版提问',
+  '请在左侧选择文件或开始输入',
+  '当前文件暂无内容',
+  '在此开始编写内容',
+];
+
+// [2026-09-30] [SSOT收敛] 主文件有效内容最小字符数常量
+export const MIN_MASTER_CONTENT_LENGTH = 50;
+
+/**
+ * 标准 5 点核心质检模型
+ * 判定主文件是否真正就绪，供全流水线门禁和指示灯消费
+ */
+export function evaluate5PointCheck(masterFile, projectData = {}, options = {}) {
+  const minLength = options.minLength || MIN_MASTER_CONTENT_LENGTH;
+  const content = (masterFile && masterFile.content) || '';
+
+  // 1. 主文件存在
+  const point1 = {
+    key: 'point_exists',
+    name: '主文件存在',
+    pass: Boolean(masterFile && masterFile.name),
+    msg: masterFile ? '主文件底牌已就绪' : '主文件缺失',
+  };
+
+  // 2. 脱离初始空模版 (复用 TEMPLATE_SENTINEL_SNIPPETS 统一常量)
+  const hasTemplateSnippet = TEMPLATE_SENTINEL_SNIPPETS.some((s) => content.includes(s));
+  const point2 = {
+    key: 'point_not_template',
+    name: '脱离初始空模版',
+    pass: Boolean(content.trim() && !hasTemplateSnippet),
+    msg: !hasTemplateSnippet ? '已填写真实业务内容' : '仍包含初始待填说明模版',
+  };
+
+  // 3. 真实字数达标
+  const charCount = Array.from(content.trim()).length;
+  const point3 = {
+    key: 'point_length',
+    name: '真实字数达标',
+    pass: charCount >= minLength,
+    msg: charCount >= minLength ? `字数充足 (${charCount}/${minLength}字)` : `字数不足 (${charCount}/${minLength}字)`,
+  };
+
+  // 4. 消歧四要素齐备 (品牌名、企业主体名、统一社会信用代码、核心官网 · 解决 🔴2)
+  const brand = (projectData.brand_name || projectData.client_name || '').trim();
+  const company = (projectData.company_name || projectData.company || '').trim();
+  const creditCode = (projectData.credit_code || projectData.tax_id || '').trim();
+  const url = (projectData.official_url || projectData.site || '').trim();
+
+  const missingElements = [];
+  if (!brand || !content.includes(brand)) missingElements.push(`品牌名[${brand || '未设定'}]`);
+  if (!company || !content.includes(company)) missingElements.push(`企业主体[${company || '未设定'}]`);
+  if (!creditCode || !content.includes(creditCode)) missingElements.push(`统一代码[${creditCode || '未设定'}]`);
+  const domain = extractDomain(url);
+  if (!url || (!content.includes(url) && (!domain || !content.includes(domain)))) {
+    missingElements.push(`核心官网[${url || '未设定'}]`);
+  }
+
+  const passElements = missingElements.length === 0;
+  const point4 = {
+    key: 'point_elements',
+    name: '消歧四要素齐备',
+    pass: passElements,
+    msg: passElements ? '四要素要素齐备一致' : `缺少消歧要素: ${missingElements.join('、')}`,
+    missingElements,
+  };
+
+  // 5. 人工标记确认就绪
+  const point5 = {
+    key: 'point_confirmed',
+    name: '人工确认就绪',
+    pass: Boolean(masterFile && (masterFile.isConfirmed || masterFile.isReady || masterFile.isActive)),
+    msg: masterFile && (masterFile.isConfirmed || masterFile.isActive) ? '交付人员已确认就绪' : '待人工确认就绪',
+  };
+
+  const points = [point1, point2, point3, point4, point5];
+  const ready = points.every((p) => p.pass);
+  return { ready, points };
 }
 
 /**
  * 删除按钮在左栏树中的渲染判定 (Fail-Closed 关闸保护)
  */
 export function canDeleteFile(file, stage = '') {
-  if (!file) return false;
-  // ① 正在生效的底牌终身不可删
+  // [Fail-Closed 关闸保护 · 解决 🔴3]: 空引用一律拒绝删除，杜绝 TypeError 崩溃
+  if (!file || !file.name) return false;
+  // [2026-09-30 师弟立规 · 主文件神圣不可删] 主文件终身物理锁定禁止删除！只能修改保存！
+  if (isMasterFile(file)) return false;
+  // ① 阶段二 S1~S6 规范主版本文件受系统终身保护不可删；增补分片与草稿允许删入废纸篓
+  if (isMasterSourceFile(file.name)) return false;
+  // ② 正在生效的底牌/版本终身不可删
   if (file.isActive) return false;
-  // ② 规范主干镜像载体终身不可删 (Fail-Closed 关闸保护)
+  // ③ 规范主干镜像载体终身不可删 (Fail-Closed 关闸保护)
   if (file.isCanonicalMirror) return false;
-  // ③ 首版留档母版受系统终身保护不可删
+  // ④ 首版留档母版受系统终身保护不可删
   if (file.isProtectedArchive) return false;
-  // ④ 全局所有工序槽位的规范骨干文件名一律终身不可删 (脱钩外部 stage)
+  // ⑤ 全局所有工序槽位的规范骨干文件名一律终身不可删 (脱钩外部 stage)
   const allCanonicalNames = Object.values(CANONICAL_SLOT_DICT).map((item) => item.canonicalName);
   if (allCanonicalNames.includes(file.name)) return false;
-  // ⑤ 手建草稿与杂项草稿只要不在废纸篓且非 active 即可删除
-  if (file.isManual || file.slotKey === 'slot_manual' || file.slotKey === 'slot_misc') {
+  // ⑥ 手建草稿与杂项草稿只要不在废纸篓且非 active 即可删除 (解决 🟡3：优先统一 resolveSlotKey)
+  const resolvedSlot = file.slotKey || resolveSlotKey(file.name, stage, file.isManual);
+  if (file.isManual || resolvedSlot === 'slot_manual' || resolvedSlot === 'slot_misc') {
     return !Boolean(file.isDeleted || file.is_deleted);
   }
-  // ⑥ 已经在废纸篓中的不可重复点删除
+  // ⑦ 已经在废纸篓中的不可重复点删除
   if (Boolean(file.isDeleted || file.is_deleted)) return false;
+  // ⑧ 阶段白名单与槽位 Fail-Closed 保护：只有明确归属于支持槽位的草稿版本才允许删除
+  if (!CANONICAL_SLOT_DICT[resolvedSlot]) return false;
+  if (stage && CANONICAL_SLOT_DICT[resolvedSlot].stage !== stage) return false;
+
   return true;
 }
 
@@ -344,13 +844,30 @@ export function computeSaveResult({ targetName, content, files, stage, nowIso = 
     return { files, success: false, reason: 'READ_ONLY_LOCKED' };
   }
 
-  const safeContent = content ?? '';
+  if (content === undefined) {
+    console.warn(`[computeSaveResult] 缺少保存内容`);
+    return { files, success: false, reason: 'MISSING_CONTENT' };
+  }
+
+  const safeContent = content;
+  const slotKey = target.slotKey || resolveSlotKey(targetName, stage, target.isManual);
+  const slotItem = CANONICAL_SLOT_DICT[slotKey];
+  const canonicalName = slotItem?.canonicalName;
+  const hasValidContent = typeof safeContent === 'string' && safeContent.trim().length > 0;
+
+  // 活跃生效底牌/规范骨干严禁保存空内容，防止数据洗白与底牌骨干分叉 (彻底解决 🔴2)
+  if (target.isActive && !hasValidContent) {
+    console.warn(`[computeSaveResult] 尝试用空内容保存生效底牌 [${targetName}]，已被安全拦截！`);
+    return { files, success: false, reason: 'EMPTY_CONTENT' };
+  }
+
   const newFiles = { ...files };
 
-  // 1. 更新目标文件自身工作区草稿
+  // 1. 更新目标文件自身工作区草稿 (显式持久化 slotKey 回填)
   newFiles[targetName] = {
     ...target,
     name: targetName,
+    slotKey,
     content: safeContent,
     savedContent: safeContent,
     isDirty: false,
@@ -359,18 +876,12 @@ export function computeSaveResult({ targetName, content, files, stage, nowIso = 
 
   // 2. 活跃文件自动单向镜像契约 (带非空内容守卫)
   let mirrored = false;
-  const slotKey = target.slotKey || resolveSlotKey(targetName, stage, target.isManual);
-  const slotItem = CANONICAL_SLOT_DICT[slotKey];
-  const canonicalName = slotItem?.canonicalName;
-
-  // 内容守卫：只有当保存内容为有效非空字符串时才覆盖镜像骨干，坚决杜绝空内容洗白主干！
-  const hasValidContent = typeof safeContent === 'string' && safeContent.trim().length > 0;
-
   if (target.isActive && canonicalName && canonicalName !== targetName && newFiles[canonicalName]) {
     if (hasValidContent) {
       newFiles[canonicalName] = {
         ...newFiles[canonicalName],
         name: canonicalName,
+        slotKey,
         content: safeContent,
         versionTag: target.versionTag,
         isCanonicalMirror: true,
@@ -402,16 +913,19 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
   }
 
   const slotKey = target.slotKey || resolveSlotKey(candidateName, stage, target.isManual);
+  const slotItem = CANONICAL_SLOT_DICT[slotKey];
+  const canonicalName = slotItem?.canonicalName;
 
-  // 1. 候选自身类型自证守卫：受限类型绝不可作为采纳候选，防自锁矛盾态
+  // 1. 候选自身类型自证守卫：受限类型（规范镜像/手建草稿/杂项草稿/规范骨干自身）不可作为核心采纳候选
+  // [2026-09-29] [解除母版采纳死锁] 允许 isProtectedArchive 母版作为采纳候选，支持一键回滚生效
   if (
     target.isCanonicalMirror ||
-    target.isProtectedArchive ||
     target.isManual ||
     slotKey === 'slot_manual' ||
-    slotKey === 'slot_misc'
+    slotKey === 'slot_misc' ||
+    (canonicalName && candidateName === canonicalName && !target.isProtectedArchive)
   ) {
-    console.warn(`[computeAdoptResult] 目标文件 [${candidateName}] 属于受限类型（规范镜像/归档母版/手建草稿/杂项草稿），禁止作为采纳候选！`);
+    console.warn(`[computeAdoptResult] 目标文件 [${candidateName}] 属于受限类型（规范镜像/手建草稿/杂项草稿/规范骨干自身），禁止作为采纳候选！`);
     return { files, success: false, reason: 'NOT_ADOPTABLE_TARGET' };
   }
 
@@ -429,8 +943,6 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
     return { files, success: false, reason: 'EMPTY_CONTENT' };
   }
 
-  const slotItem = CANONICAL_SLOT_DICT[slotKey];
-  const canonicalName = slotItem?.canonicalName;
   const canonicalFile = canonicalName ? files[canonicalName] : null;
 
   // 4. 规整版本标签（剥离 -Draft，缺失优先从文件名反推）
@@ -445,8 +957,9 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
       newFiles[archiveV1Name] = {
         ...canonicalFile,
         name: archiveV1Name,
+        slotKey,
         isActive: false,
-        isRetired: true,
+        isRetired: true, // 首版母版留档作为历史版本归档 (与迁移算法及断言 5 严格对齐)
         isCanonicalMirror: false, // 显式清除镜像标记，母版与镜像互斥！
         versionTag: `${slotItem.prefix}1`,
         isProtectedArchive: true, // 永久受保护不可删除、不可修改
@@ -454,14 +967,16 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
     }
   }
 
-  // 6. 同 slotKey 其他文件全部退级并显式打上 isRetired 标记 (手建文件除外 · 带 resolveSlotKey 兜底)
+  // 6. 同 slotKey 其他文件全部退级并显式打上 isRetired 标记 (豁免规范骨干镜像与手建文件)
   for (const fn of Object.keys(newFiles)) {
     const sibSlot = newFiles[fn].slotKey || resolveSlotKey(fn, stage, newFiles[fn].isManual);
     if (sibSlot === slotKey && !newFiles[fn].isManual && fn !== candidateName) {
+      const isCanonical = Boolean(fn === canonicalName || newFiles[fn].isCanonicalMirror || newFiles[fn].isBranchDraft);
       newFiles[fn] = {
         ...newFiles[fn],
+        slotKey,
         isActive: false,
-        isRetired: true, // 关键：被采纳动作淘汰的历史版本，显式打上持久化标记！
+        isRetired: isCanonical ? false : true,
       };
     }
   }
@@ -470,6 +985,7 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
   newFiles[candidateName] = {
     ...target,
     name: candidateName,
+    slotKey,
     isActive: true,
     isRetired: false, // 恢复生效，解除淘汰
     versionTag: adoptedVersionTag,
@@ -481,6 +997,7 @@ export function computeAdoptResult({ candidateName, files, stage, nowIso = new D
     newFiles[canonicalName] = {
       ...newFiles[canonicalName],
       name: canonicalName,
+      slotKey,
       content: target.content,
       versionTag: adoptedVersionTag,
       isActive: false,
@@ -520,10 +1037,11 @@ export function computeRestoreResult({ filename, files, stage, nowIso = new Date
   const slotKey = target.slotKey || resolveSlotKey(filename, stage, target.isManual);
   const newFiles = { ...files };
 
-  // 1. 移出废纸篓 (统一只写 isDeleted，确保 name 字段存在)
+  // 1. 移出废纸篓 (统一只写 isDeleted，确保 name 字段存在，回填 slotKey)
   const restoredItem = {
     ...target,
     name: filename,
+    slotKey,
     isDeleted: false,
     updatedAt: nowIso,
   };
@@ -583,10 +1101,11 @@ export function computeDeleteResult({
   const slotKey = target.slotKey || resolveSlotKey(filename, stage, target.isManual);
   const newFiles = { ...files };
 
-  // 2. 标记软删除 (统一只写 isDeleted，强制失活 isActive，彻底清理 is_deleted)
+  // 2. 标记软删除 (统一只写 isDeleted，强制失活 isActive，彻底清理 is_deleted，回填 slotKey)
   newFiles[filename] = {
     ...target,
     name: filename,
+    slotKey,
     isDeleted: true,
     isActive: false,
     updatedAt: nowIso,
@@ -653,14 +1172,28 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date
       item.isActive = false;
     }
 
-    // 2. 回填槽位 slotKey (手建草稿保留 slot_manual，对存量未匹配或误标为 slot_misc 且非手建的允许重新解析)
-    if (!item.slotKey || (item.slotKey === 'slot_misc' && !item.isManual)) {
-      item.slotKey = resolveSlotKey(fn, stage, item.isManual);
+    // 2. 回填槽位 slotKey 与手建归一化 (解决 🟡1 & 🟡2)
+    if (item.isManual) {
+      item.slotKey = 'slot_manual';
+    } else if (!item.slotKey || item.slotKey === 'slot_misc') {
+      item.slotKey = resolveSlotKey(fn, stage, false);
+    } else if (!validSlots.includes(item.slotKey)) {
+      // 跨阶段非法槽位纠偏为 slot_misc 并强制失活 (解决 🟡1)
+      item.slotKey = 'slot_misc';
+      item.isActive = false;
     }
 
-    // 3. 识别并回填首版母版留档标记
-    if (fn.includes('_第1版')) {
-      item.isProtectedArchive = true;
+    // 3. 识别并回填首版母版留档标记 (收紧为仅核心槽位标准母版打标，杜绝污染手建笔记 · 解决 🟡4)
+    if (
+      !item.isManual &&
+      item.slotKey !== 'slot_manual' &&
+      item.slotKey !== 'slot_misc' &&
+      validSlots.includes(item.slotKey)
+    ) {
+      const slotDef = CANONICAL_SLOT_DICT[item.slotKey];
+      if (slotDef?.baseSlotName && fn.startsWith(`${slotDef.baseSlotName}_第1版`)) {
+        item.isProtectedArchive = true;
+      }
     }
 
     // 纠偏存量脏数据：母版与规范镜像终身受保护，绝不可处于已删除状态
@@ -668,8 +1201,12 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date
       item.isDeleted = false;
     }
 
-    // 4. 初始 versionTag (优先从文件名反推版本号)
-    if (!item.versionTag) {
+    // 4. versionTag 归一化 (解决 🔴4: 前缀与数值一致性归一)
+    if (item.versionTag && item.slotKey && item.slotKey !== 'slot_manual' && item.slotKey !== 'slot_misc') {
+      const isDraft = /-Draft$/i.test(item.versionTag);
+      const clean = normalizeVersionTag(item.versionTag, item.slotKey, fn);
+      item.versionTag = isDraft ? `${clean}-Draft` : clean;
+    } else if (!item.versionTag) {
       const slotItem = CANONICAL_SLOT_DICT[item.slotKey];
       const prefix = slotItem?.prefix || 'V';
       const mVer = fn.match(/第(\d+)版/);
@@ -687,12 +1224,12 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date
     normalized[fn] = item;
   }
 
-  // 辅助提取版本数值
+  // 辅助提取版本数值（支持浮点型微调分支，如 1.1）
   const getVerNum = (f) => {
-    const m = (f.name || '').match(/第(\d+)版/);
-    if (m) return parseInt(m[1], 10);
-    const m2 = (f.versionTag || '').match(/\d+/);
-    if (m2) return parseInt(m2[0], 10);
+    const m = (f.name || '').match(/第(\d+(\.\d+)?)版/);
+    if (m) return parseFloat(m[1]);
+    const m2 = (f.versionTag || '').match(/\d+(\.\d+)?/);
+    if (m2) return parseFloat(m2[0]);
     return 1;
   };
 
@@ -702,8 +1239,8 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date
     const slotFiles = Object.values(normalized).filter(
       (f) => f.slotKey === sk && !f.isDeleted && !f.isManual
     );
-    // 预过滤掉镜像与母版，防止错误将镜像固化为 active
-    const activeList = slotFiles.filter((f) => f.isActive === true && !f.isCanonicalMirror && !f.isProtectedArchive);
+    // 预过滤掉镜像，允许合法处于 active 的母版参与收敛 (解决 🔴-1)
+    const activeList = slotFiles.filter((f) => f.isActive === true && !f.isCanonicalMirror);
     const canonicalName = CANONICAL_SLOT_DICT[sk]?.canonicalName;
 
     let chosen = null;
@@ -725,21 +1262,60 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date
     } else if (activeList.length === 1) {
       chosen = activeList[0];
     } else if (activeList.length === 0 && slotFiles.length > 0) {
-      // 槽位无任何 active：激活规范骨干（若无骨干则激活首个非镜像、非母版的候选草稿）
-      const candidateList = slotFiles.filter((f) => !f.isCanonicalMirror && !f.isProtectedArchive);
-      chosen = slotFiles.find((f) => f.name === canonicalName) || candidateList[0] || slotFiles[0];
-      chosen.isActive = true;
+      // 槽位无任何 active：优先激活非镜像候选草稿中最高版本的草稿，若无草稿且规范骨干非镜像，则激活规范骨干
+      const candidateList = slotFiles.filter((f) => !f.isCanonicalMirror && !f.isProtectedArchive && !f.isManual);
+      if (candidateList.length > 0) {
+        candidateList.sort((a, b) => getVerNum(b) - getVerNum(a));
+        chosen = candidateList[0];
+        chosen.isActive = true;
+      } else {
+        const canonical = slotFiles.find((f) => f.name === canonicalName);
+        if (canonical && !canonical.isCanonicalMirror && !canonical.isProtectedArchive) {
+          chosen = canonical;
+          chosen.isActive = true;
+        } else {
+          console.warn(`[migrateAndNormalizeFiles] 槽位 [${sk}] 仅存镜像或母版，无合法可激活底牌，保持零 active 态`);
+        }
+      }
+    }
+
+    // 若非骨干被激活，同步确保规范骨干打上镜像标记并等价同步 content，杜绝骨干落入可改半保护态或镜像失步 (解决 🔴-1)
+    if (chosen && chosen.name !== canonicalName) {
+      const canonical = slotFiles.find((f) => f.name === canonicalName);
+      if (canonical) {
+        canonical.isCanonicalMirror = true;
+        canonical.isActive = false;
+        canonical.isRetired = false;
+        if (chosen.content && chosen.content.trim().length > 0) {
+          canonical.content = chosen.content;
+        }
+      }
     }
 
     // 为老数据同槽已被淘汰的历史旧版补充 isRetired: true
     if (chosen) {
       for (const f of slotFiles) {
-        // 显式豁免镜像与母版，不打淘汰标记
-        if (f.isCanonicalMirror || f.isProtectedArchive) {
+        // 当前生效的唯一活跃文件绝对不打淘汰标记 (解决 🔴-1)
+        if (f.name === chosen.name || f.isActive) {
           f.isRetired = false;
           continue;
         }
-        if (f.name !== chosen.name && !f.isActive) {
+        // 显式豁免规范骨干与镜像，绝对不打淘汰标记
+        if (f.isCanonicalMirror || f.name === canonicalName) {
+          f.isRetired = false;
+          continue;
+        }
+        // 显式豁免分支微调草稿 (isBranchDraft)，分支可自由打磨，绝对不打淘汰标！(解决 🟡3)
+        if (f.isBranchDraft) {
+          f.isRetired = false;
+          continue;
+        }
+        // 未生效的历史母版留档打上 isRetired
+        if (f.isProtectedArchive) {
+          f.isRetired = true;
+          continue;
+        }
+        if (!f.isActive) {
           // 仅当版本严格低于当前活跃版本时才回填 isRetired，绝不误伤最新未采纳草稿！
           if (getVerNum(f) < getVerNum(chosen)) {
             f.isRetired = true;
@@ -749,10 +1325,20 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date
     }
   }
 
-  // 收敛后终检：确保任何镜像文件绝不持有 isRetired 或 isActive
+  // 收敛后终检：
+  // 1. 确保任何镜像文件绝不持有 isRetired 或 isActive
+  // 2. 确保规范骨干终身不打 isRetired 淘汰标记
+  // 3. 确保非本阶段有效工序槽位 (slot_misc, slot_manual 或跨阶段槽位) 的文件绝不持有 isActive = true
+  const coreFiles = getCoreFilesByStage(stage);
   for (const fn of Object.keys(normalized)) {
     if (normalized[fn].isCanonicalMirror) {
       normalized[fn].isRetired = false;
+      normalized[fn].isActive = false;
+    }
+    if (coreFiles.includes(fn)) {
+      normalized[fn].isRetired = false;
+    }
+    if (!validSlots.includes(normalized[fn].slotKey)) {
       normalized[fn].isActive = false;
     }
   }
@@ -768,16 +1354,134 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date
  */
 export function getActiveBadgeText(file, stage = '') {
   if (!file) return '';
+  if (stage === 'step2' || file.category?.startsWith('source_')) {
+    return file.dir ? file.dir.split('(')[0].trim() : '素材档案';
+  }
   if (file.isActive) {
     if (stage === 'step0') {
       return `生效版本 ${file.versionTag || 'QA-V1'}`;
     }
     return `客户生效底牌 ${file.versionTag || 'V1'}`;
   }
-  if (file.isProtectedArchive) return '历史母版 · 终身留档';
+  if (file.isProtectedArchive) return '第 1 版 (原始母版)';
   if (file.isCanonicalMirror) return '规范主干 · 自动镜像';
   if (file.isRetired) return '历史版本 · 只读归档';
   if (file.isDeleted || file.is_deleted) return '废纸篓归档 · 只读状态';
   if (file.isManual || file.slotKey === 'slot_manual') return '自定义工作草稿';
   return `候选工作草稿 ${file.versionTag || 'Draft'}`;
 }
+
+/**
+ * 统一纯函数错误原因平实中文映射器 (解决 🟡4)
+ * @param {string} reason
+ * @returns {string}
+ */
+export function formatReason(reason) {
+  const map = {
+    EMPTY_CONTENT: '内容为空，无法操作！请先编写或贴入内容',
+    FILE_NOT_FOUND: '未找到指定文件',
+    NOT_ADOPTABLE_TARGET: '该文件属于受保护类型，无法设为生效版本',
+    STAGE_SLOT_MISMATCH: '当前阶段槽位不匹配，无法采纳',
+    READ_ONLY_LOCKED: '该文件为只读状态，无法修改保存',
+    FILE_PROTECTED_CANNOT_DELETE: '系统核心文件终身受保护，禁止删除',
+    MISSING_CONTENT: '缺少保存内容',
+    CONVERGENCE_VERIFICATION_FAILED: '单槽生效收敛校验失败，操作已取消',
+  };
+  return map[reason] || `操作失败，请刷新后重试（排查码: ${reason}）`;
+}
+
+/**
+ * 智能 Tab 栈管理（首置插入与上限 6 个智能淘汰 · 师弟立规）
+ * @param {string[]} openTabs 当前打开的标签数组
+ * @param {string} fileName 要激活/打开的目标文件名
+ * @param {Record<string, any>} files 文件字典
+ * @param {number} [maxTabs=6] 最大标签数量上限
+ * @returns {{ newOpenTabs: string[], activeFileName: string, warningDirty: boolean, dirtyFileNames: string[] }}
+ */
+export function activateTabInStack(openTabs = [], fileName, files = {}, maxTabs = 6) {
+  if (!fileName) {
+    return {
+      newOpenTabs: Array.isArray(openTabs) ? [...openTabs] : [],
+      activeFileName: (openTabs && openTabs[0]) || '',
+      warningDirty: false,
+      dirtyFileNames: [],
+    };
+  }
+
+  const currentTabs = Array.isArray(openTabs) ? [...openTabs] : [];
+  // 1. 若已存在则先剔除旧位置，重新首置插入到第 1 个位置 (索引 0)
+  const filtered = currentTabs.filter((fn) => fn !== fileName);
+  filtered.unshift(fileName);
+
+  // 2. 超量淘汰检查
+  let warningDirty = false;
+  let dirtyFileNames = [];
+
+  while (filtered.length > maxTabs) {
+    // 从最右侧（最老末尾）向前寻找未修改的干净 Tab 自动关闭
+    let cleanIdx = -1;
+    for (let i = filtered.length - 1; i >= 0; i--) {
+      const fn = filtered[i];
+      if (fn === fileName) continue; // 刚激活的当前文件绝不淘汰
+      const file = files[fn];
+      if (!file || !file.isDirty) {
+        cleanIdx = i;
+        break;
+      }
+    }
+
+    if (cleanIdx !== -1) {
+      filtered.splice(cleanIdx, 1);
+    } else {
+      // 候选待淘汰的 Tab 全部有未保存修改，拒绝静默关闭，标记警告并保持 openTabs 严控在上限内 (解决 🟡4)
+      warningDirty = true;
+      dirtyFileNames = filtered.filter((fn) => fn !== fileName && files[fn]?.isDirty);
+      filtered.shift(); // 撤销新加入的标签，确保 newOpenTabs 数量严格 <= maxTabs
+      break;
+    }
+  }
+
+  return {
+    newOpenTabs: filtered,
+    activeFileName: fileName,
+    warningDirty,
+    dirtyFileNames,
+  };
+}
+
+/**
+ * [2026-09-30] [官网网址真相源] 将用户输入的任意 URL 规范化为干净、唯一的完整网址
+ * 1. 自动彻底消除 https://https:// 等重复前缀
+ * 2. 补齐缺省的协议（若无 http/https 则补齐 https://）
+ * 3. 移除末尾多余斜杠
+ */
+export function normalizeOfficialUrl(raw) {
+  if (!raw || typeof raw !== 'string') return '';
+  let u = raw.trim();
+  if (!u) return '';
+  // 消除所有连续的协议重复，比如 https://https://、http://https://
+  u = u.replace(/^(https?:\/\/)+/gi, (match) => {
+    return match.toLowerCase().startsWith('http://') && !match.toLowerCase().includes('https://') ? 'http://' : 'https://';
+  });
+  if (!/^https?:\/\//i.test(u)) {
+    u = 'https://' + u;
+  }
+  // 去除多余的尾部斜杠
+  u = u.replace(/(https?:\/\/[^\/]+)\/+$/, '$1');
+  return u;
+}
+
+/**
+ * [2026-09-30] 从规范网址中提取干净的主机名/域名 (如 www.baicl.cc)
+ */
+export function extractDomain(raw) {
+  const norm = normalizeOfficialUrl(raw);
+  if (!norm) return '';
+  try {
+    const urlObj = new URL(norm);
+    return urlObj.hostname;
+  } catch (_) {
+    return norm.replace(/^https?:\/\//i, '').split('/')[0] || '';
+  }
+}
+

@@ -76,32 +76,53 @@
           <div
             v-for="fn in getFilesInCat(cat.id)"
             :key="fn"
-            class="flex items-center justify-between p-2 rounded-md cursor-pointer transition select-none group"
+            class="flex items-center justify-between p-2 rounded-md cursor-pointer transition select-none group relative"
             :class="fn === activeFileName ? 'bg-[#7c5bf5]/10 text-[#7c5bf5] font-bold border border-[#7c5bf5]/20' : 'hover:bg-slate-100 text-slate-700 border border-transparent'"
             @click="$emit('openFile', fn)"
+            @contextmenu.prevent="handleContextMenu($event, fn)"
           >
-            <div class="flex items-center gap-2 truncate mr-1.5">
-              <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
-              <span class="truncate text-[13px]">{{ fn }}</span>
+            <!-- [2026-09-30] [空间极致释放] 彻底拿掉左侧 file-text 图标，横向宽度全给文字；隐藏技术扩展名 -->
+            <div class="flex-1 min-w-0 mr-1.5">
+              <input
+                v-if="renamingFn === fn"
+                ref="renameInputRef"
+                v-model="renameValue"
+                type="text"
+                class="text-[13px] bg-white border border-indigo-400 rounded px-1.5 py-0.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-full"
+                @click.stop
+                @keydown.enter.prevent="confirmRename(fn)"
+                @keydown.esc.prevent="cancelRename"
+                @blur="confirmRename(fn)"
+              />
+              <span v-else class="truncate text-[13px] block" :title="fn">
+                {{ formatDisplayTitle(fn, files[fn]) }}
+              </span>
             </div>
+
             <div class="flex items-center gap-1.5 shrink-0">
-              <!-- [2026-09-28] [出题草稿采纳流] 仅在 showStatusBadge 为 true 时渲染二元状态徽章，防污染阶段一/二/三 -->
+              <!-- [2026-09-28] [出题草稿采纳流] 仅在 showStatusBadge 为 true 时渲染状态徽章，防污染阶段二/三 -->
               <template v-if="showStatusBadge">
-                <!-- 采纳生效底牌徽章 (系统主色紫) -->
+                <!-- [2026-09-30] 主文件晨光淡黄对勾 (去 V1、去文字标签 · 师弟立规) -->
                 <span
-                  v-if="files[fn]?.isActive"
-                  class="text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-[#7c5bf5]/15 text-[#7c5bf5] border border-[#7c5bf5]/30 flex items-center gap-1 shrink-0 shadow-2xs"
+                  v-if="files[fn]?.isMaster || files[fn]?.isActive"
+                  class="w-4 h-4 rounded-full bg-amber-50 text-amber-500 border border-amber-300 flex items-center justify-center shrink-0 shadow-2xs"
+                  title="主文件（已绑定雪花ID，不可删除，可右键改名）"
                 >
-                  <i data-lucide="check" class="w-3 h-3 text-[#7c5bf5]"></i>
-                  <span>已采纳</span>
-                  <span class="opacity-80">[{{ files[fn]?.versionTag || 'QA-V1' }}]</span>
+                  <i data-lucide="check" class="w-3 h-3 stroke-[2.5]"></i>
                 </span>
-                <!-- 草稿未生效徽章 (中性灰) -->
+                <!-- 候选参考生成徽章 (中性灰版本标) -->
+                <span
+                  v-else-if="files[fn]?.versionTag"
+                  class="text-[10px] px-1.5 py-0.5 rounded font-mono text-slate-500 bg-slate-100 border border-slate-200 shrink-0"
+                  title="候选参考文件，供人工比对挑选"
+                >
+                  {{ files[fn]?.versionTag }}
+                </span>
                 <span
                   v-else
                   class="text-[10px] px-1.5 py-0.5 rounded font-mono text-slate-400 bg-slate-100 border border-slate-200 shrink-0"
                 >
-                  草稿
+                  参考
                 </span>
 
                 <!-- [2026-09-28] [多版本生成采纳与草稿废纸篓] 依据 canDeleteFile 严格门控删除按钮，根除死按钮 (解决 P0-3 & P1-2) -->
@@ -157,7 +178,7 @@
           >
             <div class="truncate mr-1 flex items-center gap-1.5 text-slate-400 line-through">
               <i data-lucide="file-minus" class="w-3.5 h-3.5 shrink-0"></i>
-              <span class="truncate">{{ fn }}</span>
+              <span class="truncate" :title="fn">{{ formatDisplayTitle(fn, files[fn]) }}</span>
             </div>
             <button
               type="button"
@@ -172,12 +193,41 @@
         </div>
       </div>
     </div>
+
+    <!-- [2026-09-30] 桌面级右键快捷菜单 (仅主文件开放【修改名称】) -->
+    <teleport to="body">
+      <div
+        v-if="contextMenu.visible"
+        class="fixed z-[9999] bg-white border border-slate-200 rounded-lg shadow-xl py-1 text-xs text-slate-700 min-w-[120px] select-none"
+        :style="{ left: contextMenu.x + 'px', top: contextMenu.y + 'px' }"
+        @click.stop
+      >
+        <button
+          v-if="files[contextMenu.fn]?.isMaster || files[contextMenu.fn]?.isActive"
+          type="button"
+          class="w-full text-left px-3 py-2 hover:bg-indigo-50 hover:text-[#7c5bf5] flex items-center gap-2 cursor-pointer transition font-medium"
+          @click="startRename(contextMenu.fn)"
+        >
+          <i data-lucide="edit-3" class="w-3.5 h-3.5 text-[#7c5bf5]"></i>
+          <span>修改名称</span>
+        </button>
+        <button
+          v-if="canDeleteFile(files[contextMenu.fn], stage)"
+          type="button"
+          class="w-full text-left px-3 py-2 hover:bg-rose-50 hover:text-rose-600 flex items-center gap-2 cursor-pointer transition font-medium"
+          @click="handleDeleteFromMenu(contextMenu.fn)"
+        >
+          <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-500"></i>
+          <span>移入废纸篓</span>
+        </button>
+      </div>
+    </teleport>
   </aside>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue';
-import { canDeleteFile } from '../../config/studioArtifactConfig.js';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { canDeleteFile, formatDisplayTitle, generateSnowflakeId, isDuplicateDisplayName } from '../../config/studioArtifactConfig.js';
 
 const props = defineProps({
   categories: { type: Array, required: true },
@@ -194,10 +244,10 @@ const props = defineProps({
   showStatusBadge: { type: Boolean, default: false },
 });
 
-// [2026-09-28] [多版本生成采纳与草稿废纸篓] 锁定标准事件契约 (解决 P1-11)
-defineEmits([
+// [2026-09-30] [主文件人工改名与雪花ID] 增加 renameFile 事件契约
+const emit = defineEmits([
   'toggleCategory', 'openFile', 'newFile', 'refreshFiles',
-  'deleteFile', 'restoreFile',
+  'deleteFile', 'restoreFile', 'renameFile',
 ]);
 
 const isTrashExpanded = ref(false);
@@ -213,6 +263,78 @@ function getFilesInCat(catId) {
   );
 }
 
+// [2026-09-30] 桌面级右键菜单与行内改名逻辑
+const contextMenu = ref({ visible: false, x: 0, y: 0, fn: '' });
+const renamingFn = ref(null);
+const renameValue = ref('');
+const renameInputRef = ref(null);
+
+function handleContextMenu(e, fn) {
+  const isMaster = Boolean(props.files[fn]?.isMaster || props.files[fn]?.isActive);
+  const canDelete = canDeleteFile(props.files[fn], props.stage);
+  if (!isMaster && !canDelete) return;
+
+  contextMenu.value = {
+    visible: true,
+    x: Math.min(e.clientX, window.innerWidth - 140),
+    y: Math.min(e.clientY, window.innerHeight - 100),
+    fn,
+  };
+  refreshIcons();
+}
+
+function closeContextMenu() {
+  if (contextMenu.value.visible) {
+    contextMenu.value.visible = false;
+    contextMenu.value.fn = '';
+  }
+}
+
+function startRename(fn) {
+  closeContextMenu();
+  renamingFn.value = fn;
+  renameValue.value = formatDisplayTitle(fn, props.files[fn]);
+  nextTick(() => {
+    if (renameInputRef.value) {
+      const inputEl = Array.isArray(renameInputRef.value) ? renameInputRef.value[0] : renameInputRef.value;
+      inputEl?.focus();
+      inputEl?.select();
+    }
+  });
+}
+
+function confirmRename(fn) {
+  if (!renamingFn.value || renamingFn.value !== fn) return;
+  const trimmed = (renameValue.value || '').trim();
+  if (!trimmed) {
+    cancelRename();
+    return;
+  }
+
+  // 重名防呆检查（裁决 10）：调用单一定义共享纯函数进行阻断
+  if (isDuplicateDisplayName(props.files, fn, trimmed)) {
+    if (typeof window !== 'undefined' && typeof window.showToast === 'function') {
+      window.showToast('名称已存在，不能重复！', 'warning');
+    }
+    cancelRename();
+    return;
+  }
+
+  // 通知父级统一更新展示名与持久化，避免子组件直接突变 props (解决 🔴2 & 🔴5)
+  emit('renameFile', { fn, newDisplayName: trimmed });
+  cancelRename();
+}
+
+function cancelRename() {
+  renamingFn.value = null;
+  renameValue.value = '';
+}
+
+function handleDeleteFromMenu(fn) {
+  closeContextMenu();
+  emit('deleteFile', fn);
+}
+
 function refreshIcons() {
   nextTick(() => {
     if (typeof window !== 'undefined' && window.lucide) {
@@ -223,9 +345,19 @@ function refreshIcons() {
 
 onMounted(() => {
   refreshIcons();
+  if (typeof window !== 'undefined') {
+    window.addEventListener('click', closeContextMenu);
+  }
+});
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('click', closeContextMenu);
+  }
 });
 
 watch([() => props.activeCategory, () => props.activeFileName, () => props.files, isTrashExpanded], () => {
   refreshIcons();
 }, { deep: true });
 </script>
+
