@@ -35,20 +35,20 @@ import {
   formatDisplayTitle,
   MIN_MASTER_CONTENT_LENGTH,
   isDuplicateDisplayName,
-} from '../web/step0-src/config/studioArtifactConfig.js';
+} from '../src/web/step0-src/config/studioArtifactConfig.js';
 import {
   semanticChunkRawMaterial,
   computeTextSimilarity,
   findSemanticDuplicates,
   DEFAULT_SIMILARITY_THRESHOLD,
   checkDraftTextLimit,
-} from '../web/step0-src/stage2Config.js';
+} from '../src/web/step0-src/stage2Config.js';
 import {
   generateUnifiedIdentityCard,
   validateUnifiedCard,
   synthesizePrincetonMaster,
   STAGE_3_META,
-} from '../web/step0-src/stage3Config.js';
+} from '../src/web/step0-src/stage3Config.js';
 
 console.log('>>> 开始执行多版本生成采纳、草稿废纸篓、主文件防删、参考件派生与标准 5 点质检 32 项自动化断言自检...');
 

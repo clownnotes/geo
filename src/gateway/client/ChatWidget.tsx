@@ -15,6 +15,7 @@ export const ChatWidget: React.FC = () => {
   // 雪花 ID 铁律: 必须为纯字符串
   const [activeSessionId] = useState<string>(() => `sess_${Date.now()}`);
   const [writingSession, setWritingSession] = useState<WritingSession | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // 意图匹配状态
   const [matchedAgents, setMatchedAgents] = useState<CandidateAgent[]>([]);
@@ -118,7 +119,7 @@ export const ChatWidget: React.FC = () => {
             setIsStreaming(false);
           },
           onError: (err) => {
-            alert(`对话异常: ${err.message}`);
+            setErrorMessage(`对话异常: ${err.message}`);
             setIsStreaming(false);
           }
         },
@@ -145,7 +146,7 @@ export const ChatWidget: React.FC = () => {
       });
       setWritingSession(session);
     } catch (err: any) {
-      alert(`创建长文会话失败: ${err.message}`);
+      setErrorMessage(`创建长文会话失败: ${err.message}`);
     }
   };
 
@@ -161,15 +162,28 @@ export const ChatWidget: React.FC = () => {
           onClick={() => handleStartWritingFlow('2026徐州企业大模型搜索获客实战指南')}
           className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition font-medium"
         >
-          📝 开启长文创作工作流
+          开启长文创作工作流
         </button>
       </div>
+
+      {/* 异常提示横幅 (取代原生 alert 弹窗) */}
+      {errorMessage && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 flex items-center justify-between text-xs text-amber-900">
+          <span>{errorMessage}</span>
+          <button
+            onClick={() => setErrorMessage('')}
+            className="text-amber-500 hover:text-amber-700 ml-2 font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* 长文会话大纲横幅 */}
       {writingSession && (
         <div className="bg-indigo-50 border-b border-indigo-100 p-3.5 flex items-center justify-between text-xs text-indigo-900">
           <div>
-            <span className="font-bold">📚 创作工作流已锁定:</span> 《{writingSession.topic}》
+            <span className="font-bold">创作工作流已锁定:</span> 《{writingSession.topic}》
             <span className="ml-2 text-indigo-600">已生成 {writingSession.outline?.length || 0} 级大纲</span>
           </div>
           <button
@@ -218,7 +232,7 @@ export const ChatWidget: React.FC = () => {
       {/* 意图推荐卡片栏 (由 ≤60 字符防抖探测触发) */}
       {(matchedAgents.length > 0 || matchedTools.length > 0) && (
         <div className="px-4 py-2 bg-amber-50/90 border-t border-amber-200/60 flex items-center gap-2 overflow-x-auto text-[11px]">
-          <span className="text-amber-700 font-semibold shrink-0">🎯 意图推荐:</span>
+          <span className="text-amber-700 font-semibold shrink-0">意图推荐:</span>
           {matchedAgents.map((ag) => (
             <button
               key={ag.agent_id}
@@ -228,7 +242,7 @@ export const ChatWidget: React.FC = () => {
               }}
               className="px-2.5 py-1 bg-white border border-amber-300 rounded-md text-amber-900 font-medium hover:bg-amber-100 shadow-sm transition shrink-0"
             >
-              🤖 切换为 {ag.name} ({ag.matched_score}%)
+              切换为 {ag.name} ({ag.matched_score}%)
             </button>
           ))}
           {matchedTools.map((tl) => (
@@ -236,7 +250,7 @@ export const ChatWidget: React.FC = () => {
               key={tl.tool_id}
               className="px-2 py-0.5 bg-amber-200/50 text-amber-800 rounded font-mono text-[10px] shrink-0"
             >
-              🔧 {tl.name}
+              {tl.name}
             </span>
           ))}
         </div>
@@ -246,7 +260,7 @@ export const ChatWidget: React.FC = () => {
       <div className="p-4 bg-white border-t border-slate-200 space-y-2">
         {visionUrl && (
           <div className="flex items-center gap-2 text-xs text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-200">
-            <span>📷 已挂载图片:</span>
+            <span>已挂载图片:</span>
             <span className="truncate max-w-xs text-[11px] font-mono">{visionUrl}</span>
             <button onClick={() => setVisionUrl('')} className="text-indigo-400 hover:text-indigo-600 ml-auto">
               ✕
@@ -287,7 +301,7 @@ export const ChatWidget: React.FC = () => {
               onClick={handleStopStream}
               className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-semibold shadow transition"
             >
-              ⏹ 停止
+              停止生成
             </button>
           ) : (
             <button

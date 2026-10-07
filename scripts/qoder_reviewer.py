@@ -122,7 +122,13 @@ def call_qoder(prompt, model="Qwen3.8-Flash"):
         print(f"🔴【Qoder 未找到】: 找不到本地二进制 {QODER_BIN}")
         return None, None
 
-    cmd = [QODER_BIN, "-p", "-m", model, "--tools", "", "--no-session-persistence"]
+    cmd = [
+        QODER_BIN, "-p", "-m", model,
+        "--no-session-persistence",
+        "--tools", "",
+        "--system-prompt", "你是只读纯文本代码审查专家。你没有任何外部工具权限，严禁输出任何 <tool_call> 标签或 XML 函数调用语法。所有审查所需代码和规范均已完整提供。请直接输出纯文本 Markdown 审查报告，并在末尾单独成行输出唯一结论标签：[通过]、[需修正] 或 [待讨论]。",
+        "--"
+    ]
     print(f"[*] 正在调用 Qoder 外部审查参谋 [{model}] (工作区: {PROJECT_ROOT})...")
     try:
         result = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=300)
@@ -219,8 +225,8 @@ if __name__ == "__main__":
 
     diff_context = ""
     if args.stage == "code":
-        exclude_patterns = [":!web/assets/**", ":!dist/**", ":!*.min.js", ":!*.map", ":!openspec/**"]
-        target_dirs = ["web/", "scripts/", "tests/", "tools/"]
+        exclude_patterns = [":!src/web/assets/**", ":!web/assets/**", ":!dist/**", ":!*.min.js", ":!*.map", ":!openspec/**"]
+        target_dirs = ["src/", "web/", "scripts/", "tests/", "tools/", "geo", "package.json"]
         stat_proc = subprocess.run(["git", "-c", "core.quotepath=false", "diff", "--stat", "HEAD", "--"] + target_dirs + exclude_patterns, cwd=PROJECT_ROOT, capture_output=True, text=True)
         stat_text = stat_proc.stdout.strip()
 
@@ -232,7 +238,7 @@ if __name__ == "__main__":
             stat_proc = subprocess.run(["git", "-c", "core.quotepath=false", "diff", "--stat", "HEAD~1", "HEAD", "--"] + target_dirs + exclude_patterns, cwd=PROJECT_ROOT, capture_output=True, text=True)
             stat_text = stat_proc.stdout.strip()
 
-        untracked_proc = subprocess.run(["git", "-c", "core.quotepath=false", "ls-files", "--others", "--exclude-standard", "web/", "scripts/", "tests/", "tools/"], cwd=PROJECT_ROOT, capture_output=True, text=True)
+        untracked_proc = subprocess.run(["git", "-c", "core.quotepath=false", "ls-files", "--others", "--exclude-standard", "src/", "web/", "scripts/", "tests/", "tools/"], cwd=PROJECT_ROOT, capture_output=True, text=True)
         untracked_files = [f.strip() for f in untracked_proc.stdout.splitlines() if f.strip() and not any(p in f for p in ["web/assets/", "dist/", ".min.js", ".map"])]
         untracked_text = ""
         for uf in untracked_files:
@@ -261,30 +267,35 @@ if __name__ == "__main__":
 {context}
 {diff_context}
 
-审查要求：
-1. 对照 proposal.md / design.md / tasks.md 审查真实代码实现是否严谨完整；
-2. 重点挖掘并发风险、死锁、边界漏洞、浏览器兼容性与对现有主流程的破坏；
-3. 审查结果使用标准纯文本，按问题级别分类：
+【审查红线禁令与执行铁律】：
+1. 你当前运行在纯文本审查只读模式，严禁调用任何工具，严禁输出任何 <tool_call>、<function=...> 等 XML 标签！
+2. 所有审查所需的代码 Diff、文件内容与全局规则已经在上方完整提供，无需也不允许发起额外查询；
+3. 请直接输出标准纯文本 Markdown 格式审查报告，按以下问题级别分类：
    - 🔴 必须改（阻断性 Bug 或违背立规）
    - 🟡 建议改（可优化或潜在风险）
    - 🟢 优化建议（代码可读性或微小体验）
-4. 末尾必须单独成行输出以下唯一结论标签之一：`[通过]`、`[需修正]` 或 `[待讨论]`。
+4. 审查报告最后一行必须且只能单独成行输出以下唯一结论标签之一：
+[通过]
+或
+[需修正]
+或
+[待讨论]
 """
 
     review_res, used_model = call_qoder(prompt, args.model)
     if not review_res:
         sys.exit(5)
 
+    conclusion = parse_review_conclusion(review_res)
+    print(f"[*] 审查结论: {conclusion}")
+
     reviewer_label = f"Qoder ({used_model})"
-    if change_path:
+    if change_path and conclusion != "UNKNOWN":
         append_to_review_log(change_path, review_res, reviewer_label)
     else:
         print("\n" + "="*40 + f" 审查意见 ({reviewer_label}) " + "="*40)
         print(review_res)
         print("="*90 + "\n")
-
-    conclusion = parse_review_conclusion(review_res)
-    print(f"[*] 审查结论: {conclusion}")
     if conclusion == "APPROVED":
         sys.exit(0)
     elif conclusion == "NEEDS_FIX":

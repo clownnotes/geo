@@ -26,7 +26,7 @@ rm -f "$BUILD_LOG"
 echo "   OK build"
 
 echo ">> 2/5 产物体积"
-BUNDLE_FILE="$REPO_ROOT/web/assets/step0/step0.js"
+BUNDLE_FILE="$REPO_ROOT/src/web/assets/step0/step0.js"
 if [ ! -f "$BUNDLE_FILE" ]; then
   echo "FAIL: 缺少 $BUNDLE_FILE"
   exit 1
@@ -36,7 +36,7 @@ if [ "$FILE_SIZE" -lt 50000 ]; then
   echo "FAIL: 产物过小 (${FILE_SIZE} bytes, 需要 > 50000)"
   exit 1
 fi
-echo "   OK web/assets/step0/step0.js ($((FILE_SIZE / 1024)) KB)"
+echo "   OK src/web/assets/step0/step0.js ($((FILE_SIZE / 1024)) KB)"
 
 echo ">> 3/5 /assets 路由（8088 可选）"
 if curl -s --connect-timeout 1 "http://127.0.0.1:8088/" > /dev/null 2>&1; then

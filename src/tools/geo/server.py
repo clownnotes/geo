@@ -58,7 +58,7 @@ DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 SESSIONS_FILE = os.path.join(DATA_DIR, "sessions.json")
 SESSION_TIMEOUT_HOURS = 24 * 30  # 30 天超长有效期，避免频繁登录
-WEB_DIR = os.path.join(PROJECT_ROOT, "web")
+WEB_DIR = os.path.join(PROJECT_ROOT, "src", "web")
 
 # [2026-09-26] [伴读专线安全护栏] 针对 /api/voice/article-chunk 的 IP 令牌桶限流 (60次/分钟)
 VOICE_CHUNK_RATE_LIMIT = 60

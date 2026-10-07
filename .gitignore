@@ -12,6 +12,8 @@ data/sessions.json
 data/operator_audit.jsonl
 gateway/config.yaml
 gateway/gateway
+src/gateway/config.yaml
+src/gateway/gateway
 .env
 .vitepress/cache/
 .vitepress/dist/

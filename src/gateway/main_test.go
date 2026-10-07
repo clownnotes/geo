@@ -301,6 +301,21 @@ func TestVoiceOpenProxyAuthorizationStripping(t *testing.T) {
 	}
 }
 
+// 5.3.1 测试语音任务后缀合法性与路径穿越拦截 (SSRF 防御)
+func TestVoiceOpenProxyTaskSuffixValidation(t *testing.T) {
+	cfg := defaultConfig()
+	cfg.VoiceKey = "ndsk_test_key"
+	mux := setupMux(cfg)
+
+	// 非法路径穿越后缀
+	reqBad := httptest.NewRequest("GET", "/api/open/v1/voice/tasks/../../admin", nil)
+	recBad := httptest.NewRecorder()
+	mux.ServeHTTP(recBad, reqBad)
+	if recBad.Code != http.StatusBadRequest {
+		t.Fatalf("非法任务路径预期 400, 实际得到: %d", recBad.Code)
+	}
+}
+
 // 5.4 测试单 IP 触发防刷限流 429 / 42901
 func TestVoiceTTSRateLimiting(t *testing.T) {
 	t.Setenv("ALLOW_OPEN_TTS_PROXY", "1")
@@ -369,8 +384,8 @@ func TestArticleChunkEndpoint(t *testing.T) {
 	cfg.VoiceKey = "ndsk_chunk_test_key"
 	mux := setupMux(cfg)
 
-	// 准备临时缓存目录并清空测试残留
-	cacheFile := "storage/audio_cache/ai-agents-unbundle-search-direct-answers_0_standard_female_warm.mp3"
+	// 准备临时缓存目录并清空测试残留 (统一基于 ProjectRoot 检索)
+	cacheFile := filepath.Join(cfg.ProjectRoot, "storage", "audio_cache", "ai-agents-unbundle-search-direct-answers_0_standard_female_warm.mp3")
 	_ = os.Remove(cacheFile)
 	defer os.Remove(cacheFile)
 
@@ -389,6 +404,15 @@ func TestArticleChunkEndpoint(t *testing.T) {
 	mux.ServeHTTP(recBad, reqBad)
 	if recBad.Code != http.StatusBadRequest {
 		t.Fatalf("路径穿越预期 400, 实际得到: %d", recBad.Code)
+	}
+
+	// Case B2: voice 参数路径穿越与非法字符防御
+	badVoiceBody := bytes.NewBufferString(`{"article_id":"ai-agents-unbundle-search-direct-answers","chunk_index":0,"voice":"../../escape"}`)
+	reqBadVoice := httptest.NewRequest("POST", "/api/voice/article-chunk", badVoiceBody)
+	recBadVoice := httptest.NewRecorder()
+	mux.ServeHTTP(recBadVoice, reqBadVoice)
+	if recBadVoice.Code != http.StatusBadRequest {
+		t.Fatalf("voice路径穿越预期 400, 实际得到: %d", recBadVoice.Code)
 	}
 
 	// Case C: 文章未找到 404

@@ -1,8 +1,9 @@
 # Nextdoor 开放平台透明流式网关本地配置模板
-# 复制本文件为 gateway/config.yaml 并在本地填写真实凭证（config.yaml 已被 .gitignore 忽略）
+# 复制本文件为 src/gateway/config.yaml 并在本地填写真实凭证（config.yaml 已被 .gitignore 忽略）
 
-# 1. 服务端监听端口 (默认 8090，与 GEO 主站 8088 严格隔离)
+# 1. 服务端监听端口与地址 (默认 127.0.0.1:8090 安全内网监听，与 GEO 主站 8088 严格隔离)
 port: 8090
+bind_all: false # 仅在需要局域网调试时显式设为 true 绑定 0.0.0.0
 
 # 2. 允许跨域调用的前端来源 (默认放行本地 GEO 工作台 8088 端口)
 allowed_origin: "http://127.0.0.1:8088"

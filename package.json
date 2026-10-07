@@ -8,8 +8,8 @@
     "dev": "vitepress dev docs --port 5173",
     "build": "vitepress build docs",
     "preview": "vitepress preview docs",
-    "dev:step0": "npm --prefix web/step0-src run dev",
-    "build:step0": "npm --prefix web/step0-src run build",
+    "dev:step0": "npm --prefix src/web/step0-src run dev",
+    "build:step0": "npm --prefix src/web/step0-src run build",
     "smoke:step0": "bash scripts/smoke_step0.sh"
   },
   "keywords": [

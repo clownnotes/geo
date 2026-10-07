@@ -12,7 +12,7 @@ import json
 
 # 基础目录定位
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(os.path.dirname(TOOLS_DIR))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(TOOLS_DIR)))
 PROJECTS_DIR = os.path.join(PROJECT_ROOT, "projects")
 
 # 我方多租户托管占位后缀（阶段 0 建档）

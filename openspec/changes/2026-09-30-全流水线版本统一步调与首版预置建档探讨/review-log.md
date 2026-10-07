@@ -2111,3 +2111,565 @@ design §1.1 规定参考件由系统自管 `_参考1/2`，但未说明：删除
 
 
 
+
+
+
+
+
+---
+
+### [2026-10-07 20:11] 审查意见（来自 Qoder (Qwen3.8-Flash)）
+
+# 代码审查报告：全流水线源码平移 src/ 与 Nextdoor 透明网关工程
+
+## 审查范围
+
+本次审查覆盖以下变更：
+1. **GEO 主工程根目录瘦身**：`web/`、`tools/`、`gateway/` 全量平移至 `src/`，关联路径对齐
+2. **Nextdoor 透明流式网关**：`src/gateway/main.go`（1004 行）、测试套件（882 行）、Go Module、配置模板
+3. **网关前端客户端 SDK**：TypeScript 语音播放器（470 行）、Vue 组件（278 行）、React 对话组件（305 行）、API 客户端（657 行）、类型定义（376 行）
+4. **辅助脚本路径对齐**：`geo`、`package.json`、`smoke_step0.sh`、`qoder_reviewer.py`、`smoke_studio_artifacts.mjs`
+
+---
+
+## 🔴 必须改（阻断性 Bug 或违背立规）
+
+### 🔴-1 路径穿越漏洞：`handleArticleChunk` 的 `voice` 参数未做输入清洗
+
+**文件**：`src/gateway/main.go`，`handleArticleChunk` 函数
+
+**问题**：`articleID` 严格校验了 `..`、`/`、`\`，但 `voice` 参数仅做了 `strings.TrimSpace`，未校验路径分隔符。`voice` 直接参与磁盘缓存文件名的拼接：
+
+```go
+cacheFile := filepath.Join(cacheDir, fmt.Sprintf("%s_%d_%s.mp3", articleID, payload.ChunkIndex, voice))
+```
+
+若攻击者传入 `voice = "x/../../escape"`，`fmt.Sprintf` 会产生 `"article_0_x/../../escape.mp3"`。Go 的 `filepath.Join` 对内部 `/` 做拆分后 `filepath.Clean` 会处理 `..` 上跳，导致最终路径逃逸 `storage/audio_cache/` 目录，造成**任意路径文件写入**（cache MISS 时 `os.WriteFile`）和**任意路径文件读取**（cache HIT 时 `os.ReadFile`）。
+
+**证据**：现有单元测试 Case B 仅测试了 `article_id` 的路径穿越拦截，**完全没有测试 `voice` 参数的路径穿越场景**。
+
+**修复建议**：
+
+```go
+voice := strings.TrimSpace(payload.Voice)
+if voice == "" {
+    voice = "standard_female_warm"
+}
+// 增加：voice 仅允许字母、数字、下划线、连字符、点号
+if !isValidVoiceName(voice) {
+    sendErrorJSON(w, http.StatusBadRequest, 40001, "音色标识格式不合法")
+    return
+}
+
+func isValidVoiceName(s string) bool {
+    for _, c := range s {
+        if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || 
+             (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.') {
+            return false
+        }
+    }
+    return len(s) > 0 && len(s) <= 64
+}
+```
+
+同时在 `main_test.go` 中补充对应用例：`{"article_id":"valid","chunk_index":0,"voice":"../../escape"}` 预期 400。
+
+**严重等级**：生产网关暴露在网络可达范围内（`0.0.0.0:8090`），此为 RCE 级别的任意文件写入漏洞，阻断上线。
+
+---
+
+### 🔴-2 企业级用户界面组件大量使用 Emoji，直接违背 AGENTS.md §3.3 立规
+
+**文件**：`src/gateway/client/ChatWidget.tsx`
+
+**问题**：AGENTS.md §3.3 明确规定「**严禁在企业级页面、交付打样站点、商业白皮书与报告中使用 Emoji 彩色表情符号**」。`ChatWidget.tsx` 是面向用户的 React 交互组件，界面渲染中直接使用了 **7 处 Emoji**：
+
+| 行位置 | Emoji | 所在 UI 元素 |
+| :--- | :--- | :--- |
+| 顶部按钮 | `📝` | 「开启长文创作工作流」按钮文案 |
+| 横幅标签 | `📚` | 创作工作流已锁定横幅 |
+| 推荐区标题 | `🎯` | 意图推荐卡片栏标题 |
+| 智能体按钮 | `🤖` | 切换为智能体按钮文案 |
+| 工具标签 | `🔧` | 工具卡片标签 |
+| 图片预览区 | `📷` | 已挂载图片提示 |
+| 停止按钮 | `⏹` | 流式输出停止按钮 |
+
+这些 Emoji 在严肃 B2B 交付场景下「极度突兀、廉价且不专业」。
+
+**修复建议**：全部替换为专业 SVG 图标（项目已引入 Lucide Icons，直接复用）或纯文字描述。例如：
+- `📝 开启长文创作工作流` → `开启长文创作工作流` 或 `<FileEdit size={14} /> 开启长文创作工作流`
+- `🎯 意图推荐:` → `意图推荐：`
+- `🤖 切换为 {ag.name}` → `切换为 {ag.name}`
+- `⏹ 停止` → `停止生成` 或 `<Square size={14} /> 停止`
+
+---
+
+## 🟡 建议改（可优化或潜在风险）
+
+### 🟡-1 `handleVoiceOpenProxy` 动态路径后缀透传存在 SSRF 风险
+
+**文件**：`src/gateway/main.go`，`handleVoiceOpenProxy` 函数
+
+**问题**：针对 `/api/open/v1/voice/tasks/` 前缀的动态任务 ID 透传：
+
+```go
+if strings.HasSuffix(targetSubPath, "/") && strings.HasPrefix(r.URL.Path, targetSubPath) {
+    suffix := strings.TrimPrefix(r.URL.Path, targetSubPath)
+    targetURL = fmt.Sprintf("%s%s%s", cfg.BaseURL, targetSubPath, suffix)
+}
+```
+
+若攻击者请求 `/api/open/v1/voice/tasks/../../admin/delete_all`，`suffix` 为 `../../admin/delete_all`，拼接后 `targetURL` 为 `http://base/api/open/v1/voice/tasks/../../admin/delete_all`。虽然 Go 的 `http.Client` 在发送时会对 URL 做一定规范化，但不能完全排除上游反向代理（如 Nginx）在 `proxy_pass` 时解析 `..` 导致 SSRF 或越权访问。
+
+**修复建议**：对 `suffix` 做白名单字符校验（仅允许 `[a-zA-Z0-9_-]`，且长度 ≤ 64），拒绝包含 `/`、`\`、`.` 的值。
+
+---
+
+### 🟡-2 网关核心代理 Handler 缺少测试覆盖
+
+**文件**：`src/gateway/main_test.go`
+
+**问题**：以下 4 个已注册路由的 Handler 完全没有单元测试：
+- `handleLoginProxy`（登录透传，无速率限制，暴力破解风险）
+- `handleMeProxy`（身份查询，依赖 Authorization 头转发）
+- `handleWechatQRProxy`（微信扫码认证）
+- `handleGenericPostProxy`（通用 POST 透传，无 Body 大小限制）
+
+尤其是 `handleLoginProxy` 作为认证入口却没有任何防护（无限流、无 CSRF Token 校验、无失败锁定），在生产环境中是首要攻击面。
+
+**修复建议**：至少为 `handleLoginProxy` 和 `handleGenericPostProxy` 各补 1 组正向 + 异常路径测试。对 `handleLoginProxy` 补充 IP 限流逻辑或说明为何依赖上游限流。
+
+---
+
+### 🟡-3 `src/gateway/main.go` 文件头注释引用了迁移前的旧路径
+
+**文件**：`src/gateway/main.go`，第 1-3 行
+
+```go
+// NE1 生产环境唯一真相源 (SSOT) 锁定为 8088 端口 Python Web 服务 (tools/geo/server.py)。
+```
+
+源码已平移至 `src/tools/geo/server.py`，此注释未同步更新，会对后续 AI 助手与开发者造成路径幻觉误导。
+
+**修复建议**：更新为 `src/tools/geo/server.py`。
+
+---
+
+### 🟡-4 `src/gateway/client/` SDK 缺少构建配置与依赖声明
+
+**文件**：`src/gateway/client/`（全目录）
+
+**问题**：该目录包含 `.ts`、`.vue`、`.tsx` 混合文件，但**没有 `tsconfig.json`、`package.json`、`vite.config.ts` 或任何构建配置**。这些文件无法独立编译，必须依赖宿主项目（如 `src/web/step0-src`）的构建工具链解析。
+
+对于计划通过 `sync_export_to_core_repo.sh` 导出给协作者的纯源码仓库，协作者拿到 `src/gateway/client/` 后不知道如何编译或使用这些文件，增加对接摩擦。
+
+**修复建议**：
+1. 在 `src/gateway/client/` 添加极简 `README.md`，说明使用前提（需宿主项目配置 `tsconfig.json` paths 或 Vite alias 指向此目录）；
+2. 评估是否需要独立的 `package.json`（仅声明 `react`、`vue` 为 peerDependency）。
+
+---
+
+### 🟡-5 `handleChatStream` SSE 错误注入帧未做内容清洗
+
+**文件**：`src/gateway/main.go`，`handleChatStream` 函数
+
+```go
+errChunk := fmt.Sprintf("data: {\"event\":\"error\",\"code\":50202,\"msg\":\"上游连接异常中断: %v\"}\n\ndata: [DONE]\n\n", streamErr)
+```
+
+若上游返回的错误信息 `streamErr` 包含换行符、引号或其他特殊字符，`%v` 格式化后会导致生成的 JSON 不合法，甚至注入伪造的 SSE 帧（如提前插入 `data: [DONE]` 或额外的 `data:` 行），破坏前端解析。
+
+**修复建议**：使用 `json.Marshal` 安全构建错误 payload：
+
+```go
+errPayload, _ := json.Marshal(map[string]interface{}{
+    "event": "error",
+    "code":  50202,
+    "msg":   fmt.Sprintf("上游连接异常中断: %v", streamErr),
+})
+errChunk := fmt.Sprintf("data: %s\n\ndata: [DONE]\n\n", errPayload)
+```
+
+---
+
+### 🟡-6 平移后旧路径残留：qoder_reviewer.py 的 diff 扫描目标目录仍含旧路径
+
+**文件**：`scripts/qoder_reviewer.py`
+
+```python
+target_dirs = ["src/", "web/", "scripts/", "tests/", "tools/", "geo", "package.json"]
+```
+
+`web/` 和 `tools/` 已不存在于根目录（已迁移至 `src/` 下），保留旧路径是过渡期兼容措施，但如果 `git diff --stat HEAD -- web/` 对已不存在的目录执行，Git 不会报错但输出空集。后续应清理为 `["src/", "scripts/", "tests/", "geo", "package.json"]`。
+
+**修复建议**：当前可保留作为兼容，但在下一次 `git rm` 清理旧空目录时一并修正。标记为 TODO。
+
+---
+
+## 🟢 优化建议（代码可读性或微小体验）
+
+### 🟢-1 `main.go` 启动日志使用 Emoji
+
+```go
+log.Printf("🚀 Nextdoor AI 智能对话透明流式网关已启动！")
+log.Printf("🛡️ 凭证与品牌标识: ...")
+log.Printf("⚡️ 核心路由已就绪:")
+log.Printf("❌ 网关服务启动失败: %v", err)
+```
+
+AGENTS.md §3.3 原文限定「企业级**页面**、交付**打样站点**、商业**白皮书**与**报告**」，服务端启动控制台日志不属于此范围，使用 Emoji 辅助开发扫读是可接受的。但如果团队日志采集后出现在任何面向客户的运维报告或管理面板中，则需清理。建议统一替换为 `[INFO]` / `[ERROR]` 等结构化前缀。
+
+### 🟢-2 `client.ts` SSE 解析中 `break` 语义模糊
+
+```typescript
+if (rawData === '[DONE]') {
+    break;
+}
+```
+
+此处 `break` 仅跳出 `for (const line of lines)` 内层循环，不会跳出外层 `while (true)` 循环。功能上正确（下一轮 `reader.read()` 自然返回 `done: true`），但语义上容易误读为「立即终止整个流式读取」。建议改为设置标志位或直接 `return`。
+
+### 🟢-3 `voiceClient.ts` `synthesizeSpeech` 使用兼容别名而非主字段
+
+```typescript
+const result = await this.tts({
+    text,
+    voice_alias: options.voice_alias,  // 兼容别名字段
+    speed: options.speed              // 兼容别名字段
+});
+```
+
+`voiceTypes.ts` 中 `OpenTTSRequest` 已声明主字段为 `voice` / `rate`，`voice_alias` / `speed` 标注为「兼容别名字段」。门面方法应优先使用主字段以保持一致性，除非确认上游服务只认别名字段。
+
+### 🟢-4 `ArticleAudioPlayer.ts` `audioCache` Map 缺少容量上限
+
+每个分片文本都会生成一个 `blob:` URL 并永久驻留在 `Map` 中直到 `destroy()`。对于超长文章（200+ 分片）切换多个音色场景，Map 会无限膨胀。建议加入 LRU 淘汰策略或设定最大缓存条目数（如 50）。
+
+### 🟢-5 `ArticleAudioPlayer.vue` 与 `ChatWidget.tsx` 跨框架并存
+
+同一目录 `src/gateway/client/` 下同时存在 Vue 组件和 React 组件。作为 SDK 分发可以接受，但建议在 `index.ts` 中按能力域分桶导出（当前已有分组注释），并在各文件顶部标注 `/** @framework Vue 3 */` 或 `/** @framework React */`，降低协作者选型困惑。
+
+### 🟢-6 `src/web/index.html` 外部 CDN 依赖
+
+管理端主工作台仍使用 `cdn.tailwindcss.com`、`unpkg.com/lucide`、`cdn.jsdelivr.net/npm/marked`。AGENTS.md §7.4 要求「严禁纯裸奔依赖外部 Play CDN」，但此条针对的是**客户交付站点**，管理端工作台在 NE1 内网环境运行，短期可接受。长期建议迁移至本地打包。
+
+---
+
+## 架构合规与立规对齐核查
+
+| 核查项 | 结论 |
+| :--- | :--- |
+| AGENTS.md §4.5：本地笔记本严禁重型编译 | ✅ 本次全部为文件平移与代码提交，无本地编译操作 |
+| §7.1：源码统一收拢 `src/` 目录 | ✅ `web/`→`src/web/`、`tools/`→`src/tools/`、`gateway/`→`src/gateway/` 全量平移完成 |
+| §7.3：后端寻址对齐 | ✅ `utils.py` 三层向上、`server.py` WEB_DIR 路径、`geo` PYTHONPATH 入口均已更新 |
+| §7.4：前端与测试路径对齐 | ✅ `package.json` prefix、`smoke_step0.sh` BUNDLE_FILE、`smoke_studio_artifacts.mjs` import 路径全部更新 |
+| §10.0：本地安全快照门禁 | ✅ 首次提交 `chore: 建立本地安全快照基线（准备平移源码至 src/）` 已完成 |
+| §3.3：严禁 Emoji 表情 | 🔴 `ChatWidget.tsx` 用户界面含 7 处 Emoji，**阻断通过** |
+| 雪花 ID 铁律 | ✅ 全部 SDK 类型定义中 ID 字段声明为 `string`，无 `number` |
+| 统一响应信封 | ✅ 网关 `{ code, msg, data }` 格式一致，`code === 0` 判定成功 |
+| 前端零凭证 | ✅ TypeScript SDK 不硬编码密钥，凭证注入逻辑仅在 Go 服务端 |
+| TTS 公网防护 | ✅ 默认 403 拦截任意文本 TTS，需显式 `ALLOW_OPEN_TTS_PROXY=1` |
+| `config.yaml` 密钥隔离 | ✅ 示例文件仅含占位符，说明 `config.yaml` 已被 `.gitignore` 忽略 |
+
+---
+
+## 总结与结论
+
+本次审查发现 **2 项 🔴 阻断级问题**必须修复后方可进入下一步：
+
+1. **`handleArticleChunk` 的 `voice` 参数存在路径穿越漏洞**——攻击者可写入/读取 `storage/audio_cache/` 目录以外的任意文件，属于生产环境严重安全缺陷；
+2. **`ChatWidget.tsx` 用户界面含 7 处 Emoji**——直接违背 AGENTS.md §3.3 企业级页面 Emoji 禁令。
+
+6 项 🟡 建议修正（SSRF 风险、测试覆盖缺口、注释陈旧、构建配置缺失、SSE 注入、旧路径残留）应在本轮修复中一并处理。
+
+其余 🟢 优化项不阻断通过，可纳入后续迭代。
+
+[需修正]
+
+---
+
+## 2026-10-07 轮次十七：响应并直接修复 Qoder (Qwen3.8-Flash) 代码审查意见 (🔴-1, 🔴-2, 🟡-1, 🟡-3, 🟡-4, 🟡-5)
+
+1. **[已修复 🔴-1 · voice 参数路径穿越漏洞物理封死]**：
+   - 在 `src/gateway/main.go` 中新增 `isValidVoiceName(voice)` 白名单校验（仅允许 `[a-zA-Z0-9_.-]` 且长度 ≤ 64）；
+   - 在 `handleArticleChunk` 中对传入的 `voice` 执行强校验，非法字符或路径遍历直接拦截并返回 400；
+   - 在 `src/gateway/main_test.go` 中补充 Case B2（`voice="../../escape"` 路径穿越拦截单元测试）。
+
+2. **[已修复 🔴-2 · 彻底清除 ChatWidget.tsx 中 7 处彩色 Emoji]**：
+   - 严格对照 AGENTS.md §3.3 零 Emoji 禁令，将 `ChatWidget.tsx` 中面向用户的 7 处彩色表情（`📝`、`📚`、`🎯`、`🤖`、`🔧`、`📷`、`⏹`）全部替换为纯文字/标准文字标签（如“开启长文创作工作流”、“意图推荐：”、“停止生成”等）；
+   - Python 正则全局扫描 `src/gateway/client/` 确认 0 处彩色 Emoji 违规。
+
+3. **[已修复 🟡-1 · 任务路径动态后缀 SSRF 与路径遍历防御]**：
+   - 在 `src/gateway/main.go` 中新增 `isValidTaskSuffix(suffix)` 校验（仅允许 `[a-zA-Z0-9_-]` 且长度 ≤ 64）；
+   - 在 `handleVoiceOpenProxy` 中对 `/api/open/v1/voice/tasks/` 动态透传后缀实施校验，非法路径直接拦截 400；
+   - 在 `src/gateway/main_test.go` 中补充 `TestVoiceOpenProxyTaskSuffixValidation` 自动化测试。
+
+4. **[已修复 🟡-3 · 纠偏文件头注释陈旧路径]**：
+   - 将 `src/gateway/main.go` 文件头中的 `tools/geo/server.py` 纠偏对齐为 `src/tools/geo/server.py`。
+
+5. **[已修复 🟡-4 · 补齐 SDK 使用说明文档]**：
+   - 新增 `src/gateway/client/README.md`，明确阐述 SDK 模块分工、类型契约（雪花 ID 字符串）以及宿主前端项目的引用与 Vite/tsconfig 配置方法。
+
+6. **[已修复 🟡-5 · SSE 错误帧 JSON.Marshal 安全编码]**：
+   - `handleChatStream` 中错误中断帧改用 `json.Marshal` 序列化，彻底杜绝特殊字符拼接导致的 SSE 解析异常与注入风险。
+
+7. **[已验证 · 32 项自动化断言全绿]**：
+   - `bash scripts/smoke_step0.sh` 5/5 阶段全部 PASS，组件岛体积 486 KB，32/32 项断言全部 100% 通过。
+
+[已修正]
+
+
+
+---
+
+### [2026-10-07 20:18] 审查意见（来自 Qoder (Qwen3.8-Flash)）
+
+# 代码审查报告
+
+**审查范围**：全流水线源码目录迁移（web/tools/gateway → src/）+ Nextdoor 网关 Go 服务端 + 前端客户端 SDK  
+**审查依据**：AGENTS.md、proposal.md、design.md、tasks.md、Git Diff 全量  
+**审查日期**：2026-10-07
+
+---
+
+## 一、总体评价
+
+本次变更核心目标是落实师弟立规——将散落的业务源码统一下沉至 `src/` 目录，同时引入 Nextdoor 网关 Go 服务端与前端客户端 SDK。目录迁移本身逻辑正确、路径对齐完整；但新增的网关代码存在若干安全性与健壮性隐患，客户端 SDK 有违反项目交互铁律的硬伤。
+
+---
+
+## 二、🔴 必须改（阻断性 Bug 或违背立规）
+
+### R-1. `src/gateway/main.go` — 监听地址绑定 `0.0.0.0`，本地开发网关暴露全网
+
+```go
+addr := fmt.Sprintf("0.0.0.0:%d", cfg.Port)
+```
+
+**问题**：AGENTS.md §4.5 明确"所有构建打包、接口测试与端到端功能验证一律且只在 NE1 服务器上就地完成"，§5 规定生产环境全套部署在家里 mini。网关作为本地中继代理（端口 8090），绑定 `0.0.0.0` 意味着局域网/公网任何设备均可访问该代理端口，直接暴露 VoiceKey 鉴权通道与 TTS 算力。结合 `isOriginAllowed` 中 `origin == ""` 时返回 `true`（放行所有非浏览器请求），构成严重未授权访问风险。
+
+**修正要求**：默认绑定 `127.0.0.1`，仅在配置显式声明 `bind_all: true` 时才允许 `0.0.0.0`。
+
+---
+
+### R-2. `src/gateway/client/ChatWidget.tsx` — 使用 `alert()` 原生弹窗，违反 design.md 零弹窗铁律
+
+```typescript
+onError: (err) => {
+    alert(`对话异常: ${err.message}`);
+    setIsStreaming(false);
+}
+```
+```typescript
+} catch (err: any) {
+    alert(`创建长文会话失败: ${err.message}`);
+}
+```
+
+**问题**：design.md §4.1 明确"彻底拔除原生弹窗……违背 RULES.md 4.4 禁令"。AGENTS.md 全局规范同样禁止企业级交互中使用浏览器原生 `confirm`/`alert`。ChatWidget 作为可嵌入交付页面的 React 组件，`alert()` 会阻塞主线程、破坏用户体验、且无法被样式系统管控。
+
+**修正要求**：替换为组件内 inline 错误横幅或 Toast 通知（参考 ArticleAudioPlayer.vue 中 `errorMessage` 的琥珀色横幅方案）。
+
+---
+
+### R-3. `src/gateway/main.go` — `handleArticleChunk` 硬编码相对路径与 `../` 穿越，工作目录强耦合
+
+```go
+metaPaths := []string{
+    filepath.Join("projects/nextgeo/outputs/site/assets/audio_meta", articleID+".json"),
+    ...
+    filepath.Join("../projects/nextgeo/outputs/site/assets/audio_meta", articleID+".json"),
+}
+```
+
+**问题**：
+1. 路径依赖 `main()` 启动时的工作目录。从 `src/gateway/` 直接 `go run .` 时，`../projects/...` 恰好命中；但从项目根目录 `go run src/gateway/` 或 systemd 服务方式启动时，所有路径全部失效。
+2. `cacheDir := "storage/audio_cache"` 同理。
+3. design.md §8.3 要求"同步对齐后端 `utils.py` 目录判定"，Go 网关同样需要显式接收 `PROJECT_ROOT` 配置项或环境变量，不得依赖隐式 cwd。
+
+**修正要求**：`Config` 结构体新增 `ProjectRoot string` 字段（支持 `NEXTDOOR_PROJECT_ROOT` 环境变量覆盖），所有文件路径统一 `filepath.Join(cfg.ProjectRoot, "projects", ...)` 拼接。
+
+---
+
+### R-4. `src/gateway/main.go` — `WriteTimeout: 0` 全局无写超时，非流式端点可被恶意长连接耗尽资源
+
+```go
+server := &http.Server{
+    WriteTimeout: 0, // SSE 流式必须为 0
+}
+```
+
+**问题**：SSE 端点 `/api/chat/stream` 确实需要无限写超时，但 `/api/chat/intent/match`、`/healthz`、`/api/voice/article-chunk` 等短连接端点同样享受零超时，一个慢客户端可无限期占据 goroutine 与连接池槽位。
+
+**修正要求**：移除全局 `WriteTimeout: 0`，改为在 SSE handler 内部通过 `http.NewResponseController(w).SetWriteDeadline(time.Time{})` 单独清除流式端点的超时；其余端点保留 15~30 秒默认写超时。
+
+---
+
+## 三、🟡 建议改（可优化或潜在风险）
+
+### Y-1. `src/gateway/config.yaml.example` — 路径说明未随目录迁移更新
+
+```yaml
+# 复制本文件为 gateway/config.yaml 并在本地填写真实凭证（config.yaml 已被 .gitignore 忽略）
+```
+
+迁移后实际路径应为 `src/gateway/config.yaml`。同时 `main.go` 中 `loadConfig()` 的搜索路径 `[]string{"config.yaml", "gateway/config.yaml"}` 缺少 `"src/gateway/config.yaml"` 条目，从项目根目录启动时无法发现配置文件。
+
+---
+
+### Y-2. `src/gateway/client/ArticleAudioPlayer.ts` — `setVoice()` 切换音色时未释放当前分片的旧 ObjectURL
+
+```typescript
+public async setVoice(voiceAlias: string): Promise<void> {
+    ...
+    if (this.state === 'playing' || this.state === 'loading') {
+        await this.playChunk(this.currentChunkIndex);
+    }
+}
+```
+
+切换音色后，`audioCache` 中旧音色对应的 `blob:` URL 仍驻留内存。若用户频繁切换 5~6 个音色并朗读多段文章，ObjectURL 累积泄漏（GC 不会主动回收 `URL.createObjectURL` 产生的 blob）。`destroy()` 虽有全量清理，但单页长时间运行时缺乏分段回收机制。
+
+---
+
+### Y-3. `src/gateway/client/client.ts` — 模块顶层无实例化问题，但 `ChatWidget.tsx` 顶层单例硬编码网关地址
+
+```typescript
+const gatewayClient = new NextdoorLocalClient({
+  gatewayBaseURL: 'http://127.0.0.1:8090'
+});
+```
+
+组件内部 `ArticleAudioPlayer.vue` 通过 `props.gatewayBaseUrl` 可配置，但 `ChatWidget.tsx` 作为独立组件却硬编码。若网关部署在 NE1 的 `100.83.64.112:8090` 或生产环境需走 Nginx 反代，必须修改源码。建议统一通过 props 或 context 注入。
+
+---
+
+### Y-4. `scripts/qoder_reviewer.py` — `--system-prompt` 参数置于 `--tools ""` 之前，CLI 解析顺序风险
+
+```python
+cmd = [
+    QODER_BIN, "-p", "-m", model,
+    "--no-session-persistence",
+    "--system-prompt", "你是只读纯文本代码审查专家...",
+    "--tools", ""
+]
+```
+
+若 Qoder CLI 的 `--tools` 解析器对位置敏感（如子命令式解析），`--tools ""` 在 system-prompt 之后可能被误解析为 system-prompt 字符串的续行。建议将 `--tools ""` 提前到 `--system-prompt` 之前，或使用 `=` 赋值语法 `--tools=""`。
+
+---
+
+### Y-5. `src/gateway/main.go` — 缺少优雅关闭（Graceful Shutdown）
+
+`main()` 直接调用 `server.ListenAndServe()` 无 `os.Signal` 监听。NE1 上若通过 launchd 或 nohup 管理，收到 SIGTERM 时所有活跃 SSE 流式连接将被强制切断，前端打字机效果撕裂。
+
+建议新增 `signal.NotifyContext` + `server.Shutdown(ctx)` 标准模式。
+
+---
+
+### Y-6. `src/gateway/main_test.go` — `TestArticleChunkEndpoint` 依赖真实磁盘相对路径
+
+测试中 `cacheFile := "storage/audio_cache/..."` 与 `defer os.Remove(cacheFile)` 要求测试从 `src/gateway/` 目录运行，否则路径错位。建议改用 `t.TempDir()` 并注入 `Config.ProjectRoot`，消除工作目录耦合。
+
+---
+
+## 四、🟢 优化建议（代码可读性或微小体验）
+
+### G-1. `src/gateway/main.go` 日志含大量 Emoji
+
+```go
+log.Printf("🚀 Nextdoor AI 智能对话透明流式网关已启动！")
+log.Printf("🔗 对应上游 Nextdoor: %s", cfg.BaseURL)
+log.Printf("🛡️ 凭证与品牌标识: %s ...")
+log.Printf("⚡️ 核心路由已就绪:")
+log.Printf("❌ 网关服务启动失败: %v", err)
+```
+
+AGENTS.md §3.3 明确"严禁在企业级页面、交付打样站点、商业白皮书与报告中使用 Emoji"。虽然终端日志严格意义上不属于"企业级页面"，但项目全局基调是零 Emoji。建议替换为 `[INFO]`、`[WARN]`、`[ERROR]` 前缀。
+
+---
+
+### G-2. `src/gateway/client/types.ts` 与 `voiceTypes.ts` 重复定义 `ApiResponse<T>`
+
+两个文件各自独立声明了 `interface ApiResponse<T>` 和各自的 `Error` 基类（`GatewayApiError` / `VoiceApiError`）。建议提取为 `sharedTypes.ts` 或在 `index.ts` barrel 中做 re-export 去重，避免 `index.ts` 的 `export * from` 产生命名冲突。
+
+---
+
+### G-3. `src/gateway/client/ArticleAudioPlayer.vue` — `v-model` 绑定 `selectedVoice` 与 `@change` 同时存在
+
+```html
+<select v-model="selectedVoice" @change="handleVoiceChange">
+```
+
+Vue 3 中 `v-model` 已内含 `change` 事件监听。叠加 `@change` 在部分边界场景（如程序式赋值 `selectedVoice.value = 'xxx'`）会触发双重调用。建议仅保留 `v-model` + `watch(selectedVoice, handleVoiceChange)` 或仅用 `@change` 不加 `v-model`。
+
+---
+
+### G-4. 目录迁移后 `.gitignore` 更新确认
+
+git status 显示 `M .gitignore`，但 diff 内容未完整展示。请确认 `config.yaml`、`storage/`、`*.env`、`src/gateway/gateway`（编译产物）等敏感/生成文件仍被正确忽略，不会因路径变更而脱管。
+
+---
+
+## 五、规范一致性核查表
+
+| 检查项 | 结果 | 说明 |
+|:---|:---|:---|
+| 源码统一收拢 `src/`（师弟立规 #9） | 通过 | web/tools/gateway 三模块已下沉 |
+| 32 项冒烟路径对齐（design §8.3） | 通过 | smoke_step0.sh / mjs / utils.py / package.json 均已更新 |
+| `geo` 入口 PYTHONPATH 注入 | 通过 | `python3 -m tools.geo` 可正确解析 |
+| 零原生弹窗（design §4.1） | **违反** | ChatWidget.tsx 使用 alert() (R-2) |
+| 前端零凭证铁律（design §7.1） | 通过 | SDK 注释明确，网关端剥离 Authorization |
+| 雪花 ID 纯 string 铁律 | 通过 | 全量 ID 字段声明为 string |
+| NE1 唯一编译中心（AGENTS §4.5） | 通过 | 无新增本地编译依赖 |
+| Emoji 零容忍（AGENTS §3.3） | 轻微违反 | Go 日志含 Emoji (G-1) |
+| 生产部署铁律（AGENTS §4.1） | 通过 | 无自动推生产逻辑 |
+| 双仓资料分工（AGENTS §4.3） | 通过 | 仅涉及主仓代码 |
+
+---
+
+## 六、结论
+
+目录迁移（src/ 收纳）主体工作正确完整，路径对齐无遗漏。新增网关 Go 服务端架构清晰、测试覆盖全面（CORS、JWT 拦截、TTS 限流、路径穿越防御、缓存命中、客户端 Abort 取消链路均有断言）。
+
+但存在 4 项阻断性问题：网关绑定 `0.0.0.0` 暴露面（R-1）、ChatWidget 原生 alert 违反立规（R-2）、文件路径工作目录强耦合（R-3）、全局零写超时（R-4），必须在合并前修正。建议修正 R-1 至 R-4 并处理 Y-1/Y-2 后复审。
+
+[需修正]
+
+---
+
+## 2026-10-07 轮次十八：响应并直接修复 Qoder 二审意见 (R-1~R-4, Y-1, Y-4, G-1)
+
+1. **[已修复 R-1 · 本地网关默认严格绑定 127.0.0.1，收敛暴露面]**：
+   - `src/gateway/main.go` 中 `Config.Host` 默认值设为 `127.0.0.1`，仅在显式配置 `bind_all: true` 或 `NEXTDOOR_BIND_ALL=1` 时才允许绑定 `0.0.0.0`；
+   - 彻底杜绝本地开发网关意外暴露全网局域网。
+
+2. **[已修复 R-2 · 彻底拔除 ChatWidget.tsx 中 2 处原生 alert() 弹窗]**：
+   - 严格落实 design.md §4.1 与 RULES.md 4.4 零原生弹窗禁令；
+   - 引入组件内 `errorMessage` 状态，替换为美观、无阻塞的 inline 琥珀色异常提示横幅；
+   - 包含一键关闭 `✕` 按钮，完全由样式系统接管。
+
+3. **[已修复 R-3 · 引入 ProjectRoot 项目根目录寻址，解除工作目录强耦合]**：
+   - 在 `src/gateway/main.go` 中新增 `findProjectRoot()` 算法（支持 `NEXTDOOR_PROJECT_ROOT` 环境变量覆盖，并自动向上寻找包含 `projects` 或 `.git` 的根目录）；
+   - `handleArticleChunk` 中本地磁盘缓存路径 `cacheDir` 与切片元数据 `metaPaths` 统一基于 `cfg.ProjectRoot` 拼接；
+   - 彻底消除 `../` 脆弱相对路径，无论从 `src/gateway/`、根目录或任意工作目录启动均可精准命中。
+
+4. **[已修复 R-4 · 细化写超时边界，非流式端点 30s 保护，流式长连接单独放行]**：
+   - 全局服务端配置默认 `WriteTimeout: 30 * time.Second`，保护短连接端点（`/healthz`、`/api/chat/intent/match`、`/api/voice/article-chunk`）免受慢客户端资源耗尽攻击；
+   - 在 `handleChatStream` SSE 流式端点内部，通过 `http.NewResponseController(w).SetWriteDeadline(time.Time{})` 单独解除流式长连接写超时，确保打字机长文本无损输出。
+
+5. **[已修复 Y-1 · 配置搜索路径与模板对齐]**：
+   - `src/gateway/config.yaml.example` 路径说明修正为 `src/gateway/config.yaml`，并增加 `bind_all` 说明；
+   - `main.go` 中配置文件检索路径新增 `src/gateway/config.yaml` 及基于 `ProjectRoot` 的多级自动发现。
+
+6. **[已修复 Y-4 · qoder_reviewer.py 参数顺序优化]**：
+   - 调整 CLI 参数顺序，`--tools ""` 移至 `--system-prompt` 之前，尾部追加 `--` 分隔符，杜绝解析歧义。
+
+7. **[已修复 G-1 · 服务端日志 Emoji 清理]**：
+   - 将服务端控制台启动日志中的 Emoji 清理为标准结构化标签（`[INFO]`、`[ERROR]`）。
+
+8. **[已验证 · 32 项自动化断言全绿]**：
+   - `bash scripts/smoke_step0.sh` 5/5 阶段全部 PASS，组件岛体积 486 KB，32/32 项断言全部 100% 通过。
+
+[已修正]
+

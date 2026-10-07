@@ -1,5 +1,5 @@
 // [NON-PROD] 本文件仅供本地网关单元测试与开发实验旁路使用。
-// NE1 生产环境唯一真相源 (SSOT) 锁定为 8088 端口 Python Web 服务 (tools/geo/server.py)。
+// NE1 生产环境唯一真相源 (SSOT) 锁定为 8088 端口 Python Web 服务 (src/tools/geo/server.py)。
 // 任何业务契约（article-chunk、磁盘缓存、上游请求字段）必须与 Python 8088 服务保持严格对齐。
 package main
 
@@ -20,8 +20,36 @@ import (
 	"unicode/utf8"
 )
 
+// 确定项目根目录 (优先级: NEXTDOOR_PROJECT_ROOT 环境变量 > 向上查找包含 projects 或 .git 的目录 > 当前工作目录)
+func findProjectRoot() string {
+	if root := strings.TrimSpace(os.Getenv("NEXTDOOR_PROJECT_ROOT")); root != "" {
+		if fi, err := os.Stat(root); err == nil && fi.IsDir() {
+			return root
+		}
+	}
+	dir, err := os.Getwd()
+	if err != nil {
+		return "."
+	}
+	for {
+		if fi, err := os.Stat(filepath.Join(dir, "projects")); err == nil && fi.IsDir() {
+			return dir
+		}
+		if fi, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+		dir = parent
+	}
+	return "."
+}
+
 // Config 网关核心配置
 type Config struct {
+	Host             string `json:"host"`
 	Port             int    `json:"port"`
 	AllowedOrigin    string `json:"allowed_origin"`
 	BaseURL          string `json:"base_url"`
@@ -31,11 +59,14 @@ type Config struct {
 	AllowMissingJWT  bool   `json:"allow_missing_jwt"`
 	HeaderTimeoutSec int    `json:"header_timeout_sec"`
 	JSONTimeoutSec   int    `json:"json_timeout_sec"`
+	ProjectRoot      string `json:"project_root"`
+	BindAll          bool   `json:"bind_all"`
 }
 
-// 默认配置
+// 默认配置 (默认严格绑定 127.0.0.1 本地回环，杜绝全网暴露)
 func defaultConfig() *Config {
 	return &Config{
+		Host:             "127.0.0.1",
 		Port:             8090,
 		AllowedOrigin:    "http://127.0.0.1:8088,http://localhost:8088",
 		BaseURL:          "http://127.0.0.1:9000",
@@ -45,15 +76,25 @@ func defaultConfig() *Config {
 		AllowMissingJWT:  false,
 		HeaderTimeoutSec: 15,
 		JSONTimeoutSec:   15,
+		ProjectRoot:      findProjectRoot(),
+		BindAll:          false,
 	}
 }
 
 // loadConfig 支持简易 YAML/KV 解析与环境变量优先覆盖
 func loadConfig() *Config {
 	cfg := defaultConfig()
+	root := cfg.ProjectRoot
 
-	// 1. 尝试读取本地 gateway/config.yaml 或 config.yaml
-	paths := []string{"config.yaml", "gateway/config.yaml"}
+	// 1. 尝试读取配置文件 (支持根目录与基于 ProjectRoot 检索)
+	paths := []string{
+		"config.yaml",
+		"src/gateway/config.yaml",
+		"gateway/config.yaml",
+		filepath.Join(root, "src", "gateway", "config.yaml"),
+		filepath.Join(root, "gateway", "config.yaml"),
+		filepath.Join(root, "config.yaml"),
+	}
 	for _, p := range paths {
 		data, err := os.ReadFile(p)
 		if err == nil {
@@ -74,6 +115,12 @@ func loadConfig() *Config {
 				case "port":
 					if port, err := strconv.Atoi(v); err == nil && port > 0 {
 						cfg.Port = port
+					}
+				case "bind_all":
+					cfg.BindAll = (v == "true" || v == "1")
+				case "project_root":
+					if v != "" {
+						cfg.ProjectRoot = v
 					}
 				case "allowed_origin":
 					cfg.AllowedOrigin = v
@@ -126,6 +173,15 @@ func loadConfig() *Config {
 	}
 	if envAllowMissing := os.Getenv("NEXTDOOR_ALLOW_MISSING_JWT"); envAllowMissing != "" {
 		cfg.AllowMissingJWT = (envAllowMissing == "true" || envAllowMissing == "1")
+	}
+	if envBind := os.Getenv("NEXTDOOR_BIND_ALL"); envBind != "" {
+		cfg.BindAll = (envBind == "true" || envBind == "1")
+	}
+	if cfg.BindAll {
+		cfg.Host = "0.0.0.0"
+	}
+	if envRoot := os.Getenv("NEXTDOOR_PROJECT_ROOT"); envRoot != "" {
+		cfg.ProjectRoot = envRoot
 	}
 
 	return cfg
@@ -301,6 +357,10 @@ func handleChatStream(cfg *Config) http.HandlerFunc {
 		w.Header().Set("Connection", "keep-alive")
 		w.Header().Set("X-Accel-Buffering", "no") // 通知 Nginx 禁用响应缓存
 
+		// [R-4 防护] 流式长连接单独清除写超时，允许打字机无限长输出；非流式端点享受全局 30s 写超时保护
+		rc := http.NewResponseController(w)
+		_ = rc.SetWriteDeadline(time.Time{})
+
 		reader := bufio.NewReader(resp.Body)
 		var streamErr error
 		for {
@@ -319,7 +379,12 @@ func handleChatStream(cfg *Config) http.HandlerFunc {
 
 		// 上游中途中断且客户端未主动取消时，补齐错误事件与 DONE 帧确保打字机收尾
 		if streamErr != nil && r.Context().Err() == nil {
-			errChunk := fmt.Sprintf("data: {\"event\":\"error\",\"code\":50202,\"msg\":\"上游连接异常中断: %v\"}\n\ndata: [DONE]\n\n", streamErr)
+			errPayload, _ := json.Marshal(map[string]interface{}{
+				"event": "error",
+				"code":  50202,
+				"msg":   fmt.Sprintf("上游连接异常中断: %v", streamErr),
+			})
+			errChunk := fmt.Sprintf("data: %s\n\ndata: [DONE]\n\n", errPayload)
 			_, _ = w.Write([]byte(errChunk))
 			flusher.Flush()
 		}
@@ -667,6 +732,33 @@ func getClientIP(r *http.Request) string {
 	return ip
 }
 
+// 路径与标识合法性白名单校验 (防止路径穿越与 SSRF)
+func isValidTaskSuffix(s string) bool {
+	if len(s) == 0 || len(s) > 64 {
+		return false
+	}
+	for _, c := range s {
+		if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+			(c >= '0' && c <= '9') || c == '_' || c == '-') {
+			return false
+		}
+	}
+	return true
+}
+
+func isValidVoiceName(s string) bool {
+	if len(s) == 0 || len(s) > 64 {
+		return false
+	}
+	for _, c := range s {
+		if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+			(c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.') {
+			return false
+		}
+	}
+	return true
+}
+
 // 全局语音 TTS 限流器: 单 IP 每分钟最多 60 次请求 (防刷保护)
 var voiceTTSLimiter = newIPRateLimiter(60, 1*time.Minute)
 
@@ -684,6 +776,10 @@ func handleVoiceOpenProxy(cfg *Config, targetSubPath string) http.HandlerFunc {
 		// 支持类似 /api/open/v1/voice/tasks/:task_id 的动态路径透传
 		if strings.HasSuffix(targetSubPath, "/") && strings.HasPrefix(r.URL.Path, targetSubPath) {
 			suffix := strings.TrimPrefix(r.URL.Path, targetSubPath)
+			if !isValidTaskSuffix(suffix) {
+				sendErrorJSON(w, http.StatusBadRequest, 40001, "任务路径标识不合法")
+				return
+			}
 			targetURL = fmt.Sprintf("%s%s%s", cfg.BaseURL, targetSubPath, suffix)
 		}
 
@@ -809,9 +905,13 @@ func handleArticleChunk(cfg *Config) http.HandlerFunc {
 		if voice == "" {
 			voice = "standard_female_warm"
 		}
+		if !isValidVoiceName(voice) {
+			sendErrorJSON(w, http.StatusBadRequest, 40001, "音色标识格式不合法")
+			return
+		}
 
-		// 1. 检查 30 天 LRU 本地磁盘缓存
-		cacheDir := "storage/audio_cache"
+		// 1. 检查 30 天 LRU 本地磁盘缓存 (统一基于 ProjectRoot 检索)
+		cacheDir := filepath.Join(cfg.ProjectRoot, "storage", "audio_cache")
 		_ = os.MkdirAll(cacheDir, 0755)
 		cacheFile := filepath.Join(cacheDir, fmt.Sprintf("%s_%d_%s.mp3", articleID, payload.ChunkIndex, voice))
 
@@ -829,12 +929,11 @@ func handleArticleChunk(cfg *Config) http.HandlerFunc {
 			}
 		}
 
-		// 2. 读取本地切片元数据
+		// 2. 读取本地切片元数据 (统一基于 ProjectRoot 检索)
 		metaPaths := []string{
-			filepath.Join("projects/nextgeo/outputs/site/assets/audio_meta", articleID+".json"),
-			filepath.Join("projects/nextgeo/outputs/assets/audio_meta", articleID+".json"),
-			filepath.Join("assets/audio_meta", articleID+".json"),
-			filepath.Join("../projects/nextgeo/outputs/site/assets/audio_meta", articleID+".json"),
+			filepath.Join(cfg.ProjectRoot, "projects", "nextgeo", "outputs", "site", "assets", "audio_meta", articleID+".json"),
+			filepath.Join(cfg.ProjectRoot, "projects", "nextgeo", "outputs", "assets", "audio_meta", articleID+".json"),
+			filepath.Join(cfg.ProjectRoot, "assets", "audio_meta", articleID+".json"),
 		}
 		var metaData []byte
 		var readErr error = fmt.Errorf("not found")
@@ -979,26 +1078,27 @@ func main() {
 	cfg := loadConfig()
 	mux := setupMux(cfg)
 
-	addr := fmt.Sprintf("0.0.0.0:%d", cfg.Port)
-	log.Printf("🚀 Nextdoor AI 智能对话透明流式网关已启动！")
-	log.Printf("📍 本地监听地址: http://127.0.0.1:%d", cfg.Port)
-	log.Printf("🔗 对应上游 Nextdoor: %s", cfg.BaseURL)
-	log.Printf("🛡️ 凭证与品牌标识: %s (JWT 配置状态: %v)", cfg.SourceClient, cfg.JWTToken != "")
-	log.Printf("🔒 CORS 严格放行源: %s", cfg.AllowedOrigin)
-	log.Printf("⚡️ 核心路由已就绪:")
-	log.Printf("   - [SSE]  POST http://127.0.0.1:%d/api/chat/stream", cfg.Port)
-	log.Printf("   - [JSON] POST http://127.0.0.1:%d/api/chat/intent/match", cfg.Port)
-	log.Printf("   - [JSON] POST http://127.0.0.1:%d/api/writing/sessions", cfg.Port)
+	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	log.Printf("[INFO] Nextdoor AI 智能对话透明流式网关已启动")
+	log.Printf("[INFO] 本地监听地址: http://%s", addr)
+	log.Printf("[INFO] 对应上游 Nextdoor: %s", cfg.BaseURL)
+	log.Printf("[INFO] 凭证与品牌标识: %s (JWT 配置状态: %v)", cfg.SourceClient, cfg.JWTToken != "")
+	log.Printf("[INFO] CORS 严格放行源: %s", cfg.AllowedOrigin)
+	log.Printf("[INFO] 项目根目录: %s", cfg.ProjectRoot)
+	log.Printf("[INFO] 核心路由已就绪:")
+	log.Printf("   - [SSE]  POST http://%s/api/chat/stream", addr)
+	log.Printf("   - [JSON] POST http://%s/api/chat/intent/match", addr)
+	log.Printf("   - [JSON] POST http://%s/api/writing/sessions", addr)
 
 	server := &http.Server{
 		Addr:         addr,
 		Handler:      mux,
 		ReadTimeout:  60 * time.Second,
-		WriteTimeout: 0, // SSE 流式必须为 0，防止长输出连接被强行切断
+		WriteTimeout: 30 * time.Second, // 默认 30s 写超时保护非流式端点，流式长连接端点由 ResponseController 单独放行
 		IdleTimeout:  120 * time.Second,
 	}
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("❌ 网关服务启动失败: %v", err)
+		log.Fatalf("[ERROR] 网关服务启动失败: %v", err)
 	}
 }
