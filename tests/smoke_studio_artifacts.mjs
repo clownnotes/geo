@@ -1472,6 +1472,12 @@ function test32() {
   // [2026-09-30 修复🔴4] 验证骨干镜像与留档归档绝不可被识别为主文件，单槽 Master 解析确定且唯一
   assert.equal(isMasterFile({ name: '01_网络底座指标_待对照.md', isCanonicalMirror: true }), false, '骨干镜像绝不可被识别为主文件');
   assert.equal(isMasterFile({ name: '01_商业诊断与转化初稿.md', isProtectedArchive: true }), false, '历史留档绝不可被识别为主文件');
+  
+  // [2026-10-07 任务7.3回归] 验证 isMaster=true 误带 isProtectedArchive 时依然为 Master，第1版生效主文件可改名
+  assert.equal(isMasterFile({ name: '01_豆包提问清单_第1版.txt', isMaster: true, isProtectedArchive: true }), true, 'isMaster=true 优先级最高，不受历史归档标记误伤');
+  assert.equal(isMasterFile({ name: '01_豆包提问清单_第1版.txt', isActive: true, isProtectedArchive: false }), true, '生效第1版主文件必须判定为主文件且可改名');
+  assert.equal(isMasterFile({ name: '01_豆包提问清单_参考2.txt', versionTag: '参考2' }), false, '参考件依然严格禁止改名');
+
   const dualSlotFiles = {
     '01_网络底座指标_待对照.md': { name: '01_网络底座指标_待对照.md', slotKey: 'slot_metrics', isCanonicalMirror: true },
     '01_网络底座指标_第2版.md': { name: '01_网络底座指标_第2版.md', slotKey: 'slot_metrics', isMaster: true, isActive: true },

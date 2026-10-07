@@ -630,19 +630,21 @@ export function isReadOnlyFile(file, files = {}, stage = '') {
 /**
  * 判定文件是否为主文件 (Master File)
  * [2026-09-30 师弟立规] 主文件只能修改保存，物理锁定禁止删除！
- * [2026-09-30 修复🔴4] 严密排除镜像、留档、已淘汰版本及参考件，保证单槽唯一真相源
+ * [2026-10-07 任务7.1纠偏] isMaster === true 优先级最高，废除 isProtectedArchive 一票否决生效主文件
  */
 export function isMasterFile(file) {
   if (!file) return false;
-  // 显式排除参考件、废纸篓、骨干镜像、留档与已淘汰版本
+  // 显式排除参考件、废纸篓
   if (file.isReference === true || file.isDeleted === true || file.is_deleted === true) return false;
-  if (file.isCanonicalMirror === true || file.isProtectedArchive === true || file.isRetired === true) return false;
   const vTag = String(file.versionTag || '');
   if (vTag.startsWith('参考') || (file.name && file.name.includes('_参考'))) return false;
 
-  // 1. 显式打标为 Master
+  // 1. 显式打标为 Master (主文件优先级最高，不受历史归档标记一票否决)
   if (file.isMaster === true) return true;
   if (file.isMaster === false) return false;
+
+  // 显式排除未打标 Master 的纯骨干镜像、历史留档与已淘汰草稿
+  if (file.isCanonicalMirror === true || file.isProtectedArchive === true || file.isRetired === true) return false;
 
   // 2. 活跃生效且非手工无归属草稿
   if (file.isActive === true && !file.isManual) return true;
@@ -688,18 +690,18 @@ export function computeReferenceVersion(files = {}, slotKey, topic = '参考') {
 
 /**
  * 获取某个槽位的主文件
- * [2026-09-30 修复🔴4] 优先级收敛，确保单槽 Master 解析确定且唯一
+ * [2026-10-07 任务7.1纠偏] 确保 active 主文件不因历史归档标记被跳过
  */
 export function getMasterFileForSlot(files = {}, slotKey) {
   if (!slotKey) return null;
   const list = Object.values(files);
-  // 1. 优先寻找明确打标 isMaster === true 的生效文件
-  const explicitMaster = list.find((f) => f.slotKey === slotKey && f.isMaster === true && !f.isDeleted);
+  // 1. 优先寻找明确打标 isMaster === true 且满足 isMasterFile 的生效文件
+  const explicitMaster = list.find((f) => f.slotKey === slotKey && f.isMaster === true && isMasterFile(f));
   if (explicitMaster) return explicitMaster;
 
-  // 2. 寻找该槽位当前唯一的活跃生效主版本（排除镜像与归档）
+  // 2. 寻找该槽位当前唯一的活跃生效主版本（排除镜像与已淘汰，且满足 isMasterFile）
   const activeMaster = list.find(
-    (f) => f.slotKey === slotKey && f.isActive === true && !f.isCanonicalMirror && !f.isProtectedArchive && !f.isDeleted
+    (f) => f.slotKey === slotKey && f.isActive === true && !f.isCanonicalMirror && !f.isDeleted && !f.is_deleted && isMasterFile(f)
   );
   if (activeMaster) return activeMaster;
 
@@ -1183,9 +1185,11 @@ export function migrateAndNormalizeFiles(rawFiles = {}, stage, nowIso = new Date
       item.isActive = false;
     }
 
-    // 3. 识别并回填首版母版留档标记 (收紧为仅核心槽位标准母版打标，杜绝污染手建笔记 · 解决 🟡4)
+    // 3. 识别并回填首版母版留档标记 (仅非 active 且非 master 的历史存量版本打标 · 解决任务7.1)
     if (
       !item.isManual &&
+      !item.isMaster &&
+      !item.isActive &&
       item.slotKey !== 'slot_manual' &&
       item.slotKey !== 'slot_misc' &&
       validSlots.includes(item.slotKey)

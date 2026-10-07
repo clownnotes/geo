@@ -70,7 +70,47 @@
 - [x] 6.4 【字数红绿灯质检规则与模板校准】：严格按照老赵哥标准版 ≤120 字、短版 ≤50 字实施红绿灯核验，防止超出平台字数限制被截断；
 - [x] 6.5 【NE1 自动化冒烟守护】：更新 `tests/smoke_studio_artifacts.mjs`，覆盖阶段三双主文件与 SOP 配置，确保实机断言 100% PASS。
 
+## 7. 主文件 SSOT 唯一定位与改名拦截纠偏（轮次十五探讨落地 · 方案 A）
+- [x] 7.1 【主文件判定纯函数彻底收敛】：
+  - [x] 改造 `studioArtifactConfig.js` 中 `isMasterFile`：全仓严格按 `file.isMaster === true` 或 `file.isActive === true && !file.isDeleted && !file.is_deleted && !file.isReference && !file.versionTag?.startsWith('参考') && !file.name?.includes('_参考')` 判定，**禁止**再用 `isProtectedArchive` / `isRetired` 一票否决当前生效主文件；
 
+  - [x] 同步订正 `getMasterFileForSlot`：选取 active 主文件时不得因历史 `isProtectedArchive` 标记跳过当前生效件；
+  - [x] 优化 `migrateAndNormalizeFiles`：废除对 `_第1版` 强制赋 `isProtectedArchive` 的存量迁移规则，严禁历史归档污染当前生效的主文件；
+- [x] 7.2 【文件树与改名拦截口径 100% 对齐】：
+  - [x] 统一 `StudioFileTree.vue` 的晨光淡黄打勾展示、右键改名唤起条件与各阶段 `handleRenameFile` 改名拦截条件，全部收敛调用同一 `isMasterFile()`，确保凡显示为主文件者均可平滑改名；
+- [x] 7.3 【自动化断言与实测回归】：
+  - [x] 在 `tests/smoke_studio_artifacts.mjs` 中补充：① `isMaster=true` 且误带 `isProtectedArchive` 时 `isMasterFile===true`；② `_第1版` 命名的生效主文件可改名；③ 参考件仍禁止改名。NE1 冒烟须继续全绿。
+
+
+
+
+
+
+
+
+## 8. 纯源码对外协作仓库与白名单双向同步工具建设 (2026-10-07 师弟立规)
+- [x] 8.1 【白名单导出与同步脚本建设】：
+  - 编写 `scripts/sync_export_to_core_repo.sh`，以严格白名单方式提取 `web/`、`tools/`、`gateway/` 与最小运行依赖（`package.json`、`requirements.txt`）；
+  - 物理排除 `docs/`、`openspec/`、`tests/`、`scripts/`、`deploy/`、`projects/` 与 `.env`；
+- [x] 8.2 【协作代码拉取与合流脚本建设】：
+  - 编写 `scripts/sync_pull_from_core_repo.sh`，在师弟合并 PR 后，一键将协作仓代码精准同步回主工程源码目录；
+  - 协作者新增的文档/文件夹保持清晰可见，合入时清晰可读、能看懂、逻辑对齐；
+- [x] 8.3 【零预设纯净交付】：
+  - 坚决不预置任何多余模板或框架，仅提供纯前后端源码与运行依赖，给朋友完全自由的折腾空间；
+- [x] 8.4 【白名单与安全性离线验证】：
+  - 离线测试导出目录，确保战略文档与机密数据 100% 零泄露，测试脚本与生产脚本 100% 隔离。
+
+## 9. 纯源码极简提取与新仓库交付 (2026-10-07 师弟立规)
+- [ ] 9.1 【原主仓纹丝不动】：保持 `/Users/a1/代码/GEO` 结构、文档、配置 100% 现状原样不动；
+- [ ] 9.2 【纯源码提取到新目录】：将纯业务源码（`web/`、`tools/`、`gateway/`、`package.json`、`requirements.txt`）单向提取到指定新仓库目录（如 `/Users/a1/代码/GEOChen`）；
+- [ ] 9.3 【新仓库 Git 初始化】：在新目录执行 `git init -b main` 并生成首次提交，等待师弟关联远程仓库推给朋友。
+
+## 10. GEO 主工程根目录瘦身与源码集中收纳 (2026-10-07 师弟立规)
+- [ ] 10.0 【本地安全快照门禁】：在文件平移前完成本地 Git 提交留痕（信息：`chore: 建立本地安全快照基线（准备平移源码至 src/）`），建立全绿基线物理回滚点；
+- [ ] 10.1 【创建统一源码目录】：在根目录创建 `src/`，将散落的业务源码（`web/`、`tools/`、`gateway/`）集中下沉至 `src/` 下；
+- [ ] 10.2 【对齐后端服务寻址】：更新 `src/tools/geo/utils.py` 与 `server.py` 的项目根路径与静态资源托管路径；
+- [ ] 10.3 【对齐前端与入口命令】：更新 `package.json` 中的脚本前缀路径与根目录 `./geo` 启动命令；
+- [ ] 10.4 【自动化冒烟回归守护】：更新 `tests/smoke_studio_artifacts.mjs` 测试引用路径，实跑确保 32 项断言 100% PASS。
 
 
 

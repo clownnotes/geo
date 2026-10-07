@@ -102,9 +102,9 @@
             <div class="flex items-center gap-1.5 shrink-0">
               <!-- [2026-09-28] [出题草稿采纳流] 仅在 showStatusBadge 为 true 时渲染状态徽章，防污染阶段二/三 -->
               <template v-if="showStatusBadge">
-                <!-- [2026-09-30] 主文件晨光淡黄对勾 (去 V1、去文字标签 · 师弟立规) -->
+                <!-- [2026-09-30] 主文件晨光淡黄对勾 (去 V1、去文字标签 · 师弟立规 · 统一收敛 isMasterFile) -->
                 <span
-                  v-if="files[fn]?.isMaster || files[fn]?.isActive"
+                  v-if="isMasterFile(files[fn])"
                   class="w-4 h-4 rounded-full bg-amber-50 text-amber-500 border border-amber-300 flex items-center justify-center shrink-0 shadow-2xs"
                   title="主文件（已绑定雪花ID，不可删除，可右键改名）"
                 >
@@ -203,7 +203,7 @@
         @click.stop
       >
         <button
-          v-if="files[contextMenu.fn]?.isMaster || files[contextMenu.fn]?.isActive"
+          v-if="isMasterFile(files[contextMenu.fn])"
           type="button"
           class="w-full text-left px-3 py-2 hover:bg-indigo-50 hover:text-[#7c5bf5] flex items-center gap-2 cursor-pointer transition font-medium"
           @click="startRename(contextMenu.fn)"
@@ -227,7 +227,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import { canDeleteFile, formatDisplayTitle, generateSnowflakeId, isDuplicateDisplayName } from '../../config/studioArtifactConfig.js';
+import { canDeleteFile, formatDisplayTitle, generateSnowflakeId, isDuplicateDisplayName, isMasterFile } from '../../config/studioArtifactConfig.js';
 
 const props = defineProps({
   categories: { type: Array, required: true },
