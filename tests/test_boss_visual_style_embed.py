@@ -10,8 +10,8 @@ import unittest
 class TestBossVisualStyleEmbed(unittest.TestCase):
     def setUp(self):
         self.repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        self.index_html_path = os.path.join(self.repo_root, "web", "index.html")
-        self.server_py_path = os.path.join(self.repo_root, "tools", "geo", "server.py")
+        self.index_html_path = os.path.join(self.repo_root, "src", "web", "index.html")
+        self.server_py_path = os.path.join(self.repo_root, "src", "tools", "geo", "server.py")
 
     def test_01_index_html_dom_elements_exist(self):
         """验证方案 B 相关的 DOM 元素完整性"""

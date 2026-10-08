@@ -34,7 +34,7 @@ class OperatorDashboardPerspectiveTest(unittest.TestCase):
 
     def setUp(self):
         self.web_index_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web", "index.html"
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src", "web", "index.html"
         )
         with open(self.web_index_path, "r", encoding="utf-8") as f:
             self.html_content = f.read()

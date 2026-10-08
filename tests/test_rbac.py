@@ -903,7 +903,7 @@ class TestCommercialInsightsAndGroupRoutes(RbacTestBase):
 
     def test_home_panel_static_no_geo_dev_only(self):
         """5.7: 静态断言 data-geo-dev-only 未出现在任何 class 含 home-panel 的元素上"""
-        html_path = os.path.join(PROJECT_ROOT, "web", "index.html")
+        html_path = os.path.join(PROJECT_ROOT, "src", "web", "index.html")
         with open(html_path, "r", encoding="utf-8") as f:
             content = f.read()
 

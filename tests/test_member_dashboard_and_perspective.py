@@ -229,7 +229,7 @@ probe_status: "{probe_status}"
 
     def test_ui_no_emoji_and_no_sop_text(self):
         """6. UI 规范合规：0 违规 Emoji，界面主文案严禁使用「SOP」"""
-        web_index_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web", "index.html")
+        web_index_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src", "web", "index.html")
         with open(web_index_path, "r", encoding="utf-8") as f:
             content = f.read()
 

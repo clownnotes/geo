@@ -129,7 +129,7 @@ class MasterVersionTest(unittest.TestCase):
 
     def test_frontend_has_no_post_raw_materials_save(self):
         """现码没有向 POST /raw_materials 写母盘的按钮；唯一调用是 GET。"""
-        path = os.path.join(PROJECT_ROOT, "web", "index.html")
+        path = os.path.join(PROJECT_ROOT, "src", "web", "index.html")
         with open(path, "r", encoding="utf-8") as f:
             html = f.read()
         posts = re.findall(

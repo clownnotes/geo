@@ -26,9 +26,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from tools.geo import rbac  # noqa: E402
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-INDEX_HTML_PATH = os.path.join(PROJECT_ROOT, "web", "index.html")
-STEP0_APP_PATH = os.path.join(PROJECT_ROOT, "web", "step0-src", "Step0App.vue")
-STEP0_JS_PATH = os.path.join(PROJECT_ROOT, "web", "assets", "step0", "step0.js")
+INDEX_HTML_PATH = os.path.join(PROJECT_ROOT, "src", "web", "index.html")
+STEP0_APP_PATH = os.path.join(PROJECT_ROOT, "src", "web", "step0-src", "Step0App.vue")
+STEP0_JS_PATH = os.path.join(PROJECT_ROOT, "src", "web", "assets", "step0", "step0.js")
 
 
 class DualTrackPerspectivesTest(unittest.TestCase):

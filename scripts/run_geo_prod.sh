@@ -7,10 +7,11 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PA
 export GEO_BIND_HOST=0.0.0.0
 if [[ -n "${GEO_ROOT:-}" ]]; then
   ROOT="$GEO_ROOT"
-elif [[ -d "$(cd "$(dirname "$0")/.." && pwd)/tools/geo" ]]; then
+elif [[ -d "$(cd "$(dirname "$0")/.." && pwd)/src/tools/geo" ]]; then
   ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 else
   ROOT="/Users/ne/apps/GEO"
 fi
 cd "$ROOT" || exit 1
+export PYTHONPATH="$ROOT/src"
 exec /usr/bin/python3 -m tools.geo web --port 8088

@@ -16,7 +16,7 @@ if [ -n "$PID" ]; then
 fi
 
 echo "🚀 正在启动 GEO 商业交付 Web 管理端 (端口: $PORT)..."
-nohup python3 -m tools.geo web --port "$PORT" > "$PROJECT_ROOT/server.log" 2>&1 &
+nohup env PYTHONPATH="$PROJECT_ROOT/src" python3 -m tools.geo web --port "$PORT" > "$PROJECT_ROOT/server.log" 2>&1 &
 
 NEW_PID=$!
 echo "✅ 服务已成功在后台启动！(PID: $NEW_PID)"

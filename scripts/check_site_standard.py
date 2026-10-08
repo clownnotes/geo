@@ -332,17 +332,17 @@ def check_scaffold_protection(project_id: str):
     else:
         errors.append(f"项目配置文件不存在: {pyaml_path}")
 
-    # 2. 检查 tools/geo/scaffold.py 代码中是否具备保护锁逻辑
-    scaffold_py = os.path.join(ROOT_DIR, "tools/geo/scaffold.py")
+    # 2. 检查 src/tools/geo/scaffold.py 代码中是否具备保护锁逻辑
+    scaffold_py = os.path.join(ROOT_DIR, "src/tools/geo/scaffold.py")
     if os.path.isfile(scaffold_py):
         with open(scaffold_py, "r", encoding="utf-8") as f:
             scaffold_code = f.read()
         if 'cfg.get("custom_site"' in scaffold_code or "cfg.get('custom_site'" in scaffold_code:
-            passed.append("tools/geo/scaffold.py 已内置 custom_site 防覆盖保护逻辑")
+            passed.append("src/tools/geo/scaffold.py 已内置 custom_site 防覆盖保护逻辑")
         else:
-            errors.append("tools/geo/scaffold.py 缺失 custom_site 防覆盖保护拦截分支")
+            errors.append("src/tools/geo/scaffold.py 缺失 custom_site 防覆盖保护拦截分支")
     else:
-        errors.append("tools/geo/scaffold.py 文件不存在")
+        errors.append("src/tools/geo/scaffold.py 文件不存在")
 
     return errors, warnings, passed
 

@@ -151,8 +151,8 @@ class TestEmployeeCreationAndPartnerIsolation(unittest.TestCase):
 
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         target_files = [
-            os.path.join(project_root, "tools", "geo", "rbac.py"),
-            os.path.join(project_root, "tools", "geo", "server.py"),
+            os.path.join(project_root, "src", "tools", "geo", "rbac.py"),
+            os.path.join(project_root, "src", "tools", "geo", "server.py"),
         ]
 
         for fpath in target_files:
@@ -165,7 +165,7 @@ class TestEmployeeCreationAndPartnerIsolation(unittest.TestCase):
             )
 
         # 针对 web/index.html：核查新建模态框以及新编写的 JS 算法
-        html_path = os.path.join(project_root, "web", "index.html")
+        html_path = os.path.join(project_root, "src", "web", "index.html")
         with open(html_path, "r", encoding="utf-8") as f:
             html_content = f.read()
 

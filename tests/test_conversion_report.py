@@ -169,7 +169,7 @@ class TestConversionReport(unittest.TestCase):
         """阶段 9：两边各 4 步定稿文案 + 交付物解耦 + 0 Emoji"""
         from pathlib import Path
 
-        html = Path(__file__).resolve().parents[1].joinpath("web", "index.html").read_text(
+        html = Path(__file__).resolve().parents[1].joinpath("src", "web", "index.html").read_text(
             encoding="utf-8"
         )
         start = html.find('id="panel-step-1-diag"')
@@ -267,7 +267,7 @@ class TestConversionReport(unittest.TestCase):
     def test_10_button_help_tooltips_and_optional_tag(self):
         """阶段 9：主步骤小问号 + 可选小毛驴文案"""
         with open(
-            os.path.join(os.path.dirname(__file__), "..", "web", "index.html"),
+            os.path.join(os.path.dirname(__file__), "..", "src", "web", "index.html"),
             encoding="utf-8",
         ) as f:
             html = f.read()

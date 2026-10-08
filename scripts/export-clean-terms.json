@@ -1,0 +1,184 @@
+{
+  "replace": [
+    {
+      "from": "openspec/changes/[^\\s\"'）)、,，。;；]*",
+      "to": "内部规范文档",
+      "note": "规范目录引用"
+    },
+    {
+      "from": "openspec",
+      "to": "内部规范",
+      "note": "规范体系名"
+    },
+    {
+      "from": "docs/specs/[^\\s\"'）)、,，。;；]*",
+      "to": "内部规范文档",
+      "note": "规范文档路径"
+    },
+    {
+      "from": "docs/strategy/[^\\s\"'）)、,，。;；]*",
+      "to": "内部规范文档",
+      "note": "战略文档路径"
+    },
+    {
+      "from": "docs/specs",
+      "to": "内部规范目录",
+      "note": "规范目录名"
+    },
+    {
+      "from": "docs/strategy",
+      "to": "内部规范目录",
+      "note": "战略目录名"
+    },
+    {
+      "from": "AGENTS\\.md",
+      "to": "内部工程规范",
+      "note": "AI 协作规范文件名"
+    },
+    {
+      "from": "RULES\\.md",
+      "to": "内部工程规范",
+      "note": "AI 协作规范文件名"
+    },
+    {
+      "from": "review-log\\.md",
+      "to": "内部评审记录",
+      "note": "跨端评审日志文件名"
+    },
+    {
+      "from": "[Aa]ntigravity",
+      "to": "AI 开发工具",
+      "note": "内部 AI 工作流工具名"
+    },
+    {
+      "from": "师弟",
+      "to": "负责人",
+      "note": "内部协作称呼"
+    },
+    {
+      "from": "师兄",
+      "to": "同事",
+      "note": "内部协作称呼"
+    },
+    {
+      "from": "立规",
+      "to": "约定",
+      "note": "内部协作用语"
+    },
+    {
+      "from": "Mac mini",
+      "to": "服务主机",
+      "note": "机器型号指代"
+    },
+    {
+      "from": "mac mini",
+      "to": "服务主机",
+      "note": "机器型号指代"
+    },
+    {
+      "from": "mini:\\d+",
+      "to": "上游服务",
+      "note": "机器指代加端口"
+    },
+    {
+      "from": "\\bNE1\\b",
+      "to": "服务主机",
+      "note": "内网机器代号"
+    },
+    {
+      "from": "[Tt]ailscale",
+      "to": "内网通道",
+      "note": "组网工具名"
+    },
+    {
+      "from": "SSH 隧道",
+      "to": "端口映射",
+      "note": "隧道方式"
+    },
+    {
+      "from": "家用物理机",
+      "to": "自有主机",
+      "note": "机房拓扑"
+    },
+    {
+      "from": "中国联通动态公网",
+      "to": "运营商公网",
+      "note": "线路性质"
+    },
+    {
+      "from": "your-mac-ddns\\.baicl\\.cc",
+      "to": "your-origin-host.example.com",
+      "note": "示例域名占位"
+    },
+    {
+      "from": "\\bDDNS\\b",
+      "to": "动态域名",
+      "note": "解析方式"
+    },
+    {
+      "from": "tccli cdn PurgePathCache",
+      "to": "CDN 缓存刷新命令",
+      "note": "云厂商命令名（窄替换，禁止吞行尾）"
+    },
+    {
+      "from": "tccli",
+      "to": "CDN 命令行工具",
+      "note": "云厂商工具名"
+    },
+    {
+      "from": "100\\.83\\.\\d+\\.\\d+",
+      "to": "127.0.0.1",
+      "note": "内网地址"
+    },
+    {
+      "from": "免登",
+      "to": "本机回环豁免",
+      "note": "鉴权绕过措辞"
+    },
+    {
+      "from": "免密",
+      "to": "无凭证",
+      "note": "鉴权绕过措辞"
+    }
+  ],
+  "do_not_touch": [
+    "xuzhou_xuanyuan",
+    "nextgeo",
+    "老赵哥",
+    "麦肯锡",
+    "V-W-W-H",
+    "gpt-4o-mini",
+    "baicl.cc"
+  ],
+  "forbidden_scan": [
+    "openspec",
+    "AGENTS\\.md",
+    "RULES\\.md",
+    "review-log",
+    "[Aa]ntigravity",
+    "师弟",
+    "师兄",
+    "立规",
+    "docs/specs",
+    "docs/strategy",
+    "100\\.83\\.",
+    "[Tt]ailscale",
+    "\\bNE1\\b",
+    "SSH 隧道",
+    "Mac mini",
+    "家用物理机",
+    "\\bDDNS\\b",
+    "tccli",
+    "免登",
+    "免密",
+    "/Users/a1",
+    "/Users/ne",
+    "ndsk_[A-Za-z0-9]{16,}"
+  ],
+  "example_key_exemptions": [
+    "config.yaml.example",
+    ".env.example",
+    "geo_partners.yaml",
+    "README_交付包说明.md"
+  ]
+}

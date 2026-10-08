@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from tools.geo import rbac  # noqa: E402
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-INDEX_HTML_PATH = os.path.join(PROJECT_ROOT, "web", "index.html")
+INDEX_HTML_PATH = os.path.join(PROJECT_ROOT, "src", "web", "index.html")
 
 
 class WriterPerspectiveTest(unittest.TestCase):

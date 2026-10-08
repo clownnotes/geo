@@ -35,7 +35,7 @@ func findProjectRoot() string {
 		if fi, err := os.Stat(filepath.Join(dir, "projects")); err == nil && fi.IsDir() {
 			return dir
 		}
-		if fi, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
+		if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
 			return dir
 		}
 		parent := filepath.Dir(dir)

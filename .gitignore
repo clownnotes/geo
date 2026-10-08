@@ -28,4 +28,7 @@ projects/*/outputs/*_geo_delivery_archive.zip
 projects/*/outputs/*delivery*.zip
 storage/
 
+# 出包工具生成的清洗明细（含被替换掉的内部原字符串），只留本机，不进版本库
+openspec/artifacts/
+
 

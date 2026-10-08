@@ -32,7 +32,7 @@ from .patrol import get_project_history
 
 DATA_DIR = os.path.realpath(os.path.join(PROJECT_ROOT, "data"))
 SHARES_FILE = os.path.join(DATA_DIR, "shares.json")
-WEB_DIR = os.path.realpath(os.path.join(PROJECT_ROOT, "web"))
+WEB_DIR = os.path.realpath(os.path.join(PROJECT_ROOT, "src", "web"))
 
 
 def _calc_file_sha256(filepath: str) -> str:

@@ -218,9 +218,9 @@ class TestOperatorDeIdeAndAiWriter(unittest.TestCase):
             "让 Cursor",
         )
         paths = [
-            os.path.join(PROJECT_ROOT, "web", "step0-src", "components", "Step0Header.vue"),
-            os.path.join(PROJECT_ROOT, "web", "step0-src", "components", "ProbeStep2.vue"),
-            os.path.join(PROJECT_ROOT, "web", "step0-src", "components", "ProbeStep3.vue"),
+            os.path.join(PROJECT_ROOT, "src", "web", "step0-src", "components", "Step0Header.vue"),
+            os.path.join(PROJECT_ROOT, "src", "web", "step0-src", "components", "ProbeStep2.vue"),
+            os.path.join(PROJECT_ROOT, "src", "web", "step0-src", "components", "ProbeStep3.vue"),
         ]
         for path in paths:
             self.assertTrue(os.path.isfile(path), f"缺少文件: {path}")
