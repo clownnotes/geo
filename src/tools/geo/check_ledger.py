@@ -73,7 +73,6 @@ def append_check_log(
     at: str | None = None,
 ) -> dict:
     """追加一条检测日志。at 必须为 UTC ISO（缺省自动生成）。"""
-    _ensure_log_file()
     kws = [str(k).strip() for k in (keywords or []) if str(k).strip()]
     row = {
         "id": f"chk_{int(time.time())}_{secrets.token_hex(3)}",
@@ -88,8 +87,11 @@ def append_check_log(
         "source_ref": source_ref
         or (f"projects/{project_id}/outputs/05_manual_probes.json" if mode == "manual_probe" else ""),
     }
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    # [2026-11-23 架构拆分停写] 巡检日志由小毛驴 Go 后端承接，默认停写 ops_check_logs.jsonl
+    if os.environ.get("GEO_ENABLE_LEGACY_WRITES") == "1":
+        _ensure_log_file()
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
     return row
 
 

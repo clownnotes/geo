@@ -122,6 +122,10 @@ def init_history_db(db_path: str):
 
 def record_project_history(project_id: str, metrics: dict) -> int:
     """将单次巡检指标存入项目的 history.db"""
+    # [2026-11-23 架构拆分停写] 历史指标库由小毛驴 Go 后端承接，默认停写 history.db
+    if os.environ.get("GEO_ENABLE_LEGACY_WRITES") != "1":
+        return 0
+
     db_path = get_history_db_path(project_id)
     init_history_db(db_path)
     

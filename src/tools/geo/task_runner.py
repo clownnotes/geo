@@ -175,6 +175,9 @@ class TaskManager:
 
     def _save_tasks(self):
         """持久化保存任务到磁盘"""
+        # [2026-11-23 架构拆分停写] 任务历史由小毛驴 Go 后端 geo_worker_jobs 承接，默认停写 data/tasks.json
+        if os.environ.get("GEO_ENABLE_LEGACY_WRITES") != "1":
+            return
         try:
             os.makedirs(os.path.dirname(self.data_file), exist_ok=True)
             # 仅保留最近 200 条记录防止过大

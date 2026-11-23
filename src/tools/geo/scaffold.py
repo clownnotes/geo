@@ -247,10 +247,10 @@ def build_turnkey_site_html(cfg: dict, json_ld_str: str) -> str:
   <!-- 引入极轻量 CSS (Tailwind CDN 样式纯静态化支持) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    img, picture, video, canvas, svg { display: block; max-width: 100%; height: auto; }
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
-    a { color: inherit; text-decoration: none; }
+    *, *::before, *::after {{ box-sizing: border-box; }}
+    img, picture, video, canvas, svg {{ display: block; max-width: 100%; height: auto; }}
+    body {{ margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }}
+    a {{ color: inherit; text-decoration: none; }}
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
