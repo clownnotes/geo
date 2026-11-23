@@ -12,7 +12,7 @@
 - [x] 2.1 盘点 `src/tools/geo/` 全部 74 个 Python 文件与 `fork/` 临时原型端口占用，输出《存量模块留/迁/删分类确认表》交由产品负责人确认，确保不误删核心诊断与建站算法
 - [x] 2.2 剥离 `src/tools/geo/server.py` 对旧管理台路由、RBAC 与 `ad_orders.json` 等业务状态的耦合，提纯后的异步任务 Worker 入口落点为新建目录 `src/tools/worker/`（本变更新建，尚无现存目录；实测 `src/tools/` 现有只有 `__init__.py`、`__pycache__` 与 `geo`，无 `worker`），仅绑定 `127.0.0.1:18092`，只暴露 `POST /worker/jobs` 与 `GET /worker/jobs/{job_id}`（支持全部 9 类任务：基础 4 类 `diagnose`/`probe`/`build_site`/`build_blog` 与交付对客 5 类 `boss_report`/`share_portal`/`distribute_pack`/`acceptance_report`/`pitch_roi`）并带 `X-Geo-Internal-Token` 内部服务凭证校验；同时仅下线 `deploy/nginx_geo.conf` 中指向 `127.0.0.1:8088` 的反代 `location`，保留 `geo.baicl.cc` 域名并改为由 `mini` 本机 Nginx 直接挂载 `projects/{id}/outputs/site/` 静态目录；新建 `deploy/nginx_customer.conf`（待建）承载客户独立域名，以未删除的 `geo_projects.domain` 作为 `server_name`、以未删除的 `geo_projects.output_dir` 作为 `root`，由小毛驴 Go 工具命令 `cmd/gen_geo_nginx/main.go`（待建，本变更新建，实测不存在，严禁 shell 裸拼 SQL 与硬编码密码）生成；`geo.baicl.cc` 只做 `/sites/{project_id}/`，`nextgeo` 根路径挂 `www.baicl.cc`
 - [x] 2.3 为异步 Worker 编写并运行自动化测试（覆盖 9 类任务提交/查询正向用例，以及无凭证 401、非法任务类型 400 反向断言），确认全部通过
-- [ ] 2.4 配合小毛驴前店联调通过及客户数据迁出后，归档并下线 `src/web/index.html` 等旧管理台文件及旧路由，验证 GEO 仓仅保留后厂 Python Worker 与 `projects/{id}/outputs/` 静态产物
+- [x] 2.4 配合小毛驴前店联调通过及客户数据迁出后，归档并下线 `src/web/index.html` 等旧管理台文件及旧路由，验证 GEO 仓仅保留后厂 Python Worker 与 `projects/{id}/outputs/` 静态产物
 
 ## Workflow follow-up
 
