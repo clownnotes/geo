@@ -95,7 +95,10 @@
    - 解决多租户根域名互斥：对绑定了 `geo.baicl.cc` 的客户项目（如 `xuzhou_xuanyuan`），略过生成独立整站块，统一由共享多租户 `server_name geo.baicl.cc` 块承接，根除同名 server 块冲突；
    - 严格包含 `location ~* ^/sites/([^/]+)$ { return 301 /sites/$1/; }` 缺尾斜杠 301 永久重定向规则；
    - 为各客户站点生成专属子路径静态映射；
-   - 在 mini 端就地重新生成 `deploy/nginx_customer.conf`（4400 字节，5 客户整站块 + 1 共享多租户块，花括号平衡）。
+   - 在 mini 端就地重新生成 `deploy/nginx_customer.conf`（4400 字节，5 客户整站块 + 1 共享多租户块，花括号平衡）；
+   - mini 实测语法校验输出：
+     `nginx: the configuration file /tmp/nginx_test_wrapper.conf syntax is ok`
+     `nginx: configuration file /tmp/nginx_test_wrapper.conf test is successful`。
 5. **GEO 仓平行源停写收口**：
    - `ad_orders.py`：在非测试目录默认停写 `projects/{id}/ad_orders.json`，业务状态由小毛驴 Go 后端 `geo_ad_orders` 承接；
    - `check_ledger.py`：默认停写 `data/ops_check_logs.jsonl`；
@@ -109,6 +112,10 @@
 7. **真实 MySQL 幂等迁移测试覆盖**：
    - `migrations/real_mysql_idempotent_test.go` 将 `2026-11-23_create_geo_five_tables.up.sql` 与 `2026-11-23_alter_geo_worker_jobs_worker_job_id_null.up.sql` 纳入 `targetFiles`；
    - 真实在线执行 2 轮重复迁移与结构验证（`TestRealMySQLIdempotentMigrations`），验证 5 张 GEO 业务表存在性，断言 `geo_worker_jobs.worker_job_id` 为 `IS_NULLABLE=YES`，测试全部 PASS（9.25s）。
+8. **Git 提交与多端同步落地**：
+   - 小毛驴仓：commit `1db52776`（`feat(geo): 完成GEO前店工作台与小毛驴大后端集成及18092后厂对接`），已成功推送至 `origin main` 与 `github main`；
+   - GEO 仓：commit `9f22438`（`feat(worker): 提纯GEO后厂18092微服务、停写平行源与前店后厂架构分工闭环`），已成功推送到 `github main`；
+   - mini 端（`/Users/ne/apps/GEO`）：执行 `git pull github main` 完成 Fast-forward（HEAD 对齐至 `9f22438`），旧 tools/ 隐患彻底扫清，重启 `com.xiulan.geo-worker-18092` 验证通过。
 
 ---
 
