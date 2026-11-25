@@ -5,13 +5,191 @@ GEO Worker 业务处理器分发模块 (tools/worker/handlers.py)
 """
 
 import os
+import re
 import json
 import logging
 from typing import Dict, Any, List, Tuple
-from tools.geo.utils import PROJECTS_DIR, save_project_output
+from tools.geo.utils import (
+    PROJECTS_DIR,
+    save_project_output,
+    _replace_yaml_string_list,
+    _upsert_yaml_scalar,
+    parse_simple_yaml,
+)
 from tools.worker.store import validate_output_path, check_no_mysql_dsn
 
 logger = logging.getLogger("geo_worker.handlers")
+
+PROFILE_KEYS = {
+    "brand_name",
+    "category",
+    "industry",
+    "one_liner",
+    "business_one_liner",
+    "slogan",
+    "company_name",
+    "name",
+    "client_name",
+    "target_audience",
+    "area_served",
+    "domain",
+    "official_url",
+    "contact_phone",
+    "telephone",
+    "phone",
+    "expected_queries",
+    "keywords",
+    "competitor_names",
+    "competitors",
+}
+
+
+def _clean_list_param(val: Any) -> List[str]:
+    """清洗参数中的列表或换行分隔字符串，返回非空字符串列表"""
+    if val is None:
+        return []
+    if isinstance(val, list):
+        res = []
+        for item in val:
+            s = str(item).strip()
+            if s:
+                res.append(s)
+        return res
+    if isinstance(val, str):
+        lines = val.replace("\r", "").split("\n")
+        return [line.strip() for line in lines if line.strip()]
+    s = str(val).strip()
+    return [s] if s else []
+
+
+def _build_initial_yaml(project_id: str, params: Dict[str, Any]) -> str:
+    """初始化全新 project.yaml 初始内容"""
+    content = ""
+    content = _upsert_yaml_scalar(content, "client_id", project_id)
+    content = _upsert_yaml_scalar(content, "brand_name", params.get("brand_name") or "")
+    c_name = params.get("company_name") or params.get("name") or ""
+    content = _upsert_yaml_scalar(content, "company_name", c_name)
+    content = _upsert_yaml_scalar(content, "client_name", c_name)
+    content = _upsert_yaml_scalar(content, "industry", params.get("category") or params.get("industry") or "")
+    ol = params.get("one_liner") or params.get("business_one_liner") or params.get("slogan") or ""
+    content = _upsert_yaml_scalar(content, "business_one_liner", ol)
+    content = _upsert_yaml_scalar(content, "slogan", ol)
+    ta = params.get("target_audience") or params.get("area_served") or ""
+    content = _upsert_yaml_scalar(content, "target_audience", ta)
+    content = _upsert_yaml_scalar(content, "area_served", ta)
+    content = _upsert_yaml_scalar(content, "official_url", params.get("domain") or params.get("official_url") or "")
+    content = _upsert_yaml_scalar(content, "telephone", params.get("contact_phone") or params.get("telephone") or params.get("phone") or "")
+    content = _upsert_yaml_scalar(content, "master_version", "1.0.0")
+
+    raw_kws = params.get("expected_queries") if "expected_queries" in params else params.get("keywords")
+    content = _replace_yaml_string_list(content, "keywords", _clean_list_param(raw_kws))
+
+    raw_comps = params.get("competitor_names") if "competitor_names" in params else params.get("competitors")
+    content = _replace_yaml_string_list(content, "competitors", _clean_list_param(raw_comps))
+    return content
+
+
+def _merge_scalar_fields(content: str, params: Dict[str, Any]) -> str:
+    """合并标量字段：仅清洗后非空时才更新，防止空值冲掉存量配置"""
+    def _update_if_nonempty(key: str, val: Any):
+        nonlocal content
+        s = str(val or "").strip()
+        if s:
+            content = _upsert_yaml_scalar(content, key, s)
+
+    _update_if_nonempty("brand_name", params.get("brand_name"))
+    c_name = str(params.get("company_name") or params.get("name") or "").strip()
+    if c_name:
+        content = _upsert_yaml_scalar(content, "company_name", c_name)
+        content = _upsert_yaml_scalar(content, "client_name", c_name)
+    _update_if_nonempty("industry", params.get("category") or params.get("industry"))
+    ol = str(params.get("one_liner") or params.get("business_one_liner") or params.get("slogan") or "").strip()
+    if ol:
+        content = _upsert_yaml_scalar(content, "business_one_liner", ol)
+        content = _upsert_yaml_scalar(content, "slogan", ol)
+    ta = str(params.get("target_audience") or params.get("area_served") or "").strip()
+    if ta:
+        content = _upsert_yaml_scalar(content, "target_audience", ta)
+        content = _upsert_yaml_scalar(content, "area_served", ta)
+    dom = str(params.get("domain") or params.get("official_url") or "").strip()
+    if dom:
+        content = _upsert_yaml_scalar(content, "official_url", dom)
+    _update_if_nonempty("telephone", params.get("contact_phone") or params.get("telephone") or params.get("phone"))
+    return content
+
+
+def _merge_list_fields(content: str, parsed: dict, params: Dict[str, Any]) -> str:
+    """合并列表字段：去重合并，严禁空列表冲洗存量精修词库"""
+    raw_kws = params.get("expected_queries") if "expected_queries" in params else params.get("keywords")
+    new_kws = _clean_list_param(raw_kws)
+    if new_kws:
+        existing_kws = parsed.get("keywords") if isinstance(parsed.get("keywords"), list) else []
+        merged_kws = list(existing_kws)
+        for k in new_kws:
+            if k not in merged_kws:
+                merged_kws.append(k)
+        content = _replace_yaml_string_list(content, "keywords", merged_kws)
+
+    raw_comps = params.get("competitor_names") if "competitor_names" in params else params.get("competitors")
+    new_comps = _clean_list_param(raw_comps)
+    if new_comps:
+        existing_comps = parsed.get("competitors") if isinstance(parsed.get("competitors"), list) else []
+        merged_comps = list(existing_comps)
+        for c in new_comps:
+            if c not in merged_comps:
+                merged_comps.append(c)
+        content = _replace_yaml_string_list(content, "competitors", merged_comps)
+    return content
+
+
+def _merge_existing_yaml(project_id: str, content: str, params: Dict[str, Any]) -> str:
+    """合并现有 project.yaml：非空入参更新，空值不冲洗存量，关键词与竞品去重合并"""
+    parsed = parse_simple_yaml(content)
+    content = _merge_scalar_fields(content, params)
+    content = _merge_list_fields(content, parsed, params)
+
+    if "master_version" not in parsed or not parsed["master_version"]:
+        content = _upsert_yaml_scalar(content, "master_version", "1.0.0")
+    if "client_id" not in parsed or not parsed["client_id"]:
+        content = _upsert_yaml_scalar(content, "client_id", project_id)
+
+    return content
+
+
+def ensure_project_yaml(project_id: str, params: Dict[str, Any], base_dir: str = None) -> str:
+    """
+    检查并在必要时创建 projects/{project_id}/ 目录与 outputs/、raw_materials/ 子目录，
+    幂等生成或更新 project.yaml（严禁覆盖存量 company_profile 或其它非本次传参配置）。
+    """
+    pid = str(project_id or "").strip()
+    if not pid or pid.startswith("_") or pid.startswith(".") or not re.match(r"^[a-zA-Z0-9_\-]+$", pid):
+        raise ValueError(f"非法 project_id: {project_id}")
+
+    target_base = os.path.realpath(base_dir or PROJECTS_DIR)
+    project_dir = os.path.realpath(os.path.join(target_base, pid))
+    if not project_dir.startswith(target_base) or project_dir == target_base:
+        raise ValueError(f"非法 project_id: {project_id}")
+
+    os.makedirs(os.path.join(project_dir, "outputs"), exist_ok=True)
+    os.makedirs(os.path.join(project_dir, "raw_materials"), exist_ok=True)
+
+    yaml_path = os.path.join(project_dir, "project.yaml")
+    yaml_exists = os.path.exists(yaml_path) and os.path.getsize(yaml_path) > 0
+
+    if not yaml_exists:
+        content = _build_initial_yaml(pid, params)
+        with open(yaml_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        return yaml_path
+
+    if any(k in params for k in PROFILE_KEYS):
+        with open(yaml_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        merged = _merge_existing_yaml(pid, content, params)
+        with open(yaml_path, "w", encoding="utf-8") as f:
+            f.write(merged)
+
+    return yaml_path
 
 
 def get_outputs_dir(project_id: str) -> str:
@@ -198,6 +376,7 @@ DISPATCHER_MAP = {
 def dispatch_job(job_type: str, project_id: str, params: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
     """统一分发任务执行并执行安全审计"""
     check_no_mysql_dsn(params)
+    ensure_project_yaml(project_id, params)
     handler = DISPATCHER_MAP.get(job_type)
     if not handler:
         raise ValueError(f"Unsupported job_type: '{job_type}'")

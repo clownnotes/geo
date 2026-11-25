@@ -237,11 +237,11 @@ class TestWorkerService(unittest.TestCase):
     def test_08_job_failure_transparent_error_propagation(self):
         """反向用例：任务内部执行异常完整透传至 error_message 并置 status 为 failed"""
         auth_hdr = {HEADER_INTERNAL_TOKEN: TEST_TOKEN}
-        # 使用合法格式但磁盘不存在的项目 ID，会抛出 FileNotFoundError
+        # 使用非法参数触发内部执行异常，验证错误信息完整透传
         submit_body = {
-            "job_type": "build_site",
-            "project_id": "non_existent_project_999",
-            "params": {},
+            "job_type": "probe",
+            "project_id": "demo_corp",
+            "params": {"query_sample_size": "invalid_number"},
         }
         status, res = self._request("POST", "/worker/jobs", body=submit_body, headers=auth_hdr)
         self.assertEqual(status, 202)
@@ -250,6 +250,5 @@ class TestWorkerService(unittest.TestCase):
         final_job = self._poll_job_until_done(job_id)
         self.assertEqual(final_job.get("status"), "failed")
         err_msg = final_job.get("error_message") or ""
-        self.assertIn("FileNotFoundError", err_msg)
-        self.assertIn("non_existent_project_999", err_msg)
+        self.assertIn("invalid literal for int()", err_msg)
 

@@ -183,8 +183,13 @@ probe_baseline_at: ""
         url2, pending2 = normalize_official_url("", client_id="belt_scale", site_pending=True)
         self.assertEqual(url2, "https://belt_scale.baicl.cc")
         self.assertTrue(pending2)
+        # 允许 official_url 为空（无官网且未勾选托管）
+        url3, pending3 = normalize_official_url("", client_id="x", site_pending=False)
+        self.assertEqual(url3, "")
+        self.assertFalse(pending3)
+        # 勾选托管时若无 client_id 必须拦截报错
         with self.assertRaises(ValueError):
-            normalize_official_url("", client_id="x", site_pending=False)
+            normalize_official_url("", client_id="", site_pending=True)
 
     def test_business_one_liner_length(self):
         ok = validate_business_one_liner("徐州及周边高精度电子皮带秤研发生产与矿山电力行业技术服务")

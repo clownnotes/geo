@@ -21,20 +21,21 @@ BUSINESS_ONE_LINER_MIN = 15
 BUSINESS_ONE_LINER_MAX = 80
 
 
-def normalize_official_url(raw: str, *, client_id: str, site_pending: bool = False) -> tuple:
+def normalize_official_url(raw: str, *, client_id: str = "", site_pending: bool = False) -> tuple:
     """
     规范化官网 URL。
     返回 (official_url, site_pending)。
     site_pending=True 时固定 https://{client_id}.baicl.cc。
+    若 raw 为空且 site_pending=False，允许 official_url 为空字符串 ""。
     """
-    cid = (client_id or "").strip()
-    if not cid:
-        raise ValueError("缺少项目代号，无法生成托管域名")
     if site_pending:
+        cid = (client_id or "").strip()
+        if not cid:
+            raise ValueError("缺少项目代号，无法生成托管域名")
         return f"https://{cid}.{HOSTED_SITE_SUFFIX}", True
     s = (raw or "").strip()
     if not s:
-        raise ValueError("请填写官网域名，或勾选由我方托管创建")
+        return "", False
     if re.match(r"^https?://", s, re.I):
         if s.lower().startswith("http://"):
             s = "https://" + s[7:]
@@ -152,6 +153,9 @@ def parse_simple_yaml(content: str) -> dict:
             if not val:  # 开启新列表
                 current_list_key = key
                 data[key] = []
+            elif val == "[]":
+                current_list_key = None
+                data[key] = []
             else:
                 current_list_key = None
                 # bool / 未加引号数字保持简单字符串语义
@@ -238,12 +242,15 @@ def _upsert_yaml_alias_scalars(content: str, primary_key: str, aliases: list[str
 
 
 def _replace_yaml_string_list(content: str, key: str, items: list[str]) -> str:
-    block_lines = [f"{key}:"]
-    for it in items:
-        block_lines.append(f"  - {_escape_yaml_double(it)}")
-    block = "\n".join(block_lines) + "\n"
-    # 替换顶层 list 块（遇下一顶层键或文件尾结束）；保留块前注释尽量不动
-    pattern = rf"(?ms)^{re.escape(key)}\s*:\n(?:(?:[ \t]*#[^\n]*\n)|(?:[ \t]*- [^\n]*\n))*"
+    if not items:
+        block = f"{key}: []\n"
+    else:
+        block_lines = [f"{key}:"]
+        for it in items:
+            block_lines.append(f"  - {_escape_yaml_double(it)}")
+        block = "\n".join(block_lines) + "\n"
+    # 匹配内联空列表如 key: []，或多行列表块 key:\n  - ...（保留块前注释尽量不动）
+    pattern = rf"(?ms)^{re.escape(key)}\s*:(?:[ \t]*\[\s*\][^\n]*\n?|\n(?:(?:[ \t]*#[^\n]*\n)|(?:[ \t]*- [^\n]*\n))*)"
     if re.search(pattern, content):
         return re.sub(pattern, block, content, count=1)
     return content.rstrip() + "\n\n" + block
