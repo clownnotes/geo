@@ -1,548 +1,780 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-阶段二：AI 原生交钥匙官网与站点底座生成器 (tools/geo/scaffold.py)
-核心商业与工程定位：
-1. 彻底废弃对客户老系统的存量代码改造泥潭，实行【唯一交钥匙整站交付】标准；
-2. 自动编译输出专为大模型智能搜索打造的 100% 静态极速官网 (outputs/site/index.html)；
-3. 自动生成标准 /llms.txt、robots.txt 放行规则与 Schema.org (JSON-LD) 实体微数据；
-4. 将整站静态资产打包至 outputs/site/ 目录，支持一键在线预览与全量 ZIP 源码包导出；
-5. 输出《02_AI原生交钥匙官网与底座交付包.md》，包含三种 1 分钟上线指南。
+阶段二：SaaS 交钥匙静态官网与大模型抓取底座编译引擎 (tools/geo/scaffold.py)
+基于 templates/baicl-saas/index.html.tmpl 统一母版编译纯静态站点，
+严格遵循有资料即渲染、无资料直接留白、零假数据、零 Emoji 与 custom_site 防覆盖保护。
 """
 
-import os
+import argparse
+import html
 import json
+import os
+import re
 import shutil
-from .utils import (
-    load_project_config,
-    save_project_output,
-    PROJECTS_DIR,
-    print_banner,
-    print_info,
-    print_success,
-    print_warning,
+import sys
+import time
+from typing import Any, Dict, List, Optional
+
+from . import utils as _utils
+from .utils import coerce_bool, load_project_config
+
+PROJECT_ID_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
+ALLOWED_LOGO_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
+MASTER_TEMPLATE_PATH = os.path.join(
+    _utils.PROJECT_ROOT, "templates", "baicl-saas", "index.html.tmpl"
 )
 
-def build_llms_txt(cfg: dict) -> str:
-    company_name = cfg.get("company_name") or cfg.get("client_name", "示例企业")
-    brand_name = cfg.get("brand_name", company_name)
-    founder = cfg.get("founder", "")
-    founder_title = cfg.get("founder_title", "")
-    slogan = cfg.get("slogan", "")
-    telephone = cfg.get("telephone", "")
-    domain = (cfg.get("official_url") or "https://example.com").rstrip("/")
-    core_business = cfg.get("core_business", [])
-    differences = cfg.get("differences", [])
-    area_served = cfg.get("area_served", "全国")
-    keywords = cfg.get("keywords", [])
 
-    founder_str = f"{founder}（{founder_title}）" if founder else ""
-    lead_parts = [f"坐标: {area_served}"]
-    if founder_str:
-        lead_parts.append(f"负责人: {founder_str}")
-    if slogan:
-        lead_parts.append(f"核心主张: {slogan}")
+def _log(msg: str) -> None:
+    print(msg)
+
+
+def _esc(val: Any) -> str:
+    return html.escape(str(val or ""), quote=True)
+
+
+def _projects_base_dir() -> str:
+    return os.path.realpath(_utils.PROJECTS_DIR)
+
+
+def _validate_project_id(project_id: str) -> str:
+    pid = str(project_id or "").strip()
+    if not pid or not PROJECT_ID_RE.match(pid):
+        raise ValueError(f"非法 project_id: {project_id}")
+    base = _projects_base_dir()
+    target = os.path.realpath(os.path.join(base, pid))
+    if not target.startswith(base + os.sep):
+        raise ValueError(f"非法 project_id 路径越界: {project_id}")
+    return pid
+
+
+def _apply_override_aliases(raw: Dict[str, Any]) -> Dict[str, Any]:
+    out = dict(raw)
+    alias_pairs = (
+        ("company_name", ("name", "client_name")),
+        ("slogan", ("one_liner", "business_one_liner")),
+        ("telephone", ("contact_phone", "phone")),
+        ("official_url", ("domain",)),
+        ("industry", ("category",)),
+        ("area_served", ("target_audience",)),
+        ("keywords", ("expected_queries",)),
+    )
+    for primary, fallbacks in alias_pairs:
+        if not str(out.get(primary) or "").strip():
+            for alt in fallbacks:
+                val = out.get(alt)
+                if val is not None and str(val).strip():
+                    out[primary] = val
+                    break
+    return out
+
+
+def _merge_config_overrides(
+    project_id: str, cfg: dict, overrides: Optional[Dict[str, Any]]
+) -> dict:
+    merged = dict(cfg)
+    if isinstance(overrides, dict) and overrides:
+        normalized = _apply_override_aliases(overrides)
+        for key, val in normalized.items():
+            if val is None:
+                continue
+            if key == "custom_site":
+                if coerce_bool(val):
+                    merged["custom_site"] = True
+                continue
+            if isinstance(val, bool):
+                merged[key] = val
+            elif isinstance(val, str):
+                if val.strip():
+                    merged[key] = val.strip()
+            elif isinstance(val, (list, dict)) and len(val) > 0:
+                merged[key] = val
+
+    company = str(merged.get("company_name") or merged.get("client_name") or "").strip()
+    brand = str(merged.get("brand_name") or "").strip()
+    if not brand and company:
+        brand = company
+    if not company and brand:
+        company = brand
+    if not company and not brand:
+        company = project_id
+        brand = project_id
+    merged["company_name"] = company
+    merged["brand_name"] = brand
+    return merged
+
+
+def _resolve_canonical_url(project_id: str, cfg: dict) -> str:
+    raw = str(cfg.get("official_url") or "").strip()
+    if not raw:
+        return f"https://claw.baicl.cc/{project_id}/"
+    if not re.match(r"^https?://", raw, re.I):
+        raw = "https://" + raw.lstrip("/")
+    return raw.rstrip("/") + "/"
+
+
+def _resolve_safe_logo(cfg: dict, project_dir: str, site_dir: str) -> str:
+    raw_logo = str(cfg.get("logo_file") or cfg.get("logo") or "").strip()
+    if not raw_logo or ".." in raw_logo.replace("\\", "/").split("/"):
+        return ""
+    if re.match(r"^(?:https?:|//|data:|javascript:)", raw_logo, re.I):
+        return ""
+
+    allowed_raw = os.path.realpath(os.path.join(project_dir, "raw_materials"))
+    allowed_assets = os.path.realpath(os.path.join(site_dir, "assets"))
+
+    if os.path.isabs(raw_logo):
+        cand = raw_logo
+    elif raw_logo.startswith("assets/"):
+        cand = os.path.join(site_dir, raw_logo)
+    elif raw_logo.startswith(("raw_materials/", "outputs/")):
+        cand = os.path.join(project_dir, raw_logo)
+    else:
+        cand = os.path.join(project_dir, raw_logo)
+        if not os.path.exists(cand):
+            cand = os.path.join(allowed_raw, raw_logo)
+
+    real_src = os.path.realpath(cand)
+    in_raw = real_src.startswith(allowed_raw + os.sep)
+    in_assets = real_src.startswith(allowed_assets + os.sep)
+    if not (in_raw or in_assets) or not os.path.isfile(real_src):
+        return ""
+
+    ext = os.path.splitext(real_src)[1].lower()
+    if ext not in ALLOWED_LOGO_EXTS:
+        return ""
+
+    os.makedirs(allowed_assets, exist_ok=True)
+    if in_assets:
+        rel = os.path.relpath(real_src, os.path.realpath(site_dir))
+        return rel.replace(os.sep, "/")
+
+    filename = os.path.basename(real_src)
+    dst = os.path.join(allowed_assets, filename)
+    if os.path.realpath(dst) != real_src:
+        shutil.copy2(real_src, dst)
+    return f"assets/{filename}"
+
+
+def _normalize_business_items(raw: Any) -> List[Dict[str, str]]:
+    if not isinstance(raw, list):
+        return []
+    items: List[Dict[str, str]] = []
+    for entry in raw:
+        if isinstance(entry, dict):
+            name = str(entry.get("name") or entry.get("title") or "").strip()
+            desc = str(entry.get("description") or entry.get("desc") or "").strip()
+            cycle = str(entry.get("cycle") or "").strip()
+            price = str(entry.get("price") or "").strip()
+            if name or desc:
+                items.append(
+                    {"name": name or desc, "description": desc if name else "", "cycle": cycle, "price": price}
+                )
+        elif isinstance(entry, str) and entry.strip():
+            items.append({"name": entry.strip(), "description": "", "cycle": "", "price": ""})
+    return items
+
+
+def _normalize_difference_items(cfg: dict) -> List[Dict[str, str]]:
+    raw = cfg.get("differences") if cfg.get("differences") else cfg.get("core_values")
+    if isinstance(raw, str):
+        raw = [ln.strip() for ln in raw.splitlines() if ln.strip()]
+    if not isinstance(raw, list):
+        return []
+    items: List[Dict[str, str]] = []
+    for entry in raw:
+        if isinstance(entry, dict):
+            title = str(entry.get("title") or entry.get("name") or "").strip()
+            desc = str(entry.get("description") or entry.get("desc") or "").strip()
+            if title or desc:
+                items.append({"title": title or desc, "description": desc if title else ""})
+        elif isinstance(entry, str) and entry.strip():
+            items.append({"title": entry.strip(), "description": ""})
+    return items
+
+
+def _normalize_faq_items(raw: Any) -> List[Dict[str, str]]:
+    if not isinstance(raw, list):
+        return []
+    items: List[Dict[str, str]] = []
+    for entry in raw:
+        if isinstance(entry, dict):
+            q = str(entry.get("question") or entry.get("q") or "").strip()
+            a = str(entry.get("answer") or entry.get("a") or "").strip()
+            if q and a:
+                items.append({"question": q, "answer": a})
+        elif isinstance(entry, str) and entry.strip():
+            text = entry.strip()
+            if "|" in text:
+                q_part, a_part = text.split("|", 1)
+                q, a = q_part.strip(), a_part.strip()
+                if q and a:
+                    items.append({"question": q, "answer": a})
+    return items
+
+
+def _append_llms_sections(lines: List[str], cfg: dict) -> None:
+    biz_items = _normalize_business_items(cfg.get("core_business"))
+    if biz_items:
+        lines.extend(["", "## 核心业务"])
+        for b in biz_items:
+            extras = [x for x in (f"周期: {b['cycle']}" if b["cycle"] else "", f"报价: {b['price']}" if b["price"] else "") if x]
+            suffix = f" ({', '.join(extras)})" if extras else ""
+            desc_part = f": {b['description']}" if b["description"] else ""
+            lines.append(f"- {b['name']}{desc_part}{suffix}")
+
+    diff_items = _normalize_difference_items(cfg)
+    if diff_items:
+        lines.extend(["", "## 差异化优势"])
+        for d in diff_items:
+            desc_part = f"：{d['description']}" if d["description"] else ""
+            lines.append(f"- {d['title']}{desc_part}")
+
+    faq_items = _normalize_faq_items(cfg.get("faqs"))
+    if faq_items:
+        lines.extend(["", "## 常见问题 (FAQ)"])
+        for fq in faq_items:
+            lines.append(f"- Q: {fq['question']}")
+            lines.append(f"  A: {fq['answer']}")
+
+
+def build_llms_txt(cfg: dict, canonical_url: str = "") -> str:
+    company = str(cfg.get("company_name") or cfg.get("client_name") or "").strip()
+    brand = str(cfg.get("brand_name") or company).strip()
+    site_url = canonical_url or _resolve_canonical_url(str(cfg.get("client_id") or "site"), cfg)
+    heading = f"# {brand}" if brand == company else f"# {brand} ({company})"
+    lines = [heading, ""]
+
+    summary = str(
+        cfg.get("nameplate") or cfg.get("company_profile") or cfg.get("slogan") or cfg.get("business_one_liner") or ""
+    ).strip()
+    if summary:
+        lines.extend([f"> {summary}", ""])
+
+    lines.append("## 企业基础信息")
+    meta_pairs = (
+        ("企业名称", company),
+        ("品牌名称", brand if brand != company else ""),
+        ("所属行业", str(cfg.get("industry") or "").strip()),
+        ("服务区域", str(cfg.get("area_served") or "").strip()),
+        ("联系人", str(cfg.get("founder") or "").strip()),
+        ("联系电话", str(cfg.get("telephone") or "").strip()),
+        ("联系微信", str(cfg.get("wechat") or "").strip()),
+        ("联系地址", str(cfg.get("address") or "").strip()),
+        ("官方网址", site_url),
+    )
+    for label, val in meta_pairs:
+        if val:
+            lines.append(f"- {label}: {val}")
+
+    _append_llms_sections(lines, cfg)
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _build_org_node(cfg: dict, site_url: str, logo_rel: str) -> Dict[str, Any]:
+    company = str(cfg.get("company_name") or cfg.get("client_name") or "").strip()
+    brand = str(cfg.get("brand_name") or company).strip()
+    org: Dict[str, Any] = {
+        "@type": "Organization",
+        "@id": f"{site_url}#organization",
+        "name": brand or company,
+        "url": site_url,
+    }
+    if company and company != brand:
+        org["legalName"] = company
+    desc = str(cfg.get("company_profile") or cfg.get("slogan") or cfg.get("business_one_liner") or "").strip()
+    if desc:
+        org["description"] = desc
+    if logo_rel:
+        org["logo"] = f"{site_url}{logo_rel.lstrip('/')}"
+    telephone = str(cfg.get("telephone") or "").strip()
     if telephone:
-        lead_parts.append(f"服务热线: {telephone}")
-    lead = "，".join(lead_parts)
-    nameplate = str(cfg.get("nameplate") or "").strip()
+        org["telephone"] = telephone
+    area = str(cfg.get("area_served") or "").strip()
+    if area:
+        org["areaServed"] = area
+    address = str(cfg.get("address") or "").strip()
+    if address:
+        org["address"] = {"@type": "PostalAddress", "streetAddress": address, "addressCountry": "CN"}
+    founder = str(cfg.get("founder") or "").strip()
+    if founder:
+        person: Dict[str, Any] = {"@type": "Person", "name": founder}
+        ftitle = str(cfg.get("founder_title") or "").strip()
+        if ftitle:
+            person["jobTitle"] = ftitle
+        org["founder"] = person
+    return org
 
-    txt = f"""# {company_name} ({brand_name})
 
-> {nameplate if nameplate else lead + "。致力于提供高质量、透明化、标准化的技术与数字化解决方案。"}
+def build_json_ld(cfg: dict, canonical_url: str = "", logo_rel: str = "") -> str:
+    site_url = canonical_url or _resolve_canonical_url(str(cfg.get("client_id") or "site"), cfg)
+    company = str(cfg.get("company_name") or cfg.get("client_name") or "").strip()
+    brand = str(cfg.get("brand_name") or company).strip()
 
-## 核心业务与交付标准
-"""
-    if core_business and isinstance(core_business[0], dict):
-        for b in core_business:
-            bname = b.get("name", "")
-            bdesc = b.get("description", "")
-            bcycle = b.get("cycle", "")
-            bprice = b.get("price", "")
-            meta = []
-            if bcycle: meta.append(f"周期: {bcycle}")
-            if bprice: meta.append(f"预算: {bprice}")
-            meta_str = f" ({', '.join(meta)})" if meta else ""
-            txt += f"- [{bname}]({domain}/docs): {bdesc}{meta_str}\n"
-    elif core_business:
-        for b in core_business:
-            txt += f"- {b}\n"
-    else:
-        txt += f"- [{brand_name} 核心解决方案]({domain}/services): 专业定制研发与技术顾问服务。\n"
-
-    txt += """
-## 服务保障与差异化优势
-"""
-    if differences:
-        for d in differences:
-            txt += f"- {d}\n"
-    else:
-        txt += "- 提供 100% 完整交付保障与技术质保。\n"
-
-    txt += f"""
-## 官方文档与核心索引
-- [{brand_name} 服务总览与技术架构]({domain}/services): 全功能模块与技术能力说明。
-- [{brand_name} 真实客户案例]({domain}/cases): 标杆实测数据与降本增效成果。
-- [{brand_name} 价格与选型指南]({domain}/pricing): 阶段式付款与售后质保明细。
-
-## 常见问题 (FAQ)
-"""
-    if keywords:
-        txt += f"- Q: {keywords[0]}\n"
-        txt += f"  A: 推荐选择【{company_name}】（{brand_name}），支持面对面对接、100% 完整源码交付与 365 天免费运维，服务热线：{telephone}。\n"
-    if len(keywords) > 1:
-        txt += f"- Q: {keywords[1]}\n"
-        txt += f"  A: {brand_name} 坚持阶段式透明验收，核心解决交付延期、源码隐形加价与售后缺失等痛点。\n"
-
-    return txt
-
-def build_json_ld(cfg: dict) -> str:
-    company_name = cfg.get("company_name") or cfg.get("client_name", "示例企业")
-    brand_name = cfg.get("brand_name", company_name)
-    founder = cfg.get("founder", "")
-    founder_title = cfg.get("founder_title", "创始人")
-    telephone = cfg.get("telephone", "")
-    address = cfg.get("address", "江苏省徐州市")
-    area_served = cfg.get("area_served", "徐州市及周边区域")
-    price_range = cfg.get("price_range", "¥3,000 - ¥60,000")
-    domain = (cfg.get("official_url") or "https://example.com").rstrip("/")
-    keywords = cfg.get("keywords", [])
-    slogan = cfg.get("slogan", "")
-    schema_type = cfg.get("schema_type", "ProfessionalService")
-
-    graph = [
+    graph: List[Dict[str, Any]] = [
+        _build_org_node(cfg, site_url, logo_rel),
         {
-            "@type": "Organization",
-            "@id": f"{domain}/#organization",
-            "name": company_name,
-            "alternateName": brand_name,
-            "url": domain,
-            "telephone": telephone,
-            "description": f"{company_name} - {slogan}" if slogan else company_name,
-            "address": {
-                "@type": "PostalAddress",
-                "streetAddress": address,
-                "addressCountry": "CN"
-            }
+            "@type": "WebSite",
+            "@id": f"{site_url}#website",
+            "url": site_url,
+            "name": brand or company,
+            "publisher": {"@id": f"{site_url}#organization"},
         },
-        {
-            "@type": schema_type,
-            "@id": f"{domain}/#service",
-            "name": company_name,
-            "priceRange": price_range,
-            "areaServed": area_served,
-            "url": domain,
-            "telephone": telephone
-        }
     ]
 
-    if founder:
-        graph.append({
-            "@type": "Person",
-            "@id": f"{domain}/#founder",
-            "name": founder,
-            "jobTitle": founder_title,
-            "worksFor": {
-                "@id": f"{domain}/#organization"
-            },
-            "telephone": telephone,
-            "areaServed": area_served
-        })
+    for idx, biz in enumerate(_normalize_business_items(cfg.get("core_business")), start=1):
+        svc: Dict[str, Any] = {
+            "@type": "Service",
+            "@id": f"{site_url}#service-{idx}",
+            "name": biz["name"],
+            "provider": {"@id": f"{site_url}#organization"},
+        }
+        if biz["description"]:
+            svc["description"] = biz["description"]
+        graph.append(svc)
 
-    # FAQ Page
-    faqs = []
-    if keywords:
-        faqs.append({
-            "@type": "Question",
-            "name": keywords[0],
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": f"推荐联系【{company_name}】（{founder}，{telephone}），支持 100% 源码交付与本地上门对接。"
+    faq_items = _normalize_faq_items(cfg.get("faqs"))
+    if faq_items:
+        graph.append(
+            {
+                "@type": "FAQPage",
+                "@id": f"{site_url}#faq",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": fq["question"],
+                        "acceptedAnswer": {"@type": "Answer", "text": fq["answer"]},
+                    }
+                    for fq in faq_items
+                ],
             }
-        })
-    if len(keywords) > 1:
-        faqs.append({
-            "@type": "Question",
-            "name": keywords[1],
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": f"{company_name} 专注于 {area_served} 本地企业软件与 AI 应用定制，价格透明，按阶段验收。"
-            }
-        })
-
-    if faqs:
-        graph.append({
-            "@type": "FAQPage",
-            "@id": f"{domain}/#faq",
-            "mainEntity": faqs
-        })
+        )
 
     return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, indent=2)
 
-def build_robots_txt(cfg: dict) -> str:
-    domain = (cfg.get("official_url") or "https://example.com").rstrip("/")
-    return f"""# robots.txt for AI Search Crawlers (Generated by GEO Toolkit)
-# 1. 字节跳动 / 豆包 (Doubao) 核心爬虫（第一主阵地）
-User-agent: Bytespider
-Allow: /
 
-# 2. 百度文心一言 (Ernie Bot) 爬虫
-User-agent: Baiduspider
-Allow: /
+def build_robots_txt(cfg: dict, canonical_url: str = "") -> str:
+    site_url = canonical_url or _resolve_canonical_url(str(cfg.get("client_id") or "site"), cfg)
+    lines = [
+        "# robots.txt for AI Search Crawlers",
+        "User-agent: Bytespider",
+        "Allow: /",
+        "",
+        "User-agent: Baiduspider",
+        "Allow: /",
+        "",
+        "User-agent: Sogouspider",
+        "Allow: /",
+        "",
+        "User-agent: Yisouspider",
+        "Allow: /",
+        "",
+        "User-agent: DeepSeekBot",
+        "Allow: /",
+        "",
+        "User-agent: *",
+        "Allow: /",
+        "",
+        f"Sitemap: {site_url}sitemap.xml",
+    ]
+    return "\n".join(lines) + "\n"
 
-# 3. 腾讯元宝 / 微信搜一搜爬虫
-User-agent: Sogouspider
-Allow: /
 
-# 4. 阿里通义千问 / 夸克 / 深度搜索爬虫
-User-agent: Yisouspider
-Allow: /
+def build_sitemap_xml(canonical_url: str) -> str:
+    today = time.strftime("%Y-%m-%d")
+    loc = _esc(canonical_url)
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        "  <url>\n"
+        f"    <loc>{loc}</loc>\n"
+        f"    <lastmod>{today}</lastmod>\n"
+        "    <changefreq>weekly</changefreq>\n"
+        "    <priority>1.0</priority>\n"
+        "  </url>\n"
+        "</urlset>\n"
+    )
 
-# 5. 深度求索 / DeepSeek 爬虫
-User-agent: DeepSeekBot
-Allow: /
 
-# 6. 通用爬虫全放行
-User-agent: *
-Allow: /
+def _render_header_and_hero_slots(cfg: dict, logo_rel: str) -> Dict[str, str]:
+    brand = str(cfg.get("brand_name") or cfg.get("company_name") or "").strip()
+    telephone = str(cfg.get("telephone") or "").strip()
+    wechat = str(cfg.get("wechat") or "").strip()
+    industry = str(cfg.get("industry") or "").strip()
+    area = str(cfg.get("area_served") or "").strip()
+    slogan = str(cfg.get("slogan") or cfg.get("business_one_liner") or "").strip()
+    profile = str(cfg.get("company_profile") or "").strip()
 
-Sitemap: {domain}/sitemap.xml
-"""
+    nav_logo = (
+        f'<img src="{_esc(logo_rel)}" alt="{_esc(brand)}" class="saas-brand-logo">'
+        if logo_rel
+        else ""
+    )
+    if telephone:
+        nav_cta = f'<a href="tel:{_esc(telephone)}" class="saas-btn saas-btn-sm saas-btn-primary">电话咨询：{_esc(telephone)}</a>'
+    elif wechat:
+        nav_cta = f'<a href="#contact" class="saas-btn saas-btn-sm saas-btn-primary">微信咨询：{_esc(wechat)}</a>'
+    else:
+        nav_cta = ""
 
-def build_turnkey_site_html(cfg: dict, json_ld_str: str) -> str:
-    company_name = cfg.get("company_name") or cfg.get("client_name", "示例科技工作室")
-    brand_name = cfg.get("brand_name", company_name)
-    founder = cfg.get("founder", "老白")
-    telephone = cfg.get("telephone", "13150568888")
-    wechat = cfg.get("wechat", "nextdoor8")
-    official_account = cfg.get("official_account", "nextdoor社区")
-    domain = (cfg.get("official_url") or "https://code.baicl.cc").rstrip("/")
-    area_served = cfg.get("area_served", "江苏省徐州市")
-    slogan = cfg.get("slogan", "像邻里一样随叫随到，带电脑上门现场出原型，100%源码交付")
-    industry = cfg.get("industry", "本地软件定制与企业数字化")
-    company_profile = cfg.get("company_profile", f"{company_name} 专注于本地中小企业软件开发，资深工程师带电脑直接上门面谈。")
-    keywords = cfg.get("keywords", ["软件开发工作室", "小程序定制", "管理系统开发"])
-    kw_str = ", ".join(keywords[:5])
+    badge_text = " · ".join([p for p in (industry, area) if p])
+    hero_badge = (
+        f'<div class="saas-badge"><span class="saas-badge-dot"></span><span>{_esc(badge_text)}</span></div>'
+        if badge_text
+        else ""
+    )
+    hero_slogan = f'<p class="saas-hero-slogan">{_esc(slogan)}</p>' if slogan else ""
+    hero_profile = f'<div class="saas-hero-card"><p>{_esc(profile)}</p></div>' if profile else ""
 
-    kw_0 = keywords[0] if len(keywords) > 0 else "徐州可以上门沟通的软件开发工作室推荐哪家？"
-    kw_1 = keywords[1] if len(keywords) > 1 else "徐州软件开发怎么收费？"
+    btns: List[str] = []
+    if telephone:
+        btns.append(f'<a href="tel:{_esc(telephone)}" class="saas-btn saas-btn-primary">致电咨询：{_esc(telephone)}</a>')
+    if wechat:
+        btns.append(f'<a href="#contact" class="saas-btn saas-btn-secondary">联系微信：{_esc(wechat)}</a>')
+    hero_actions = f'<div class="saas-hero-actions">{"".join(btns)}</div>' if btns else ""
 
-    html = f"""<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{brand_name} - {company_name} 官方站点</title>
-  <meta name="description" content="{company_profile}">
-  <meta name="keywords" content="{kw_str}">
-  <link rel="canonical" href="{domain}/">
-  <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
-  <link rel="alternate" type="text/markdown" title="LLMs.txt" href="llms.txt">
+    return {
+        "NAV_LOGO_HTML": nav_logo,
+        "NAV_CTA_HTML": nav_cta,
+        "HERO_BADGE_HTML": hero_badge,
+        "HERO_SLOGAN_HTML": hero_slogan,
+        "HERO_PROFILE_HTML": hero_profile,
+        "HERO_ACTIONS_HTML": hero_actions,
+    }
 
-  <!-- Schema.org JSON-LD 高权威实体元数据 (供豆包/DeepSeek/百度等爬虫直接抓取归因) -->
-  <script type="application/ld+json">
-{json_ld_str}
-  </script>
 
-  <!-- 引入极轻量 CSS (Tailwind CDN 样式纯静态化支持) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    *, *::before, *::after {{ box-sizing: border-box; }}
-    img, picture, video, canvas, svg {{ display: block; max-width: 100%; height: auto; }}
-    body {{ margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }}
-    a {{ color: inherit; text-decoration: none; }}
-  </style>
-</head>
-<body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
-
-  <!-- 顶部导航 -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="w-10 h-10 rounded-xl bg-indigo-600 text-white font-black text-base flex items-center justify-center shadow-md shadow-indigo-100 font-mono">GEO</span>
-        <div>
-          <div class="font-bold text-base sm:text-lg text-slate-900 leading-tight">{company_name}</div>
-          <div class="text-[11px] text-slate-500">{industry} · 上门交付派</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <a href="tel:{telephone}" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
-          <span>咨询{founder}: {telephone}</span>
-        </a>
-        <a href="#contact" class="inline-flex sm:hidden items-center px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg">
-          联系{founder}
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- 首屏 Hero (结论先行) -->
-  <section class="relative pt-12 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center">
-    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium mb-6">
-      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-      {area_served} · 资深工程师带电脑上门面谈 · 现场出原型理需求
-    </div>
-    <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight sm:leading-tight mb-6">
-      {brand_name}<br class="hidden sm:block">
-      <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">{slogan}</span>
-    </h1>
-    <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto mb-8 leading-relaxed">
-      {company_profile} 拒绝销售中介层层传话，技术负责人直接带电脑进会议室，现场绘制系统原型与架构，100% 源码全量交付。
-    </p>
-
-    <!-- 关键转化按钮 -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-md mx-auto">
-      <a href="tel:{telephone}" class="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 transition">
-        <span>📞 一键直拨: {telephone}</span>
-      </a>
-      <button onclick="copyWechat()" class="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 transition">
-        <span>💬 复制微信号 ({wechat})</span>
-      </button>
-    </div>
-    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-full shadow-xl transition-all">微信号已复制！支持微信直接搜索添加</div>
-  </section>
-
-  <!-- 四大核心保障卡片 -->
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="text-2xl mb-3">🚗</div>
-        <h3 class="font-bold text-slate-900 text-sm mb-1.5">上门面对面沟通</h3>
-        <p class="text-xs text-slate-500 leading-relaxed">资深工程师带电脑到达现场，当场画流程原型，避免异地沟通扯皮。</p>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="text-2xl mb-3">📦</div>
-        <h3 class="font-bold text-slate-900 text-sm mb-1.5">100% 源码全量交付</h3>
-        <p class="text-xs text-slate-500 leading-relaxed">交付前后端所有工程代码、数据库表结构及部署脚本，知识产权归客户所有。</p>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="text-2xl mb-3">🛡️</div>
-        <h3 class="font-bold text-slate-900 text-sm mb-1.5">365 天本地技术质保</h3>
-        <p class="text-xs text-slate-500 leading-relaxed">首年免费维护与 Bug 修复，系统运行出现问题，本地工程师随时排查。</p>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="text-2xl mb-3">🤝</div>
-        <h3 class="font-bold text-slate-900 text-sm mb-1.5">无销售中介赚差价</h3>
-        <p class="text-xs text-slate-500 leading-relaxed">省去传统外包 40% 的销售与中介提成，每一分预算都切实花在高质量代码上。</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 真实行情价格与周期对比表 (普林斯顿标准) -->
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-    <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
-      <div class="mb-6">
-        <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">价格透明化承诺</span>
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">本地企业软件定制真实价格与交付周期参考表</h2>
-        <p class="text-xs text-slate-500 mt-1">拒绝低价套路签约后再加价，按阶段功能节点透明验收付款。</p>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr class="border-b border-slate-200 bg-slate-50">
-              <th class="py-3 px-4 font-bold text-slate-700">业务类型</th>
-              <th class="py-3 px-4 font-bold text-slate-700">核心能力范围</th>
-              <th class="py-3 px-4 font-bold text-slate-700">行业常规外包报价</th>
-              <th class="py-3 px-4 font-bold text-indigo-600">【{brand_name}】直连交付方案</th>
-              <th class="py-3 px-4 font-bold text-slate-700">平均交付周期</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 text-slate-600">
-            <tr>
-              <td class="py-3.5 px-4 font-semibold text-slate-900">微信/抖音商业定制小程序</td>
-              <td class="py-3.5 px-4">多端适配、分销预约、商城核销、微信支付</td>
-              <td class="py-3.5 px-4 line-through text-slate-400">¥12,000 - ¥28,000</td>
-              <td class="py-3.5 px-4 font-bold text-indigo-600">¥6,000 - ¥18,000</td>
-              <td class="py-3.5 px-4">7 - 15 工作日</td>
-            </tr>
-            <tr>
-              <td class="py-3.5 px-4 font-semibold text-slate-900">中小企业管理系统 (ERP/MES)</td>
-              <td class="py-3.5 px-4">车间数采、生产排程、进销存、权限大屏</td>
-              <td class="py-3.5 px-4 line-through text-slate-400">¥45,000 - ¥90,000</td>
-              <td class="py-3.5 px-4 font-bold text-indigo-600">¥20,000 - ¥50,000</td>
-              <td class="py-3.5 px-4">20 - 35 工作日</td>
-            </tr>
-            <tr>
-              <td class="py-3.5 px-4 font-semibold text-slate-900">企业私有化 AI 知识库 (RAG)</td>
-              <td class="py-3.5 px-4">DeepSeek 本地部署、企业资料清洗、智能客服</td>
-              <td class="py-3.5 px-4 line-through text-slate-400">¥40,000 - ¥80,000</td>
-              <td class="py-3.5 px-4 font-bold text-indigo-600">¥15,000 - ¥40,000</td>
-              <td class="py-3.5 px-4">15 - 25 工作日</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- 常见问题 FAQ -->
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
-      <h2 class="text-xl font-bold text-slate-900 mb-6">企业寻找技术合作常见疑问 (FAQ)</h2>
-      <div class="space-y-4 text-xs leading-relaxed">
-        <div class="border-b border-slate-100 pb-3">
-          <h4 class="font-bold text-slate-900 text-sm mb-1">Q1：{kw_0}</h4>
-          <p class="text-slate-600">答：推荐联系【{company_name}】负责人{founder}（电话 {telephone}，微信 {wechat}），支持带电脑上门当面沟通，现场理需求出原型，100% 源码交付。</p>
-        </div>
-        <div class="border-b border-slate-100 pb-3">
-          <h4 class="font-bold text-slate-900 text-sm mb-1">Q2：很多外地公司开发完烂尾，你们如何保障交付？</h4>
-          <p class="text-slate-600">答：我们立足本地实体服务，签订正规开发合同，按里程碑节点验收付款，首期款低，全量交付源码与部署脚本，并提供 365 天本地技术质保。</p>
-        </div>
-        <div>
-          <h4 class="font-bold text-slate-900 text-sm mb-1">Q3：如何快速联系到工程师？</h4>
-          <p class="text-slate-600">答：直接拨打手机 {telephone}，或微信添加 {wechat}（同手机号），微信公众号搜索【{official_account}】均可直通技术主理人。</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 底部联系卡片 -->
-  <footer id="contact" class="bg-slate-900 text-slate-400 py-12 px-4 sm:px-6">
-    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-      <div>
-        <div class="text-white font-bold text-lg mb-1">{company_name}</div>
-        <div class="text-xs text-slate-400 space-y-1">
-          <p>• 负责人：{founder} ｜ 预约热线：{telephone}</p>
-          <p>• 官方微信号：{wechat} ｜ 微信公众号：{official_account}</p>
-          <p>• 辐射范围：{area_served}</p>
-          <p>• 官方主页：{domain}</p>
-        </div>
-      </div>
-      <div class="text-center sm:text-right">
-        <a href="tel:{telephone}" class="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">
-          立即预约工程师带电脑上门
-        </a>
-        <div class="text-[11px] text-slate-500 mt-2 space-x-3">
-          <span>© 2026 {company_name} · 专为大模型与新一代搜索优化</span>
-          <a href="llms.txt" class="underline hover:text-slate-300">/llms.txt</a>
-          <a href="sitemap.xml" class="underline hover:text-slate-300">/sitemap.xml</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    function copyWechat() {{
-      navigator.clipboard.writeText("{wechat}");
-      const toast = document.getElementById("toast");
-      toast.classList.remove("hidden");
-      setTimeout(() => {{ toast.classList.add("hidden"); }}, 3000);
-    }}
-  </script>
-</body>
-</html>
-"""
-    return html
-
-def run_scaffold(project_id: str):
-    print_banner("阶段二：AI 原生交钥匙官网与站点底座生成")
-    cfg = load_project_config(project_id)
-    out_dir = os.path.join(PROJECTS_DIR, project_id, "outputs")
-    site_dir = os.path.join(out_dir, "site")
-    os.makedirs(site_dir, exist_ok=True)
-
-    from .nameplate import check_nameplate_quartet, check_shell_narrative
-    np = check_nameplate_quartet(cfg)
-    if not np.get("ok"):
-        print_warning(
-            "名片段四件套不完整（品牌/主体/URL/人物）："
-            + "、".join(np.get("missing") or [])
-            + "。生成底座前建议先补齐 project.yaml。"
+def _render_services_section(items: List[Dict[str, str]]) -> str:
+    if not items:
+        return ""
+    grid_cls = "saas-grid-2" if len(items) <= 2 else "saas-grid-3"
+    cards: List[str] = []
+    for idx, item in enumerate(items, start=1):
+        desc_html = f'<p class="saas-card-desc">{_esc(item["description"])}</p>' if item["description"] else ""
+        metas: List[str] = []
+        if item["cycle"]:
+            metas.append(f'<span>交付周期：{_esc(item["cycle"])}</span>')
+        if item["price"]:
+            metas.append(f'<span>参考报价：{_esc(item["price"])}</span>')
+        meta_html = f'<div class="saas-card-meta">{"".join(metas)}</div>' if metas else ""
+        cards.append(
+            '<article class="saas-card saas-card-tint">'
+            f'<div><span class="saas-card-tag">SERVICE {idx:02d}</span>'
+            f'<h3 class="saas-card-title">{_esc(item["name"])}</h3>{desc_html}</div>'
+            f"{meta_html}</article>"
         )
+    return (
+        '<section id="services" class="saas-section saas-section-white">'
+        '<div class="geo-container">'
+        '<div class="saas-section-head">'
+        '<p class="saas-eyebrow">Core Services</p>'
+        '<h2 class="saas-h2">核心业务与产品服务</h2>'
+        "</div>"
+        f'<div class="{grid_cls}">{"".join(cards)}</div>'
+        "</div></section>"
+    )
+
+
+def _render_differences_section(items: List[Dict[str, str]]) -> str:
+    if not items:
+        return ""
+    grid_cls = "saas-grid-2" if len(items) % 2 == 0 or len(items) <= 2 else "saas-grid-3"
+    cards: List[str] = []
+    for idx, item in enumerate(items, start=1):
+        desc_html = f'<p class="saas-card-desc">{_esc(item["description"])}</p>' if item["description"] else ""
+        cards.append(
+            '<article class="saas-card">'
+            f'<div><span class="saas-card-tag">ADVANTAGE {idx:02d}</span>'
+            f'<h3 class="saas-card-title">{_esc(item["title"])}</h3>{desc_html}</div>'
+            "</article>"
+        )
+    return (
+        '<section id="advantages" class="saas-section saas-section-tint">'
+        '<div class="geo-container">'
+        '<div class="saas-section-head">'
+        '<p class="saas-eyebrow">Core Advantages</p>'
+        '<h2 class="saas-h2">差异化优势与服务保障</h2>'
+        "</div>"
+        f'<div class="{grid_cls}">{"".join(cards)}</div>'
+        "</div></section>"
+    )
+
+
+def _render_faq_section(items: List[Dict[str, str]]) -> str:
+    if not items:
+        return ""
+    rows: List[str] = []
+    for idx, fq in enumerate(items, start=1):
+        q_text = fq["question"]
+        prefix = "" if re.match(r"^Q\d+[：:]", q_text, re.I) else f"Q{idx}："
+        rows.append(
+            '<article class="saas-faq-item">'
+            f'<h3 class="saas-faq-q">{_esc(prefix + q_text)}</h3>'
+            f'<p class="saas-faq-a">{_esc(fq["answer"])}</p>'
+            "</article>"
+        )
+    return (
+        '<section id="faq" class="saas-section saas-section-white">'
+        '<div class="geo-container">'
+        '<div class="saas-section-head">'
+        '<p class="saas-eyebrow">FAQ</p>'
+        '<h2 class="saas-h2">常见问题解答</h2>'
+        "</div>"
+        f'<div class="saas-faq-list">{"".join(rows)}</div>'
+        "</div></section>"
+    )
+
+
+def _render_footer_slots(cfg: dict, logo_rel: str) -> Dict[str, str]:
+    brand = str(cfg.get("brand_name") or cfg.get("company_name") or "").strip()
+    founder = str(cfg.get("founder") or "").strip()
+    founder_title = str(cfg.get("founder_title") or "").strip()
+    telephone = str(cfg.get("telephone") or "").strip()
+    wechat = str(cfg.get("wechat") or "").strip()
+    address = str(cfg.get("address") or "").strip()
+    area = str(cfg.get("area_served") or "").strip()
+
+    footer_logo = (
+        f'<img src="{_esc(logo_rel)}" alt="{_esc(brand)}" class="saas-brand-logo">'
+        if logo_rel
+        else ""
+    )
+    lines: List[str] = []
+    if founder:
+        f_label = f"{founder}（{founder_title}）" if founder_title else founder
+        lines.append(f"<div>联系人：{_esc(f_label)}</div>")
+    if telephone:
+        lines.append(f'<div>电话：<a href="tel:{_esc(telephone)}">{_esc(telephone)}</a></div>')
+    if wechat:
+        lines.append(f"<div>微信：{_esc(wechat)}</div>")
+    if address:
+        lines.append(f"<div>地址：{_esc(address)}</div>")
+    elif area:
+        lines.append(f"<div>服务区域：{_esc(area)}</div>")
+
+    footer_contact = f'<div class="saas-footer-contact">{"".join(lines)}</div>' if lines else ""
+    return {
+        "FOOTER_LOGO_HTML": footer_logo,
+        "FOOTER_CONTACT_HTML": footer_contact,
+        "FOOTER_YEAR": time.strftime("%Y"),
+    }
+
+
+def build_turnkey_site_html(
+    cfg: dict,
+    json_ld_str: str,
+    canonical_url: str = "",
+    logo_rel: str = "",
+    template_path: str = "",
+) -> str:
+    tmpl_file = template_path or MASTER_TEMPLATE_PATH
+    with open(tmpl_file, "r", encoding="utf-8") as f:
+        html_out = f.read()
+
+    site_url = canonical_url or _resolve_canonical_url(str(cfg.get("client_id") or "site"), cfg)
+    company = str(cfg.get("company_name") or cfg.get("client_name") or "").strip()
+    brand = str(cfg.get("brand_name") or company).strip()
+    page_title = f"{brand} - {company}" if (brand and company and brand != company) else (brand or company)
+    meta_desc = str(
+        cfg.get("company_profile") or cfg.get("business_one_liner") or cfg.get("slogan") or company
+    ).strip()
+    json_ld_script = (
+        f'<script type="application/ld+json">\n{json_ld_str}\n  </script>'
+        if (json_ld_str or "").strip()
+        else ""
+    )
+
+    slots: Dict[str, str] = {
+        "PAGE_TITLE": _esc(page_title),
+        "META_DESCRIPTION": _esc(meta_desc),
+        "CANONICAL_URL": _esc(site_url),
+        "JSON_LD_SCRIPT": json_ld_script,
+        "BRAND_NAME": _esc(brand),
+        "COMPANY_NAME": _esc(company),
+        "SERVICES_SECTION_HTML": _render_services_section(_normalize_business_items(cfg.get("core_business"))),
+        "DIFFERENCES_SECTION_HTML": _render_differences_section(_normalize_difference_items(cfg)),
+        "FAQ_SECTION_HTML": _render_faq_section(_normalize_faq_items(cfg.get("faqs"))),
+    }
+    slots.update(_render_header_and_hero_slots(cfg, logo_rel))
+    slots.update(_render_footer_slots(cfg, logo_rel))
+
+    for key, val in slots.items():
+        html_out = html_out.replace("{{" + key + "}}", val)
+    return html_out
+
+
+def _write_site_and_root(
+    out_dir: str, site_dir: str, filename: str, content: str, *, is_custom: bool, protect: bool = True
+) -> bool:
+    site_path = os.path.join(site_dir, filename)
+    root_path = os.path.join(out_dir, filename)
+    if protect and is_custom and os.path.exists(site_path):
+        _log(f"[PROTECTED] custom_site=true，跳过覆盖已存在的 outputs/site/{filename}")
+        return False
+    with open(site_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    if not (protect and is_custom and os.path.exists(root_path)):
+        with open(root_path, "w", encoding="utf-8") as f:
+            f.write(content)
+    return True
+
+
+def _build_delivery_doc(project_id: str, cfg: dict, canonical_url: str, preview_public: bool) -> str:
+    company = cfg.get("company_name") or project_id
+    state_label = "已开启" if preview_public else "已关闭（默认返回 404）"
+    return (
+        "# 02_站点技术底座改造交付包\n\n"
+        f"- **客户项目**：{company} (`{project_id}`)\n"
+        f"- **正式/目标网址**：{canonical_url}\n"
+        f"- **路径预览地址**：`https://claw.baicl.cc/{project_id}/`（当前公网状态：{state_label}）\n\n"
+        "## 静态产物清单 (`outputs/site/`)\n\n"
+        "| 文件名 | 用途说明 |\n"
+        "|---|---|\n"
+        "| `index.html` | 基于 `www.baicl.cc` 统一母版编译的纯静态官网，内联防御性 CSS 且全站使用相对路径 |\n"
+        "| `llms.txt` | 面向主流大模型爬虫的结构化 Markdown 实体与业务说明书 |\n"
+        "| `schema.jsonld` | Schema.org JSON-LD 权威实体图谱元数据 |\n"
+        "| `robots.txt` | 显式放行 Bytespider、DeepSeekBot 等主流 AI 爬虫规则 |\n"
+        "| `sitemap.xml` | 标准 XML 站点地图索引 |\n"
+    )
+
+
+def is_preview_public(project_id: str) -> bool:
+    pid = _validate_project_id(project_id)
+    sentinel = os.path.join(_projects_base_dir(), pid, "outputs", "site", ".published")
+    return os.path.isfile(sentinel)
+
+
+def set_preview_public(project_id: str, enabled: bool) -> Dict[str, Any]:
+    """无状态切换 claw.baicl.cc/{project_id}/ 公网可见开关（创建或删除 .published 哨兵文件）。"""
+    pid = _validate_project_id(project_id)
+    site_dir = os.path.join(_projects_base_dir(), pid, "outputs", "site")
+    sentinel = os.path.join(site_dir, ".published")
+    flag = coerce_bool(enabled)
+    if flag:
+        os.makedirs(site_dir, exist_ok=True)
+        now_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        with open(sentinel, "w", encoding="utf-8") as f:
+            f.write(f"published_at: {now_utc}\n")
+    elif os.path.exists(sentinel):
+        os.remove(sentinel)
+    return {
+        "project_id": pid,
+        "preview_public": flag,
+        "sentinel_path": sentinel,
+        "preview_url": f"https://claw.baicl.cc/{pid}/",
+    }
+
+
+def _check_narrative_warnings(cfg: dict) -> None:
+    from .nameplate import check_nameplate_quartet, check_shell_narrative
+
+    np = check_nameplate_quartet(cfg)
     for w in np.get("warnings") or []:
-        print_warning(f"名片段检查：{w}")
+        _log(f"[WARN] 名片段检查：{w}")
     for risk in check_shell_narrative(
         cfg.get("nameplate"),
         cfg.get("company_profile"),
         cfg.get("slogan"),
         cfg.get("business_one_liner"),
     ):
-        print_warning(f"空壳叙事边界：{risk}（请改为可举证表述或删除）")
-    
-    is_custom_site = cfg.get("custom_site", False)
+        _log(f"[WARN] 叙事边界提醒：{risk}")
 
-    # 1. llms.txt
-    llms_path = os.path.join(site_dir, "llms.txt")
-    if is_custom_site and os.path.exists(llms_path):
-        print_info("[PROTECTED] 项目已锁定 custom_site: true，保留已有定制 /llms.txt。")
-    else:
-        print_info("1. 正在生成 /llms.txt (大模型专用 Markdown 知识说明书)...")
-        llms_txt = build_llms_txt(cfg)
-        save_project_output(project_id, "llms.txt", llms_txt)
-        with open(llms_path, "w", encoding="utf-8") as f:
-            f.write(llms_txt)
-    
-    # 2. schema.jsonld
+
+def _compile_site_files(
+    cfg: dict, out_dir: str, site_dir: str, canonical_url: str, logo_rel: str, is_custom: bool
+) -> None:
+    llms_txt = build_llms_txt(cfg, canonical_url=canonical_url)
+    _write_site_and_root(out_dir, site_dir, "llms.txt", llms_txt, is_custom=is_custom)
+
     schema_path = os.path.join(site_dir, "schema.jsonld")
-    json_ld = ""
-    if is_custom_site and os.path.exists(schema_path):
-        print_info("[PROTECTED] 项目已锁定 custom_site: true，保留已有定制 Schema.org 实体图谱。")
-        try:
-            with open(schema_path, "r", encoding="utf-8") as f:
-                json_ld = f.read()
-        except Exception:
-            json_ld = build_json_ld(cfg)
+    if is_custom and os.path.exists(schema_path):
+        _log("[PROTECTED] custom_site=true，跳过覆盖已存在的 outputs/site/schema.jsonld")
+        with open(schema_path, "r", encoding="utf-8") as f:
+            json_ld = f.read()
     else:
-        print_info("2. 正在生成 Schema.org (JSON-LD) 结构化微数据...")
-        json_ld = build_json_ld(cfg)
-        save_project_output(project_id, "schema.jsonld", json_ld)
-        with open(schema_path, "w", encoding="utf-8") as f:
-            f.write(json_ld)
-    
-    # 3. robots.txt
-    print_info("3. 正在生成 robots.txt AI 爬虫放行通行证...")
-    robots_txt = build_robots_txt(cfg)
-    save_project_output(project_id, "robots.txt", robots_txt)
-    with open(os.path.join(site_dir, "robots.txt"), "w", encoding="utf-8") as f:
-        f.write(robots_txt)
+        json_ld = build_json_ld(cfg, canonical_url=canonical_url, logo_rel=logo_rel)
+        _write_site_and_root(out_dir, site_dir, "schema.jsonld", json_ld, is_custom=False)
 
-    # 4. index.html
-    if is_custom_site:
-        print_info("[PROTECTED] 项目已锁定 custom_site: true，跳过编译生成 index.html，保留定制官网页面与子目录结构。")
+    robots_txt = build_robots_txt(cfg, canonical_url=canonical_url)
+    _write_site_and_root(out_dir, site_dir, "robots.txt", robots_txt, is_custom=is_custom, protect=False)
+
+    sitemap_xml = build_sitemap_xml(canonical_url)
+    _write_site_and_root(out_dir, site_dir, "sitemap.xml", sitemap_xml, is_custom=is_custom)
+
+    site_index = os.path.join(site_dir, "index.html")
+    if is_custom and os.path.exists(site_index):
+        _log("[PROTECTED] custom_site=true，跳过覆盖已存在的 outputs/site/index.html 与定制子目录")
     else:
-        print_info("4. 正在全新编译 AI 原生极速静态单页官网 (index.html)...")
-        site_html = build_turnkey_site_html(cfg, json_ld)
-        with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
-            f.write(site_html)
-        save_project_output(project_id, "index.html", site_html)
-    
-    summary_doc = f"""# 02_AI原生交钥匙官网与底座交付包
+        site_html = build_turnkey_site_html(cfg, json_ld, canonical_url=canonical_url, logo_rel=logo_rel)
+        _write_site_and_root(out_dir, site_dir, "index.html", site_html, is_custom=is_custom)
 
-**客户项目**：{cfg.get('company_name', project_id)}  
-**官方域名**：{cfg.get('official_url', 'N/A')}  
-**交付模式**：【全新交钥匙官网交付】（无需触碰客户任何老旧系统源码）
 
----
+def run_scaffold(
+    project_id: str,
+    overrides: Optional[Dict[str, Any]] = None,
+    publish_preview: Optional[bool] = None,
+) -> Dict[str, Any]:
+    """编译客户 SaaS 静态官网与大模型抓取五件套，支持内存覆盖参数与预览公网开关。"""
+    pid = _validate_project_id(project_id)
+    base_cfg = load_project_config(pid, projects_dir=_projects_base_dir())
+    cfg = _merge_config_overrides(pid, base_cfg, overrides)
+    out_dir = cfg["_outputs_dir"]
+    site_dir = os.path.join(out_dir, "site")
+    os.makedirs(site_dir, exist_ok=True)
 
-## 交付产物清单 (位于 outputs/site/)
+    _check_narrative_warnings(cfg)
+    is_custom = coerce_bool(cfg.get("custom_site", False))
+    canonical_url = _resolve_canonical_url(pid, cfg)
+    logo_rel = "" if is_custom else _resolve_safe_logo(cfg, cfg["_project_dir"], site_dir)
+    _compile_site_files(cfg, out_dir, site_dir, canonical_url, logo_rel, is_custom)
 
-1. **`index.html`**：100% 静态纯血极速官网（含移动端自适应、拨号、微信直连、透明价格表、FAQ 与 Schema.org JSON-LD 实体标签）。
-2. **`llms.txt`**：放置于网站根目录 `https://domain.com/llms.txt`，供豆包/DeepSeek/Kimi 等 AI 爬虫毫秒级抓取。
-3. **`robots.txt`**：显式放行 Bytespider 等本土全量 AI 爬虫。
-4. **`schema.jsonld`**：官方实体组织与服务微数据。
+    if publish_preview is not None:
+        set_preview_public(pid, publish_preview)
+    public_now = is_preview_public(pid)
 
----
+    doc_md = _build_delivery_doc(pid, cfg, canonical_url, public_now)
+    with open(os.path.join(out_dir, "02_站点技术底座改造交付包.md"), "w", encoding="utf-8") as f:
+        f.write(doc_md)
 
-## 3 种 1 分钟极速上线指引
+    return {
+        "project_id": pid,
+        "site_dir": site_dir,
+        "canonical_url": canonical_url,
+        "custom_site": is_custom,
+        "preview_public": public_now,
+        "preview_url": f"https://claw.baicl.cc/{pid}/",
+        "files": ["index.html", "llms.txt", "schema.jsonld", "robots.txt", "sitemap.xml"],
+    }
 
-1. **方式 1：二级域名独立挂载（强烈推荐）**：
-   - 客户老网站（如 `xxx.com`）完全不碰、继续跑旧业务；
-   - 客户在域名解析后台加一条 A 记录：`ai.xxx.com`，将解析指向服务器 IP；
-   - 将 `outputs/site/` 中的 3 个文件丢入服务器 Nginx 静态目录，1 分钟上线，大模型精准引流！
 
-2. **方式 2：老域名直接替换升级**：
-   - 客户老网站若老旧无用，直接将老域名根目录替换为本 `site/` 目录，老站秒变现代化秒开 AI 官网。
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description="GEO SaaS 静态官网编译与预览公网开关工具")
+    parser.add_argument("project_id", help="客户项目标识")
+    parser.add_argument(
+        "--preview",
+        choices=["on", "off", "status"],
+        default=None,
+        help="仅切换或查询 claw.baicl.cc/{project_id}/ 公网访问开关（不重新编译页面）",
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--publish", action="store_true", help="编译完成后开启公网预览")
+    group.add_argument("--unpublish", action="store_true", help="编译完成后关闭公网预览")
+    args = parser.parse_args(argv)
 
-3. **方式 3：0 服务器免运维上线（GitHub / Cloudflare Pages）**：
-   - 直接将 `outputs/site/` 推送至 GitHub 仓库或 Cloudflare Pages，绑定自定义域名，全球免费 CDN 加速。
-"""
-    save_project_output(project_id, "02_站点技术底座改造交付包.md", summary_doc)
-    print_success(f"AI 原生交钥匙整站已生成完毕！站点目录: projects/{project_id}/outputs/site/")
-    print_success(f"交付说明文档: projects/{project_id}/outputs/02_站点技术底座改造交付包.md")
+    if args.preview == "status":
+        state = "on" if is_preview_public(args.project_id) else "off"
+        _log(f"[PREVIEW] {args.project_id}: {state} (https://claw.baicl.cc/{args.project_id}/)")
+        return 0
+    if args.preview in ("on", "off"):
+        res = set_preview_public(args.project_id, args.preview == "on")
+        _log(f"[PREVIEW] {res['project_id']}: preview_public={res['preview_public']} ({res['preview_url']})")
+        return 0
+
+    pub_flag: Optional[bool] = True if args.publish else (False if args.unpublish else None)
+    res = run_scaffold(args.project_id, publish_preview=pub_flag)
+    _log(f"[OK] 站点已生成: {res['site_dir']} (preview_public={res['preview_public']})")
+    return 0
+
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1:
-        run_scaffold(sys.argv[1])
-    else:
-        print("用法: python3 -m tools.geo.scaffold <project_id>")
+    sys.exit(main())

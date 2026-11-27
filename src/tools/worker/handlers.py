@@ -11,6 +11,7 @@ import logging
 from typing import Dict, Any, List, Tuple
 from tools.geo.utils import (
     PROJECTS_DIR,
+    coerce_bool,
     save_project_output,
     _replace_yaml_string_list,
     _upsert_yaml_scalar,
@@ -32,16 +33,29 @@ PROFILE_KEYS = {
     "client_name",
     "target_audience",
     "area_served",
+    "address",
     "domain",
     "official_url",
     "contact_phone",
     "telephone",
     "phone",
+    "wechat",
+    "founder",
+    "founder_title",
+    "company_profile",
+    "logo",
+    "logo_file",
+    "core_business",
+    "differences",
+    "core_values",
+    "faqs",
     "expected_queries",
     "keywords",
     "competitor_names",
     "competitors",
 }
+
+BUILD_SITE_OVERRIDE_KEYS = set(PROFILE_KEYS)
 
 
 def _clean_list_param(val: Any) -> List[str]:
@@ -86,6 +100,11 @@ def _build_initial_yaml(project_id: str, params: Dict[str, Any]) -> str:
 
     raw_comps = params.get("competitor_names") if "competitor_names" in params else params.get("competitors")
     content = _replace_yaml_string_list(content, "competitors", _clean_list_param(raw_comps))
+
+    for extra_key in ("wechat", "address", "company_profile", "founder", "founder_title", "logo", "logo_file"):
+        extra_val = params.get(extra_key)
+        if isinstance(extra_val, str) and extra_val.strip():
+            content = _upsert_yaml_scalar(content, extra_key, extra_val.strip())
     return content
 
 
@@ -93,11 +112,14 @@ def _merge_scalar_fields(content: str, params: Dict[str, Any]) -> str:
     """合并标量字段：仅清洗后非空时才更新，防止空值冲掉存量配置"""
     def _update_if_nonempty(key: str, val: Any):
         nonlocal content
+        if isinstance(val, (dict, list)):
+            return
         s = str(val or "").strip()
         if s:
             content = _upsert_yaml_scalar(content, key, s)
 
-    _update_if_nonempty("brand_name", params.get("brand_name"))
+    for direct_key in ("brand_name", "wechat", "address", "company_profile", "founder", "founder_title", "logo", "logo_file"):
+        _update_if_nonempty(direct_key, params.get(direct_key))
     c_name = str(params.get("company_name") or params.get("name") or "").strip()
     if c_name:
         content = _upsert_yaml_scalar(content, "company_name", c_name)
@@ -251,18 +273,42 @@ def handle_probe(project_id: str, params: Dict[str, Any]) -> Tuple[Dict[str, Any
     return res, collect_existing_outputs(project_id, candidates)
 
 
+def _extract_build_site_args(params: Dict[str, Any]) -> Tuple[Dict[str, Any], Any]:
+    """从任务参数中提取 build_site 内存覆盖字典与可选公网预览开关。"""
+    raw = params or {}
+    overrides = {k: raw[k] for k in BUILD_SITE_OVERRIDE_KEYS if k in raw and raw[k] is not None}
+    pub_raw = raw.get("publish_preview")
+    publish_preview = coerce_bool(pub_raw) if pub_raw is not None else None
+    return overrides, publish_preview
+
+
 def handle_build_site(project_id: str, params: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
     """3. build_site 静态建站与 Schema 元数据"""
     from tools.geo import scaffold
-    scaffold.run_scaffold(project_id)
+    overrides, publish_preview = _extract_build_site_args(params)
+    scaffold_res = scaffold.run_scaffold(
+        project_id,
+        overrides=overrides,
+        publish_preview=publish_preview,
+    )
     candidates = [
         "site/index.html",
         "site/llms.txt",
         "site/robots.txt",
         "site/schema.jsonld",
+        "site/sitemap.xml",
         "02_站点技术底座改造交付包.md",
     ]
-    return {"status": "ok", "message": "Site scaffold built successfully"}, collect_existing_outputs(project_id, candidates)
+    preview_url = scaffold_res.get("preview_url") or f"https://claw.baicl.cc/{project_id}/"
+    res = {
+        "status": "ok",
+        "message": "Site scaffold built successfully",
+        "sitemap": "site/sitemap.xml",
+        "preview_url": preview_url,
+        "preview_public": bool(scaffold_res.get("preview_public", False)),
+        "custom_site": bool(scaffold_res.get("custom_site", False)),
+    }
+    return res, collect_existing_outputs(project_id, candidates)
 
 
 def handle_build_blog(project_id: str, params: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:

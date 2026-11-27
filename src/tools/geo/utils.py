@@ -124,47 +124,76 @@ def _unescape_yaml_quoted(raw: str) -> str:
     return s
 
 
+def _parse_yaml_scalar(val: str):
+    """解析零依赖 YAML 标量值（兼容布尔、空列表、空字典与转义引号字符串）。"""
+    if val == "[]":
+        return []
+    if val == "{}":
+        return {}
+    low = val.lower()
+    if low in ("true", "false") and not (val.startswith('"') or val.startswith("'")):
+        return low == "true"
+    return _unescape_yaml_quoted(val)
+
+
+def _split_yaml_mapping(text: str):
+    """识别未加引号的列表项内键值对（如 name: xxx），排除引号标量与 URL。"""
+    if not text or text[0] in ('"', "'"):
+        return None
+    matched = re.match(r"^([A-Za-z_][A-Za-z0-9_-]*)\s*:(?:\s+(.*))?$", text)
+    if not matched:
+        return None
+    return matched.group(1), (matched.group(2) or "").strip()
+
+
+def _append_yaml_list_entry(items: list, rest: str, indent: int) -> tuple:
+    """处理列表项行（返回 (current_dict_item, dict_indent)）。"""
+    mapped = _split_yaml_mapping(rest)
+    if not rest:
+        entry = {}
+        items.append(entry)
+        return entry, indent
+    if mapped is not None:
+        k, v = mapped
+        entry = {k: _parse_yaml_scalar(v) if v else ""}
+        items.append(entry)
+        return entry, indent
+    items.append(_unescape_yaml_quoted(rest))
+    return None, 0
+
+
 def parse_simple_yaml(content: str) -> dict:
-    """
-    轻量级零依赖 YAML 解析器
-    支持键值对、嵌套单级字典以及字符串列表
-    """
+    """轻量级零依赖 YAML 解析器，支持标量、字符串列表与缩进字典列表。"""
     data = {}
     current_list_key = None
-    
+    current_dict_item = None
+    dict_indent = 0
+
     for raw_line in content.splitlines():
         line = raw_line.strip()
-        # 忽略空行和注释
         if not line or line.startswith("#"):
             continue
-            
-        # 列表项处理
-        if line.startswith("- ") and current_list_key:
-            val = _unescape_yaml_quoted(line[2:].strip())
-            data[current_list_key].append(val)
+        expanded = raw_line.expandtabs(2)
+        indent = len(expanded) - len(expanded.lstrip(" "))
+
+        if (line == "-" or line.startswith("- ")) and current_list_key:
+            current_dict_item, dict_indent = _append_yaml_list_entry(
+                data[current_list_key], line[1:].strip(), indent
+            )
             continue
-            
-        # 键值对处理
+
+        if indent > dict_indent and current_dict_item is not None and ":" in line:
+            k, v = line.split(":", 1)
+            current_dict_item[k.strip()] = _parse_yaml_scalar(v.strip())
+            continue
+
         if ":" in line:
-            parts = line.split(":", 1)
-            key = parts[0].strip()
-            val = parts[1].strip()
-            
-            if not val:  # 开启新列表
-                current_list_key = key
-                data[key] = []
-            elif val == "[]":
-                current_list_key = None
-                data[key] = []
-            else:
-                current_list_key = None
-                # bool / 未加引号数字保持简单字符串语义
-                low = val.lower()
-                if low in ("true", "false") and not (val.startswith('"') or val.startswith("'")):
-                    data[key] = low == "true"
-                else:
-                    data[key] = _unescape_yaml_quoted(val)
-                
+            current_dict_item = None
+            k, v = line.split(":", 1)
+            key, val = k.strip(), v.strip()
+            current_list_key = key if not val else None
+            data[key] = [] if not val else _parse_yaml_scalar(val)
+
     return data
 
 def load_project_config(project_id: str, projects_dir: str = None) -> dict:

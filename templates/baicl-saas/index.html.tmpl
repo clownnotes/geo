@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{PAGE_TITLE}}</title>
+  <meta name="description" content="{{META_DESCRIPTION}}">
+  <link rel="canonical" href="{{CANONICAL_URL}}">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
+  <link rel="alternate" type="text/markdown" title="LLMs.txt" href="llms.txt">
+
+  <!-- Open Graph / Meta -->
+  <meta property="og:site_name" content="{{BRAND_NAME}}">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="{{PAGE_TITLE}}">
+  <meta property="og:description" content="{{META_DESCRIPTION}}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{CANONICAL_URL}}">
+
+  <!-- Schema.org 结构化数据 (JSON-LD) -->
+  {{JSON_LD_SCRIPT}}
+
+  <!-- Tailwind CSS CDN (可选增强，页面基础布局与卡片已完全内联防御性 CSS) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (window.tailwind) {
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#faf5ff",
+                100: "#f3e8ff",
+                200: "#e9d5ff",
+                300: "#d8b4fe",
+                400: "#c084fc",
+                500: "#a855f7",
+                600: "#9333ea",
+                700: "#7e22ce",
+                800: "#6b21a8",
+                900: "#581c87"
+              }
+            },
+            fontFamily: {
+              sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif']
+            }
+          }
+        }
+      };
+    }
+  </script>
+  <style>
+    /* 防御性 CSS 重置与 www.baicl.cc 统一视觉令牌（不依赖外部 CDN 亦可正常渲染） */
+    :root {
+      --brand-50: #faf5ff;
+      --brand-100: #f3e8ff;
+      --brand-200: #e9d5ff;
+      --brand-300: #d8b4fe;
+      --brand-400: #c084fc;
+      --brand-500: #a855f7;
+      --brand-600: #9333ea;
+      --brand-700: #7e22ce;
+      --brand-800: #6b21a8;
+      --brand-900: #581c87;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    img, picture, video, canvas, svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--slate-800);
+      background-color: var(--brand-50);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ul, ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .site-shell {
+      min-height: 100vh;
+      background-color: #faf5ff;
+      background-image:
+        radial-gradient(circle at 84% 4%, rgba(147, 51, 234, 0.12), transparent 28%),
+        linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 72px 72px, 72px 72px;
+    }
+
+    .geo-container {
+      width: min(1180px, calc(100% - 40px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* 顶部导航栏 */
+    .saas-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(233, 213, 255, 0.9);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .saas-header-inner {
+      min-height: 76px;
+      padding: 12px 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .saas-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .saas-brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 9999px;
+      border: 1px solid var(--brand-300);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .saas-brand-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--brand-600);
+      line-height: 1.15;
+    }
+
+    .saas-brand-sub {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--slate-500);
+      margin-top: 3px;
+    }
+
+    .saas-nav-cta {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 通用按钮 */
+    .saas-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .saas-btn-sm {
+      padding: 9px 16px;
+      font-size: 0.8125rem;
+      border-radius: 10px;
+    }
+
+    .saas-btn-primary {
+      background-color: var(--brand-600);
+      color: #ffffff;
+      border: 1px solid var(--brand-600);
+      box-shadow: 0 2px 8px rgba(147, 51, 234, 0.18);
+    }
+
+    .saas-btn-primary:hover {
+      background-color: var(--brand-700);
+      border-color: var(--brand-700);
+    }
+
+    .saas-btn-secondary {
+      background-color: #ffffff;
+      color: var(--brand-700);
+      border: 2px solid var(--brand-600);
+    }
+
+    .saas-btn-secondary:hover {
+      background-color: var(--brand-50);
+    }
+
+    .saas-btn-outline {
+      background-color: #ffffff;
+      color: var(--slate-800);
+      border: 1px solid #cbd5e1;
+    }
+
+    .saas-btn-outline:hover {
+      background-color: var(--brand-50);
+      border-color: var(--brand-400);
+    }
+
+    /* 主体区 */
+    .saas-main {
+      flex: 1 0 auto;
+    }
+
+    /* 首屏 Hero */
+    .saas-hero {
+      padding-top: 52px;
+      padding-bottom: 64px;
+    }
+
+    .saas-hero-inner {
+      max-width: 860px;
+    }
+
+    .saas-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background-color: rgba(243, 232, 255, 0.92);
+      border: 1px solid var(--brand-300);
+      color: var(--brand-800);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .saas-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      background-color: var(--brand-600);
+      flex-shrink: 0;
+    }
+
+    .saas-hero-title {
+      margin: 0 0 16px;
+      font-size: clamp(2.125rem, 4.5vw, 3.5rem);
+      font-weight: 900;
+      color: var(--slate-900);
+      letter-spacing: -0.025em;
+      line-height: 1.14;
+    }
+
+    .saas-hero-slogan {
+      margin: 0 0 24px;
+      font-size: clamp(1.125rem, 2.2vw, 1.5rem);
+      font-weight: 800;
+      color: var(--brand-700);
+      line-height: 1.45;
+    }
+
+    .saas-hero-card {
+      position: relative;
+      overflow: hidden;
+      background-color: #ffffff;
+      border: 1px solid rgba(233, 213, 255, 0.95);
+      border-radius: 16px;
+      padding: 26px 28px 26px 34px;
+      margin-bottom: 28px;
+      box-shadow: 0 12px 28px -12px rgba(147, 51, 234, 0.14);
+    }
+
+    .saas-hero-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, #9333ea 0%, #a855f7 55%, #4f46e5 100%);
+    }
+
+    .saas-hero-card p {
+      margin: 0;
+      font-size: 1.0625rem;
+      color: var(--slate-700);
+      line-height: 1.8;
+    }
+
+    .saas-hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* 内容区块通用样式 */
+    .saas-section {
+      padding: 64px 0;
+      scroll-margin-top: 96px;
+    }
+
+    .saas-section-white {
+      background-color: #ffffff;
+      border-top: 1px solid var(--slate-200);
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    .saas-section-tint {
+      background-color: rgba(243, 232, 255, 0.45);
+    }
+
+    .saas-section-head {
+      max-width: 780px;
+      margin-bottom: 36px;
+    }
+
+    .saas-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--brand-700);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin: 0 0 8px;
+    }
+
+    .saas-h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 900;
+      color: var(--slate-900);
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    .saas-lead {
+      margin: 0;
+      font-size: 1.0625rem;
+      color: var(--slate-600);
+      line-height: 1.75;
+    }
+
+    /* 响应式多列卡片网格 */
+    .saas-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .saas-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    @media (max-width: 960px) {
+      .saas-grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .saas-grid-3,
+      .saas-grid-2 {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .saas-hero {
+        padding-top: 36px;
+        padding-bottom: 44px;
+      }
+      .saas-section {
+        padding: 44px 0;
+      }
+    }
+
+    .saas-card {
+      background-color: #ffffff;
+      border: 1px solid rgba(233, 213, 255, 0.95);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .saas-card:hover {
+      border-color: var(--brand-500);
+      box-shadow: 0 12px 24px -10px rgba(147, 51, 234, 0.14);
+      transform: translateY(-2px);
+    }
+
+    .saas-card-tint {
+      background-color: rgba(250, 245, 255, 0.5);
+    }
+
+    .saas-card-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brand-700);
+      margin-bottom: 10px;
+    }
+
+    .saas-card-title {
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      line-height: 1.35;
+    }
+
+    .saas-card-desc {
+      margin: 0;
+      font-size: 0.96875rem;
+      color: var(--slate-600);
+      line-height: 1.75;
+    }
+
+    .saas-card-meta {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid var(--brand-100);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--brand-700);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    /* FAQ 问答区块 */
+    .saas-faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .saas-faq-item {
+      background-color: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 14px;
+      padding: 22px 24px;
+    }
+
+    .saas-faq-q {
+      margin: 0 0 8px;
+      font-size: 1.0625rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      line-height: 1.45;
+    }
+
+    .saas-faq-a {
+      margin: 0;
+      font-size: 0.96875rem;
+      color: var(--slate-600);
+      line-height: 1.75;
+    }
+
+    /* 普林斯顿 9 因子正文与表格增补样式（供 IDE 后续精修扩展） */
+    .content-block {
+      margin-bottom: 2.25rem;
+      scroll-margin-top: 100px;
+    }
+
+    .content-block h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--slate-900);
+      margin: 1.75rem 0 1rem;
+      line-height: 1.35;
+    }
+
+    .content-block h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--slate-800);
+      margin: 1.25rem 0 0.75rem;
+    }
+
+    .content-block p {
+      color: var(--slate-700);
+      font-size: 1.03125rem;
+      line-height: 1.85;
+      margin: 0 0 1.15rem;
+    }
+
+    .overflow-x-auto {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      text-align: left;
+      background-color: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .content-table th {
+      background-color: var(--slate-50);
+      color: var(--slate-900);
+      font-weight: 800;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    .content-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--slate-100);
+      color: var(--slate-600);
+      line-height: 1.7;
+      vertical-align: top;
+    }
+
+    .quote-box {
+      border-left: 4px solid var(--brand-600);
+      background-color: var(--brand-50);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      color: var(--slate-700);
+      margin: 1.25rem 0;
+    }
+
+    /* 页脚 */
+    .saas-footer {
+      border-top: 1px solid var(--slate-200);
+      background-color: rgba(255, 255, 255, 0.92);
+      padding: 40px 0;
+      color: var(--slate-500);
+      font-size: 0.875rem;
+    }
+
+    .saas-footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .saas-footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .saas-footer-name {
+      color: var(--slate-900);
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .saas-footer-contact {
+      margin-top: 10px;
+      font-size: 0.8125rem;
+      color: var(--slate-600);
+      line-height: 1.75;
+    }
+
+    .saas-footer-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    @media (max-width: 720px) {
+      .saas-footer-meta {
+        align-items: flex-start;
+      }
+    }
+
+    .saas-footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      color: var(--slate-600);
+      font-weight: 600;
+    }
+
+    .saas-footer-links a:hover {
+      color: var(--brand-600);
+      text-decoration: underline;
+    }
+
+    .saas-dot {
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body class="site-shell">
+
+  <!-- SAAS_SECTION:HEADER -->
+  <header class="saas-header">
+    <div class="geo-container saas-header-inner">
+      <a href="./" class="saas-brand">
+        {{NAV_LOGO_HTML}}
+        <div>
+          <div class="saas-brand-title">{{BRAND_NAME}}</div>
+          <div class="saas-brand-sub">{{COMPANY_NAME}}</div>
+        </div>
+      </a>
+      <nav class="saas-nav-cta" aria-label="快捷联系">
+        {{NAV_CTA_HTML}}
+      </nav>
+    </div>
+  </header>
+  <!-- /SAAS_SECTION:HEADER -->
+
+  <main class="saas-main">
+    <!-- SAAS_SECTION:HERO -->
+    <section class="saas-hero geo-container">
+      <div class="saas-hero-inner">
+        {{HERO_BADGE_HTML}}
+        <h1 class="saas-hero-title">{{BRAND_NAME}}</h1>
+        {{HERO_SLOGAN_HTML}}
+        {{HERO_PROFILE_HTML}}
+        {{HERO_ACTIONS_HTML}}
+      </div>
+    </section>
+    <!-- /SAAS_SECTION:HERO -->
+
+    <!-- SAAS_SECTION:SERVICES -->
+    {{SERVICES_SECTION_HTML}}
+    <!-- /SAAS_SECTION:SERVICES -->
+
+    <!-- SAAS_SECTION:ADVANTAGES -->
+    {{DIFFERENCES_SECTION_HTML}}
+    <!-- /SAAS_SECTION:ADVANTAGES -->
+
+    <!-- SAAS_SECTION:FAQ -->
+    {{FAQ_SECTION_HTML}}
+    <!-- /SAAS_SECTION:FAQ -->
+  </main>
+
+  <!-- SAAS_SECTION:FOOTER -->
+  <footer id="contact" class="saas-footer">
+    <div class="geo-container saas-footer-inner">
+      <div>
+        <div class="saas-footer-brand">
+          {{FOOTER_LOGO_HTML}}
+          <strong class="saas-footer-name">{{COMPANY_NAME}}</strong>
+        </div>
+        {{FOOTER_CONTACT_HTML}}
+      </div>
+      <div class="saas-footer-meta">
+        <div class="saas-footer-links">
+          <a href="llms.txt">llms.txt</a>
+          <span class="saas-dot">·</span>
+          <a href="sitemap.xml">sitemap.xml</a>
+        </div>
+        <div>&copy; {{FOOTER_YEAR}} {{COMPANY_NAME}}</div>
+      </div>
+    </div>
+  </footer>
+  <!-- /SAAS_SECTION:FOOTER -->
+
+</body>
+</html>
