@@ -30,13 +30,14 @@
   - `.saas-grid-3` / `.saas-grid-2`：电脑端 3 列或 2 列卡片网格，手机端自动变 1 列；
   - `.saas-card`：白底圆角紫色细边框卡片；
   - `.saas-faq-item`：问答卡片；
+  - `.saas-cta-wrap` / `.saas-cta-card` / `.saas-cta-grid` / `.saas-qr-box` / `.saas-cta-btn`：紫色渐变 CTA 联系卡片及纯白圆角二维码底框；
   - `.content-block`、`<div class="overflow-x-auto"><table class="content-table">`、`.quote-box`：写深度长文、表格、引语时的专用样式。
 
 ---
 
 ## 3. 母版区块锚点清单（改哪里就找哪对注释）
 
-`templates/baicl-saas/index.html.tmpl` 和每个客户生成的 `outputs/site/index.html` 里，都带有一一对应的 HTML 注释锚点。在反重力 IDE 里搜索下面 6 组注释，就能直接定位到对应区域：
+`templates/baicl-saas/index.html.tmpl` 和每个客户生成的 `outputs/site/index.html` 里，都带有一一对应的 HTML 注释锚点。在反重力 IDE 里搜索下面 7 组注释，就能直接定位到对应区域：
 
 | 区块名称 | 开始锚点 | 结束锚点 | 里面放什么 |
 |---|---|---|---|
@@ -45,7 +46,8 @@
 | **主营业务** | `<!-- SAAS_SECTION:SERVICES -->` | `<!-- /SAAS_SECTION:SERVICES -->` | 产品或服务卡片列表（未填资料时中间为空，不渲染空卡片） |
 | **差异化优势** | `<!-- SAAS_SECTION:ADVANTAGES -->` | `<!-- /SAAS_SECTION:ADVANTAGES -->` | 核心竞争力、服务保障、对比优势卡片 |
 | **常见问题** | `<!-- SAAS_SECTION:FAQ -->` | `<!-- /SAAS_SECTION:FAQ -->` | 客户高频采购问答列表（同时应同步到 `Schema.org`） |
-| **底部页脚** | `<!-- SAAS_SECTION:FOOTER -->` | `<!-- /SAAS_SECTION:FOOTER -->` | 公司主体、电话/微信/地址、`llms.txt` 与 `sitemap.xml` 链接 |
+| **紫色联系卡** | `<!-- SAAS_SECTION:CTA -->` | `<!-- /SAAS_SECTION:CTA -->` | `www.baicl.cc` 同款紫色渐变联系卡（联系人、一键拨打、白底微信二维码；全空时中间留白） |
+| **底部页脚** | `<!-- SAAS_SECTION:FOOTER -->` | `<!-- /SAAS_SECTION:FOOTER -->` | 公司主体、电话/微信/地址、「联系联系人」锚点链接、`llms.txt` 与 `sitemap.xml` 链接 |
 
 新增自定义板块（比如“标杆客户案例”或“公司简介长文”）时，建议插在 `<!-- /SAAS_SECTION:FAQ -->` 之前或 `<!-- /SAAS_SECTION:ADVANTAGES -->` 之后，继续使用 `<section class="saas-section saas-section-white">` 和 `.geo-container`。
 
@@ -59,7 +61,7 @@
 
 | 资源位置 | 在首页 `index.html` 里怎么写 | 在二级目录（如 `blog/post.html`）里怎么写 | 禁止写法 |
 |---|---|---|---|
-| 站点图片 | `assets/logo.png` | `../assets/logo.png` | `/assets/logo.png` |
+| 站点图片（LOGO / 二维码） | `assets/logo.png`、`assets/wechat-qr.png` | `../assets/logo.png`、`../assets/wechat-qr.png` | `/assets/logo.png` |
 | 大模型说明书 | `llms.txt` | `../llms.txt` | `/llms.txt` |
 | 站点地图 | `sitemap.xml` | `../sitemap.xml` | `/sitemap.xml` |
 | `<head>` 嗅探标签 | `href="llms.txt"`、`href="sitemap.xml"` | `href="../llms.txt"`、`href="../sitemap.xml"` | `href="/llms.txt"` |

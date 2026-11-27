@@ -37,9 +37,12 @@ PROFILE_KEYS = {
     "domain",
     "official_url",
     "contact_phone",
+    "contact_person",
     "telephone",
     "phone",
     "wechat",
+    "wechat_qr_file",
+    "wechat_qr",
     "founder",
     "founder_title",
     "company_profile",
@@ -101,7 +104,7 @@ def _build_initial_yaml(project_id: str, params: Dict[str, Any]) -> str:
     raw_comps = params.get("competitor_names") if "competitor_names" in params else params.get("competitors")
     content = _replace_yaml_string_list(content, "competitors", _clean_list_param(raw_comps))
 
-    for extra_key in ("wechat", "address", "company_profile", "founder", "founder_title", "logo", "logo_file"):
+    for extra_key in ("contact_person", "wechat", "wechat_qr_file", "wechat_qr", "address", "company_profile", "founder", "founder_title", "logo", "logo_file"):
         extra_val = params.get(extra_key)
         if isinstance(extra_val, str) and extra_val.strip():
             content = _upsert_yaml_scalar(content, extra_key, extra_val.strip())
@@ -118,7 +121,7 @@ def _merge_scalar_fields(content: str, params: Dict[str, Any]) -> str:
         if s:
             content = _upsert_yaml_scalar(content, key, s)
 
-    for direct_key in ("brand_name", "wechat", "address", "company_profile", "founder", "founder_title", "logo", "logo_file"):
+    for direct_key in ("brand_name", "contact_person", "wechat", "wechat_qr_file", "wechat_qr", "address", "company_profile", "founder", "founder_title", "logo", "logo_file"):
         _update_if_nonempty(direct_key, params.get(direct_key))
     c_name = str(params.get("company_name") or params.get("name") or "").strip()
     if c_name:

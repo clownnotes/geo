@@ -59,6 +59,7 @@ def _apply_override_aliases(raw: Dict[str, Any]) -> Dict[str, Any]:
         ("industry", ("category",)),
         ("area_served", ("target_audience",)),
         ("keywords", ("expected_queries",)),
+        ("wechat_qr_file", ("wechat_qr",)),
     )
     for primary, fallbacks in alias_pairs:
         if not str(out.get(primary) or "").strip():
@@ -114,26 +115,31 @@ def _resolve_canonical_url(project_id: str, cfg: dict) -> str:
     return raw.rstrip("/") + "/"
 
 
-def _resolve_safe_logo(cfg: dict, project_dir: str, site_dir: str) -> str:
-    raw_logo = str(cfg.get("logo_file") or cfg.get("logo") or "").strip()
-    if not raw_logo or ".." in raw_logo.replace("\\", "/").split("/"):
+def _resolve_safe_image_asset(
+    project_id: str, site_dir: str, raw_path: str, target_stem: str
+) -> str:
+    """统一校验图片路径（realpath 限定在 raw_materials/ 或 outputs/site/assets/ 内且白名单后缀）并安全复制到 assets/。"""
+    cleaned = str(raw_path or "").strip()
+    if not cleaned or ".." in cleaned.replace("\\", "/").split("/"):
         return ""
-    if re.match(r"^(?:https?:|//|data:|javascript:)", raw_logo, re.I):
+    if re.match(r"^(?:https?:|//|data:|javascript:)", cleaned, re.I):
         return ""
 
+    pid = _validate_project_id(project_id)
+    project_dir = os.path.join(_projects_base_dir(), pid)
     allowed_raw = os.path.realpath(os.path.join(project_dir, "raw_materials"))
     allowed_assets = os.path.realpath(os.path.join(site_dir, "assets"))
 
-    if os.path.isabs(raw_logo):
-        cand = raw_logo
-    elif raw_logo.startswith("assets/"):
-        cand = os.path.join(site_dir, raw_logo)
-    elif raw_logo.startswith(("raw_materials/", "outputs/")):
-        cand = os.path.join(project_dir, raw_logo)
+    if os.path.isabs(cleaned):
+        cand = cleaned
+    elif cleaned.startswith("assets/"):
+        cand = os.path.join(site_dir, cleaned)
+    elif cleaned.startswith(("raw_materials/", "outputs/")):
+        cand = os.path.join(project_dir, cleaned)
     else:
-        cand = os.path.join(project_dir, raw_logo)
+        cand = os.path.join(project_dir, cleaned)
         if not os.path.exists(cand):
-            cand = os.path.join(allowed_raw, raw_logo)
+            cand = os.path.join(allowed_raw, cleaned)
 
     real_src = os.path.realpath(cand)
     in_raw = real_src.startswith(allowed_raw + os.sep)
@@ -147,14 +153,17 @@ def _resolve_safe_logo(cfg: dict, project_dir: str, site_dir: str) -> str:
 
     os.makedirs(allowed_assets, exist_ok=True)
     if in_assets:
-        rel = os.path.relpath(real_src, os.path.realpath(site_dir))
-        return rel.replace(os.sep, "/")
+        return os.path.relpath(real_src, os.path.realpath(site_dir)).replace(os.sep, "/")
 
-    filename = os.path.basename(real_src)
-    dst = os.path.join(allowed_assets, filename)
+    dst_name = f"{target_stem}{ext}"
+    for old_ext in ALLOWED_LOGO_EXTS:
+        stale = os.path.join(allowed_assets, f"{target_stem}{old_ext}")
+        if old_ext != ext and os.path.isfile(stale):
+            os.remove(stale)
+    dst = os.path.join(allowed_assets, dst_name)
     if os.path.realpath(dst) != real_src:
         shutil.copy2(real_src, dst)
-    return f"assets/{filename}"
+    return f"assets/{dst_name}"
 
 
 def _normalize_business_items(raw: Any) -> List[Dict[str, str]]:
@@ -242,6 +251,7 @@ def _append_llms_sections(lines: List[str], cfg: dict) -> None:
 def build_llms_txt(cfg: dict, canonical_url: str = "") -> str:
     company = str(cfg.get("company_name") or cfg.get("client_name") or "").strip()
     brand = str(cfg.get("brand_name") or company).strip()
+    person = str(cfg.get("contact_person") or cfg.get("founder") or "").strip()
     site_url = canonical_url or _resolve_canonical_url(str(cfg.get("client_id") or "site"), cfg)
     heading = f"# {brand}" if brand == company else f"# {brand} ({company})"
     lines = [heading, ""]
@@ -258,7 +268,7 @@ def build_llms_txt(cfg: dict, canonical_url: str = "") -> str:
         ("品牌名称", brand if brand != company else ""),
         ("所属行业", str(cfg.get("industry") or "").strip()),
         ("服务区域", str(cfg.get("area_served") or "").strip()),
-        ("联系人", str(cfg.get("founder") or "").strip()),
+        ("联系人", person),
         ("联系电话", str(cfg.get("telephone") or "").strip()),
         ("联系微信", str(cfg.get("wechat") or "").strip()),
         ("联系地址", str(cfg.get("address") or "").strip()),
@@ -297,13 +307,20 @@ def _build_org_node(cfg: dict, site_url: str, logo_rel: str) -> Dict[str, Any]:
     address = str(cfg.get("address") or "").strip()
     if address:
         org["address"] = {"@type": "PostalAddress", "streetAddress": address, "addressCountry": "CN"}
-    founder = str(cfg.get("founder") or "").strip()
-    if founder:
-        person: Dict[str, Any] = {"@type": "Person", "name": founder}
+    person = str(cfg.get("contact_person") or cfg.get("founder") or "").strip()
+    if person:
+        p_node: Dict[str, Any] = {"@type": "Person", "name": person}
         ftitle = str(cfg.get("founder_title") or "").strip()
         if ftitle:
-            person["jobTitle"] = ftitle
-        org["founder"] = person
+            p_node["jobTitle"] = ftitle
+        org["founder"] = p_node
+    if person or telephone:
+        cp: Dict[str, Any] = {"@type": "ContactPoint", "contactType": "sales"}
+        if person:
+            cp["name"] = person
+        if telephone:
+            cp["telephone"] = telephone
+        org["contactPoint"] = cp
     return org
 
 
@@ -414,7 +431,7 @@ def _render_header_and_hero_slots(cfg: dict, logo_rel: str) -> Dict[str, str]:
     if telephone:
         nav_cta = f'<a href="tel:{_esc(telephone)}" class="saas-btn saas-btn-sm saas-btn-primary">电话咨询：{_esc(telephone)}</a>'
     elif wechat:
-        nav_cta = f'<a href="#contact" class="saas-btn saas-btn-sm saas-btn-primary">微信咨询：{_esc(wechat)}</a>'
+        nav_cta = f'<a href="#contact-cta" class="saas-btn saas-btn-sm saas-btn-primary">微信咨询：{_esc(wechat)}</a>'
     else:
         nav_cta = ""
 
@@ -431,7 +448,7 @@ def _render_header_and_hero_slots(cfg: dict, logo_rel: str) -> Dict[str, str]:
     if telephone:
         btns.append(f'<a href="tel:{_esc(telephone)}" class="saas-btn saas-btn-primary">致电咨询：{_esc(telephone)}</a>')
     if wechat:
-        btns.append(f'<a href="#contact" class="saas-btn saas-btn-secondary">联系微信：{_esc(wechat)}</a>')
+        btns.append(f'<a href="#contact-cta" class="saas-btn saas-btn-secondary">联系微信：{_esc(wechat)}</a>')
     hero_actions = f'<div class="saas-hero-actions">{"".join(btns)}</div>' if btns else ""
 
     return {
@@ -525,9 +542,53 @@ def _render_faq_section(items: List[Dict[str, str]]) -> str:
     )
 
 
-def _render_footer_slots(cfg: dict, logo_rel: str) -> Dict[str, str]:
+def _render_cta_section(cfg: dict, qr_rel: str) -> str:
     brand = str(cfg.get("brand_name") or cfg.get("company_name") or "").strip()
-    founder = str(cfg.get("founder") or "").strip()
+    person = str(cfg.get("contact_person") or cfg.get("founder") or "").strip()
+    telephone = str(cfg.get("telephone") or "").strip()
+    wechat = str(cfg.get("wechat") or "").strip()
+    if not (person or telephone or wechat or qr_rel):
+        return ""
+
+    title = f"业务合作咨询，直接联系{_esc(person)}" if person else f"欢迎联系{_esc(brand)}沟通需求"
+    desc = f"欢迎就产品选型、技术方案与合作细节与{_esc(person or brand)}直接对接。"
+    meta_parts: List[str] = []
+    if person:
+        meta_parts.append(f'<span><span class="saas-cta-meta-dot"></span> 直连负责人：{_esc(person)}</span>')
+    if telephone:
+        meta_parts.append(f"<span>电话：{_esc(telephone)}</span>")
+    if wechat:
+        meta_parts.append(f"<span>微信：{_esc(wechat)}</span>")
+    meta_html = f'<div class="saas-cta-meta">{"<span>·</span>".join(meta_parts)}</div>' if meta_parts else ""
+
+    side_parts: List[str] = []
+    if qr_rel:
+        alt_label = f"{person or brand}微信二维码"
+        side_parts.append(
+            f'<div class="saas-qr-box"><img src="{_esc(qr_rel)}" alt="{_esc(alt_label)}" class="saas-qr-img"></div>'
+        )
+    if telephone:
+        side_parts.append(f'<a href="tel:{_esc(telephone)}" class="saas-cta-btn">一键拨打咨询：{_esc(telephone)}</a>')
+    if wechat:
+        side_parts.append(f'<div class="saas-cta-wechat-hint">微信号：{_esc(wechat)}</div>')
+    elif qr_rel:
+        side_parts.append('<div class="saas-cta-wechat-hint">微信扫码直接沟通</div>')
+    side_html = f'<div class="saas-cta-side">{"".join(side_parts)}</div>' if side_parts else ""
+
+    return (
+        '<section id="contact-cta" class="saas-cta-wrap">'
+        '<div class="geo-container"><div class="saas-cta-card">'
+        '<div class="saas-cta-glow-tr"></div><div class="saas-cta-glow-bl"></div>'
+        '<div class="saas-cta-grid">'
+        f'<div><p class="saas-cta-eyebrow">Get Started</p><h2 class="saas-cta-title">{title}</h2>'
+        f'<p class="saas-cta-desc">{desc}</p>{meta_html}</div>'
+        f"{side_html}</div></div></div></section>"
+    )
+
+
+def _render_footer_slots(cfg: dict, logo_rel: str, qr_rel: str = "") -> Dict[str, str]:
+    brand = str(cfg.get("brand_name") or cfg.get("company_name") or "").strip()
+    person = str(cfg.get("contact_person") or cfg.get("founder") or "").strip()
     founder_title = str(cfg.get("founder_title") or "").strip()
     telephone = str(cfg.get("telephone") or "").strip()
     wechat = str(cfg.get("wechat") or "").strip()
@@ -540,9 +601,9 @@ def _render_footer_slots(cfg: dict, logo_rel: str) -> Dict[str, str]:
         else ""
     )
     lines: List[str] = []
-    if founder:
-        f_label = f"{founder}（{founder_title}）" if founder_title else founder
-        lines.append(f"<div>联系人：{_esc(f_label)}</div>")
+    if person:
+        p_label = f"{person}（{founder_title}）" if founder_title else person
+        lines.append(f"<div>联系人：{_esc(p_label)}</div>")
     if telephone:
         lines.append(f'<div>电话：<a href="tel:{_esc(telephone)}">{_esc(telephone)}</a></div>')
     if wechat:
@@ -552,10 +613,18 @@ def _render_footer_slots(cfg: dict, logo_rel: str) -> Dict[str, str]:
     elif area:
         lines.append(f"<div>服务区域：{_esc(area)}</div>")
 
+    if person:
+        contact_link = f'<a href="#contact-cta">联系{_esc(person)}</a><span class="saas-dot">·</span>'
+    elif telephone or wechat or qr_rel:
+        contact_link = '<a href="#contact-cta">联系我们</a><span class="saas-dot">·</span>'
+    else:
+        contact_link = ""
+
     footer_contact = f'<div class="saas-footer-contact">{"".join(lines)}</div>' if lines else ""
     return {
         "FOOTER_LOGO_HTML": footer_logo,
         "FOOTER_CONTACT_HTML": footer_contact,
+        "FOOTER_CONTACT_LINK_HTML": contact_link,
         "FOOTER_YEAR": time.strftime("%Y"),
     }
 
@@ -565,6 +634,7 @@ def build_turnkey_site_html(
     json_ld_str: str,
     canonical_url: str = "",
     logo_rel: str = "",
+    qr_rel: str = "",
     template_path: str = "",
 ) -> str:
     tmpl_file = template_path or MASTER_TEMPLATE_PATH
@@ -594,9 +664,10 @@ def build_turnkey_site_html(
         "SERVICES_SECTION_HTML": _render_services_section(_normalize_business_items(cfg.get("core_business"))),
         "DIFFERENCES_SECTION_HTML": _render_differences_section(_normalize_difference_items(cfg)),
         "FAQ_SECTION_HTML": _render_faq_section(_normalize_faq_items(cfg.get("faqs"))),
+        "CTA_SECTION_HTML": _render_cta_section(cfg, qr_rel),
     }
     slots.update(_render_header_and_hero_slots(cfg, logo_rel))
-    slots.update(_render_footer_slots(cfg, logo_rel))
+    slots.update(_render_footer_slots(cfg, logo_rel, qr_rel=qr_rel))
 
     for key, val in slots.items():
         html_out = html_out.replace("{{" + key + "}}", val)
@@ -681,7 +752,7 @@ def _check_narrative_warnings(cfg: dict) -> None:
 
 
 def _compile_site_files(
-    cfg: dict, out_dir: str, site_dir: str, canonical_url: str, logo_rel: str, is_custom: bool
+    cfg: dict, out_dir: str, site_dir: str, canonical_url: str, logo_rel: str, qr_rel: str, is_custom: bool
 ) -> None:
     llms_txt = build_llms_txt(cfg, canonical_url=canonical_url)
     _write_site_and_root(out_dir, site_dir, "llms.txt", llms_txt, is_custom=is_custom)
@@ -705,7 +776,9 @@ def _compile_site_files(
     if is_custom and os.path.exists(site_index):
         _log("[PROTECTED] custom_site=true，跳过覆盖已存在的 outputs/site/index.html 与定制子目录")
     else:
-        site_html = build_turnkey_site_html(cfg, json_ld, canonical_url=canonical_url, logo_rel=logo_rel)
+        site_html = build_turnkey_site_html(
+            cfg, json_ld, canonical_url=canonical_url, logo_rel=logo_rel, qr_rel=qr_rel
+        )
         _write_site_and_root(out_dir, site_dir, "index.html", site_html, is_custom=is_custom)
 
 
@@ -725,8 +798,12 @@ def run_scaffold(
     _check_narrative_warnings(cfg)
     is_custom = coerce_bool(cfg.get("custom_site", False))
     canonical_url = _resolve_canonical_url(pid, cfg)
-    logo_rel = "" if is_custom else _resolve_safe_logo(cfg, cfg["_project_dir"], site_dir)
-    _compile_site_files(cfg, out_dir, site_dir, canonical_url, logo_rel, is_custom)
+
+    raw_logo = str(cfg.get("logo_file") or cfg.get("logo") or "").strip()
+    raw_qr = str(cfg.get("wechat_qr_file") or cfg.get("wechat_qr") or "").strip()
+    logo_rel = "" if is_custom else _resolve_safe_image_asset(pid, site_dir, raw_logo, "logo")
+    qr_rel = "" if is_custom else _resolve_safe_image_asset(pid, site_dir, raw_qr, "wechat-qr")
+    _compile_site_files(cfg, out_dir, site_dir, canonical_url, logo_rel, qr_rel, is_custom)
 
     if publish_preview is not None:
         set_preview_public(pid, publish_preview)

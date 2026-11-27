@@ -204,12 +204,12 @@ faqs:
             self.assertTrue(os.path.isfile(os.path.join(p_dir, "outputs", fname)), f"根 outputs 缺少双写 {fname}")
 
         self.assertFalse(res["preview_public"], "新编译站点默认必须关闭公网预览")
-        self.assertTrue(os.path.isfile(os.path.join(site_dir, "assets", "brand_logo.png")))
+        self.assertTrue(os.path.isfile(os.path.join(site_dir, "assets", "logo.png")))
 
         with open(os.path.join(site_dir, "index.html"), "r", encoding="utf-8") as f:
             html_text = f.read()
         _assert_valid_clean_html(self, html_text)
-        self.assertIn('src="assets/brand_logo.png"', html_text)
+        self.assertIn('src="assets/logo.png"', html_text)
         self.assertIn('rel="alternate" type="text/markdown"', html_text)
         self.assertIn('href="llms.txt"', html_text)
         self.assertIn('rel="sitemap" type="application/xml"', html_text)
@@ -218,7 +218,7 @@ faqs:
         self.assertIn("三万瓦超大幅面激光切割机", html_text)
         self.assertIn("整机床身高温退火去应力", html_text)
         self.assertIn("是否支持来料打样测试？", html_text)
-        for anchor in ("HEADER", "HERO", "SERVICES", "ADVANTAGES", "FAQ", "FOOTER"):
+        for anchor in ("HEADER", "HERO", "SERVICES", "ADVANTAGES", "FAQ", "CTA", "FOOTER"):
             self.assertIn(f"<!-- SAAS_SECTION:{anchor} -->", html_text)
             self.assertIn(f"<!-- /SAAS_SECTION:{anchor} -->", html_text)
 
@@ -501,6 +501,89 @@ keywords:
         for rejected in ("/_template", "/_template/", "/.published", "/.git/config"):
             self.assertIsNone(slash_re.match(rejected))
             self.assertIsNone(site_re.match(rejected))
+
+    def test_10_cta_contact_card_wechat_qr_whitelist_and_blank_rules(self):
+        """测试紫色 CTA 联系卡、微信二维码安全复制、越界二维码拒绝与全空隐藏规则（tasks.md 2.2）"""
+        # 场景 1：完整联系人 + 电话 + 微信号 + 合法二维码 -> 渲染完整紫色联系卡与页脚联系链接
+        pid_full = "cta_full_corp"
+        p_full = self._create_project(
+            pid_full,
+            '''client_id: "cta_full_corp"
+company_name: "常州精工传动设备有限公司"
+brand_name: "精工传动"
+contact_person: "陈工"
+telephone: "0519-88112233"
+wechat: "cz_jinggong"
+wechat_qr_file: "raw_materials/site_wechat_qr.jpg"
+''',
+        )
+        with open(os.path.join(p_full, "raw_materials", "site_wechat_qr.jpg"), "wb") as f:
+            f.write(b"\xff\xd8\xff\xe0fake_jpg_qr")
+
+        scaffold.run_scaffold(pid_full)
+        site_full = os.path.join(p_full, "outputs", "site")
+        self.assertTrue(os.path.isfile(os.path.join(site_full, "assets", "wechat-qr.jpg")))
+        with open(os.path.join(site_full, "index.html"), "r", encoding="utf-8") as f:
+            html_full = f.read()
+        _assert_valid_clean_html(self, html_full)
+        body_full = html_full.split("<body", 1)[1]
+        self.assertIn('id="contact-cta"', body_full)
+        self.assertIn("业务合作咨询，直接联系陈工", body_full)
+        self.assertIn('src="assets/wechat-qr.jpg"', body_full)
+        self.assertIn("saas-qr-box", body_full)
+        self.assertIn('href="tel:0519-88112233"', body_full)
+        self.assertIn("微信号：cz_jinggong", body_full)
+        self.assertIn('<a href="#contact-cta">联系陈工</a>', body_full)
+
+        # 场景 2：仅提供电话，且传入越界/非法后缀二维码路径 -> 拒绝复制越界文件，保留电话卡片但不渲染二维码框
+        outside_qr = os.path.join(self.tmp_root, "secret_qr.png")
+        with open(outside_qr, "wb") as f:
+            f.write(b"SECRET_QR")
+
+        pid_no_qr = "cta_no_qr_corp"
+        p_no_qr = self._create_project(
+            pid_no_qr,
+            '''client_id: "cta_no_qr_corp"
+company_name: "台州精密模具厂"
+contact_person: "林经理"
+telephone: "0576-88001122"
+''',
+        )
+        bad_txt = os.path.join(p_no_qr, "raw_materials", "fake_qr.txt")
+        with open(bad_txt, "w", encoding="utf-8") as f:
+            f.write("not an image")
+
+        for bad_qr in (outside_qr, "../../secret_qr.png", "raw_materials/fake_qr.txt", "/etc/passwd"):
+            with self.subTest(bad_qr=bad_qr):
+                scaffold.run_scaffold(pid_no_qr, overrides={"wechat_qr_file": bad_qr})
+                site_no_qr = os.path.join(p_no_qr, "outputs", "site")
+                with open(os.path.join(site_no_qr, "index.html"), "r", encoding="utf-8") as f:
+                    html_no_qr = f.read()
+                _assert_valid_clean_html(self, html_no_qr)
+                body_no_qr = html_no_qr.split("<body", 1)[1]
+                self.assertIn('id="contact-cta"', body_no_qr)
+                self.assertIn("林经理", body_no_qr)
+                self.assertNotIn("saas-qr-box", body_no_qr)
+                self.assertNotIn("<img", body_no_qr)
+                assets_no_qr = os.path.join(site_no_qr, "assets")
+                if os.path.isdir(assets_no_qr):
+                    self.assertEqual(os.listdir(assets_no_qr), [], f"越界二维码被非法复制: {bad_qr}")
+
+        # 场景 3：联系人、电话、微信与二维码全空 -> 整块隐藏 CTA 卡片与页脚联系链接
+        pid_empty = "cta_all_empty_corp"
+        p_empty = self._create_project(
+            pid_empty,
+            '''client_id: "cta_all_empty_corp"
+company_name: "纯展示新材料研究院"
+''',
+        )
+        scaffold.run_scaffold(pid_empty)
+        with open(os.path.join(p_empty, "outputs", "site", "index.html"), "r", encoding="utf-8") as f:
+            html_empty = f.read()
+        _assert_valid_clean_html(self, html_empty)
+        body_empty = html_empty.split("<body", 1)[1]
+        self.assertNotIn('id="contact-cta"', body_empty)
+        self.assertNotIn('href="#contact-cta"', body_empty)
 
 
 if __name__ == "__main__":

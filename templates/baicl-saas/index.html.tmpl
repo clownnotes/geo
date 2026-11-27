@@ -565,6 +565,177 @@
       margin: 1.25rem 0;
     }
 
+    /* 紫色渐变 CTA 联系卡片（复刻 www.baicl.cc） */
+    .saas-cta-wrap {
+      padding: 64px 0;
+      background-color: #ffffff;
+      border-top: 1px solid rgba(233, 213, 255, 0.85);
+      scroll-margin-top: 96px;
+    }
+
+    .saas-cta-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      padding: 40px 48px;
+      color: #ffffff;
+      background: linear-gradient(135deg, #581c87 0%, #6b21a8 52%, #1e1b4b 100%);
+      box-shadow: 0 24px 48px -14px rgba(88, 28, 135, 0.35);
+    }
+
+    .saas-cta-glow-tr {
+      position: absolute;
+      top: -64px;
+      right: -64px;
+      width: 280px;
+      height: 280px;
+      border-radius: 9999px;
+      background: rgba(168, 85, 247, 0.22);
+      filter: blur(48px);
+      pointer-events: none;
+    }
+
+    .saas-cta-glow-bl {
+      position: absolute;
+      bottom: -64px;
+      left: -64px;
+      width: 280px;
+      height: 280px;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.22);
+      filter: blur(48px);
+      pointer-events: none;
+    }
+
+    .saas-cta-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(220px, 1fr);
+      gap: 36px;
+      align-items: center;
+    }
+
+    .saas-cta-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--brand-300);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0 0 10px;
+    }
+
+    .saas-cta-title {
+      margin: 0 0 16px;
+      font-size: clamp(1.625rem, 3.2vw, 2.5rem);
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .saas-cta-desc {
+      margin: 0 0 24px;
+      font-size: 1.0625rem;
+      color: var(--brand-100);
+      line-height: 1.75;
+    }
+
+    .saas-cta-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--brand-200);
+    }
+
+    .saas-cta-meta-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 9999px;
+      background-color: #34d399;
+      flex-shrink: 0;
+    }
+
+    .saas-cta-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .saas-qr-box {
+      width: 176px;
+      height: 176px;
+      background-color: #ffffff;
+      padding: 12px;
+      border-radius: 16px;
+      border: 2px solid rgba(192, 132, 252, 0.5);
+      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.25);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .saas-qr-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .saas-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 260px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      background-color: #ffffff;
+      color: var(--brand-900);
+      font-size: 0.9375rem;
+      font-weight: 900;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .saas-cta-btn:hover {
+      background-color: var(--brand-50);
+      transform: translateY(-1px);
+    }
+
+    .saas-cta-wechat-hint {
+      margin-top: 10px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--brand-300);
+    }
+
+    @media (max-width: 768px) {
+      .saas-cta-wrap {
+        padding: 44px 0;
+      }
+      .saas-cta-card {
+        padding: 28px 22px;
+        border-radius: 20px;
+      }
+      .saas-cta-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+      }
+      .saas-cta-side {
+        align-items: flex-start;
+        text-align: left;
+      }
+      .saas-cta-btn {
+        max-width: none;
+      }
+    }
+
     /* 页脚 */
     .saas-footer {
       border-top: 1px solid var(--slate-200);
@@ -676,6 +847,10 @@
     <!-- SAAS_SECTION:FAQ -->
     {{FAQ_SECTION_HTML}}
     <!-- /SAAS_SECTION:FAQ -->
+
+    <!-- SAAS_SECTION:CTA -->
+    {{CTA_SECTION_HTML}}
+    <!-- /SAAS_SECTION:CTA -->
   </main>
 
   <!-- SAAS_SECTION:FOOTER -->
@@ -690,7 +865,7 @@
       </div>
       <div class="saas-footer-meta">
         <div class="saas-footer-links">
-          <a href="llms.txt">llms.txt</a>
+          {{FOOTER_CONTACT_LINK_HTML}}<a href="llms.txt">llms.txt</a>
           <span class="saas-dot">·</span>
           <a href="sitemap.xml">sitemap.xml</a>
         </div>
